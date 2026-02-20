@@ -3,8 +3,6 @@ import AppIntents
 import UIKit
 #endif
 
-// MARK: - App Intents
-
 @available(iOS 16.0, *)
 struct ContinueReadingIntent: AppIntent {
     static var title: LocalizedStringResource = "Continue Reading"
@@ -46,8 +44,6 @@ struct AddBookIntent: AppIntent {
         return .result()
     }
 }
-
-// MARK: - App Shortcuts Provider
 
 @available(iOS 16.0, *)
 struct BookgolasShortcuts: AppShortcutsProvider {
