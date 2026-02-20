@@ -124,6 +124,21 @@ class AuthService {
     }
   }
 
+  Future<bool> updatePassword(String newPassword) async {
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+      return true;
+    } on AuthException catch (e) {
+      debugPrint('비밀번호 변경 오류: $e');
+      return false;
+    } catch (e) {
+      debugPrint('비밀번호 변경 오류: $e');
+      return false;
+    }
+  }
+
   Future<String?> resendVerificationEmail(String email) async {
     try {
       await _supabase.auth.resend(

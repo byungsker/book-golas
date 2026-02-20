@@ -1383,5 +1383,59 @@
               "bookInfoIsbn": "ISBN",
               "bookInfoPageCount": "Pages",
               "bookInfoGenre": "Genre",
-              "bookInfoViewInBookstore": "View in Bookstore"
+              "bookInfoViewInBookstore": "View in Bookstore",
+
+           "myPageAccountSection": "Account",
+           "@myPageAccountSection": {"description": "Account section in my page"},
+
+           "myPageAnnouncements": "Announcements",
+           "@myPageAnnouncements": {"description": "Announcements in my page"},
+
+           "myPageChangePassword": "Change Password",
+           "@myPageChangePassword": {"description": "Change password in my page"},
+
+           "myPageChangePasswordTitle": "Change Password",
+           "@myPageChangePasswordTitle": {"description": "Change password screen title"},
+
+           "myPageConfirmPassword": "Confirm Password",
+           "@myPageConfirmPassword": {"description": "Confirm password field"},
+
+           "myPageInfoSection": "Info",
+           "@myPageInfoSection": {"description": "Info section in my page"},
+
+           "myPageLogoutAndDelete": "Logout | Delete Account",
+           "@myPageLogoutAndDelete": {"description": "Logout and delete account in my page"},
+
+           "myPageNewPassword": "New Password",
+           "@myPageNewPassword": {"description": "New password field"},
+
+           "myPageNotificationAnnouncements": "Announcements",
+           "@myPageNotificationAnnouncements": {"description": "Announcements notification setting"},
+
+           "myPageNotificationCategories": "Notification Settings",
+           "@myPageNotificationCategories": {"description": "Notification categories in my page"},
+
+           "myPageNotificationDailyReminder": "Daily Reading Reminder",
+           "@myPageNotificationDailyReminder": {"description": "Daily reading reminder notification"},
+
+           "myPageNotificationGoalAchievement": "Reading Goal Achievement",
+           "@myPageNotificationGoalAchievement": {"description": "Reading goal achievement notification"},
+
+           "myPagePasswordChanged": "Password changed successfully",
+           "@myPagePasswordChanged": {"description": "Password changed success message"},
+
+           "myPagePasswordChangeFailed": "Failed to change password",
+           "@myPagePasswordChangeFailed": {"description": "Password change failed message"},
+
+           "myPagePasswordMismatch": "Passwords do not match",
+           "@myPagePasswordMismatch": {"description": "Password mismatch error"},
+
+           "myPagePasswordTooShort": "Password must be at least 6 characters",
+           "@myPagePasswordTooShort": {"description": "Password too short error"},
+
+           "myPageTermsAndPolicy": "Terms & Policy",
+           "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
+
+           "myPageVersion": "Version",
+           "@myPageVersion": {"description": "Version in my page"}
 }
