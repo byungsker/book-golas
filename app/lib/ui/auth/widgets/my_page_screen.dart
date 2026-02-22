@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
@@ -22,6 +23,7 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 import 'login_screen.dart';
+import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
@@ -999,6 +1001,134 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
+  Widget _buildInfoCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.myPageInfoSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.description,
+            title: AppLocalizations.of(context)!.myPageTermsAndPolicy,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context)!.myPageTermsAndPolicy,
+                    url: 'https://placeholder.com/terms',
+                  ),
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.campaign,
+            title: AppLocalizations.of(context)!.myPageAnnouncements,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context)!.myPageAnnouncements,
+                    url: 'https://placeholder.com/announcements',
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: textColor.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: textColor,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: textColor.withValues(alpha: 0.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersionInfo(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        return Text(
+          '${AppLocalizations.of(context)!.myPageVersion} ${snapshot.data!.version}',
+          style: TextStyle(
+            fontSize: 12,
+            color: textColor.withValues(alpha: 0.3),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildDangerZoneCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
@@ -1088,7 +1218,11 @@ class _MyPageContentState extends State<_MyPageContent> {
               const SizedBox(height: 24),
               _buildSettingsCard(context),
               const SizedBox(height: 24),
+              _buildInfoCard(context),
+              const SizedBox(height: 24),
               _buildDangerZoneCard(context),
+              const SizedBox(height: 8),
+              _buildVersionInfo(context),
               const SizedBox(height: 80),
             ],
           ),
