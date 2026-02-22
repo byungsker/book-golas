@@ -803,12 +803,28 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          Divider(
-            height: 32,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.myPageNotificationCategories,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
+          const SizedBox(height: 20),
           Consumer<NotificationSettingsViewModel>(
             builder: (context, settingsViewModel, child) {
               final settings = settingsViewModel.settings;
@@ -867,7 +883,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      '알림 설정 변경에 실패했습니다',
+                                      AppLocalizations.of(context)!.myPageNotificationChangeFailed,
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -951,29 +967,6 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          const SizedBox(height: 16),
-          Consumer<SubscriptionViewModel>(
-            builder: (context, subscriptionVm, child) {
-              return BLabButton(
-                text: subscriptionVm.isProUser
-                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
-                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
-                icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
-                variant: BLabButtonVariant.secondary,
-                isFullWidth: true,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SubscriptionScreen(
-                        onClose: () => Navigator.pop(context),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
           if (kDebugMode) ...[
             const SizedBox(height: 20),
             BLabButton(
@@ -997,6 +990,72 @@ class _MyPageContentState extends State<_MyPageContent> {
               },
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.myPageAccountSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSettingRow(
+            context: context,
+            icon: Icons.lock,
+            title: AppLocalizations.of(context)!.myPageChangePassword,
+            trailing: GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _showPasswordChangeSheet();
+              },
+              child: Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<SubscriptionViewModel>(
+            builder: (context, subscriptionVm, child) {
+              return BLabButton(
+                text: subscriptionVm.isProUser
+                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
+                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
+                variant: BLabButtonVariant.secondary,
+                isFullWidth: true,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SubscriptionScreen(
+                        onClose: () => Navigator.pop(context),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
     );
@@ -1392,11 +1451,15 @@ class _MyPageContentState extends State<_MyPageContent> {
           child: Column(
             children: [
               _buildProfileCard(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _buildSettingsCard(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              _buildNotificationCard(context),
+              const SizedBox(height: 16),
+              _buildAccountCard(context),
+              const SizedBox(height: 16),
               _buildInfoCard(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               _buildDangerZoneCard(context),
               const SizedBox(height: 8),
               _buildVersionInfo(context),
