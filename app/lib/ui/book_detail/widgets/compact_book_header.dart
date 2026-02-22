@@ -72,15 +72,15 @@ class CompactBookHeader extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           CupertinoIcons.info_circle,
                           size: 14,
                           color: BLabColors.primary,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          AppLocalizations.of(context)!.bookInfoViewButton,
-                          style: TextStyle(
+                          AppLocalizations.of(context).bookInfoViewButton,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: BLabColors.primary,
                             fontWeight: FontWeight.w500,
@@ -215,7 +215,7 @@ class CompactBookHeader extends StatelessWidget {
   }
 
   ({String label, Color color}) _getStatusInfo(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (isCompleted) {
       return (label: l10n.statusCompleted, color: BLabColors.success);

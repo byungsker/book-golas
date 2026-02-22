@@ -105,7 +105,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       height: 200,
       child: Center(
@@ -141,7 +141,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   Widget _buildToolbar(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
       child: Row(
@@ -165,7 +165,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   Widget _buildSortButton(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return PopupMenuButton<String>(
       onSelected: widget.onSortModeChanged,
       itemBuilder: (context) => [
@@ -224,7 +224,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   Widget _buildActionButtons(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         if (widget.isSelectionMode && widget.selectedImageIds.isNotEmpty)
@@ -323,7 +323,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (hasImageUrl) _buildThumbnail(imageId, imageUrl!, isDark),
+                if (hasImageUrl) _buildThumbnail(imageId, imageUrl, isDark),
                 _buildTextContent(
                   previewText: previewText,
                   pageNumber: pageNumber,

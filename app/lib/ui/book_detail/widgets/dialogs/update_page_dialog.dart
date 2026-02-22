@@ -24,7 +24,7 @@ class UpdatePageDialog {
     bool isValid = false;
 
     String? validatePage(BuildContext context, String value) {
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = AppLocalizations.of(context);
       if (value.isEmpty) {
         return null;
       }
@@ -70,7 +70,7 @@ class UpdatePageDialog {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.updatePageTitle,
+                    AppLocalizations.of(context).updatePageTitle,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -81,7 +81,7 @@ class UpdatePageDialog {
                   Row(
                     children: [
                       Text(
-                        AppLocalizations.of(context)!
+                        AppLocalizations.of(context)
                             .currentPageLabel(currentPage),
                         style: const TextStyle(
                           fontSize: 14,
@@ -90,7 +90,7 @@ class UpdatePageDialog {
                         ),
                       ),
                       Text(
-                        AppLocalizations.of(context)!
+                        AppLocalizations.of(context)
                             .totalPageLabel(totalPages),
                         style: TextStyle(
                           fontSize: 14,
@@ -111,7 +111,7 @@ class UpdatePageDialog {
                       });
                     },
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.newPageNumber,
+                      labelText: AppLocalizations.of(context).newPageNumber,
                       hintText: '${currentPage + 1} ~ $totalPages',
                       errorText: errorText,
                       border: OutlineInputBorder(
@@ -152,7 +152,7 @@ class UpdatePageDialog {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child:
-                              Text(AppLocalizations.of(context)!.commonCancel),
+                              Text(AppLocalizations.of(context).commonCancel),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -176,7 +176,7 @@ class UpdatePageDialog {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.updateButton,
+                            AppLocalizations.of(context).updateButton,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: isValid

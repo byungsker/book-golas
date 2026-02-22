@@ -86,7 +86,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 const SizedBox(height: 20),
                 Center(
                   child: Text(
-                    AppLocalizations.of(context)!.editReadingPlanTitle,
+                    AppLocalizations.of(context).editReadingPlanTitle,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -104,7 +104,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  AppLocalizations.of(context)!.editPlannedStartDate,
+                  AppLocalizations.of(context).editPlannedStartDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -146,7 +146,7 @@ class _EditPlannedBookDialogState extends State<EditPlannedBookDialog> {
                           ),
                         ),
                         child: Text(
-                          AppLocalizations.of(context)!.commonCancel,
+                          AppLocalizations.of(context).commonCancel,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/data/services/note_structure_service.dart';
-import 'package:book_golas/domain/models/note_structure_models.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 

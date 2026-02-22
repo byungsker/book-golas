@@ -409,7 +409,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               ),
             ),
             Text(
-              AppLocalizations.of(context)!.resetConfirmMessage,
+              AppLocalizations.of(context).resetConfirmMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -431,7 +431,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.commonCancel,
+                          AppLocalizations.of(context).commonCancel,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -457,7 +457,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.resetButton,
+                          AppLocalizations.of(context).resetButton,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -511,7 +511,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
           ),
           Text(
-            AppLocalizations.of(context)!.addRecordTitle,
+            AppLocalizations.of(context).addRecordTitle,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -524,7 +524,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     child: Text(
-                      AppLocalizations.of(context)!.resetButton,
+                      AppLocalizations.of(context).resetButton,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -712,9 +712,9 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     const SizedBox(width: 4),
                     Text(
                       _highlights.isNotEmpty
-                          ? AppLocalizations.of(context)!
+                          ? AppLocalizations.of(context)
                               .highlightWithCount(_highlights.length)
-                          : AppLocalizations.of(context)!.highlightLabel,
+                          : AppLocalizations.of(context).highlightLabel,
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
@@ -745,7 +745,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.extractTextButton,
+                      AppLocalizations.of(context).extractTextButton,
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
@@ -797,7 +797,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.replaceButton,
+                      AppLocalizations.of(context).replaceButton,
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ],
@@ -841,7 +841,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.tapToAddImage,
+              AppLocalizations.of(context).tapToAddImage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -849,7 +849,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(height: 4),
             Text(
-              AppLocalizations.of(context)!.optionalLabel,
+              AppLocalizations.of(context).optionalLabel,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -876,7 +876,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.recallPage,
+              AppLocalizations.of(context).recallPage,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -955,7 +955,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
     showFullTextViewModal(
       context: context,
       initialText: _textController.text,
-      hintText: AppLocalizations.of(context)!.recordHint,
+      hintText: AppLocalizations.of(context).recordHint,
       startInEditMode: true,
     ).then((modifiedText) {
       if (!mounted) return;
@@ -981,7 +981,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.recordTextLabel,
+              AppLocalizations.of(context).recordTextLabel,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1012,7 +1012,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.viewFullButton,
+                      AppLocalizations.of(context).viewFullButton,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -1037,7 +1037,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                   Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
                   const SizedBox(width: 4),
                   Text(
-                    AppLocalizations.of(context)!.clearAllButton,
+                    AppLocalizations.of(context).clearAllButton,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -1081,7 +1081,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           color: isDark ? Colors.white : Colors.black,
         ),
         decoration: InputDecoration(
-          hintText: AppLocalizations.of(context)!.recordHint,
+          hintText: AppLocalizations.of(context).recordHint,
           hintStyle: TextStyle(
             color: isDark ? Colors.grey[600] : Colors.grey[400],
           ),
@@ -1130,7 +1130,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
                 color: isDark ? Colors.white : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.recordHint,
+                hintText: AppLocalizations.of(context).recordHint,
                 hintStyle: TextStyle(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
@@ -1170,7 +1170,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           ),
           child: Center(
             child: Text(
-              AppLocalizations.of(context)!.uploadButton,
+              AppLocalizations.of(context).uploadButton,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1249,7 +1249,7 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
               const CircularProgressIndicator(color: BLabColors.primary),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.uploading,
+                AppLocalizations.of(context).uploading,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,

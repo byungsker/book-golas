@@ -97,7 +97,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     Clipboard.setData(ClipboardData(text: answer));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallTextCopied,
+      message: AppLocalizations.of(context).recallTextCopied,
       type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
@@ -191,7 +191,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                AppLocalizations.of(context)!
+                                AppLocalizations.of(context)
                                     .recallSearchMyRecords,
                                 style: TextStyle(
                                   fontSize: 20,
@@ -368,7 +368,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
             const CircularProgressIndicator(color: BLabColors.primary),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.recallSearchingYourRecords,
+              AppLocalizations.of(context).recallSearchingYourRecords,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -434,7 +434,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              AppLocalizations.of(context)!.recallRecentSearches,
+              AppLocalizations.of(context).recallRecentSearches,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -535,7 +535,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (diff.inMinutes < 1) return l10n.recallJustNow;
     if (diff.inHours < 1) return l10n.recallMinutesAgo(diff.inMinutes);
@@ -545,7 +545,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   }
 
   Widget _buildSuggestedQuestions(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final suggestions = [
       l10n.recallSuggestedQuestion1,
       l10n.recallSuggestedQuestion2,
@@ -602,7 +602,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.recallSearchCurious,
+            AppLocalizations.of(context).recallSearchCurious,
             style: TextStyle(
               fontSize: 16,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -610,7 +610,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.recallFindInRecords,
+            AppLocalizations.of(context).recallFindInRecords,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -642,7 +642,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                       color: BLabColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    AppLocalizations.of(context)!.recallAiAnswer,
+                    AppLocalizations.of(context).recallAiAnswer,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black,
@@ -670,7 +670,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            AppLocalizations.of(context)!.recallCopy,
+                            AppLocalizations.of(context).recallCopy,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -698,7 +698,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         if (result.sources.isNotEmpty) ...[
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.recallRelatedRecords,
+            AppLocalizations.of(context).recallRelatedRecords,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -775,7 +775,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 const Spacer(),
                 if (source.pageNumber != null)
                   Text(
-                    '${source.pageNumber} ${AppLocalizations.of(context)!.recallPage}',
+                    '${source.pageNumber} ${AppLocalizations.of(context).recallPage}',
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],

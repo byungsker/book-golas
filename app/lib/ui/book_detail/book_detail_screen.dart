@@ -297,7 +297,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
-                    AppLocalizations.of(context)!.bookDetailTabDetail,
+                    AppLocalizations.of(context).bookDetailTabDetail,
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
                       fontWeight: FontWeight.w600,
@@ -395,21 +395,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             tabController: _tabController!,
                             tabLabels: _isBookCompleted(book)
                                 ? [
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabRecord,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabHistory,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabReview,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabDetail,
                                   ]
                                 : [
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabRecord,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabHistory,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabDetail,
                                   ],
                           ),
@@ -739,7 +739,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.bookDetailLater,
+                          AppLocalizations.of(context).bookDetailLater,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -766,7 +766,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.bookDetailTabReview,
+                          AppLocalizations.of(context).bookDetailTabReview,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1663,7 +1663,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.account_tree_outlined,
               size: 18,
               color: BLabColors.primary,

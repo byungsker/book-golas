@@ -61,7 +61,7 @@ class DailyTargetDialog {
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
         List<String> getWeekdayLabels(BuildContext context) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           return [
             l10n.weekdayMon,
             l10n.weekdayTue,
@@ -239,7 +239,7 @@ class DailyTargetDialog {
                                               ),
                                               const SizedBox(height: 16),
                                               Text(
-                                                AppLocalizations.of(context)!
+                                                AppLocalizations.of(context)
                                                     .expectedSchedule,
                                                 style: TextStyle(
                                                   fontSize: 16,
@@ -325,7 +325,7 @@ class DailyTargetDialog {
     required int pagesLeft,
     required int daysLeft,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
@@ -453,7 +453,7 @@ class DailyTargetDialog {
                             if (isSelected)
                               Builder(
                                 builder: (context) => Text(
-                                  AppLocalizations.of(context)!.pagesPerDay,
+                                  AppLocalizations.of(context).pagesPerDay,
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: isDark
@@ -628,7 +628,7 @@ class DailyTargetDialog {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text(AppLocalizations.of(context)!.commonCancel),
+              child: Text(AppLocalizations.of(context).commonCancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -637,7 +637,7 @@ class DailyTargetDialog {
             child: ElevatedButton(
               onPressed: () async {
                 // book id 확인
-                final l10n = AppLocalizations.of(context)!;
+                final l10n = AppLocalizations.of(context);
                 final bookId = book.id;
                 if (bookId == null) {
                   Navigator.pop(context);
@@ -684,7 +684,7 @@ class DailyTargetDialog {
                 ),
               ),
               child: Text(
-                AppLocalizations.of(context)!.commonChange,
+                AppLocalizations.of(context).commonChange,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

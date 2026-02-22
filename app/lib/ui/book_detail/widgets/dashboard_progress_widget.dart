@@ -122,7 +122,7 @@ class DashboardProgressWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  AppLocalizations.of(context)!.pagesRemaining(pagesLeft),
+                  AppLocalizations.of(context).pagesRemaining(pagesLeft),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -160,7 +160,7 @@ class DashboardProgressWidget extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    AppLocalizations.of(context)!
+                    AppLocalizations.of(context)
                         .todayGoalWithPages(dailyTarget),
                     style: const TextStyle(
                       fontSize: 14,
@@ -198,7 +198,7 @@ class DashboardProgressWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  AppLocalizations.of(context)!.bookDetailGoalAchieved,
+                  AppLocalizations.of(context).bookDetailGoalAchieved,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

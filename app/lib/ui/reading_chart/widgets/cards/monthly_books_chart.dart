@@ -72,7 +72,7 @@ class MonthlyBooksChart extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  AppLocalizations.of(context)!.chartMonthlyBooksTitle(year),
+                  AppLocalizations.of(context).chartMonthlyBooksTitle(year),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -87,18 +87,18 @@ class MonthlyBooksChart extends StatelessWidget {
               children: [
                 _buildStatColumn(
                   label:
-                      AppLocalizations.of(context)!.chartMonthlyBooksThisMonth,
+                      AppLocalizations.of(context).chartMonthlyBooksThisMonth,
                   value: formatBooksCount(thisMonth, context),
                   isDark: isDark,
                 ),
                 _buildStatColumn(
                   label:
-                      AppLocalizations.of(context)!.chartMonthlyBooksLastMonth,
+                      AppLocalizations.of(context).chartMonthlyBooksLastMonth,
                   value: formatBooksCount(lastMonth, context),
                   isDark: isDark,
                 ),
                 _buildStatColumn(
-                  label: AppLocalizations.of(context)!.chartMonthlyBooksChange,
+                  label: AppLocalizations.of(context).chartMonthlyBooksChange,
                   value: diff >= 0 ? '+$diffPercent%' : '$diffPercent%',
                   isDark: isDark,
                   valueColor:
@@ -120,7 +120,7 @@ class MonthlyBooksChart extends StatelessWidget {
                           isDark ? Colors.grey[800]! : Colors.grey[200]!,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
-                          AppLocalizations.of(context)!
+                          AppLocalizations.of(context)
                               .chartMonthlyBooksTooltip(
                                   groupIndex + 1, rod.toY.toInt()),
                           TextStyle(

@@ -141,7 +141,7 @@ class _LocaleTimePickerState extends State<LocaleTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     _amPmLabels = [l10n.timeAm, l10n.timePm];
 
     return Row(

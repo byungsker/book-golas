@@ -259,7 +259,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     int? closestIndex;
     double closestDistance = double.infinity;
-    final screenCenter = 300.0;
+    const screenCenter = 300.0;
 
     for (int i = 0; i < _sectionKeys.length; i++) {
       final context = _sectionKeys[i].currentContext;
@@ -334,7 +334,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   String _getFilterLabel(TimeFilter filter) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     switch (filter) {
       case TimeFilter.daily:
         return l10n.chartPeriodDaily;
@@ -368,7 +368,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         backgroundColor:
             isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
         elevation: 0,
-        title: Text(AppLocalizations.of(context)!.chartTitle),
+        title: Text(AppLocalizations.of(context).chartTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
@@ -378,9 +378,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         bottom: LiquidGlassTabBar(
           controller: _tabController,
           tabs: [
-            AppLocalizations.of(context)!.chartTabOverview,
-            AppLocalizations.of(context)!.chartTabAnalysis,
-            AppLocalizations.of(context)!.chartTabActivity,
+            AppLocalizations.of(context).chartTabOverview,
+            AppLocalizations.of(context).chartTabAnalysis,
+            AppLocalizations.of(context).chartTabActivity,
           ],
         ),
       ),
@@ -407,14 +407,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.chartErrorLoadFailed,
+                AppLocalizations.of(context).chartErrorLoadFailed,
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                   onPressed: () =>
                       context.read<ReadingChartViewModel>().loadData(),
-                  child: Text(AppLocalizations.of(context)!.chartErrorRetry)),
+                  child: Text(AppLocalizations.of(context).chartErrorRetry)),
             ],
           ),
         ),
@@ -477,7 +477,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     Map<String, dynamic> stats,
     int streak,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final genreMessage = _progressService.getTopGenreMessage(
       vm.genreDistribution,
       l10n,
@@ -573,7 +573,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.chartReadingStats,
+                          AppLocalizations.of(context).chartReadingStats,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -590,43 +590,43 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           childAspectRatio: 1.3,
                           children: [
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartTotalPages,
+                              AppLocalizations.of(context).chartTotalPages,
                               '${stats['total_pages']}p',
                               Icons.menu_book_rounded,
                               BLabColors.primary,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartDailyAvgPages,
+                              AppLocalizations.of(context).chartDailyAvgPages,
                               '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
                               Icons.calendar_today_rounded,
                               BLabColors.success,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartMaxDaily,
+                              AppLocalizations.of(context).chartMaxDaily,
                               '${stats['max_daily']}p',
                               Icons.trending_up_rounded,
                               BLabColors.warningAlt,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!
+                              AppLocalizations.of(context)
                                   .chartConsecutiveDays,
-                              '$streak${AppLocalizations.of(context)!.unitDay}',
+                              '$streak${AppLocalizations.of(context).unitDay}',
                               Icons.local_fire_department_rounded,
                               BLabColors.destructive,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartMinDaily,
+                              AppLocalizations.of(context).chartMinDaily,
                               '${stats['min_daily']}p',
                               Icons.trending_down_rounded,
                               BLabColors.info,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartTodayGoal,
+                              AppLocalizations.of(context).chartTodayGoal,
                               '${(vm.goalRate * 100).toStringAsFixed(0)}%',
                               Icons.flag_rounded,
                               BLabColors.info,
@@ -667,7 +667,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           _buildReadingProgressChart(isDark, aggregated),
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.chartDailyPages,
+            AppLocalizations.of(context).chartDailyPages,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -725,7 +725,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${date.year}${AppLocalizations.of(context)!.unitYear} ${date.month}${AppLocalizations.of(context)!.unitMonth} ${date.day}${AppLocalizations.of(context)!.unitDay}',
+                              '${date.year}${AppLocalizations.of(context).unitYear} ${date.month}${AppLocalizations.of(context).unitMonth} ${date.day}${AppLocalizations.of(context).unitDay}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -734,7 +734,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${AppLocalizations.of(context)!.chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context)!.chartDailyReadPages}',
+                              '${AppLocalizations.of(context).chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context).chartDailyReadPages}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
@@ -770,7 +770,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ],
                           ),
                           Text(
-                            AppLocalizations.of(context)!.chartDailyReadPages,
+                            AppLocalizations.of(context).chartDailyReadPages,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -809,7 +809,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.chartReadingProgress,
+                AppLocalizations.of(context).chartReadingProgress,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -882,7 +882,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                AppLocalizations.of(context)!.chartDailyPages,
+                AppLocalizations.of(context).chartDailyPages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -899,7 +899,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                AppLocalizations.of(context)!.chartCumulativePages,
+                AppLocalizations.of(context).chartCumulativePages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -918,7 +918,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
-                      AppLocalizations.of(context)!.chartNoData,
+                      AppLocalizations.of(context).chartNoData,
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
@@ -948,7 +948,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             Icon(Icons.list_alt, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.chartNoReadingRecords,
+              AppLocalizations.of(context).chartNoReadingRecords,
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
@@ -1122,7 +1122,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           final cumulativePage =
                               aggregated[idx]['cumulative_page'] as int;
                           return LineTooltipItem(
-                            '${AppLocalizations.of(context)!.chartDailyPages}: ${dailyPage}p\n${AppLocalizations.of(context)!.chartCumulativePages}: ${cumulativePage}p',
+                            '${AppLocalizations.of(context).chartDailyPages}: ${dailyPage}p\n${AppLocalizations.of(context).chartCumulativePages}: ${cumulativePage}p',
                             const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

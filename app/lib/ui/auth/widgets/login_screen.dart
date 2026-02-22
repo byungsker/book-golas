@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
           if (error != null) {
             if (mounted) {
-              final l10n = AppLocalizations.of(context)!;
+              final l10n = AppLocalizations.of(context);
               CustomSnackbar.show(
                 context,
                 message: _getAuthErrorMessage(error, l10n),
@@ -201,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
         case AuthMode.forgotPassword:
           await supabase.auth.resetPasswordForEmail(email);
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
               context,
               message: l10n.loginResetPasswordSuccess,
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _unconfirmedEmail = _emailController.text.trim();
           });
         }
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: _getAuthErrorMessage(e.message, l10n),
@@ -246,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: l10n.loginUnexpectedError,
@@ -288,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _unconfirmedEmail!,
       );
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: l10n.loginResendVerificationSuccess,
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: l10n.loginUnexpectedError,
@@ -416,7 +416,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.of(context)!.loginAppName,
+          AppLocalizations.of(context).loginAppName,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -426,7 +426,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          _getDescriptionText(AppLocalizations.of(context)!),
+          _getDescriptionText(AppLocalizations.of(context)),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -497,8 +497,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     fieldKey: _emailFieldKey,
                     focusNode: _emailFocusNode,
-                    label: AppLocalizations.of(context)!.loginEmailLabel,
-                    hint: AppLocalizations.of(context)!.loginEmailHint,
+                    label: AppLocalizations.of(context).loginEmailLabel,
+                    hint: AppLocalizations.of(context).loginEmailHint,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     isDark: isDark,
@@ -514,7 +514,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : null,
                     validator: (value) {
-                      final l10n = AppLocalizations.of(context)!;
+                      final l10n = AppLocalizations.of(context);
                       if (value == null || value.isEmpty) {
                         return l10n.loginEmailRequired;
                       }
@@ -531,8 +531,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       fieldKey: _passwordFieldKey,
                       focusNode: _passwordFocusNode,
-                      label: AppLocalizations.of(context)!.loginPasswordLabel,
-                      hint: AppLocalizations.of(context)!.loginPasswordHint,
+                      label: AppLocalizations.of(context).loginPasswordLabel,
+                      hint: AppLocalizations.of(context).loginPasswordHint,
                       obscureText: _obscurePassword,
                       prefixIcon: Icons.lock_outline,
                       isDark: isDark,
@@ -570,7 +570,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       validator: (value) {
-                        final l10n = AppLocalizations.of(context)!;
+                        final l10n = AppLocalizations.of(context);
                         if (value == null || value.isEmpty) {
                           return l10n.loginPasswordRequired;
                         }
@@ -588,8 +588,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _nicknameController,
                       fieldKey: _nicknameFieldKey,
                       focusNode: _nicknameFocusNode,
-                      label: AppLocalizations.of(context)!.loginNicknameLabel,
-                      hint: AppLocalizations.of(context)!.loginNicknameHint,
+                      label: AppLocalizations.of(context).loginNicknameLabel,
+                      hint: AppLocalizations.of(context).loginNicknameHint,
                       prefixIcon: Icons.person_outline,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _dismissKeyboard(),
@@ -602,7 +602,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : null,
                       validator: (value) {
-                        final l10n = AppLocalizations.of(context)!;
+                        final l10n = AppLocalizations.of(context);
                         if (value == null || value.isEmpty) {
                           return l10n.loginNicknameRequired;
                         }
@@ -630,7 +630,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : Text(
-                            _getButtonText(AppLocalizations.of(context)!),
+                            _getButtonText(AppLocalizations.of(context)),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -643,9 +643,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (_unconfirmedEmail != null)
                       _buildTextButton(
                         _isResendCooldown
-                            ? AppLocalizations.of(context)!
+                            ? AppLocalizations.of(context)
                                 .loginResendVerificationCooldown
-                            : AppLocalizations.of(context)!
+                            : AppLocalizations.of(context)
                                 .loginResendVerification,
                         _isResendCooldown
                             ? null
@@ -653,7 +653,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         isDark,
                       ),
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginForgotPassword,
+                      AppLocalizations.of(context).loginForgotPassword,
                       () => _setAuthMode(AuthMode.forgotPassword),
                       isDark,
                     ),
@@ -661,19 +661,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     _buildDivider(isDark, context),
                     const SizedBox(height: 8),
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginNoAccount,
+                      AppLocalizations.of(context).loginNoAccount,
                       () => _setAuthMode(AuthMode.signUp),
                       isDark,
                     ),
                   ] else if (_authMode == AuthMode.signUp) ...[
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginHaveAccount,
+                      AppLocalizations.of(context).loginHaveAccount,
                       () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
                   ] else ...[
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginBackToSignIn,
+                      AppLocalizations.of(context).loginBackToSignIn,
                       () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
@@ -812,7 +812,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            AppLocalizations.of(context)!.loginSaveEmail,
+            AppLocalizations.of(context).loginSaveEmail,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -835,7 +835,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
@@ -899,7 +899,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            AppLocalizations.of(context)!.loginOrDivider,
+            AppLocalizations.of(context).loginOrDivider,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.grey[500] : Colors.grey[400],

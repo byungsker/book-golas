@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -12,7 +11,6 @@ import 'package:book_golas/ui/core/theme/app_colors.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/domain/models/book.dart';
 
 /// Floating Timer Bar with smooth animation
 ///
@@ -107,10 +105,10 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     // Component widths
     final thumbnailWidth =
         hasBook ? 32.0 : 18.0; // 32 for book, 18 for timer icon
-    final thumbnailSpacing = 8.0; // Always 8
-    final iconWidth = 16.0; // expand icon
-    final iconSpacing = 8.0;
-    final horizontalPadding = 24.0; // 16 + 8 = 24
+    const thumbnailSpacing = 8.0; // Always 8
+    const iconWidth = 16.0; // expand icon
+    const iconSpacing = 8.0;
+    const horizontalPadding = 24.0; // 16 + 8 = 24
 
     // Total width
     return textWidth +
@@ -125,7 +123,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final parts = <String>[];
 
@@ -166,7 +164,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       {bool isInBookDetailScreen = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final durationText = _formatDurationShort(timerVm.elapsed, context);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     showModalBottomSheet(
       context: context,
@@ -196,7 +194,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               ),
             ),
             const SizedBox(height: 24),
-            Icon(
+            const Icon(
               CupertinoIcons.stop_circle_fill,
               size: 48,
               color: _coral,
@@ -289,7 +287,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
 
   Future<void> _showPageUpdateModal(BuildContext context, String bookId,
       Duration duration, bool isInBookDetailScreen) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     // Fetch book info to get currentPage and totalPages
     final bookService = BookService();
@@ -455,7 +453,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
                 child: Row(
                   children: [
                     // Book icon
-                    Icon(
+                    const Icon(
                       CupertinoIcons.book_fill,
                       color: BLabColors.primary,
                       size: 22,

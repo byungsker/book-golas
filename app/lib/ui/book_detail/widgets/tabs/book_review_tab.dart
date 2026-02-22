@@ -108,7 +108,7 @@ class BookReviewTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 CupertinoIcons.doc_text,
                 size: 18,
                 color: BLabColors.primary,
@@ -116,7 +116,7 @@ class BookReviewTab extends StatelessWidget {
               const SizedBox(width: 8),
               Builder(
                 builder: (context) => Text(
-                  AppLocalizations.of(context)!.bookReviewTabTitle,
+                  AppLocalizations.of(context).bookReviewTabTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -157,15 +157,15 @@ class BookReviewTab extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               CupertinoIcons.pencil,
               size: 18,
               color: BLabColors.primary,
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.bookReviewTabEditButton,
-              style: TextStyle(
+              AppLocalizations.of(context).bookReviewTabEditButton,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: BLabColors.primary,

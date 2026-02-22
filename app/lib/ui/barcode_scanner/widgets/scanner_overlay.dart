@@ -74,11 +74,11 @@ class ScannerOverlay extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
+            const Positioned(
               bottom: 120,
               left: 0,
               right: 0,
-              child: const Text(
+              child: Text(
                 '바코드를 프레임 안에 맞춰주세요',
                 textAlign: TextAlign.center,
                 style: TextStyle(

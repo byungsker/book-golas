@@ -18,7 +18,7 @@ class PausedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final progress =
         book.totalPages > 0 ? book.currentPage / book.totalPages : 0.0;
 

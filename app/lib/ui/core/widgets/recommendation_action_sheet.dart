@@ -112,7 +112,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildActionPage(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       key: const ValueKey('action'),
       padding: const EdgeInsets.all(24),
@@ -147,7 +147,7 @@ class _RecommendationActionSheetContentState
             ),
             child: Text(
               widget.reason,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 color: BLabColors.primary,
                 fontWeight: FontWeight.w500,
@@ -178,7 +178,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildBookstorePage(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final searchTitle = getSearchTitle(widget.title);
     final encodedTitle = Uri.encodeComponent(searchTitle);
 

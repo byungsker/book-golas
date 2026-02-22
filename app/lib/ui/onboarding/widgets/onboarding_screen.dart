@@ -28,7 +28,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   List<OnboardingPageData> _buildPages() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return [
       OnboardingPageData(
         icon: Icons.menu_book_outlined,
@@ -104,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildBottomSection(bool isDark) {
     final isLastPage = _currentPage == _pages!.length - 1;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),

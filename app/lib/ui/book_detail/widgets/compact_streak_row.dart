@@ -13,7 +13,7 @@ class CompactStreakRow extends StatelessWidget {
   });
 
   List<String> _getDayLabels(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return [
       l10n.weekdaySun,
       l10n.weekdayMon,
@@ -137,7 +137,7 @@ class CompactStreakRow extends StatelessWidget {
   }
 
   Widget _buildStreakInfo(BuildContext context, int streak, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

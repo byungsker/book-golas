@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +28,7 @@ class PageUpdateModal {
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     await showModalBottomSheet(
       context: context,

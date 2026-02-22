@@ -90,14 +90,14 @@ class _MyPageContentState extends State<_MyPageContent> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccount,
+            AppLocalizations.of(context).myPageDeleteAccount,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccountConfirm,
+            AppLocalizations.of(context).myPageDeleteAccountConfirm,
             style: TextStyle(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.7)
@@ -108,7 +108,7 @@ class _MyPageContentState extends State<_MyPageContent> {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                AppLocalizations.of(context)!.commonCancel,
+                AppLocalizations.of(context).commonCancel,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                 ),
@@ -122,7 +122,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               style: TextButton.styleFrom(
                 foregroundColor: BLabColors.error,
               ),
-              child: Text(AppLocalizations.of(context)!.commonDelete),
+              child: Text(AppLocalizations.of(context).commonDelete),
             ),
           ],
         );
@@ -138,7 +138,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
+          message: AppLocalizations.of(context).myPageDeleteAccountSuccess,
           type: BLabSnackbarType.success,
           bottomOffset: 32,
         );
@@ -150,7 +150,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       } else if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
+          message: AppLocalizations.of(context).myPageDeleteAccountFailed,
           type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
@@ -159,7 +159,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .myPageDeleteAccountError(e.toString()),
           type: BLabSnackbarType.error,
           bottomOffset: 32,
@@ -210,7 +210,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                     TextButton(
                       onPressed: () => Navigator.pop(sheetContext),
                       child: Text(
-                        AppLocalizations.of(context)!.commonCancel,
+                        AppLocalizations.of(context).commonCancel,
                         style: const TextStyle(
                           color: BLabColors.error,
                           fontSize: 17,
@@ -219,7 +219,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       ),
                     ),
                     Text(
-                      AppLocalizations.of(context)!.myPageNotificationTimeTitle,
+                      AppLocalizations.of(context).myPageNotificationTimeTitle,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -233,7 +233,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                             selectedHour, selectedMinute);
                       },
                       child: Text(
-                        AppLocalizations.of(context)!.commonConfirm,
+                        AppLocalizations.of(context).commonConfirm,
                         style: const TextStyle(
                           color: BLabColors.primary,
                           fontSize: 17,
@@ -275,7 +275,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .myPageNotificationTime(settingsViewModel.getFormattedTime()),
           type: BLabSnackbarType.success,
           bottomOffset: 32,
@@ -285,7 +285,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       CustomSnackbar.show(
         context,
         message: settingsViewModel.errorMessage ??
-            AppLocalizations.of(context)!.myPageNotificationChangeFailed,
+            AppLocalizations.of(context).myPageNotificationChangeFailed,
         type: BLabSnackbarType.error,
         bottomOffset: 32,
       );
@@ -293,7 +293,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   String _formatTime(int hour, [int minute = 0]) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String hourStr;
     if (hour == 0) {
       hourStr = '${l10n.timeAm} 12${l10n.unitHour}';
@@ -441,7 +441,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChanged,
                                   type: BLabSnackbarType.success,
                                   bottomOffset: 32,
@@ -453,7 +453,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChangeFailed(e.toString()),
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
@@ -497,7 +497,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               children: [
                 Text(
                   user.nickname ??
-                      AppLocalizations.of(context)!.myPageNoNickname,
+                      AppLocalizations.of(context).myPageNoNickname,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -525,7 +525,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 Expanded(
                   child: BLabTextField(
                     controller: _nicknameController,
-                    hintText: AppLocalizations.of(context)!.myPageNicknameHint,
+                    hintText: AppLocalizations.of(context).myPageNicknameHint,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -612,7 +612,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageSettings,
+            AppLocalizations.of(context).myPageSettings,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -627,7 +627,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 icon: themeViewModel.isDarkMode
                     ? Icons.dark_mode
                     : Icons.light_mode,
-                title: AppLocalizations.of(context)!.myPageDarkMode,
+                title: AppLocalizations.of(context).myPageDarkMode,
                 trailing: Switch(
                   value: themeViewModel.isDarkMode,
                   onChanged: (value) {
@@ -653,7 +653,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.language,
-                    title: AppLocalizations.of(context)!.languageSettingLabel,
+                    title: AppLocalizations.of(context).languageSettingLabel,
                     trailing: const SizedBox.shrink(),
                   ),
                   const SizedBox(height: 12),
@@ -664,11 +664,11 @@ class _MyPageContentState extends State<_MyPageContent> {
                         ButtonSegment(
                             value: 'ko',
                             label: Text(
-                                AppLocalizations.of(context)!.languageKorean)),
+                                AppLocalizations.of(context).languageKorean)),
                         ButtonSegment(
                             value: 'en',
                             label: Text(
-                                AppLocalizations.of(context)!.languageEnglish)),
+                                AppLocalizations.of(context).languageEnglish)),
                       ],
                       selected: {localeViewModel.locale.languageCode},
                       onSelectionChanged: (selection) async {
@@ -679,7 +679,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                         HapticFeedback.selectionClick();
 
-                        final localizations = AppLocalizations.of(context)!;
+                        final localizations = AppLocalizations.of(context);
                         final languageName = newLocale == 'ko'
                             ? localizations.languageKorean
                             : localizations.languageEnglish;
@@ -817,7 +817,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageNotificationCategories,
+            AppLocalizations.of(context).myPageNotificationCategories,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -835,13 +835,13 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.notifications,
-                    title: AppLocalizations.of(context)!
+                    title: AppLocalizations.of(context)
                         .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
-                        ? AppLocalizations.of(context)!.myPageNotificationTime(
+                        ? AppLocalizations.of(context).myPageNotificationTime(
                             _formatTime(settings.preferredHour,
                                 settings.preferredMinute))
-                        : AppLocalizations.of(context)!.myPageNoNotification,
+                        : AppLocalizations.of(context).myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -869,9 +869,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   CustomSnackbar.show(
                                     context,
                                     message: value
-                                        ? AppLocalizations.of(context)!
+                                        ? AppLocalizations.of(context)
                                             .myPageNotificationEnabled
-                                        : AppLocalizations.of(context)!
+                                        : AppLocalizations.of(context)
                                             .myPageNotificationDisabled,
                                     type: value
                                         ? BLabSnackbarType.success
@@ -883,7 +883,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      AppLocalizations.of(context)!.myPageNotificationChangeFailed,
+                                      AppLocalizations.of(context).myPageNotificationChangeFailed,
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -925,7 +925,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.bookmark,
-                    title: AppLocalizations.of(context)!.myPageNotificationDailyReminder,
+                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
                     trailing: Switch(
                       value: vm.isCategoryEnabled(NotificationCategory.dailyReminder),
                       onChanged: (value) {
@@ -939,7 +939,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.emoji_events,
-                    title: AppLocalizations.of(context)!.myPageNotificationGoalAchievement,
+                    title: AppLocalizations.of(context).myPageNotificationGoalAchievement,
                     trailing: Switch(
                       value: vm.isCategoryEnabled(NotificationCategory.goalAchievement),
                       onChanged: (value) {
@@ -953,7 +953,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.campaign,
-                    title: AppLocalizations.of(context)!.myPageNotificationAnnouncements,
+                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
                     trailing: Switch(
                       value: vm.isCategoryEnabled(NotificationCategory.announcements),
                       onChanged: (value) {
@@ -970,7 +970,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           if (kDebugMode) ...[
             const SizedBox(height: 20),
             BLabButton(
-              text: AppLocalizations.of(context)!.myPageTestNotification,
+              text: AppLocalizations.of(context).myPageTestNotification,
               icon: Icons.notifications_active,
               variant: BLabButtonVariant.secondary,
               isFullWidth: true,
@@ -980,7 +980,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 if (mounted) {
                   CustomSnackbar.show(
                     context,
-                    message: AppLocalizations.of(context)!
+                    message: AppLocalizations.of(context)
                         .myPageTestNotificationSent,
                     type: BLabSnackbarType.success,
                     bottomOffset: 32,
@@ -1004,7 +1004,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageAccountSection,
+            AppLocalizations.of(context).myPageAccountSection,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -1015,7 +1015,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           _buildSettingRow(
             context: context,
             icon: Icons.lock,
-            title: AppLocalizations.of(context)!.myPageChangePassword,
+            title: AppLocalizations.of(context).myPageChangePassword,
             trailing: GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
@@ -1038,8 +1038,8 @@ class _MyPageContentState extends State<_MyPageContent> {
             builder: (context, subscriptionVm, child) {
               return BLabButton(
                 text: subscriptionVm.isProUser
-                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
-                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                    ? AppLocalizations.of(context).myPageSubscriptionManage
+                    : AppLocalizations.of(context).myPageSubscriptionUpgrade,
                 icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
                 variant: BLabButtonVariant.secondary,
                 isFullWidth: true,
@@ -1155,7 +1155,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   ),
                 ),
                 Text(
-                  AppLocalizations.of(context)!.myPageChangePasswordTitle,
+                  AppLocalizations.of(context).myPageChangePasswordTitle,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -1165,20 +1165,20 @@ class _MyPageContentState extends State<_MyPageContent> {
                 const SizedBox(height: 20),
                 BLabTextField(
                   controller: newPasswordController,
-                  hintText: AppLocalizations.of(context)!.myPageNewPassword,
+                  hintText: AppLocalizations.of(context).myPageNewPassword,
                   obscureText: true,
                 ),
                 const SizedBox(height: 12),
                 BLabTextField(
                   controller: confirmPasswordController,
-                  hintText: AppLocalizations.of(context)!.myPageConfirmPassword,
+                  hintText: AppLocalizations.of(context).myPageConfirmPassword,
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: BLabButton(
-                    text: AppLocalizations.of(context)!.myPageChangePassword,
+                    text: AppLocalizations.of(context).myPageChangePassword,
                     variant: BLabButtonVariant.primary,
                     onPressed: () async {
                       final newPw = newPasswordController.text;
@@ -1187,7 +1187,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       if (newPw.length < 6) {
                         CustomSnackbar.show(
                           context,
-                          message: AppLocalizations.of(context)!.myPagePasswordTooShort,
+                          message: AppLocalizations.of(context).myPagePasswordTooShort,
                           type: BLabSnackbarType.error,
                           bottomOffset: 32,
                         );
@@ -1197,7 +1197,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       if (newPw != confirmPw) {
                         CustomSnackbar.show(
                           context,
-                          message: AppLocalizations.of(context)!.myPagePasswordMismatch,
+                          message: AppLocalizations.of(context).myPagePasswordMismatch,
                           type: BLabSnackbarType.error,
                           bottomOffset: 32,
                         );
@@ -1211,14 +1211,14 @@ class _MyPageContentState extends State<_MyPageContent> {
                       if (success && mounted) {
                         CustomSnackbar.show(
                           context,
-                          message: AppLocalizations.of(context)!.myPagePasswordChanged,
+                          message: AppLocalizations.of(context).myPagePasswordChanged,
                           type: BLabSnackbarType.success,
                           bottomOffset: 32,
                         );
                       } else if (mounted) {
                         CustomSnackbar.show(
                           context,
-                          message: AppLocalizations.of(context)!.myPagePasswordChangeFailed,
+                          message: AppLocalizations.of(context).myPagePasswordChangeFailed,
                           type: BLabSnackbarType.error,
                           bottomOffset: 32,
                         );
@@ -1246,7 +1246,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageInfoSection,
+            AppLocalizations.of(context).myPageInfoSection,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -1257,13 +1257,13 @@ class _MyPageContentState extends State<_MyPageContent> {
           _buildInfoRow(
             context: context,
             icon: Icons.description,
-            title: AppLocalizations.of(context)!.myPageTermsAndPolicy,
+            title: AppLocalizations.of(context).myPageTermsAndPolicy,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => TermsWebViewScreen(
-                    title: AppLocalizations.of(context)!.myPageTermsAndPolicy,
+                    title: AppLocalizations.of(context).myPageTermsAndPolicy,
                     url: 'https://placeholder.com/terms',
                   ),
                 ),
@@ -1279,13 +1279,13 @@ class _MyPageContentState extends State<_MyPageContent> {
           _buildInfoRow(
             context: context,
             icon: Icons.campaign,
-            title: AppLocalizations.of(context)!.myPageAnnouncements,
+            title: AppLocalizations.of(context).myPageAnnouncements,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => TermsWebViewScreen(
-                    title: AppLocalizations.of(context)!.myPageAnnouncements,
+                    title: AppLocalizations.of(context).myPageAnnouncements,
                     url: 'https://placeholder.com/announcements',
                   ),
                 ),
@@ -1355,7 +1355,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
         return Text(
-          '${AppLocalizations.of(context)!.myPageVersion} ${snapshot.data!.version}',
+          '${AppLocalizations.of(context).myPageVersion} ${snapshot.data!.version}',
           style: TextStyle(
             fontSize: 12,
             color: textColor.withValues(alpha: 0.3),
@@ -1390,7 +1390,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              AppLocalizations.of(context)!.myPageLogout,
+              AppLocalizations.of(context).myPageLogout,
               style: TextStyle(
                 fontSize: 13,
                 color: textColor.withValues(alpha: 0.5),
@@ -1415,7 +1415,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              AppLocalizations.of(context)!.myPageDeleteAccount,
+              AppLocalizations.of(context).myPageDeleteAccount,
               style: TextStyle(
                 fontSize: 13,
                 color: textColor.withValues(alpha: 0.5),
@@ -1430,11 +1430,11 @@ class _MyPageContentState extends State<_MyPageContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authViewModel = context.watch<AuthViewModel>();
+    context.watch<AuthViewModel>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.myPageTitle),
+        title: Text(AppLocalizations.of(context).myPageTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,

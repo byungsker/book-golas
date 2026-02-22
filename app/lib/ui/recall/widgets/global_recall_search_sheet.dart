@@ -86,7 +86,7 @@ class _GlobalRecallSearchSheetContentState
     Clipboard.setData(ClipboardData(text: answer));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallTextCopied,
+      message: AppLocalizations.of(context).recallTextCopied,
       type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
@@ -180,7 +180,7 @@ class _GlobalRecallSearchSheetContentState
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                AppLocalizations.of(context)!
+                                AppLocalizations.of(context)
                                     .recallSearchAllRecords,
                                 style: TextStyle(
                                   fontSize: 20,
@@ -325,7 +325,7 @@ class _GlobalRecallSearchSheetContentState
             const CircularProgressIndicator(color: BLabColors.primary),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.recallSearchingAllBooks,
+              AppLocalizations.of(context).recallSearchingAllBooks,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -388,7 +388,7 @@ class _GlobalRecallSearchSheetContentState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              AppLocalizations.of(context)!.recallRecentGlobalSearches,
+              AppLocalizations.of(context).recallRecentGlobalSearches,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -493,7 +493,7 @@ class _GlobalRecallSearchSheetContentState
           ),
           const SizedBox(height: 20),
           Text(
-            AppLocalizations.of(context)!.recallSearchAllReadingRecords,
+            AppLocalizations.of(context).recallSearchAllReadingRecords,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -502,7 +502,7 @@ class _GlobalRecallSearchSheetContentState
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.recallAiFindsScatteredRecords,
+            AppLocalizations.of(context).recallAiFindsScatteredRecords,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -563,8 +563,8 @@ class _GlobalRecallSearchSheetContentState
               ),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.recallAiAnswer,
-                style: TextStyle(
+                AppLocalizations.of(context).recallAiAnswer,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: BLabColors.primary,
@@ -602,7 +602,7 @@ class _GlobalRecallSearchSheetContentState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${AppLocalizations.of(context)!.recallReferencedRecords} (${viewModel.totalBooksCount})',
+          '${AppLocalizations.of(context).recallReferencedRecords} (${viewModel.totalBooksCount})',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -631,9 +631,9 @@ class _GlobalRecallSearchSheetContentState
                 ),
                 child: Center(
                   child: Text(
-                    AppLocalizations.of(context)!
+                    AppLocalizations.of(context)
                         .recallMoreBooks(viewModel.hiddenBooksCount),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: BLabColors.primary,
                       fontWeight: FontWeight.w500,
@@ -692,7 +692,7 @@ class _GlobalRecallSearchSheetContentState
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          AppLocalizations.of(context)!
+                          AppLocalizations.of(context)
                               .recallRecordCount(sources.length),
                           style: TextStyle(
                             fontSize: 12,
@@ -743,7 +743,7 @@ class _GlobalRecallSearchSheetContentState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${AppLocalizations.of(context)!.recallReferencedRecords} (${sources.length})',
+          '${AppLocalizations.of(context).recallReferencedRecords} (${sources.length})',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

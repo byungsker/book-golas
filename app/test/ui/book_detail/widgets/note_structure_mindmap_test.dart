@@ -108,7 +108,7 @@ void main() {
     });
 
     testWidgets('truncates long node content', (WidgetTester tester) async {
-      final longContent =
+      const longContent =
           'This is a very long content that should be truncated';
       final structure = NoteStructure(
         bookId: 'test-book',
