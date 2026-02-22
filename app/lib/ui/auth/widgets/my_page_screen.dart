@@ -506,19 +506,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                     vm.startEditingNickname();
                     _nicknameController.text = user.nickname ?? '';
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: textColor.withValues(alpha: 0.6),
-                    ),
+                  child: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: textColor.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -1009,14 +1000,15 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   Widget _buildDangerZoneCard(BuildContext context) {
-    return BLabCard(
-      child: Column(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          BLabButton(
-            text: AppLocalizations.of(context)!.myPageLogout,
-            icon: Icons.logout,
-            variant: BLabButtonVariant.destructive,
-            isFullWidth: true,
+          TextButton(
             onPressed: () async {
               await context.read<AuthViewModel>().signOut();
               if (context.mounted) {
@@ -1026,18 +1018,41 @@ class _MyPageContentState extends State<_MyPageContent> {
                 );
               }
             },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.myPageLogout,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '|',
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
           TextButton(
             onPressed: () => _showDeleteAccountDialog(context),
             style: TextButton.styleFrom(
-              foregroundColor: BLabColors.error,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
               AppLocalizations.of(context)!.myPageDeleteAccount,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -1062,26 +1077,20 @@ class _MyPageContentState extends State<_MyPageContent> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await authViewModel.fetchCurrentUser();
-          await context.read<NotificationSettingsViewModel>().loadSettings();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                _buildProfileCard(context),
-                const SizedBox(height: 24),
-                _buildSettingsCard(context),
-                const SizedBox(height: 24),
-                _buildDangerZoneCard(context),
-                const SizedBox(height: 40),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              _buildProfileCard(context),
+              const SizedBox(height: 24),
+              _buildSettingsCard(context),
+              const SizedBox(height: 24),
+              _buildDangerZoneCard(context),
+              const SizedBox(height: 80),
+            ],
           ),
         ),
       ),
