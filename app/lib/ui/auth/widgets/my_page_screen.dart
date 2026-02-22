@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:book_golas/data/services/fcm_service.dart';
+import 'package:book_golas/data/services/auth_service.dart';
+import 'package:book_golas/data/services/notification_category_prefs.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
@@ -57,6 +59,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
+      context.read<MyPageViewModel>().loadCategoryStates();
     });
   }
 
@@ -893,6 +896,61 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<MyPageViewModel>(
+            builder: (context, vm, child) {
+              return Column(
+                children: [
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.bookmark,
+                    title: AppLocalizations.of(context)!.myPageNotificationDailyReminder,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.dailyReminder),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.dailyReminder, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.emoji_events,
+                    title: AppLocalizations.of(context)!.myPageNotificationGoalAchievement,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.goalAchievement),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.goalAchievement, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.campaign,
+                    title: AppLocalizations.of(context)!.myPageNotificationAnnouncements,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.announcements, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
           const SizedBox(height: 16),
           Consumer<SubscriptionViewModel>(
             builder: (context, subscriptionVm, child) {
@@ -999,6 +1057,125 @@ class _MyPageContentState extends State<_MyPageContent> {
         trailing,
       ],
     );
+  }
+
+  Future<void> _showPasswordChangeSheet() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDark ? BLabColors.surfaceDark : Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Text(
+                  AppLocalizations.of(context)!.myPageChangePasswordTitle,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                BLabTextField(
+                  controller: newPasswordController,
+                  hintText: AppLocalizations.of(context)!.myPageNewPassword,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 12),
+                BLabTextField(
+                  controller: confirmPasswordController,
+                  hintText: AppLocalizations.of(context)!.myPageConfirmPassword,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: BLabButton(
+                    text: AppLocalizations.of(context)!.myPageChangePassword,
+                    variant: BLabButtonVariant.primary,
+                    onPressed: () async {
+                      final newPw = newPasswordController.text;
+                      final confirmPw = confirmPasswordController.text;
+
+                      if (newPw.length < 6) {
+                        CustomSnackbar.show(
+                          context,
+                          message: AppLocalizations.of(context)!.myPagePasswordTooShort,
+                          type: BLabSnackbarType.error,
+                          bottomOffset: 32,
+                        );
+                        return;
+                      }
+
+                      if (newPw != confirmPw) {
+                        CustomSnackbar.show(
+                          context,
+                          message: AppLocalizations.of(context)!.myPagePasswordMismatch,
+                          type: BLabSnackbarType.error,
+                          bottomOffset: 32,
+                        );
+                        return;
+                      }
+
+                      final success = await AuthService().updatePassword(newPw);
+                      if (sheetContext.mounted) {
+                        Navigator.pop(sheetContext);
+                      }
+                      if (success && mounted) {
+                        CustomSnackbar.show(
+                          context,
+                          message: AppLocalizations.of(context)!.myPagePasswordChanged,
+                          type: BLabSnackbarType.success,
+                          bottomOffset: 32,
+                        );
+                      } else if (mounted) {
+                        CustomSnackbar.show(
+                          context,
+                          message: AppLocalizations.of(context)!.myPagePasswordChangeFailed,
+                          type: BLabSnackbarType.error,
+                          bottomOffset: 32,
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
   }
 
   Widget _buildInfoCard(BuildContext context) {
