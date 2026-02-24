@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -384,17 +385,43 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              viewModel.shouldShowPaywall
+                  ? Icons.lock_outline
+                  : Icons.error_outline,
               size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
+              color: viewModel.shouldShowPaywall
+                  ? BLabColors.primary
+                  : (isDark ? Colors.grey[600] : Colors.grey[400]),
             ),
             const SizedBox(height: 16),
-            Text(
-              viewModel.errorMessage!,
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                viewModel.errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ),
+            if (viewModel.shouldShowPaywall) ...[
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  viewModel.clearPaywallState();
+                  await SubscriptionService().showPaywall(context);
+                },
+                icon: const Icon(Icons.star, size: 18),
+                label: const Text('Pro 업그레이드'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BLabColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       );
