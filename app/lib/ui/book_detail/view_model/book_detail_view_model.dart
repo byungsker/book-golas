@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
 class BookDetailViewModel extends BaseViewModel {
   final BookService _bookService;
@@ -14,12 +15,18 @@ class BookDetailViewModel extends BaseViewModel {
   Map<String, bool> _dailyAchievements = {};
   int _todayPagesRead = 0;
   bool _isTodayGoalAchievedLocked = false;
+  bool _shouldShowPaywall = false;
 
   Book get currentBook => _currentBook;
   int get todayStartPage => _todayStartPage;
   int get attemptCount => _attemptCount;
   Map<String, bool> get dailyAchievements => _dailyAchievements;
   int get todayPagesRead => _todayPagesRead;
+  bool get shouldShowPaywall => _shouldShowPaywall;
+
+  void clearPaywallState() {
+    _shouldShowPaywall = false;
+  }
 
   /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표)
   int get todayGoalPage {
@@ -303,6 +310,10 @@ class BookDetailViewModel extends BaseViewModel {
         notifyListeners();
         return true;
       }
+      return false;
+    } on ConcurrentReadingLimitException {
+      _shouldShowPaywall = true;
+      notifyListeners();
       return false;
     } catch (e) {
       setError('독서 재개에 실패했습니다: $e');

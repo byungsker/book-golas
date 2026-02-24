@@ -43,6 +43,7 @@ import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
 import 'widgets/tabs/book_review_tab.dart';
@@ -1369,6 +1370,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
               message: 'Attempt $newAttempt started!',
               type: BLabSnackbarType.success,
               icon: Icons.play_arrow_rounded);
+        } else if (!success && mounted && bookVm.shouldShowPaywall) {
+          bookVm.clearPaywallState();
+          await SubscriptionService().showPaywall(context);
         }
       },
     );

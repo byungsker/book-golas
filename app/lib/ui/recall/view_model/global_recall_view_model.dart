@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
+import 'package:book_golas/exceptions/subscription_exceptions.dart';
 
 class GlobalRecallViewModel extends ChangeNotifier {
   final RecallService _recallService = RecallService();
@@ -29,6 +30,17 @@ class GlobalRecallViewModel extends ChangeNotifier {
 
   bool _showAllBooks = false;
   bool get showAllBooks => _showAllBooks;
+
+  bool _shouldShowPaywall = false;
+  int _paywallRemainingUses = 0;
+
+  bool get shouldShowPaywall => _shouldShowPaywall;
+  int get paywallRemainingUses => _paywallRemainingUses;
+
+  void clearPaywallState() {
+    _shouldShowPaywall = false;
+    _paywallRemainingUses = 0;
+  }
 
   Future<void> loadGlobalRecentSearches() async {
     _isLoadingHistory = true;
@@ -67,6 +79,10 @@ class GlobalRecallViewModel extends ChangeNotifier {
       } else {
         _errorMessage = '검색 중 오류가 발생했습니다';
       }
+    } on AiRecallLimitException catch (e) {
+      _errorMessage = e.message;
+      _shouldShowPaywall = true;
+      _paywallRemainingUses = e.remainingUses;
     } catch (e) {
       debugPrint('Global recall search error: $e');
       _errorMessage = '검색 중 오류가 발생했습니다';
