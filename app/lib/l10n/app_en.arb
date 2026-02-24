@@ -1400,6 +1400,13 @@
            "myPageConfirmPassword": "Confirm Password",
            "@myPageConfirmPassword": {"description": "Confirm password field"},
 
+
+            "myPageCurrentPassword": "Current Password",
+            "@myPageCurrentPassword": {"description": "Current password field"},
+
+            "myPageCurrentPasswordRequired": "Please enter your current password",
+            "@myPageCurrentPasswordRequired": {"description": "Current password required error"},
+
            "myPageInfoSection": "Info",
            "@myPageInfoSection": {"description": "Info section in my page"},
 
@@ -1432,6 +1439,13 @@
 
            "myPagePasswordTooShort": "Password must be at least 6 characters",
            "@myPagePasswordTooShort": {"description": "Password too short error"},
+
+
+            "myPagePasswordChangeErrorDetail": "Password change failed: {error}",
+            "@myPagePasswordChangeErrorDetail": {"description": "Password change failed with detail", "placeholders": {"error": {"type": "String"}}},
+
+            "myPageWrongCurrentPassword": "Current password is incorrect",
+            "@myPageWrongCurrentPassword": {"description": "Wrong current password error"},
 
            "myPageTermsAndPolicy": "Terms & Policy",
            "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},

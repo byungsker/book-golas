@@ -6209,6 +6209,18 @@ abstract class AppLocalizations {
   /// **'비밀번호 확인'**
   String get myPageConfirmPassword;
 
+  /// Current password field
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호'**
+  String get myPageCurrentPassword;
+
+  /// Current password required error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호를 입력해주세요'**
+  String get myPageCurrentPasswordRequired;
+
   /// Info section in my page
   ///
   /// In ko, this message translates to:
@@ -6274,6 +6286,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'비밀번호는 6자 이상이어야 합니다'**
   String get myPagePasswordTooShort;
+
+  /// Password change failed with detail
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경 실패: {error}'**
+  String myPagePasswordChangeErrorDetail(String error);
+
+  /// Wrong current password error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호가 올바르지 않습니다'**
+  String get myPageWrongCurrentPassword;
 
   /// Terms and policy in my page
   ///

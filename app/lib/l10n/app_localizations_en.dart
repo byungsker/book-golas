@@ -3399,6 +3399,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageConfirmPassword => 'Confirm Password';
 
   @override
+  String get myPageCurrentPassword => 'Current Password';
+
+  @override
+  String get myPageCurrentPasswordRequired =>
+      'Please enter your current password';
+
+  @override
   String get myPageInfoSection => 'Info';
 
   @override
@@ -3430,6 +3437,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPagePasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return 'Password change failed: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => 'Current password is incorrect';
 
   @override
   String get myPageTermsAndPolicy => 'Terms & Policy';

@@ -3325,6 +3325,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageConfirmPassword => '비밀번호 확인';
 
   @override
+  String get myPageCurrentPassword => '현재 비밀번호';
+
+  @override
+  String get myPageCurrentPasswordRequired => '현재 비밀번호를 입력해주세요';
+
+  @override
   String get myPageInfoSection => '정보';
 
   @override
@@ -3356,6 +3362,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get myPagePasswordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return '비밀번호 변경 실패: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => '현재 비밀번호가 올바르지 않습니다';
 
   @override
   String get myPageTermsAndPolicy => '약관 및 정책';
