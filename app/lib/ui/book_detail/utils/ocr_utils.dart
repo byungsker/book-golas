@@ -214,7 +214,7 @@ Future<void> extractTextFromLocalImage(
                 const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(dialogContext)!.extractingText,
+                  AppLocalizations.of(dialogContext).extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -246,7 +246,7 @@ Future<void> extractTextFromLocalImage(
     if (ocrText == null || ocrText.isEmpty) {
       debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
       CustomSnackbar.show(parentContext,
-          message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+          message: AppLocalizations.of(parentContext).ocrExtractionFailed,
           rootOverlay: true);
       return;
     }
@@ -263,7 +263,7 @@ Future<void> extractTextFromLocalImage(
     }
 
     CustomSnackbar.show(parentContext,
-        message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+        message: AppLocalizations.of(parentContext).ocrExtractionFailed,
         rootOverlay: true);
   }
 }
@@ -300,7 +300,7 @@ Future<void> pickImageAndExtractText(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
+              AppLocalizations.of(bottomSheetContext).extractTextConfirmTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -310,7 +310,7 @@ Future<void> pickImageAndExtractText(
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(bottomSheetContext)!
+              AppLocalizations.of(bottomSheetContext)
                   .extractTextCreditsMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -332,7 +332,7 @@ Future<void> pickImageAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)!
+                          AppLocalizations.of(bottomSheetContext)
                               .noThanksButton,
                           style: TextStyle(
                             fontSize: 15,
@@ -356,7 +356,7 @@ Future<void> pickImageAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)!
+                          AppLocalizations.of(bottomSheetContext)
                               .extractButton,
                           style: const TextStyle(
                             fontSize: 15,
@@ -397,9 +397,9 @@ Future<void> pickImageAndExtractText(
         sourcePath: tempFile.path,
         uiSettings: [
           IOSUiSettings(
-            title: AppLocalizations.of(parentContext)!.ocrAreaSelectTitle,
-            cancelButtonTitle: AppLocalizations.of(parentContext)!.commonCancel,
-            doneButtonTitle: AppLocalizations.of(parentContext)!.commonComplete,
+            title: AppLocalizations.of(parentContext).ocrAreaSelectTitle,
+            cancelButtonTitle: AppLocalizations.of(parentContext).commonCancel,
+            doneButtonTitle: AppLocalizations.of(parentContext).commonComplete,
             aspectRatioLockEnabled: false,
             resetAspectRatioEnabled: true,
             rotateButtonsHidden: false,
@@ -407,7 +407,7 @@ Future<void> pickImageAndExtractText(
           ),
           AndroidUiSettings(
             toolbarTitle:
-                AppLocalizations.of(parentContext)!.ocrAreaSelectTitle,
+                AppLocalizations.of(parentContext).ocrAreaSelectTitle,
             toolbarColor: BLabColors.primary,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
@@ -446,7 +446,7 @@ Future<void> pickImageAndExtractText(
                   const CircularProgressIndicator(color: BLabColors.primary),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(dialogContext)!.extractingText,
+                    AppLocalizations.of(dialogContext).extractingText,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -474,7 +474,7 @@ Future<void> pickImageAndExtractText(
         debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
         CustomSnackbar.show(
           parentContext,
-          message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+          message: AppLocalizations.of(parentContext).ocrExtractionFailed,
           rootOverlay: true,
         );
         onComplete(fullImageBytes, '', null);
@@ -500,7 +500,7 @@ Future<void> pickImageAndExtractText(
   } catch (e) {
     debugPrint('이미지 선택 예외 발생 - $e');
     CustomSnackbar.show(parentContext,
-        message: AppLocalizations.of(parentContext)!.imageLoadFailed,
+        message: AppLocalizations.of(parentContext).imageLoadFailed,
         rootOverlay: true);
   }
 }
@@ -534,7 +534,7 @@ Future<void> reExtractTextFromImage(
             ),
           ),
           Text(
-            AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
+            AppLocalizations.of(bottomSheetContext).extractTextConfirmTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -545,7 +545,7 @@ Future<void> reExtractTextFromImage(
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(bottomSheetContext)!
+            AppLocalizations.of(bottomSheetContext)
                 .extractTextOverwriteMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -568,7 +568,7 @@ Future<void> reExtractTextFromImage(
                     ),
                     child: Center(
                       child: Text(
-                        AppLocalizations.of(bottomSheetContext)!.commonCancel,
+                        AppLocalizations.of(bottomSheetContext).commonCancel,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -591,7 +591,7 @@ Future<void> reExtractTextFromImage(
                     ),
                     child: Center(
                       child: Text(
-                        AppLocalizations.of(bottomSheetContext)!.dialogExtract,
+                        AppLocalizations.of(bottomSheetContext).dialogExtract,
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -634,7 +634,7 @@ Future<void> reExtractTextFromImage(
                 const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(dialogContext)!.loadingImage,
+                  AppLocalizations.of(dialogContext).loadingImage,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(dialogContext).brightness == Brightness.dark
@@ -665,16 +665,16 @@ Future<void> reExtractTextFromImage(
       sourcePath: tempFile.path,
       uiSettings: [
         IOSUiSettings(
-          title: AppLocalizations.of(context)!.ocrAreaSelectTitle,
-          cancelButtonTitle: AppLocalizations.of(context)!.commonCancel,
-          doneButtonTitle: AppLocalizations.of(context)!.commonComplete,
+          title: AppLocalizations.of(context).ocrAreaSelectTitle,
+          cancelButtonTitle: AppLocalizations.of(context).commonCancel,
+          doneButtonTitle: AppLocalizations.of(context).commonComplete,
           aspectRatioLockEnabled: false,
           resetAspectRatioEnabled: true,
           rotateButtonsHidden: false,
           rotateClockwiseButtonHidden: true,
         ),
         AndroidUiSettings(
-          toolbarTitle: AppLocalizations.of(context)!.ocrAreaSelectTitle,
+          toolbarTitle: AppLocalizations.of(context).ocrAreaSelectTitle,
           toolbarColor: BLabColors.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
@@ -708,7 +708,7 @@ Future<void> reExtractTextFromImage(
                 const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(dialogContext)!.extractingText,
+                  AppLocalizations.of(dialogContext).extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -735,7 +735,7 @@ Future<void> reExtractTextFromImage(
   } catch (e) {
     Navigator.of(context, rootNavigator: true).pop();
     CustomSnackbar.show(context,
-        message: AppLocalizations.of(context)!.ocrReExtractionFailed,
+        message: AppLocalizations.of(context).ocrReExtractionFailed,
         rootOverlay: true);
   }
 }
@@ -771,7 +771,7 @@ Future<void> scanDocumentAndExtractText(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              AppLocalizations.of(bottomSheetContext)!.extractTextConfirmTitle,
+              AppLocalizations.of(bottomSheetContext).extractTextConfirmTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -781,7 +781,7 @@ Future<void> scanDocumentAndExtractText(
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(bottomSheetContext)!
+              AppLocalizations.of(bottomSheetContext)
                   .extractTextCreditsMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -803,7 +803,7 @@ Future<void> scanDocumentAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)!
+                          AppLocalizations.of(bottomSheetContext)
                               .noThanksButton,
                           style: TextStyle(
                             fontSize: 15,
@@ -827,7 +827,7 @@ Future<void> scanDocumentAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)!
+                          AppLocalizations.of(bottomSheetContext)
                               .extractButton,
                           style: const TextStyle(
                             fontSize: 15,
@@ -871,7 +871,7 @@ Future<void> scanDocumentAndExtractText(
                 const CircularProgressIndicator(color: BLabColors.primary),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(dialogContext)!.extractingText,
+                  AppLocalizations.of(dialogContext).extractingText,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -896,7 +896,7 @@ Future<void> scanDocumentAndExtractText(
       debugPrint('OCR: 텍스트 추출 결과가 비어있습니다.');
       CustomSnackbar.show(
         parentContext,
-        message: AppLocalizations.of(parentContext)!.ocrExtractionFailed,
+        message: AppLocalizations.of(parentContext).ocrExtractionFailed,
         rootOverlay: true,
       );
       onComplete(scannedBytes, '', null);
@@ -910,7 +910,7 @@ Future<void> scanDocumentAndExtractText(
       context: parentContext,
       initialText: extractedText,
       pageNumber: pageNumber,
-      cancelButtonText: AppLocalizations.of(parentContext)!.reScanButton,
+      cancelButtonText: AppLocalizations.of(parentContext).reScanButton,
     );
 
     if (modifiedText != null) {
@@ -922,7 +922,7 @@ Future<void> scanDocumentAndExtractText(
     debugPrint('문서 스캔 및 OCR 실패: $e');
     CustomSnackbar.show(
       parentContext,
-      message: AppLocalizations.of(parentContext)!.documentScanFailed,
+      message: AppLocalizations.of(parentContext).documentScanFailed,
       rootOverlay: true,
     );
   }

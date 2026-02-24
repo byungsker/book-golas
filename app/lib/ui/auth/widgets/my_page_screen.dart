@@ -6,8 +6,11 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:book_golas/data/services/fcm_service.dart';
+import 'package:book_golas/data/services/auth_service.dart';
+import 'package:book_golas/data/services/notification_category_prefs.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
@@ -22,6 +25,7 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 import 'login_screen.dart';
+import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
@@ -55,6 +59,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
+      context.read<MyPageViewModel>().loadCategoryStates();
     });
   }
 
@@ -85,14 +90,14 @@ class _MyPageContentState extends State<_MyPageContent> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccount,
+            AppLocalizations.of(context).myPageDeleteAccount,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccountConfirm,
+            AppLocalizations.of(context).myPageDeleteAccountConfirm,
             style: TextStyle(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.7)
@@ -103,7 +108,7 @@ class _MyPageContentState extends State<_MyPageContent> {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                AppLocalizations.of(context)!.commonCancel,
+                AppLocalizations.of(context).commonCancel,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                 ),
@@ -117,7 +122,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               style: TextButton.styleFrom(
                 foregroundColor: BLabColors.error,
               ),
-              child: Text(AppLocalizations.of(context)!.commonDelete),
+              child: Text(AppLocalizations.of(context).commonDelete),
             ),
           ],
         );
@@ -133,7 +138,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
+          message: AppLocalizations.of(context).myPageDeleteAccountSuccess,
           type: BLabSnackbarType.success,
           bottomOffset: 32,
         );
@@ -145,7 +150,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       } else if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
+          message: AppLocalizations.of(context).myPageDeleteAccountFailed,
           type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
@@ -154,7 +159,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .myPageDeleteAccountError(e.toString()),
           type: BLabSnackbarType.error,
           bottomOffset: 32,
@@ -205,7 +210,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                     TextButton(
                       onPressed: () => Navigator.pop(sheetContext),
                       child: Text(
-                        AppLocalizations.of(context)!.commonCancel,
+                        AppLocalizations.of(context).commonCancel,
                         style: const TextStyle(
                           color: BLabColors.error,
                           fontSize: 17,
@@ -214,7 +219,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       ),
                     ),
                     Text(
-                      AppLocalizations.of(context)!.myPageNotificationTimeTitle,
+                      AppLocalizations.of(context).myPageNotificationTimeTitle,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -228,7 +233,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                             selectedHour, selectedMinute);
                       },
                       child: Text(
-                        AppLocalizations.of(context)!.commonConfirm,
+                        AppLocalizations.of(context).commonConfirm,
                         style: const TextStyle(
                           color: BLabColors.primary,
                           fontSize: 17,
@@ -270,7 +275,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .myPageNotificationTime(settingsViewModel.getFormattedTime()),
           type: BLabSnackbarType.success,
           bottomOffset: 32,
@@ -280,7 +285,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       CustomSnackbar.show(
         context,
         message: settingsViewModel.errorMessage ??
-            AppLocalizations.of(context)!.myPageNotificationChangeFailed,
+            AppLocalizations.of(context).myPageNotificationChangeFailed,
         type: BLabSnackbarType.error,
         bottomOffset: 32,
       );
@@ -288,7 +293,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   String _formatTime(int hour, [int minute = 0]) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String hourStr;
     if (hour == 0) {
       hourStr = '${l10n.timeAm} 12${l10n.unitHour}';
@@ -436,7 +441,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChanged,
                                   type: BLabSnackbarType.success,
                                   bottomOffset: 32,
@@ -448,7 +453,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChangeFailed(e.toString()),
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
@@ -492,7 +497,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               children: [
                 Text(
                   user.nickname ??
-                      AppLocalizations.of(context)!.myPageNoNickname,
+                      AppLocalizations.of(context).myPageNoNickname,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -506,19 +511,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                     vm.startEditingNickname();
                     _nicknameController.text = user.nickname ?? '';
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: textColor.withValues(alpha: 0.6),
-                    ),
+                  child: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: textColor.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -529,7 +525,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 Expanded(
                   child: BLabTextField(
                     controller: _nicknameController,
-                    hintText: AppLocalizations.of(context)!.myPageNicknameHint,
+                    hintText: AppLocalizations.of(context).myPageNicknameHint,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -616,7 +612,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageSettings,
+            AppLocalizations.of(context).myPageSettings,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -631,7 +627,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 icon: themeViewModel.isDarkMode
                     ? Icons.dark_mode
                     : Icons.light_mode,
-                title: AppLocalizations.of(context)!.myPageDarkMode,
+                title: AppLocalizations.of(context).myPageDarkMode,
                 trailing: Switch(
                   value: themeViewModel.isDarkMode,
                   onChanged: (value) {
@@ -657,7 +653,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.language,
-                    title: AppLocalizations.of(context)!.languageSettingLabel,
+                    title: AppLocalizations.of(context).languageSettingLabel,
                     trailing: const SizedBox.shrink(),
                   ),
                   const SizedBox(height: 12),
@@ -668,11 +664,11 @@ class _MyPageContentState extends State<_MyPageContent> {
                         ButtonSegment(
                             value: 'ko',
                             label: Text(
-                                AppLocalizations.of(context)!.languageKorean)),
+                                AppLocalizations.of(context).languageKorean)),
                         ButtonSegment(
                             value: 'en',
                             label: Text(
-                                AppLocalizations.of(context)!.languageEnglish)),
+                                AppLocalizations.of(context).languageEnglish)),
                       ],
                       selected: {localeViewModel.locale.languageCode},
                       onSelectionChanged: (selection) async {
@@ -683,7 +679,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                         HapticFeedback.selectionClick();
 
-                        final localizations = AppLocalizations.of(context)!;
+                        final localizations = AppLocalizations.of(context);
                         final languageName = newLocale == 'ko'
                             ? localizations.languageKorean
                             : localizations.languageEnglish;
@@ -807,12 +803,28 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          Divider(
-            height: 32,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context).myPageNotificationCategories,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
+          const SizedBox(height: 20),
           Consumer<NotificationSettingsViewModel>(
             builder: (context, settingsViewModel, child) {
               final settings = settingsViewModel.settings;
@@ -823,13 +835,13 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.notifications,
-                    title: AppLocalizations.of(context)!
+                    title: AppLocalizations.of(context)
                         .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
-                        ? AppLocalizations.of(context)!.myPageNotificationTime(
+                        ? AppLocalizations.of(context).myPageNotificationTime(
                             _formatTime(settings.preferredHour,
                                 settings.preferredMinute))
-                        : AppLocalizations.of(context)!.myPageNoNotification,
+                        : AppLocalizations.of(context).myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -857,9 +869,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   CustomSnackbar.show(
                                     context,
                                     message: value
-                                        ? AppLocalizations.of(context)!
+                                        ? AppLocalizations.of(context)
                                             .myPageNotificationEnabled
-                                        : AppLocalizations.of(context)!
+                                        : AppLocalizations.of(context)
                                             .myPageNotificationDisabled,
                                     type: value
                                         ? BLabSnackbarType.success
@@ -871,7 +883,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      '알림 설정 변경에 실패했습니다',
+                                      AppLocalizations.of(context).myPageNotificationChangeFailed,
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -900,13 +912,137 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          const SizedBox(height: 16),
+          Divider(
+            height: 32,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          Consumer<MyPageViewModel>(
+            builder: (context, vm, child) {
+              return Column(
+                children: [
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.bookmark,
+                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.dailyReminder),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.dailyReminder, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.emoji_events,
+                    title: AppLocalizations.of(context).myPageNotificationGoalAchievement,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.goalAchievement),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.goalAchievement, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.campaign,
+                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
+                    trailing: Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                      onChanged: (value) {
+                        HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.announcements, value);
+                      },
+                      activeTrackColor: BLabColors.primary,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          if (kDebugMode) ...[
+            const SizedBox(height: 20),
+            BLabButton(
+              text: AppLocalizations.of(context).myPageTestNotification,
+              icon: Icons.notifications_active,
+              variant: BLabButtonVariant.secondary,
+              isFullWidth: true,
+              onPressed: () async {
+                await FCMService().scheduleTestNotification(seconds: 30);
+
+                if (mounted) {
+                  CustomSnackbar.show(
+                    context,
+                    message: AppLocalizations.of(context)
+                        .myPageTestNotificationSent,
+                    type: BLabSnackbarType.success,
+                    bottomOffset: 32,
+                    duration: const Duration(seconds: 3),
+                  );
+                }
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context).myPageAccountSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          if (AuthService().isEmailAuthUser()) ...[
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _showPasswordChangeSheet();
+              },
+              behavior: HitTestBehavior.opaque,
+              child: _buildSettingRow(
+                context: context,
+                icon: Icons.lock,
+                title: AppLocalizations.of(context).myPageChangePassword,
+                trailing: Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Divider(
+              height: 32,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+            ),
+          ],
           Consumer<SubscriptionViewModel>(
             builder: (context, subscriptionVm, child) {
               return BLabButton(
                 text: subscriptionVm.isProUser
-                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
-                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                    ? AppLocalizations.of(context).myPageSubscriptionManage
+                    : AppLocalizations.of(context).myPageSubscriptionUpgrade,
                 icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
                 variant: BLabButtonVariant.secondary,
                 isFullWidth: true,
@@ -923,29 +1059,6 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          if (kDebugMode) ...[
-            const SizedBox(height: 20),
-            BLabButton(
-              text: AppLocalizations.of(context)!.myPageTestNotification,
-              icon: Icons.notifications_active,
-              variant: BLabButtonVariant.secondary,
-              isFullWidth: true,
-              onPressed: () async {
-                await FCMService().scheduleTestNotification(seconds: 30);
-
-                if (mounted) {
-                  CustomSnackbar.show(
-                    context,
-                    message: AppLocalizations.of(context)!
-                        .myPageTestNotificationSent,
-                    type: BLabSnackbarType.success,
-                    bottomOffset: 32,
-                    duration: const Duration(seconds: 3),
-                  );
-                }
-              },
-            ),
-          ],
         ],
       ),
     );
@@ -1008,15 +1121,409 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Widget _buildDangerZoneCard(BuildContext context) {
+  Future<void> _showPasswordChangeSheet() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext sheetContext) {
+        bool obscureCurrent = true;
+        bool obscureNew = true;
+        bool obscureConfirm = true;
+        bool isLoading = false;
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? BLabColors.surfaceDark : Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      AppLocalizations.of(this.context)
+                          .myPageChangePasswordTitle,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    BLabTextField(
+                      controller: currentPasswordController,
+                      hintText: AppLocalizations.of(this.context)
+                          .myPageCurrentPassword,
+                      obscureText: obscureCurrent,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscureCurrent
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.4),
+                        ),
+                        onPressed: () {
+                          setSheetState(() {
+                            obscureCurrent = !obscureCurrent;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    BLabTextField(
+                      controller: newPasswordController,
+                      hintText: AppLocalizations.of(this.context)
+                          .myPageNewPassword,
+                      obscureText: obscureNew,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscureNew
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.4),
+                        ),
+                        onPressed: () {
+                          setSheetState(() {
+                            obscureNew = !obscureNew;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    BLabTextField(
+                      controller: confirmPasswordController,
+                      hintText: AppLocalizations.of(this.context)
+                          .myPageConfirmPassword,
+                      obscureText: obscureConfirm,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscureConfirm
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.4),
+                        ),
+                        onPressed: () {
+                          setSheetState(() {
+                            obscureConfirm = !obscureConfirm;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: BLabButton(
+                        text: isLoading
+                            ? ''
+                            : AppLocalizations.of(this.context)
+                                .myPageChangePassword,
+                        variant: BLabButtonVariant.primary,
+                        isFullWidth: true,
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : null,
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                final currentPw =
+                                    currentPasswordController.text;
+                      final newPw = newPasswordController.text;
+                                final confirmPw =
+                                    confirmPasswordController.text;
+
+                                if (currentPw.isEmpty) {
+                                  CustomSnackbar.show(
+                                    this.context,
+                                    message:
+                                        AppLocalizations.of(
+                                                this.context)
+                                            .myPageCurrentPasswordRequired,
+                                    type: BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
+                                }
+                      if (newPw.length < 6) {
+                                  CustomSnackbar.show(
+                                    this.context,
+                                    message:
+                                        AppLocalizations.of(
+                                                this.context)
+                                            .myPagePasswordTooShort,
+                                    type: BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
+                                }
+                      if (newPw != confirmPw) {
+                                  CustomSnackbar.show(
+                                    this.context,
+                                    message:
+                                        AppLocalizations.of(
+                                                this.context)
+                                            .myPagePasswordMismatch,
+                                    type: BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
+                                }
+
+                                setSheetState(() {
+                                  isLoading = true;
+                                });
+
+                                final verifyError =
+                                    await AuthService()
+                                        .verifyCurrentPassword(
+                                            currentPw);
+                                if (verifyError != null) {
+                                  setSheetState(() {
+                                    isLoading = false;
+                                  });
+                                  if (mounted) {
+                                    CustomSnackbar.show(
+                                      this.context,
+                                      message:
+                                          AppLocalizations.of(
+                                                  this.context)
+                                              .myPageWrongCurrentPassword,
+                                      type:
+                                          BLabSnackbarType.error,
+                                      bottomOffset: 32,
+                                    );
+                                  }
+                                  return;
+                                }
+
+                                final updateError =
+                                    await AuthService()
+                                        .updatePassword(newPw);
+                                setSheetState(() {
+                                  isLoading = false;
+                                });
+                      if (sheetContext.mounted) {
+                                  Navigator.pop(sheetContext);
+                                }
+                                if (updateError == null &&
+                                    mounted) {
+                                  CustomSnackbar.show(
+                                    this.context,
+                                    message:
+                                        AppLocalizations.of(
+                                                this.context)
+                                            .myPagePasswordChanged,
+                          type: BLabSnackbarType.success,
+                                    bottomOffset: 32,
+                                  );
+                                } else if (mounted) {
+                                  CustomSnackbar.show(
+                                    this.context,
+                                    message:
+                                        AppLocalizations.of(
+                                                this.context)
+                                            .myPagePasswordChangeErrorDetail(
+                                                updateError ??
+                                                    ''),
+                                    type:
+                                        BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    currentPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+  }
+
+  Widget _buildInfoCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return BLabCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BLabButton(
-            text: AppLocalizations.of(context)!.myPageLogout,
-            icon: Icons.logout,
-            variant: BLabButtonVariant.destructive,
-            isFullWidth: true,
+          Text(
+            AppLocalizations.of(context).myPageInfoSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.description,
+            title: AppLocalizations.of(context).myPageTermsAndPolicy,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context).myPageTermsAndPolicy,
+                    url: 'https://placeholder.com/terms',
+                  ),
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.campaign,
+            title: AppLocalizations.of(context).myPageAnnouncements,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context).myPageAnnouncements,
+                    url: 'https://placeholder.com/announcements',
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: textColor.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: textColor,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: textColor.withValues(alpha: 0.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersionInfo(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        return Text(
+          '${AppLocalizations.of(context).myPageVersion} ${snapshot.data!.version}',
+          style: TextStyle(
+            fontSize: 12,
+            color: textColor.withValues(alpha: 0.3),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDangerZoneCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
             onPressed: () async {
               await context.read<AuthViewModel>().signOut();
               if (context.mounted) {
@@ -1026,18 +1533,41 @@ class _MyPageContentState extends State<_MyPageContent> {
                 );
               }
             },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              AppLocalizations.of(context).myPageLogout,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '|',
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
           TextButton(
             onPressed: () => _showDeleteAccountDialog(context),
             style: TextButton.styleFrom(
-              foregroundColor: BLabColors.error,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              AppLocalizations.of(context)!.myPageDeleteAccount,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              AppLocalizations.of(context).myPageDeleteAccount,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -1049,11 +1579,11 @@ class _MyPageContentState extends State<_MyPageContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authViewModel = context.watch<AuthViewModel>();
+    context.watch<AuthViewModel>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.myPageTitle),
+        title: Text(AppLocalizations.of(context).myPageTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
@@ -1062,26 +1592,28 @@ class _MyPageContentState extends State<_MyPageContent> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await authViewModel.fetchCurrentUser();
-          await context.read<NotificationSettingsViewModel>().loadSettings();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                _buildProfileCard(context),
-                const SizedBox(height: 24),
-                _buildSettingsCard(context),
-                const SizedBox(height: 24),
-                _buildDangerZoneCard(context),
-                const SizedBox(height: 40),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              _buildProfileCard(context),
+              const SizedBox(height: 16),
+              _buildSettingsCard(context),
+              const SizedBox(height: 16),
+              _buildNotificationCard(context),
+              const SizedBox(height: 16),
+              _buildAccountCard(context),
+              const SizedBox(height: 16),
+              _buildInfoCard(context),
+              const SizedBox(height: 16),
+              _buildDangerZoneCard(context),
+              const SizedBox(height: 8),
+              _buildVersionInfo(context),
+              const SizedBox(height: 80),
+            ],
           ),
         ),
       ),

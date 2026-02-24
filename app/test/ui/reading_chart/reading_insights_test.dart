@@ -4,7 +4,6 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:book_golas/data/services/reading_insights_service.dart';
 import 'package:book_golas/domain/models/reading_insight.dart';
-import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
 

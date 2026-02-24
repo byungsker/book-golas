@@ -36,7 +36,7 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
   ];
 
   List<String> _getMenuLabels(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return [
       l10n.navHome,
       l10n.navLibrary,
@@ -128,7 +128,7 @@ class ExpandedNavigationBottomBar extends StatelessWidget {
     Color foregroundColor,
     Color inactiveForegroundColor,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();

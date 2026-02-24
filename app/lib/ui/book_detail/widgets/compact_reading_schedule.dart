@@ -33,7 +33,7 @@ class CompactReadingSchedule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final startDateStr = _formatDate(startDate, context);
     final targetDateStr = _formatDate(targetDate, context);
     final totalDays = targetDate.difference(startDate).inDays + 1;

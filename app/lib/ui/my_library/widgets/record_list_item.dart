@@ -274,7 +274,7 @@ class GroupedRecordSection extends StatelessWidget {
                   onTap: onBookTap,
                   child: Text(
                     '${group.records.length - 5}개 더 보기',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: BLabColors.primary,
                       fontWeight: FontWeight.w500,

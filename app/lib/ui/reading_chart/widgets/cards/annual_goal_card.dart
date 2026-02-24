@@ -91,7 +91,7 @@ class AnnualGoalCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      AppLocalizations.of(context)!.chartAnnualGoalTitle(year),
+                      AppLocalizations.of(context).chartAnnualGoalTitle(year),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class AnnualGoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context)!
+                  AppLocalizations.of(context)
                       .chartAnnualGoalAchieved((progress * 100).toInt()),
                   style: TextStyle(
                     fontSize: 14,
@@ -181,7 +181,7 @@ class AnnualGoalCard extends StatelessWidget {
                 ),
                 if (!isAchieved)
                   Text(
-                    AppLocalizations.of(context)!
+                    AppLocalizations.of(context)
                         .chartAnnualGoalRemaining(remaining),
                     style: TextStyle(
                       fontSize: 14,
@@ -209,13 +209,13 @@ class AnnualGoalCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       isAchieved
-                          ? AppLocalizations.of(context)!
+                          ? AppLocalizations.of(context)
                               .chartAnnualGoalAchievedMessage
                           : (isAhead
-                              ? AppLocalizations.of(context)!
+                              ? AppLocalizations.of(context)
                                   .chartAnnualGoalAheadMessage(
                                       completedBooks - expectedBooks)
-                              : AppLocalizations.of(context)!
+                              : AppLocalizations.of(context)
                                   .chartAnnualGoalMotivationMessage),
                       style: TextStyle(
                         fontSize: 13,
@@ -269,7 +269,7 @@ class AnnualGoalCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.chartAnnualGoalSetGoal,
+            AppLocalizations.of(context).chartAnnualGoalSetGoal,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -278,7 +278,7 @@ class AnnualGoalCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.chartAnnualGoalSetGoalMessage,
+            AppLocalizations.of(context).chartAnnualGoalSetGoalMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -300,7 +300,7 @@ class AnnualGoalCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                AppLocalizations.of(context)!.chartAnnualGoalSetGoal,
+                AppLocalizations.of(context).chartAnnualGoalSetGoal,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

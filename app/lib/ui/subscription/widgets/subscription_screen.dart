@@ -13,7 +13,7 @@ class SubscriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final viewModel = context.watch<SubscriptionViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPro = viewModel.isProUser;

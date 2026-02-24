@@ -54,7 +54,7 @@ class CalendarHeader extends StatelessWidget {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      AppLocalizations.of(context)!.commonCancel,
+                      AppLocalizations.of(context).commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -62,7 +62,7 @@ class CalendarHeader extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    AppLocalizations.of(context)!.calendarMonthSelect,
+                    AppLocalizations.of(context).calendarMonthSelect,
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
@@ -75,7 +75,7 @@ class CalendarHeader extends StatelessWidget {
                       onMonthSelected(selectedMonth);
                     },
                     child: Text(
-                      AppLocalizations.of(context)!.commonConfirm,
+                      AppLocalizations.of(context).commonConfirm,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -149,7 +149,7 @@ class CalendarHeader extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            AppLocalizations.of(context)!.booksCount(monthlyBookCount),
+            AppLocalizations.of(context).booksCount(monthlyBookCount),
             style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,

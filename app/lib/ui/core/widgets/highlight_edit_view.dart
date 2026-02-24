@@ -91,7 +91,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
   }
 
   Widget _buildHeader(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(

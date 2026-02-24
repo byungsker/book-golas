@@ -68,7 +68,7 @@ class ProgressHistoryTab extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.noProgressRecords,
+              AppLocalizations.of(context).noProgressRecords,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -156,7 +156,7 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildChartHeader(BuildContext context, int recordCount, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -210,7 +210,7 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -795,7 +795,7 @@ class ProgressHistoryTab extends StatelessWidget {
   Widget _buildDailyRecords(List<Map<String, dynamic>> data, bool isDark) {
     return Builder(
       builder: (context) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -829,7 +829,7 @@ class ProgressHistoryTab extends StatelessWidget {
       DateTime date, int page, int pagesRead, int readingTime, bool isDark) {
     return Builder(
       builder: (context) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),

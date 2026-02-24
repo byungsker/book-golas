@@ -3308,4 +3308,72 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookInfoViewInBookstore => '서점에서 보기';
+
+  @override
+  String get myPageAccountSection => '계정';
+
+  @override
+  String get myPageAnnouncements => '공지사항';
+
+  @override
+  String get myPageChangePassword => '비밀번호 변경';
+
+  @override
+  String get myPageChangePasswordTitle => '비밀번호 변경';
+
+  @override
+  String get myPageConfirmPassword => '비밀번호 확인';
+
+  @override
+  String get myPageCurrentPassword => '현재 비밀번호';
+
+  @override
+  String get myPageCurrentPasswordRequired => '현재 비밀번호를 입력해주세요';
+
+  @override
+  String get myPageInfoSection => '정보';
+
+  @override
+  String get myPageLogoutAndDelete => '로그아웃 | 회원탈퇴';
+
+  @override
+  String get myPageNewPassword => '새 비밀번호';
+
+  @override
+  String get myPageNotificationAnnouncements => '공지사항 알림';
+
+  @override
+  String get myPageNotificationCategories => '알림 설정';
+
+  @override
+  String get myPageNotificationDailyReminder => '매일 독서 리마인드';
+
+  @override
+  String get myPageNotificationGoalAchievement => '독서 목표 달성';
+
+  @override
+  String get myPagePasswordChanged => '비밀번호가 변경되었습니다';
+
+  @override
+  String get myPagePasswordChangeFailed => '비밀번호 변경에 실패했습니다';
+
+  @override
+  String get myPagePasswordMismatch => '비밀번호가 일치하지 않습니다';
+
+  @override
+  String get myPagePasswordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return '비밀번호 변경 실패: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => '현재 비밀번호가 올바르지 않습니다';
+
+  @override
+  String get myPageTermsAndPolicy => '약관 및 정책';
+
+  @override
+  String get myPageVersion => '버전';
 }

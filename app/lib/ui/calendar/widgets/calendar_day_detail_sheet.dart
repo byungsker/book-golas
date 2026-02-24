@@ -152,7 +152,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
                     ),
                   const SizedBox(height: 4),
                   Text(
-                    AppLocalizations.of(context)!
+                    AppLocalizations.of(context)
                         .calendarPagesRead(bookInfo.pagesReadOnThisDay),
                     style: const TextStyle(
                       fontSize: 12,
@@ -191,7 +191,7 @@ class CalendarDayDetailSheet extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            AppLocalizations.of(context)!.calendarCompleted,
+            AppLocalizations.of(context).calendarCompleted,
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,

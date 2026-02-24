@@ -44,6 +44,12 @@ class AuthService {
       return null;
     } on AuthException catch (error) {
       return error.message;
+    } on PostgrestException catch (error) {
+      debugPrint('회원가입 DB 오류: ${error.message} (code: ${error.code})');
+      if (error.code == '23505') {
+        return '이미 사용 중인 이메일입니다.';
+      }
+      return '회원가입 중 오류가 발생했습니다.';
     } catch (error) {
       return '알 수 없는 오류가 발생했습니다.';
     }
@@ -122,6 +128,50 @@ class AuthService {
     } catch (error) {
       return '알 수 없는 오류가 발생했습니다.';
     }
+  }
+
+  Future<String?> verifyCurrentPassword(String currentPassword) async {
+    try {
+      final email = _supabase.auth.currentUser?.email;
+      if (email == null) return '이메일 정보를 찾을 수 없습니다.';
+
+      await _supabase.auth.signInWithPassword(
+        email: email,
+        password: currentPassword,
+      );
+      return null;
+    } on AuthException catch (e) {
+      debugPrint('현재 비밀번호 확인 오류: ${e.message}');
+      return e.message;
+    } catch (e) {
+      debugPrint('현재 비밀번호 확인 오류: $e');
+      return e.toString();
+    }
+  }
+
+  Future<String?> updatePassword(String newPassword) async {
+    try {
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+      return null;
+    } on AuthException catch (e) {
+      debugPrint('비밀번호 변경 오류: ${e.message}');
+      return e.message;
+    } catch (e) {
+      debugPrint('비밀번호 변경 오류: $e');
+      return e.toString();
+    }
+  }
+
+  bool isEmailAuthUser() {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return false;
+
+    final identities = user.identities;
+    if (identities == null || identities.isEmpty) return false;
+
+    return identities.any((identity) => identity.provider == 'email');
   }
 
   Future<String?> resendVerificationEmail(String email) async {

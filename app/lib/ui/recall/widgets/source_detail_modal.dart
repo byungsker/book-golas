@@ -47,7 +47,7 @@ class _SourceDetailModalState extends State<SourceDetailModal> {
     Clipboard.setData(ClipboardData(text: widget.source.content));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallTextCopied,
+      message: AppLocalizations.of(context).recallTextCopied,
       type: BLabSnackbarType.success,
       bottomOffset: 32,
     );

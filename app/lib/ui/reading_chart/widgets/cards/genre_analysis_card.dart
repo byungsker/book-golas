@@ -70,7 +70,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  AppLocalizations.of(context)!.chartGenreAnalysisTitle,
+                  AppLocalizations.of(context).chartGenreAnalysisTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -195,7 +195,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!
+                  label: AppLocalizations.of(context)
                       .chartGenreAnalysisTotalCompleted,
                   value: formatBooksCount(total, context),
                   isDark: isDark,
@@ -207,7 +207,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
                 ),
                 _buildStatItem(
                   label:
-                      AppLocalizations.of(context)!.chartGenreAnalysisDiversity,
+                      AppLocalizations.of(context).chartGenreAnalysisDiversity,
                   value: '${widget.genreDistribution.length}개',
                   isDark: isDark,
                 ),
@@ -305,7 +305,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.chartGenreAnalysisEmptyMessage,
+            AppLocalizations.of(context).chartGenreAnalysisEmptyMessage,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -314,7 +314,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.chartGenreAnalysisEmptyHint,
+            AppLocalizations.of(context).chartGenreAnalysisEmptyHint,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[500] : Colors.grey[500],

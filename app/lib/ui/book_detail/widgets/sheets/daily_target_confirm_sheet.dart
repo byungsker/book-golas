@@ -50,7 +50,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 20),
             Text(
-              AppLocalizations.of(context)!.dailyTargetConfirmTitle,
+              AppLocalizations.of(context).dailyTargetConfirmTitle,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -59,7 +59,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.dailyTargetConfirmMessage,
+              AppLocalizations.of(context).dailyTargetConfirmMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -69,7 +69,7 @@ Future<bool?> showDailyTargetConfirmSheet({
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.dailyTargetConfirmQuestion,
+              AppLocalizations.of(context).dailyTargetConfirmQuestion,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -89,7 +89,7 @@ Future<bool?> showDailyTargetConfirmSheet({
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.commonCancel,
+                      AppLocalizations.of(context).commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -111,7 +111,7 @@ Future<bool?> showDailyTargetConfirmSheet({
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.confirmChange,
+                      AppLocalizations.of(context).confirmChange,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

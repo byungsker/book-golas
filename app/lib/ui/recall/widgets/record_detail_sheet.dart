@@ -72,7 +72,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
     Clipboard.setData(ClipboardData(text: widget.source.content));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallContentCopied,
+      message: AppLocalizations.of(context).recallContentCopied,
       type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
@@ -287,7 +287,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.recallCopy,
+                      AppLocalizations.of(context).recallCopy,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -338,7 +338,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
           widget.onGoToBook?.call();
         },
         icon: const Icon(CupertinoIcons.book, size: 18),
-        label: Text(AppLocalizations.of(context)!.recallViewInBook),
+        label: Text(AppLocalizations.of(context).recallViewInBook),
         style: ElevatedButton.styleFrom(
           backgroundColor: BLabColors.primary,
           foregroundColor: Colors.white,

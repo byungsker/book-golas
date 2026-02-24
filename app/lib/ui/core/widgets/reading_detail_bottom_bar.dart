@@ -119,7 +119,7 @@ class ReadingDetailBottomBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppLocalizations.of(context)!.pageUpdateButton,
+                      AppLocalizations.of(context).pageUpdateButton,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

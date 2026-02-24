@@ -7,6 +7,7 @@ class BLabTextField extends StatefulWidget {
   final String? label;
   final String? hintText;
   final bool readOnly;
+  final bool obscureText;
   final VoidCallback? onTap;
   final Widget? suffixIcon;
   final int maxLines;
@@ -17,6 +18,7 @@ class BLabTextField extends StatefulWidget {
     this.label,
     this.hintText,
     this.readOnly = false,
+    this.obscureText = false,
     this.onTap,
     this.suffixIcon,
     this.maxLines = 1,
@@ -100,8 +102,9 @@ class _BLabTextFieldState extends State<BLabTextField> {
               child: TextField(
                 controller: widget.controller,
                 readOnly: widget.readOnly,
+                obscureText: widget.obscureText,
                 onTap: widget.onTap,
-                maxLines: widget.maxLines,
+                maxLines: widget.obscureText ? 1 : widget.maxLines,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 16,

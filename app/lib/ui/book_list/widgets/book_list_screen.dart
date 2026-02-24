@@ -112,7 +112,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildTabBar(BookListViewModel vm, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return ScrollableTabBar(
       controller: _tabController,
       scrollController: _tabScrollController,
@@ -150,7 +150,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildErrorState(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +200,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPlannedBooksTab(BookListViewModel vm, bool isDark) {
     final plannedBooks = vm.plannedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (plannedBooks.isEmpty) {
       return _buildEmptyState(l10n.bookListEmptyPlanned);
@@ -225,7 +225,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPausedBooksTab(BookListViewModel vm, bool isDark) {
     final pausedBooks = vm.pausedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (pausedBooks.isEmpty) {
       return _buildEmptyState(l10n.bookListEmptyPaused);
@@ -273,7 +273,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildAllBooksTab(BookListViewModel vm, bool isDark) {
     final allBooks = vm.books;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (allBooks.isEmpty) {
       return _buildEmptyState(l10n.bookListEmptyAll);
@@ -474,7 +474,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildReadingBooksTab(BookListViewModel vm, bool isDark) {
     final readingBooks = vm.readingBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (readingBooks.isEmpty) {
       return _buildEmptyState(l10n.bookListEmptyReading);
@@ -499,7 +499,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildCompletedBooksTab(BookListViewModel vm, bool isDark) {
     final completedBooks = vm.completedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (completedBooks.isEmpty) {
       return _buildEmptyState(l10n.bookListEmptyCompleted);
@@ -574,7 +574,7 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: isDark ? BLabColors.scaffoldDark : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

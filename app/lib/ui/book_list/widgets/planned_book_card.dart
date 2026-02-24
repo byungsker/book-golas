@@ -18,7 +18,7 @@ class PlannedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final daysUntilStart =
         book.plannedStartDate?.difference(DateTime.now()).inDays;

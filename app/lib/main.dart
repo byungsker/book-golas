@@ -49,12 +49,9 @@ import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'data/services/note_structure_service.dart';
 import 'data/services/subscription_service.dart';
 import 'ui/subscription/view_model/subscription_view_model.dart';
-import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
-import 'ui/my_library/widgets/my_library_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'ui/reading_chart/view_model/reading_chart_view_model.dart';
-import 'ui/my_library/view_model/my_library_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'ui/core/widgets/floating_timer_bar.dart';
 
@@ -333,7 +330,7 @@ class MyApp extends StatelessWidget {
             theme: BLabTheme.light,
             darkTheme: BLabTheme.dark,
             locale: localeViewModel.locale,
-            localizationsDelegates: [
+            localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,

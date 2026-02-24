@@ -63,7 +63,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      AppLocalizations.of(context)!
+                      AppLocalizations.of(context)
                           .chartReadingStreakTitle(year),
                       style: TextStyle(
                         fontSize: 18,
@@ -92,7 +92,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          AppLocalizations.of(context)!
+                          AppLocalizations.of(context)
                               .chartReadingStreakDaysRead,
                           style: const TextStyle(
                             fontSize: 14,
@@ -111,9 +111,9 @@ class ReadingStreakHeatmap extends StatelessWidget {
               children: [
                 _buildStatItem(
                   label:
-                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
+                      AppLocalizations.of(context).chartReadingStreakDaysRead,
                   value:
-                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
+                      AppLocalizations.of(context).chartReadingStreakDaysRead,
                   isDark: isDark,
                 ),
                 Container(
@@ -122,7 +122,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!
+                  label: AppLocalizations.of(context)
                       .chartReadingStreakTotalPages,
                   value: _formatNumber(context, totalPages),
                   isDark: isDark,
@@ -133,10 +133,10 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!
+                  label: AppLocalizations.of(context)
                       .chartReadingStreakDailyAverage,
                   value: totalDays > 0
-                      ? AppLocalizations.of(context)!
+                      ? AppLocalizations.of(context)
                           .chartReadingStreakDailyAverage
                       : '0p',
                   isDark: isDark,
@@ -169,13 +169,13 @@ class ReadingStreakHeatmap extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppLocalizations.of(context)!.weekdaySun,
-              AppLocalizations.of(context)!.weekdayMon,
-              AppLocalizations.of(context)!.weekdayTue,
-              AppLocalizations.of(context)!.weekdayWed,
-              AppLocalizations.of(context)!.weekdayThu,
-              AppLocalizations.of(context)!.weekdayFri,
-              AppLocalizations.of(context)!.weekdaySat,
+              AppLocalizations.of(context).weekdaySun,
+              AppLocalizations.of(context).weekdayMon,
+              AppLocalizations.of(context).weekdayTue,
+              AppLocalizations.of(context).weekdayWed,
+              AppLocalizations.of(context).weekdayThu,
+              AppLocalizations.of(context).weekdayFri,
+              AppLocalizations.of(context).weekdaySat,
             ]
                 .map(
                   (day) => SizedBox(
@@ -221,7 +221,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: Tooltip(
-                          message: AppLocalizations.of(context)!
+                          message: AppLocalizations.of(context)
                               .chartReadingStreakTooltip(
                                   date.month, date.day, pages),
                           child: Container(
@@ -263,25 +263,25 @@ class ReadingStreakHeatmap extends StatelessWidget {
   }
 
   Widget _buildEmptyCell() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 2),
       child: SizedBox(width: 12, height: 12),
     );
   }
 
   List<String> _getMonthLabels(BuildContext context) {
     return [
-      AppLocalizations.of(context)!.chartReadingStreakMonthJan,
+      AppLocalizations.of(context).chartReadingStreakMonthJan,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthMar,
+      AppLocalizations.of(context).chartReadingStreakMonthMar,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthMay,
+      AppLocalizations.of(context).chartReadingStreakMonthMay,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthJul,
+      AppLocalizations.of(context).chartReadingStreakMonthJul,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthSep,
+      AppLocalizations.of(context).chartReadingStreakMonthSep,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthNov,
+      AppLocalizations.of(context).chartReadingStreakMonthNov,
       ''
     ];
   }
@@ -307,7 +307,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          AppLocalizations.of(context)!.chartReadingStreakLess,
+          AppLocalizations.of(context).chartReadingStreakLess,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -321,7 +321,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
         _buildLegendBox(_getColorForPages(60, isDark)),
         const SizedBox(width: 4),
         Text(
-          AppLocalizations.of(context)!.chartReadingStreakMore,
+          AppLocalizations.of(context).chartReadingStreakMore,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],

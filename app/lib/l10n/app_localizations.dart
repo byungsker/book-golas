@@ -6178,6 +6178,138 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'서점에서 보기'**
   String get bookInfoViewInBookstore;
+
+  /// Account section in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get myPageAccountSection;
+
+  /// Announcements in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'공지사항'**
+  String get myPageAnnouncements;
+
+  /// Change password in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경'**
+  String get myPageChangePassword;
+
+  /// Change password screen title
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경'**
+  String get myPageChangePasswordTitle;
+
+  /// Confirm password field
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 확인'**
+  String get myPageConfirmPassword;
+
+  /// Current password field
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호'**
+  String get myPageCurrentPassword;
+
+  /// Current password required error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호를 입력해주세요'**
+  String get myPageCurrentPasswordRequired;
+
+  /// Info section in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'정보'**
+  String get myPageInfoSection;
+
+  /// Logout and delete account in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃 | 회원탈퇴'**
+  String get myPageLogoutAndDelete;
+
+  /// New password field
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호'**
+  String get myPageNewPassword;
+
+  /// Announcements notification setting
+  ///
+  /// In ko, this message translates to:
+  /// **'공지사항 알림'**
+  String get myPageNotificationAnnouncements;
+
+  /// Notification categories in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 설정'**
+  String get myPageNotificationCategories;
+
+  /// Daily reading reminder notification
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 독서 리마인드'**
+  String get myPageNotificationDailyReminder;
+
+  /// Reading goal achievement notification
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 목표 달성'**
+  String get myPageNotificationGoalAchievement;
+
+  /// Password changed success message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 변경되었습니다'**
+  String get myPagePasswordChanged;
+
+  /// Password change failed message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경에 실패했습니다'**
+  String get myPagePasswordChangeFailed;
+
+  /// Password mismatch error
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 일치하지 않습니다'**
+  String get myPagePasswordMismatch;
+
+  /// Password too short error
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호는 6자 이상이어야 합니다'**
+  String get myPagePasswordTooShort;
+
+  /// Password change failed with detail
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경 실패: {error}'**
+  String myPagePasswordChangeErrorDetail(String error);
+
+  /// Wrong current password error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호가 올바르지 않습니다'**
+  String get myPageWrongCurrentPassword;
+
+  /// Terms and policy in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'약관 및 정책'**
+  String get myPageTermsAndPolicy;
+
+  /// Version in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'버전'**
+  String get myPageVersion;
 }
 
 class _AppLocalizationsDelegate

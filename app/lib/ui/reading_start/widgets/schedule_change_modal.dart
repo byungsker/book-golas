@@ -51,7 +51,7 @@ class ScheduleChangeModal {
         }
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         final weekdays = [
           l10n.weekdayMon,
           l10n.weekdayTue,
@@ -229,7 +229,7 @@ class ScheduleChangeModal {
                                               const SizedBox(height: 16),
                                               // 예상 스케줄 헤더
                                               Text(
-                                                AppLocalizations.of(context)!
+                                                AppLocalizations.of(context)
                                                     .expectedSchedule,
                                                 style: TextStyle(
                                                   fontSize: 16,
@@ -312,7 +312,7 @@ class ScheduleChangeModal {
     required int pagesLeft,
     required int daysLeft,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
@@ -439,7 +439,7 @@ class ScheduleChangeModal {
                             ),
                             if (isSelected)
                               Text(
-                                AppLocalizations.of(context)!.pagesPerDay,
+                                AppLocalizations.of(context).pagesPerDay,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isDark
@@ -595,7 +595,7 @@ class ScheduleChangeModal {
     required bool isDark,
     required int newDailyTarget,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24,

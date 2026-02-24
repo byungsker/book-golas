@@ -95,7 +95,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final completedDate = widget.book.updatedAt ?? DateTime.now();
     final daysToComplete =

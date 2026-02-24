@@ -150,7 +150,7 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildDeleteButton(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onDelete,
       child: Container(
@@ -294,7 +294,7 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildReadingScheduleCard(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -499,7 +499,7 @@ class DetailTab extends StatelessWidget {
 
   Widget _buildGoalHeader(BuildContext context, int passedDays,
       int achievedCount, int achievementRate, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
@@ -664,7 +664,7 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

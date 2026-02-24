@@ -3382,4 +3382,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookInfoViewInBookstore => 'View in Bookstore';
+
+  @override
+  String get myPageAccountSection => 'Account';
+
+  @override
+  String get myPageAnnouncements => 'Announcements';
+
+  @override
+  String get myPageChangePassword => 'Change Password';
+
+  @override
+  String get myPageChangePasswordTitle => 'Change Password';
+
+  @override
+  String get myPageConfirmPassword => 'Confirm Password';
+
+  @override
+  String get myPageCurrentPassword => 'Current Password';
+
+  @override
+  String get myPageCurrentPasswordRequired =>
+      'Please enter your current password';
+
+  @override
+  String get myPageInfoSection => 'Info';
+
+  @override
+  String get myPageLogoutAndDelete => 'Logout | Delete Account';
+
+  @override
+  String get myPageNewPassword => 'New Password';
+
+  @override
+  String get myPageNotificationAnnouncements => 'Announcements';
+
+  @override
+  String get myPageNotificationCategories => 'Notification Settings';
+
+  @override
+  String get myPageNotificationDailyReminder => 'Daily Reading Reminder';
+
+  @override
+  String get myPageNotificationGoalAchievement => 'Reading Goal Achievement';
+
+  @override
+  String get myPagePasswordChanged => 'Password changed successfully';
+
+  @override
+  String get myPagePasswordChangeFailed => 'Failed to change password';
+
+  @override
+  String get myPagePasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get myPagePasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return 'Password change failed: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => 'Current password is incorrect';
+
+  @override
+  String get myPageTermsAndPolicy => 'Terms & Policy';
+
+  @override
+  String get myPageVersion => 'Version';
 }

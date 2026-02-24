@@ -59,14 +59,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).dialogTakePhoto,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).dialogTakePhoto,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -97,14 +97,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).dialogTakePhoto,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).dialogTakePhoto,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -134,14 +134,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogSelect,
+                  AppLocalizations.of(sheetContext).dialogSelect,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogSelect,
+                  AppLocalizations.of(sheetContext).dialogSelect,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -186,7 +186,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
             ),
             const SizedBox(height: 20),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -206,7 +206,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
                   color: BLabColors.primary,
                 ),
               ),
-              title: Text(AppLocalizations.of(sheetContext)!.dialogTakePhoto),
+              title: Text(AppLocalizations.of(sheetContext).dialogTakePhoto),
               onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
             ),
             ListTile(
@@ -221,7 +221,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
                   color: BLabColors.success,
                 ),
               ),
-              title: Text(AppLocalizations.of(sheetContext)!.dialogSelect),
+              title: Text(AppLocalizations.of(sheetContext).dialogSelect),
               onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
             ),
           ],
@@ -263,7 +263,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -272,7 +272,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -294,7 +294,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(sheetContext)!.commonCancel,
+                      AppLocalizations.of(sheetContext).commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -315,7 +315,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+                      AppLocalizations.of(sheetContext).dialogReplaceImage,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

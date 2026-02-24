@@ -92,7 +92,7 @@ class AiInsightCard extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          AppLocalizations.of(context)!.chartAiInsightTitle,
+          AppLocalizations.of(context).chartAiInsightTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class AiInsightCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.delete_outline, size: 20),
                     const SizedBox(width: 8),
-                    Text(AppLocalizations.of(context)!
+                    Text(AppLocalizations.of(context)
                         .chartAiInsightClearMemory),
                   ],
                 ),
@@ -134,15 +134,15 @@ class AiInsightCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title:
-            Text(AppLocalizations.of(context)!.chartAiInsightClearMemoryTitle),
+            Text(AppLocalizations.of(context).chartAiInsightClearMemoryTitle),
         content: Text(
-          AppLocalizations.of(context)!.chartAiInsightClearMemoryMessage,
+          AppLocalizations.of(context).chartAiInsightClearMemoryMessage,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-                AppLocalizations.of(context)!.chartAiInsightClearMemoryCancel),
+                AppLocalizations.of(context).chartAiInsightClearMemoryCancel),
           ),
           TextButton(
             onPressed: () {
@@ -151,7 +151,7 @@ class AiInsightCard extends StatelessWidget {
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(
-                AppLocalizations.of(context)!.chartAiInsightClearMemoryConfirm),
+                AppLocalizations.of(context).chartAiInsightClearMemoryConfirm),
           ),
         ],
       ),
@@ -166,7 +166,7 @@ class AiInsightCard extends StatelessWidget {
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.chartAiInsightAnalyzing,
+            AppLocalizations.of(context).chartAiInsightAnalyzing,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -190,7 +190,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            error ?? AppLocalizations.of(context)!.chartAiInsightUnknownError,
+            error ?? AppLocalizations.of(context).chartAiInsightUnknownError,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -205,7 +205,7 @@ class AiInsightCard extends StatelessWidget {
                 backgroundColor: BLabColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: Text(AppLocalizations.of(context)!.chartAiInsightRetry),
+              child: Text(AppLocalizations.of(context).chartAiInsightRetry),
             ),
           const SizedBox(height: 20),
         ],
@@ -224,7 +224,7 @@ class AiInsightCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.chartAiInsightMinBooksRequired,
+            AppLocalizations.of(context).chartAiInsightMinBooksRequired,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -233,7 +233,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!
+            AppLocalizations.of(context)
                 .chartAiInsightMinBooksMessage(bookCount),
             style: TextStyle(
               fontSize: 13,
@@ -242,7 +242,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.chartAiInsightMinBooksHint,
+            AppLocalizations.of(context).chartAiInsightMinBooksHint,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,
@@ -291,8 +291,8 @@ class AiInsightCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightSampleLabel,
-            style: TextStyle(
+            AppLocalizations.of(context).chartAiInsightSampleLabel,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: BLabColors.primary,
@@ -346,7 +346,7 @@ class AiInsightCard extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -445,7 +445,7 @@ class AiInsightCard extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          AppLocalizations.of(context)!.chartAiInsightEmptyState,
+          AppLocalizations.of(context).chartAiInsightEmptyState,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white60 : Colors.black54,
@@ -470,7 +470,7 @@ class AiInsightCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightGenerateButton,
+            AppLocalizations.of(context).chartAiInsightGenerateButton,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ),
@@ -484,7 +484,7 @@ class AiInsightCard extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightAlreadyAnalyzed,
+            AppLocalizations.of(context).chartAiInsightAlreadyAnalyzed,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,

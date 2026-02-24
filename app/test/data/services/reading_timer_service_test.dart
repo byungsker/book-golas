@@ -14,7 +14,7 @@ void main() {
 
     group('Timer State Persistence', () {
       test('persistTimerState saves all fields correctly', () async {
-        final bookId = 'test-book-123';
+        const bookId = 'test-book-123';
         final startTime = DateTime(2026, 1, 31, 10, 0, 0);
         const isRunning = true;
         const accumulatedMs = 5000;

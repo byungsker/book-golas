@@ -168,7 +168,7 @@ class FloatingActionBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppLocalizations.of(context)!.searchRecordsButton,
+                      AppLocalizations.of(context).searchRecordsButton,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -222,7 +222,7 @@ class FloatingActionBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppLocalizations.of(context)!.pageUpdateButton,
+                      AppLocalizations.of(context).pageUpdateButton,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

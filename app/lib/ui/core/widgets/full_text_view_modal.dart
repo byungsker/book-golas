@@ -217,7 +217,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
         if (_isEditing)
           GestureDetector(
             onTap: _handleSave,
-            child: Text(
+            child: const Text(
               '저장',
               style: TextStyle(
                 fontSize: 16,
@@ -291,14 +291,14 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
             const SizedBox(width: 16),
             GestureDetector(
               onTap: _startEditing,
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     CupertinoIcons.pencil,
                     size: 14,
                     color: BLabColors.primary,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '수정하기',
                     style: TextStyle(

@@ -2919,5 +2919,73 @@
          "bookInfoIsbn": "ISBN",
          "bookInfoPageCount": "페이지",
          "bookInfoGenre": "장르",
-         "bookInfoViewInBookstore": "서점에서 보기"
+         "bookInfoViewInBookstore": "서점에서 보기",
+
+         "myPageAccountSection": "계정",
+         "@myPageAccountSection": {"description": "Account section in my page"},
+
+         "myPageAnnouncements": "공지사항",
+         "@myPageAnnouncements": {"description": "Announcements in my page"},
+
+         "myPageChangePassword": "비밀번호 변경",
+         "@myPageChangePassword": {"description": "Change password in my page"},
+
+         "myPageChangePasswordTitle": "비밀번호 변경",
+         "@myPageChangePasswordTitle": {"description": "Change password screen title"},
+
+         "myPageConfirmPassword": "비밀번호 확인",
+         "@myPageConfirmPassword": {"description": "Confirm password field"},
+
+
+         "myPageCurrentPassword": "현재 비밀번호",
+         "@myPageCurrentPassword": {"description": "Current password field"},
+
+         "myPageCurrentPasswordRequired": "현재 비밀번호를 입력해주세요",
+         "@myPageCurrentPasswordRequired": {"description": "Current password required error"},
+
+         "myPageInfoSection": "정보",
+         "@myPageInfoSection": {"description": "Info section in my page"},
+
+         "myPageLogoutAndDelete": "로그아웃 | 회원탈퇴",
+         "@myPageLogoutAndDelete": {"description": "Logout and delete account in my page"},
+
+         "myPageNewPassword": "새 비밀번호",
+         "@myPageNewPassword": {"description": "New password field"},
+
+         "myPageNotificationAnnouncements": "공지사항 알림",
+         "@myPageNotificationAnnouncements": {"description": "Announcements notification setting"},
+
+         "myPageNotificationCategories": "알림 설정",
+         "@myPageNotificationCategories": {"description": "Notification categories in my page"},
+
+         "myPageNotificationDailyReminder": "매일 독서 리마인드",
+         "@myPageNotificationDailyReminder": {"description": "Daily reading reminder notification"},
+
+         "myPageNotificationGoalAchievement": "독서 목표 달성",
+         "@myPageNotificationGoalAchievement": {"description": "Reading goal achievement notification"},
+
+         "myPagePasswordChanged": "비밀번호가 변경되었습니다",
+         "@myPagePasswordChanged": {"description": "Password changed success message"},
+
+         "myPagePasswordChangeFailed": "비밀번호 변경에 실패했습니다",
+         "@myPagePasswordChangeFailed": {"description": "Password change failed message"},
+
+         "myPagePasswordMismatch": "비밀번호가 일치하지 않습니다",
+         "@myPagePasswordMismatch": {"description": "Password mismatch error"},
+
+         "myPagePasswordTooShort": "비밀번호는 6자 이상이어야 합니다",
+         "@myPagePasswordTooShort": {"description": "Password too short error"},
+
+
+         "myPagePasswordChangeErrorDetail": "비밀번호 변경 실패: {error}",
+         "@myPagePasswordChangeErrorDetail": {"description": "Password change failed with detail", "placeholders": {"error": {"type": "String"}}},
+
+         "myPageWrongCurrentPassword": "현재 비밀번호가 올바르지 않습니다",
+         "@myPageWrongCurrentPassword": {"description": "Wrong current password error"},
+
+         "myPageTermsAndPolicy": "약관 및 정책",
+         "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
+
+         "myPageVersion": "버전",
+         "@myPageVersion": {"description": "Version in my page"}
 }

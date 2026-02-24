@@ -80,7 +80,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   ];
 
   List<String> _getTabLabels(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return [
       l10n.navHome,
       l10n.navLibrary,

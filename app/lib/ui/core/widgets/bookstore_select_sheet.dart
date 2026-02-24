@@ -14,7 +14,7 @@ void showBookstoreSelectSheet({
   VoidCallback? onBack,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = AppLocalizations.of(context);
   final searchTitle = getSearchTitle(title);
   final encodedTitle = Uri.encodeComponent(searchTitle);
 

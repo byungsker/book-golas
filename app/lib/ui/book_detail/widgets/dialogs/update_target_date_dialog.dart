@@ -97,7 +97,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.changeTargetDateTitle,
+                AppLocalizations.of(context).changeTargetDateTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -105,7 +105,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 ),
               ),
               Text(
-                AppLocalizations.of(context)!
+                AppLocalizations.of(context)
                     .attemptChangeMessage(widget.nextAttemptCount),
                 style: TextStyle(
                   fontSize: 13,
@@ -192,7 +192,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: Text(AppLocalizations.of(context)!.commonCancel),
+            child: Text(AppLocalizations.of(context).commonCancel),
           ),
         ),
         const SizedBox(width: 12),
@@ -211,7 +211,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
               ),
             ),
             child: Text(
-              AppLocalizations.of(context)!.confirmChange,
+              AppLocalizations.of(context).confirmChange,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

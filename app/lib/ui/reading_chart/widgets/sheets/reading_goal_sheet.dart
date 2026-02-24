@@ -50,13 +50,13 @@ class ReadingGoalSheet {
                 children: [
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         '📚',
                         style: TextStyle(fontSize: 28),
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        AppLocalizations.of(context)!
+                        AppLocalizations.of(context)
                             .readingGoalSheetTitle(year),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -68,7 +68,7 @@ class ReadingGoalSheet {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppLocalizations.of(context)!.readingGoalSheetQuestion,
+                    AppLocalizations.of(context).readingGoalSheetQuestion,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -76,7 +76,7 @@ class ReadingGoalSheet {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    AppLocalizations.of(context)!.readingGoalSheetRecommended,
+                    AppLocalizations.of(context).readingGoalSheetRecommended,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -134,7 +134,7 @@ class ReadingGoalSheet {
                                     ),
                                   ),
                                   Text(
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .readingGoalSheetBooks,
                                     style: TextStyle(
                                       fontSize: 12,
@@ -157,7 +157,7 @@ class ReadingGoalSheet {
                   Row(
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.readingGoalSheetCustom,
+                        AppLocalizations.of(context).readingGoalSheetCustom,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -193,9 +193,9 @@ class ReadingGoalSheet {
                     },
                     decoration: InputDecoration(
                       hintText:
-                          AppLocalizations.of(context)!.readingGoalSheetHint,
+                          AppLocalizations.of(context).readingGoalSheetHint,
                       suffixText:
-                          AppLocalizations.of(context)!.readingGoalSheetBooks,
+                          AppLocalizations.of(context).readingGoalSheetBooks,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -219,7 +219,7 @@ class ReadingGoalSheet {
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.lightbulb_outline_rounded,
                           size: 20,
                           color: BLabColors.primary,
@@ -248,7 +248,7 @@ class ReadingGoalSheet {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!
+                            AppLocalizations.of(context)
                                 .readingGoalSheetCancel,
                             style: TextStyle(
                               color:
@@ -275,9 +275,9 @@ class ReadingGoalSheet {
                           ),
                           child: Text(
                             currentGoal != null
-                                ? AppLocalizations.of(context)!
+                                ? AppLocalizations.of(context)
                                     .readingGoalSheetUpdate
-                                : AppLocalizations.of(context)!
+                                : AppLocalizations.of(context)
                                     .readingGoalSheetSet,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -299,21 +299,21 @@ class ReadingGoalSheet {
 
   static String _getGoalMessage(BuildContext context, int goal) {
     final booksPerMonth = (goal / 12).toStringAsFixed(1);
-    return AppLocalizations.of(context)!
+    return AppLocalizations.of(context)
         .readingGoalSheetBooksPerMonth(booksPerMonth);
   }
 
   static String _getMotivationMessage(BuildContext context, int goal) {
     if (goal <= 12) {
-      return AppLocalizations.of(context)!.readingGoalSheetMotivation1;
+      return AppLocalizations.of(context).readingGoalSheetMotivation1;
     } else if (goal <= 24) {
-      return AppLocalizations.of(context)!.readingGoalSheetMotivation2;
+      return AppLocalizations.of(context).readingGoalSheetMotivation2;
     } else if (goal <= 36) {
-      return AppLocalizations.of(context)!.readingGoalSheetMotivation3;
+      return AppLocalizations.of(context).readingGoalSheetMotivation3;
     } else if (goal <= 50) {
-      return AppLocalizations.of(context)!.readingGoalSheetMotivation4;
+      return AppLocalizations.of(context).readingGoalSheetMotivation4;
     } else {
-      return AppLocalizations.of(context)!.readingGoalSheetMotivation5;
+      return AppLocalizations.of(context).readingGoalSheetMotivation5;
     }
   }
 }
