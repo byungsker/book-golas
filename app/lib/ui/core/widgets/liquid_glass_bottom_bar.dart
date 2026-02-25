@@ -20,23 +20,12 @@ class BLabBottomBar extends StatefulWidget {
   /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
   final void Function(Offset position, double size) onSearchTap;
 
-  /// 진행 중인 독서 모드로 전환 버튼 표시 여부
-  final bool showReadingDetailButton;
-
-  /// 진행 중인 독서 모드로 전환 버튼 탭 콜백
-  final VoidCallback? onReadingDetailTap;
-
-  /// 마진 제거 여부 (애니메이션 스택에서 사용 시)
-  final bool noMargin;
 
   const BLabBottomBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
     required this.onSearchTap,
-    this.showReadingDetailButton = false,
-    this.onReadingDetailTap,
-    this.noMargin = false,
   });
 
   @override
@@ -193,9 +182,6 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       ],
     );
 
-    if (widget.noMargin) {
-      return content;
-    }
 
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
@@ -398,32 +384,16 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     Color inactiveForegroundColor,
     bool isHighlighted,
   ) {
-    final showArrow = index == 0 && widget.showReadingDetailButton;
     final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
 
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (showArrow)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Icon(
-                    CupertinoIcons.chevron_up_chevron_down,
-                    color: iconColor,
-                    size: 12,
-                  ),
-                ),
-              Icon(
-                isHighlighted ? tab.activeIcon : tab.icon,
-                color: iconColor,
-                size: 24,
-              ),
-            ],
+          Icon(
+            isHighlighted ? tab.activeIcon : tab.icon,
+            color: iconColor,
+            size: 24,
           ),
           const SizedBox(height: 2),
           Text(
