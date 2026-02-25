@@ -25,12 +25,12 @@ class BookDetailViewModel extends BaseViewModel {
   Map<String, bool> get dailyAchievements => _dailyAchievements;
   int get todayPagesRead => _todayPagesRead;
   bool get shouldShowPaywall => _shouldShowPaywall;
+  int get effectiveDailyTarget => _resolvedDailyTarget;
 
   void clearPaywallState() {
     _shouldShowPaywall = false;
   }
 
-  /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표)
   /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표, 달성 후 고정)
   int get todayGoalPage {
     if (_lockedTodayGoalPage != null) return _lockedTodayGoalPage!;

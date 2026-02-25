@@ -343,7 +343,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   totalPages: book.totalPages,
                                   daysLeft: bookVm.daysLeft,
                                   pagesLeft: bookVm.pagesLeft,
-                                  dailyTargetPages: book.dailyTargetPages,
+                                  dailyTargetPages: bookVm.effectiveDailyTarget,
                                   isTodayGoalAchieved:
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
