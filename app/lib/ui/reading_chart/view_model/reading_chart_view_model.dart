@@ -86,28 +86,39 @@ class ReadingChartViewModel extends ChangeNotifier {
           _deserializeFromJson(json);
           notifyListeners();
         } catch (e) {
-          // Cache parse failed, will use fresh data from server
+          debugPrint('Cache parse failed: $e');
         }
       }
 
       final currentYear = DateTime.now().year;
-      final results = await Future.wait([
-        _fetchUserProgressHistory(),
-        _progressService.getGenreDistribution(year: currentYear),
-        _progressService.getMonthlyBookCount(year: currentYear),
-        _goalService.getYearlyProgress(year: currentYear),
-        _progressService.getDailyReadingHeatmap(weeksToShow: 26),
-        _calculateCompletionStats(),
-        _calculateHighlightStats(),
-        _progressService.calculateGoalAchievementRate(),
-      ]);
 
-      _cachedRawData = results[0] as List<Map<String, dynamic>>;
-      _genreDistribution = results[1] as Map<String, int>;
-      _monthlyBookCount = results[2] as Map<int, int>;
-      _goalProgress = results[3] as Map<String, dynamic>;
-      _heatmapData = results[4] as Map<DateTime, int>;
-      _goalRate = results[7] as double;
+      _cachedRawData = await _safeCall(
+        () => _fetchUserProgressHistory(),
+        <Map<String, dynamic>>[],
+      );
+      _genreDistribution = await _safeCall(
+        () => _progressService.getGenreDistribution(year: currentYear),
+        <String, int>{},
+      );
+      _monthlyBookCount = await _safeCall(
+        () => _progressService.getMonthlyBookCount(year: currentYear),
+        <int, int>{},
+      );
+      _goalProgress = await _safeCall(
+        () => _goalService.getYearlyProgress(year: currentYear),
+        <String, dynamic>{},
+      );
+      _heatmapData = await _safeCall(
+        () => _progressService.getDailyReadingHeatmap(weeksToShow: 26),
+        <DateTime, int>{},
+      );
+      await _safeCall(() => _calculateCompletionStats(), null);
+      await _safeCall(() => _calculateHighlightStats(), null);
+      _goalRate = await _safeCall(
+        () => _progressService.calculateGoalAchievementRate(),
+        0.0,
+      );
+
       _errorMessage = null;
 
       final writePrefs = await SharedPreferences.getInstance();
@@ -120,6 +131,15 @@ class ReadingChartViewModel extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<T> _safeCall<T>(Future<T> Function() fn, T fallback) async {
+    try {
+      return await fn();
+    } catch (e) {
+      debugPrint('Chart data load partial failure: $e');
+      return fallback;
     }
   }
 

@@ -397,7 +397,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       return const ReadingChartSkeleton();
     }
 
-    if (vm.errorMessage != null) {
+    if (vm.errorMessage != null && !vm.hasData && vm.cachedRawData == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
