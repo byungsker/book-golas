@@ -235,6 +235,25 @@
          }
        }
      },
+     "myPageDarkMode": "Dark Mode",
+     "myPageDailyReadingNotification": "Daily Reading Goal Reminder",
+     "myPageNotificationTimeTitle": "Notification Time",
+     "myPageNotificationsEnabled": "Notifications enabled",
+     "myPageNotificationsDisabled": "Notifications disabled",
+     "myPageNotificationSettingsFailed": "Failed to change notification settings",
+     "myPageNotificationTimeChanged": "Notification time changed to {time}",
+     "@myPageNotificationTimeChanged": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
+     "myPageNotificationTimeChangeFailed": "Failed to change notification time",
+     "myPageDailyReadingNotificationSubtitle": "Notification at {time} daily",
+     "@myPageDailyReadingNotificationSubtitle": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
      "myPageNotificationChangeFailed": "Failed to change notification settings",
      "@myPageNotificationChangeFailed": {"description": "Notification change failed"},
      "myPageAvatarChanged": "Avatar changed",
