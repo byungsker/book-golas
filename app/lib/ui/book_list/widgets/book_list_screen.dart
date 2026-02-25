@@ -12,6 +12,7 @@ import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/empty_state_view.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
@@ -197,7 +198,7 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
 
     if (plannedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyPlanned);
+      return EmptyStateView(message: l10n.bookListEmptyPlanned);
     }
 
     return RefreshIndicator(
@@ -222,7 +223,7 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
 
     if (pausedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyPaused);
+      return EmptyStateView(message: l10n.bookListEmptyPaused);
     }
 
     return RefreshIndicator(
@@ -242,85 +243,19 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildEmptyState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ColorFiltered(
-              colorFilter: const ColorFilter.matrix(<double>[
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0, 0, 0, 1, 0,
-              ]),
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: 80,
-                height: 80,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildReadingEmptyState(bool isDark, AppLocalizations l10n) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ColorFiltered(
-              colorFilter: const ColorFilter.matrix(<double>[
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0.2126, 0.7152, 0.0722, 0, 0,
-                0, 0, 0, 1, 0,
-              ]),
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: 80,
-                height: 80,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.bookListEmptyReading,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            BLabButton(
-              text: l10n.bookListReadingEmptyAction,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ReadingStartScreen(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+    return EmptyStateView(
+      message: l10n.bookListEmptyReading,
+      showButton: true,
+      buttonLabel: l10n.bookListReadingEmptyAction,
+      onButtonPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ReadingStartScreen(),
+          ),
+        );
+      },
     );
   }
 
@@ -329,7 +264,7 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
 
     if (allBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyAll);
+      return EmptyStateView(message: l10n.bookListEmptyAll);
     }
 
     return RefreshIndicator(
@@ -555,7 +490,7 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
 
     if (completedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyCompleted);
+      return EmptyStateView(message: l10n.bookListEmptyCompleted);
     }
 
     return RefreshIndicator(

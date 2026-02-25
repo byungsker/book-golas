@@ -13,6 +13,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/core/widgets/empty_state_view.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
 import 'package:book_golas/ui/my_library/widgets/my_library_book_skeleton.dart';
@@ -377,7 +378,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 final emptyMessage = vm.readingSearchQuery.isNotEmpty
                     ? AppLocalizations.of(context).myLibraryNoSearchResults
                     : AppLocalizations.of(context).myLibraryNoBooks;
-                return _buildEmptyState(isDark, emptyMessage);
+                return EmptyStateView(message: emptyMessage);
               }
 
               return ListView.builder(
@@ -421,7 +422,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 final emptyMessage = vm.reviewSearchQuery.isNotEmpty
                     ? AppLocalizations.of(context).myLibraryNoSearchResults
                     : AppLocalizations.of(context).myLibraryNoReviewBooks;
-                return _buildEmptyState(isDark, emptyMessage);
+                return EmptyStateView(message: emptyMessage);
               }
 
               return ListView.builder(
@@ -458,8 +459,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
               final groups = vm.groupedRecords;
 
               if (groups.isEmpty) {
-                return _buildEmptyState(
-                    isDark, AppLocalizations.of(context).myLibraryNoRecords);
+                return EmptyStateView(
+                    message: AppLocalizations.of(context).myLibraryNoRecords);
               }
 
               return ListView.builder(
@@ -587,30 +588,4 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     );
   }
 
-  Widget _buildEmptyState(bool isDark, String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.book,
-            size: 48,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 16,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
