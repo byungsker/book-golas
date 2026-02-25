@@ -72,9 +72,14 @@ class ReadingProgressViewModel extends BaseViewModel {
 
     for (int i = _progressHistory!.length - 1; i >= 0; i--) {
       final record = _progressHistory![i];
-      final createdAt = DateTime.tryParse(record['created_at'] ?? '');
+      DateTime? createdAt;
+      final rawCreatedAt = record['created_at'];
+      if (rawCreatedAt is DateTime) {
+        createdAt = rawCreatedAt.toLocal();
+      } else if (rawCreatedAt is String) {
+        createdAt = DateTime.tryParse(rawCreatedAt)?.toLocal();
+      }
       if (createdAt == null) continue;
-
       final recordDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
       final expectedDate = today.subtract(Duration(days: streak));
 

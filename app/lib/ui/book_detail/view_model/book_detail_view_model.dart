@@ -16,6 +16,7 @@ class BookDetailViewModel extends BaseViewModel {
   int _todayPagesRead = 0;
   bool _isTodayGoalAchievedLocked = false;
   int? _lockedTodayGoalPage;
+  int? _effectiveDailyTarget;
   bool _shouldShowPaywall = false;
 
   Book get currentBook => _currentBook;
@@ -33,7 +34,7 @@ class BookDetailViewModel extends BaseViewModel {
   /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표, 달성 후 고정)
   int get todayGoalPage {
     if (_lockedTodayGoalPage != null) return _lockedTodayGoalPage!;
-    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    final dailyTarget = _resolvedDailyTarget;
     return _todayStartPage + dailyTarget;
   }
 
@@ -46,10 +47,29 @@ class BookDetailViewModel extends BaseViewModel {
 
   /// 오늘 목표 달성 여부 (한번 달성하면 오늘은 고정)
   bool get isTodayGoalAchieved {
-    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    final dailyTarget = _resolvedDailyTarget;
     if (dailyTarget == 0) return false;
     if (_isTodayGoalAchievedLocked) return true;
     return _currentBook.currentPage >= todayGoalPage;
+  }
+
+  /// 실효 일일 목표: stored > 0이면 stored, 아니면 fallback 계산
+  /// 한 번 고정되면 페이지 업데이트 시 재계산되지 않음
+  int get _resolvedDailyTarget {
+    if (_effectiveDailyTarget != null) return _effectiveDailyTarget!;
+    final stored = _currentBook.dailyTargetPages ?? 0;
+    if (stored > 0) {
+      _effectiveDailyTarget = stored;
+      return _effectiveDailyTarget!;
+    }
+    final days = daysLeft;
+    final pages = pagesLeft;
+    if (days > 0) {
+      _effectiveDailyTarget = (pages / days).ceil();
+    } else {
+      _effectiveDailyTarget = pages > 0 ? pages : 0;
+    }
+    return _effectiveDailyTarget!;
   }
 
   int get daysLeft {
@@ -94,7 +114,8 @@ class BookDetailViewModel extends BaseViewModel {
   Future<void> loadDailyAchievements() async {
     try {
       final achievements = <String, bool>{};
-      final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+      _effectiveDailyTarget ??= _resolvedDailyTarget;
+      final dailyTarget = _effectiveDailyTarget!;
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
@@ -127,7 +148,7 @@ class BookDetailViewModel extends BaseViewModel {
 
       debugPrint('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
 
-      // dailyTarget이 0이면 (null 케이스) 달성 불가로 처리
+      // dailyTarget이 0이면 (설정 없음 + fallback도  0) 달성 불가로 처리
       if (dailyTarget > 0) {
         for (final entry in dailyPages.entries) {
           achievements[entry.key] = entry.value >= dailyTarget;
@@ -192,7 +213,7 @@ class BookDetailViewModel extends BaseViewModel {
           _todayPagesRead += pagesRead;
 
           // 오늘 달성 여부 로컬 업데이트 (DB 쿼리 대신 즉시 반영)
-          final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+          final dailyTarget = _effectiveDailyTarget ?? _resolvedDailyTarget;
           if (dailyTarget > 0) {
             final now = DateTime.now();
             final todayKey =
