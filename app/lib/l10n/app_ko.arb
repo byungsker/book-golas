@@ -2798,6 +2798,7 @@
         "chartMonthlyBooksThisMonth": "이번 달",
         "chartMonthlyBooksLastMonth": "지난 달",
         "chartMonthlyBooksChange": "변화",
+        "chartMonthlyBooksCustomRange": "직접 범위 설정",
         "chartMonthlyBooksTooltip": "{month}: {count}권",
         "@chartMonthlyBooksTooltip": {"placeholders": {"month": {"type": "int"}, "count": {"type": "int"}}},
         "chartReadingStreakTitle": "{year}년 독서 활동",

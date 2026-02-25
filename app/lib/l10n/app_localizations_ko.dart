@@ -2968,6 +2968,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chartMonthlyBooksCustomRange => '직접 범위 설정';
+
   @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count권';

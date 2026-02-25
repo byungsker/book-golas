@@ -1044,7 +1044,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final barGroups = aggregated.asMap().entries.map((entry) {
       final idx = entry.key;
       final dailyPage = entry.value['daily_page'] as int;
-      final normalizedDaily = maxCumulative > 0
+      final normalizedDaily = (maxCumulative > 0 && maxDaily > 0)
           ? (dailyPage / maxDaily) * maxCumulative * 0.3
           : 0.0;
       return BarChartGroupData(
@@ -1082,6 +1082,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     showTitles: true,
                     reservedSize: 50,
                     getTitlesWidget: (value, meta) {
+                      if (value.isNaN || value.isInfinite) return const SizedBox.shrink();
                       return Text(
                         value.toInt().toString(),
                         style: TextStyle(
@@ -1149,7 +1150,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                 ),
               ),
-              maxY: maxCumulative.toDouble() * 1.1,
+              maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
               minY: 0,
               barTouchData: BarTouchData(enabled: false),
             ),
@@ -1181,7 +1182,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 titlesData: const FlTitlesData(show: false),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                maxY: maxCumulative.toDouble() * 1.1,
+                maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
                 minY: 0,
                 minX: 0,
                 maxX: (aggregated.length - 1).toDouble(),

@@ -1275,6 +1275,7 @@
            "chartMonthlyBooksThisMonth": "This Month",
            "chartMonthlyBooksLastMonth": "Last Month",
            "chartMonthlyBooksChange": "Change",
+           "chartMonthlyBooksCustomRange": "Custom Range",
            "chartMonthlyBooksTooltip": "{month}: {count} books",
            "@chartMonthlyBooksTooltip": {"placeholders": {"month": {"type": "int"}, "count": {"type": "int"}}},
            "chartReadingStreakTitle": "{year} Reading Activity",

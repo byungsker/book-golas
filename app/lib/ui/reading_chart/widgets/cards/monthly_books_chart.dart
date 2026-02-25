@@ -121,6 +121,7 @@ class MonthlyBooksChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
+                          if (value.isNaN || value.isInfinite) return const SizedBox.shrink();
                           final month = value.toInt() + 1;
                           final isCurrentMonth = month == currentMonth;
                           return Padding(
@@ -149,7 +150,7 @@ class MonthlyBooksChart extends StatelessWidget {
                         showTitles: true,
                         reservedSize: 28,
                         getTitlesWidget: (value, meta) {
-                          if (value == 0) return const SizedBox.shrink();
+                          if (value.isNaN || value.isInfinite || value == 0) return const SizedBox.shrink();
                           return Text(
                             value.toInt().toString(),
                             style: TextStyle(

@@ -3041,6 +3041,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartMonthlyBooksCustomRange => 'Custom Range';
+
   @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count books';
