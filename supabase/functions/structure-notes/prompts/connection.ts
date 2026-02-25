@@ -1,4 +1,4 @@
-import { PromptTemplate } from "https://esm.sh/@langchain/core@0.3.0/prompts";
+import { PromptTemplate } from "@langchain/core/prompts";
 
 export const connectionPrompt = PromptTemplate.fromTemplate(`
 당신은 독서 기록들 사이의 의미적 연결고리를 찾는 전문가입니다.

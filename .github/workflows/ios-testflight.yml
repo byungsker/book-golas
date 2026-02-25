@@ -82,6 +82,7 @@ jobs:
           echo "SUPABASE_URL_DEV=${{ secrets.SUPABASE_URL_DEV }}" >> .env
           echo "SUPABASE_ANON_KEY_DEV=${{ secrets.SUPABASE_ANON_KEY_DEV }}" >> .env
           echo "GOOGLE_CLOUD_VISION_API_KEY=${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}" >> .env
+          echo "REVENUECAT_PUBLIC_KEY=${{ secrets.REVENUECAT_PUBLIC_KEY }}" >> .env
           echo "ENVIRONMENT=development" >> .env
 
       - name: Install Certificate and Provisioning Profiles
