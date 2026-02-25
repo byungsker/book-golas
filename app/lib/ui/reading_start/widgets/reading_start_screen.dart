@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
@@ -1522,16 +1523,21 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                               ),
                             );
                           } else if (mounted && !success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  vm.errorMessage ??
-                                      AppLocalizations.of(context)
-                                          .readingStartSaveError,
+                            if (vm.shouldShowPaywall) {
+                              vm.clearPaywallState();
+                              await SubscriptionService().showPaywall(context);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    vm.errorMessage ??
+                                        AppLocalizations.of(context)
+                                            .readingStartSaveError,
+                                  ),
+                                  backgroundColor: Colors.red,
                                 ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
+                              );
+                            }
                           }
                         },
                   style: ElevatedButton.styleFrom(

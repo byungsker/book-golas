@@ -350,6 +350,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
         ),
         child: SizedBox(
           width: 90,
+          height: 90,
           child: CachedNetworkImage(
             imageUrl: imageUrl,
             cacheManager: BookImageCacheManager.instance,

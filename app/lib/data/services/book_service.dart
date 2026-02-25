@@ -345,6 +345,13 @@ class BookService {
     DateTime? newTargetDate,
     bool incrementAttempt = true,
   }) async {
+    final currentReadingCount = _books.where((b) => b.status == BookStatus.reading.value && b.id != bookId).length;
+    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(currentReadingCount)) {
+      throw ConcurrentReadingLimitException(
+        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
+      );
+    }
+
     try {
       final currentBook = await getBookById(bookId);
       if (currentBook == null) return null;
