@@ -999,6 +999,9 @@
            "proUpgradeBannerMini": "Upgrade to Pro",
            "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
 
+           "proUpgradeBannerMiniDesc": "AI search, reading insights & all features unlimited",
+           "@proUpgradeBannerMiniDesc": {"description": "Mini pro upgrade banner description"},
+
            "myPageSubscriptionUpgrade": "Upgrade to Pro",
            "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},
 

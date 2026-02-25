@@ -2244,6 +2244,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proUpgradeBannerMini => 'Pro로 무제한 이용하기';
 
   @override
+  String get proUpgradeBannerMiniDesc => 'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Pro로 업그레이드';
 
   @override

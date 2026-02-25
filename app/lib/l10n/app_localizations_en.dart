@@ -2306,6 +2306,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proUpgradeBannerMini => 'Upgrade to Pro';
 
   @override
+  String get proUpgradeBannerMiniDesc =>
+      'AI search, reading insights & all features unlimited';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Upgrade to Pro';
 
   @override

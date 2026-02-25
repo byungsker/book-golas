@@ -2535,6 +2535,9 @@
         "proUpgradeBannerMini": "Pro로 무제한 이용하기",
         "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
 
+        "proUpgradeBannerMiniDesc": "AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이",
+        "@proUpgradeBannerMiniDesc": {"description": "Mini pro upgrade banner description"},
+
         "myPageSubscriptionUpgrade": "Pro로 업그레이드",
         "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},
 

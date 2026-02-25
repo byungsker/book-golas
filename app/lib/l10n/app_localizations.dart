@@ -4228,6 +4228,12 @@ abstract class AppLocalizations {
   /// **'Pro로 무제한 이용하기'**
   String get proUpgradeBannerMini;
 
+  /// Mini pro upgrade banner description
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이'**
+  String get proUpgradeBannerMiniDesc;
+
   /// Upgrade to Pro in my page
   ///
   /// In ko, this message translates to:
