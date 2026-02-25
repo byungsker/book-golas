@@ -114,7 +114,7 @@ class BookDetailViewModel extends BaseViewModel {
 
       final dailyPages = <String, int>{};
       for (final record in response) {
-        final createdAt = DateTime.parse(record['created_at'] as String);
+        final createdAt = DateTime.parse(record['created_at'] as String).toLocal();
         final dateKey =
             '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
         final pagesRead =
