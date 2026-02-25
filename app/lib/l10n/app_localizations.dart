@@ -5554,6 +5554,60 @@ abstract class AppLocalizations {
   /// **'변화'**
   String get chartMonthlyBooksChange;
 
+  /// No description provided for @chartMonthlyBooksCustomRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 범위 설정'**
+  String get chartMonthlyBooksCustomRange;
+
+  /// No description provided for @chartBookStatusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 현황'**
+  String get chartBookStatusTitle;
+
+  /// No description provided for @chartBookStatusAnnual.
+  ///
+  /// In ko, this message translates to:
+  /// **'연간'**
+  String get chartBookStatusAnnual;
+
+  /// No description provided for @chartBookStatusMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간'**
+  String get chartBookStatusMonthly;
+
+  /// No description provided for @chartBookStatusWeekly.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간'**
+  String get chartBookStatusWeekly;
+
+  /// No description provided for @chartBookStatusCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 설정'**
+  String get chartBookStatusCustom;
+
+  /// No description provided for @chartBookStatusTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 완독'**
+  String get chartBookStatusTotal;
+
+  /// No description provided for @chartBookStatusDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'완독일'**
+  String get chartBookStatusDays;
+
+  /// No description provided for @chartBookStatusMaxDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'최다'**
+  String get chartBookStatusMaxDay;
+
   /// No description provided for @chartMonthlyBooksTooltip.
   ///
   /// In ko, this message translates to:

@@ -2967,6 +2967,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartMonthlyBooksChange => '변화';
 
   @override
+  String get chartMonthlyBooksCustomRange => '직접 범위 설정';
+
+  @override
+  String get chartBookStatusTitle => '독서 현황';
+
+  @override
+  String get chartBookStatusAnnual => '연간';
+
+  @override
+  String get chartBookStatusMonthly => '월간';
+
+  @override
+  String get chartBookStatusWeekly => '주간';
+
+  @override
+  String get chartBookStatusCustom => '기간 설정';
+
+  @override
+  String get chartBookStatusTotal => '총 완독';
+
+  @override
+  String get chartBookStatusDays => '완독일';
+
+  @override
+  String get chartBookStatusMaxDay => '최다';
+
+  @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count권';
   }
