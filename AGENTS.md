@@ -310,6 +310,66 @@ PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내�
 3. **Always notifyListeners()** - After ViewModel state changes
 4. **Return null/empty on errors** - Don't throw from services
 5. **Use const constructors** - For widgets where possible
+6. **Multilingual UX Writing (다국어 적용)** - Always apply multilingual support for user-facing text
+
+### Multilingual UX Writing Guidelines
+
+When adding any UX writing or user-facing text to the app, **you MUST add translations to both Korean and English ARB files**.
+
+#### ARB Files Location
+- Korean: `app/lib/l10n/app_ko.arb`
+- English: `app/lib/l10n/app_en.arb`
+
+#### How to Add Multilingual Strings
+
+**Step 1: Add to ARB files**
+
+```json
+// app/lib/l10n/app_ko.arb
+{
+  "commonCancel": "취소",
+  "@commonCancel": {
+    "description": "Cancel button text"
+  }
+}
+
+// app/lib/l10n/app_en.arb
+{
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Cancel button text"
+  }
+}
+```
+
+**Step 2: Use in Dart code**
+
+```dart
+import 'package:book_golas/l10n/app_localizations.dart';
+
+// In your widget
+Text(AppLocalizations.of(context)!.commonCancel)
+
+// Or in ViewModel (pass context from UI)
+String cancelText = AppLocalizations.of(context)!.commonCancel;
+```
+
+#### Naming Convention for String Keys
+- Use `camelCase` for key names
+- Prefix with feature/context: `commonCancel`, `homeTitle`, `profileEditName`
+- Keep keys descriptive but concise
+
+#### CRITICAL: Never Hardcode User-Facing Text
+- ❌ `Text("Cancel")` - Hardcoded, not translatable
+- ✅ `Text(AppLocalizations.of(context)!.commonCancel)` - Translatable
+
+#### Workflow
+1. Write the English text first in `app_en.arb`
+2. Add Korean translation in `app_ko.arb` with same key
+3. Add `@key` description for context
+4. Use `AppLocalizations.of(context)!.keyName` in code
+5. Run `flutter pub get` to regenerate localization files
+6. Commit both ARB files together with code changes
 
 ## Environment Variables (app/.env)
 - `ALADIN_TTB_KEY` - Book search API
