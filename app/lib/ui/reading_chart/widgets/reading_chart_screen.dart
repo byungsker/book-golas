@@ -249,11 +249,40 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       ),
       builder: (context, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
+        final rangeColor = isDark
+            ? BLabColors.primary.withValues(alpha: 0.2)
+            : BLabColors.primary.withValues(alpha: 0.12);
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: isDark
-                ? const ColorScheme.dark(primary: BLabColors.primary)
-                : const ColorScheme.light(primary: BLabColors.primary),
+                ? ColorScheme.dark(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: BLabColors.primary.withValues(alpha: 0.35),
+                    onPrimaryContainer: Colors.white,
+                    surface: BLabColors.surfaceDark,
+                    onSurface: Colors.white,
+                    onSurfaceVariant: Colors.white70,
+                  )
+                : const ColorScheme.light(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFFDDE3FF),
+                    onPrimaryContainer: BLabColors.primary,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                    onSurfaceVariant: Colors.black54,
+                  ),
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: rangeColor,
+              headerBackgroundColor: isDark
+                  ? BLabColors.surfaceDark
+                  : BLabColors.primary,
+              headerForegroundColor: Colors.white,
+              rangePickerBackgroundColor: isDark
+                  ? BLabColors.scaffoldDark
+                  : BLabColors.scaffoldLight,
+            ),
           ),
           child: child!,
         );
