@@ -176,7 +176,7 @@ class HighlightStatsCard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         ...topGenres.map((entry) {
-          final percentage = (entry.value / totalHighlights * 100).toInt();
+          final percentage = totalHighlights > 0 ? (entry.value / totalHighlights * 100).toInt() : 0;
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
