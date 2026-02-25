@@ -280,12 +280,14 @@ class ReadingProgressService {
               status,
               start_date,
               target_date,
-              updated_at
+              updated_at,
+              deleted_at
             )
           ''')
           .eq('user_id', userId)
           .gte('created_at', startDate.toIso8601String())
           .lte('created_at', endDate.toIso8601String())
+          .isFilter('books.deleted_at', null)
           .order('created_at', ascending: false);
 
       final Map<DateTime, List<Map<String, dynamic>>> result = {};
@@ -503,8 +505,9 @@ class ReadingProgressService {
 
       final response = await _supabase
           .from(_tableName)
-          .select('created_at, page, previous_page')
+          .select('created_at, page, previous_page, books!inner(deleted_at)')
           .eq('user_id', userId)
+          .isFilter('books.deleted_at', null)
           .gte('created_at', startDate.toIso8601String())
           .lte('created_at', endDate.toIso8601String());
 

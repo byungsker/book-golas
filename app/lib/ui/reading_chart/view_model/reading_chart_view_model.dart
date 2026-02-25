@@ -152,8 +152,9 @@ class ReadingChartViewModel extends ChangeNotifier {
 
     final response = await Supabase.instance.client
         .from('book_images')
-        .select('id, extracted_text, highlights, book_id')
-        .eq('user_id', user.id);
+        .select('id, extracted_text, highlights, book_id, books!inner(deleted_at)')
+        .eq('user_id', user.id)
+        .isFilter('books.deleted_at', null);
 
     final images = response;
 
@@ -199,8 +200,9 @@ class ReadingChartViewModel extends ChangeNotifier {
 
     final response = await Supabase.instance.client
         .from('reading_progress_history')
-        .select('page, book_id, created_at')
+        .select('page, book_id, created_at, books!inner(deleted_at)')
         .eq('user_id', user.id)
+        .isFilter('books.deleted_at', null)
         .order('created_at', ascending: true);
 
     return (response as List)
@@ -295,6 +297,11 @@ class ReadingChartViewModel extends ChangeNotifier {
   }
 
   Future<void> invalidateCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_chartDataCacheKey);
+  }
+
+  static Future<void> clearCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_chartDataCacheKey);
   }
