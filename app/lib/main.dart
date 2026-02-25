@@ -469,12 +469,16 @@ class _MainScreenState extends State<MainScreen>
       try {
         debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
         final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId != null) {
+        final rcKey = AppConfig.revenueCatPublicKey;
+        if (userId != null && rcKey.isNotEmpty) {
+          await Purchases.setLogLevel(LogLevel.info);
           await Purchases.configure(
-            PurchasesConfiguration(AppConfig.revenueCatPublicKey)
-              ..appUserID = userId,
+            PurchasesConfiguration(rcKey)..appUserID = userId,
           );
           debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
+          await context.read<SubscriptionService>().initialize(userId);
+        } else if (rcKey.isEmpty) {
+          debugPrint('⚠️ RevenueCat 초기화 스킵: API 키 미설정');
         } else {
           debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
         }

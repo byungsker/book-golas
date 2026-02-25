@@ -82,6 +82,56 @@ class SubscriptionService {
     }
   }
 
+  /// Logs in the user to RevenueCat (call after Supabase auth)
+  Future<void> initialize(String userId) async {
+    try {
+      await Purchases.logIn(userId);
+      debugPrint('RevenueCat logged in: $userId');
+    } catch (e) {
+      debugPrint('Failed to initialize RevenueCat for user: $e');
+    }
+  }
+
+  /// Returns simplified subscription status: 'free' or 'pro'
+  Future<String> getSubscriptionStatus() async {
+    final proStatus = await isPro();
+    return proStatus ? 'pro' : 'free';
+  }
+
+  /// Purchases the monthly subscription
+  Future<bool> purchaseMonthly() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final monthlyPackage = offerings.current?.availablePackages.firstWhere(
+        (p) => p.identifier == 'monthly',
+        orElse: () => offerings.current!.monthly!,
+      );
+      if (monthlyPackage == null) return false;
+      await Purchases.purchasePackage(monthlyPackage);
+      return true;
+    } catch (e) {
+      debugPrint('Failed to purchase monthly: $e');
+      return false;
+    }
+  }
+
+  /// Purchases the yearly subscription
+  Future<bool> purchaseYearly() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final yearlyPackage = offerings.current?.availablePackages.firstWhere(
+        (p) => p.identifier == 'yearly',
+        orElse: () => offerings.current!.annual!,
+      );
+      if (yearlyPackage == null) return false;
+      await Purchases.purchasePackage(yearlyPackage);
+      return true;
+    } catch (e) {
+      debugPrint('Failed to purchase yearly: $e');
+      return false;
+    }
+  }
+
   /// Checks if the given [CustomerInfo] has Pro entitlement.
   bool _hasProEntitlement(CustomerInfo info) {
     return info.entitlements.active.containsKey(_proEntitlementId);
