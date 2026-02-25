@@ -1250,6 +1250,18 @@ abstract class AppLocalizations {
   /// **'독서 여정 떠나기'**
   String get bookListReadingEmptyAction;
 
+  /// Search mode dropdown - book search label
+  ///
+  /// In ko, this message translates to:
+  /// **'도서 검색'**
+  String get searchModeBookSearch;
+
+  /// Search mode dropdown - AI record search label
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get searchModeAiRecordSearch;
+
   /// Empty state message for completed books
   ///
   /// In ko, this message translates to:

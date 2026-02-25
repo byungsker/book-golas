@@ -641,6 +641,12 @@
      "bookListReadingEmptyAction": "독서 여정 떠나기",
      "@bookListReadingEmptyAction": {"description": "Button label for reading empty state action"},
      
+     "searchModeBookSearch": "도서 검색",
+     "@searchModeBookSearch": {"description": "Search mode dropdown - book search label"},
+     
+     "searchModeAiRecordSearch": "AI 기록 검색",
+     "@searchModeAiRecordSearch": {"description": "Search mode dropdown - AI record search label"},
+     
      "bookListEmptyCompleted": "완독한 책이 없습니다",
      "@bookListEmptyCompleted": {"description": "Empty state message for completed books"},
      

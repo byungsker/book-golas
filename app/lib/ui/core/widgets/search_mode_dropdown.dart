@@ -147,37 +147,38 @@ class _SearchModeDropdownOverlayState extends State<_SearchModeDropdownOverlay>
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildItem(
-                        icon: CupertinoIcons.search,
-                        label: l10n.navHome,
-                        subtitle: l10n.myLibrarySearchHint,
-                        isDark: isDark,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          widget.onSelected(SearchMode.bookSearch);
-                        },
-                      ),
-                      Divider(
-                        height: 0.5,
-                        thickness: 0.5,
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.1)
-                            : Colors.black.withValues(alpha: 0.08),
-                      ),
-                      _buildItem(
-                        icon: Icons.auto_awesome,
-                        label: l10n.myLibraryAiSearch,
-                        subtitle: null,
-                        isDark: isDark,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          widget.onSelected(SearchMode.aiRecordSearch);
-                        },
-                      ),
-                    ],
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildItem(
+                          icon: CupertinoIcons.search,
+                          label: l10n.searchModeBookSearch,
+                          isDark: isDark,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            widget.onSelected(SearchMode.bookSearch);
+                          },
+                        ),
+                        Divider(
+                          height: 0.5,
+                          thickness: 0.5,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.08),
+                        ),
+                        _buildItem(
+                          icon: Icons.auto_awesome,
+                          label: l10n.searchModeAiRecordSearch,
+                          isDark: isDark,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            widget.onSelected(SearchMode.aiRecordSearch);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -191,14 +192,10 @@ class _SearchModeDropdownOverlayState extends State<_SearchModeDropdownOverlay>
   Widget _buildItem({
     required IconData icon,
     required String label,
-    required String? subtitle,
     required bool isDark,
     required VoidCallback onTap,
   }) {
     final textColor = isDark ? Colors.white : Colors.black;
-    final subtitleColor = isDark
-        ? Colors.white.withValues(alpha: 0.5)
-        : Colors.black.withValues(alpha: 0.45);
 
     return GestureDetector(
       onTap: onTap,
@@ -209,27 +206,12 @@ class _SearchModeDropdownOverlayState extends State<_SearchModeDropdownOverlay>
           children: [
             Icon(icon, size: 18, color: textColor),
             const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: textColor,
-                    ),
-                  ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: subtitleColor,
-                      ),
-                    ),
-                ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: textColor,
               ),
             ),
           ],

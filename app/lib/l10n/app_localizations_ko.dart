@@ -611,6 +611,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookListReadingEmptyAction => '독서 여정 떠나기';
 
   @override
+  String get searchModeBookSearch => '도서 검색';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI 기록 검색';
+
+  @override
   String get bookListEmptyCompleted => '완독한 책이 없습니다';
 
   @override

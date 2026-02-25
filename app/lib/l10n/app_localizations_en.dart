@@ -639,6 +639,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookListReadingEmptyAction => 'Start Reading Journey';
 
   @override
+  String get searchModeBookSearch => 'Book Search';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI Record Search';
+
+  @override
   String get bookListEmptyCompleted => 'No completed books';
 
   @override

@@ -328,6 +328,8 @@
      "bookListEmptyAll": "No reading started yet",
      "bookListEmptyReading": "Shall we start a reading journey with Bookgolas?",
      "bookListReadingEmptyAction": "Start Reading Journey",
+     "searchModeBookSearch": "Book Search",
+     "searchModeAiRecordSearch": "AI Record Search",
      "bookListEmptyCompleted": "No completed books",
      "bookListEmptyStatus": "No {status} books",
     
