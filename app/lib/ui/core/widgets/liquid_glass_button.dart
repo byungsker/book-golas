@@ -86,7 +86,7 @@ class BLabButton extends StatelessWidget {
                     text,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

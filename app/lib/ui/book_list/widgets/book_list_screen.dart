@@ -180,20 +180,12 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
+          BLabButton(
+            text: l10n.commonRetry,
+            icon: Icons.refresh,
             onPressed: () {
               setState(() {});
             },
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.commonRetry),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
-            ),
           ),
         ],
       ),
@@ -252,23 +244,35 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildEmptyState(String message) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.book_outlined,
-            size: 80,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ColorFiltered(
+              colorFilter: const ColorFilter.matrix(<double>[
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0, 0, 0, 1, 0,
+              ]),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 80,
+                height: 80,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -276,38 +280,43 @@ class _BookListScreenState extends State<BookListScreen>
   Widget _buildReadingEmptyState(bool isDark, AppLocalizations l10n) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.book_outlined,
-              size: 80,
-              color: Colors.grey,
+            ColorFiltered(
+              colorFilter: const ColorFilter.matrix(<double>[
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0, 0, 0, 1, 0,
+              ]),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 80,
+                height: 80,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               l10n.bookListEmptyReading,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 15,
                 color: Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: BLabButton(
-                text: l10n.bookListReadingEmptyAction,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ReadingStartScreen(),
-                    ),
-                  );
-                },
-              ),
+            BLabButton(
+              text: l10n.bookListReadingEmptyAction,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ReadingStartScreen(),
+                  ),
+                );
+              },
             ),
           ],
         ),
