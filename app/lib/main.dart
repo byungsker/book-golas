@@ -51,6 +51,8 @@ import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'ui/core/widgets/floating_timer_bar.dart';
+import 'ui/core/view_model/ad_view_model.dart';
+import 'ui/core/widgets/ad_banner_widget.dart';
 
 import 'ui/core/widgets/search_mode_dropdown.dart';
 import 'ui/recall/widgets/global_recall_search_sheet.dart';
@@ -317,6 +319,10 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               SubscriptionViewModel(context.read<SubscriptionService>()),
         ),
+        ChangeNotifierProvider<AdViewModel>(
+          create: (context) =>
+              AdViewModel(context.read<SubscriptionService>()),
+        ),
         ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
       child: Consumer2<ThemeViewModel, LocaleViewModel>(
@@ -454,6 +460,9 @@ class _MainScreenState extends State<MainScreen>
       } catch (e) {
         debugPrint('❌ RevenueCat 초기화 실패: $e');
       }
+
+      // AdMob 초기화 (인증 후)
+      context.read<AdViewModel>().initialize();
 
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
@@ -626,10 +635,16 @@ class _MainScreenState extends State<MainScreen>
       backgroundColor:
           isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       extendBody: true,
-      bottomNavigationBar: BLabBottomBar(
-        selectedIndex: _selectedIndex,
-        onTabSelected: _onItemTapped,
-        onSearchTap: _onSearchTap,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AdBannerWidget(),
+          BLabBottomBar(
+            selectedIndex: _selectedIndex,
+            onTabSelected: _onItemTapped,
+            onSearchTap: _onSearchTap,
+          ),
+        ],
       ),
     );
   }

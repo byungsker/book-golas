@@ -3,6 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:provider/provider.dart';
+
+import 'package:book_golas/ui/core/view_model/ad_view_model.dart';
+import 'package:book_golas/ui/core/widgets/ad_banner_widget.dart';
 
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
@@ -267,11 +271,42 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     );
   }
 
+  static const int _adInsertIndex = 2;
+
   Widget _buildImageList(List<Map<String, dynamic>> images, bool isDark) {
+    final adViewModel = context.read<AdViewModel>();
+    final showAd = adViewModel.shouldShowAds && adViewModel.isInitialized;
+    final hasEnoughItems = images.length >= _adInsertIndex;
+    final shouldInsertAd = showAd && hasEnoughItems;
+    final totalCount = images.length + (shouldInsertAd ? 1 : 0);
+
     return ListView.builder(
       padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
-      itemCount: images.length,
-      itemBuilder: (context, index) => _buildImageItem(images[index], isDark),
+      itemCount: totalCount,
+      itemBuilder: (context, index) {
+        if (shouldInsertAd && index == _adInsertIndex) {
+          return _buildInlineAdItem(isDark);
+        }
+        final imageIndex = shouldInsertAd && index > _adInsertIndex
+            ? index - 1
+            : index;
+        return _buildImageItem(images[imageIndex], isDark);
+      },
+    );
+  }
+
+  Widget _buildInlineAdItem(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: const AdBannerWidget(),
     );
   }
 
