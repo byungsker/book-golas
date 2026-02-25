@@ -235,7 +235,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     ReadingChartViewModel vm,
   ) async {
     if (vm.customRangeStart != null) {
-      vm.clearCustomRange();
+      await vm.clearCustomRange();
       return;
     }
     final now = DateTime.now();
@@ -492,12 +492,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     Map<String, dynamic> stats,
     int streak,
   ) {
-    final chartYear = vm.selectedChartYear;
-    final monthlyDataForChart = vm.monthlyBookCount.map(
-      (month, count) =>
-          MapEntry('$chartYear-${month.toString().padLeft(2, '0')}', count),
-    );
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -511,12 +505,17 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           ),
           const SizedBox(height: 16),
           MonthlyBooksChart(
-            monthlyData: monthlyDataForChart,
-            year: chartYear,
-            onYearChanged: (year) => vm.setChartYear(year),
-            onCustomRangePressed: () => _showDateRangePicker(context, vm),
+            filter: vm.bookChartFilter,
+            monthlyData: vm.monthlyBookCount,
+            dailyData: vm.dailyBookCompletionCount,
+            year: vm.selectedChartYear,
+            month: vm.selectedChartMonth,
+            weekStart: vm.selectedWeekStart,
             customRangeStart: vm.customRangeStart,
             customRangeEnd: vm.customRangeEnd,
+            onFilterChanged: (f) => vm.setBookChartFilter(f),
+            onNavigate: (dir) => vm.navigateBookChartPeriod(dir),
+            onCustomRangePressed: () => _showDateRangePicker(context, vm),
           ),
         ],
       ),

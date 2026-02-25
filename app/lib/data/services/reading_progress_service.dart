@@ -481,6 +481,38 @@ class ReadingProgressService {
     }
   }
 
+  Future<Map<DateTime, int>> getDailyBookCompletionCount({
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final response = await _supabase
+          .from('books')
+          .select('updated_at')
+          .eq('user_id', userId)
+          .eq('status', 'completed')
+          .isFilter('deleted_at', null)
+          .gte('updated_at', start.toIso8601String())
+          .lte('updated_at', end.toIso8601String());
+
+      final Map<DateTime, int> dailyCount = {};
+      for (final book in response as List) {
+        final updatedAt = DateTime.parse(book['updated_at'] as String);
+        final dateKey =
+            DateTime(updatedAt.year, updatedAt.month, updatedAt.day);
+        dailyCount[dateKey] = (dailyCount[dateKey] ?? 0) + 1;
+      }
+
+      return dailyCount;
+    } catch (e) {
+      debugPrint('일별 완독 수 조회 실패: $e');
+      return {};
+    }
+  }
+
   Future<Map<DateTime, int>> getDailyReadingHeatmap({
     int? year,
     int weeksToShow = 52,

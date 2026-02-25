@@ -8,6 +8,8 @@ import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/reading_goal_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 
+enum BookChartFilter { annual, monthly, weekly, custom }
+
 class ReadingChartViewModel extends ChangeNotifier {
   static const _chartDataCacheKey = 'reading_chart_data_cache';
 
@@ -36,6 +38,10 @@ class ReadingChartViewModel extends ChangeNotifier {
 
   double _goalRate = 0.0;
   int _selectedChartYear = DateTime.now().year;
+  BookChartFilter _bookChartFilter = BookChartFilter.annual;
+  int _selectedChartMonth = DateTime.now().month;
+  DateTime _selectedWeekStart = _mondayOfWeek(DateTime.now());
+  Map<DateTime, int> _dailyBookCompletionCount = {};
   DateTime? _customRangeStart;
   DateTime? _customRangeEnd;
 
@@ -68,6 +74,11 @@ class ReadingChartViewModel extends ChangeNotifier {
   int get selectedChartYear => _selectedChartYear;
   DateTime? get customRangeStart => _customRangeStart;
   DateTime? get customRangeEnd => _customRangeEnd;
+  BookChartFilter get bookChartFilter => _bookChartFilter;
+  int get selectedChartMonth => _selectedChartMonth;
+  DateTime get selectedWeekStart => _selectedWeekStart;
+  Map<DateTime, int> get dailyBookCompletionCount =>
+      _dailyBookCompletionCount;
 
   List<Map<String, dynamic>>? get cachedRawData => _cachedRawData;
 
@@ -323,6 +334,7 @@ class ReadingChartViewModel extends ChangeNotifier {
 
   Future<void> setChartYear(int year) async {
     _selectedChartYear = year;
+    _bookChartFilter = BookChartFilter.annual;
     _customRangeStart = null;
     _customRangeEnd = null;
     notifyListeners();
@@ -331,35 +343,90 @@ class ReadingChartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setBookChartFilter(BookChartFilter filter) async {
+    _bookChartFilter = filter;
+    if (filter != BookChartFilter.custom) {
+      _customRangeStart = null;
+      _customRangeEnd = null;
+    }
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> navigateBookChartPeriod(int direction) async {
+    switch (_bookChartFilter) {
+      case BookChartFilter.annual:
+        _selectedChartYear += direction;
+      case BookChartFilter.monthly:
+        _selectedChartMonth += direction;
+        if (_selectedChartMonth > 12) {
+          _selectedChartMonth = 1;
+          _selectedChartYear++;
+        } else if (_selectedChartMonth < 1) {
+          _selectedChartMonth = 12;
+          _selectedChartYear--;
+        }
+      case BookChartFilter.weekly:
+        _selectedWeekStart = _selectedWeekStart
+            .add(Duration(days: 7 * direction));
+      case BookChartFilter.custom:
+        return;
+    }
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
   Future<void> setCustomRange(DateTime start, DateTime end) async {
+    _bookChartFilter = BookChartFilter.custom;
     _customRangeStart = start;
     _customRangeEnd = end;
     notifyListeners();
-    final startYear = start.year;
-    final endYear = end.year;
-    if (startYear == endYear) {
-      _selectedChartYear = startYear;
-      _monthlyBookCount =
-          await _progressService.getMonthlyBookCount(year: startYear);
-    } else {
-      final Map<int, int> merged = {};
-      for (int y = startYear; y <= endYear; y++) {
-        final yearData =
-            await _progressService.getMonthlyBookCount(year: y);
-        for (final entry in yearData.entries) {
-          final key = (y - startYear) * 12 + entry.key;
-          merged[key] = entry.value;
-        }
-      }
-      _monthlyBookCount = merged;
-    }
-    notifyListeners();
+    await _loadBookChartData();
   }
 
-  void clearCustomRange() {
+  Future<void> clearCustomRange() async {
+    _bookChartFilter = BookChartFilter.annual;
     _customRangeStart = null;
     _customRangeEnd = null;
     _selectedChartYear = DateTime.now().year;
     notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> _loadBookChartData() async {
+    switch (_bookChartFilter) {
+      case BookChartFilter.annual:
+        _monthlyBookCount =
+            await _progressService.getMonthlyBookCount(
+                year: _selectedChartYear);
+        _dailyBookCompletionCount = {};
+      case BookChartFilter.monthly:
+        final start = DateTime(_selectedChartYear, _selectedChartMonth, 1);
+        final end = DateTime(
+            _selectedChartYear, _selectedChartMonth + 1, 0, 23, 59, 59);
+        _dailyBookCompletionCount =
+            await _progressService.getDailyBookCompletionCount(
+                start: start, end: end);
+      case BookChartFilter.weekly:
+        final end = _selectedWeekStart.add(
+            const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+        _dailyBookCompletionCount =
+            await _progressService.getDailyBookCompletionCount(
+                start: _selectedWeekStart, end: end);
+      case BookChartFilter.custom:
+        if (_customRangeStart != null && _customRangeEnd != null) {
+          final end = DateTime(_customRangeEnd!.year,
+              _customRangeEnd!.month, _customRangeEnd!.day, 23, 59, 59);
+          _dailyBookCompletionCount =
+              await _progressService.getDailyBookCompletionCount(
+                  start: _customRangeStart!, end: end);
+        }
+    }
+    notifyListeners();
+  }
+
+  static DateTime _mondayOfWeek(DateTime date) {
+    final diff = date.weekday - DateTime.monday;
+    return DateTime(date.year, date.month, date.day - diff);
   }
 }
