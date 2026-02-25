@@ -235,6 +235,25 @@
          }
        }
      },
+     "myPageDarkMode": "Dark Mode",
+     "myPageDailyReadingNotification": "Daily Reading Goal Reminder",
+     "myPageNotificationTimeTitle": "Notification Time",
+     "myPageNotificationsEnabled": "Notifications enabled",
+     "myPageNotificationsDisabled": "Notifications disabled",
+     "myPageNotificationSettingsFailed": "Failed to change notification settings",
+     "myPageNotificationTimeChanged": "Notification time changed to {time}",
+     "@myPageNotificationTimeChanged": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
+     "myPageNotificationTimeChangeFailed": "Failed to change notification time",
+     "myPageDailyReadingNotificationSubtitle": "Notification at {time} daily",
+     "@myPageDailyReadingNotificationSubtitle": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
      "myPageNotificationChangeFailed": "Failed to change notification settings",
      "@myPageNotificationChangeFailed": {"description": "Notification change failed"},
      "myPageAvatarChanged": "Avatar changed",
@@ -326,7 +345,10 @@
      "bookListEmptyPlanned": "No books planned to read",
      "bookListEmptyPaused": "No paused books",
      "bookListEmptyAll": "No reading started yet",
-     "bookListEmptyReading": "No books currently reading",
+     "bookListEmptyReading": "Shall we start a reading journey with Bookgolas?",
+     "bookListReadingEmptyAction": "Start Reading Journey",
+     "searchModeBookSearch": "Book Search",
+     "searchModeAiRecordSearch": "AI Record Search",
      "bookListEmptyCompleted": "No completed books",
      "bookListEmptyStatus": "No {status} books",
     
@@ -998,6 +1020,9 @@
 
            "proUpgradeBannerMini": "Upgrade to Pro",
            "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
+
+           "proUpgradeBannerMiniDesc": "AI search, reading insights & all features unlimited",
+           "@proUpgradeBannerMiniDesc": {"description": "Mini pro upgrade banner description"},
 
            "myPageSubscriptionUpgrade": "Upgrade to Pro",
            "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},

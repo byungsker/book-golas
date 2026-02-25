@@ -734,7 +734,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${AppLocalizations.of(context).chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context).chartDailyReadPages}',
+                              '${AppLocalizations.of(context).chartCumulativePages}: ${cumulativePage}p',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark

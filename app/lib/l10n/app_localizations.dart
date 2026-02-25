@@ -1238,11 +1238,29 @@ abstract class AppLocalizations {
   /// **'아직 시작한 독서가 없습니다'**
   String get bookListEmptyAll;
 
-  /// Empty state message for reading books
+  /// Empty state placeholder for reading tab
   ///
   /// In ko, this message translates to:
-  /// **'현재 읽고 있는 책이 없습니다'**
+  /// **'북골라스와 함께 독서 여정을 떠나볼까요?'**
   String get bookListEmptyReading;
+
+  /// Button label for reading empty state action
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 여정 떠나기'**
+  String get bookListReadingEmptyAction;
+
+  /// Search mode dropdown - book search label
+  ///
+  /// In ko, this message translates to:
+  /// **'도서 검색'**
+  String get searchModeBookSearch;
+
+  /// Search mode dropdown - AI record search label
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get searchModeAiRecordSearch;
 
   /// Empty state message for completed books
   ///
@@ -4227,6 +4245,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'Pro로 무제한 이용하기'**
   String get proUpgradeBannerMini;
+
+  /// Mini pro upgrade banner description
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이'**
+  String get proUpgradeBannerMiniDesc;
 
   /// Upgrade to Pro in my page
   ///
