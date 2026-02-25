@@ -10,17 +10,26 @@ import 'package:book_golas/utils/number_format_utils.dart';
 class MonthlyBooksChart extends StatelessWidget {
   final Map<String, int> monthlyData;
   final int year;
+  final ValueChanged<int>? onYearChanged;
+  final VoidCallback? onCustomRangePressed;
+  final DateTime? customRangeStart;
+  final DateTime? customRangeEnd;
 
   const MonthlyBooksChart({
     super.key,
     required this.monthlyData,
     required this.year,
+    this.onYearChanged,
+    this.onCustomRangePressed,
+    this.customRangeStart,
+    this.customRangeEnd,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
+    final isCustomRange = customRangeStart != null && customRangeEnd != null;
     final currentMonth = now.year == year ? now.month : 12;
 
     final thisMonthKey = '$year-${currentMonth.toString().padLeft(2, '0')}';
@@ -56,31 +65,7 @@ class MonthlyBooksChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: BLabColors.info.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.bar_chart_rounded,
-                    size: 24,
-                    color: BLabColors.info,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context).chartMonthlyBooksTitle(year),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ],
-            ),
+            _buildYearNavigator(context, isDark, isCustomRange),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -120,9 +105,8 @@ class MonthlyBooksChart extends StatelessWidget {
                           isDark ? Colors.grey[800]! : Colors.grey[200]!,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
-                          AppLocalizations.of(context)
-                              .chartMonthlyBooksTooltip(
-                                  groupIndex + 1, rod.toY.toInt()),
+                          AppLocalizations.of(context).chartMonthlyBooksTooltip(
+                              groupIndex + 1, rod.toY.toInt()),
                           TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.bold,
@@ -202,6 +186,125 @@ class MonthlyBooksChart extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildYearNavigator(
+    BuildContext context,
+    bool isDark,
+    bool isCustomRange,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    final canGoForward = year < DateTime.now().year;
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: BLabColors.info.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.bar_chart_rounded,
+            size: 24,
+            color: BLabColors.info,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isCustomRange
+                    ? l10n.chartMonthlyBooksCustomRange
+                    : l10n.chartMonthlyBooksTitle(year),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              if (isCustomRange)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    '${_formatDate(customRangeStart!)} ~ ${_formatDate(customRangeEnd!)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (!isCustomRange) ...[
+          _buildNavButton(
+            icon: Icons.chevron_left_rounded,
+            onTap: () => onYearChanged?.call(year - 1),
+            isDark: isDark,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              '$year',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+          _buildNavButton(
+            icon: Icons.chevron_right_rounded,
+            onTap: canGoForward ? () => onYearChanged?.call(year + 1) : null,
+            isDark: isDark,
+          ),
+        ],
+        const SizedBox(width: 4),
+        _buildNavButton(
+          icon: isCustomRange ? Icons.close_rounded : Icons.date_range_rounded,
+          onTap: onCustomRangePressed,
+          isDark: isDark,
+          isActive: isCustomRange,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavButton({
+    required IconData icon,
+    VoidCallback? onTap,
+    required bool isDark,
+    bool isActive = false,
+  }) {
+    final isDisabled = onTap == null;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: isActive
+              ? BLabColors.primary.withOpacity(0.15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color: isDisabled
+              ? (isDark ? Colors.grey[700] : Colors.grey[300])
+              : isActive
+                  ? BLabColors.primary
+                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}';
   }
 
   List<BarChartGroupData> _generateBarGroups(int currentMonth, bool isDark) {

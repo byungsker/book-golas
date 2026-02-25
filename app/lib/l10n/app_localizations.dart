@@ -5554,6 +5554,12 @@ abstract class AppLocalizations {
   /// **'변화'**
   String get chartMonthlyBooksChange;
 
+  /// No description provided for @chartMonthlyBooksCustomRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 범위 설정'**
+  String get chartMonthlyBooksCustomRange;
+
   /// No description provided for @chartMonthlyBooksTooltip.
   ///
   /// In ko, this message translates to:

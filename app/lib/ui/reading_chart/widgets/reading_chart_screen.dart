@@ -200,6 +200,18 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  String _formatReadingTime(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    }
+    if (minutes > 0) {
+      return '${minutes}m';
+    }
+    return '${totalSeconds}s';
+  }
+
   void _showGoalSheet(BuildContext context) async {
     final vm = context.read<ReadingChartViewModel>();
     final currentYear = DateTime.now().year;
@@ -215,6 +227,40 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         targetBooks: result,
       );
       context.read<ReadingChartViewModel>().forceRefresh();
+    }
+  }
+
+  void _showDateRangePicker(
+    BuildContext context,
+    ReadingChartViewModel vm,
+  ) async {
+    if (vm.customRangeStart != null) {
+      vm.clearCustomRange();
+      return;
+    }
+    final now = DateTime.now();
+    final result = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: DateTime(now.year, 1, 1),
+        end: now,
+      ),
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? const ColorScheme.dark(primary: BLabColors.primary)
+                : const ColorScheme.light(primary: BLabColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (result != null && mounted) {
+      vm.setCustomRange(result.start, result.end);
     }
   }
 
@@ -430,7 +476,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildOverviewTab(isDark, vm, stats, streak, currentYear),
+        _buildOverviewTab(isDark, vm, stats, streak),
         _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
         _buildActivityTab(isDark, vm, aggregated, streak, currentYear),
       ],
@@ -442,11 +488,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     ReadingChartViewModel vm,
     Map<String, dynamic> stats,
     int streak,
-    int currentYear,
   ) {
+    final chartYear = vm.selectedChartYear;
     final monthlyDataForChart = vm.monthlyBookCount.map(
       (month, count) =>
-          MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
+          MapEntry('$chartYear-${month.toString().padLeft(2, '0')}', count),
     );
 
     return SingleChildScrollView(
@@ -457,13 +503,17 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           AnnualGoalCard(
             targetBooks: vm.goalProgress['targetBooks'] as int? ?? 0,
             completedBooks: vm.goalProgress['completedBooks'] as int? ?? 0,
-            year: currentYear,
+            year: DateTime.now().year,
             onSetGoal: () => _showGoalSheet(context),
           ),
           const SizedBox(height: 16),
           MonthlyBooksChart(
             monthlyData: monthlyDataForChart,
-            year: currentYear,
+            year: chartYear,
+            onYearChanged: (year) => vm.setChartYear(year),
+            onCustomRangePressed: () => _showDateRangePicker(context, vm),
+            customRangeStart: vm.customRangeStart,
+            customRangeEnd: vm.customRangeEnd,
           ),
         ],
       ),
@@ -688,7 +738,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 final date = item['date'] as DateTime;
                 final dailyPage = item['daily_page'] as int;
                 final cumulativePage = item['cumulative_page'] as int;
-
+                final readingSeconds =
+                    vm.dailyReadingSeconds[date] ?? 0;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
@@ -742,6 +793,30 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                     : Colors.grey[600],
                               ),
                             ),
+                            if (readingSeconds > 0) ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer_outlined,
+                                    size: 12,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatReadingTime(readingSeconds),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

@@ -3040,6 +3040,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartMonthlyBooksChange => 'Change';
 
   @override
+  String get chartMonthlyBooksCustomRange => 'Custom Range';
+  @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count books';
   }

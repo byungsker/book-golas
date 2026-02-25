@@ -530,6 +530,36 @@ class ReadingProgressService {
     }
   }
 
+  /// 일별 독서 시간 집계 (reading_sessions 기반)
+  Future<Map<DateTime, int>> getDailyReadingSeconds() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final response = await _supabase
+          .from('reading_sessions')
+          .select('started_at, duration_seconds')
+          .eq('user_id', userId)
+          .order('started_at', ascending: true);
+
+      final Map<DateTime, int> dailySeconds = {};
+
+      for (final record in response as List) {
+        final startedAt = DateTime.parse(record['started_at'] as String);
+        final dateKey =
+            DateTime(startedAt.year, startedAt.month, startedAt.day);
+        final duration = record['duration_seconds'] as int? ?? 0;
+
+        dailySeconds[dateKey] = (dailySeconds[dateKey] ?? 0) + duration;
+      }
+
+      return dailySeconds;
+    } catch (e) {
+      debugPrint('일별 독서 시간 조회 실패: $e');
+      return {};
+    }
+  }
+
   int getHeatmapIntensity(int pagesRead) {
     if (pagesRead == 0) return 0;
     if (pagesRead < 10) return 1;

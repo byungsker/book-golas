@@ -19,6 +19,7 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<int, int> _monthlyBookCount = {};
   Map<String, dynamic> _goalProgress = {};
   Map<DateTime, int> _heatmapData = {};
+  Map<DateTime, int> _dailyReadingSeconds = {};
 
   int _totalStarted = 0;
   int _completedBooks = 0;
@@ -34,6 +35,9 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<String, int> _highlightGenreDistribution = {};
 
   double _goalRate = 0.0;
+  int _selectedChartYear = DateTime.now().year;
+  DateTime? _customRangeStart;
+  DateTime? _customRangeEnd;
 
   List<Map<String, dynamic>>? _cachedRawData;
 
@@ -44,6 +48,7 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<int, int> get monthlyBookCount => _monthlyBookCount;
   Map<String, dynamic> get goalProgress => _goalProgress;
   Map<DateTime, int> get heatmapData => _heatmapData;
+  Map<DateTime, int> get dailyReadingSeconds => _dailyReadingSeconds;
 
   int get totalStarted => _totalStarted;
   int get completedBooks => _completedBooks;
@@ -60,6 +65,9 @@ class ReadingChartViewModel extends ChangeNotifier {
       _highlightGenreDistribution;
 
   double get goalRate => _goalRate;
+  int get selectedChartYear => _selectedChartYear;
+  DateTime? get customRangeStart => _customRangeStart;
+  DateTime? get customRangeEnd => _customRangeEnd;
 
   List<Map<String, dynamic>>? get cachedRawData => _cachedRawData;
 
@@ -94,12 +102,13 @@ class ReadingChartViewModel extends ChangeNotifier {
       final results = await Future.wait([
         _fetchUserProgressHistory(),
         _progressService.getGenreDistribution(year: currentYear),
-        _progressService.getMonthlyBookCount(year: currentYear),
+        _progressService.getMonthlyBookCount(year: _selectedChartYear),
         _goalService.getYearlyProgress(year: currentYear),
         _progressService.getDailyReadingHeatmap(weeksToShow: 26),
         _calculateCompletionStats(),
         _calculateHighlightStats(),
         _progressService.calculateGoalAchievementRate(),
+        _progressService.getDailyReadingSeconds(),
       ]);
 
       _cachedRawData = results[0] as List<Map<String, dynamic>>;
@@ -108,6 +117,7 @@ class ReadingChartViewModel extends ChangeNotifier {
       _goalProgress = results[3] as Map<String, dynamic>;
       _heatmapData = results[4] as Map<DateTime, int>;
       _goalRate = results[7] as double;
+      _dailyReadingSeconds = results[8] as Map<DateTime, int>;
       _errorMessage = null;
 
       final writePrefs = await SharedPreferences.getInstance();
@@ -309,5 +319,47 @@ class ReadingChartViewModel extends ChangeNotifier {
   Future<void> forceRefresh() async {
     await invalidateCache();
     await loadData();
+  }
+
+  Future<void> setChartYear(int year) async {
+    _selectedChartYear = year;
+    _customRangeStart = null;
+    _customRangeEnd = null;
+    notifyListeners();
+    _monthlyBookCount =
+        await _progressService.getMonthlyBookCount(year: year);
+    notifyListeners();
+  }
+
+  Future<void> setCustomRange(DateTime start, DateTime end) async {
+    _customRangeStart = start;
+    _customRangeEnd = end;
+    notifyListeners();
+    final startYear = start.year;
+    final endYear = end.year;
+    if (startYear == endYear) {
+      _selectedChartYear = startYear;
+      _monthlyBookCount =
+          await _progressService.getMonthlyBookCount(year: startYear);
+    } else {
+      final Map<int, int> merged = {};
+      for (int y = startYear; y <= endYear; y++) {
+        final yearData =
+            await _progressService.getMonthlyBookCount(year: y);
+        for (final entry in yearData.entries) {
+          final key = (y - startYear) * 12 + entry.key;
+          merged[key] = entry.value;
+        }
+      }
+      _monthlyBookCount = merged;
+    }
+    notifyListeners();
+  }
+
+  void clearCustomRange() {
+    _customRangeStart = null;
+    _customRangeEnd = null;
+    _selectedChartYear = DateTime.now().year;
+    notifyListeners();
   }
 }
