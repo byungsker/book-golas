@@ -16,6 +16,7 @@ import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'package:book_golas/ui/book_detail/utils/ocr_utils.dart';
 import 'widgets/dialogs/daily_target_dialog.dart';
 import 'widgets/dialogs/update_target_date_dialog.dart';
@@ -1603,6 +1604,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     if (confirmed == true && mounted) {
       final success = await BookService().deleteBook(bookVm.currentBook.id!);
       if (success && mounted) {
+        await ReadingChartViewModel.clearCache();
         CustomSnackbar.show(
           context,
           message: 'Deleted',
