@@ -40,7 +40,7 @@ class NoteStructureService {
       final response = await _supabase.functions.invoke(
         'structure-notes',
         body: {'bookId': bookId},
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(const Duration(seconds: 60));
 
       debugPrint('🧠 Structure response status: ${response.status}');
 

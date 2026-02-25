@@ -1,4 +1,4 @@
-import { PromptTemplate } from "https://esm.sh/@langchain/core@0.3.0/prompts";
+import { PromptTemplate } from "@langchain/core/prompts";
 
 export const classificationPrompt = PromptTemplate.fromTemplate(`
 당신은 독서 기록을 분석하여 의미적으로 유사한 내용끼리 그룹화하는 전문가입니다.
