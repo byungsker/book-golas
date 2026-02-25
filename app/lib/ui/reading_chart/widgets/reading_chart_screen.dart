@@ -469,6 +469,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     final rawData = vm.cachedRawData ?? [];
     final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final dailyAggregated = _selectedFilter == TimeFilter.daily
+        ? aggregated
+        : aggregateByDate(rawData, TimeFilter.daily);
     final stats = calculateStatistics(aggregated);
     final streak = _calculateStreak(aggregated);
     final currentYear = DateTime.now().year;
@@ -478,7 +481,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       children: [
         _buildOverviewTab(isDark, vm, stats, streak),
         _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
-        _buildActivityTab(isDark, vm, aggregated, streak, currentYear),
+        _buildActivityTab(isDark, vm, aggregated, dailyAggregated, streak, currentYear),
       ],
     );
   }
@@ -700,6 +703,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     bool isDark,
     ReadingChartViewModel vm,
     List<Map<String, dynamic>> aggregated,
+    List<Map<String, dynamic>> dailyAggregated,
     int streak,
     int currentYear,
   ) {
@@ -725,16 +729,16 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             ),
           ),
           const SizedBox(height: 12),
-          if (aggregated.isEmpty)
+          if (dailyAggregated.isEmpty)
             _buildEmptyListState(isDark)
           else
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: aggregated.length > 10 ? 10 : aggregated.length,
+              itemCount: dailyAggregated.length > 10 ? 10 : dailyAggregated.length,
               itemBuilder: (context, index) {
-                final reversedIndex = aggregated.length - 1 - index;
-                final item = aggregated[reversedIndex];
+                final reversedIndex = dailyAggregated.length - 1 - index;
+                final item = dailyAggregated[reversedIndex];
                 final date = item['date'] as DateTime;
                 final dailyPage = item['daily_page'] as int;
                 final cumulativePage = item['cumulative_page'] as int;
