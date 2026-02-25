@@ -16,6 +16,7 @@ import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'package:book_golas/ui/book_detail/utils/ocr_utils.dart';
 import 'widgets/dialogs/daily_target_dialog.dart';
 import 'widgets/dialogs/update_target_date_dialog.dart';
@@ -47,9 +48,6 @@ import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
 import 'widgets/tabs/book_review_tab.dart';
-import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
-import 'package:book_golas/data/services/note_structure_service.dart';
-import 'package:book_golas/ui/book_detail/widgets/mindmap_screen.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
@@ -91,11 +89,6 @@ class BookDetailScreen extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => NoteStructureViewModel(
-            service: NoteStructureService(),
-          ),
         ),
       ],
       child: _BookDetailContent(
@@ -351,7 +344,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   totalPages: book.totalPages,
                                   daysLeft: bookVm.daysLeft,
                                   pagesLeft: bookVm.pagesLeft,
-                                  dailyTargetPages: book.dailyTargetPages,
+                                  dailyTargetPages: bookVm.effectiveDailyTarget,
                                   isTodayGoalAchieved:
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
@@ -379,10 +372,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 ],
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
-                              ],
-                              if (!_isBookPlanned(book)) ...[
-                                const SizedBox(height: 12),
-                                _buildNoteStructureButton(context, book),
                               ],
                               const SizedBox(height: 20),
                             ],
@@ -614,7 +603,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
         CustomSnackbar.show(context,
-            message: 'Goal achieved! +$pagesRead 🎉',
+            message: '🎉 오늘 목표 달성! +$pagesRead 페이지를 읽었어요',
             type: BLabSnackbarType.success);
 
         // 이번 업데이트로 목표 달성했으면 컨페티 표시
@@ -625,19 +614,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${remaining}p',
-              type: BLabSnackbarType.info);
+              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요', type: BLabSnackbarType.info);
         } else {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${newPage}p',
-              type: BLabSnackbarType.success);
+              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)', type: BLabSnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(context,
-          message: 'Error', type: BLabSnackbarType.error);
+      CustomSnackbar.show(context, message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
     }
   }
 
@@ -1618,6 +1604,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     if (confirmed == true && mounted) {
       final success = await BookService().deleteBook(bookVm.currentBook.id!);
       if (success && mounted) {
+        await ReadingChartViewModel.clearCache();
         CustomSnackbar.show(
           context,
           message: 'Deleted',
@@ -1651,60 +1638,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
     );
   }
 
-  Widget _buildNoteStructureButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => _showNoteStructureMindmap(book.id!),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.grey.shade200,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.account_tree_outlined,
-              size: 18,
-              color: BLabColors.primary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Note Structure',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showNoteStructureMindmap(String bookId) {
-    final bookVm = context.read<BookDetailViewModel>();
-    final noteStructureVm = context.read<NoteStructureViewModel>();
-
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (_) => MindmapScreen(
-          bookId: bookId,
-          bookTitle: bookVm.currentBook.title,
-          noteStructureVm: noteStructureVm,
-        ),
-      ),
-    );
-  }
 
   void _showReadingTimerModal() {
     final bookVm = context.read<BookDetailViewModel>();

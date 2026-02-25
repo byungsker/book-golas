@@ -216,7 +216,7 @@ class _GlobalRecallSearchSheetContentState
                           controller: _controller,
                           focusNode: _focusNode,
                           decoration: InputDecoration(
-                            hintText: 'e.g. "What was mentioned about habits?"',
+                            hintText: AppLocalizations.of(context).recallGlobalSearchHint,
                             hintStyle: TextStyle(
                               color:
                                   isDark ? Colors.grey[500] : Colors.grey[400],

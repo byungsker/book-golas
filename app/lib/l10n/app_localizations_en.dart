@@ -632,7 +632,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookListEmptyAll => 'No reading started yet';
 
   @override
-  String get bookListEmptyReading => 'No books currently reading';
+  String get bookListEmptyReading =>
+      'Shall we start a reading journey with Bookgolas?';
+
+  @override
+  String get bookListReadingEmptyAction => 'Start Reading Journey';
+
+  @override
+  String get searchModeBookSearch => 'Book Search';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI Record Search';
 
   @override
   String get bookListEmptyCompleted => 'No completed books';
@@ -835,25 +845,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get myPageNotificationTimeTitle => '알림 시간 설정';
+  String get myPageNotificationTimeTitle => 'Notification Time';
 
   @override
-  String get myPageDarkMode => '다크 모드';
+  String get myPageDarkMode => 'Dark Mode';
 
   @override
-  String get myPageDailyReadingNotification => '매일 독서 목표 알림';
+  String get myPageDailyReadingNotification => 'Daily Reading Goal Reminder';
 
   @override
   String get myPageNoNotifications => '알림을 받지 않습니다';
 
   @override
-  String get myPageNotificationsEnabled => '알림이 활성화되었습니다';
+  String get myPageNotificationsEnabled => 'Notifications enabled';
 
   @override
-  String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
+  String get myPageNotificationsDisabled => 'Notifications disabled';
 
   @override
-  String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
+  String get myPageNotificationSettingsFailed =>
+      'Failed to change notification settings';
 
   @override
   String get myPageTestNotification => '테스트 알림 (30초 후)';
@@ -886,15 +897,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String myPageNotificationTimeChanged(String time) {
-    return '알림 시간이 $time으로 변경되었습니다';
+    return 'Notification time changed to $time';
   }
 
   @override
-  String get myPageNotificationTimeChangeFailed => '알림 시간 변경에 실패했습니다';
+  String get myPageNotificationTimeChangeFailed =>
+      'Failed to change notification time';
 
   @override
   String myPageDailyReadingNotificationSubtitle(String time) {
-    return '매일 $time에 알림';
+    return 'Notification at $time daily';
   }
 
   @override
@@ -2306,6 +2318,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proUpgradeBannerMini => 'Upgrade to Pro';
 
   @override
+  String get proUpgradeBannerMiniDesc =>
+      'AI search, reading insights & all features unlimited';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Upgrade to Pro';
 
   @override
@@ -3022,6 +3038,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartMonthlyBooksChange => 'Change';
+
+  @override
+  String get chartMonthlyBooksCustomRange => 'Custom Range';
+
+  @override
+  String get chartBookStatusTitle => 'Reading Status';
+
+  @override
+  String get chartBookStatusAnnual => 'Annual';
+
+  @override
+  String get chartBookStatusMonthly => 'Monthly';
+
+  @override
+  String get chartBookStatusWeekly => 'Weekly';
+
+  @override
+  String get chartBookStatusCustom => 'Custom';
+
+  @override
+  String get chartBookStatusTotal => 'Total';
+
+  @override
+  String get chartBookStatusDays => 'Days';
+
+  @override
+  String get chartBookStatusMaxDay => 'Max Day';
 
   @override
   String chartMonthlyBooksTooltip(int month, int count) {

@@ -11,9 +11,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
-import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
-import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
-import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -55,6 +52,8 @@ import 'ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'ui/core/widgets/floating_timer_bar.dart';
 
+import 'ui/core/widgets/search_mode_dropdown.dart';
+import 'ui/recall/widgets/global_recall_search_sheet.dart';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -390,16 +389,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen>
-    with RouteAware, TickerProviderStateMixin, WidgetsBindingObserver {
+    with RouteAware, WidgetsBindingObserver {
   int _selectedIndex = 0;
-  bool _showRegularBarInReadingMode = false;
-  bool _showExpandedMenu = false;
-  late AnimationController _barSwitchController;
-  late Animation<Offset> _readingDetailBarSlide;
-  late Animation<Offset> _regularBarSlide;
-
-  VoidCallback? _updatePageCallback;
-  VoidCallback? _addMemorablePageCallback;
 
   @override
   void didChangeDependencies() {
@@ -411,7 +402,6 @@ class _MainScreenState extends State<MainScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
-    _barSwitchController.dispose();
     super.dispose();
   }
 
@@ -437,27 +427,6 @@ class _MainScreenState extends State<MainScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    _barSwitchController = AnimationController(
-      duration: const Duration(milliseconds: 350),
-      vsync: this,
-    );
-
-    _readingDetailBarSlide =
-        Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    _regularBarSlide =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -583,12 +552,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<Widget> get _pages => [
-        HomeScreen(
-          onCallbacksReady: (updatePage, addMemorable) {
-            _updatePageCallback = updatePage;
-            _addMemorablePageCallback = addMemorable;
-          },
-        ),
+        const HomeScreen(),
         const MyLibraryScreen(),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
@@ -614,42 +578,34 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
-    Navigator.push(
+    showSearchModeDropdown(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ReadingStartScreen(),
+      buttonPosition: searchButtonPosition,
+      buttonSize: searchButtonSize,
+      onSelected: (mode) {
+        switch (mode) {
+          case SearchMode.bookSearch:
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 200),
-      ),
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                transitionDuration: const Duration(milliseconds: 200),
+              ),
+            );
+          case SearchMode.aiRecordSearch:
+            showGlobalRecallSearchSheet(context: context);
+        }
+      },
     );
-  }
-
-  void _switchToRegularBar() {
-    setState(() {
-      _showRegularBarInReadingMode = true;
-    });
-    _barSwitchController.forward();
-  }
-
-  void _switchToReadingDetailBar() {
-    _barSwitchController.reverse().then((_) {
-      if (mounted) {
-        setState(() {
-          _showRegularBarInReadingMode = false;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final homeVm = context.watch<HomeViewModel>();
-    final isInReadingDetailContext =
-        homeVm.displayMode == HomeDisplayMode.readingDetail;
 
     Widget body;
     try {
@@ -658,25 +614,6 @@ class _MainScreenState extends State<MainScreen>
       debugPrint('❌ Error accessing _pages[$_selectedIndex]: $e');
       debugPrint('Stack trace: $stackTrace');
       rethrow;
-    }
-
-    if (_showExpandedMenu) {
-      body = Stack(
-        children: [
-          body,
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showExpandedMenu = false;
-                });
-              },
-              behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-        ],
-      );
     }
 
     return Scaffold(
@@ -689,142 +626,11 @@ class _MainScreenState extends State<MainScreen>
       backgroundColor:
           isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       extendBody: true,
-      bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
-    );
-  }
-
-  Widget _buildAnimatedBottomBar(bool isInReadingDetailContext) {
-    if (!isInReadingDetailContext) {
-      if (_showRegularBarInReadingMode || _showExpandedMenu) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              _showRegularBarInReadingMode = false;
-              _showExpandedMenu = false;
-            });
-            _barSwitchController.reset();
-          }
-        });
-      }
-      return BLabBottomBar(
+      bottomNavigationBar: BLabBottomBar(
         selectedIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         onSearchTap: _onSearchTap,
-      );
-    }
-
-    if (_showExpandedMenu) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
-        child: ExpandedNavigationBottomBar(
-          selectedIndex: _selectedIndex,
-          onTabSelected: _onExpandedMenuTabSelected,
-          onBackToReadingDetail: _onBackToReadingDetailFromMenu,
-          onUpdatePageTap: _onUpdatePageTap,
-          onSearchTap: _onSearchTap,
-        ),
-      );
-    }
-
-    if (_selectedIndex != 0) {
-      return BLabBottomBar(
-        selectedIndex: _selectedIndex,
-        onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
-        onSearchTap: _onSearchTap,
-        showReadingDetailButton: true,
-        onReadingDetailTap: _switchToHomeWithReadingDetail,
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
-      child: SizedBox(
-        height: 62,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            SlideTransition(
-              position: _readingDetailBarSlide,
-              child: ReadingDetailBottomBar(
-                onBackTap: _switchToRegularBar,
-                onUpdatePageTap: _onUpdatePageTap,
-                onAddMemorablePageTap: _onAddMemorablePageTap,
-              ),
-            ),
-            if (_showRegularBarInReadingMode)
-              SlideTransition(
-                position: _regularBarSlide,
-                child: _buildRegularBarContent(),
-              ),
-          ],
-        ),
       ),
     );
-  }
-
-  Widget _buildRegularBarContent() {
-    return BLabBottomBar(
-      selectedIndex: _selectedIndex,
-      onTabSelected: _onTabSelectedInReadingMode,
-      onSearchTap: _onSearchTap,
-      showReadingDetailButton: true,
-      onReadingDetailTap: _switchToReadingDetailBar,
-      noMargin: true,
-    );
-  }
-
-  void _onTabSelectedInReadingMode(int index) {
-    if (index == 0) {
-      setState(() {
-        _showExpandedMenu = true;
-      });
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  void _onExpandedMenuTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _showExpandedMenu = false;
-    });
-  }
-
-  void _onBackToReadingDetailFromMenu() {
-    setState(() {
-      _selectedIndex = 0;
-      _showExpandedMenu = false;
-      _showRegularBarInReadingMode = false;
-    });
-    _barSwitchController.reverse();
-  }
-
-  void _onTabSelectedInReadingModeFromOtherTab(int index) {
-    if (index == 0) {
-      _switchToHomeWithReadingDetail();
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  void _switchToHomeWithReadingDetail() {
-    setState(() {
-      _selectedIndex = 0;
-      _showRegularBarInReadingMode = false;
-      _showExpandedMenu = false;
-    });
-    _barSwitchController.reverse();
-  }
-
-  void _onUpdatePageTap() {
-    _updatePageCallback?.call();
-  }
-
-  void _onAddMemorablePageTap() {
-    _addMemorablePageCallback?.call();
   }
 }

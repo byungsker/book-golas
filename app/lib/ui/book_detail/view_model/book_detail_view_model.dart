@@ -15,6 +15,8 @@ class BookDetailViewModel extends BaseViewModel {
   Map<String, bool> _dailyAchievements = {};
   int _todayPagesRead = 0;
   bool _isTodayGoalAchievedLocked = false;
+  int? _lockedTodayGoalPage;
+  int? _effectiveDailyTarget;
   bool _shouldShowPaywall = false;
 
   Book get currentBook => _currentBook;
@@ -23,14 +25,16 @@ class BookDetailViewModel extends BaseViewModel {
   Map<String, bool> get dailyAchievements => _dailyAchievements;
   int get todayPagesRead => _todayPagesRead;
   bool get shouldShowPaywall => _shouldShowPaywall;
+  int get effectiveDailyTarget => _resolvedDailyTarget;
 
   void clearPaywallState() {
     _shouldShowPaywall = false;
   }
 
-  /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표)
+  /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표, 달성 후 고정)
   int get todayGoalPage {
-    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    if (_lockedTodayGoalPage != null) return _lockedTodayGoalPage!;
+    final dailyTarget = _resolvedDailyTarget;
     return _todayStartPage + dailyTarget;
   }
 
@@ -43,10 +47,29 @@ class BookDetailViewModel extends BaseViewModel {
 
   /// 오늘 목표 달성 여부 (한번 달성하면 오늘은 고정)
   bool get isTodayGoalAchieved {
-    final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+    final dailyTarget = _resolvedDailyTarget;
     if (dailyTarget == 0) return false;
     if (_isTodayGoalAchievedLocked) return true;
     return _currentBook.currentPage >= todayGoalPage;
+  }
+
+  /// 실효 일일 목표: stored > 0이면 stored, 아니면 fallback 계산
+  /// 한 번 고정되면 페이지 업데이트 시 재계산되지 않음
+  int get _resolvedDailyTarget {
+    if (_effectiveDailyTarget != null) return _effectiveDailyTarget!;
+    final stored = _currentBook.dailyTargetPages ?? 0;
+    if (stored > 0) {
+      _effectiveDailyTarget = stored;
+      return _effectiveDailyTarget!;
+    }
+    final days = daysLeft;
+    final pages = pagesLeft;
+    if (days > 0) {
+      _effectiveDailyTarget = (pages / days).ceil();
+    } else {
+      _effectiveDailyTarget = pages > 0 ? pages : 0;
+    }
+    return _effectiveDailyTarget!;
   }
 
   int get daysLeft {
@@ -91,7 +114,8 @@ class BookDetailViewModel extends BaseViewModel {
   Future<void> loadDailyAchievements() async {
     try {
       final achievements = <String, bool>{};
-      final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+      _effectiveDailyTarget ??= _resolvedDailyTarget;
+      final dailyTarget = _effectiveDailyTarget!;
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
@@ -114,7 +138,7 @@ class BookDetailViewModel extends BaseViewModel {
 
       final dailyPages = <String, int>{};
       for (final record in response) {
-        final createdAt = DateTime.parse(record['created_at'] as String);
+        final createdAt = DateTime.parse(record['created_at'] as String).toLocal();
         final dateKey =
             '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
         final pagesRead =
@@ -124,7 +148,7 @@ class BookDetailViewModel extends BaseViewModel {
 
       debugPrint('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
 
-      // dailyTarget이 0이면 (null 케이스) 달성 불가로 처리
+      // dailyTarget이 0이면 (설정 없음 + fallback도  0) 달성 불가로 처리
       if (dailyTarget > 0) {
         for (final entry in dailyPages.entries) {
           achievements[entry.key] = entry.value >= dailyTarget;
@@ -139,9 +163,12 @@ class BookDetailViewModel extends BaseViewModel {
       // 오늘 시작 페이지 계산 (현재 페이지 - 오늘 읽은 페이지)
       _todayStartPage = _currentBook.currentPage - _todayPagesRead;
 
-      // 이미 목표 달성했는지 확인하고 lock
-      if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
+      // 이미 locked 상태이면 오늘 달성 보장 (재호출 시에도 유지)
+      if (_isTodayGoalAchievedLocked) {
+        achievements[todayKey] = true;
+      } else if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
         _isTodayGoalAchievedLocked = true;
+        _lockedTodayGoalPage = todayGoalPage;
         achievements[todayKey] = true;
       }
 
@@ -186,7 +213,7 @@ class BookDetailViewModel extends BaseViewModel {
           _todayPagesRead += pagesRead;
 
           // 오늘 달성 여부 로컬 업데이트 (DB 쿼리 대신 즉시 반영)
-          final dailyTarget = _currentBook.dailyTargetPages ?? 0;
+          final dailyTarget = _effectiveDailyTarget ?? _resolvedDailyTarget;
           if (dailyTarget > 0) {
             final now = DateTime.now();
             final todayKey =
@@ -199,6 +226,7 @@ class BookDetailViewModel extends BaseViewModel {
             // 목표 달성 시 lock (오늘은 고정)
             if (goalAchieved && !_isTodayGoalAchievedLocked) {
               _isTodayGoalAchievedLocked = true;
+              _lockedTodayGoalPage = todayGoalPage;
               debugPrint('📖 [ViewModel] 오늘 목표 달성! Lock 설정');
             }
             debugPrint('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = $goalAchieved');

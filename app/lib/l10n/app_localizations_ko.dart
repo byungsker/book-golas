@@ -605,7 +605,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookListEmptyAll => '아직 시작한 독서가 없습니다';
 
   @override
-  String get bookListEmptyReading => '현재 읽고 있는 책이 없습니다';
+  String get bookListEmptyReading => '북골라스와 함께 독서 여정을 떠나볼까요?';
+
+  @override
+  String get bookListReadingEmptyAction => '독서 여정 떠나기';
+
+  @override
+  String get searchModeBookSearch => '도서 검색';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI 기록 검색';
 
   @override
   String get bookListEmptyCompleted => '완독한 책이 없습니다';
@@ -2244,6 +2253,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proUpgradeBannerMini => 'Pro로 무제한 이용하기';
 
   @override
+  String get proUpgradeBannerMiniDesc => 'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Pro로 업그레이드';
 
   @override
@@ -2953,6 +2965,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chartMonthlyBooksChange => '변화';
+
+  @override
+  String get chartMonthlyBooksCustomRange => '직접 범위 설정';
+
+  @override
+  String get chartBookStatusTitle => '독서 현황';
+
+  @override
+  String get chartBookStatusAnnual => '연간';
+
+  @override
+  String get chartBookStatusMonthly => '월간';
+
+  @override
+  String get chartBookStatusWeekly => '주간';
+
+  @override
+  String get chartBookStatusCustom => '기간 설정';
+
+  @override
+  String get chartBookStatusTotal => '총 완독';
+
+  @override
+  String get chartBookStatusDays => '완독일';
+
+  @override
+  String get chartBookStatusMaxDay => '최다';
 
   @override
   String chartMonthlyBooksTooltip(int month, int count) {

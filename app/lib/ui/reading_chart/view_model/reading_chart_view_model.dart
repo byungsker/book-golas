@@ -8,6 +8,8 @@ import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/reading_goal_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 
+enum BookChartFilter { annual, monthly, weekly, custom }
+
 class ReadingChartViewModel extends ChangeNotifier {
   static const _chartDataCacheKey = 'reading_chart_data_cache';
 
@@ -19,6 +21,7 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<int, int> _monthlyBookCount = {};
   Map<String, dynamic> _goalProgress = {};
   Map<DateTime, int> _heatmapData = {};
+  Map<DateTime, int> _dailyReadingSeconds = {};
 
   int _totalStarted = 0;
   int _completedBooks = 0;
@@ -34,6 +37,13 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<String, int> _highlightGenreDistribution = {};
 
   double _goalRate = 0.0;
+  int _selectedChartYear = DateTime.now().year;
+  BookChartFilter _bookChartFilter = BookChartFilter.annual;
+  int _selectedChartMonth = DateTime.now().month;
+  DateTime _selectedWeekStart = _mondayOfWeek(DateTime.now());
+  Map<DateTime, int> _dailyBookCompletionCount = {};
+  DateTime? _customRangeStart;
+  DateTime? _customRangeEnd;
 
   List<Map<String, dynamic>>? _cachedRawData;
 
@@ -44,6 +54,7 @@ class ReadingChartViewModel extends ChangeNotifier {
   Map<int, int> get monthlyBookCount => _monthlyBookCount;
   Map<String, dynamic> get goalProgress => _goalProgress;
   Map<DateTime, int> get heatmapData => _heatmapData;
+  Map<DateTime, int> get dailyReadingSeconds => _dailyReadingSeconds;
 
   int get totalStarted => _totalStarted;
   int get completedBooks => _completedBooks;
@@ -60,6 +71,14 @@ class ReadingChartViewModel extends ChangeNotifier {
       _highlightGenreDistribution;
 
   double get goalRate => _goalRate;
+  int get selectedChartYear => _selectedChartYear;
+  DateTime? get customRangeStart => _customRangeStart;
+  DateTime? get customRangeEnd => _customRangeEnd;
+  BookChartFilter get bookChartFilter => _bookChartFilter;
+  int get selectedChartMonth => _selectedChartMonth;
+  DateTime get selectedWeekStart => _selectedWeekStart;
+  Map<DateTime, int> get dailyBookCompletionCount =>
+      _dailyBookCompletionCount;
 
   List<Map<String, dynamic>>? get cachedRawData => _cachedRawData;
 
@@ -86,39 +105,30 @@ class ReadingChartViewModel extends ChangeNotifier {
           _deserializeFromJson(json);
           notifyListeners();
         } catch (e) {
-          debugPrint('Cache parse failed: $e');
+          // Cache parse failed, will use fresh data from server
         }
       }
 
       final currentYear = DateTime.now().year;
+      final results = await Future.wait([
+        _fetchUserProgressHistory(),
+        _progressService.getGenreDistribution(year: currentYear),
+        _progressService.getMonthlyBookCount(year: _selectedChartYear),
+        _goalService.getYearlyProgress(year: currentYear),
+        _progressService.getDailyReadingHeatmap(weeksToShow: 26),
+        _calculateCompletionStats(),
+        _calculateHighlightStats(),
+        _progressService.calculateGoalAchievementRate(),
+        _progressService.getDailyReadingSeconds(),
+      ]);
 
-      _cachedRawData = await _safeCall(
-        () => _fetchUserProgressHistory(),
-        <Map<String, dynamic>>[],
-      );
-      _genreDistribution = await _safeCall(
-        () => _progressService.getGenreDistribution(year: currentYear),
-        <String, int>{},
-      );
-      _monthlyBookCount = await _safeCall(
-        () => _progressService.getMonthlyBookCount(year: currentYear),
-        <int, int>{},
-      );
-      _goalProgress = await _safeCall(
-        () => _goalService.getYearlyProgress(year: currentYear),
-        <String, dynamic>{},
-      );
-      _heatmapData = await _safeCall(
-        () => _progressService.getDailyReadingHeatmap(weeksToShow: 26),
-        <DateTime, int>{},
-      );
-      await _safeCall(() => _calculateCompletionStats(), null);
-      await _safeCall(() => _calculateHighlightStats(), null);
-      _goalRate = await _safeCall(
-        () => _progressService.calculateGoalAchievementRate(),
-        0.0,
-      );
-
+      _cachedRawData = results[0] as List<Map<String, dynamic>>;
+      _genreDistribution = results[1] as Map<String, int>;
+      _monthlyBookCount = results[2] as Map<int, int>;
+      _goalProgress = results[3] as Map<String, dynamic>;
+      _heatmapData = results[4] as Map<DateTime, int>;
+      _goalRate = results[7] as double;
+      _dailyReadingSeconds = results[8] as Map<DateTime, int>;
       _errorMessage = null;
 
       final writePrefs = await SharedPreferences.getInstance();
@@ -131,15 +141,6 @@ class ReadingChartViewModel extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
-    }
-  }
-
-  Future<T> _safeCall<T>(Future<T> Function() fn, T fallback) async {
-    try {
-      return await fn();
-    } catch (e) {
-      debugPrint('Chart data load partial failure: $e');
-      return fallback;
     }
   }
 
@@ -172,8 +173,9 @@ class ReadingChartViewModel extends ChangeNotifier {
 
     final response = await Supabase.instance.client
         .from('book_images')
-        .select('id, extracted_text, highlights, book_id')
-        .eq('user_id', user.id);
+        .select('id, extracted_text, highlights, book_id, books!inner(deleted_at)')
+        .eq('user_id', user.id)
+        .isFilter('books.deleted_at', null);
 
     final images = response;
 
@@ -219,8 +221,9 @@ class ReadingChartViewModel extends ChangeNotifier {
 
     final response = await Supabase.instance.client
         .from('reading_progress_history')
-        .select('page, book_id, created_at')
+        .select('page, book_id, created_at, books!inner(deleted_at)')
         .eq('user_id', user.id)
+        .isFilter('books.deleted_at', null)
         .order('created_at', ascending: true);
 
     return (response as List)
@@ -319,8 +322,111 @@ class ReadingChartViewModel extends ChangeNotifier {
     await prefs.remove(_chartDataCacheKey);
   }
 
+  static Future<void> clearCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_chartDataCacheKey);
+  }
+
   Future<void> forceRefresh() async {
     await invalidateCache();
     await loadData();
+  }
+
+  Future<void> setChartYear(int year) async {
+    _selectedChartYear = year;
+    _bookChartFilter = BookChartFilter.annual;
+    _customRangeStart = null;
+    _customRangeEnd = null;
+    notifyListeners();
+    _monthlyBookCount =
+        await _progressService.getMonthlyBookCount(year: year);
+    notifyListeners();
+  }
+
+  Future<void> setBookChartFilter(BookChartFilter filter) async {
+    _bookChartFilter = filter;
+    if (filter != BookChartFilter.custom) {
+      _customRangeStart = null;
+      _customRangeEnd = null;
+    }
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> navigateBookChartPeriod(int direction) async {
+    switch (_bookChartFilter) {
+      case BookChartFilter.annual:
+        _selectedChartYear += direction;
+      case BookChartFilter.monthly:
+        _selectedChartMonth += direction;
+        if (_selectedChartMonth > 12) {
+          _selectedChartMonth = 1;
+          _selectedChartYear++;
+        } else if (_selectedChartMonth < 1) {
+          _selectedChartMonth = 12;
+          _selectedChartYear--;
+        }
+      case BookChartFilter.weekly:
+        _selectedWeekStart = _selectedWeekStart
+            .add(Duration(days: 7 * direction));
+      case BookChartFilter.custom:
+        return;
+    }
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> setCustomRange(DateTime start, DateTime end) async {
+    _bookChartFilter = BookChartFilter.custom;
+    _customRangeStart = start;
+    _customRangeEnd = end;
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> clearCustomRange() async {
+    _bookChartFilter = BookChartFilter.annual;
+    _customRangeStart = null;
+    _customRangeEnd = null;
+    _selectedChartYear = DateTime.now().year;
+    notifyListeners();
+    await _loadBookChartData();
+  }
+
+  Future<void> _loadBookChartData() async {
+    switch (_bookChartFilter) {
+      case BookChartFilter.annual:
+        _monthlyBookCount =
+            await _progressService.getMonthlyBookCount(
+                year: _selectedChartYear);
+        _dailyBookCompletionCount = {};
+      case BookChartFilter.monthly:
+        final start = DateTime(_selectedChartYear, _selectedChartMonth, 1);
+        final end = DateTime(
+            _selectedChartYear, _selectedChartMonth + 1, 0, 23, 59, 59);
+        _dailyBookCompletionCount =
+            await _progressService.getDailyBookCompletionCount(
+                start: start, end: end);
+      case BookChartFilter.weekly:
+        final end = _selectedWeekStart.add(
+            const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+        _dailyBookCompletionCount =
+            await _progressService.getDailyBookCompletionCount(
+                start: _selectedWeekStart, end: end);
+      case BookChartFilter.custom:
+        if (_customRangeStart != null && _customRangeEnd != null) {
+          final end = DateTime(_customRangeEnd!.year,
+              _customRangeEnd!.month, _customRangeEnd!.day, 23, 59, 59);
+          _dailyBookCompletionCount =
+              await _progressService.getDailyBookCompletionCount(
+                  start: _customRangeStart!, end: end);
+        }
+    }
+    notifyListeners();
+  }
+
+  static DateTime _mondayOfWeek(DateTime date) {
+    final diff = date.weekday - DateTime.monday;
+    return DateTime(date.year, date.month, date.day - diff);
   }
 }

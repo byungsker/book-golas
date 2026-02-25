@@ -605,8 +605,9 @@ class DetailTab extends StatelessWidget {
             final date = book.startDate.add(Duration(days: index));
             final dateKey =
                 '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+            final dateOnly = DateTime(date.year, date.month, date.day);
             final isFuture =
-                date.isAfter(DateTime(now.year, now.month, now.day));
+                dateOnly.isAfter(DateTime(now.year, now.month, now.day));
             final isToday = date.year == now.year &&
                 date.month == now.month &&
                 date.day == now.day;

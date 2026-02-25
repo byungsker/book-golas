@@ -1238,11 +1238,29 @@ abstract class AppLocalizations {
   /// **'아직 시작한 독서가 없습니다'**
   String get bookListEmptyAll;
 
-  /// Empty state message for reading books
+  /// Empty state placeholder for reading tab
   ///
   /// In ko, this message translates to:
-  /// **'현재 읽고 있는 책이 없습니다'**
+  /// **'북골라스와 함께 독서 여정을 떠나볼까요?'**
   String get bookListEmptyReading;
+
+  /// Button label for reading empty state action
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 여정 떠나기'**
+  String get bookListReadingEmptyAction;
+
+  /// Search mode dropdown - book search label
+  ///
+  /// In ko, this message translates to:
+  /// **'도서 검색'**
+  String get searchModeBookSearch;
+
+  /// Search mode dropdown - AI record search label
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get searchModeAiRecordSearch;
 
   /// Empty state message for completed books
   ///
@@ -4228,6 +4246,12 @@ abstract class AppLocalizations {
   /// **'Pro로 무제한 이용하기'**
   String get proUpgradeBannerMini;
 
+  /// Mini pro upgrade banner description
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이'**
+  String get proUpgradeBannerMiniDesc;
+
   /// Upgrade to Pro in my page
   ///
   /// In ko, this message translates to:
@@ -5529,6 +5553,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'변화'**
   String get chartMonthlyBooksChange;
+
+  /// No description provided for @chartMonthlyBooksCustomRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 범위 설정'**
+  String get chartMonthlyBooksCustomRange;
+
+  /// No description provided for @chartBookStatusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 현황'**
+  String get chartBookStatusTitle;
+
+  /// No description provided for @chartBookStatusAnnual.
+  ///
+  /// In ko, this message translates to:
+  /// **'연간'**
+  String get chartBookStatusAnnual;
+
+  /// No description provided for @chartBookStatusMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간'**
+  String get chartBookStatusMonthly;
+
+  /// No description provided for @chartBookStatusWeekly.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간'**
+  String get chartBookStatusWeekly;
+
+  /// No description provided for @chartBookStatusCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 설정'**
+  String get chartBookStatusCustom;
+
+  /// No description provided for @chartBookStatusTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 완독'**
+  String get chartBookStatusTotal;
+
+  /// No description provided for @chartBookStatusDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'완독일'**
+  String get chartBookStatusDays;
+
+  /// No description provided for @chartBookStatusMaxDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'최다'**
+  String get chartBookStatusMaxDay;
 
   /// No description provided for @chartMonthlyBooksTooltip.
   ///
