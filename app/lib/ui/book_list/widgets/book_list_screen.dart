@@ -12,6 +12,8 @@ import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -271,6 +273,48 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
+  Widget _buildReadingEmptyState(bool isDark, AppLocalizations l10n) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.book_outlined,
+              size: 80,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.bookListEmptyReading,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: BLabButton(
+                text: l10n.bookListReadingEmptyAction,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ReadingStartScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAllBooksTab(BookListViewModel vm, bool isDark) {
     final allBooks = vm.books;
     final l10n = AppLocalizations.of(context);
@@ -477,7 +521,7 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
 
     if (readingBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyReading);
+      return _buildReadingEmptyState(isDark, l10n);
     }
 
     return RefreshIndicator(

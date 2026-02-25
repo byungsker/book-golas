@@ -605,7 +605,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookListEmptyAll => '아직 시작한 독서가 없습니다';
 
   @override
-  String get bookListEmptyReading => '현재 읽고 있는 책이 없습니다';
+  String get bookListEmptyReading => '북골라스와 함께 독서 여정을 떠나볼까요?';
+
+  @override
+  String get bookListReadingEmptyAction => '독서 여정 떠나기';
 
   @override
   String get bookListEmptyCompleted => '완독한 책이 없습니다';

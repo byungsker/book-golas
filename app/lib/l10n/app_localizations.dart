@@ -1238,11 +1238,17 @@ abstract class AppLocalizations {
   /// **'아직 시작한 독서가 없습니다'**
   String get bookListEmptyAll;
 
-  /// Empty state message for reading books
+  /// Empty state placeholder for reading tab
   ///
   /// In ko, this message translates to:
-  /// **'현재 읽고 있는 책이 없습니다'**
+  /// **'북골라스와 함께 독서 여정을 떠나볼까요?'**
   String get bookListEmptyReading;
+
+  /// Button label for reading empty state action
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 여정 떠나기'**
+  String get bookListReadingEmptyAction;
 
   /// Empty state message for completed books
   ///

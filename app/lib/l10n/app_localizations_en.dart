@@ -632,7 +632,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookListEmptyAll => 'No reading started yet';
 
   @override
-  String get bookListEmptyReading => 'No books currently reading';
+  String get bookListEmptyReading =>
+      'Shall we start a reading journey with Bookgolas?';
+
+  @override
+  String get bookListReadingEmptyAction => 'Start Reading Journey';
 
   @override
   String get bookListEmptyCompleted => 'No completed books';

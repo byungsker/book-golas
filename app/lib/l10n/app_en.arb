@@ -326,7 +326,8 @@
      "bookListEmptyPlanned": "No books planned to read",
      "bookListEmptyPaused": "No paused books",
      "bookListEmptyAll": "No reading started yet",
-     "bookListEmptyReading": "No books currently reading",
+     "bookListEmptyReading": "Shall we start a reading journey with Bookgolas?",
+     "bookListReadingEmptyAction": "Start Reading Journey",
      "bookListEmptyCompleted": "No completed books",
      "bookListEmptyStatus": "No {status} books",
     

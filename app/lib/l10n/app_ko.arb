@@ -635,8 +635,11 @@
      "bookListEmptyAll": "아직 시작한 독서가 없습니다",
      "@bookListEmptyAll": {"description": "Empty state message for all books"},
      
-     "bookListEmptyReading": "현재 읽고 있는 책이 없습니다",
-     "@bookListEmptyReading": {"description": "Empty state message for reading books"},
+     "bookListEmptyReading": "북골라스와 함께 독서 여정을 떠나볼까요?",
+     "@bookListEmptyReading": {"description": "Empty state placeholder for reading tab"},
+     
+     "bookListReadingEmptyAction": "독서 여정 떠나기",
+     "@bookListReadingEmptyAction": {"description": "Button label for reading empty state action"},
      
      "bookListEmptyCompleted": "완독한 책이 없습니다",
      "@bookListEmptyCompleted": {"description": "Empty state message for completed books"},
