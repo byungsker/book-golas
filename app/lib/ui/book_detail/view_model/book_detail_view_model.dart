@@ -15,6 +15,7 @@ class BookDetailViewModel extends BaseViewModel {
   Map<String, bool> _dailyAchievements = {};
   int _todayPagesRead = 0;
   bool _isTodayGoalAchievedLocked = false;
+  int? _lockedTodayGoalPage;
   bool _shouldShowPaywall = false;
 
   Book get currentBook => _currentBook;
@@ -29,7 +30,9 @@ class BookDetailViewModel extends BaseViewModel {
   }
 
   /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표)
+  /// 오늘의 목표 페이지 (오늘 시작 페이지 + 일일 목표, 달성 후 고정)
   int get todayGoalPage {
+    if (_lockedTodayGoalPage != null) return _lockedTodayGoalPage!;
     final dailyTarget = _currentBook.dailyTargetPages ?? 0;
     return _todayStartPage + dailyTarget;
   }
@@ -139,9 +142,12 @@ class BookDetailViewModel extends BaseViewModel {
       // 오늘 시작 페이지 계산 (현재 페이지 - 오늘 읽은 페이지)
       _todayStartPage = _currentBook.currentPage - _todayPagesRead;
 
-      // 이미 목표 달성했는지 확인하고 lock
-      if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
+      // 이미 locked 상태이면 오늘 달성 보장 (재호출 시에도 유지)
+      if (_isTodayGoalAchievedLocked) {
+        achievements[todayKey] = true;
+      } else if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
         _isTodayGoalAchievedLocked = true;
+        _lockedTodayGoalPage = todayGoalPage;
         achievements[todayKey] = true;
       }
 
@@ -199,6 +205,7 @@ class BookDetailViewModel extends BaseViewModel {
             // 목표 달성 시 lock (오늘은 고정)
             if (goalAchieved && !_isTodayGoalAchievedLocked) {
               _isTodayGoalAchievedLocked = true;
+              _lockedTodayGoalPage = todayGoalPage;
               debugPrint('📖 [ViewModel] 오늘 목표 달성! Lock 설정');
             }
             debugPrint('📖 [ViewModel] 로컬 달성 업데이트: $todayKey = $goalAchieved');

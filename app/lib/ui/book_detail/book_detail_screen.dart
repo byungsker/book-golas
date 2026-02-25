@@ -602,7 +602,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
         CustomSnackbar.show(context,
-            message: 'Goal achieved! +$pagesRead 🎉',
+            message: '🎉 오늘 목표 달성! +$pagesRead 페이지를 읽었어요',
             type: BLabSnackbarType.success);
 
         // 이번 업데이트로 목표 달성했으면 컨페티 표시
@@ -613,16 +613,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${remaining}p', type: BLabSnackbarType.info);
+              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요', type: BLabSnackbarType.info);
         } else {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${newPage}p', type: BLabSnackbarType.success);
+              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)', type: BLabSnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(context, message: 'Error', type: BLabSnackbarType.error);
+      CustomSnackbar.show(context, message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
     }
   }
 
