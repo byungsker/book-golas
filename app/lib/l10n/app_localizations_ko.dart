@@ -2280,10 +2280,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ocrExtractionFailed => '텍스트 추출 실패';
 
   @override
-  String get extractTextConfirmTitle => '텍스트 추출';
+  String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
 
   @override
-  String get extractTextCreditsMessage => '크레딧이 사용됩니다';
+  String extractTextFreeRemaining(int remaining, int total) {
+    return '오늘 남은 무료 추출: $remaining/$total회';
+  }
+
+  @override
+  String get ocrProUnlimitedButton => 'Pro 멤버십은 무제한으로 추출할 수 있어요!';
+
+  @override
+  String get ocrLimitReachedTitle => '오늘의 무료 추출 횟수를 모두 사용했어요';
+
+  @override
+  String get ocrLimitReachedMessage =>
+      'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요';
+
+  @override
+  String get ocrLimitReachedUpgrade => 'Pro로 업그레이드';
 
   @override
   String get noThanksButton => '괜찮아요';

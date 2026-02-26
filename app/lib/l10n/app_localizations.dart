@@ -4303,14 +4303,38 @@ abstract class AppLocalizations {
   /// No description provided for @extractTextConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출'**
+  /// **'텍스트를 추출하시겠어요?'**
   String get extractTextConfirmTitle;
 
-  /// No description provided for @extractTextCreditsMessage.
+  /// No description provided for @extractTextFreeRemaining.
   ///
   /// In ko, this message translates to:
-  /// **'크레딧이 사용됩니다'**
-  String get extractTextCreditsMessage;
+  /// **'오늘 남은 무료 추출: {remaining}/{total}회'**
+  String extractTextFreeRemaining(int remaining, int total);
+
+  /// No description provided for @ocrProUnlimitedButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십은 무제한으로 추출할 수 있어요!'**
+  String get ocrProUnlimitedButton;
+
+  /// No description provided for @ocrLimitReachedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 무료 추출 횟수를 모두 사용했어요'**
+  String get ocrLimitReachedTitle;
+
+  /// No description provided for @ocrLimitReachedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요'**
+  String get ocrLimitReachedMessage;
+
+  /// No description provided for @ocrLimitReachedUpgrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro로 업그레이드'**
+  String get ocrLimitReachedUpgrade;
 
   /// No description provided for @noThanksButton.
   ///
