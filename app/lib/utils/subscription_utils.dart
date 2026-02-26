@@ -164,21 +164,28 @@ class SubscriptionUtils {
   }
 
   static Future<bool> canUseOcr() async {
+    debugPrint('[canUseOcr] isSuperAdmin=${isSuperAdmin()}');
     if (isSuperAdmin()) return true;
     final isPro = await isProUser();
+    debugPrint('[canUseOcr] isPro=$isPro');
     if (isPro) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
+      debugPrint('[canUseOcr] userId=$userId');
       if (userId == null) return false;
       final response = await _supabase
           .rpc('get_ocr_daily_usage', params: {'p_user_id': userId});
+      debugPrint('[canUseOcr] response=$response (type=${response.runtimeType})');
       if (response is List && response.isNotEmpty) {
         final usageCount = response[0]['usage_count'] as int? ?? 0;
+        debugPrint('[canUseOcr] usageCount=$usageCount, max=${SubscriptionConstants.maxOcrPerDayFree}, result=${usageCount < SubscriptionConstants.maxOcrPerDayFree}');
         return usageCount < SubscriptionConstants.maxOcrPerDayFree;
       }
+      debugPrint('[canUseOcr] response not List or empty → returning true');
       return true;
     } catch (e) {
+      debugPrint('[canUseOcr] exception=$e → returning true');
       return true;
     }
   }
