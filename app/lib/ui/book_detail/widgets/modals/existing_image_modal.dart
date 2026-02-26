@@ -90,7 +90,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       HighlightSettingsService.defaultStrokeWidth;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
-  Size? _imageSize;
   final GlobalKey _imageKey = GlobalKey();
   bool _isImageLoaded = false;
 
@@ -138,17 +137,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     }
   }
 
-  void _updateImageSize() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final renderBox =
-          _imageKey.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox != null && mounted) {
-        setState(() {
-          _imageSize = renderBox.size;
-        });
-      }
-    });
-  }
 
   bool get _hasHighlightChanges {
     if (_highlights.length != _originalHighlights.length) return true;
@@ -605,23 +593,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildWithImageContent(bool isDark) {
-    final isTextFocused = _isEditing && _focusNode.hasFocus;
-
-    if (isTextFocused) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextHeader(isDark),
-            const SizedBox(height: 12),
-            Expanded(child: _buildFullModeTextField(isDark)),
-            const SizedBox(height: 20),
-          ],
-        ),
-      );
-    }
-
     if (_isHighlightMode) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -654,40 +625,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     );
   }
 
-  Widget _buildFullModeTextField(bool isDark) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-        ),
-      ),
-      child: TextField(
-        controller: _textController,
-        focusNode: _focusNode,
-        maxLines: null,
-        expands: true,
-        keyboardType: TextInputType.multiline,
-        textInputAction: TextInputAction.newline,
-        textAlignVertical: TextAlignVertical.top,
-        style: TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).textInputHint,
-          hintStyle: TextStyle(
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTextOnlyContent(bool isDark) {
     return Padding(
@@ -811,7 +748,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           _isHighlightMode = true;
           _isEditing = true;
         });
-        _updateImageSize();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
