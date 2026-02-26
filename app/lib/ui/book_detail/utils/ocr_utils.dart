@@ -285,13 +285,6 @@ Future<void> pickImageAndExtractText(
   ImageSource source,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
-  final canUse = await SubscriptionUtils.canUseOcr();
-  if (!canUse) {
-    if (context.mounted) {
-      showOcrLimitDialog(context);
-    }
-    return;
-  }
 
   final parentContext = context;
 
@@ -423,6 +416,15 @@ Future<void> pickImageAndExtractText(
     );
 
     if (shouldExtract != true) {
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
       onComplete(fullImageBytes, '', null);
       return;
     }
@@ -833,13 +835,6 @@ Future<void> scanDocumentAndExtractText(
   BuildContext context,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
-  final canUse = await SubscriptionUtils.canUseOcr();
-  if (!canUse) {
-    if (context.mounted) {
-      showOcrLimitDialog(context);
-    }
-    return;
-  }
 
   final parentContext = context;
 
@@ -972,6 +967,15 @@ Future<void> scanDocumentAndExtractText(
     );
 
     if (shouldExtract != true) {
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
       onComplete(scannedBytes, '', null);
       return;
     }
