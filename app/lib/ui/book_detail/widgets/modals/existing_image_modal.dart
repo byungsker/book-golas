@@ -1082,29 +1082,26 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               : null,
         ),
         child: _isEditing
-            ? Scrollbar(
-                thumbVisibility: true,
-                child: TextField(
-                  controller: _textController,
-                  focusNode: _focusNode,
-                  maxLines: null,
-                  expands: true,
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                  textAlignVertical: TextAlignVertical.top,
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.6,
-                    color: isDark ? Colors.white : Colors.black,
+            ? TextField(
+                controller: _textController,
+                focusNode: _focusNode,
+                maxLines: null,
+                expands: true,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                textAlignVertical: TextAlignVertical.top,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.6,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context).textInputHint,
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context).textInputHint,
-                    hintStyle: TextStyle(
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(16),
                 ),
               )
             : Scrollbar(
