@@ -1183,13 +1183,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Auto-detects documents and corrects distortion';
 
   @override
-  String get imageSourceSinglePageScan => 'Single Page Scan';
-
-  @override
-  String get imageSourceSinglePageScanDesc =>
-      'Scan one page and finish instantly';
-
-  @override
   String get imageSourceAutoCorrection => 'Flatten & Auto Correct';
 
   @override

@@ -550,8 +550,6 @@
        "pageUpdateButton": "Update",
        "imageSourceDocumentScan": "Document Scan",
        "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
-       "imageSourceSinglePageScan": "Single Page Scan",
-       "imageSourceSinglePageScanDesc": "Scan one page and finish instantly",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
        "imageSourceSimulatorError": "Camera is not available on simulator",
        "imageSourceTakePhoto": "Take Photo",

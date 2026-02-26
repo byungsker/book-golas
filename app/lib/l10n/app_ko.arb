@@ -1230,13 +1230,6 @@
      "imageSourceDocumentScanDesc": "문서를 자동으로 인식하고 왜곡을 보정해요",
      "@imageSourceDocumentScanDesc": {"description": "Document scan description"},
      
-     "imageSourceSinglePageScan": "한 장 스캔",
-     "@imageSourceSinglePageScan": {"description": "Single page scan option"},
-     
-     "imageSourceSinglePageScanDesc": "한 장만 스캔하고 바로 완료돼요",
-     "@imageSourceSinglePageScanDesc": {"description": "Single page scan description"},
-     
-     
      "imageSourceAutoCorrection": "평탄화 및 자동 보정",
      "@imageSourceAutoCorrection": {"description": "Auto correction option"},
      

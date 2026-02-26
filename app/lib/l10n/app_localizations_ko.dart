@@ -1137,12 +1137,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceDocumentScanDesc => '문서를 자동으로 인식하고 왜곡을 보정해요';
 
   @override
-  String get imageSourceSinglePageScan => '한 장 스캔';
-
-  @override
-  String get imageSourceSinglePageScanDesc => '한 장만 스캔하고 바로 완료돼요';
-
-  @override
   String get imageSourceAutoCorrection => '평탄화 및 자동 보정';
 
   @override

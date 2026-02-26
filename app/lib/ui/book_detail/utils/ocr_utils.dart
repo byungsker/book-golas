@@ -831,9 +831,8 @@ Future<void> reExtractTextFromImage(
 
 Future<void> scanDocumentAndExtractText(
   BuildContext context,
-  Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete, {
-  bool singlePage = false,
-}) async {
+  Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
+) async {
   final canUse = await SubscriptionUtils.canUseOcr();
   if (!canUse) {
     if (context.mounted) {
@@ -845,8 +844,7 @@ Future<void> scanDocumentAndExtractText(
   final parentContext = context;
 
   try {
-    final scannedBytes =
-        await scanDocumentWithCamera(parentContext, singlePage: singlePage);
+    final scannedBytes = await scanDocumentWithCamera(parentContext);
     if (scannedBytes == null) {
       debugPrint('문서 스캔 취소');
       return;
