@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:book_golas/domain/models/user_model.dart';
 
@@ -106,6 +107,11 @@ class AuthService {
 
   Future<String?> signOut() async {
     try {
+      try {
+        await Purchases.logOut();
+      } catch (e) {
+        debugPrint('RevenueCat logOut failed: $e');
+      }
       await _supabase.auth.signOut();
       _currentUser = null;
       return null;

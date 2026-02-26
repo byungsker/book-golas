@@ -1361,7 +1361,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
               icon: Icons.play_arrow_rounded);
         } else if (!success && mounted && bookVm.shouldShowPaywall) {
           bookVm.clearPaywallState();
-          await SubscriptionService().showPaywall(context);
+          final paywallSuccess = await SubscriptionService().showPaywall(context);
+          if (!paywallSuccess && mounted) {
+            CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+          }
         }
       },
     );

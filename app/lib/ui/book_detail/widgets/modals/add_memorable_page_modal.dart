@@ -540,25 +540,8 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
   }
 
   Widget _buildContent(bool isDark) {
-    final isTextFocused = _textFocusNode.hasFocus;
-
     if (_isHighlightMode && _fullImageBytes != null) {
       return _buildHighlightModeView(isDark);
-    }
-
-    if (isTextFocused) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextSectionHeader(isDark),
-            const SizedBox(height: 12),
-            Expanded(child: _buildExpandedTextField(isDark)),
-            const SizedBox(height: 20),
-          ],
-        ),
-      );
     }
 
     return SingleChildScrollView(
@@ -1050,45 +1033,6 @@ class _AddMemorablePageModalState extends State<AddMemorablePageModal> {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildExpandedTextField(bool isDark) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-        ),
-      ),
-      child: TextField(
-        controller: _textController,
-        focusNode: _textFocusNode,
-        maxLines: null,
-        expands: true,
-        keyboardType: TextInputType.multiline,
-        textInputAction: TextInputAction.newline,
-        textAlignVertical: TextAlignVertical.top,
-        onChanged: (value) {
-          _saveTextToHistory();
-          _notifyStateChanged();
-        },
-        style: TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).recordHint,
-          hintStyle: TextStyle(
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
     );
   }
 

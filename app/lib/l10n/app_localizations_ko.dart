@@ -1134,6 +1134,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceDocumentScan => '문서 스캔';
 
   @override
+  String get imageSourceDocumentScanDesc => '문서를 자동으로 인식하고 왜곡을 보정해요';
+
+  @override
   String get imageSourceAutoCorrection => '평탄화 및 자동 보정';
 
   @override
@@ -1158,7 +1161,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceCameraTitle => '카메라로 촬영';
 
   @override
-  String get imageSourceGalleryTitle => '갤러리에서 선택';
+  String get imageSourceCameraDesc => '사진을 찍어 텍스트를 바로 추출해요';
+
+  @override
+  String get imageSourceGalleryTitle => '라이브러리에서 선택';
+
+  @override
+  String get imageSourceGalleryDesc => '이미 저장된 이미지에서 텍스트를 추출해요';
 
   @override
   String get imageSourceReplaceConfirmation => '이미지를 교체하시겠습니까?';
@@ -2279,10 +2288,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ocrExtractionFailed => '텍스트 추출 실패';
 
   @override
-  String get extractTextConfirmTitle => '텍스트 추출';
+  String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
 
   @override
-  String get extractTextCreditsMessage => '크레딧이 사용됩니다';
+  String extractTextFreeRemaining(int remaining, int total) {
+    return '오늘 남은 무료 추출: $remaining/$total회';
+  }
+
+  @override
+  String get ocrProUnlimitedButton => 'Pro 멤버십은 무제한으로 추출할 수 있어요!';
+
+  @override
+  String get ocrLimitReachedTitle => '오늘의 무료 추출 횟수를 모두 사용했어요';
+
+  @override
+  String get ocrLimitReachedMessage =>
+      'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요';
+
+  @override
+  String get ocrLimitReachedUpgrade => 'Pro로 업그레이드';
 
   @override
   String get noThanksButton => '괜찮아요';
@@ -3454,4 +3478,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookDetailSaveError => '저장 중 오류가 발생했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 }

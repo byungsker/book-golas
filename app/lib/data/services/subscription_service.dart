@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
@@ -50,12 +51,29 @@ class SubscriptionService {
 
   /// Presents the RevenueCat Paywall UI.
   ///
-  /// Uses RevenueCat's built-in paywall presentation.
-  Future<void> showPaywall(BuildContext context) async {
+  /// Checks offerings availability before presenting.
+  /// Returns true if paywall was shown, false if configuration is unavailable.
+  Future<bool> showPaywall(BuildContext context) async {
     try {
+      final offerings = await Purchases.getOfferings();
+      if (offerings.current == null ||
+          offerings.current!.availablePackages.isEmpty) {
+        debugPrint('⚠️ Paywall skipped: no offerings available');
+        return false;
+      }
       await RevenueCatUI.presentPaywall();
+      return true;
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.configurationError) {
+        debugPrint('⚠️ Paywall config error (Error 23): ${e.message}');
+      } else {
+        debugPrint('Paywall platform error: ${e.code} - ${e.message}');
+      }
+      return false;
     } catch (e) {
       debugPrint('Failed to show paywall: $e');
+      return false;
     }
   }
 

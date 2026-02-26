@@ -549,6 +549,7 @@
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
        "imageSourceDocumentScan": "Document Scan",
+       "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
        "imageSourceSimulatorError": "Camera is not available on simulator",
        "imageSourceTakePhoto": "Take Photo",
@@ -557,7 +558,9 @@
        "imageSourceSelectSaved": "Select Saved Image",
        "imageSourceReplaceTitle": "Replace Image",
        "imageSourceCameraTitle": "Take Photo",
-       "imageSourceGalleryTitle": "Select from Gallery",
+       "imageSourceCameraDesc": "Take a photo and extract text instantly",
+       "imageSourceGalleryTitle": "Select from Library",
+       "imageSourceGalleryDesc": "Extract text from a saved image",
        "imageSourceReplaceConfirmation": "Replace this image?",
        "imageSourceReplaceWarning": "Previously extracted text will be lost.",
        "dailyTargetDialogTitle": "Change Daily Target Page",
@@ -1036,8 +1039,13 @@
            "scannerErrorDefault": "Scanner error occurred",
            "extractingText": "Extracting text...",
            "ocrExtractionFailed": "Text extraction failed",
-           "extractTextConfirmTitle": "Extract Text",
-           "extractTextCreditsMessage": "This will use your credits",
+           "extractTextConfirmTitle": "Extract text?",
+           "extractTextFreeRemaining": "Free extractions remaining: {remaining}/{total}",
+           "@extractTextFreeRemaining": {"placeholders": {"remaining": {"type": "int"}, "total": {"type": "int"}}},
+           "ocrProUnlimitedButton": "Pro members get unlimited extractions!",
+           "ocrLimitReachedTitle": "You've used all free extractions for today",
+           "ocrLimitReachedMessage": "Upgrade to Pro for unlimited\ntext extractions every day",
+           "ocrLimitReachedUpgrade": "Upgrade to Pro",
            "noThanksButton": "No thanks",
            "extractButton": "Extract",
            "ocrAreaSelectTitle": "Select area to extract",
@@ -1536,5 +1544,8 @@
            "@bookDetailNetworkError": {"description": "Network error message in upload dialog"},
 
            "bookDetailSaveError": "An error occurred while saving.\nPlease try again.",
-           "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"}
+           "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
+
+           "subscriptionUnavailable": "Subscription service is currently unavailable.",
+           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}
 }

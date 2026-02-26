@@ -1179,6 +1179,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceDocumentScan => 'Document Scan';
 
   @override
+  String get imageSourceDocumentScanDesc =>
+      'Auto-detects documents and corrects distortion';
+
+  @override
   String get imageSourceAutoCorrection => 'Flatten & Auto Correct';
 
   @override
@@ -1204,7 +1208,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceCameraTitle => 'Take Photo';
 
   @override
-  String get imageSourceGalleryTitle => 'Select from Gallery';
+  String get imageSourceCameraDesc => 'Take a photo and extract text instantly';
+
+  @override
+  String get imageSourceGalleryTitle => 'Select from Library';
+
+  @override
+  String get imageSourceGalleryDesc => 'Extract text from a saved image';
 
   @override
   String get imageSourceReplaceConfirmation => 'Replace this image?';
@@ -2346,10 +2356,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrExtractionFailed => 'Text extraction failed';
 
   @override
-  String get extractTextConfirmTitle => 'Extract Text';
+  String get extractTextConfirmTitle => 'Extract text?';
 
   @override
-  String get extractTextCreditsMessage => 'This will use your credits';
+  String extractTextFreeRemaining(int remaining, int total) {
+    return 'Free extractions remaining: $remaining/$total';
+  }
+
+  @override
+  String get ocrProUnlimitedButton => 'Pro members get unlimited extractions!';
+
+  @override
+  String get ocrLimitReachedTitle =>
+      'You\'ve used all free extractions for today';
+
+  @override
+  String get ocrLimitReachedMessage =>
+      'Upgrade to Pro for unlimited\ntext extractions every day';
+
+  @override
+  String get ocrLimitReachedUpgrade => 'Upgrade to Pro';
 
   @override
   String get noThanksButton => 'No thanks';
@@ -3535,4 +3561,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookDetailSaveError =>
       'An error occurred while saving.\nPlease try again.';
+
+  @override
+  String get subscriptionUnavailable =>
+      'Subscription service is currently unavailable.';
 }
