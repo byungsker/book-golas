@@ -296,6 +296,15 @@ Future<void> pickImageAndExtractText(
     final fullImageBytes = await pickedFile.readAsBytes();
     debugPrint('이미지 선택 완료 (${fullImageBytes.length} bytes)');
 
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
     final isPro = await SubscriptionUtils.isProUser();
     final remaining =
@@ -420,14 +429,6 @@ Future<void> pickImageAndExtractText(
       return;
     }
 
-    final canUse = await SubscriptionUtils.canUseOcr();
-    if (!canUse) {
-      if (parentContext.mounted) {
-        showOcrLimitDialog(parentContext);
-      }
-      onComplete(fullImageBytes, '', null);
-      return;
-    }
 
     String? extractedText;
     int? extractedPageNumber;
@@ -847,6 +848,15 @@ Future<void> scanDocumentAndExtractText(
 
     debugPrint('문서 스캔 완료 (${scannedBytes.length} bytes)');
 
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
     final isPro = await SubscriptionUtils.isProUser();
     final remaining =
@@ -971,14 +981,6 @@ Future<void> scanDocumentAndExtractText(
       return;
     }
 
-    final canUse = await SubscriptionUtils.canUseOcr();
-    if (!canUse) {
-      if (parentContext.mounted) {
-        showOcrLimitDialog(parentContext);
-      }
-      onComplete(scannedBytes, '', null);
-      return;
-    }
 
     showDialog(
       context: parentContext,
