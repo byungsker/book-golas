@@ -2199,6 +2199,12 @@ abstract class AppLocalizations {
   /// **'문서 스캔'**
   String get imageSourceDocumentScan;
 
+  /// Document scan description
+  ///
+  /// In ko, this message translates to:
+  /// **'문서를 자동으로 인식하고 왜곡을 보정해요'**
+  String get imageSourceDocumentScanDesc;
+
   /// Auto correction option
   ///
   /// In ko, this message translates to:
@@ -2247,11 +2253,23 @@ abstract class AppLocalizations {
   /// **'카메라로 촬영'**
   String get imageSourceCameraTitle;
 
+  /// Camera option description
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 찍어 텍스트를 바로 추출해요'**
+  String get imageSourceCameraDesc;
+
   /// Select from gallery title
   ///
   /// In ko, this message translates to:
-  /// **'갤러리에서 선택'**
+  /// **'라이브러리에서 선택'**
   String get imageSourceGalleryTitle;
+
+  /// Gallery option description
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 저장된 이미지에서 텍스트를 추출해요'**
+  String get imageSourceGalleryDesc;
 
   /// Replace image confirmation
   ///
@@ -4303,14 +4321,38 @@ abstract class AppLocalizations {
   /// No description provided for @extractTextConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출'**
+  /// **'텍스트를 추출하시겠어요?'**
   String get extractTextConfirmTitle;
 
-  /// No description provided for @extractTextCreditsMessage.
+  /// No description provided for @extractTextFreeRemaining.
   ///
   /// In ko, this message translates to:
-  /// **'크레딧이 사용됩니다'**
-  String get extractTextCreditsMessage;
+  /// **'오늘 남은 무료 추출: {remaining}/{total}회'**
+  String extractTextFreeRemaining(int remaining, int total);
+
+  /// No description provided for @ocrProUnlimitedButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십은 무제한으로 추출할 수 있어요!'**
+  String get ocrProUnlimitedButton;
+
+  /// No description provided for @ocrLimitReachedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 무료 추출 횟수를 모두 사용했어요'**
+  String get ocrLimitReachedTitle;
+
+  /// No description provided for @ocrLimitReachedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요'**
+  String get ocrLimitReachedMessage;
+
+  /// No description provided for @ocrLimitReachedUpgrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro로 업그레이드'**
+  String get ocrLimitReachedUpgrade;
 
   /// No description provided for @noThanksButton.
   ///

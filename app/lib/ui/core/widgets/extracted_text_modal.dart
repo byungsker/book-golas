@@ -192,7 +192,6 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
                       ],
                     ),
                   ],
-                  if (!isTextFocused) ...[
                     if (widget.creditWarning != null) ...[
                       const SizedBox(height: 8),
                       Text(
@@ -263,7 +262,6 @@ class _ExtractedTextModalState extends State<ExtractedTextModal> {
                     SizedBox(
                       height: MediaQuery.of(context).padding.bottom + 8,
                     ),
-                  ],
                 ],
               ),
             ),

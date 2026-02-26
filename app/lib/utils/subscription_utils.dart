@@ -9,6 +9,9 @@ class SubscriptionConstants {
   /// Maximum AI Recall uses per month for free users
   static const int maxAiRecallPerMonthFree = 10;
 
+  /// Maximum OCR uses per day for free users
+  static const int maxOcrPerDayFree = 10;
+
   /// Super admin email (unlimited access)
   static const String superAdminEmail = 'bookgolas@admin.com';
 }
@@ -157,6 +160,56 @@ class SubscriptionUtils {
           .rpc('increment_ai_recall_usage', params: {'user_id': userId});
     } catch (e) {
       debugPrint('Failed to increment AI Recall usage: $e');
+    }
+  }
+
+  static Future<bool> canUseOcr() async {
+    if (isSuperAdmin()) return true;
+    final isPro = await isProUser();
+    if (isPro) return true;
+
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+      final response = await _supabase
+          .rpc('get_ocr_daily_usage', params: {'p_user_id': userId});
+      if (response is List && response.isNotEmpty) {
+        final usageCount = response[0]['usage_count'] as int? ?? 0;
+        return usageCount < SubscriptionConstants.maxOcrPerDayFree;
+      }
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  static Future<int> getRemainingOcrUses() async {
+    if (isSuperAdmin()) return 999;
+
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return 0;
+      final response = await _supabase
+          .rpc('get_ocr_daily_usage', params: {'p_user_id': userId});
+      if (response is List && response.isNotEmpty) {
+        final usageCount = response[0]['usage_count'] as int? ?? 0;
+        return SubscriptionConstants.maxOcrPerDayFree - usageCount;
+      }
+      return SubscriptionConstants.maxOcrPerDayFree;
+    } catch (e) {
+      return SubscriptionConstants.maxOcrPerDayFree;
+    }
+  }
+
+  static Future<void> incrementOcrUsage() async {
+    if (isSuperAdmin()) return;
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return;
+      await _supabase
+          .rpc('increment_ocr_daily_usage', params: {'p_user_id': userId});
+    } catch (e) {
+      debugPrint('Failed to increment OCR usage: $e');
     }
   }
 }
