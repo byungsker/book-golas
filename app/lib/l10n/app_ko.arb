@@ -679,7 +679,7 @@
       "bookDetailReviewEditDescription": "작성한 독후감을 다시 확인하고 수정해보세요",
       "@bookDetailReviewEditDescription": {"description": "Review description for existing review"},
       
-      "bookDetailContinueReading": "독서 다시 시작하기",
+      "bookDetailContinueReading": "새로운 독서 시작하기",
       "@bookDetailContinueReading": {"description": "Continue reading button"},
       
       "bookDetailContinueReadingDesc": "이번에도 몰입해서 독서 목표를 달성해보아요!",
@@ -3023,6 +3023,57 @@
 
          "myPageVersion": "버전",
          "@myPageVersion": {"description": "Version in my page"},
+
+         "bookDetailPlannedStart": "독서 시작 예정",
+         "@bookDetailPlannedStart": {"description": "Planned start date label in book detail"},
+
+         "bookDetailTbd": "미정",
+         "@bookDetailTbd": {"description": "To be determined text when no planned date"},
+
+         "bookDetailRecordThoughts": "생각을 기록해보세요",
+         "@bookDetailRecordThoughts": {"description": "Subtitle for write review button"},
+
+         "bookDetailReviewYourWritten": "작성한 독후감을 확인해보세요",
+         "@bookDetailReviewYourWritten": {"description": "Subtitle for edit review button"},
+
+         "bookDetailResumeReading": "독서 재개하기",
+         "@bookDetailResumeReading": {"description": "Resume reading button text for will_retry books"},
+
+         "bookDetailAttemptCount": "{count}번째 도전",
+         "@bookDetailAttemptCount": {"description": "Attempt count for resumed reading", "placeholders": {"count": {"type": "int"}}},
+
+         "bookDetailAchieveGoal": "독서 목표를 달성해보세요!",
+         "@bookDetailAchieveGoal": {"description": "Subtitle for continue reading button"},
+
+         "bookDetailSaved": "저장되었습니다",
+         "@bookDetailSaved": {"description": "Snackbar message after saving"},
+
+         "bookDetailReadingPaused": "독서가 일시정지되었습니다",
+         "@bookDetailReadingPaused": {"description": "Snackbar message after pausing reading"},
+
+         "bookDetailDeleted": "삭제되었습니다",
+         "@bookDetailDeleted": {"description": "Snackbar message after deleting book"},
+
+         "bookDetailPriorityUrgent": "긴급",
+         "@bookDetailPriorityUrgent": {"description": "Urgent priority label"},
+
+         "bookDetailPriorityHigh": "높음",
+         "@bookDetailPriorityHigh": {"description": "High priority label"},
+
+         "bookDetailPriorityMedium": "보통",
+         "@bookDetailPriorityMedium": {"description": "Medium priority label"},
+
+         "bookDetailPriorityLow": "낮음",
+         "@bookDetailPriorityLow": {"description": "Low priority label"},
+
+         "bookDetailAttemptStarted": "{count}번째 도전 시작!",
+         "@bookDetailAttemptStarted": {"description": "Snackbar when new reading attempt starts", "placeholders": {"count": {"type": "int"}}},
+
+         "bookDetailNetworkError": "네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.",
+         "@bookDetailNetworkError": {"description": "Network error message in upload dialog"},
+
+         "bookDetailSaveError": "저장 중 오류가 발생했습니다.\n다시 시도해주세요.",
+         "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
 
          "subscriptionUnavailable": "구독 서비스를 현재 이용할 수 없습니다.",
          "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}

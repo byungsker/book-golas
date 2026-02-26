@@ -646,7 +646,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailReviewEditDescription => '작성한 독후감을 다시 확인하고 수정해보세요';
 
   @override
-  String get bookDetailContinueReading => '독서 다시 시작하기';
+  String get bookDetailContinueReading => '새로운 독서 시작하기';
 
   @override
   String get bookDetailContinueReadingDesc => '이번에도 몰입해서 독서 목표를 달성해보아요!';
@@ -704,8 +704,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailUploadFailed => '업로드 실패';
 
   @override
-  String get bookDetailNetworkError =>
-      '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.';
+  String get bookDetailNetworkError => '네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.';
 
   @override
   String get bookDetailUploadError =>
@@ -3439,6 +3438,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get myPageVersion => '버전';
+
+  @override
+  String get bookDetailPlannedStart => '독서 시작 예정';
+
+  @override
+  String get bookDetailTbd => '미정';
+
+  @override
+  String get bookDetailRecordThoughts => '생각을 기록해보세요';
+
+  @override
+  String get bookDetailReviewYourWritten => '작성한 독후감을 확인해보세요';
+
+  @override
+  String get bookDetailResumeReading => '독서 재개하기';
+
+  @override
+  String bookDetailAttemptCount(int count) {
+    return '$count번째 도전';
+  }
+
+  @override
+  String get bookDetailAchieveGoal => '독서 목표를 달성해보세요!';
+
+  @override
+  String get bookDetailSaved => '저장되었습니다';
+
+  @override
+  String get bookDetailReadingPaused => '독서가 일시정지되었습니다';
+
+  @override
+  String get bookDetailDeleted => '삭제되었습니다';
+
+  @override
+  String bookDetailAttemptStarted(int count) {
+    return '$count번째 도전 시작!';
+  }
+
+  @override
+  String get bookDetailSaveError => '저장 중 오류가 발생했습니다.\n다시 시도해주세요.';
 
   @override
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';

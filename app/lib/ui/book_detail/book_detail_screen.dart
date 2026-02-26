@@ -951,7 +951,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,
-            message: 'Saved', type: BLabSnackbarType.success);
+            message: AppLocalizations.of(context).bookDetailSaved, type: BLabSnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -965,13 +965,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
         showCupertinoDialog(
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
-            title: const Text('Upload Failed'),
+            title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
             content: Text(isNetworkError
-                ? 'Please check your network connection.\nTry again if the connection is stable.'
-                : 'An error occurred while saving.\nPlease try again.'),
+                ? AppLocalizations.of(context).bookDetailNetworkError
+                : AppLocalizations.of(context).bookDetailSaveError),
             actions: [
               CupertinoDialogAction(
-                  child: const Text('OK'),
+                  child: Text(AppLocalizations.of(context).commonConfirm),
                   onPressed: () => Navigator.pop(dialogContext))
             ],
           ),
@@ -1083,7 +1083,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               pageNumber: null);
           if (newUrl != null && mounted) {
             CustomSnackbar.show(context,
-                message: 'Image replaced', type: BLabSnackbarType.success);
+                message: AppLocalizations.of(context).bookDetailImageReplaced, type: BLabSnackbarType.success);
           }
           onReplaced(newUrl);
         }
@@ -1164,7 +1164,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Planned Start',
+                        AppLocalizations.of(context).bookDetailPlannedStart,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -1175,7 +1175,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       Text(
                         book.plannedStartDate != null
                             ? '${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(book.plannedStartDate!)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
-                            : 'TBD',
+                            : AppLocalizations.of(context).bookDetailTbd,
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1203,7 +1203,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _getPriorityLabel(book.priority!),
+                          _getPriorityLabel(context, book.priority!),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1312,7 +1312,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Resume Reading',
+                          AppLocalizations.of(context).bookDetailResumeReading,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1321,7 +1321,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${book.attemptCount + 1} attempt',
+                          AppLocalizations.of(context).bookDetailAttemptCount(book.attemptCount + 1),
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1356,7 +1356,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: 'Attempt $newAttempt started!',
+              message: AppLocalizations.of(context).bookDetailAttemptStarted(newAttempt),
               type: BLabSnackbarType.success,
               icon: Icons.play_arrow_rounded);
         } else if (!success && mounted && bookVm.shouldShowPaywall) {
@@ -1385,16 +1385,17 @@ class _BookDetailContentState extends State<_BookDetailContent>
     }
   }
 
-  String _getPriorityLabel(int priority) {
+  String _getPriorityLabel(BuildContext context, int priority) {
+    final l10n = AppLocalizations.of(context);
     switch (priority) {
       case 1:
-        return 'Urgent';
+        return l10n.bookDetailPriorityUrgent;
       case 2:
-        return 'High';
+        return l10n.bookDetailPriorityHigh;
       case 3:
-        return 'Medium';
+        return l10n.bookDetailPriorityMedium;
       case 4:
-        return 'Low';
+        return l10n.bookDetailPriorityLow;
       default:
         return '';
     }
@@ -1473,7 +1474,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasReview ? 'Edit Review' : 'Write Review',
+                      hasReview ? AppLocalizations.of(context).bookDetailEditReview : AppLocalizations.of(context).bookDetailWriteReview,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1483,8 +1484,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     const SizedBox(height: 2),
                     Text(
                       hasReview
-                          ? 'Review your written review'
-                          : 'Record your thoughts',
+                          ? AppLocalizations.of(context).bookDetailReviewYourWritten
+                          : AppLocalizations.of(context).bookDetailRecordThoughts,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1546,7 +1547,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Continue Reading',
+                      AppLocalizations.of(context).bookDetailContinueReading,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1555,7 +1556,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Achieve your reading goal!',
+                      AppLocalizations.of(context).bookDetailAchieveGoal,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1589,7 +1590,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Reading paused',
+          message: AppLocalizations.of(context).bookDetailReadingPaused,
           type: BLabSnackbarType.info,
           icon: CupertinoIcons.pause_circle,
         );
@@ -1610,7 +1611,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         await ReadingChartViewModel.clearCache();
         CustomSnackbar.show(
           context,
-          message: 'Deleted',
+          message: AppLocalizations.of(context).bookDetailDeleted,
           type: BLabSnackbarType.success,
         );
         Navigator.pop(context);

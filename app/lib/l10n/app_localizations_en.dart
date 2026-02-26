@@ -737,7 +737,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookDetailNetworkError =>
-      'Please check your network connection.\nIf the connection is good, please try again.';
+      'Please check your network connection.\nTry again if the connection is stable.';
 
   @override
   String get bookDetailUploadError =>
@@ -3520,6 +3520,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPageVersion => 'Version';
+
+  @override
+  String get bookDetailPlannedStart => 'Planned Start';
+
+  @override
+  String get bookDetailTbd => 'TBD';
+
+  @override
+  String get bookDetailRecordThoughts => 'Record your thoughts';
+
+  @override
+  String get bookDetailReviewYourWritten => 'Review your written review';
+
+  @override
+  String get bookDetailResumeReading => 'Resume Reading';
+
+  @override
+  String bookDetailAttemptCount(int count) {
+    return '$count attempt';
+  }
+
+  @override
+  String get bookDetailAchieveGoal => 'Achieve your reading goal!';
+
+  @override
+  String get bookDetailSaved => 'Saved';
+
+  @override
+  String get bookDetailReadingPaused => 'Reading paused';
+
+  @override
+  String get bookDetailDeleted => 'Deleted';
+
+  @override
+  String bookDetailAttemptStarted(int count) {
+    return 'Attempt $count started!';
+  }
+
+  @override
+  String get bookDetailSaveError =>
+      'An error occurred while saving.\nPlease try again.';
 
   @override
   String get subscriptionUnavailable =>
