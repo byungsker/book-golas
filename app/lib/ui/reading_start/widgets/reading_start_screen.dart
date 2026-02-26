@@ -1525,7 +1525,10 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           } else if (mounted && !success) {
                             if (vm.shouldShowPaywall) {
                               vm.clearPaywallState();
-                              await SubscriptionService().showPaywall(context);
+                              final paywallSuccess = await SubscriptionService().showPaywall(context);
+                              if (!paywallSuccess && mounted) {
+                                CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                              }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

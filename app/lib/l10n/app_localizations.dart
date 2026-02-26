@@ -6388,6 +6388,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'버전'**
   String get myPageVersion;
+
+  /// Snackbar message when paywall cannot be presented
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 서비스를 현재 이용할 수 없습니다.'**
+  String get subscriptionUnavailable;
 }
 
 class _AppLocalizationsDelegate

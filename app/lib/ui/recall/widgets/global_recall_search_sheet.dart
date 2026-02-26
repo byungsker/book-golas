@@ -366,7 +366,10 @@ class _GlobalRecallSearchSheetContentState
               ElevatedButton.icon(
                 onPressed: () async {
                   viewModel.clearPaywallState();
-                  await SubscriptionService().showPaywall(context);
+                  final success = await SubscriptionService().showPaywall(context);
+                  if (!success && context.mounted) {
+                    CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                  }
                 },
                 icon: const Icon(Icons.star, size: 18),
                 label: const Text('Pro 업그레이드'),

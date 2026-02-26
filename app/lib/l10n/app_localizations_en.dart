@@ -3494,4 +3494,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPageVersion => 'Version';
+
+  @override
+  String get subscriptionUnavailable =>
+      'Subscription service is currently unavailable.';
 }
