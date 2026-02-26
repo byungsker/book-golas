@@ -16,6 +16,9 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 import 'package:book_golas/ui/core/widgets/empty_state_view.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
+import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/planned_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/my_library/widgets/my_library_book_skeleton.dart';
 import 'package:book_golas/ui/my_library/widgets/my_library_record_skeleton.dart';
 import 'package:book_golas/ui/my_library/widgets/record_list_item.dart';
@@ -386,7 +389,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return BookListCard(
+                  return _buildBookCardByStatus(
                     book: book,
                     onTap: () => _navigateToBookDetail(book),
                   );
@@ -397,6 +400,27 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         ),
       ],
     );
+  }
+
+  Widget _buildBookCardByStatus({
+    required Book book,
+    required VoidCallback onTap,
+  }) {
+    final isCompleted = book.status == BookStatus.completed.value ||
+        (book.currentPage >= book.totalPages && book.totalPages > 0);
+
+    if (isCompleted) {
+      return CompletedBookCard(book: book, onTap: onTap);
+    }
+
+    switch (book.status) {
+      case 'planned':
+        return PlannedBookCard(book: book, onTap: onTap);
+      case 'will_retry':
+        return PausedBookCard(book: book, onTap: onTap);
+      default:
+        return BookListCard(book: book, onTap: onTap);
+    }
   }
 
   Widget _buildReviewTab(bool isDark) {
@@ -430,7 +454,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return BookListCard(
+                  return _buildBookCardByStatus(
                     book: book,
                     onTap: () =>
                         _navigateToBookDetail(book, initialTabIndex: 2),
