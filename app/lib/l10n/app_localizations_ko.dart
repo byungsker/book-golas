@@ -1135,6 +1135,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceDocumentScan => '문서 스캔';
 
   @override
+  String get imageSourceDocumentScanDesc => '문서를 자동으로 인식하고 왜곡을 보정해요';
+
+  @override
   String get imageSourceAutoCorrection => '평탄화 및 자동 보정';
 
   @override
@@ -1159,7 +1162,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceCameraTitle => '카메라로 촬영';
 
   @override
-  String get imageSourceGalleryTitle => '갤러리에서 선택';
+  String get imageSourceCameraDesc => '사진을 찍어 텍스트를 바로 추출해요';
+
+  @override
+  String get imageSourceGalleryTitle => '라이브러리에서 선택';
+
+  @override
+  String get imageSourceGalleryDesc => '이미 저장된 이미지에서 텍스트를 추출해요';
 
   @override
   String get imageSourceReplaceConfirmation => '이미지를 교체하시겠습니까?';

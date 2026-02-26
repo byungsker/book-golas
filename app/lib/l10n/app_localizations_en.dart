@@ -1179,6 +1179,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceDocumentScan => 'Document Scan';
 
   @override
+  String get imageSourceDocumentScanDesc =>
+      'Auto-detects documents and corrects distortion';
+
+  @override
   String get imageSourceAutoCorrection => 'Flatten & Auto Correct';
 
   @override
@@ -1204,7 +1208,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceCameraTitle => 'Take Photo';
 
   @override
-  String get imageSourceGalleryTitle => 'Select from Gallery';
+  String get imageSourceCameraDesc => 'Take a photo and extract text instantly';
+
+  @override
+  String get imageSourceGalleryTitle => 'Select from Library';
+
+  @override
+  String get imageSourceGalleryDesc => 'Extract text from a saved image';
 
   @override
   String get imageSourceReplaceConfirmation => 'Replace this image?';

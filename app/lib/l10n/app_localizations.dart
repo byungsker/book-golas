@@ -2199,6 +2199,12 @@ abstract class AppLocalizations {
   /// **'문서 스캔'**
   String get imageSourceDocumentScan;
 
+  /// Document scan description
+  ///
+  /// In ko, this message translates to:
+  /// **'문서를 자동으로 인식하고 왜곡을 보정해요'**
+  String get imageSourceDocumentScanDesc;
+
   /// Auto correction option
   ///
   /// In ko, this message translates to:
@@ -2247,11 +2253,23 @@ abstract class AppLocalizations {
   /// **'카메라로 촬영'**
   String get imageSourceCameraTitle;
 
+  /// Camera option description
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 찍어 텍스트를 바로 추출해요'**
+  String get imageSourceCameraDesc;
+
   /// Select from gallery title
   ///
   /// In ko, this message translates to:
-  /// **'갤러리에서 선택'**
+  /// **'라이브러리에서 선택'**
   String get imageSourceGalleryTitle;
+
+  /// Gallery option description
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 저장된 이미지에서 텍스트를 추출해요'**
+  String get imageSourceGalleryDesc;
 
   /// Replace image confirmation
   ///

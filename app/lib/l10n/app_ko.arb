@@ -1227,6 +1227,9 @@
      "imageSourceDocumentScan": "문서 스캔",
      "@imageSourceDocumentScan": {"description": "Document scan option"},
      
+     "imageSourceDocumentScanDesc": "문서를 자동으로 인식하고 왜곡을 보정해요",
+     "@imageSourceDocumentScanDesc": {"description": "Document scan description"},
+     
      "imageSourceAutoCorrection": "평탄화 및 자동 보정",
      "@imageSourceAutoCorrection": {"description": "Auto correction option"},
      
@@ -1251,8 +1254,14 @@
      "imageSourceCameraTitle": "카메라로 촬영",
      "@imageSourceCameraTitle": {"description": "Take photo title"},
      
-     "imageSourceGalleryTitle": "갤러리에서 선택",
+     "imageSourceCameraDesc": "사진을 찍어 텍스트를 바로 추출해요",
+     "@imageSourceCameraDesc": {"description": "Camera option description"},
+     
+     "imageSourceGalleryTitle": "라이브러리에서 선택",
      "@imageSourceGalleryTitle": {"description": "Select from gallery title"},
+     
+     "imageSourceGalleryDesc": "이미 저장된 이미지에서 텍스트를 추출해요",
+     "@imageSourceGalleryDesc": {"description": "Gallery option description"},
      
      "imageSourceReplaceConfirmation": "이미지를 교체하시겠습니까?",
      "@imageSourceReplaceConfirmation": {"description": "Replace image confirmation"},
