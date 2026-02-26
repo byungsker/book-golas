@@ -1319,7 +1319,7 @@ abstract class AppLocalizations {
   /// Continue reading button
   ///
   /// In ko, this message translates to:
-  /// **'독서 다시 시작하기'**
+  /// **'새로운 독서 시작하기'**
   String get bookDetailContinueReading;
 
   /// Continue reading description
@@ -1407,10 +1407,10 @@ abstract class AppLocalizations {
   /// **'업로드 실패'**
   String get bookDetailUploadFailed;
 
-  /// Network error message
+  /// Network error message in upload dialog
   ///
   /// In ko, this message translates to:
-  /// **'네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'**
+  /// **'네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.'**
   String get bookDetailNetworkError;
 
   /// Upload error message
@@ -1479,25 +1479,25 @@ abstract class AppLocalizations {
   /// **'노트 구조화'**
   String get bookDetailNoteStructure;
 
-  /// Urgent priority
+  /// Urgent priority label
   ///
   /// In ko, this message translates to:
   /// **'긴급'**
   String get bookDetailPriorityUrgent;
 
-  /// High priority
+  /// High priority label
   ///
   /// In ko, this message translates to:
   /// **'높음'**
   String get bookDetailPriorityHigh;
 
-  /// Medium priority
+  /// Medium priority label
   ///
   /// In ko, this message translates to:
   /// **'보통'**
   String get bookDetailPriorityMedium;
 
-  /// Low priority
+  /// Low priority label
   ///
   /// In ko, this message translates to:
   /// **'낮음'**
@@ -6388,6 +6388,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'버전'**
   String get myPageVersion;
+
+  /// Planned start date label in book detail
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작 예정'**
+  String get bookDetailPlannedStart;
+
+  /// To be determined text when no planned date
+  ///
+  /// In ko, this message translates to:
+  /// **'미정'**
+  String get bookDetailTbd;
+
+  /// Subtitle for write review button
+  ///
+  /// In ko, this message translates to:
+  /// **'생각을 기록해보세요'**
+  String get bookDetailRecordThoughts;
+
+  /// Subtitle for edit review button
+  ///
+  /// In ko, this message translates to:
+  /// **'작성한 독후감을 확인해보세요'**
+  String get bookDetailReviewYourWritten;
+
+  /// Resume reading button text for will_retry books
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 재개하기'**
+  String get bookDetailResumeReading;
+
+  /// Attempt count for resumed reading
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전'**
+  String bookDetailAttemptCount(int count);
+
+  /// Subtitle for continue reading button
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 목표를 달성해보세요!'**
+  String get bookDetailAchieveGoal;
+
+  /// Snackbar message after saving
+  ///
+  /// In ko, this message translates to:
+  /// **'저장되었습니다'**
+  String get bookDetailSaved;
+
+  /// Snackbar message after pausing reading
+  ///
+  /// In ko, this message translates to:
+  /// **'독서가 일시정지되었습니다'**
+  String get bookDetailReadingPaused;
+
+  /// Snackbar message after deleting book
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제되었습니다'**
+  String get bookDetailDeleted;
+
+  /// Snackbar when new reading attempt starts
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전 시작!'**
+  String bookDetailAttemptStarted(int count);
+
+  /// Generic save error message in upload dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중 오류가 발생했습니다.\n다시 시도해주세요.'**
+  String get bookDetailSaveError;
 }
 
 class _AppLocalizationsDelegate
