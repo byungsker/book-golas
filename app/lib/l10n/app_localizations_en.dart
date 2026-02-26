@@ -2701,11 +2701,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookstoreKyobo => 'Kyobo';
 
   @override
-  String get bookstoreUsedSectionTitle => 'Used Books';
+  String get bookstoreTabNew => 'Bookstores';
 
   @override
-  String get bookstoreUsedSectionSubtitle =>
-      'Compare used prices and check store availability';
+  String get bookstoreTabUsed => 'Used Books';
+
+  @override
+  String get bookstoreSearchSuffix => 'search';
 
   @override
   String get bookstoreAladdinUsed => 'Aladin Used';
