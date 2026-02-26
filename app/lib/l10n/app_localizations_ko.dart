@@ -2631,6 +2631,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookstoreKyobo => '교보문고';
 
   @override
+  String get bookstoreUsedSectionTitle => '중고 서적';
+
+  @override
+  String get bookstoreUsedSectionSubtitle => '중고 가격 비교 및 중고매장 재고 확인';
+
+  @override
+  String get bookstoreAladdinUsed => '알라딘 중고';
+
+  @override
+  String get bookstoreAladdinUsedStore => '알라딘 중고매장';
+
+  @override
+  String get bookstoreYes24Used => 'Yes24 중고';
+
+  @override
   String get expandedNavBackToDetail => '상세로 돌아가기';
 
   @override

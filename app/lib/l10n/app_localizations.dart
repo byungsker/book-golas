@@ -4942,6 +4942,36 @@ abstract class AppLocalizations {
   /// **'교보문고'**
   String get bookstoreKyobo;
 
+  /// Used books section title in bookstore sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'중고 서적'**
+  String get bookstoreUsedSectionTitle;
+
+  /// Used books section subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'중고 가격 비교 및 중고매장 재고 확인'**
+  String get bookstoreUsedSectionSubtitle;
+
+  /// Aladin used books
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고'**
+  String get bookstoreAladdinUsed;
+
+  /// Aladin used book physical store
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고매장'**
+  String get bookstoreAladdinUsedStore;
+
+  /// Yes24 used books
+  ///
+  /// In ko, this message translates to:
+  /// **'Yes24 중고'**
+  String get bookstoreYes24Used;
+
   /// No description provided for @expandedNavBackToDetail.
   ///
   /// In ko, this message translates to:

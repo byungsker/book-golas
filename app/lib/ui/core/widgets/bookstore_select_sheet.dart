@@ -121,6 +121,67 @@ void showBookstoreSelectSheet({
                           mode: LaunchMode.externalApplication);
                     },
                   ),
+                  const SizedBox(height: 24),
+                  Divider(
+                    color: isDark ? Colors.grey[700] : Colors.grey[200],
+                    height: 1,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    l10n.bookstoreUsedSectionTitle,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.bookstoreUsedSectionSubtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  BookstoreButton(
+                    isDark: isDark,
+                    logoPath: 'assets/images/logo-aladin.png',
+                    name: l10n.bookstoreAladdinUsed,
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final url =
+                          'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&SearchWord=$encodedTitle';
+                      await launchUrl(Uri.parse(url),
+                          mode: LaunchMode.externalApplication);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  BookstoreButton(
+                    isDark: isDark,
+                    logoPath: 'assets/images/logo-aladin.png',
+                    name: l10n.bookstoreAladdinUsedStore,
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final url =
+                          'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=UsedStore&SearchWord=$encodedTitle';
+                      await launchUrl(Uri.parse(url),
+                          mode: LaunchMode.externalApplication);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  BookstoreButton(
+                    isDark: isDark,
+                    logoPath: 'assets/images/logo-yes24.png',
+                    name: l10n.bookstoreYes24Used,
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final url =
+                          'https://www.yes24.com/Product/Search?domain=USED&query=$encodedTitle';
+                      await launchUrl(Uri.parse(url),
+                          mode: LaunchMode.externalApplication);
+                    },
+                  ),
                 ],
               ),
             ),
