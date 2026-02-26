@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 /// Subscription management screen.
 ///
@@ -146,7 +147,12 @@ class SubscriptionScreen extends StatelessWidget {
           price: l10n.subscriptionMonthlyPrice,
           period: l10n.subscriptionPerMonth,
           isPopular: true,
-          onTap: () => viewModel.showPaywall(context),
+          onTap: () async {
+            final success = await viewModel.showPaywall(context);
+            if (!success && context.mounted) {
+              CustomSnackbar.show(context, message: l10n.subscriptionUnavailable, type: BLabSnackbarType.info);
+            }
+          },
         ),
         const SizedBox(height: 10),
         _PricingButton(
@@ -154,7 +160,12 @@ class SubscriptionScreen extends StatelessWidget {
           price: l10n.subscriptionYearlyPrice,
           period: l10n.subscriptionPerYear,
           savings: l10n.subscriptionYearlySavings,
-          onTap: () => viewModel.showPaywall(context),
+          onTap: () async {
+            final success = await viewModel.showPaywall(context);
+            if (!success && context.mounted) {
+              CustomSnackbar.show(context, message: l10n.subscriptionUnavailable, type: BLabSnackbarType.info);
+            }
+          },
         ),
       ],
     );

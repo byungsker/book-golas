@@ -1319,7 +1319,7 @@ abstract class AppLocalizations {
   /// Continue reading button
   ///
   /// In ko, this message translates to:
-  /// **'독서 다시 시작하기'**
+  /// **'새로운 독서 시작하기'**
   String get bookDetailContinueReading;
 
   /// Continue reading description
@@ -1407,10 +1407,10 @@ abstract class AppLocalizations {
   /// **'업로드 실패'**
   String get bookDetailUploadFailed;
 
-  /// Network error message
+  /// Network error message in upload dialog
   ///
   /// In ko, this message translates to:
-  /// **'네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'**
+  /// **'네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.'**
   String get bookDetailNetworkError;
 
   /// Upload error message
@@ -1479,25 +1479,25 @@ abstract class AppLocalizations {
   /// **'노트 구조화'**
   String get bookDetailNoteStructure;
 
-  /// Urgent priority
+  /// Urgent priority label
   ///
   /// In ko, this message translates to:
   /// **'긴급'**
   String get bookDetailPriorityUrgent;
 
-  /// High priority
+  /// High priority label
   ///
   /// In ko, this message translates to:
   /// **'높음'**
   String get bookDetailPriorityHigh;
 
-  /// Medium priority
+  /// Medium priority label
   ///
   /// In ko, this message translates to:
   /// **'보통'**
   String get bookDetailPriorityMedium;
 
-  /// Low priority
+  /// Low priority label
   ///
   /// In ko, this message translates to:
   /// **'낮음'**
@@ -2199,6 +2199,12 @@ abstract class AppLocalizations {
   /// **'문서 스캔'**
   String get imageSourceDocumentScan;
 
+  /// Document scan description
+  ///
+  /// In ko, this message translates to:
+  /// **'문서를 자동으로 인식하고 왜곡을 보정해요'**
+  String get imageSourceDocumentScanDesc;
+
   /// Auto correction option
   ///
   /// In ko, this message translates to:
@@ -2247,11 +2253,23 @@ abstract class AppLocalizations {
   /// **'카메라로 촬영'**
   String get imageSourceCameraTitle;
 
+  /// Camera option description
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 찍어 텍스트를 바로 추출해요'**
+  String get imageSourceCameraDesc;
+
   /// Select from gallery title
   ///
   /// In ko, this message translates to:
-  /// **'갤러리에서 선택'**
+  /// **'라이브러리에서 선택'**
   String get imageSourceGalleryTitle;
+
+  /// Gallery option description
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 저장된 이미지에서 텍스트를 추출해요'**
+  String get imageSourceGalleryDesc;
 
   /// Replace image confirmation
   ///
@@ -4303,14 +4321,38 @@ abstract class AppLocalizations {
   /// No description provided for @extractTextConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출'**
+  /// **'텍스트를 추출하시겠어요?'**
   String get extractTextConfirmTitle;
 
-  /// No description provided for @extractTextCreditsMessage.
+  /// No description provided for @extractTextFreeRemaining.
   ///
   /// In ko, this message translates to:
-  /// **'크레딧이 사용됩니다'**
-  String get extractTextCreditsMessage;
+  /// **'오늘 남은 무료 추출: {remaining}/{total}회'**
+  String extractTextFreeRemaining(int remaining, int total);
+
+  /// No description provided for @ocrProUnlimitedButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십은 무제한으로 추출할 수 있어요!'**
+  String get ocrProUnlimitedButton;
+
+  /// No description provided for @ocrLimitReachedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 무료 추출 횟수를 모두 사용했어요'**
+  String get ocrLimitReachedTitle;
+
+  /// No description provided for @ocrLimitReachedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요'**
+  String get ocrLimitReachedMessage;
+
+  /// No description provided for @ocrLimitReachedUpgrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro로 업그레이드'**
+  String get ocrLimitReachedUpgrade;
 
   /// No description provided for @noThanksButton.
   ///
@@ -6388,6 +6430,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'버전'**
   String get myPageVersion;
+
+  /// Planned start date label in book detail
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작 예정'**
+  String get bookDetailPlannedStart;
+
+  /// To be determined text when no planned date
+  ///
+  /// In ko, this message translates to:
+  /// **'미정'**
+  String get bookDetailTbd;
+
+  /// Subtitle for write review button
+  ///
+  /// In ko, this message translates to:
+  /// **'생각을 기록해보세요'**
+  String get bookDetailRecordThoughts;
+
+  /// Subtitle for edit review button
+  ///
+  /// In ko, this message translates to:
+  /// **'작성한 독후감을 확인해보세요'**
+  String get bookDetailReviewYourWritten;
+
+  /// Resume reading button text for will_retry books
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 재개하기'**
+  String get bookDetailResumeReading;
+
+  /// Attempt count for resumed reading
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전'**
+  String bookDetailAttemptCount(int count);
+
+  /// Subtitle for continue reading button
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 목표를 달성해보세요!'**
+  String get bookDetailAchieveGoal;
+
+  /// Snackbar message after saving
+  ///
+  /// In ko, this message translates to:
+  /// **'저장되었습니다'**
+  String get bookDetailSaved;
+
+  /// Snackbar message after pausing reading
+  ///
+  /// In ko, this message translates to:
+  /// **'독서가 일시정지되었습니다'**
+  String get bookDetailReadingPaused;
+
+  /// Snackbar message after deleting book
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제되었습니다'**
+  String get bookDetailDeleted;
+
+  /// Snackbar when new reading attempt starts
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전 시작!'**
+  String bookDetailAttemptStarted(int count);
+
+  /// Generic save error message in upload dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중 오류가 발생했습니다.\n다시 시도해주세요.'**
+  String get bookDetailSaveError;
+
+  /// Snackbar message when paywall cannot be presented
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 서비스를 현재 이용할 수 없습니다.'**
+  String get subscriptionUnavailable;
 }
 
 class _AppLocalizationsDelegate

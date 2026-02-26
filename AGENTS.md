@@ -240,7 +240,7 @@ git checkout -b feature/BYU-248-tab-cycling
 
 ### Commit Rules
 
-- 반드시 gh를 **lbo728** 계정으로 커밋, 푸시, PR을 진행해야해.
+- 반드시 gh를 **byungsker** 계정으로 커밋, 푸시, PR을 진행해야해.
 - 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해. (단, description은 한글 불릿 포인트로 작성.)
 - 맥락 별로 커밋을 만들며 진행해야해.
 

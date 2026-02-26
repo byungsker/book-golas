@@ -452,6 +452,16 @@ class _MainScreenState extends State<MainScreen>
           );
           debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
           await context.read<SubscriptionService>().initialize(userId);
+
+          Purchases.addCustomerInfoUpdateListener((customerInfo) {
+            if (context.mounted) {
+              context.read<SubscriptionViewModel>().loadSubscriptionStatus();
+            }
+          });
+
+          if (context.mounted) {
+            await context.read<SubscriptionViewModel>().loadAll();
+          }
         } else if (rcKey.isEmpty) {
           debugPrint('⚠️ RevenueCat 초기화 스킵: API 키 미설정');
         } else {

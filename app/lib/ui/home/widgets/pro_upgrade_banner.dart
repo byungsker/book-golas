@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 class ProUpgradeBanner extends StatelessWidget {
   final VoidCallback? onTap;
@@ -213,10 +214,16 @@ class ProFeaturesSheet extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
+                  onPressed: () async {
                     final vm = context.read<SubscriptionViewModel>();
-                    vm.showPaywall(context);
+                    final l10n = AppLocalizations.of(context);
+                    final success = await vm.showPaywall(context);
+                    if (context.mounted) {
+                      if (!success) {
+                        CustomSnackbar.show(context, message: l10n.subscriptionUnavailable, type: BLabSnackbarType.info, rootOverlay: true);
+                      }
+                      Navigator.pop(context);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BLabColors.primary,

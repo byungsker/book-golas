@@ -549,6 +549,7 @@
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
        "imageSourceDocumentScan": "Document Scan",
+       "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
        "imageSourceSimulatorError": "Camera is not available on simulator",
        "imageSourceTakePhoto": "Take Photo",
@@ -557,7 +558,9 @@
        "imageSourceSelectSaved": "Select Saved Image",
        "imageSourceReplaceTitle": "Replace Image",
        "imageSourceCameraTitle": "Take Photo",
-       "imageSourceGalleryTitle": "Select from Gallery",
+       "imageSourceCameraDesc": "Take a photo and extract text instantly",
+       "imageSourceGalleryTitle": "Select from Library",
+       "imageSourceGalleryDesc": "Extract text from a saved image",
        "imageSourceReplaceConfirmation": "Replace this image?",
        "imageSourceReplaceWarning": "Previously extracted text will be lost.",
        "dailyTargetDialogTitle": "Change Daily Target Page",
@@ -1036,8 +1039,13 @@
            "scannerErrorDefault": "Scanner error occurred",
            "extractingText": "Extracting text...",
            "ocrExtractionFailed": "Text extraction failed",
-           "extractTextConfirmTitle": "Extract Text",
-           "extractTextCreditsMessage": "This will use your credits",
+           "extractTextConfirmTitle": "Extract text?",
+           "extractTextFreeRemaining": "Free extractions remaining: {remaining}/{total}",
+           "@extractTextFreeRemaining": {"placeholders": {"remaining": {"type": "int"}, "total": {"type": "int"}}},
+           "ocrProUnlimitedButton": "Pro members get unlimited extractions!",
+           "ocrLimitReachedTitle": "You've used all free extractions for today",
+           "ocrLimitReachedMessage": "Upgrade to Pro for unlimited\ntext extractions every day",
+           "ocrLimitReachedUpgrade": "Upgrade to Pro",
            "noThanksButton": "No thanks",
            "extractButton": "Extract",
            "ocrAreaSelectTitle": "Select area to extract",
@@ -1485,5 +1493,59 @@
            "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
 
            "myPageVersion": "Version",
-           "@myPageVersion": {"description": "Version in my page"}
+           "@myPageVersion": {"description": "Version in my page"},
+
+           "bookDetailPlannedStart": "Planned Start",
+           "@bookDetailPlannedStart": {"description": "Planned start date label in book detail"},
+
+           "bookDetailTbd": "TBD",
+           "@bookDetailTbd": {"description": "To be determined text when no planned date"},
+
+           "bookDetailRecordThoughts": "Record your thoughts",
+           "@bookDetailRecordThoughts": {"description": "Subtitle for write review button"},
+
+           "bookDetailReviewYourWritten": "Review your written review",
+           "@bookDetailReviewYourWritten": {"description": "Subtitle for edit review button"},
+
+           "bookDetailResumeReading": "Resume Reading",
+           "@bookDetailResumeReading": {"description": "Resume reading button text for will_retry books"},
+
+           "bookDetailAttemptCount": "{count} attempt",
+           "@bookDetailAttemptCount": {"description": "Attempt count for resumed reading", "placeholders": {"count": {"type": "int"}}},
+
+           "bookDetailAchieveGoal": "Achieve your reading goal!",
+           "@bookDetailAchieveGoal": {"description": "Subtitle for continue reading button"},
+
+           "bookDetailSaved": "Saved",
+           "@bookDetailSaved": {"description": "Snackbar message after saving"},
+
+           "bookDetailReadingPaused": "Reading paused",
+           "@bookDetailReadingPaused": {"description": "Snackbar message after pausing reading"},
+
+           "bookDetailDeleted": "Deleted",
+           "@bookDetailDeleted": {"description": "Snackbar message after deleting book"},
+
+           "bookDetailPriorityUrgent": "Urgent",
+           "@bookDetailPriorityUrgent": {"description": "Urgent priority label"},
+
+           "bookDetailPriorityHigh": "High",
+           "@bookDetailPriorityHigh": {"description": "High priority label"},
+
+           "bookDetailPriorityMedium": "Medium",
+           "@bookDetailPriorityMedium": {"description": "Medium priority label"},
+
+           "bookDetailPriorityLow": "Low",
+           "@bookDetailPriorityLow": {"description": "Low priority label"},
+
+           "bookDetailAttemptStarted": "Attempt {count} started!",
+           "@bookDetailAttemptStarted": {"description": "Snackbar when new reading attempt starts", "placeholders": {"count": {"type": "int"}}},
+
+           "bookDetailNetworkError": "Please check your network connection.\nTry again if the connection is stable.",
+           "@bookDetailNetworkError": {"description": "Network error message in upload dialog"},
+
+           "bookDetailSaveError": "An error occurred while saving.\nPlease try again.",
+           "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
+
+           "subscriptionUnavailable": "Subscription service is currently unavailable.",
+           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}
 }
