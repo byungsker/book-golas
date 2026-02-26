@@ -156,15 +156,18 @@ class CompactBookHeader extends StatelessWidget {
       children: [
         if (author != null) ...[
           Flexible(
-            child: Text(
-              author!,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onTap: onBookInfoTap,
+              child: Text(
+                author!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(

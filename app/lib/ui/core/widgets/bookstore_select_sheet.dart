@@ -61,7 +61,6 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
     final searchTitle = getSearchTitle(widget.title);
-    final encodedTitle = Uri.encodeComponent(searchTitle);
 
     return Container(
       decoration: BoxDecoration(
@@ -136,8 +135,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: _tabController.index == 0
-                    ? _buildNewBookstoreButtons(isDark, l10n, encodedTitle)
-                    : _buildUsedBookstoreButtons(isDark, l10n, encodedTitle),
+                    ? _buildNewBookstoreButtons(isDark, l10n, searchTitle)
+                    : _buildUsedBookstoreButtons(isDark, l10n, searchTitle),
               ),
             ),
           ],
@@ -147,7 +146,7 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
   }
 
   Widget _buildNewBookstoreButtons(
-      bool isDark, AppLocalizations l10n, String encodedTitle) {
+      bool isDark, AppLocalizations l10n, String searchTitle) {
     return Column(
       key: const ValueKey('new'),
       mainAxisSize: MainAxisSize.min,
@@ -158,10 +157,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdin,
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'www.aladin.co.kr',
+              '/search/wsearchresult.aspx',
+              {'SearchWord': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -171,10 +172,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: 'Yes24',
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://www.yes24.com/Product/Search?domain=ALL&query=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'm.yes24.com',
+              '/Search',
+              {'domain': 'ALL', 'query': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -185,10 +188,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           isSvg: true,
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://search.kyobobook.co.kr/search?keyword=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'search.kyobobook.co.kr',
+              '/search',
+              {'keyword': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
       ],
@@ -196,7 +201,7 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
   }
 
   Widget _buildUsedBookstoreButtons(
-      bool isDark, AppLocalizations l10n, String encodedTitle) {
+      bool isDark, AppLocalizations l10n, String searchTitle) {
     return Column(
       key: const ValueKey('used'),
       mainAxisSize: MainAxisSize.min,
@@ -207,10 +212,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsed,
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&SearchWord=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'www.aladin.co.kr',
+              '/search/wsearchresult.aspx',
+              {'SearchTarget': 'Used', 'SearchWord': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -220,10 +227,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsedStore,
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=UsedStore&SearchWord=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'www.aladin.co.kr',
+              '/search/wsearchresult.aspx',
+              {'SearchTarget': 'UsedStore', 'SearchWord': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -233,10 +242,12 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreYes24Used,
           onTap: () async {
             Navigator.pop(context);
-            final url =
-                'https://www.yes24.com/Product/Search?domain=USED&query=$encodedTitle';
-            await launchUrl(Uri.parse(url),
-                mode: LaunchMode.externalApplication);
+            final uri = Uri.https(
+              'm.yes24.com',
+              '/Search',
+              {'domain': 'USED_GOODS', 'query': searchTitle},
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
       ],
