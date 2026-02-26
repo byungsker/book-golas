@@ -2205,6 +2205,18 @@ abstract class AppLocalizations {
   /// **'문서를 자동으로 인식하고 왜곡을 보정해요'**
   String get imageSourceDocumentScanDesc;
 
+  /// Single page scan option
+  ///
+  /// In ko, this message translates to:
+  /// **'한 장 스캔'**
+  String get imageSourceSinglePageScan;
+
+  /// Single page scan description
+  ///
+  /// In ko, this message translates to:
+  /// **'한 장만 스캔하고 바로 완료돼요'**
+  String get imageSourceSinglePageScanDesc;
+
   /// Auto correction option
   ///
   /// In ko, this message translates to:

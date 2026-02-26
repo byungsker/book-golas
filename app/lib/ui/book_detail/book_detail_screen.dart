@@ -991,6 +991,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
       case ImageSourceType.documentScan:
         await scanDocumentAndExtractText(context, onImageSelected);
         break;
+      case ImageSourceType.singlePageScan:
+        await scanDocumentAndExtractText(context, onImageSelected,
+            singlePage: true);
+        break;
       case ImageSourceType.camera:
         await pickImageAndExtractText(
             context, ImageSource.camera, onImageSelected);

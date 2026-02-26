@@ -13,6 +13,7 @@ enum ImageSourceType {
   camera,
   gallery,
   documentScan,
+  singlePageScan,
 }
 
 Future<ImageSourceType?> showImageSourceSheet({
@@ -75,6 +76,44 @@ Future<ImageSourceType?> showImageSourceSheet({
                 onTap: isCameraAvailable && Platform.isIOS
                     ? () => Navigator.pop(
                         sheetContext, ImageSourceType.documentScan)
+                    : () {
+                        Navigator.pop(sheetContext);
+                        CustomSnackbar.show(
+                          context,
+                          message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
+                          type: BLabSnackbarType.warning,
+                        );
+                      },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: BLabColors.success.withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.doc_text_search,
+                    color: BLabColors.success,
+                  ),
+                ),
+                title: Text(
+                  AppLocalizations.of(sheetContext).imageSourceSinglePageScan,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(sheetContext).imageSourceSinglePageScanDesc,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                onTap: isCameraAvailable && Platform.isIOS
+                    ? () => Navigator.pop(
+                        sheetContext, ImageSourceType.singlePageScan)
                     : () {
                         Navigator.pop(sheetContext);
                         CustomSnackbar.show(

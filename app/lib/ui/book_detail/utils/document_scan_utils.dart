@@ -8,7 +8,8 @@ import 'package:image/image.dart' as img;
 
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
-Future<Uint8List?> scanDocumentWithCamera(BuildContext context) async {
+Future<Uint8List?> scanDocumentWithCamera(BuildContext context,
+    {bool singlePage = false}) async {
   try {
     final cameraStatus = await Permission.camera.request();
     if (!cameraStatus.isGranted) {
@@ -25,6 +26,7 @@ Future<Uint8List?> scanDocumentWithCamera(BuildContext context) async {
     debugPrint('문서 스캔 시작');
 
     final imagesPath = await CunningDocumentScanner.getPictures(
+      noOfPages: singlePage ? 1 : 100,
       isGalleryImportAllowed: false,
     );
 
