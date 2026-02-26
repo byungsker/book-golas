@@ -315,6 +315,7 @@ Future<void> pickImageAndExtractText(
       backgroundColor: Colors.transparent,
       isDismissible: false,
       enableDrag: false,
+      useRootNavigator: true,
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -353,6 +354,7 @@ Future<void> pickImageAndExtractText(
                     context: bottomSheetContext,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    useRootNavigator: true,
                     builder: (_) => const ProFeaturesSheet(),
                   );
                 },
@@ -371,7 +373,7 @@ Future<void> pickImageAndExtractText(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, false),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -395,7 +397,7 @@ Future<void> pickImageAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, true),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -573,6 +575,7 @@ Future<void> reExtractTextFromImage(
   final shouldProceed = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
+    useRootNavigator: true,
     builder: (bottomSheetContext) => Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -630,6 +633,7 @@ Future<void> reExtractTextFromImage(
                   context: bottomSheetContext,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
+                  useRootNavigator: true,
                   builder: (_) => const ProFeaturesSheet(),
                 );
               },
@@ -648,7 +652,7 @@ Future<void> reExtractTextFromImage(
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(bottomSheetContext, false),
+                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -671,7 +675,7 @@ Future<void> reExtractTextFromImage(
               const SizedBox(width: 12),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(bottomSheetContext, true),
+                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -867,6 +871,7 @@ Future<void> scanDocumentAndExtractText(
       backgroundColor: Colors.transparent,
       isDismissible: false,
       enableDrag: false,
+      useRootNavigator: true,
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -905,6 +910,7 @@ Future<void> scanDocumentAndExtractText(
                     context: bottomSheetContext,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    useRootNavigator: true,
                     builder: (_) => const ProFeaturesSheet(),
                   );
                 },
@@ -923,7 +929,7 @@ Future<void> scanDocumentAndExtractText(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, false),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -947,7 +953,7 @@ Future<void> scanDocumentAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, true),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
