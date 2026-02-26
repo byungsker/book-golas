@@ -32,7 +32,7 @@ class AdService {
     }
     return Platform.isIOS
         ? (const String.fromEnvironment('ADMOB_BANNER_IOS',
-            defaultValue: 'ca-app-pub-3940256099942544/2934735716'))
+            defaultValue: 'ca-app-pub-2826132306659672/3505110941'))
         : (const String.fromEnvironment('ADMOB_BANNER_ANDROID',
             defaultValue: 'ca-app-pub-3940256099942544/6300978111'));
   }
@@ -45,7 +45,7 @@ class AdService {
     }
     return Platform.isIOS
         ? (const String.fromEnvironment('ADMOB_NATIVE_IOS',
-            defaultValue: 'ca-app-pub-3940256099942544/3986624511'))
+            defaultValue: 'ca-app-pub-2826132306659672/2344072517'))
         : (const String.fromEnvironment('ADMOB_NATIVE_ANDROID',
             defaultValue: 'ca-app-pub-3940256099942544/2247696110'));
   }
