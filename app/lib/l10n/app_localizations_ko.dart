@@ -3415,4 +3415,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get myPageVersion => '버전';
+
+  @override
+  String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 }

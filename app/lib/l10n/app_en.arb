@@ -1485,5 +1485,8 @@
            "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
 
            "myPageVersion": "Version",
-           "@myPageVersion": {"description": "Version in my page"}
+           "@myPageVersion": {"description": "Version in my page"},
+
+           "subscriptionUnavailable": "Subscription service is currently unavailable.",
+           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}
 }
