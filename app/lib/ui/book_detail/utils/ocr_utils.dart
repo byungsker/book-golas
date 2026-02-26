@@ -347,9 +347,8 @@ Future<void> pickImageAndExtractText(
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: () {
-                  Navigator.pop(bottomSheetContext);
                   showModalBottomSheet(
-                    context: parentContext,
+                    context: bottomSheetContext,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (_) => const ProFeaturesSheet(),
@@ -624,9 +623,8 @@ Future<void> reExtractTextFromImage(
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () {
-                Navigator.pop(bottomSheetContext);
                 showModalBottomSheet(
-                  context: context,
+                  context: bottomSheetContext,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (_) => const ProFeaturesSheet(),
@@ -898,9 +896,8 @@ Future<void> scanDocumentAndExtractText(
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: () {
-                  Navigator.pop(bottomSheetContext);
                   showModalBottomSheet(
-                    context: parentContext,
+                    context: bottomSheetContext,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (_) => const ProFeaturesSheet(),
