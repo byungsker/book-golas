@@ -13,6 +13,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 Future<void> showBookInfoSheet(BuildContext context, Book book) {
   return showModalBottomSheet(
@@ -39,7 +40,6 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   BookDetailInfo? _bookDetailInfo;
   bool _isLoading = true;
   bool _isDescriptionExpanded = false;
-  bool _titleCopied = false;
   late TabController _tabController;
 
   @override
@@ -369,25 +369,22 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             behavior: HitTestBehavior.opaque,
             onTap: () {
               Clipboard.setData(ClipboardData(text: widget.book.title));
-              setState(() => _titleCopied = true);
-              Future.delayed(const Duration(seconds: 2), () {
-                if (mounted) setState(() => _titleCopied = false);
-              });
+              CustomSnackbar.show(
+                context,
+                message: AppLocalizations.of(context).bookInfoTitleCopied,
+                type: BLabSnackbarType.success,
+                rootOverlay: true,
+                bottomOffset: 32,
+              );
             },
             child: SizedBox(
               width: 44,
               height: 44,
               child: Center(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    _titleCopied ? CupertinoIcons.checkmark : CupertinoIcons.doc_on_doc,
-                    key: ValueKey(_titleCopied),
-                    size: 18,
-                    color: _titleCopied
-                        ? Colors.green
-                        : (isDark ? Colors.grey[500] : Colors.grey[400]),
-                  ),
+                child: Icon(
+                  CupertinoIcons.doc_on_doc,
+                  size: 18,
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
                 ),
               ),
             ),
