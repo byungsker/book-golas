@@ -202,6 +202,11 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           if (mounted) {
             final l10n = AppLocalizations.of(context);
+            final signedUpEmail = email;
+            _setAuthMode(AuthMode.signIn);
+            setState(() {
+              _unconfirmedEmail = signedUpEmail;
+            });
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
@@ -209,12 +214,14 @@ class _LoginScreenState extends State<LoginScreen> {
               bottomOffset: 32,
               aboveKeyboard: true,
             );
-            _setAuthMode(AuthMode.signIn);
           }
           break;
 
         case AuthMode.forgotPassword:
-          await supabase.auth.resetPasswordForEmail(email);
+          await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo: 'bookgolas://reset-callback',
+          );
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
@@ -274,6 +281,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (message.contains('Email address') &&
         message.contains('invalid')) {
       return l10n.loginErrorEmailInvalid;
+    } else if (message.contains('rate limit') ||
+        message.contains('Rate limit')) {
+      return l10n.loginErrorEmailRateLimit;
     }
     return message;
   }
@@ -303,6 +313,17 @@ class _LoginScreenState extends State<LoginScreen> {
             setState(() => _isResendCooldown = false);
           }
         });
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(e.message, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -925,7 +946,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.signUp:
         return l10n.loginSignupButton;
       case AuthMode.forgotPassword:
-        return '${l10n.loginButton} ${l10n.loginPasswordLabel}';
+        return l10n.loginResetPasswordButton;
     }
   }
 }

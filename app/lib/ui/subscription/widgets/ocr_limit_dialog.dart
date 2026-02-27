@@ -11,6 +11,7 @@ void showOcrLimitDialog(BuildContext context) {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    useRootNavigator: true,
     builder: (bottomSheetContext) {
       final l10n = AppLocalizations.of(bottomSheetContext);
 
@@ -66,7 +67,7 @@ void showOcrLimitDialog(BuildContext context) {
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(bottomSheetContext);
+                    Navigator.of(bottomSheetContext, rootNavigator: true).pop();
                     SubscriptionService().showPaywall(context);
                   },
                   child: Container(
@@ -90,7 +91,7 @@ void showOcrLimitDialog(BuildContext context) {
               ),
               const SizedBox(height: 12),
               GestureDetector(
-                onTap: () => Navigator.pop(bottomSheetContext),
+                onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(

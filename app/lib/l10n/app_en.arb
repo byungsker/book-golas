@@ -1158,6 +1158,13 @@
            "bookstoreSelectTitle": "Select Bookstore",
            "bookstoreAladdin": "Aladin",
            "bookstoreKyobo": "Kyobo",
+           "bookstoreTabNew": "Bookstores",
+           "bookstoreTabUsed": "Used Books",
+           "bookstoreSearchSuffix": "search",
+           "bookstoreAladdinUsed": "Aladin Used",
+           "bookstoreAladdinUsedStore": "Aladin Used Store",
+           "bookstoreYes24Used": "Yes24 Used",
+           "bookInfoTitleCopied": "Title copied",
            "expandedNavBackToDetail": "Back to Detail",
            "highlightEditTitle": "Edit Highlight",
            "highlightEditDone": "Done",
@@ -1411,6 +1418,9 @@
              "loginResendVerificationCooldown": "Please try again in a moment.",
              "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
 
+             "loginErrorEmailRateLimit": "Email send limit exceeded. Please try again later.",
+             "@loginErrorEmailRateLimit": {"description": "Email rate limit exceeded error"},
+
               "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
               "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
 
@@ -1547,5 +1557,29 @@
            "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
 
            "subscriptionUnavailable": "Subscription service is currently unavailable.",
-           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}
+           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},
+
+           "myPagePasswordSameAsOld": "New password must be different from the current password",
+           "@myPagePasswordSameAsOld": {"description": "Error when new password is same as old"},
+
+           "passwordRecoveryTitle": "Set New Password",
+           "@passwordRecoveryTitle": {"description": "Password recovery screen title"},
+
+           "passwordRecoveryDescription": "Enter your new password",
+           "@passwordRecoveryDescription": {"description": "Password recovery screen description"},
+
+           "passwordRecoveryNewPassword": "New Password",
+           "@passwordRecoveryNewPassword": {"description": "New password field label"},
+
+           "passwordRecoveryConfirmPassword": "Confirm New Password",
+           "@passwordRecoveryConfirmPassword": {"description": "Confirm password field label"},
+
+           "passwordRecoveryButton": "Change Password",
+           "@passwordRecoveryButton": {"description": "Password recovery submit button"},
+
+           "passwordRecoverySuccess": "Password changed successfully. Please log in with your new password.",
+           "@passwordRecoverySuccess": {"description": "Password recovery success message"},
+
+           "passwordRecoveryFailed": "Failed to change password",
+           "@passwordRecoveryFailed": {"description": "Password recovery failed message"}
 }
