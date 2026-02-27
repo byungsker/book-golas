@@ -1122,268 +1122,12 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   Future<void> _showPasswordChangeSheet() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (BuildContext sheetContext) {
-        bool obscureCurrent = true;
-        bool obscureNew = true;
-        bool obscureConfirm = true;
-        bool isLoading = false;
-
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setSheetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? BLabColors.surfaceDark : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      AppLocalizations.of(this.context)
-                          .myPageChangePasswordTitle,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    BLabTextField(
-                      controller: currentPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageCurrentPassword,
-                      obscureText: obscureCurrent,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureCurrent
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureCurrent = !obscureCurrent;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    BLabTextField(
-                      controller: newPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageNewPassword,
-                      obscureText: obscureNew,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureNew
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureNew = !obscureNew;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    BLabTextField(
-                      controller: confirmPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageConfirmPassword,
-                      obscureText: obscureConfirm,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureConfirm
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureConfirm = !obscureConfirm;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: BLabButton(
-                        text: isLoading
-                            ? ''
-                            : AppLocalizations.of(this.context)
-                                .myPageChangePassword,
-                        variant: BLabButtonVariant.primary,
-                        isFullWidth: true,
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : null,
-                        onPressed: isLoading
-                            ? null
-                            : () async {
-                                final currentPw =
-                                    currentPasswordController.text;
-                      final newPw = newPasswordController.text;
-                                final confirmPw =
-                                    confirmPasswordController.text;
-
-                                if (currentPw.isEmpty) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPageCurrentPasswordRequired,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-                      if (newPw.length < 6) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordTooShort,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-                      if (newPw != confirmPw) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordMismatch,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-
-                                setSheetState(() {
-                                  isLoading = true;
-                                });
-
-                                final verifyError =
-                                    await AuthService()
-                                        .verifyCurrentPassword(
-                                            currentPw);
-                                if (verifyError != null) {
-                                  setSheetState(() {
-                                    isLoading = false;
-                                  });
-                                  if (mounted) {
-                                    CustomSnackbar.show(
-                                      this.context,
-                                      message:
-                                          AppLocalizations.of(
-                                                  this.context)
-                                              .myPageWrongCurrentPassword,
-                                      type:
-                                          BLabSnackbarType.error,
-                                      bottomOffset: 32,
-                                    );
-                                  }
-                                  return;
-                                }
-
-                                final updateError =
-                                    await AuthService()
-                                        .updatePassword(newPw);
-                                setSheetState(() {
-                                  isLoading = false;
-                                });
-                      if (sheetContext.mounted) {
-                                  Navigator.pop(sheetContext);
-                                }
-                                if (updateError == null &&
-                                    mounted) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordChanged,
-                          type: BLabSnackbarType.success,
-                                    bottomOffset: 32,
-                                  );
-                                } else if (mounted) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordChangeErrorDetail(
-                                                updateError ??
-                                                    ''),
-                                    type:
-                                        BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                }
-                              },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      builder: (_) => const _PasswordChangeSheet(),
     );
-
-    currentPasswordController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose();
   }
 
   Widget _buildInfoCard(BuildContext context) {
@@ -1613,6 +1357,231 @@ class _MyPageContentState extends State<_MyPageContent> {
               const SizedBox(height: 8),
               _buildVersionInfo(context),
               const SizedBox(height: 80),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class _PasswordChangeSheet extends StatefulWidget {
+  const _PasswordChangeSheet();
+
+  @override
+  State<_PasswordChangeSheet> createState() => _PasswordChangeSheetState();
+}
+
+class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentController.addListener(() => setState(() {}));
+    _newController.addListener(() => setState(() {}));
+    _confirmController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final currentPw = _currentController.text;
+    final newPw = _newController.text;
+    final confirmPw = _confirmController.text;
+
+    if (currentPw.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPageCurrentPasswordRequired,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw.length < 6) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordTooShort,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw != confirmPw) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordMismatch,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final error = await AuthService().updatePassword(newPw);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (error == null) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordChanged,
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+      Navigator.pop(context);
+    } else {
+      final message =
+          error.contains('same as') || error.contains('different')
+              ? l10n.myPagePasswordSameAsOld
+              : l10n.myPagePasswordChangeErrorDetail(error);
+      CustomSnackbar.show(
+        context,
+        message: message,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+    }
+
+  }
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String hint,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor =
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4);
+    return BLabTextField(
+      controller: controller,
+      hintText: hint,
+      obscureText: obscure,
+      suffixIcon: IntrinsicWidth(
+        child: Row(
+          children: [
+            if (controller.text.isNotEmpty)
+              IconButton(
+                icon: Icon(Icons.close, size: 18, color: iconColor),
+                onPressed: () => controller.clear(),
+              ),
+            IconButton(
+              icon: Icon(
+                obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 20,
+                color: iconColor,
+              ),
+              onPressed: onToggle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                l10n.myPageChangePasswordTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildPasswordField(
+                controller: _currentController,
+                hint: l10n.myPageCurrentPassword,
+                obscure: _obscureCurrent,
+                onToggle: () =>
+                    setState(() => _obscureCurrent = !_obscureCurrent),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _newController,
+                hint: l10n.myPageNewPassword,
+                obscure: _obscureNew,
+                onToggle: () => setState(() => _obscureNew = !_obscureNew),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _confirmController,
+                hint: l10n.myPageConfirmPassword,
+                obscure: _obscureConfirm,
+                onToggle: () =>
+                    setState(() => _obscureConfirm = !_obscureConfirm),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: BLabButton(
+                  text: _isLoading ? '' : l10n.myPageChangePassword,
+                  variant: BLabButtonVariant.primary,
+                  isFullWidth: true,
+                  onPressed: _isLoading ? null : _submit,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
             ],
           ),
         ),

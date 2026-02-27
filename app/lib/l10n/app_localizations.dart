@@ -6263,6 +6263,12 @@ abstract class AppLocalizations {
   /// **'잠시 후 다시 시도해주세요.'**
   String get loginResendVerificationCooldown;
 
+  /// Email rate limit exceeded error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'**
+  String get loginErrorEmailRateLimit;
+
   /// Signup with existing email error message
   ///
   /// In ko, this message translates to:
@@ -6550,6 +6556,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'구독 서비스를 현재 이용할 수 없습니다.'**
   String get subscriptionUnavailable;
+
+  /// Error when new password is same as old
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호는 기존 비밀번호와 달라야 합니다'**
+  String get myPagePasswordSameAsOld;
+
+  /// Password recovery screen title
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 설정'**
+  String get passwordRecoveryTitle;
+
+  /// Password recovery screen description
+  ///
+  /// In ko, this message translates to:
+  /// **'사용하실 새 비밀번호를 입력해주세요'**
+  String get passwordRecoveryDescription;
+
+  /// New password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호'**
+  String get passwordRecoveryNewPassword;
+
+  /// Confirm password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 확인'**
+  String get passwordRecoveryConfirmPassword;
+
+  /// Password recovery submit button
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경'**
+  String get passwordRecoveryButton;
+
+  /// Password recovery success message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.'**
+  String get passwordRecoverySuccess;
+
+  /// Password recovery failed message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경에 실패했습니다'**
+  String get passwordRecoveryFailed;
 }
 
 class _AppLocalizationsDelegate

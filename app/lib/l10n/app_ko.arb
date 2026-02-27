@@ -2954,6 +2954,9 @@
         "loginResendVerificationCooldown": "잠시 후 다시 시도해주세요.",
         "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
 
+        "loginErrorEmailRateLimit": "이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.",
+        "@loginErrorEmailRateLimit": {"description": "Email rate limit exceeded error"},
+
          "loginSignupExistingEmail": "이미 등록된 이메일입니다. 로그인을 시도해주세요.",
          "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
 
@@ -3090,5 +3093,29 @@
          "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
 
          "subscriptionUnavailable": "구독 서비스를 현재 이용할 수 없습니다.",
-         "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"}
+         "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},
+
+         "myPagePasswordSameAsOld": "새 비밀번호는 기존 비밀번호와 달라야 합니다",
+         "@myPagePasswordSameAsOld": {"description": "Error when new password is same as old"},
+
+         "passwordRecoveryTitle": "새 비밀번호 설정",
+         "@passwordRecoveryTitle": {"description": "Password recovery screen title"},
+
+         "passwordRecoveryDescription": "사용하실 새 비밀번호를 입력해주세요",
+         "@passwordRecoveryDescription": {"description": "Password recovery screen description"},
+
+         "passwordRecoveryNewPassword": "새 비밀번호",
+         "@passwordRecoveryNewPassword": {"description": "New password field label"},
+
+         "passwordRecoveryConfirmPassword": "새 비밀번호 확인",
+         "@passwordRecoveryConfirmPassword": {"description": "Confirm password field label"},
+
+         "passwordRecoveryButton": "비밀번호 변경",
+         "@passwordRecoveryButton": {"description": "Password recovery submit button"},
+
+         "passwordRecoverySuccess": "비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.",
+         "@passwordRecoverySuccess": {"description": "Password recovery success message"},
+
+         "passwordRecoveryFailed": "비밀번호 변경에 실패했습니다",
+         "@passwordRecoveryFailed": {"description": "Password recovery failed message"}
 }
