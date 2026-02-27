@@ -190,6 +190,17 @@ class DeepLinkService {
   static Future<void> _handleDeepLink(Uri uri) async {
     debugPrint('🔗 딥링크 수신: $uri');
 
+    if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
+      debugPrint('🔗 Supabase 인증 콜백: $uri');
+      try {
+        await Supabase.instance.client.auth.getSessionFromUrl(uri);
+        debugPrint('🔗 Supabase 인증 콜백 완료');
+      } catch (e) {
+        debugPrint('🔗 Supabase 인증 콜백 실패: $e');
+      }
+      return;
+    }
+
     final navigator = _navigator;
     if (navigator == null) {
       debugPrint('🔗 Navigator 없음 — 딥링크 무시');

@@ -308,6 +308,17 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         });
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(e.message, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
