@@ -136,7 +136,7 @@ class CompactBookHeader extends StatelessWidget {
 
   Widget _buildTitle(bool isDark) {
     return GestureDetector(
-      onTap: title.length > 20 ? onTitleTap : null,
+      onTap: onTitleTap,
       child: Text(
         title,
         style: TextStyle(

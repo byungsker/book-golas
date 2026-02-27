@@ -2699,6 +2699,8 @@
         "@bookstoreAladdinUsedStore": {"description": "Aladin used book physical store"},
         "bookstoreYes24Used": "Yes24 중고",
         "@bookstoreYes24Used": {"description": "Yes24 used books"},
+        "bookInfoTitleCopied": "제목이 복사되었습니다",
+        "@bookInfoTitleCopied": {"description": "Snackbar message when book title is copied"},
         "expandedNavBackToDetail": "상세로 돌아가기",
         "highlightEditTitle": "하이라이트 수정",
         "highlightEditDone": "완료",

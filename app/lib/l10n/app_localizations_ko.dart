@@ -2649,6 +2649,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookstoreYes24Used => 'Yes24 중고';
 
   @override
+  String get bookInfoTitleCopied => '제목이 복사되었습니다';
+
+  @override
   String get expandedNavBackToDetail => '상세로 돌아가기';
 
   @override

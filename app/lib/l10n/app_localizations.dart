@@ -4978,6 +4978,12 @@ abstract class AppLocalizations {
   /// **'Yes24 중고'**
   String get bookstoreYes24Used;
 
+  /// Snackbar message when book title is copied
+  ///
+  /// In ko, this message translates to:
+  /// **'제목이 복사되었습니다'**
+  String get bookInfoTitleCopied;
+
   /// No description provided for @expandedNavBackToDetail.
   ///
   /// In ko, this message translates to:

@@ -2719,6 +2719,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookstoreYes24Used => 'Yes24 Used';
 
   @override
+  String get bookInfoTitleCopied => 'Title copied';
+
+  @override
   String get expandedNavBackToDetail => 'Back to Detail';
 
   @override

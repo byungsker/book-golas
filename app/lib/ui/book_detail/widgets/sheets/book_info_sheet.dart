@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/aladin_api_service.dart';
@@ -346,15 +347,43 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   Widget _buildTitle(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        widget.book.title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black,
-          height: 1.3,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 28),
+          Flexible(
+            child: Text(
+              widget.book.title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+                height: 1.3,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: widget.book.title));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context).bookInfoTitleCopied),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4, top: 4),
+              child: Icon(
+                CupertinoIcons.doc_on_doc,
+                size: 18,
+                color: isDark ? Colors.grey[500] : Colors.grey[400],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
