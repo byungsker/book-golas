@@ -31,6 +31,7 @@ class DeepLinkService {
   static StreamSubscription<Uri?>? _widgetClickSubscription;
   static GlobalKey<NavigatorState>? _navigatorKey;
   static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
+  static final Set<String> _handledAuthUrls = {};
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -191,6 +192,16 @@ class DeepLinkService {
     debugPrint('🔗 딥링크 수신: $uri');
 
     if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
+      if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
+        debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시: $uri');
+        return;
+      }
+      final urlKey = uri.toString();
+      if (_handledAuthUrls.contains(urlKey)) {
+        debugPrint('🔗 이미 처리된 인증 콜백 — 무시: $uri');
+        return;
+      }
+      _handledAuthUrls.add(urlKey);
       debugPrint('🔗 Supabase 인증 콜백: $uri');
       try {
         await Supabase.instance.client.auth.getSessionFromUrl(uri);

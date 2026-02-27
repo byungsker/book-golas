@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/main.dart';
+import 'package:book_golas/ui/auth/widgets/login_screen.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
@@ -66,7 +70,11 @@ class _PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
         type: BLabSnackbarType.success,
         bottomOffset: 32,
       );
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      await Supabase.instance.client.auth.signOut();
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
     } else {
       final message = error.contains('same as') || error.contains('different')
           ? l10n.myPagePasswordSameAsOld
