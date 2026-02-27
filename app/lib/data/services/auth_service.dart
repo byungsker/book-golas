@@ -32,6 +32,7 @@ class AuthService {
         email: email,
         password: password,
         data: {'name': name},
+        emailRedirectTo: 'bookgolas://login-callback',
       );
       final userId = response.user?.id;
       if (userId != null) {
@@ -77,7 +78,7 @@ class AuthService {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.kakao,
-        redirectTo: kIsWeb ? null : 'io.supabase.lit_goal://login-callback',
+        redirectTo: kIsWeb ? null : 'bookgolas://login-callback',
         authScreenLaunchMode: kIsWeb
             ? LaunchMode.platformDefault
             : LaunchMode.externalApplication,
@@ -95,7 +96,7 @@ class AuthService {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'io.supabase.lit_goal://login-callback',
+        redirectTo: kIsWeb ? null : 'bookgolas://login-callback',
       );
       return null;
     } on AuthException catch (error) {
@@ -126,7 +127,7 @@ class AuthService {
     try {
       await _supabase.auth.resetPasswordForEmail(
         email,
-        redirectTo: kIsWeb ? null : 'io.supabase.lit_goal://reset-callback',
+        redirectTo: kIsWeb ? null : 'bookgolas://reset-callback',
       );
       return null;
     } on AuthException catch (error) {

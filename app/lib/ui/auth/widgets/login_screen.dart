@@ -202,6 +202,11 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           if (mounted) {
             final l10n = AppLocalizations.of(context);
+            final signedUpEmail = email;
+            _setAuthMode(AuthMode.signIn);
+            setState(() {
+              _unconfirmedEmail = signedUpEmail;
+            });
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
@@ -209,7 +214,6 @@ class _LoginScreenState extends State<LoginScreen> {
               bottomOffset: 32,
               aboveKeyboard: true,
             );
-            _setAuthMode(AuthMode.signIn);
           }
           break;
 
