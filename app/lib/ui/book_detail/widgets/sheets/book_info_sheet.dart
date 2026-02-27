@@ -412,7 +412,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       children: [
         TabBar(
           controller: _tabController,
-          labelColor: BLabColors.primary,
+          labelColor: Colors.white,
           unselectedLabelColor: isDark ? Colors.grey[500] : Colors.grey[400],
           labelStyle: const TextStyle(
             fontSize: 15,
@@ -422,7 +422,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          indicatorColor: BLabColors.primary,
+          indicatorColor: Colors.white,
           indicatorWeight: 2.5,
           dividerColor: isDark ? Colors.grey[800] : Colors.grey[200],
           tabs: [
