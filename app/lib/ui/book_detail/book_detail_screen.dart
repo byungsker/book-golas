@@ -37,7 +37,7 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/book_info_sheet.dart';
-import 'widgets/sheets/full_title_sheet.dart';
+// import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -322,8 +322,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 totalPages: book.totalPages,
                                 status: book.status,
                                 onImageTap: _showFullScreenImage,
-                                onTitleTap: () => showFullTitleSheet(
-                                    context: context, title: book.title),
+                                // onTitleTap: () => showFullTitleSheet(
+                                //     context: context, title: book.title),
+                                onTitleTap: () =>
+                                    showBookInfoSheet(context, book),
                                 onBookInfoTap: () =>
                                     showBookInfoSheet(context, book),
                               ),

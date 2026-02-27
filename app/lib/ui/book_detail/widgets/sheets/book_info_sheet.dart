@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/aladin_api_service.dart';
@@ -12,6 +13,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
+import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 Future<void> showBookInfoSheet(BuildContext context, Book book) {
   return showModalBottomSheet(
@@ -346,15 +348,47 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   Widget _buildTitle(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        widget.book.title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black,
-          height: 1.3,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 28),
+          Flexible(
+            child: Text(
+              widget.book.title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+                height: 1.3,
+              ),
+            ),
+          ),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: widget.book.title));
+              CustomSnackbar.show(
+                context,
+                message: AppLocalizations.of(context).bookInfoTitleCopied,
+                type: BLabSnackbarType.success,
+                rootOverlay: true,
+              );
+            },
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Center(
+                child: Icon(
+                  CupertinoIcons.doc_on_doc,
+                  size: 18,
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -378,7 +412,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
       children: [
         TabBar(
           controller: _tabController,
-          labelColor: BLabColors.primary,
+          labelColor: Colors.white,
           unselectedLabelColor: isDark ? Colors.grey[500] : Colors.grey[400],
           labelStyle: const TextStyle(
             fontSize: 15,
@@ -388,7 +422,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          indicatorColor: BLabColors.primary,
+          indicatorColor: Colors.white,
           indicatorWeight: 2.5,
           dividerColor: isDark ? Colors.grey[800] : Colors.grey[200],
           tabs: [

@@ -4942,6 +4942,48 @@ abstract class AppLocalizations {
   /// **'교보문고'**
   String get bookstoreKyobo;
 
+  /// New bookstore search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'서점 검색'**
+  String get bookstoreTabNew;
+
+  /// Used book search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'중고 검색'**
+  String get bookstoreTabUsed;
+
+  /// Search suffix text
+  ///
+  /// In ko, this message translates to:
+  /// **'검색'**
+  String get bookstoreSearchSuffix;
+
+  /// Aladin used books
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고'**
+  String get bookstoreAladdinUsed;
+
+  /// Aladin used book physical store
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고매장'**
+  String get bookstoreAladdinUsedStore;
+
+  /// Yes24 used books
+  ///
+  /// In ko, this message translates to:
+  /// **'Yes24 중고'**
+  String get bookstoreYes24Used;
+
+  /// Snackbar message when book title is copied
+  ///
+  /// In ko, this message translates to:
+  /// **'제목이 복사되었습니다'**
+  String get bookInfoTitleCopied;
+
   /// No description provided for @expandedNavBackToDetail.
   ///
   /// In ko, this message translates to:
