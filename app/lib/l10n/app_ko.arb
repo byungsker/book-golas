@@ -3099,7 +3099,7 @@
          "passwordRecoveryButton": "비밀번호 변경",
          "@passwordRecoveryButton": {"description": "Password recovery submit button"},
 
-         "passwordRecoverySuccess": "비밀번호가 성공적으로 변경되었습니다",
+         "passwordRecoverySuccess": "비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.",
          "@passwordRecoverySuccess": {"description": "Password recovery success message"},
 
          "passwordRecoveryFailed": "비밀번호 변경에 실패했습니다",

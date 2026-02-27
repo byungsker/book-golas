@@ -6554,7 +6554,7 @@ abstract class AppLocalizations {
   /// Password recovery success message
   ///
   /// In ko, this message translates to:
-  /// **'비밀번호가 성공적으로 변경되었습니다'**
+  /// **'비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.'**
   String get passwordRecoverySuccess;
 
   /// Password recovery failed message

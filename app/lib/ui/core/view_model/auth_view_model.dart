@@ -48,7 +48,7 @@ class AuthViewModel extends BaseViewModel {
               MaterialPageRoute(
                 builder: (_) => const PasswordRecoveryScreen(),
               ),
-              (route) => false,
+              (route) => route.isFirst,
             );
           });
           break;

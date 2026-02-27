@@ -3590,7 +3590,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordRecoveryButton => 'Change Password';
 
   @override
-  String get passwordRecoverySuccess => 'Password changed successfully';
+  String get passwordRecoverySuccess =>
+      'Password changed successfully. Please log in with your new password.';
 
   @override
   String get passwordRecoveryFailed => 'Failed to change password';
