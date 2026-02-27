@@ -946,7 +946,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.signUp:
         return l10n.loginSignupButton;
       case AuthMode.forgotPassword:
-        return '${l10n.loginButton} ${l10n.loginPasswordLabel}';
+        return l10n.loginResetPasswordButton;
     }
   }
 }

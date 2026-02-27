@@ -3333,6 +3333,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginResendVerificationCooldown => '잠시 후 다시 시도해주세요.';
 
   @override
+  String get loginErrorEmailRateLimit => '이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
   String get loginSignupExistingEmail => '이미 등록된 이메일입니다. 로그인을 시도해주세요.';
 
   @override
@@ -3481,4 +3484,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
+
+  @override
+  String get myPagePasswordSameAsOld => '새 비밀번호는 기존 비밀번호와 달라야 합니다';
+
+  @override
+  String get passwordRecoveryTitle => '새 비밀번호 설정';
+
+  @override
+  String get passwordRecoveryDescription => '사용하실 새 비밀번호를 입력해주세요';
+
+  @override
+  String get passwordRecoveryNewPassword => '새 비밀번호';
+
+  @override
+  String get passwordRecoveryConfirmPassword => '새 비밀번호 확인';
+
+  @override
+  String get passwordRecoveryButton => '비밀번호 변경';
+
+  @override
+  String get passwordRecoverySuccess => '비밀번호가 성공적으로 변경되었습니다';
+
+  @override
+  String get passwordRecoveryFailed => '비밀번호 변경에 실패했습니다';
 }

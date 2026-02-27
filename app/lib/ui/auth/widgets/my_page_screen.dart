@@ -1449,15 +1449,19 @@ class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
       );
       Navigator.pop(context);
     } else {
+      final message =
+          error.contains('same as') || error.contains('different')
+              ? l10n.myPagePasswordSameAsOld
+              : l10n.myPagePasswordChangeErrorDetail(error);
       CustomSnackbar.show(
         context,
-        message: l10n.myPagePasswordChangeErrorDetail(error),
+        message: message,
         type: BLabSnackbarType.error,
         bottomOffset: 32,
       );
     }
-  }
 
+  }
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String hint,

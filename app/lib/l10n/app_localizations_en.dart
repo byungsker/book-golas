@@ -3413,6 +3413,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginResendVerificationCooldown => 'Please try again in a moment.';
 
   @override
+  String get loginErrorEmailRateLimit =>
+      'Email send limit exceeded. Please try again later.';
+
+  @override
   String get loginSignupExistingEmail =>
       'This email is already registered. Please try logging in.';
 
@@ -3565,4 +3569,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get subscriptionUnavailable =>
       'Subscription service is currently unavailable.';
+
+  @override
+  String get myPagePasswordSameAsOld =>
+      'New password must be different from the current password';
+
+  @override
+  String get passwordRecoveryTitle => 'Set New Password';
+
+  @override
+  String get passwordRecoveryDescription => 'Enter your new password';
+
+  @override
+  String get passwordRecoveryNewPassword => 'New Password';
+
+  @override
+  String get passwordRecoveryConfirmPassword => 'Confirm New Password';
+
+  @override
+  String get passwordRecoveryButton => 'Change Password';
+
+  @override
+  String get passwordRecoverySuccess => 'Password changed successfully';
+
+  @override
+  String get passwordRecoveryFailed => 'Failed to change password';
 }
