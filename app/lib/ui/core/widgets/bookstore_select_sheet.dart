@@ -157,7 +157,7 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdin,
           onTap: () async {
             Navigator.pop(context);
-            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$searchTitle';
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchWord=$searchTitle';
             await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
@@ -200,7 +200,7 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsed,
           onTap: () async {
             Navigator.pop(context);
-            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&SearchWord=$searchTitle';
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=Used&SearchWord=$searchTitle';
             await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
@@ -211,7 +211,7 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsedStore,
           onTap: () async {
             Navigator.pop(context);
-            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=UsedStore&SearchWord=$searchTitle';
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=UsedStore&SearchWord=$searchTitle';
             await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),

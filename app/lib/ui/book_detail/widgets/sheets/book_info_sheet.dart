@@ -39,6 +39,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   BookDetailInfo? _bookDetailInfo;
   bool _isLoading = true;
   bool _isDescriptionExpanded = false;
+  bool _titleCopied = false;
   late TabController _tabController;
 
   @override
@@ -365,21 +366,29 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               Clipboard.setData(ClipboardData(text: widget.book.title));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context).bookInfoTitleCopied),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              setState(() => _titleCopied = true);
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) setState(() => _titleCopied = false);
+              });
             },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 4, top: 4),
-              child: Icon(
-                CupertinoIcons.doc_on_doc,
-                size: 18,
-                color: isDark ? Colors.grey[500] : Colors.grey[400],
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Center(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    _titleCopied ? CupertinoIcons.checkmark : CupertinoIcons.doc_on_doc,
+                    key: ValueKey(_titleCopied),
+                    size: 18,
+                    color: _titleCopied
+                        ? Colors.green
+                        : (isDark ? Colors.grey[500] : Colors.grey[400]),
+                  ),
+                ),
               ),
             ),
           ),
