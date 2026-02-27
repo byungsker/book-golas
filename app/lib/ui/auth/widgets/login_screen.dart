@@ -218,7 +218,10 @@ class _LoginScreenState extends State<LoginScreen> {
           break;
 
         case AuthMode.forgotPassword:
-          await supabase.auth.resetPasswordForEmail(email);
+          await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo: 'bookgolas://reset-callback',
+          );
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
