@@ -1411,6 +1411,9 @@
              "loginResendVerificationCooldown": "Please try again in a moment.",
              "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
 
+             "loginErrorEmailRateLimit": "Email send limit exceeded. Please try again later.",
+             "@loginErrorEmailRateLimit": {"description": "Email rate limit exceeded error"},
+
               "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
               "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
 

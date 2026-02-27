@@ -278,6 +278,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (message.contains('Email address') &&
         message.contains('invalid')) {
       return l10n.loginErrorEmailInvalid;
+    } else if (message.contains('rate limit') ||
+        message.contains('Rate limit')) {
+      return l10n.loginErrorEmailRateLimit;
     }
     return message;
   }
