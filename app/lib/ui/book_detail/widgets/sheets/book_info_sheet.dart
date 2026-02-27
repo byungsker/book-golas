@@ -374,7 +374,6 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
                 message: AppLocalizations.of(context).bookInfoTitleCopied,
                 type: BLabSnackbarType.success,
                 rootOverlay: true,
-                bottomOffset: 32,
               );
             },
             child: SizedBox(
