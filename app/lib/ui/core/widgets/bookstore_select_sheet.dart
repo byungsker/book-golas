@@ -157,12 +157,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdin,
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'www.aladin.co.kr',
-              '/search/wsearchresult.aspx',
-              {'SearchWord': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -172,12 +168,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: 'Yes24',
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'm.yes24.com',
-              '/Search',
-              {'domain': 'ALL', 'query': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://m.yes24.com/Search?domain=ALL&query=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -188,12 +180,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           isSvg: true,
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'search.kyobobook.co.kr',
-              '/search',
-              {'keyword': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://search.kyobobook.co.kr/search?keyword=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
       ],
@@ -212,12 +200,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsed,
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'www.aladin.co.kr',
-              '/search/wsearchresult.aspx',
-              {'SearchTarget': 'Used', 'SearchWord': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Used&SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -227,12 +211,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreAladdinUsedStore,
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'www.aladin.co.kr',
-              '/search/wsearchresult.aspx',
-              {'SearchTarget': 'UsedStore', 'SearchWord': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=UsedStore&SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),
@@ -242,12 +222,8 @@ class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
           name: l10n.bookstoreYes24Used,
           onTap: () async {
             Navigator.pop(context);
-            final uri = Uri.https(
-              'm.yes24.com',
-              '/Search',
-              {'domain': 'USED_GOODS', 'query': searchTitle},
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final url = 'https://m.yes24.com/Search?domain=USED_GOODS&query=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
           },
         ),
       ],
