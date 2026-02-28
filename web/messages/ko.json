@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "appName": "북골라스",
+    "download": "앱 다운로드"
+  },
+  "lang": {
+    "ko": "한국어",
+    "en": "English"
+  },
+  "hero": {
+    "badge": "iOS 출시 · 독서 목표 달성의 시작",
+    "headline1": "매일의 독서가",
+    "headline2": "목표가 되는 곳",
+    "sub": "읽고 싶은 책을 목표로 만들고, 매일의 독서를 기록하세요. 북골라스와 함께라면 독서 습관이 달라집니다.",
+    "stat1Value": "100+",
+    "stat1Label": "책 카탈로그",
+    "stat2Value": "30분",
+    "stat2Label": "일평균 독서 시간",
+    "stat3Value": "무료",
+    "stat3Label": "완전 무료",
+    "appStore": "App Store",
+    "appStoreSubtitle": "Download on the",
+    "androidComingSoon": "개발 중"
+  },
+  "features": {
+    "label": "Features",
+    "title": "독서가 이렇게 즐거워지다니",
+    "sub": "목표를 세우고, 기록하고, 성취하세요. 북골라스가 독서 여정의 든든한 동반자가 됩니다.",
+    "f1Icon": "📚",
+    "f1Title": "독서 목표 설정",
+    "f1Desc": "읽고 싶은 책을 등록하고 완독 목표일을 설정하세요. 나만의 독서 계획이 만들어집니다.",
+    "f2Icon": "📈",
+    "f2Title": "진행률 추적",
+    "f2Desc": "오늘 읽은 페이지를 기록하면 진행률이 자동으로 업데이트돼요. 작은 기록이 큰 성취를.",
+    "f3Icon": "🔔",
+    "f3Title": "스마트 알림",
+    "f3Desc": "설정한 시간에 독서 알림을 보내드려요. 바쁜 일상에서도 독서 습관을 유지하세요.",
+    "f4Icon": "🏆",
+    "f4Title": "독서 히스토리",
+    "f4Desc": "완독한 책들의 기록을 한 곳에. 내가 읽어온 여정을 한눈에 돌아볼 수 있어요."
+  },
+  "appDetail": {
+    "label": "앱 소개",
+    "title": "북골라스, 이렇게 씁니다",
+    "sub": "독서의 모든 순간을 기록하고 목표를 향해 나아가세요. 간단하지만 필요한 것은 다 있어요.",
+    "d1Icon": "🎯",
+    "d1Title": "목표 중심 독서 관리",
+    "d1Desc": "책마다 완독 목표일을 설정하고 하루 목표 페이지를 관리하세요. 진행률이 실시간으로 업데이트되고, 완독 예상일도 자동으로 계산돼요.",
+    "d2Icon": "📖",
+    "d2Title": "알라딘 서점 연동",
+    "d2Desc": "알라딘 API로 책을 검색하면 표지, 저자, 총 페이지 수가 자동으로 채워져요. 직접 입력할 필요 없이 바로 목표를 시작하세요.",
+    "d3Icon": "📅",
+    "d3Title": "독서 스트릭 & 달력",
+    "d3Desc": "매일 독서 기록이 달력에 쌓여요. 연속 독서일(스트릭)을 유지하며 독서 습관을 만들어보세요. 빠진 날은 한눈에 확인할 수 있어요.",
+    "d4Icon": "📊",
+    "d4Title": "독서 통계 & 리포트",
+    "d4Desc": "이번 달 몇 권 읽었는지, 총 몇 페이지를 읽었는지 통계로 확인하세요. 나의 독서 패턴을 파악하고 목표를 더 현명하게 세울 수 있어요."
+  },
+  "howItWorks": {
+    "label": "How It Works",
+    "title": "시작은 3단계면 충분해요",
+    "sub": "복잡한 설정 없이 바로 시작하세요. 앱 설치부터 첫 독서 기록까지 2분이면 돼요.",
+    "s1Title": "앱 설치 & 가입",
+    "s1Desc": "이메일 또는 Apple 계정으로 10초 안에 가입 완료",
+    "s2Title": "책 추가 & 목표 설정",
+    "s2Desc": "읽고 싶은 책을 검색하고 완독 목표일을 설정해요",
+    "s3Title": "매일 독서 기록",
+    "s3Desc": "오늘 읽은 페이지를 기록하면 진행률이 자동으로 업데이트돼요"
+  },
+  "cta": {
+    "title": "지금 독서를 시작해보세요",
+    "sub": "iOS에서 무료로 이용할 수 있어요. 오늘부터 독서 목표를 향해 한 걸음씩 ✨"
+  },
+  "footer": {
+    "copyright": "© 2025 북골라스 · Made by",
+    "developerName": "byungsker",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "tagline": "Made with ❤️ for book lovers"
+  },
+  "terms": {
+    "title": "이용약관",
+    "lastUpdated": "최종 업데이트: 2025년 1월",
+    "backHome": "← 홈으로"
+  },
+  "privacy": {
+    "title": "개인정보처리방침",
+    "lastUpdated": "최종 업데이트: 2025년 1월",
+    "backHome": "← 홈으로"
+  },
+  "mockup": {
+    "headerTitle": "나의 독서 목표",
+    "todayGoal": "오늘 목표: 30분 독서",
+    "realtime": "진행 중",
+    "streakLabel": "일 연속 독서",
+    "book1Title": "클린 코드",
+    "book1Author": "로버트 C. 마틴",
+    "book1Progress": "234",
+    "book1Total": "334",
+    "book1Percent": 70,
+    "book2Title": "사피엔스",
+    "book2Author": "유발 하라리",
+    "book2Progress": "132",
+    "book2Total": "443",
+    "book2Percent": 30,
+    "book3Title": "원씽",
+    "book3Author": "게리 켈러",
+    "book3Progress": "0",
+    "book3Total": "256",
+    "book3Percent": 0,
+    "addSession": "독서 기록 추가",
+    "typingBook": "어린 왕자",
+    "pagesRead": "페이지",
+    "typingBy": "오늘 읽은 페이지",
+    "today": "오늘",
+    "inProgress": "읽는 중",
+    "notStarted": "시작 전"
+  },
+  "screenshots": {
+    "label": "앱 화면",
+    "title": "이런 화면으로 사용해요",
+    "sub": "실제 앱의 핵심 화면을 미리 살펴보세요. 직관적이고 깔끔한 UI로 독서가 즐거워져요.",
+    "readingList": {
+      "title": "독서 목록",
+      "desc": "책별 진행률과 목표일을 한눈에"
+    },
+    "progress": {
+      "title": "독서 기록",
+      "desc": "오늘 읽은 페이지를 기록하고 스트릭 유지"
+    },
+    "stats": {
+      "title": "독서 통계",
+      "desc": "월별 독서량과 완독 현황 한눈에 확인"
+    }
+  }
+}
