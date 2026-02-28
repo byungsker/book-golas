@@ -134,6 +134,23 @@ async function sendFCMMessage(
   return await response.json();
 }
 
+function getNudgeCategoryEnabled(
+  nudgeType: string,
+  prefs: { dailyReminder: boolean; goalAchievement: boolean; announcements: boolean }
+): boolean {
+  switch (nudgeType) {
+    case "inactive":
+    case "streak":
+      return prefs.dailyReminder;
+    case "progress":
+    case "deadline":
+    case "achievement":
+      return prefs.goalAchievement;
+    default:
+      return true;
+  }
+}
+
 serve(async (req) => {
   try {
     // CORS 헤더 설정
@@ -191,7 +208,7 @@ serve(async (req) => {
     // 사용자의 FCM 토큰 가져오기
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from("fcm_tokens")
-      .select("token")
+      .select("token, daily_reminder_enabled, goal_achievement_enabled, announcements_enabled")
       .eq("user_id", userId);
 
     if (tokenError || !tokenData || tokenData.length === 0) {
@@ -200,6 +217,12 @@ serve(async (req) => {
         { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    const categoryPrefs = {
+      dailyReminder: tokenData[0].daily_reminder_enabled ?? true,
+      goalAchievement: tokenData[0].goal_achievement_enabled ?? true,
+      announcements: tokenData[0].announcements_enabled ?? true,
+    };
 
     // 사용자의 독서 데이터 분석
     const nudge = await analyzeUserReadingState(
@@ -211,6 +234,19 @@ serve(async (req) => {
     if (!nudge) {
       return new Response(
         JSON.stringify({ message: "No nudge needed for this user" }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const categoryEnabled = getNudgeCategoryEnabled(nudge.type, categoryPrefs);
+    if (!categoryEnabled) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          nudgeType: nudge.type,
+          skipped: true,
+          reason: `Category disabled for nudge type: ${nudge.type}`,
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
