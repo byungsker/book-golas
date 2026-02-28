@@ -142,6 +142,23 @@ async function sendFCMMessage(
   return await response.json();
 }
 
+function getNudgeCategoryEnabled(
+  nudgeType: string,
+  userData: { dailyReminder: boolean; goalAchievement: boolean; announcements: boolean }
+): boolean {
+  switch (nudgeType) {
+    case "inactive":
+    case "streak":
+      return userData.dailyReminder;
+    case "progress":
+    case "deadline":
+    case "achievement":
+      return userData.goalAchievement;
+    default:
+      return true;
+  }
+}
+
 serve(async (req) => {
   try {
     // CORS 헤더 설정
@@ -194,7 +211,7 @@ serve(async (req) => {
     // 알림 활성화 + 현재 시간대에 알림 받기를 원하는 사용자만 조회
     const { data: usersWithTokens, error: usersError } = await supabaseClient
       .from("fcm_tokens")
-      .select("user_id, token, preferred_hour")
+      .select("user_id, token, preferred_hour, daily_reminder_enabled, goal_achievement_enabled, announcements_enabled")
       .eq("notification_enabled", true)
       .eq("preferred_hour", kstHour)
       .order("user_id");
@@ -221,12 +238,19 @@ serve(async (req) => {
       );
     }
 
-    // 사용자별로 토큰 그룹화
-    const userTokensMap = new Map<string, string[]>();
+    const userTokensMap = new Map<string, { tokens: string[]; dailyReminder: boolean; goalAchievement: boolean; announcements: boolean }>();
     usersWithTokens.forEach((row) => {
-      const tokens = userTokensMap.get(row.user_id) || [];
-      tokens.push(row.token);
-      userTokensMap.set(row.user_id, tokens);
+      const existing = userTokensMap.get(row.user_id);
+      if (existing) {
+        existing.tokens.push(row.token);
+      } else {
+        userTokensMap.set(row.user_id, {
+          tokens: [row.token],
+          dailyReminder: row.daily_reminder_enabled ?? true,
+          goalAchievement: row.goal_achievement_enabled ?? true,
+          announcements: row.announcements_enabled ?? true,
+        });
+      }
     });
 
     // OAuth 2.0 액세스 토큰 가져오기 (한 번만)
@@ -238,7 +262,7 @@ serve(async (req) => {
     let totalFailed = 0;
 
     // 각 사용자에 대해 넛지 분석 및 전송
-    for (const [userId, tokens] of userTokensMap) {
+    for (const [userId, userData] of userTokensMap) {
       try {
         // 사용자의 독서 상태 분석
         const nudge = await analyzeUserReadingState(supabaseClient, userId);
@@ -249,9 +273,16 @@ serve(async (req) => {
           continue;
         }
 
+        const categoryEnabled = getNudgeCategoryEnabled(nudge.type, userData);
+        if (!categoryEnabled) {
+          results.push({ userId, nudgeType: nudge.type, success: true });
+          totalSkipped++;
+          continue;
+        }
+
         // FCM 푸시 전송
         const sendResults = await Promise.allSettled(
-          tokens.map((fcmToken) =>
+          userData.tokens.map((fcmToken) =>
             sendFCMMessage(
               accessToken,
               serviceAccount.project_id,
@@ -303,7 +334,7 @@ serve(async (req) => {
               error.includes("UNREGISTERED") ||
               error.includes("INVALID_ARGUMENT")
             ) {
-              failedTokens.push(tokens[index]);
+              failedTokens.push(userData.tokens[index]);
             }
           }
         });
