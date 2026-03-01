@@ -275,6 +275,9 @@ serve(async (req) => {
 
     const successful = results.filter((r) => r.status === "fulfilled").length;
     const failed = results.filter((r) => r.status === "rejected").length;
+    const errors = results
+      .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+      .map((r) => r.reason?.message || String(r.reason));
 
     return new Response(
       JSON.stringify({
@@ -283,6 +286,7 @@ serve(async (req) => {
         sent: successful,
         failed,
         total: tokens.length,
+        ...(errors.length > 0 && { errors }),
       }),
       {
         status: 200,
