@@ -16,6 +16,7 @@ class MyPageViewModel extends BaseViewModel {
       _categoryStates[category] ?? true;
 
   Future<void> loadCategoryStates() async {
+    await NotificationCategoryPrefs.loadFromSupabase();
     final states = <NotificationCategory, bool>{};
     for (final category in NotificationCategory.values) {
       states[category] =
