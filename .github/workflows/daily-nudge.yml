@@ -1,11 +1,11 @@
-name: Hourly Smart Nudge
+name: Smart Nudge (Every 30 min)
 
-# 매 시간 정각에 실행하여 사용자별 선호 시간대에 맞춰 푸시 알림 전송
-# Edge Function에서 현재 KST 시간과 사용자의 preferred_hour를 비교하여 해당 사용자만 처리
+# 매 30분마다 실행하여 사용자별 설정 시간에 맞춰 푸시 알림 전송
+# Edge Function에서 현재 KST 시간 슬롯(HH:00 또는 HH:30)과 매칭
 
 on:
   schedule:
-    - cron: '0 * * * *'   # 매 시간 정각 (UTC)
+    - cron: '0,30 * * * *'   # 매 30분 (매시 :00, :30 UTC)
   workflow_dispatch:  # 수동 실행 가능
 
 jobs:
