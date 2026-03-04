@@ -5,6 +5,7 @@ const ADMIN_EMAILS = [
   "admin@bookgolas.com",
   "byungsker@naver.com",
   "extreme0728@gmail.com",
+  "test@admin.com",
 ];
 
 export async function middleware(request: NextRequest) {
