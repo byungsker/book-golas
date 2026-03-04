@@ -10,6 +10,8 @@ export type PushTemplate = {
   type: string;
   title: string;
   body_template: string;
+  title_en: string | null;
+  body_template_en: string | null;
   is_active: boolean;
   priority: number;
   created_at: string;
