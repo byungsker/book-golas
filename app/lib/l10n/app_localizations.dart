@@ -6425,11 +6425,23 @@ abstract class AppLocalizations {
   /// **'매일 독서 리마인드'**
   String get myPageNotificationDailyReminder;
 
-  /// Reading goal achievement notification
+  /// Goal alarm notification setting
   ///
   /// In ko, this message translates to:
-  /// **'독서 목표 달성'**
-  String get myPageNotificationGoalAchievement;
+  /// **'독서 목표 알람'**
+  String get myPageNotificationGoalAlarm;
+
+  /// Event nudge notification setting
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 넛지 알림'**
+  String get myPageNotificationEventNudge;
+
+  /// Goal alarm notification subtitle with time
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 {time}에 독서 현황 확인'**
+  String myPageNotificationGoalAlarmSubtitle(String time);
 
   /// Password changed success message
   ///

@@ -1477,8 +1477,21 @@
            "myPageNotificationDailyReminder": "Daily Reading Reminder",
            "@myPageNotificationDailyReminder": {"description": "Daily reading reminder notification"},
 
-           "myPageNotificationGoalAchievement": "Reading Goal Achievement",
-           "@myPageNotificationGoalAchievement": {"description": "Reading goal achievement notification"},
+           "myPageNotificationGoalAlarm": "Reading Goal Alarm",
+           "@myPageNotificationGoalAlarm": {"description": "Goal alarm notification setting"},
+
+           "myPageNotificationEventNudge": "Event Nudge Notifications",
+           "@myPageNotificationEventNudge": {"description": "Event nudge notification setting"},
+
+           "myPageNotificationGoalAlarmSubtitle": "Check reading status daily at {time}",
+           "@myPageNotificationGoalAlarmSubtitle": {
+             "description": "Goal alarm notification subtitle with time",
+             "placeholders": {
+               "time": {
+                 "type": "String"
+               }
+             }
+           },
 
            "myPagePasswordChanged": "Password changed successfully",
            "@myPagePasswordChanged": {"description": "Password changed success message"},

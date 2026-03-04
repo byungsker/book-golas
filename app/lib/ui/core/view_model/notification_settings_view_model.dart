@@ -6,8 +6,6 @@ class NotificationSettingsViewModel extends BaseViewModel {
   final NotificationSettingsRepository _repository;
 
   NotificationSettings _settings = NotificationSettings(
-    preferredHour: 9,
-    preferredMinute: 0,
     notificationEnabled: true,
   );
 
@@ -25,38 +23,6 @@ class NotificationSettingsViewModel extends BaseViewModel {
       }
     } catch (e) {
       setError(e.toString());
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  Future<bool> updatePreferredHour(int hour) async {
-    return updatePreferredTime(hour, _settings.preferredMinute);
-  }
-
-  Future<bool> updatePreferredTime(int hour, int minute) async {
-    if (hour < 0 || hour > 23) {
-      setError('Invalid hour: must be 0-23');
-      return false;
-    }
-    if (minute < 0 || minute > 59) {
-      setError('Invalid minute: must be 0-59');
-      return false;
-    }
-
-    setLoading(true);
-    clearError();
-    try {
-      final success = await _repository.updatePreferredTime(hour, minute);
-      if (success) {
-        _settings =
-            _settings.copyWith(preferredHour: hour, preferredMinute: minute);
-        notifyListeners();
-      }
-      return success;
-    } catch (e) {
-      setError(e.toString());
-      return false;
     } finally {
       setLoading(false);
     }
@@ -80,10 +46,126 @@ class NotificationSettingsViewModel extends BaseViewModel {
     }
   }
 
-  String getFormattedTime() {
-    final hour = _settings.preferredHour;
-    final minute = _settings.preferredMinute;
+  Future<bool> updateDailyReminderEnabled(bool enabled) async {
+    setLoading(true);
+    clearError();
+    try {
+      final success = await _repository.updateDailyReminderEnabled(enabled);
+      if (success) {
+        _settings = _settings.copyWith(dailyReminderEnabled: enabled);
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
 
+  Future<bool> updateDailyReminderTime(int hour, int minute) async {
+    if (hour < 0 || hour > 23) {
+      setError('Invalid hour: must be 0-23');
+      return false;
+    }
+    if (minute != 0 && minute != 30) {
+      setError('Invalid minute: must be 0 or 30');
+      return false;
+    }
+
+    setLoading(true);
+    clearError();
+    try {
+      final success = await _repository.updateDailyReminderTime(hour, minute);
+      if (success) {
+        _settings = _settings.copyWith(
+            dailyReminderHour: hour, dailyReminderMinute: minute);
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<bool> updateGoalAlarmEnabled(bool enabled) async {
+    setLoading(true);
+    clearError();
+    try {
+      final success = await _repository.updateGoalAlarmEnabled(enabled);
+      if (success) {
+        _settings = _settings.copyWith(goalAlarmEnabled: enabled);
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<bool> updateGoalAlarmTime(int hour, int minute) async {
+    if (hour < 0 || hour > 23) {
+      setError('Invalid hour: must be 0-23');
+      return false;
+    }
+    if (minute != 0 && minute != 30) {
+      setError('Invalid minute: must be 0 or 30');
+      return false;
+    }
+
+    setLoading(true);
+    clearError();
+    try {
+      final success = await _repository.updateGoalAlarmTime(hour, minute);
+      if (success) {
+        _settings =
+            _settings.copyWith(goalAlarmHour: hour, goalAlarmMinute: minute);
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<bool> updateEventNudgeEnabled(bool enabled) async {
+    setLoading(true);
+    clearError();
+    try {
+      final success = await _repository.updateEventNudgeEnabled(enabled);
+      if (success) {
+        _settings = _settings.copyWith(eventNudgeEnabled: enabled);
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  String getFormattedDailyReminderTime() {
+    return _formatTime(
+        _settings.dailyReminderHour, _settings.dailyReminderMinute);
+  }
+
+  String getFormattedGoalAlarmTime() {
+    return _formatTime(_settings.goalAlarmHour, _settings.goalAlarmMinute);
+  }
+
+  String _formatTime(int hour, int minute) {
     String hourStr;
     if (hour == 0) {
       hourStr = '오전 12시';

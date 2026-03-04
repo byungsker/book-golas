@@ -2,7 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum NotificationCategory {
   dailyReminder,
-  goalAchievement,
+  goalAlarm,
+  eventNudge,
   announcements,
 }
 

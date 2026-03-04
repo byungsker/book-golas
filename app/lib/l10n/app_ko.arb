@@ -3013,8 +3013,21 @@
          "myPageNotificationDailyReminder": "매일 독서 리마인드",
          "@myPageNotificationDailyReminder": {"description": "Daily reading reminder notification"},
 
-         "myPageNotificationGoalAchievement": "독서 목표 달성",
-         "@myPageNotificationGoalAchievement": {"description": "Reading goal achievement notification"},
+         "myPageNotificationGoalAlarm": "독서 목표 알람",
+         "@myPageNotificationGoalAlarm": {"description": "Goal alarm notification setting"},
+
+         "myPageNotificationEventNudge": "이벤트 넛지 알림",
+         "@myPageNotificationEventNudge": {"description": "Event nudge notification setting"},
+
+         "myPageNotificationGoalAlarmSubtitle": "매일 {time}에 독서 현황 확인",
+         "@myPageNotificationGoalAlarmSubtitle": {
+           "description": "Goal alarm notification subtitle with time",
+           "placeholders": {
+             "time": {
+               "type": "String"
+             }
+           }
+         },
 
          "myPagePasswordChanged": "비밀번호가 변경되었습니다",
          "@myPagePasswordChanged": {"description": "Password changed success message"},
