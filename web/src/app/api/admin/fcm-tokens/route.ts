@@ -49,9 +49,27 @@ export async function GET() {
     }
   });
 
+  const userIds = Array.from(userMap.keys());
+
+  const emailMap = new Map<string, string>();
+  if (userIds.length > 0) {
+    const { data: usersData } = await supabaseAdmin
+      .from("users")
+      .select("id, email")
+      .in("id", userIds);
+
+    if (usersData) {
+      usersData.forEach((u) => {
+        if (u.email) {
+          emailMap.set(u.id, u.email);
+        }
+      });
+    }
+  }
+
   const users = Array.from(userMap.values()).map((data) => ({
     user_id: data.user_id,
-    email: data.user_id.slice(0, 8) + "...",
+    email: emailMap.get(data.user_id) || data.user_id.slice(0, 8) + "...",
     token_count: data.token_count,
     device_type: data.device_type,
   }));
