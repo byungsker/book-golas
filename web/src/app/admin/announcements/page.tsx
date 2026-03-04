@@ -193,12 +193,10 @@ export default function AnnouncementsPage() {
           <CardContent>
             <div className="bg-gray-900 text-white p-4 rounded-xl shadow-lg max-w-sm">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-lg">
-                  📚
-                </div>
+                <img src="/logo-bookgolas.png" alt="북골라스" className="w-10 h-10 rounded-lg" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm">Bookgolas</span>
+                    <span className="font-semibold text-sm">북골라스</span>
                     <span className="text-xs text-gray-400">now</span>
                   </div>
                   <p className="font-medium text-sm mt-1">
