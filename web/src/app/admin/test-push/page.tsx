@@ -375,7 +375,7 @@ export default function TestPushPage() {
                   }`}
                   onClick={() => setSelectedUser(user.user_id)}
                 >
-                  <div className="font-mono text-sm text-foreground">{user.user_id.slice(0, 8)}...</div>
+                  <div className="text-sm font-medium text-foreground">{user.email}</div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">{user.token_count}개 디바이스</span>
                     <Badge variant="secondary" className="text-xs">

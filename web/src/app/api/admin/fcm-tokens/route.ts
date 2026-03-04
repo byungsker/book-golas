@@ -53,12 +53,13 @@ export async function GET() {
 
   const emailMap = new Map<string, string>();
   if (userIds.length > 0) {
-    const { data: { users: authUsers } } = await supabaseAdmin.auth.admin.listUsers({
-      perPage: 1000,
-    });
+    const { data: usersData } = await supabaseAdmin
+      .from("users")
+      .select("id, email")
+      .in("id", userIds);
 
-    if (authUsers) {
-      authUsers.forEach((u) => {
+    if (usersData) {
+      usersData.forEach((u) => {
         if (u.email) {
           emailMap.set(u.id, u.email);
         }
