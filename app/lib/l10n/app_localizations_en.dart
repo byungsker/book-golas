@@ -3518,7 +3518,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationDailyReminder => 'Daily Reading Reminder';
 
   @override
-  String get myPageNotificationGoalAchievement => 'Reading Goal Achievement';
+  String get myPageNotificationGoalAlarm => 'Reading Goal Alarm';
+
+  @override
+  String get myPageNotificationEventNudge => 'Event Nudge Notifications';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return 'Check reading status daily at $time';
+  }
 
   @override
   String get myPagePasswordChanged => 'Password changed successfully';

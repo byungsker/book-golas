@@ -1,16 +1,21 @@
+import 'dart:io' show Platform;
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class FCMService {
   static final FCMService _instance = FCMService._internal();
   factory FCMService() => _instance;
   FCMService._internal();
+
+  static const int _dailyReminderNotifId = 0;
+  static const int _goalAlarmNotifId = 1;
+  static const int _testNotifId = 999;
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
@@ -19,40 +24,27 @@ class FCMService {
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
-  // 알림 터치 콜백 (payload 포함)
   void Function(Map<String, dynamic>? payload)? onNotificationTap;
 
-  // 초기화
   Future<void> initialize() async {
-    // 타임존 데이터 초기화
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
-    // 로컬 알림 초기화
     await _initializeLocalNotifications();
-
-    // FCM 권한 요청
     await _requestPermission();
 
-    // FCM 토큰 가져오기
     _fcmToken = await _firebaseMessaging.getToken();
     debugPrint('FCM Token: $_fcmToken');
 
-    // 토큰 갱신 리스너
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       _fcmToken = newToken;
       debugPrint('FCM Token refreshed: $newToken');
-      // TODO: 서버에 새 토큰 저장
       saveTokenToSupabase();
     });
 
-    // 포그라운드 메시지 처리
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-    // 백그라운드 메시지 처리는 main.dart에서 설정
   }
 
-  // 로컬 알림 초기화
   Future<void> _initializeLocalNotifications() async {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -73,7 +65,6 @@ class FCMService {
     );
   }
 
-  // FCM 권한 요청
   Future<void> _requestPermission() async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
@@ -85,28 +76,24 @@ class FCMService {
     debugPrint('User granted permission: ${settings.authorizationStatus}');
   }
 
-  // 포그라운드 메시지 처리
   void _handleForegroundMessage(RemoteMessage message) {
     debugPrint('📨 포그라운드 메시지 수신: ${message.notification?.title}');
     debugPrint('📦 데이터 페이로드: ${message.data}');
 
-    // 서버에서 보낸 푸시 알림을 로컬 알림으로 표시
     if (message.notification != null) {
       _showLocalNotification(
         title: message.notification!.title ?? '',
         body: message.notification!.body ?? '',
-        payload: message.data.toString(), // 데이터 페이로드 전달
+        payload: message.data.toString(),
       );
     }
 
-    // 데이터 페이로드가 있으면 콜백 호출 (딥링크 처리)
     if (message.data.isNotEmpty) {
       debugPrint('🔗 딥링크 데이터 처리: ${message.data}');
       onNotificationTap?.call(message.data);
     }
   }
 
-  // 알림 탭 처리
   void _handleNotificationTap(NotificationResponse response) {
     debugPrint('📱 알림 탭: ${response.payload}');
     Map<String, dynamic>? payload;
@@ -121,13 +108,10 @@ class FCMService {
     onNotificationTap?.call(payload);
   }
 
-  // 페이로드 문자열 파싱 헬퍼
-  // "{bookId: abc, bookTitle: xyz}" 형태를 Map으로 변환
   Map<String, dynamic> _parsePayloadString(String payloadStr) {
     final cleanStr = payloadStr.substring(1, payloadStr.length - 1);
     final map = <String, dynamic>{};
 
-    // 콤마로 분리하되 값에 콤마가 있을 수 있으므로 key: value 패턴으로 파싱
     final regex = RegExp(r'(\w+):\s*([^,}]+)');
     final matches = regex.allMatches(cleanStr);
 
@@ -142,7 +126,6 @@ class FCMService {
     return map;
   }
 
-  // 로컬 알림 표시
   Future<void> _showLocalNotification({
     required String title,
     required String body,
@@ -168,21 +151,19 @@ class FCMService {
       title,
       body,
       details,
-      payload: payload, // 페이로드 추가
+      payload: payload,
     );
   }
 
-  // 매일 정해진 시간에 알림 스케줄링
-  Future<void> scheduleDailyNotification({
+  Future<void> scheduleDailyReminder({
     required int hour,
     required int minute,
   }) async {
     final scheduledTime = _nextInstanceOfTime(hour, minute);
-    debugPrint('📅 알림 스케줄링: $hour시 $minute분');
-    debugPrint('📅 다음 알림 시간: $scheduledTime');
+    debugPrint('📅 일일 리마인더 스케줄링: $hour시 $minute분');
 
     await _localNotifications.zonedSchedule(
-      0, // notification id
+      _dailyReminderNotifId,
       '오늘의 독서 목표',
       '오늘도 힘차게 독서를 시작해보아요!\n목표 페이지 수를 설정해주세요!',
       scheduledTime,
@@ -206,16 +187,68 @@ class FCMService {
       matchDateTimeComponents: DateTimeComponents.time,
     );
 
-    debugPrint('✅ 알림 스케줄링 완료');
+    debugPrint('✅ 일일 리마인더 스케줄링 완료');
 
-    // SharedPreferences에 설정 저장
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('notification_hour', hour);
-    await prefs.setInt('notification_minute', minute);
-    await prefs.setBool('notification_enabled', true);
+    await prefs.setInt('daily_reminder_hour', hour);
+    await prefs.setInt('daily_reminder_minute', minute);
+    await prefs.setBool('daily_reminder_enabled', true);
   }
 
-  // 다음 알림 시간 계산
+  Future<void> cancelDailyReminder() async {
+    await _localNotifications.cancel(_dailyReminderNotifId);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('daily_reminder_enabled', false);
+  }
+
+  Future<void> scheduleGoalAlarm({
+    required int hour,
+    required int minute,
+  }) async {
+    final scheduledTime = _nextInstanceOfTime(hour, minute);
+    debugPrint('📅 목표 알람 스케줄링: $hour시 $minute분');
+
+    await _localNotifications.zonedSchedule(
+      _goalAlarmNotifId,
+      '오늘 독서는 어땠나요?',
+      '현황을 업데이트해주세요!',
+      scheduledTime,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'goal_alarm',
+          'Goal Alarm',
+          channelDescription: '독서 목표 달성 알림',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+
+    debugPrint('✅ 목표 알람 스케줄링 완료');
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('goal_alarm_hour', hour);
+    await prefs.setInt('goal_alarm_minute', minute);
+    await prefs.setBool('goal_alarm_enabled', true);
+  }
+
+  Future<void> cancelGoalAlarm() async {
+    await _localNotifications.cancel(_goalAlarmNotifId);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('goal_alarm_enabled', false);
+  }
+
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
@@ -234,31 +267,12 @@ class FCMService {
     return scheduledDate;
   }
 
-  // 알림 취소
-  Future<void> cancelDailyNotification() async {
-    await _localNotifications.cancel(0);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notification_enabled', false);
-  }
-
-  // 알림 설정 상태 가져오기
-  Future<Map<String, dynamic>> getNotificationSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    return {
-      'enabled': prefs.getBool('notification_enabled') ?? false,
-      'hour': prefs.getInt('notification_hour') ?? 21,
-      'minute': prefs.getInt('notification_minute') ?? 0,
-    };
-  }
-
-  // 테스트용 알림 (30초 후)
   Future<void> scheduleTestNotification({int seconds = 30}) async {
     final scheduledTime =
         tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
 
     await _localNotifications.zonedSchedule(
-      999, // 테스트용 notification id
+      _testNotifId,
       '🔔 테스트 알림',
       '알림이 정상적으로 작동합니다!',
       scheduledTime,
@@ -280,44 +294,11 @@ class FCMService {
     debugPrint('테스트 알림 예약 완료: $seconds초 후 ($scheduledTime)');
   }
 
-  // 오후 9시 고정 알림 (독서 현황 업데이트 알림)
-  Future<void> scheduleEveningReflectionNotification() async {
-    const hour = 2; // 오후 9시
-    const minute = 0;
-
-    final scheduledTime = _nextInstanceOfTime(hour, minute);
-    debugPrint('📅 오후 9시 알림 스케줄링');
-    debugPrint('📅 다음 알림 시간: $scheduledTime');
-
-    await _localNotifications.zonedSchedule(
-      1, // notification id (사용자 설정 알림과 구분하기 위해 1 사용)
-      '오늘 독서는 어땠나요?',
-      '현황을 업데이트해주세요!',
-      scheduledTime,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'evening_reflection',
-          'Evening Reading Reflection',
-          channelDescription: '저녁 독서 현황 알림',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-
-    debugPrint('✅ 오후 9시 알림 스케줄링 완료');
+  String _getDeviceLocale() {
+    final locale = PlatformDispatcher.instance.locale;
+    return locale.languageCode;
   }
 
-  // FCM 토큰을 Supabase에 저장
   Future<void> saveTokenToSupabase() async {
     if (_fcmToken == null) {
       debugPrint('FCM token is null');
@@ -333,7 +314,6 @@ class FCMService {
     }
 
     try {
-      // 디바이스 타입 결정
       String deviceType;
       if (kIsWeb) {
         deviceType = 'web';
@@ -345,7 +325,8 @@ class FCMService {
         deviceType = 'unknown';
       }
 
-      // 기존 토큰 확인
+      final locale = _getDeviceLocale();
+
       final existing = await supabase
           .from('fcm_tokens')
           .select()
@@ -354,48 +335,48 @@ class FCMService {
           .maybeSingle();
 
       if (existing != null) {
-        // 토큰 업데이트
         await supabase.from('fcm_tokens').update({
           'token': _fcmToken,
+          'locale': locale,
           'updated_at': DateTime.now().toIso8601String(),
         }).eq('id', existing['id']);
-        debugPrint('FCM token updated');
+        debugPrint('FCM token updated (locale=$locale)');
       } else {
-        // 새 토큰 삽입 (기본 알림 설정 포함)
         await supabase.from('fcm_tokens').insert({
           'user_id': userId,
           'token': _fcmToken,
           'device_type': deviceType,
-          'preferred_hour': 9,
+          'locale': locale,
+          'daily_reminder_enabled': true,
+          'daily_reminder_hour': 9,
+          'daily_reminder_minute': 0,
+          'goal_alarm_enabled': true,
+          'goal_alarm_hour': 20,
+          'goal_alarm_minute': 0,
+          'event_nudge_enabled': true,
           'notification_enabled': true,
         });
-        debugPrint('FCM token saved with default notification settings');
+        debugPrint('FCM token saved with default settings (locale=$locale)');
       }
     } catch (e) {
       debugPrint('Error saving FCM token: $e');
     }
   }
 
-  // 알림 권한 상태 확인
   Future<bool> isNotificationPermissionGranted() async {
     final settings = await _firebaseMessaging.getNotificationSettings();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
-  // 권한 요청 (설정 화면 열기 안내)
   Future<void> requestNotificationPermission() async {
     final hasPermission = await isNotificationPermissionGranted();
 
     if (!hasPermission) {
-      // iOS에서는 한 번 거부하면 앱 설정에서 수동으로 켜야 함
-      // 사용자에게 안내 다이얼로그 표시
       debugPrint('Please enable notifications in Settings');
     }
   }
 
-  // 서버에서 푸시 알림 전송 요청 (테스트용)
-  // 실제 운영에서는 서버에서 자동으로 호출됨
   Future<bool> requestServerPush({
     required String title,
     required String body,
@@ -410,7 +391,6 @@ class FCMService {
         return false;
       }
 
-      // Supabase Edge Function 호출
       final response = await supabase.functions.invoke(
         'send-fcm-push',
         body: {

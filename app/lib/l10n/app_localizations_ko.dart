@@ -3435,7 +3435,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageNotificationDailyReminder => '매일 독서 리마인드';
 
   @override
-  String get myPageNotificationGoalAchievement => '독서 목표 달성';
+  String get myPageNotificationGoalAlarm => '독서 목표 알람';
+
+  @override
+  String get myPageNotificationEventNudge => '이벤트 넛지 알림';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return '매일 $time에 독서 현황 확인';
+  }
 
   @override
   String get myPagePasswordChanged => '비밀번호가 변경되었습니다';

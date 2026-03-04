@@ -32,7 +32,7 @@ class _LocaleTimePickerState extends State<LocaleTimePicker> {
 
   late List<String> _amPmLabels;
   final List<int> _hours12 = List.generate(12, (i) => i == 0 ? 12 : i);
-  final List<int> _minutes = List.generate(60, (i) => i);
+  final List<int> _minutes = [0, 30];
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _LocaleTimePickerState extends State<LocaleTimePicker> {
       initialItem: _hours12.indexOf(_currentHour12),
     );
     _minuteController = FixedExtentScrollController(
-      initialItem: _currentMinute,
+      initialItem: _minutes.indexOf(_currentMinute),
     );
   }
 
@@ -179,7 +179,7 @@ class _LocaleTimePickerState extends State<LocaleTimePicker> {
           width: 70,
           onSelected: (index) {
             setState(() {
-              _currentMinute = index;
+              _currentMinute = _minutes[index];
             });
             _onTimePartChanged();
           },

@@ -5,11 +5,17 @@ abstract class NotificationSettingsRepository {
 
   Future<NotificationSettings?> loadSettings();
 
-  Future<bool> updatePreferredHour(int hour);
-
-  Future<bool> updatePreferredTime(int hour, int minute);
-
   Future<bool> updateNotificationEnabled(bool enabled);
+
+  Future<bool> updateDailyReminderEnabled(bool enabled);
+
+  Future<bool> updateDailyReminderTime(int hour, int minute);
+
+  Future<bool> updateGoalAlarmEnabled(bool enabled);
+
+  Future<bool> updateGoalAlarmTime(int hour, int minute);
+
+  Future<bool> updateEventNudgeEnabled(bool enabled);
 }
 
 class NotificationSettingsRepositoryImpl
@@ -25,14 +31,26 @@ class NotificationSettingsRepositoryImpl
   Future<NotificationSettings?> loadSettings() => _service.loadSettings();
 
   @override
-  Future<bool> updatePreferredHour(int hour) =>
-      _service.updatePreferredHour(hour);
-
-  @override
-  Future<bool> updatePreferredTime(int hour, int minute) =>
-      _service.updatePreferredTime(hour, minute);
-
-  @override
   Future<bool> updateNotificationEnabled(bool enabled) =>
       _service.updateNotificationEnabled(enabled);
+
+  @override
+  Future<bool> updateDailyReminderEnabled(bool enabled) =>
+      _service.updateDailyReminderEnabled(enabled);
+
+  @override
+  Future<bool> updateDailyReminderTime(int hour, int minute) =>
+      _service.updateDailyReminderTime(hour, minute);
+
+  @override
+  Future<bool> updateGoalAlarmEnabled(bool enabled) =>
+      _service.updateGoalAlarmEnabled(enabled);
+
+  @override
+  Future<bool> updateGoalAlarmTime(int hour, int minute) =>
+      _service.updateGoalAlarmTime(hour, minute);
+
+  @override
+  Future<bool> updateEventNudgeEnabled(bool enabled) =>
+      _service.updateEventNudgeEnabled(enabled);
 }

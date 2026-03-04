@@ -171,6 +171,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   Future<void> _showTimePicker({
     required int initialHour,
     required int initialMinute,
+    required String type,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     int selectedHour = initialHour;
@@ -230,7 +231,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       onPressed: () async {
                         Navigator.pop(sheetContext);
                         await _saveNotificationTime(
-                            selectedHour, selectedMinute);
+                            selectedHour, selectedMinute, type);
                       },
                       child: Text(
                         AppLocalizations.of(context).commonConfirm,
@@ -262,26 +263,35 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Future<void> _saveNotificationTime(int hour, int minute) async {
+  Future<void> _saveNotificationTime(
+      int hour, int minute, String type) async {
     final settingsViewModel = context.read<NotificationSettingsViewModel>();
-    final success = await settingsViewModel.updatePreferredTime(hour, minute);
 
-    if (success) {
-      await FCMService().scheduleDailyNotification(
-        hour: hour,
-        minute: minute,
-      );
-
-      if (mounted) {
-        CustomSnackbar.show(
-          context,
-          message: AppLocalizations.of(context)
-              .myPageNotificationTime(settingsViewModel.getFormattedTime()),
-          type: BLabSnackbarType.success,
-          bottomOffset: 32,
-        );
+    bool success;
+    if (type == 'goalAlarm') {
+      success = await settingsViewModel.updateGoalAlarmTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleGoalAlarm(hour: hour, minute: minute);
       }
-    } else if (mounted) {
+    } else {
+      success = await settingsViewModel.updateDailyReminderTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleDailyReminder(hour: hour, minute: minute);
+      }
+    }
+
+    if (success && mounted) {
+      final formattedTime = type == 'goalAlarm'
+          ? settingsViewModel.getFormattedGoalAlarmTime()
+          : settingsViewModel.getFormattedDailyReminderTime();
+      CustomSnackbar.show(
+        context,
+        message: AppLocalizations.of(context)
+            .myPageNotificationTime(formattedTime),
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+    } else if (!success && mounted) {
       CustomSnackbar.show(
         context,
         message: settingsViewModel.errorMessage ??
@@ -839,8 +849,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                         .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
                         ? AppLocalizations.of(context).myPageNotificationTime(
-                            _formatTime(settings.preferredHour,
-                                settings.preferredMinute))
+                            _formatTime(settings.dailyReminderHour,
+                                settings.dailyReminderMinute))
                         : AppLocalizations.of(context).myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
@@ -857,12 +867,17 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                               if (success) {
                                 if (value) {
-                                  await FCMService().scheduleDailyNotification(
-                                    hour: settings.preferredHour,
-                                    minute: settings.preferredMinute,
+                                  await FCMService().scheduleDailyReminder(
+                                    hour: settings.dailyReminderHour,
+                                    minute: settings.dailyReminderMinute,
+                                  );
+                                  await FCMService().scheduleGoalAlarm(
+                                    hour: settings.goalAlarmHour,
+                                    minute: settings.goalAlarmMinute,
                                   );
                                 } else {
-                                  await FCMService().cancelDailyNotification();
+                                  await FCMService().cancelDailyReminder();
+                                  await FCMService().cancelGoalAlarm();
                                 }
 
                                 if (mounted) {
@@ -883,7 +898,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      AppLocalizations.of(context).myPageNotificationChangeFailed,
+                                      AppLocalizations.of(context)
+                                          .myPageNotificationChangeFailed,
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -893,76 +909,151 @@ class _MyPageContentState extends State<_MyPageContent> {
                           ),
                   ),
                   if (settings.notificationEnabled) ...[
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.bookmark,
+                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
+                      subtitle: settings.dailyReminderEnabled
+                          ? _formatTime(settings.dailyReminderHour,
+                              settings.dailyReminderMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.dailyReminderEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateDailyReminderEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleDailyReminder(
+                                      hour: settings.dailyReminderHour,
+                                      minute: settings.dailyReminderMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelDailyReminder();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.dailyReminderEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.dailyReminderHour,
+                            settings.dailyReminderMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.dailyReminderHour,
+                                  initialMinute:
+                                      settings.dailyReminderMinute,
+                                  type: 'dailyReminder',
+                                ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
-                    BLabButton(
-                      text: _formatTime(
-                          settings.preferredHour, settings.preferredMinute),
-                      icon: Icons.access_time,
-                      variant: BLabButtonVariant.secondary,
-                      isFullWidth: true,
-                      onPressed: isLoading
-                          ? null
-                          : () => _showTimePicker(
-                                initialHour: settings.preferredHour,
-                                initialMinute: settings.preferredMinute,
-                              ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.emoji_events,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationGoalAlarm,
+                      subtitle: settings.goalAlarmEnabled
+                          ? _formatTime(settings.goalAlarmHour,
+                              settings.goalAlarmMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.goalAlarmEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateGoalAlarmEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleGoalAlarm(
+                                      hour: settings.goalAlarmHour,
+                                      minute: settings.goalAlarmMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelGoalAlarm();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.goalAlarmEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.goalAlarmHour,
+                            settings.goalAlarmMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.goalAlarmHour,
+                                  initialMinute: settings.goalAlarmMinute,
+                                  type: 'goalAlarm',
+                                ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.flash_on,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationEventNudge,
+                      trailing: Switch(
+                        value: settings.eventNudgeEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                await settingsViewModel
+                                    .updateEventNudgeEnabled(value);
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.campaign,
+                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
+                      trailing: Consumer<MyPageViewModel>(
+                        builder: (context, vm, child) {
+                          return Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                            onChanged: (value) {
+                              HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.announcements, value);
+                            },
+                            activeTrackColor: BLabColors.primary,
+                          );
+                        },
+                      ),
                     ),
                   ],
-                ],
-              );
-            },
-          ),
-          Divider(
-            height: 32,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
-          Consumer<MyPageViewModel>(
-            builder: (context, vm, child) {
-              return Column(
-                children: [
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.bookmark,
-                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.dailyReminder),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.dailyReminder, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.emoji_events,
-                    title: AppLocalizations.of(context).myPageNotificationGoalAchievement,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.goalAchievement),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.goalAchievement, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.campaign,
-                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.announcements, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
                 ],
               );
             },
