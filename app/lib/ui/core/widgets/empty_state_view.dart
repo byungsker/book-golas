@@ -50,7 +50,7 @@ class EmptyStateView extends StatelessWidget {
             ColorFiltered(
               colorFilter: _grayscaleMatrix,
               child: Image.asset(
-                'assets/images/logo.png',
+                'assets/images/logo-bookgolas.png',
                 width: 80,
                 height: 80,
               ),

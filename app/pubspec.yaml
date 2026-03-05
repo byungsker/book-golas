@@ -68,25 +68,25 @@ dev_dependencies:
 flutter_native_splash:
   color: "#ffffff"
   color_dark: "#1a1a1a"
-  image: assets/images/logo.png
-  image_dark: assets/images/logo.png
+  image: assets/images/logo-bookgolas.png
+  image_dark: assets/images/logo-bookgolas.png
   ios: true
   android: true
   android_12:
     color: "#ffffff"
     color_dark: "#1a1a1a"
-    image: assets/images/logo.png
-    image_dark: assets/images/logo.png
+    image: assets/images/logo-bookgolas.png
+    image_dark: assets/images/logo-bookgolas.png
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/logo-bookgolas.png"
   min_sdk_android: 21
   remove_alpha_ios: true
   background_color: "#1a1a1a"
   adaptive_icon_background: "#1a1a1a"
-  adaptive_icon_foreground: "assets/images/logo.png"
+  adaptive_icon_foreground: "assets/images/logo-bookgolas.png"
 
 flutter:
   uses-material-design: true
