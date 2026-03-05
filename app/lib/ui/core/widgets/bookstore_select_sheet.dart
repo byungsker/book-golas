@@ -2,26 +2,67 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:book_golas/l10n/app_localizations.dart';
-
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
 
-/// 서점 선택 바텀시트를 표시합니다.
-/// 알라딘, Yes24, 교보문고에서 책을 검색할 수 있습니다.
 void showBookstoreSelectSheet({
   required BuildContext context,
   required String title,
   VoidCallback? onBack,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final l10n = AppLocalizations.of(context);
-  final searchTitle = getSearchTitle(title);
-  final encodedTitle = Uri.encodeComponent(searchTitle);
-
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
-    builder: (sheetContext) => Container(
+    builder: (sheetContext) => _BookstoreSheetContent(
+      title: title,
+      onBack: onBack,
+    ),
+  );
+}
+
+class _BookstoreSheetContent extends StatefulWidget {
+  final String title;
+  final VoidCallback? onBack;
+
+  const _BookstoreSheetContent({
+    required this.title,
+    this.onBack,
+  });
+
+  @override
+  State<_BookstoreSheetContent> createState() => _BookstoreSheetContentState();
+}
+
+class _BookstoreSheetContentState extends State<_BookstoreSheetContent>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
+    final searchTitle = getSearchTitle(widget.title);
+
+    return Container(
       decoration: BoxDecoration(
         color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -40,17 +81,17 @@ void showBookstoreSelectSheet({
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      if (onBack != null)
+                      if (widget.onBack != null)
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(sheetContext);
-                            onBack();
+                            Navigator.pop(context);
+                            widget.onBack!();
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(right: 12),
@@ -73,7 +114,7 @@ void showBookstoreSelectSheet({
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '"$searchTitle" 검색',
+                    '"$searchTitle" ${l10n.bookstoreSearchSuffix}',
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -81,57 +122,115 @@ void showBookstoreSelectSheet({
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 20),
-                  BookstoreButton(
-                    isDark: isDark,
-                    logoPath: 'assets/images/logo-aladin.png',
-                    name: l10n.bookstoreAladdin,
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      final url =
-                          'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=$encodedTitle';
-                      await launchUrl(Uri.parse(url),
-                          mode: LaunchMode.externalApplication);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  BookstoreButton(
-                    isDark: isDark,
-                    logoPath: 'assets/images/logo-yes24.png',
-                    name: 'Yes24',
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      final url =
-                          'https://www.yes24.com/Product/Search?domain=ALL&query=$encodedTitle';
-                      await launchUrl(Uri.parse(url),
-                          mode: LaunchMode.externalApplication);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  BookstoreButton(
-                    isDark: isDark,
-                    logoPath: 'assets/images/logo-kyobo.svg',
-                    name: l10n.bookstoreKyobo,
-                    isSvg: true,
-                    onTap: () async {
-                      Navigator.pop(sheetContext);
-                      final url =
-                          'https://search.kyobobook.co.kr/search?keyword=$encodedTitle';
-                      await launchUrl(Uri.parse(url),
-                          mode: LaunchMode.externalApplication);
-                    },
-                  ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            LiquidGlassTabBar(
+              controller: _tabController,
+              tabs: [l10n.bookstoreTabNew, l10n.bookstoreTabUsed],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: _tabController.index == 0
+                    ? _buildNewBookstoreButtons(isDark, l10n, searchTitle)
+                    : _buildUsedBookstoreButtons(isDark, l10n, searchTitle),
               ),
             ),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _buildNewBookstoreButtons(
+      bool isDark, AppLocalizations l10n, String searchTitle) {
+    return Column(
+      key: const ValueKey('new'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-aladin.png',
+          name: l10n.bookstoreAladdin,
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+        const SizedBox(height: 12),
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-yes24.png',
+          name: 'Yes24',
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://m.yes24.com/Search?domain=ALL&query=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+        const SizedBox(height: 12),
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-kyobo.svg',
+          name: l10n.bookstoreKyobo,
+          isSvg: true,
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://search.kyobobook.co.kr/search?keyword=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUsedBookstoreButtons(
+      bool isDark, AppLocalizations l10n, String searchTitle) {
+    return Column(
+      key: const ValueKey('used'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-aladin.png',
+          name: l10n.bookstoreAladdinUsed,
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=Used&SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+        const SizedBox(height: 12),
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-aladin.png',
+          name: l10n.bookstoreAladdinUsedStore,
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://www.aladin.co.kr/m/msearch.aspx?SearchTarget=UsedStore&SearchWord=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+        const SizedBox(height: 12),
+        BookstoreButton(
+          isDark: isDark,
+          logoPath: 'assets/images/logo-yes24.png',
+          name: l10n.bookstoreYes24Used,
+          onTap: () async {
+            Navigator.pop(context);
+            final url = 'https://m.yes24.com/Search?domain=USED_GOODS&query=$searchTitle';
+            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          },
+        ),
+      ],
+    );
+  }
 }
 
-/// 책 제목에서 부제목을 제거하여 검색에 적합한 제목을 반환합니다.
 String getSearchTitle(String title) {
   final hyphenIndex = title.indexOf(' - ');
   if (hyphenIndex > 0) {
@@ -144,7 +243,6 @@ String getSearchTitle(String title) {
   return title.trim();
 }
 
-/// 서점 버튼 위젯
 class BookstoreButton extends StatelessWidget {
   final bool isDark;
   final String logoPath;

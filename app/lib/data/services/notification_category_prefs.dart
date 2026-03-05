@@ -5,7 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum NotificationCategory {
   dailyReminder,
-  goalAchievement,
+  goalAlarm,
+  eventNudge,
   announcements,
 }
 

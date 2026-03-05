@@ -7,6 +7,7 @@ const ADMIN_EMAILS = [
   "admin@bookgolas.com",
   "byungsker@naver.com",
   "extreme0728@gmail.com",
+  "test@admin.com",
 ];
 
 const intlMiddleware = createIntlMiddleware(routing);

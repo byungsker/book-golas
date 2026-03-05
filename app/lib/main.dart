@@ -565,8 +565,22 @@ class _MainScreenState extends State<MainScreen>
       // 로그인된 사용자의 토큰을 Supabase에 저장
       FCMService().saveTokenToSupabase();
 
-      // 오후 9시 고정 알림 스케줄링
-      FCMService().scheduleEveningReflectionNotification();
+      final notifService = context.read<NotificationSettingsService>();
+      final loadedSettings = await notifService.loadSettings();
+      if (loadedSettings != null && loadedSettings.notificationEnabled) {
+        if (loadedSettings.dailyReminderEnabled) {
+          FCMService().scheduleDailyReminder(
+            hour: loadedSettings.dailyReminderHour,
+            minute: loadedSettings.dailyReminderMinute,
+          );
+        }
+        if (loadedSettings.goalAlarmEnabled) {
+          FCMService().scheduleGoalAlarm(
+            hour: loadedSettings.goalAlarmHour,
+            minute: loadedSettings.goalAlarmMinute,
+          );
+        }
+      }
     });
   }
 

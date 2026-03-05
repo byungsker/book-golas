@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,8 @@ const PUSH_TYPES = [
   { value: "progress", label: "Progress" },
   { value: "streak", label: "Streak" },
   { value: "achievement", label: "Achievement" },
+  { value: "announcement", label: "Announcement" },
+  { value: "test", label: "Test" },
 ];
 
 export default function PushLogsPage() {
@@ -36,7 +38,28 @@ export default function PushLogsPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [emailMap, setEmailMap] = useState<Record<string, string>>({});
   const pageSize = 20;
+
+  const loadEmails = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/fcm-tokens");
+      const data = await response.json();
+      if (data.users) {
+        const map: Record<string, string> = {};
+        data.users.forEach((u: { user_id: string; email: string }) => {
+          map[u.user_id] = u.email;
+        });
+        setEmailMap(map);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user emails:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEmails();
+  }, [loadEmails]);
 
   useEffect(() => {
     fetchLogs();
@@ -125,6 +148,7 @@ export default function PushLogsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-44">발송 시간</TableHead>
+                    <TableHead className="w-48">사용자</TableHead>
                     <TableHead className="w-28">Type</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead className="w-28 text-center">상태</TableHead>
@@ -136,6 +160,11 @@ export default function PushLogsPage() {
                     <TableRow key={log.id}>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(log.sent_at)}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        <div className="text-foreground">
+                          {emailMap[log.user_id] || log.user_id.slice(0, 8) + "..."}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{log.push_type}</Badge>

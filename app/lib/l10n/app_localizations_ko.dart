@@ -2631,6 +2631,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookstoreKyobo => '교보문고';
 
   @override
+  String get bookstoreTabNew => '서점 검색';
+
+  @override
+  String get bookstoreTabUsed => '중고 검색';
+
+  @override
+  String get bookstoreSearchSuffix => '검색';
+
+  @override
+  String get bookstoreAladdinUsed => '알라딘 중고';
+
+  @override
+  String get bookstoreAladdinUsedStore => '알라딘 중고매장';
+
+  @override
+  String get bookstoreYes24Used => 'Yes24 중고';
+
+  @override
+  String get bookInfoTitleCopied => '제목이 복사되었습니다';
+
+  @override
   String get expandedNavBackToDetail => '상세로 돌아가기';
 
   @override
@@ -3333,6 +3354,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loginResendVerificationCooldown => '잠시 후 다시 시도해주세요.';
 
   @override
+  String get loginErrorEmailRateLimit => '이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
   String get loginSignupExistingEmail => '이미 등록된 이메일입니다. 로그인을 시도해주세요.';
 
   @override
@@ -3411,7 +3435,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageNotificationDailyReminder => '매일 독서 리마인드';
 
   @override
-  String get myPageNotificationGoalAchievement => '독서 목표 달성';
+  String get myPageNotificationGoalAlarm => '독서 목표 알람';
+
+  @override
+  String get myPageNotificationEventNudge => '이벤트 넛지 알림';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return '매일 $time에 독서 현황 확인';
+  }
 
   @override
   String get myPagePasswordChanged => '비밀번호가 변경되었습니다';
@@ -3481,4 +3513,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
+
+  @override
+  String get myPagePasswordSameAsOld => '새 비밀번호는 기존 비밀번호와 달라야 합니다';
+
+  @override
+  String get passwordRecoveryTitle => '새 비밀번호 설정';
+
+  @override
+  String get passwordRecoveryDescription => '사용하실 새 비밀번호를 입력해주세요';
+
+  @override
+  String get passwordRecoveryNewPassword => '새 비밀번호';
+
+  @override
+  String get passwordRecoveryConfirmPassword => '새 비밀번호 확인';
+
+  @override
+  String get passwordRecoveryButton => '비밀번호 변경';
+
+  @override
+  String get passwordRecoverySuccess =>
+      '비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.';
+
+  @override
+  String get passwordRecoveryFailed => '비밀번호 변경에 실패했습니다';
 }

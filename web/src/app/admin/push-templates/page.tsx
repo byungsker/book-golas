@@ -59,8 +59,11 @@ export default function PushTemplatesPage() {
       const { error } = await supabase
         .from("push_templates")
         .update({
+          name: editingTemplate.name,
           title: editingTemplate.title,
           body_template: editingTemplate.body_template,
+          title_en: editingTemplate.title_en,
+          body_template_en: editingTemplate.body_template_en,
           is_active: editingTemplate.is_active,
           priority: editingTemplate.priority,
         })
@@ -113,8 +116,10 @@ export default function PushTemplatesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-32">Type</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Body Template</TableHead>
+                <TableHead className="w-28">Name</TableHead>
+                <TableHead>Title (KO)</TableHead>
+                <TableHead>Title (EN)</TableHead>
+                <TableHead>Body Template (KO)</TableHead>
                 <TableHead className="w-24 text-center">Active</TableHead>
                 <TableHead className="w-24 text-center">Priority</TableHead>
                 <TableHead className="w-24 text-center">Edit</TableHead>
@@ -126,7 +131,9 @@ export default function PushTemplatesPage() {
                   <TableCell>
                     <Badge variant="outline">{template.type}</Badge>
                   </TableCell>
+                  <TableCell className="text-sm">{template.name || "-"}</TableCell>
                   <TableCell className="font-medium">{template.title}</TableCell>
+                  <TableCell className="text-muted-foreground">{template.title_en || "-"}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">
                     {template.body_template}
                   </TableCell>
@@ -164,9 +171,11 @@ export default function PushTemplatesPage() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 flex-wrap">
-            <Badge>{"{days}"}</Badge>
-            <Badge>{"{bookTitle}"}</Badge>
-            <Badge>{"{percent}"}</Badge>
+            <Badge>{'{days}'}</Badge>
+            <Badge>{'{bookTitle}'}</Badge>
+            <Badge>{'{percent}'}</Badge>
+            <Badge>{'{targetPages}'}</Badge>
+            <Badge>{'{daysLeft}'}</Badge>
           </div>
           <p className="text-sm text-muted-foreground mt-2">
             Body Template에서 위 변수를 사용하면 실제 값으로 치환됩니다.
@@ -175,7 +184,7 @@ export default function PushTemplatesPage() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               템플릿 수정: {editingTemplate?.type}
@@ -184,7 +193,20 @@ export default function PushTemplatesPage() {
           {editingTemplate && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={editingTemplate.name || ""}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title">Title (KO)</Label>
                 <Input
                   id="title"
                   value={editingTemplate.title}
@@ -197,15 +219,42 @@ export default function PushTemplatesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="body">Body Template</Label>
+                <Label htmlFor="title_en">Title (EN)</Label>
+                <Input
+                  id="title_en"
+                  value={editingTemplate.title_en || ""}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      title_en: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="body">Body Template (KO)</Label>
                 <textarea
                   id="body"
-                  className="w-full min-h-24 px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
+                  className="w-full min-h-20 px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
                   value={editingTemplate.body_template}
                   onChange={(e) =>
                     setEditingTemplate({
                       ...editingTemplate,
                       body_template: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="body_en">Body Template (EN)</Label>
+                <textarea
+                  id="body_en"
+                  className="w-full min-h-20 px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
+                  value={editingTemplate.body_template_en || ""}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      body_template_en: e.target.value,
                     })
                   }
                 />

@@ -1,26 +1,8 @@
-// Supabase Edge Function: 배치 스마트 넛지 푸시 알림 (HTTP v1 API)
-// 사용자별 선호 시간대에 맞춰 스마트 넛지 분석 후 푸시 전송
-// GitHub Actions 스케줄러에서 매 시간 호출 → 현재 시간과 preferred_hour가 일치하는 사용자만 처리
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 const FIREBASE_SERVICE_ACCOUNT = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
-
-interface NudgeResult {
-  userId: string;
-  nudgeType: string | null;
-  success: boolean;
-  error?: string;
-}
-
-interface NudgeAnalysis {
-  type: "inactive" | "progress" | "streak" | "deadline" | "achievement";
-  title: string;
-  body: string;
-  data?: Record<string, string>;
-}
 
 interface ServiceAccount {
   type: string;
@@ -33,11 +15,23 @@ interface ServiceAccount {
   token_uri: string;
 }
 
-// OAuth 2.0 액세스 토큰 캐시
+interface PushTarget {
+  userId: string;
+  token: string;
+  locale: string;
+}
+
+interface TemplateRow {
+  type: string;
+  title: string;
+  body_template: string;
+  title_en: string | null;
+  body_template_en: string | null;
+}
+
 let cachedAccessToken: string | null = null;
 let tokenExpiry: number = 0;
 
-// 서비스 계정으로 OAuth 2.0 액세스 토큰 생성
 async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
@@ -94,7 +88,6 @@ async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
   return cachedAccessToken!;
 }
 
-// FCM v1 API로 푸시 전송
 async function sendFCMMessage(
   accessToken: string,
   projectId: string,
@@ -142,26 +135,98 @@ async function sendFCMMessage(
   return await response.json();
 }
 
-function getNudgeCategoryEnabled(
-  nudgeType: string,
-  userData: { dailyReminder: boolean; goalAchievement: boolean; announcements: boolean }
-): boolean {
-  switch (nudgeType) {
-    case "inactive":
-    case "streak":
-      return userData.dailyReminder;
-    case "progress":
-    case "deadline":
-    case "achievement":
-      return userData.goalAchievement;
-    default:
-      return true;
+let templatesCache: Map<string, TemplateRow> | null = null;
+
+async function loadPushTemplates(supabaseClient: any): Promise<Map<string, TemplateRow>> {
+  if (templatesCache) return templatesCache;
+
+  const { data: templates } = await supabaseClient
+    .from("push_templates")
+    .select("type, title, body_template, title_en, body_template_en")
+    .eq("is_active", true);
+
+  templatesCache = new Map();
+  if (templates) {
+    templates.forEach((t: TemplateRow) => {
+      templatesCache!.set(t.type, t);
+    });
   }
+  return templatesCache;
+}
+
+function getLocalizedTemplate(
+  template: TemplateRow,
+  locale: string
+): { title: string; bodyTemplate: string } {
+  if (locale === "en" && template.title_en && template.body_template_en) {
+    return { title: template.title_en, bodyTemplate: template.body_template_en };
+  }
+  return { title: template.title, bodyTemplate: template.body_template };
+}
+
+function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
+  let result = template;
+  for (const [key, value] of Object.entries(variables)) {
+    result = result.replace(new RegExp(`\\{${key}\\}`, "g"), value);
+  }
+  return result;
+}
+
+async function sendToTargets(
+  accessToken: string,
+  projectId: string,
+  targets: PushTarget[],
+  templateType: string,
+  variables: Record<string, string>,
+  templates: Map<string, TemplateRow>,
+  supabaseClient: any,
+  extraData?: Record<string, string>
+): Promise<{ sent: number; failed: number }> {
+  const template = templates.get(templateType);
+  if (!template) return { sent: 0, failed: 0 };
+
+  let sent = 0;
+  let failed = 0;
+  const invalidTokens: string[] = [];
+
+  for (const target of targets) {
+    try {
+      const { title, bodyTemplate } = getLocalizedTemplate(template, target.locale);
+      const body = replaceTemplateVariables(bodyTemplate, variables);
+
+      await sendFCMMessage(accessToken, projectId, target.token, title, body, {
+        type: templateType,
+        ...extraData,
+      });
+
+      await supabaseClient.from("push_logs").insert({
+        user_id: target.userId,
+        push_type: templateType,
+        book_id: extraData?.bookId || null,
+        title: title,
+        body: body,
+      });
+
+      sent++;
+    } catch (error: any) {
+      const msg = error?.message || "";
+      if (msg.includes("UNREGISTERED") || msg.includes("INVALID_ARGUMENT")) {
+        invalidTokens.push(target.token);
+      }
+      failed++;
+    }
+  }
+
+  if (invalidTokens.length > 0) {
+    await supabaseClient.from("fcm_tokens").delete().in("token", invalidTokens);
+    console.log(`Removed ${invalidTokens.length} invalid tokens`);
+  }
+
+  return { sent, failed };
 }
 
 serve(async (req) => {
   try {
-    // CORS 헤더 설정
     if (req.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
@@ -191,7 +256,6 @@ serve(async (req) => {
       );
     }
 
-    // Supabase 클라이언트 생성 (서비스 역할)
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -203,174 +267,206 @@ serve(async (req) => {
       }
     );
 
-    // 현재 KST 시간 계산
     const now = new Date();
     const kstHour = (now.getUTCHours() + 9) % 24;
-    console.log(`Current KST hour: ${kstHour}`);
+    const kstMinute = now.getUTCMinutes() < 30 ? 0 : 30;
+    console.log(`Current KST slot: ${kstHour}:${kstMinute === 0 ? "00" : "30"}`);
 
-    // 알림 활성화 + 현재 시간대에 알림 받기를 원하는 사용자만 조회
-    const { data: usersWithTokens, error: usersError } = await supabaseClient
-      .from("fcm_tokens")
-      .select("user_id, token, preferred_hour, daily_reminder_enabled, goal_achievement_enabled, announcements_enabled")
-      .eq("notification_enabled", true)
-      .eq("preferred_hour", kstHour)
-      .order("user_id");
-
-    if (usersError) {
-      console.error("Error fetching users with tokens:", usersError);
-      return new Response(
-        JSON.stringify({
-          error: "Failed to fetch users",
-          details: usersError.message,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!usersWithTokens || usersWithTokens.length === 0) {
-      return new Response(
-        JSON.stringify({
-          message: `No users with FCM tokens found for hour ${kstHour} KST`,
-          currentHourKST: kstHour,
-          sent: 0,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const userTokensMap = new Map<string, { tokens: string[]; dailyReminder: boolean; goalAchievement: boolean; announcements: boolean }>();
-    usersWithTokens.forEach((row) => {
-      const existing = userTokensMap.get(row.user_id);
-      if (existing) {
-        existing.tokens.push(row.token);
-      } else {
-        userTokensMap.set(row.user_id, {
-          tokens: [row.token],
-          dailyReminder: row.daily_reminder_enabled ?? true,
-          goalAchievement: row.goal_achievement_enabled ?? true,
-          announcements: row.announcements_enabled ?? true,
-        });
-      }
-    });
-
-    // OAuth 2.0 액세스 토큰 가져오기 (한 번만)
     const accessToken = await getAccessToken(serviceAccount);
+    const templates = await loadPushTemplates(supabaseClient);
 
-    const results: NudgeResult[] = [];
     let totalSent = 0;
-    let totalSkipped = 0;
     let totalFailed = 0;
+    let totalSkipped = 0;
 
-    // 각 사용자에 대해 넛지 분석 및 전송
-    for (const [userId, userData] of userTokensMap) {
-      try {
-        // 사용자의 독서 상태 분석
-        const nudge = await analyzeUserReadingState(supabaseClient, userId);
+    // ── Phase 1: daily_reminder ──
+    const { data: dailyReminderUsers } = await supabaseClient
+      .from("fcm_tokens")
+      .select("user_id, token, locale")
+      .eq("notification_enabled", true)
+      .eq("daily_reminder_enabled", true)
+      .eq("daily_reminder_hour", kstHour)
+      .eq("daily_reminder_minute", kstMinute);
 
-        if (!nudge) {
-          results.push({ userId, nudgeType: null, success: true });
-          totalSkipped++;
-          continue;
-        }
+    if (dailyReminderUsers && dailyReminderUsers.length > 0) {
+      const userIds = [...new Set(dailyReminderUsers.map((u: any) => u.user_id))];
 
-        const categoryEnabled = getNudgeCategoryEnabled(nudge.type, userData);
-        if (!categoryEnabled) {
-          results.push({ userId, nudgeType: nudge.type, success: true });
-          totalSkipped++;
-          continue;
-        }
+      const { data: books } = await supabaseClient
+        .from("books")
+        .select("user_id, title, status")
+        .in("user_id", userIds)
+        .eq("status", "reading")
+        .order("updated_at", { ascending: false });
 
-        // FCM 푸시 전송
-        const sendResults = await Promise.allSettled(
-          userData.tokens.map((fcmToken) =>
-            sendFCMMessage(
-              accessToken,
-              serviceAccount.project_id,
-              fcmToken,
-              nudge.title,
-              nudge.body,
-              {
-                type: "smart_nudge",
-                nudgeType: nudge.type,
-                ...nudge.data,
-              }
-            )
-          )
-        );
-
-        const successCount = sendResults.filter(
-          (r) => r.status === "fulfilled"
-        ).length;
-
-        if (successCount > 0) {
-          results.push({ userId, nudgeType: nudge.type, success: true });
-          totalSent++;
-
-          // push_logs에 발송 기록 저장
-          await supabaseClient.from("push_logs").insert({
-            user_id: userId,
-            push_type: nudge.type,
-            book_id: nudge.data?.bookId || null,
-            title: nudge.title,
-            body: nudge.body,
-          });
-        } else {
-          results.push({
-            userId,
-            nudgeType: nudge.type,
-            success: false,
-            error: "All sends failed",
-          });
-          totalFailed++;
-        }
-
-        // 무효한 토큰 정리
-        const failedTokens: string[] = [];
-        sendResults.forEach((result, index) => {
-          if (result.status === "rejected") {
-            const error =
-              (result as PromiseRejectedResult).reason?.message || "";
-            if (
-              error.includes("UNREGISTERED") ||
-              error.includes("INVALID_ARGUMENT")
-            ) {
-              failedTokens.push(userData.tokens[index]);
-            }
+      const userBookMap = new Map<string, string>();
+      if (books) {
+        books.forEach((b: any) => {
+          if (!userBookMap.has(b.user_id)) {
+            userBookMap.set(b.user_id, b.title);
           }
         });
+      }
 
-        if (failedTokens.length > 0) {
-          await supabaseClient
-            .from("fcm_tokens")
-            .delete()
-            .in("token", failedTokens);
-          console.log(
-            `Removed ${failedTokens.length} invalid tokens for user ${userId}`
-          );
-        }
-      } catch (error) {
-        console.error(`Error processing user ${userId}:`, error);
-        results.push({
-          userId,
-          nudgeType: null,
-          success: false,
-          error: error.message,
+      for (const user of dailyReminderUsers) {
+        const bookTitle = userBookMap.get(user.user_id) || "";
+        const variables: Record<string, string> = { bookTitle };
+
+        const result = await sendToTargets(
+          accessToken,
+          serviceAccount.project_id,
+          [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
+          "daily_reminder",
+          variables,
+          templates,
+          supabaseClient,
+          {}
+        );
+        totalSent += result.sent;
+        totalFailed += result.failed;
+      }
+      console.log(`daily_reminder: ${dailyReminderUsers.length} targets`);
+    }
+
+    // ── Phase 1: goal_alarm ──
+    const { data: goalAlarmUsers } = await supabaseClient
+      .from("fcm_tokens")
+      .select("user_id, token, locale")
+      .eq("notification_enabled", true)
+      .eq("goal_alarm_enabled", true)
+      .eq("goal_alarm_hour", kstHour)
+      .eq("goal_alarm_minute", kstMinute);
+
+    if (goalAlarmUsers && goalAlarmUsers.length > 0) {
+      const userIds = [...new Set(goalAlarmUsers.map((u: any) => u.user_id))];
+
+      const { data: books } = await supabaseClient
+        .from("books")
+        .select("user_id, id, title, current_page, total_pages, target_date, status")
+        .in("user_id", userIds)
+        .eq("status", "reading")
+        .not("target_date", "is", null)
+        .order("target_date", { ascending: true });
+
+      const userGoalMap = new Map<string, any>();
+      if (books) {
+        books.forEach((b: any) => {
+          if (!userGoalMap.has(b.user_id)) {
+            userGoalMap.set(b.user_id, b);
+          }
         });
-        totalFailed++;
+      }
+
+      for (const user of goalAlarmUsers) {
+        const book = userGoalMap.get(user.user_id);
+        if (!book) {
+          totalSkipped++;
+          continue;
+        }
+
+        const daysLeft = Math.max(
+          0,
+          Math.ceil(
+            (new Date(book.target_date).getTime() - now.getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        );
+        const remainingPages = Math.max(0, book.total_pages - book.current_page);
+        const targetPages = daysLeft > 0 ? Math.ceil(remainingPages / daysLeft) : remainingPages;
+
+        let templateType = "goal_alarm";
+        const variables: Record<string, string> = {
+          bookTitle: book.title,
+          targetPages: String(targetPages),
+          daysLeft: String(daysLeft),
+          percent: String(
+            book.total_pages > 0
+              ? Math.round((book.current_page / book.total_pages) * 100)
+              : 0
+          ),
+        };
+
+        if (daysLeft === 0 || !book.target_date) {
+          templateType = "daily_reminder";
+          variables.bookTitle = book.title;
+        }
+
+        const result = await sendToTargets(
+          accessToken,
+          serviceAccount.project_id,
+          [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
+          templateType,
+          variables,
+          templates,
+          supabaseClient,
+          { bookId: book.id, bookTitle: book.title }
+        );
+        totalSent += result.sent;
+        totalFailed += result.failed;
+      }
+      console.log(`goal_alarm: ${goalAlarmUsers.length} targets`);
+    }
+
+    // ── Phase 2: event nudge (batch SQL) ──
+    const { data: eligibleNudges } = await supabaseClient.rpc(
+      "get_eligible_event_nudges",
+      {}
+    ).catch(() => ({ data: null }));
+
+    if (!eligibleNudges) {
+      const nudgeResult = await processEventNudgesFallback(
+        supabaseClient,
+        accessToken,
+        serviceAccount.project_id,
+        templates,
+        now
+      );
+      totalSent += nudgeResult.sent;
+      totalFailed += nudgeResult.failed;
+      totalSkipped += nudgeResult.skipped;
+    } else {
+      for (const nudge of eligibleNudges) {
+        const { data: tokenData } = await supabaseClient
+          .from("fcm_tokens")
+          .select("token, locale")
+          .eq("user_id", nudge.user_id)
+          .eq("notification_enabled", true)
+          .eq("event_nudge_enabled", true);
+
+        if (!tokenData || tokenData.length === 0) {
+          totalSkipped++;
+          continue;
+        }
+
+        const targets: PushTarget[] = tokenData.map((t: any) => ({
+          userId: nudge.user_id,
+          token: t.token,
+          locale: t.locale || "ko",
+        }));
+
+        const result = await sendToTargets(
+          accessToken,
+          serviceAccount.project_id,
+          targets,
+          nudge.nudge_type,
+          nudge.variables || {},
+          templates,
+          supabaseClient,
+          { bookId: nudge.book_id || "", bookTitle: nudge.variables?.bookTitle || "" }
+        );
+        totalSent += result.sent;
+        totalFailed += result.failed;
       }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        currentHourKST: kstHour,
+        currentSlotKST: `${kstHour}:${kstMinute === 0 ? "00" : "30"}`,
         summary: {
-          totalUsers: userTokensMap.size,
           sent: totalSent,
           skipped: totalSkipped,
           failed: totalFailed,
         },
-        details: results,
       }),
       {
         status: 200,
@@ -380,7 +476,7 @@ serve(async (req) => {
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
@@ -392,145 +488,138 @@ serve(async (req) => {
   }
 });
 
-// 푸시 템플릿 캐시
-let templatesCache: Map<string, { title: string; body_template: string }> | null = null;
+async function processEventNudgesFallback(
+  supabaseClient: any,
+  accessToken: string,
+  projectId: string,
+  templates: Map<string, TemplateRow>,
+  now: Date
+): Promise<{ sent: number; failed: number; skipped: number }> {
+  let sent = 0;
+  let failed = 0;
+  let skipped = 0;
 
-// 푸시 템플릿 로드
-async function loadPushTemplates(supabaseClient: any): Promise<Map<string, { title: string; body_template: string }>> {
-  if (templatesCache) return templatesCache;
+  const { data: nudgeUsers } = await supabaseClient
+    .from("fcm_tokens")
+    .select("user_id, token, locale")
+    .eq("notification_enabled", true)
+    .eq("event_nudge_enabled", true);
 
-  const { data: templates } = await supabaseClient
-    .from("push_templates")
-    .select("type, title, body_template")
-    .eq("is_active", true);
+  if (!nudgeUsers || nudgeUsers.length === 0) return { sent, failed, skipped };
 
-  templatesCache = new Map();
-  if (templates) {
-    templates.forEach((t: any) => {
-      templatesCache!.set(t.type, { title: t.title, body_template: t.body_template });
+  const userTokensMap = new Map<string, PushTarget[]>();
+  nudgeUsers.forEach((row: any) => {
+    const targets = userTokensMap.get(row.user_id) || [];
+    targets.push({ userId: row.user_id, token: row.token, locale: row.locale || "ko" });
+    userTokensMap.set(row.user_id, targets);
+  });
+
+  const userIds = [...userTokensMap.keys()];
+
+  const todayStr = now.toISOString().split("T")[0];
+  const { data: todayLogs } = await supabaseClient
+    .from("push_logs")
+    .select("user_id, push_type")
+    .in("user_id", userIds)
+    .in("push_type", ["inactive", "deadline", "progress", "streak", "achievement"])
+    .gte("created_at", `${todayStr}T00:00:00`);
+
+  const sentToday = new Set<string>();
+  if (todayLogs) {
+    todayLogs.forEach((log: any) => {
+      sentToday.add(`${log.user_id}:${log.push_type}`);
     });
   }
-  return templatesCache;
-}
 
-// 템플릿 변수 치환
-function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
-  let result = template;
-  for (const [key, value] of Object.entries(variables)) {
-    result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
-  }
-  return result;
-}
-
-// 사용자의 독서 상태를 분석하여 맞춤형 넛지 생성
-async function analyzeUserReadingState(
-  supabaseClient: any,
-  userId: string
-): Promise<NudgeAnalysis | null> {
-  const now = new Date();
-
-  // 1. 사용자의 활성 책 목록 가져오기
-  const { data: books, error: booksError } = await supabaseClient
+  const { data: books } = await supabaseClient
     .from("books")
-    .select("*")
-    .eq("user_id", userId)
+    .select("user_id, id, title, current_page, total_pages, target_date, updated_at, status")
+    .in("user_id", userIds)
     .order("updated_at", { ascending: false });
 
-  if (booksError || !books || books.length === 0) {
-    return null;
-  }
+  if (!books || books.length === 0) return { sent, failed, skipped };
 
-  // 2. 마지막 독서 시간 확인
-  const lastBook = books[0];
-  const lastReadingDate = lastBook.updated_at
-    ? new Date(lastBook.updated_at)
-    : null;
-  const daysSinceLastReading = lastReadingDate
-    ? Math.floor(
-        (now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24)
-      )
-    : null;
-
-  // 3. 가장 최근 책 정보
-  const currentBook = books[0];
-  const progress =
-    currentBook.total_pages > 0
-      ? currentBook.current_page / currentBook.total_pages
-      : 0;
-  const targetDate = currentBook.target_date
-    ? new Date(currentBook.target_date)
-    : null;
-  const daysUntilDeadline = targetDate
-    ? Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    : null;
-
-  // 4. 독서 연속일 계산
-  const sevenDaysAgo = new Date(now);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  const readingDates = new Set<string>();
-  books.forEach((book: any) => {
-    if (book.updated_at) {
-      const date = new Date(book.updated_at);
-      if (date >= sevenDaysAgo) {
-        readingDates.add(
-          `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
-        );
-      }
-    }
+  const userBooksMap = new Map<string, any[]>();
+  books.forEach((b: any) => {
+    const list = userBooksMap.get(b.user_id) || [];
+    list.push(b);
+    userBooksMap.set(b.user_id, list);
   });
-  const streak = readingDates.size;
 
-  // 5. 넛지 타입 결정 (우선순위: 비활성 > 마감일 임박 > 진행률 > 연속일)
-  let nudgeType: string = "";
-  let variables: Record<string, string> = {};
+  for (const [userId, targets] of userTokensMap) {
+    const userBooks = userBooksMap.get(userId);
+    if (!userBooks || userBooks.length === 0) {
+      skipped++;
+      continue;
+    }
 
-  if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
-    nudgeType = "inactive";
-    variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
-  } else if (
-    daysUntilDeadline !== null &&
-    daysUntilDeadline > 0 &&
-    daysUntilDeadline <= 3
-  ) {
-    nudgeType = "deadline";
-    variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
-  } else if (progress >= 0.8 && progress < 1.0) {
-    nudgeType = "progress";
-    variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
-  } else if (streak > 0 && streak < 7) {
-    nudgeType = "streak";
-    variables = { days: String(streak) };
-  } else {
-    return null;
+    const currentBook = userBooks[0];
+    const lastReadingDate = currentBook.updated_at ? new Date(currentBook.updated_at) : null;
+    const daysSinceLastReading = lastReadingDate
+      ? Math.floor((now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    const progress =
+      currentBook.total_pages > 0 ? currentBook.current_page / currentBook.total_pages : 0;
+    const targetDate = currentBook.target_date ? new Date(currentBook.target_date) : null;
+    const daysUntilDeadline = targetDate
+      ? Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const readingDates = new Set<string>();
+    userBooks.forEach((book: any) => {
+      if (book.updated_at) {
+        const date = new Date(book.updated_at);
+        if (date >= sevenDaysAgo) {
+          readingDates.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+        }
+      }
+    });
+    const streak = readingDates.size;
+
+    let nudgeType = "";
+    let variables: Record<string, string> = {};
+
+    if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
+      nudgeType = "inactive";
+      variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
+    } else if (progress >= 1.0 && currentBook.status === "reading") {
+      nudgeType = "achievement";
+      variables = { bookTitle: currentBook.title };
+    } else if (daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 3) {
+      nudgeType = "deadline";
+      variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
+    } else if (progress >= 0.8 && progress < 1.0) {
+      nudgeType = "progress";
+      variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
+    } else if (streak > 0 && streak < 7) {
+      nudgeType = "streak";
+      variables = { days: String(streak) };
+    } else {
+      skipped++;
+      continue;
+    }
+
+    if (sentToday.has(`${userId}:${nudgeType}`)) {
+      skipped++;
+      continue;
+    }
+
+    const result = await sendToTargets(
+      accessToken,
+      projectId,
+      targets,
+      nudgeType,
+      variables,
+      templates,
+      supabaseClient,
+      { bookId: currentBook.id, bookTitle: currentBook.title }
+    );
+    sent += result.sent;
+    failed += result.failed;
   }
 
-  // 6. 템플릿에서 메시지 생성
-  const templates = await loadPushTemplates(supabaseClient);
-  const template = templates.get(nudgeType);
-
-  let title = "";
-  let body = "";
-
-  if (template) {
-    title = template.title;
-    body = replaceTemplateVariables(template.body_template, variables);
-  } else {
-    // 템플릿이 없을 경우 기본 메시지 (fallback)
-    title = "독서 알림 📚";
-    body = "오늘도 독서 목표를 향해 나아가세요!";
-  }
-
-  const data: Record<string, string> = {
-    bookId: currentBook.id,
-    bookTitle: currentBook.title,
-    ...variables,
-  };
-
-  return {
-    type: nudgeType as any,
-    title,
-    body,
-    data,
-  };
+  return { sent, failed, skipped };
 }

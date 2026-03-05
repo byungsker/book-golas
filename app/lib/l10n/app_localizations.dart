@@ -4942,6 +4942,48 @@ abstract class AppLocalizations {
   /// **'교보문고'**
   String get bookstoreKyobo;
 
+  /// New bookstore search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'서점 검색'**
+  String get bookstoreTabNew;
+
+  /// Used book search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'중고 검색'**
+  String get bookstoreTabUsed;
+
+  /// Search suffix text
+  ///
+  /// In ko, this message translates to:
+  /// **'검색'**
+  String get bookstoreSearchSuffix;
+
+  /// Aladin used books
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고'**
+  String get bookstoreAladdinUsed;
+
+  /// Aladin used book physical store
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고매장'**
+  String get bookstoreAladdinUsedStore;
+
+  /// Yes24 used books
+  ///
+  /// In ko, this message translates to:
+  /// **'Yes24 중고'**
+  String get bookstoreYes24Used;
+
+  /// Snackbar message when book title is copied
+  ///
+  /// In ko, this message translates to:
+  /// **'제목이 복사되었습니다'**
+  String get bookInfoTitleCopied;
+
   /// No description provided for @expandedNavBackToDetail.
   ///
   /// In ko, this message translates to:
@@ -6221,6 +6263,12 @@ abstract class AppLocalizations {
   /// **'잠시 후 다시 시도해주세요.'**
   String get loginResendVerificationCooldown;
 
+  /// Email rate limit exceeded error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'**
+  String get loginErrorEmailRateLimit;
+
   /// Signup with existing email error message
   ///
   /// In ko, this message translates to:
@@ -6377,11 +6425,23 @@ abstract class AppLocalizations {
   /// **'매일 독서 리마인드'**
   String get myPageNotificationDailyReminder;
 
-  /// Reading goal achievement notification
+  /// Goal alarm notification setting
   ///
   /// In ko, this message translates to:
-  /// **'독서 목표 달성'**
-  String get myPageNotificationGoalAchievement;
+  /// **'독서 목표 알람'**
+  String get myPageNotificationGoalAlarm;
+
+  /// Event nudge notification setting
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 넛지 알림'**
+  String get myPageNotificationEventNudge;
+
+  /// Goal alarm notification subtitle with time
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 {time}에 독서 현황 확인'**
+  String myPageNotificationGoalAlarmSubtitle(String time);
 
   /// Password changed success message
   ///
@@ -6508,6 +6568,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'구독 서비스를 현재 이용할 수 없습니다.'**
   String get subscriptionUnavailable;
+
+  /// Error when new password is same as old
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호는 기존 비밀번호와 달라야 합니다'**
+  String get myPagePasswordSameAsOld;
+
+  /// Password recovery screen title
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 설정'**
+  String get passwordRecoveryTitle;
+
+  /// Password recovery screen description
+  ///
+  /// In ko, this message translates to:
+  /// **'사용하실 새 비밀번호를 입력해주세요'**
+  String get passwordRecoveryDescription;
+
+  /// New password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호'**
+  String get passwordRecoveryNewPassword;
+
+  /// Confirm password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 확인'**
+  String get passwordRecoveryConfirmPassword;
+
+  /// Password recovery submit button
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경'**
+  String get passwordRecoveryButton;
+
+  /// Password recovery success message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.'**
+  String get passwordRecoverySuccess;
+
+  /// Password recovery failed message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경에 실패했습니다'**
+  String get passwordRecoveryFailed;
 }
 
 class _AppLocalizationsDelegate

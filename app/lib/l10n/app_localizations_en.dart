@@ -2701,6 +2701,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookstoreKyobo => 'Kyobo';
 
   @override
+  String get bookstoreTabNew => 'Bookstores';
+
+  @override
+  String get bookstoreTabUsed => 'Used Books';
+
+  @override
+  String get bookstoreSearchSuffix => 'search';
+
+  @override
+  String get bookstoreAladdinUsed => 'Aladin Used';
+
+  @override
+  String get bookstoreAladdinUsedStore => 'Aladin Used Store';
+
+  @override
+  String get bookstoreYes24Used => 'Yes24 Used';
+
+  @override
+  String get bookInfoTitleCopied => 'Title copied';
+
+  @override
   String get expandedNavBackToDetail => 'Back to Detail';
 
   @override
@@ -3413,6 +3434,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginResendVerificationCooldown => 'Please try again in a moment.';
 
   @override
+  String get loginErrorEmailRateLimit =>
+      'Email send limit exceeded. Please try again later.';
+
+  @override
   String get loginSignupExistingEmail =>
       'This email is already registered. Please try logging in.';
 
@@ -3493,7 +3518,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationDailyReminder => 'Daily Reading Reminder';
 
   @override
-  String get myPageNotificationGoalAchievement => 'Reading Goal Achievement';
+  String get myPageNotificationGoalAlarm => 'Reading Goal Alarm';
+
+  @override
+  String get myPageNotificationEventNudge => 'Event Nudge Notifications';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return 'Check reading status daily at $time';
+  }
 
   @override
   String get myPagePasswordChanged => 'Password changed successfully';
@@ -3565,4 +3598,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get subscriptionUnavailable =>
       'Subscription service is currently unavailable.';
+
+  @override
+  String get myPagePasswordSameAsOld =>
+      'New password must be different from the current password';
+
+  @override
+  String get passwordRecoveryTitle => 'Set New Password';
+
+  @override
+  String get passwordRecoveryDescription => 'Enter your new password';
+
+  @override
+  String get passwordRecoveryNewPassword => 'New Password';
+
+  @override
+  String get passwordRecoveryConfirmPassword => 'Confirm New Password';
+
+  @override
+  String get passwordRecoveryButton => 'Change Password';
+
+  @override
+  String get passwordRecoverySuccess =>
+      'Password changed successfully. Please log in with your new password.';
+
+  @override
+  String get passwordRecoveryFailed => 'Failed to change password';
 }

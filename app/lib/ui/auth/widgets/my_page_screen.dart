@@ -171,6 +171,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   Future<void> _showTimePicker({
     required int initialHour,
     required int initialMinute,
+    required String type,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     int selectedHour = initialHour;
@@ -230,7 +231,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                       onPressed: () async {
                         Navigator.pop(sheetContext);
                         await _saveNotificationTime(
-                            selectedHour, selectedMinute);
+                            selectedHour, selectedMinute, type);
                       },
                       child: Text(
                         AppLocalizations.of(context).commonConfirm,
@@ -262,26 +263,35 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Future<void> _saveNotificationTime(int hour, int minute) async {
+  Future<void> _saveNotificationTime(
+      int hour, int minute, String type) async {
     final settingsViewModel = context.read<NotificationSettingsViewModel>();
-    final success = await settingsViewModel.updatePreferredTime(hour, minute);
 
-    if (success) {
-      await FCMService().scheduleDailyNotification(
-        hour: hour,
-        minute: minute,
-      );
-
-      if (mounted) {
-        CustomSnackbar.show(
-          context,
-          message: AppLocalizations.of(context)
-              .myPageNotificationTime(settingsViewModel.getFormattedTime()),
-          type: BLabSnackbarType.success,
-          bottomOffset: 32,
-        );
+    bool success;
+    if (type == 'goalAlarm') {
+      success = await settingsViewModel.updateGoalAlarmTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleGoalAlarm(hour: hour, minute: minute);
       }
-    } else if (mounted) {
+    } else {
+      success = await settingsViewModel.updateDailyReminderTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleDailyReminder(hour: hour, minute: minute);
+      }
+    }
+
+    if (success && mounted) {
+      final formattedTime = type == 'goalAlarm'
+          ? settingsViewModel.getFormattedGoalAlarmTime()
+          : settingsViewModel.getFormattedDailyReminderTime();
+      CustomSnackbar.show(
+        context,
+        message: AppLocalizations.of(context)
+            .myPageNotificationTime(formattedTime),
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+    } else if (!success && mounted) {
       CustomSnackbar.show(
         context,
         message: settingsViewModel.errorMessage ??
@@ -839,8 +849,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                         .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
                         ? AppLocalizations.of(context).myPageNotificationTime(
-                            _formatTime(settings.preferredHour,
-                                settings.preferredMinute))
+                            _formatTime(settings.dailyReminderHour,
+                                settings.dailyReminderMinute))
                         : AppLocalizations.of(context).myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
@@ -857,12 +867,17 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                               if (success) {
                                 if (value) {
-                                  await FCMService().scheduleDailyNotification(
-                                    hour: settings.preferredHour,
-                                    minute: settings.preferredMinute,
+                                  await FCMService().scheduleDailyReminder(
+                                    hour: settings.dailyReminderHour,
+                                    minute: settings.dailyReminderMinute,
+                                  );
+                                  await FCMService().scheduleGoalAlarm(
+                                    hour: settings.goalAlarmHour,
+                                    minute: settings.goalAlarmMinute,
                                   );
                                 } else {
-                                  await FCMService().cancelDailyNotification();
+                                  await FCMService().cancelDailyReminder();
+                                  await FCMService().cancelGoalAlarm();
                                 }
 
                                 if (mounted) {
@@ -883,7 +898,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      AppLocalizations.of(context).myPageNotificationChangeFailed,
+                                      AppLocalizations.of(context)
+                                          .myPageNotificationChangeFailed,
                                   type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
@@ -893,76 +909,151 @@ class _MyPageContentState extends State<_MyPageContent> {
                           ),
                   ),
                   if (settings.notificationEnabled) ...[
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.bookmark,
+                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
+                      subtitle: settings.dailyReminderEnabled
+                          ? _formatTime(settings.dailyReminderHour,
+                              settings.dailyReminderMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.dailyReminderEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateDailyReminderEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleDailyReminder(
+                                      hour: settings.dailyReminderHour,
+                                      minute: settings.dailyReminderMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelDailyReminder();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.dailyReminderEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.dailyReminderHour,
+                            settings.dailyReminderMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.dailyReminderHour,
+                                  initialMinute:
+                                      settings.dailyReminderMinute,
+                                  type: 'dailyReminder',
+                                ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
-                    BLabButton(
-                      text: _formatTime(
-                          settings.preferredHour, settings.preferredMinute),
-                      icon: Icons.access_time,
-                      variant: BLabButtonVariant.secondary,
-                      isFullWidth: true,
-                      onPressed: isLoading
-                          ? null
-                          : () => _showTimePicker(
-                                initialHour: settings.preferredHour,
-                                initialMinute: settings.preferredMinute,
-                              ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.emoji_events,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationGoalAlarm,
+                      subtitle: settings.goalAlarmEnabled
+                          ? _formatTime(settings.goalAlarmHour,
+                              settings.goalAlarmMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.goalAlarmEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateGoalAlarmEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleGoalAlarm(
+                                      hour: settings.goalAlarmHour,
+                                      minute: settings.goalAlarmMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelGoalAlarm();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.goalAlarmEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.goalAlarmHour,
+                            settings.goalAlarmMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.goalAlarmHour,
+                                  initialMinute: settings.goalAlarmMinute,
+                                  type: 'goalAlarm',
+                                ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.flash_on,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationEventNudge,
+                      trailing: Switch(
+                        value: settings.eventNudgeEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                await settingsViewModel
+                                    .updateEventNudgeEnabled(value);
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.campaign,
+                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
+                      trailing: Consumer<MyPageViewModel>(
+                        builder: (context, vm, child) {
+                          return Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                            onChanged: (value) {
+                              HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.announcements, value);
+                            },
+                            activeTrackColor: BLabColors.primary,
+                          );
+                        },
+                      ),
                     ),
                   ],
-                ],
-              );
-            },
-          ),
-          Divider(
-            height: 32,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-          ),
-          Consumer<MyPageViewModel>(
-            builder: (context, vm, child) {
-              return Column(
-                children: [
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.bookmark,
-                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.dailyReminder),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.dailyReminder, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.emoji_events,
-                    title: AppLocalizations.of(context).myPageNotificationGoalAchievement,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.goalAchievement),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.goalAchievement, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.campaign,
-                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
-                    trailing: Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.announcements, value);
-                      },
-                      activeTrackColor: BLabColors.primary,
-                    ),
-                  ),
                 ],
               );
             },
@@ -1122,268 +1213,12 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   Future<void> _showPasswordChangeSheet() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (BuildContext sheetContext) {
-        bool obscureCurrent = true;
-        bool obscureNew = true;
-        bool obscureConfirm = true;
-        bool isLoading = false;
-
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setSheetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? BLabColors.surfaceDark : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      AppLocalizations.of(this.context)
-                          .myPageChangePasswordTitle,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    BLabTextField(
-                      controller: currentPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageCurrentPassword,
-                      obscureText: obscureCurrent,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureCurrent
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureCurrent = !obscureCurrent;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    BLabTextField(
-                      controller: newPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageNewPassword,
-                      obscureText: obscureNew,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureNew
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureNew = !obscureNew;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    BLabTextField(
-                      controller: confirmPasswordController,
-                      hintText: AppLocalizations.of(this.context)
-                          .myPageConfirmPassword,
-                      obscureText: obscureConfirm,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscureConfirm
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.4),
-                        ),
-                        onPressed: () {
-                          setSheetState(() {
-                            obscureConfirm = !obscureConfirm;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: BLabButton(
-                        text: isLoading
-                            ? ''
-                            : AppLocalizations.of(this.context)
-                                .myPageChangePassword,
-                        variant: BLabButtonVariant.primary,
-                        isFullWidth: true,
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : null,
-                        onPressed: isLoading
-                            ? null
-                            : () async {
-                                final currentPw =
-                                    currentPasswordController.text;
-                      final newPw = newPasswordController.text;
-                                final confirmPw =
-                                    confirmPasswordController.text;
-
-                                if (currentPw.isEmpty) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPageCurrentPasswordRequired,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-                      if (newPw.length < 6) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordTooShort,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-                      if (newPw != confirmPw) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordMismatch,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                  return;
-                                }
-
-                                setSheetState(() {
-                                  isLoading = true;
-                                });
-
-                                final verifyError =
-                                    await AuthService()
-                                        .verifyCurrentPassword(
-                                            currentPw);
-                                if (verifyError != null) {
-                                  setSheetState(() {
-                                    isLoading = false;
-                                  });
-                                  if (mounted) {
-                                    CustomSnackbar.show(
-                                      this.context,
-                                      message:
-                                          AppLocalizations.of(
-                                                  this.context)
-                                              .myPageWrongCurrentPassword,
-                                      type:
-                                          BLabSnackbarType.error,
-                                      bottomOffset: 32,
-                                    );
-                                  }
-                                  return;
-                                }
-
-                                final updateError =
-                                    await AuthService()
-                                        .updatePassword(newPw);
-                                setSheetState(() {
-                                  isLoading = false;
-                                });
-                      if (sheetContext.mounted) {
-                                  Navigator.pop(sheetContext);
-                                }
-                                if (updateError == null &&
-                                    mounted) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordChanged,
-                          type: BLabSnackbarType.success,
-                                    bottomOffset: 32,
-                                  );
-                                } else if (mounted) {
-                                  CustomSnackbar.show(
-                                    this.context,
-                                    message:
-                                        AppLocalizations.of(
-                                                this.context)
-                                            .myPagePasswordChangeErrorDetail(
-                                                updateError ??
-                                                    ''),
-                                    type:
-                                        BLabSnackbarType.error,
-                                    bottomOffset: 32,
-                                  );
-                                }
-                              },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      builder: (_) => const _PasswordChangeSheet(),
     );
-
-    currentPasswordController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose();
   }
 
   Widget _buildInfoCard(BuildContext context) {
@@ -1613,6 +1448,231 @@ class _MyPageContentState extends State<_MyPageContent> {
               const SizedBox(height: 8),
               _buildVersionInfo(context),
               const SizedBox(height: 80),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class _PasswordChangeSheet extends StatefulWidget {
+  const _PasswordChangeSheet();
+
+  @override
+  State<_PasswordChangeSheet> createState() => _PasswordChangeSheetState();
+}
+
+class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentController.addListener(() => setState(() {}));
+    _newController.addListener(() => setState(() {}));
+    _confirmController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final currentPw = _currentController.text;
+    final newPw = _newController.text;
+    final confirmPw = _confirmController.text;
+
+    if (currentPw.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPageCurrentPasswordRequired,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw.length < 6) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordTooShort,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw != confirmPw) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordMismatch,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final error = await AuthService().updatePassword(newPw);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (error == null) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordChanged,
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+      Navigator.pop(context);
+    } else {
+      final message =
+          error.contains('same as') || error.contains('different')
+              ? l10n.myPagePasswordSameAsOld
+              : l10n.myPagePasswordChangeErrorDetail(error);
+      CustomSnackbar.show(
+        context,
+        message: message,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+    }
+
+  }
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String hint,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor =
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4);
+    return BLabTextField(
+      controller: controller,
+      hintText: hint,
+      obscureText: obscure,
+      suffixIcon: IntrinsicWidth(
+        child: Row(
+          children: [
+            if (controller.text.isNotEmpty)
+              IconButton(
+                icon: Icon(Icons.close, size: 18, color: iconColor),
+                onPressed: () => controller.clear(),
+              ),
+            IconButton(
+              icon: Icon(
+                obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 20,
+                color: iconColor,
+              ),
+              onPressed: onToggle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                l10n.myPageChangePasswordTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildPasswordField(
+                controller: _currentController,
+                hint: l10n.myPageCurrentPassword,
+                obscure: _obscureCurrent,
+                onToggle: () =>
+                    setState(() => _obscureCurrent = !_obscureCurrent),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _newController,
+                hint: l10n.myPageNewPassword,
+                obscure: _obscureNew,
+                onToggle: () => setState(() => _obscureNew = !_obscureNew),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _confirmController,
+                hint: l10n.myPageConfirmPassword,
+                obscure: _obscureConfirm,
+                onToggle: () =>
+                    setState(() => _obscureConfirm = !_obscureConfirm),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: BLabButton(
+                  text: _isLoading ? '' : l10n.myPageChangePassword,
+                  variant: BLabButtonVariant.primary,
+                  isFullWidth: true,
+                  onPressed: _isLoading ? null : _submit,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
             ],
           ),
         ),

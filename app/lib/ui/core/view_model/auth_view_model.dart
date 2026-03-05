@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/repositories/auth_repository.dart';
 import 'package:book_golas/domain/models/user_model.dart';
+import 'package:book_golas/ui/auth/widgets/password_recovery_screen.dart';
+import 'package:book_golas/main.dart';
 
 class AuthViewModel extends BaseViewModel {
   final AuthRepository _authRepository;
@@ -38,6 +41,16 @@ class AuthViewModel extends BaseViewModel {
         case AuthChangeEvent.signedOut:
           _currentUser = null;
           notifyListeners();
+          break;
+        case AuthChangeEvent.passwordRecovery:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => const PasswordRecoveryScreen(),
+              ),
+              (route) => route.isFirst,
+            );
+          });
           break;
         default:
           break;
