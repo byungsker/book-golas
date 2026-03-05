@@ -59,6 +59,7 @@ export default function PushTemplatesPage() {
       const { error } = await supabase
         .from("push_templates")
         .update({
+          name: editingTemplate.name,
           title: editingTemplate.title,
           body_template: editingTemplate.body_template,
           title_en: editingTemplate.title_en,
@@ -115,6 +116,7 @@ export default function PushTemplatesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-32">Type</TableHead>
+                <TableHead className="w-28">Name</TableHead>
                 <TableHead>Title (KO)</TableHead>
                 <TableHead>Title (EN)</TableHead>
                 <TableHead>Body Template (KO)</TableHead>
@@ -129,6 +131,7 @@ export default function PushTemplatesPage() {
                   <TableCell>
                     <Badge variant="outline">{template.type}</Badge>
                   </TableCell>
+                  <TableCell className="text-sm">{template.name || "-"}</TableCell>
                   <TableCell className="font-medium">{template.title}</TableCell>
                   <TableCell className="text-muted-foreground">{template.title_en || "-"}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">
@@ -189,6 +192,19 @@ export default function PushTemplatesPage() {
           </DialogHeader>
           {editingTemplate && (
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={editingTemplate.name || ""}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="title">Title (KO)</Label>
                 <Input
