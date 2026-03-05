@@ -8,6 +8,7 @@ export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 export type PushTemplate = {
   id: string;
   type: string;
+  name: string | null;
   title: string;
   body_template: string;
   title_en: string | null;
