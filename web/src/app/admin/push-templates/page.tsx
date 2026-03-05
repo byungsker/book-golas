@@ -120,6 +120,7 @@ export default function PushTemplatesPage() {
                 <TableHead>Title (KO)</TableHead>
                 <TableHead>Title (EN)</TableHead>
                 <TableHead>Body Template (KO)</TableHead>
+                <TableHead>Body Template (EN)</TableHead>
                 <TableHead className="w-24 text-center">Active</TableHead>
                 <TableHead className="w-24 text-center">Priority</TableHead>
                 <TableHead className="w-24 text-center">Edit</TableHead>
@@ -136,6 +137,9 @@ export default function PushTemplatesPage() {
                   <TableCell className="text-muted-foreground">{template.title_en || "-"}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">
                     {template.body_template}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground max-w-xs truncate">
+                    {template.body_template_en || "-"}
                   </TableCell>
                   <TableCell className="text-center">
                     <Switch
