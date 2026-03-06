@@ -12,12 +12,14 @@ CREATE TABLE IF NOT EXISTS push_announcements (
 
 ALTER TABLE push_announcements ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role full access on push_announcements" ON push_announcements;
 CREATE POLICY "Service role full access on push_announcements"
   ON push_announcements
   FOR ALL
   USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Authenticated users can read push_announcements" ON push_announcements;
 CREATE POLICY "Authenticated users can read push_announcements"
   ON push_announcements
   FOR SELECT
