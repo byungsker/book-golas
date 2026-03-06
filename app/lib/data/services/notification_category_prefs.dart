@@ -15,8 +15,10 @@ extension NotificationCategoryColumn on NotificationCategory {
     switch (this) {
       case NotificationCategory.dailyReminder:
         return 'daily_reminder_enabled';
-      case NotificationCategory.goalAchievement:
-        return 'goal_achievement_enabled';
+      case NotificationCategory.goalAlarm:
+        return 'goal_alarm_enabled';
+      case NotificationCategory.eventNudge:
+        return 'event_nudge_enabled';
       case NotificationCategory.announcements:
         return 'announcements_enabled';
     }
@@ -50,7 +52,7 @@ class NotificationCategoryPrefs {
       final response = await _supabase
           .from('fcm_tokens')
           .select(
-              'daily_reminder_enabled, goal_achievement_enabled, announcements_enabled')
+          'daily_reminder_enabled, goal_alarm_enabled, event_nudge_enabled, announcements_enabled')
           .eq('user_id', userId)
           .limit(1)
           .maybeSingle();
