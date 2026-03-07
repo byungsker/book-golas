@@ -202,37 +202,66 @@ function PhoneMockup() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 mb-1">
+          <div className="mb-2 px-1">
             <div
-              className="w-7 h-7 rounded-xl flex items-center justify-center text-sm"
-              style={{
-                background: "rgba(91,127,255,0.18)",
-                border: "1px solid rgba(91,127,255,0.25)",
-              }}
+              className="text-white font-semibold"
+              style={{ fontSize: 14, fontFamily: "var(--font-display)" }}
             >
-              📚
-            </div>
-            <div>
-              <div
-                className="text-white font-semibold text-sm"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                {t("headerTitle")}
-              </div>
-              <div
-                style={{ fontSize: 10, color: "rgba(255,255,255,0.38)" }}
-              >
-                {t("todayGoal")}
-              </div>
+              {t("headerTitle")}
             </div>
           </div>
 
           <div
-            className="mb-3 ml-0.5 flex items-center gap-1"
-            style={{ fontSize: 10, color: "rgba(245,158,11,0.75)" }}
+            className="rounded-2xl px-3 py-2 mb-2"
+            style={{
+              background: "linear-gradient(135deg, rgba(91,127,255,0.35), rgba(91,127,255,0.15))",
+              border: "0.5px solid rgba(91,127,255,0.4)",
+            }}
           >
-            <span>🔥</span>
-            <span>7{t("streakLabel")}</span>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-6 h-6 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(245,158,11,0.15)" }}
+              >
+                <span style={{ fontSize: 10 }}>⭐</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>
+                  Pro로 업그레이드
+                </div>
+                <div style={{ fontSize: 7.5, color: "rgba(255,255,255,0.5)" }}>
+                  AI 기록 검색, 무제한 독서 목표
+                </div>
+              </div>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>✕</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 mb-2 px-0.5">
+            <span
+              className="px-2.5 py-1 rounded-full"
+              style={{ fontSize: 8.5, fontWeight: 600, background: "#fff", color: "#000" }}
+            >
+              독서 중
+            </span>
+            <span
+              className="px-2.5 py-1 rounded-full"
+              style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              읽을 예정
+            </span>
+            <span
+              className="px-2.5 py-1 rounded-full"
+              style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              완독
+            </span>
+            <span
+              className="px-2.5 py-1 rounded-full"
+              style={{ fontSize: 7.5, fontWeight: 500, color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              ···
+            </span>
           </div>
 
           <div className="flex flex-col gap-2 flex-1 overflow-hidden">
@@ -950,7 +979,7 @@ export default function Page() {
             alt={t("nav.appName")}
             width={32}
             height={32}
-            className="rounded-xl"
+            className="rounded-[4px]"
           />
           <span
             className="font-bold text-white text-lg"
@@ -1440,7 +1469,7 @@ export default function Page() {
               alt={t("nav.appName")}
               width={80}
               height={80}
-              className="rounded-[22px]"
+              className="rounded-[4px]"
               style={{
                 boxShadow:
                   "0 0 40px rgba(91,127,255,0.38), 0 20px 40px rgba(0,0,0,0.5)",
@@ -1497,7 +1526,7 @@ export default function Page() {
                 alt={t("nav.appName")}
                 width={24}
                 height={24}
-                className="rounded-lg"
+                className="rounded-[4px]"
               />
               <span
                 className="font-semibold text-sm"
