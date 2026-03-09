@@ -4984,6 +4984,18 @@ abstract class AppLocalizations {
   /// **'제목이 복사되었습니다'**
   String get bookInfoTitleCopied;
 
+  /// Button to expand truncated book title
+  ///
+  /// In ko, this message translates to:
+  /// **'펼치기'**
+  String get bookInfoExpandTitle;
+
+  /// Button to collapse expanded book title
+  ///
+  /// In ko, this message translates to:
+  /// **'접기'**
+  String get bookInfoCollapseTitle;
+
   /// No description provided for @expandedNavBackToDetail.
   ///
   /// In ko, this message translates to:

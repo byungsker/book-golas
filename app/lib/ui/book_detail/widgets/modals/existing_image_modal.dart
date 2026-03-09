@@ -1278,7 +1278,7 @@ void showExistingImageModal({
     context: context,
     isScrollControlled: true,
     isDismissible: true,
-    enableDrag: false,
+    enableDrag: true,
     backgroundColor: Colors.transparent,
     builder: (modalContext) => ExistingImageModal(
       imageId: imageId,
