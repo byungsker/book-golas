@@ -11,6 +11,7 @@ import 'package:book_golas/ui/core/theme/app_colors.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/ui/core/view_model/ad_view_model.dart';
 
 /// Floating Timer Bar with smooth animation
 ///
@@ -328,6 +329,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shouldShowAds = context.watch<AdViewModel>().shouldShowAds;
 
     return Consumer<ReadingTimerViewModel>(
       builder: (context, timerVm, child) {
@@ -379,7 +381,7 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
               child: Padding(
                 padding: EdgeInsets.only(
                   left: 16,
-                  bottom: widget.hasBottomNav ? 90 : 16,
+                  bottom: widget.hasBottomNav ? (shouldShowAds ? 140 : 90) : 16,
                 ),
                 child: GestureDetector(
                   onTap: _isMinimized ? _toggleExpand : null,
