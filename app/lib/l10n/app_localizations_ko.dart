@@ -2652,6 +2652,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookInfoTitleCopied => '제목이 복사되었습니다';
 
   @override
+  String get bookInfoExpandTitle => '펼치기';
+
+  @override
+  String get bookInfoCollapseTitle => '접기';
+
+  @override
   String get expandedNavBackToDetail => '상세로 돌아가기';
 
   @override

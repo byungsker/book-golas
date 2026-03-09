@@ -1165,6 +1165,8 @@
            "bookstoreAladdinUsedStore": "Aladin Used Store",
            "bookstoreYes24Used": "Yes24 Used",
            "bookInfoTitleCopied": "Title copied",
+           "bookInfoExpandTitle": "Show full title",
+           "bookInfoCollapseTitle": "Collapse",
            "expandedNavBackToDetail": "Back to Detail",
            "highlightEditTitle": "Edit Highlight",
            "highlightEditDone": "Done",

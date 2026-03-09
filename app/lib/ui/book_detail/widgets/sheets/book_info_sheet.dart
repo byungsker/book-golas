@@ -41,6 +41,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   bool _isLoading = true;
   bool _isDescriptionExpanded = false;
   late TabController _tabController;
+  bool _isTitleExpanded = false;
 
   @override
   void initState() {
@@ -273,11 +274,18 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeMaxSize =
+        ((screenHeight - statusBarHeight) / screenHeight).clamp(0.5, 0.90);
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.95,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
+      initialChildSize: safeMaxSize,
+      minChildSize: 0.3,
+      maxChildSize: safeMaxSize,
+      shouldCloseOnMinExtent: true,
+      snap: true,
+      snapSizes: const [],
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? BLabColors.surfaceDark : Colors.white,
@@ -348,46 +356,84 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   Widget _buildTitle(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
-          const SizedBox(width: 28),
-          Flexible(
-            child: Text(
-              widget.book.title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-                height: 1.3,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(width: 28),
+              Flexible(
+                child: Text(
+                  widget.book.title,
+                  textAlign: TextAlign.center,
+                  maxLines: _isTitleExpanded ? null : 2,
+                  overflow: _isTitleExpanded
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                    height: 1.3,
+                  ),
+                ),
               ),
-            ),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: widget.book.title));
+                  CustomSnackbar.show(
+                    context,
+                    message: AppLocalizations.of(context).bookInfoTitleCopied,
+                    type: BLabSnackbarType.success,
+                    rootOverlay: true,
+                  );
+                },
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.doc_on_doc,
+                      size: 18,
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: widget.book.title));
-              CustomSnackbar.show(
-                context,
-                message: AppLocalizations.of(context).bookInfoTitleCopied,
-                type: BLabSnackbarType.success,
-                rootOverlay: true,
-              );
-            },
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child: Center(
-                child: Icon(
-                  CupertinoIcons.doc_on_doc,
-                  size: 18,
-                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+          if (!_isTitleExpanded && widget.book.title.length > 40)
+            GestureDetector(
+              onTap: () => setState(() => _isTitleExpanded = true),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  AppLocalizations.of(context).bookInfoExpandTitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: BLabColors.primary,
+                  ),
                 ),
               ),
             ),
-          ),
+          if (_isTitleExpanded)
+            GestureDetector(
+              onTap: () => setState(() => _isTitleExpanded = false),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  AppLocalizations.of(context).bookInfoCollapseTitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: BLabColors.primary,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
