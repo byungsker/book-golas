@@ -2722,6 +2722,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookInfoTitleCopied => 'Title copied';
 
   @override
+  String get bookInfoExpandTitle => 'Show full title';
+
+  @override
+  String get bookInfoCollapseTitle => 'Collapse';
+
+  @override
   String get expandedNavBackToDetail => 'Back to Detail';
 
   @override
