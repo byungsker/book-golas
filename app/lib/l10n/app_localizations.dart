@@ -6628,6 +6628,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'비밀번호 변경에 실패했습니다'**
   String get passwordRecoveryFailed;
+
+  /// Share book card button tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 카드 공유'**
+  String get shareBookCard;
+
+  /// Error message when share fails
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 중 오류가 발생했습니다'**
+  String get shareBookCardError;
+
+  /// Reading status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 중'**
+  String get shareStatusReading;
+
+  /// Completed status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'완독'**
+  String get shareStatusCompleted;
+
+  /// Planned status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'읽을 예정'**
+  String get shareStatusPlanned;
+
+  /// Will retry status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 도전'**
+  String get shareStatusWillRetry;
 }
 
 class _AppLocalizationsDelegate

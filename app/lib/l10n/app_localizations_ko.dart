@@ -3544,4 +3544,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get passwordRecoveryFailed => '비밀번호 변경에 실패했습니다';
+
+  @override
+  String get shareBookCard => '독서 카드 공유';
+
+  @override
+  String get shareBookCardError => '공유 중 오류가 발생했습니다';
+
+  @override
+  String get shareStatusReading => '독서 중';
+
+  @override
+  String get shareStatusCompleted => '완독';
+
+  @override
+  String get shareStatusPlanned => '읽을 예정';
+
+  @override
+  String get shareStatusWillRetry => '다시 도전';
 }

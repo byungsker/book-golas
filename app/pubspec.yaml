@@ -55,6 +55,7 @@ dependencies:
   purchases_ui_flutter: ^9.10.7
   home_widget: ^0.9.0
   app_links: ^6.4.1
+  share_plus: ^10.1.4
 
   font_awesome_flutter: any
 dev_dependencies:
