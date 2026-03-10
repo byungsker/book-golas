@@ -11,7 +11,7 @@ class BookShareCard extends StatelessWidget {
   final int highlightCount;
 
   static const double cardWidth = 400.0;
-  static const double cardHeight = 560.0;
+  static const double cardHeight = 620.0;
 
   static const Color _bgTop = Color(0xFF1A1D24);
   static const Color _bgBottom = Color(0xFF0D0F13);
