@@ -8,6 +8,8 @@ import 'package:share_plus/share_plus.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/widgets/book_share_card.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_stats_share_card.dart';
 
 class BookShareService {
   static Future<void> shareBookCard({
@@ -60,6 +62,60 @@ class BookShareService {
       ], subject: book.title);
     } catch (e) {
       debugPrint('Failed to share book card: $e');
+    } finally {
+      entry?.remove();
+    }
+  }
+
+  static Future<void> shareStatsCard({
+    required BuildContext context,
+    required ReadingChartViewModel vm,
+  }) async {
+    final repaintKey = GlobalKey();
+    OverlayEntry? entry;
+
+    try {
+      entry = OverlayEntry(
+        builder: (_) => Positioned(
+          left: -2000,
+          top: -2000,
+          child: Material(
+            color: Colors.transparent,
+            child: RepaintBoundary(
+              key: repaintKey,
+              child: ReadingStatsShareCard(vm: vm),
+            ),
+          ),
+        ),
+      );
+
+      if (!context.mounted) return;
+      Overlay.of(context).insert(entry);
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      final boundary =
+          repaintKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final bytes = byteData.buffer.asUint8List();
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/bookgolas_stats_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
+      await file.writeAsBytes(bytes);
+
+      if (!context.mounted) return;
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'image/png'),
+      ]);
+    } catch (e) {
+      debugPrint('Failed to share stats card: $e');
     } finally {
       entry?.remove();
     }
