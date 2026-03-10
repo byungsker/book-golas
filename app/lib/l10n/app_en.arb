@@ -1596,5 +1596,23 @@
            "@passwordRecoverySuccess": {"description": "Password recovery success message"},
 
            "passwordRecoveryFailed": "Failed to change password",
-           "@passwordRecoveryFailed": {"description": "Password recovery failed message"}
+           "@passwordRecoveryFailed": {"description": "Password recovery failed message"},
+
+           "shareBookCard": "Share book card",
+           "@shareBookCard": {"description": "Share book card button tooltip"},
+
+           "shareBookCardError": "An error occurred while sharing",
+           "@shareBookCardError": {"description": "Error message when share fails"},
+
+           "shareStatusReading": "Reading",
+           "@shareStatusReading": {"description": "Reading status label on share card"},
+
+           "shareStatusCompleted": "Completed",
+           "@shareStatusCompleted": {"description": "Completed status label on share card"},
+
+           "shareStatusPlanned": "To Read",
+           "@shareStatusPlanned": {"description": "Planned status label on share card"},
+
+           "shareStatusWillRetry": "Re-reading",
+           "@shareStatusWillRetry": {"description": "Will retry status label on share card"}
 }

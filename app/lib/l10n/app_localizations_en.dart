@@ -3630,4 +3630,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordRecoveryFailed => 'Failed to change password';
+
+  @override
+  String get shareBookCard => 'Share book card';
+
+  @override
+  String get shareBookCardError => 'An error occurred while sharing';
+
+  @override
+  String get shareStatusReading => 'Reading';
+
+  @override
+  String get shareStatusCompleted => 'Completed';
+
+  @override
+  String get shareStatusPlanned => 'To Read';
+
+  @override
+  String get shareStatusWillRetry => 'Re-reading';
 }
