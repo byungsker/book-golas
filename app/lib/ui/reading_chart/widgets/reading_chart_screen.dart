@@ -21,6 +21,8 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.da
 import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_skeleton.dart';
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -383,21 +385,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final renderBox = tabContext.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
-    // Get tab's position relative to the scroll view
     final tabPosition = renderBox.localToGlobal(Offset.zero);
     final tabWidth = renderBox.size.width;
 
-    // Get viewport width
     final viewportWidth = _tabBarScrollController.position.viewportDimension;
 
-    // Calculate target scroll position to center the tab
-    // tabPosition.dx is the tab's left edge position on screen
-    // We want to center it, so: currentScroll + tabLeftEdge - (viewportWidth / 2) + (tabWidth / 2)
     final currentScroll = _tabBarScrollController.offset;
     final targetScroll =
         currentScroll + tabPosition.dx - (viewportWidth / 2) + (tabWidth / 2);
-
-    // Clamp to valid scroll range
     final maxScroll = _tabBarScrollController.position.maxScrollExtent;
     final clampedScroll = targetScroll.clamp(0.0, maxScroll);
 
@@ -450,6 +445,23 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
+        actions: [
+          Consumer<ReadingChartViewModel>(
+            builder: (context, vm, _) => IconButton(
+              icon: Icon(
+                CupertinoIcons.share,
+                color: isDark ? Colors.white : Colors.black,
+                size: 22,
+              ),
+              onPressed: vm.hasData
+                  ? () => BookShareService.shareStatsCard(
+                        context: context,
+                        vm: vm,
+                      )
+                  : null,
+            ),
+          ),
+        ],
         bottom: LiquidGlassTabBar(
           controller: _tabController,
           tabs: [
@@ -594,7 +606,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // AI Insight Card
                   Container(
                     key: _sectionKeys[0],
                     child: Consumer<ReadingInsightsViewModel>(
@@ -614,7 +625,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                   const SizedBox(height: 16),
 
-                  // Completion Rate Card
                   Container(
                     key: _sectionKeys[1],
                     child: CompletionRateCard(
@@ -1372,11 +1382,11 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? BLabColors.primary
-                          : BLabColors.primary.withOpacity(0.1),
+                          : BLabColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: !isSelected
                           ? Border.all(
-                              color: BLabColors.primary.withOpacity(0.3),
+                              color: BLabColors.primary.withValues(alpha: 0.3),
                               width: 1,
                             )
                           : null,

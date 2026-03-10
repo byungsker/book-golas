@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 
 class EmptyStateView extends StatelessWidget {
@@ -16,29 +18,6 @@ class EmptyStateView extends StatelessWidget {
     this.onButtonPressed,
   });
 
-  static const _grayscaleMatrix = ColorFilter.matrix(<double>[
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ]);
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -47,10 +26,10 @@ class EmptyStateView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ColorFiltered(
-              colorFilter: _grayscaleMatrix,
-              child: Image.asset(
-                'assets/images/logo-bookgolas.png',
+            Opacity(
+              opacity: 0.6,
+              child: SvgPicture.asset(
+                'assets/images/logo-bookgolas-no-bg-gray.svg',
                 width: 80,
                 height: 80,
               ),

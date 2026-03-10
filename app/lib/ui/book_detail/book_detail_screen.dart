@@ -51,6 +51,7 @@ import 'widgets/tabs/book_review_tab.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -297,6 +298,24 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.share,
+                        color: isDark ? Colors.white : Colors.black,
+                        size: 22,
+                      ),
+                      onPressed: () {
+                        final memorableVm = context.read<MemorablePageViewModel>();
+                        final highlightCount = memorableVm.cachedImages?.length ?? 0;
+                        BookShareService.shareBookCard(
+                          context: context,
+                          book: book,
+                          highlightCount: highlightCount,
+                        );
+                      },
+                    ),
+                  ],
                 ),
           body: Stack(
             children: [
