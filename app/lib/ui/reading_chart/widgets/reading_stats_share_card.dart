@@ -281,27 +281,18 @@ class ReadingStatsShareCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: BLabColors.primary,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Center(
-                child: Text(
-                  'B',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.asset(
+                'assets/images/logo-bookgolas.png',
+                width: 22,
+                height: 22,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 7),
             const Text(
-              'bookgolas',
+              '북골라스',
               style: TextStyle(
                 color: _textSecondary,
                 fontSize: 13,

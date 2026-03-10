@@ -11,16 +11,21 @@ class BookShareCard extends StatelessWidget {
   final int highlightCount;
 
   static const double cardWidth = 400.0;
-  static const double cardHeight = 580.0;
+  static const double cardHeight = 560.0;
 
-  static const Color _bgColor = Color(0xFF121418);
-  static const Color _surfaceColor = Color(0xFF1C1F26);
-  static const Color _dividerColor = Color(0xFF2A2D35);
+  static const Color _bgTop = Color(0xFF1A1D24);
+  static const Color _bgBottom = Color(0xFF0D0F13);
+  static const Color _surfaceColor = Color(0xFF1E2128);
   static const Color _textPrimary = Colors.white;
   static const Color _textSecondary = Color(0xFFB0B4C0);
   static const Color _textTertiary = Color(0xFF6B7280);
+  static const Color _dividerColor = Color(0xFF2A2D35);
 
-  const BookShareCard({super.key, required this.book, this.highlightCount = 0});
+  const BookShareCard({
+    super.key,
+    required this.book,
+    this.highlightCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,126 +33,106 @@ class BookShareCard extends StatelessWidget {
       width: cardWidth,
       height: cardHeight,
       child: Container(
-        decoration: const BoxDecoration(color: _bgColor),
-        padding: const EdgeInsets.all(28),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_bgTop, _bgBottom],
+          ),
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildDivider(),
-            const SizedBox(height: 20),
-            _buildStatsRow(),
-            const SizedBox(height: 20),
-            _buildContentArea(),
-            const Spacer(),
-            _buildDivider(),
+            const SizedBox(height: 28),
+            _buildCoverWithGlow(),
+            const SizedBox(height: 18),
+            _buildStatusBadge(),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: _buildTitleAuthor(),
+            ),
             const SizedBox(height: 16),
-            _buildFooter(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: _buildMainContent(),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: _buildMiniStats(),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Container(height: 1, color: _dividerColor),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: _buildFooter(),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildBookCover(),
-        const SizedBox(width: 16),
-        Expanded(child: _buildBookInfo()),
-      ],
-    );
-  }
-
-  Widget _buildBookCover() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: book.imageUrl != null
-          ? CachedNetworkImage(
-              imageUrl: book.imageUrl!,
-              width: 88,
-              height: 124,
-              fit: BoxFit.cover,
-              errorWidget: (_, __, ___) => _buildCoverPlaceholder(),
-            )
-          : _buildCoverPlaceholder(),
+  Widget _buildCoverWithGlow() {
+    final config = _statusConfig;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: config.color.withValues(alpha: 0.15),
+            blurRadius: 32,
+            spreadRadius: 4,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: book.imageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: book.imageUrl!,
+                width: 140,
+                height: 200,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => _buildCoverPlaceholder(),
+              )
+            : _buildCoverPlaceholder(),
+      ),
     );
   }
 
   Widget _buildCoverPlaceholder() {
     return Container(
-      width: 88,
-      height: 124,
-      decoration: BoxDecoration(
-        color: _surfaceColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      width: 140,
+      height: 200,
+      color: _surfaceColor,
       child: const Icon(
         CupertinoIcons.book_fill,
         color: Color(0xFF4A4D55),
-        size: 32,
+        size: 40,
       ),
-    );
-  }
-
-  Widget _buildBookInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStatusBadge(),
-        const SizedBox(height: 10),
-        Text(
-          book.title,
-          style: const TextStyle(
-            color: _textPrimary,
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            height: 1.3,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (book.author != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            book.author!,
-            style: const TextStyle(
-              color: _textSecondary,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-        if (book.genre != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            book.genre!,
-            style: const TextStyle(color: _textTertiary, fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-        if (book.status == 'completed' && book.rating != null) ...[
-          const SizedBox(height: 8),
-          _buildStarRating(book.rating!),
-        ],
-      ],
     );
   }
 
   Widget _buildStatusBadge() {
     final config = _statusConfig;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
         color: config.color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: config.color.withValues(alpha: 0.4),
+          color: config.color.withValues(alpha: 0.35),
           width: 1,
         ),
       ),
@@ -170,118 +155,120 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStarRating(int rating) {
-    return Row(
-      children: List.generate(5, (i) {
-        return Icon(
-          i < rating ? CupertinoIcons.star_fill : CupertinoIcons.star,
-          size: 14,
-          color: i < rating ? BLabColors.gold : _textTertiary,
-        );
-      }),
-    );
-  }
+  Widget _buildTitleAuthor() {
+    final subtitleParts = <String>[];
+    if (book.author != null) subtitleParts.add(book.author!);
+    if (book.genre != null) subtitleParts.add(book.genre!);
 
-  Widget _buildDivider() {
-    return Container(height: 1, color: _dividerColor);
-  }
-
-  Widget _buildStatsRow() {
-    final stats = _buildStats();
-    return Row(
-      children: stats.asMap().entries.map((entry) {
-        final isLast = entry.key == stats.length - 1;
-        return Expanded(
-          child: Row(
-            children: [
-              Expanded(child: _buildStatItem(entry.value)),
-              if (!isLast)
-                Container(
-                  width: 1,
-                  height: 32,
-                  color: _dividerColor,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildStatItem(_StatItem stat) {
     return Column(
       children: [
-        Text(stat.icon, style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 4),
         Text(
-          stat.value,
+          book.title,
           style: const TextStyle(
             color: _textPrimary,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            height: 1.3,
           ),
           textAlign: TextAlign.center,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 2),
-        Text(
-          stat.label,
-          style: const TextStyle(color: _textTertiary, fontSize: 10),
-          textAlign: TextAlign.center,
-        ),
+        if (subtitleParts.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            subtitleParts.join(' · '),
+            style: const TextStyle(color: _textSecondary, fontSize: 13),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildContentArea() {
+  Widget _buildMainContent() {
     switch (book.status) {
       case 'reading':
-        return _buildProgressBar();
+        return _buildReadingProgress();
       case 'completed':
-        return _buildReviewSnippet();
+        return _buildCompletedContent();
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildReadingProgress() {
     if (book.totalPages <= 0) return const SizedBox.shrink();
 
     final progress = (book.currentPage / book.totalPages).clamp(0.0, 1.0);
+    final percent = (progress * 100).toStringAsFixed(0);
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: _surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '독서 진행률',
-                style: TextStyle(color: _textSecondary, fontSize: 12),
-              ),
               Text(
-                '${book.currentPage} / ${book.totalPages}p',
-                style: const TextStyle(color: _textSecondary, fontSize: 12),
+                percent,
+                style: const TextStyle(
+                  color: _textPrimary,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w800,
+                  height: 1.0,
+                ),
+              ),
+              const Text(
+                '%',
+                style: TextStyle(
+                  color: _textSecondary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          _buildGradientProgressBar(progress),
           const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: _dividerColor,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                BLabColors.primary,
+          Text(
+            '${book.currentPage} / ${book.totalPages}p',
+            style: const TextStyle(color: _textTertiary, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradientProgressBar(double progress) {
+    return SizedBox(
+      height: 8,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: _dividerColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          FractionallySizedBox(
+            widthFactor: progress,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                gradient: const LinearGradient(
+                  colors: [BLabColors.primary, Color(0xFF818CF8)],
+                ),
               ),
-              minHeight: 6,
             ),
           ),
         ],
@@ -289,18 +276,44 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewSnippet() {
+  Widget _buildCompletedContent() {
     final review = book.review ?? book.longReview;
-    if (review == null || review.trim().isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        if (book.rating != null) ...[
+          _buildLargeStarRating(book.rating!),
+          const SizedBox(height: 12),
+        ],
+        if (review != null && review.trim().isNotEmpty)
+          _buildReviewSnippet(review.trim()),
+      ],
+    );
+  }
 
+  Widget _buildLargeStarRating(int rating) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(5, (i) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Icon(
+            i < rating ? CupertinoIcons.star_fill : CupertinoIcons.star,
+            size: 22,
+            color: i < rating ? BLabColors.gold : _textTertiary,
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildReviewSnippet(String review) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: _surfaceColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: BLabColors.primary.withValues(alpha: 0.2),
-          width: 1,
+          color: BLabColors.primary.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -308,7 +321,7 @@ class BookShareCard extends StatelessWidget {
         children: [
           Container(
             width: 3,
-            height: 36,
+            height: 32,
             decoration: BoxDecoration(
               color: BLabColors.primary,
               borderRadius: BorderRadius.circular(2),
@@ -317,7 +330,7 @@ class BookShareCard extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              review.trim(),
+              review,
               style: const TextStyle(
                 color: _textSecondary,
                 fontSize: 13,
@@ -333,38 +346,62 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
+  Widget _buildMiniStats() {
+    final stats = _buildStats();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: stats.asMap().entries.map((entry) {
+        final isLast = entry.key == stats.length - 1;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(entry.value.icon, style: const TextStyle(fontSize: 13)),
+            const SizedBox(width: 3),
+            Text(
+              entry.value.value,
+              style: const TextStyle(
+                color: _textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (!isLast) ...[
+              const SizedBox(width: 8),
+              const Text(
+                '·',
+                style: TextStyle(color: _textTertiary, fontSize: 12),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: BLabColors.primary,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Center(
-                child: Text(
-                  'B',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.asset(
+                'assets/images/logo-bookgolas.png',
+                width: 22,
+                height: 22,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 7),
             const Text(
-              'bookgolas',
+              '북골라스',
               style: TextStyle(
                 color: _textSecondary,
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.3,
               ),
             ),
           ],
@@ -383,30 +420,21 @@ class BookShareCard extends StatelessWidget {
         return [
           _StatItem(
             icon: '📅',
-            value: DateFormat('MM.dd').format(book.startDate),
-            label: '시작일',
+            value: '${DateFormat('MM.dd').format(book.startDate)} 시작',
           ),
-          _StatItem(
-            icon: '📖',
-            value: book.totalPages > 0
-                ? '${((book.currentPage / book.totalPages) * 100).toStringAsFixed(0)}%'
-                : '${book.currentPage}p',
-            label: '진행률',
-          ),
-          _StatItem(icon: '💡', value: '$highlightCount', label: '기록'),
+          _StatItem(icon: '💡', value: '$highlightCount 기록'),
         ];
       case 'completed':
         final readDays = book.updatedAt != null
             ? book.updatedAt!.difference(book.startDate).inDays + 1
             : DateTime.now().difference(book.startDate).inDays + 1;
         return [
-          _StatItem(icon: '📅', value: '${readDays}일', label: '독서 기간'),
+          _StatItem(icon: '📅', value: '$readDays일 완독'),
           _StatItem(
             icon: '📄',
             value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
-            label: '총 페이지',
           ),
-          _StatItem(icon: '💡', value: '$highlightCount', label: '기록'),
+          _StatItem(icon: '💡', value: '$highlightCount 기록'),
         ];
       case 'planned':
         return [
@@ -415,30 +443,27 @@ class BookShareCard extends StatelessWidget {
             value: DateFormat(
               'MM.dd',
             ).format(book.plannedStartDate ?? book.startDate),
-            label: '예정일',
           ),
-          _StatItem(icon: '🏷️', value: book.genre ?? '-', label: '장르'),
+          _StatItem(icon: '🏷️', value: book.genre ?? '-'),
           _StatItem(
             icon: '📄',
             value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
-            label: '페이지',
           ),
         ];
       case 'will_retry':
         return [
-          _StatItem(icon: '🔁', value: '${book.attemptCount}번째', label: '도전'),
-          _StatItem(icon: '🏷️', value: book.genre ?? '-', label: '장르'),
+          _StatItem(icon: '🔁', value: '${book.attemptCount}번째 도전'),
+          _StatItem(icon: '🏷️', value: book.genre ?? '-'),
           _StatItem(
             icon: '📄',
             value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
-            label: '페이지',
           ),
         ];
       default:
         return [
-          _StatItem(icon: '📖', value: '${book.currentPage}p', label: '현재'),
-          _StatItem(icon: '📄', value: '${book.totalPages}p', label: '전체'),
-          _StatItem(icon: '💡', value: '$highlightCount', label: '기록'),
+          _StatItem(icon: '📖', value: '${book.currentPage}p'),
+          _StatItem(icon: '📄', value: '${book.totalPages}p'),
+          _StatItem(icon: '💡', value: '$highlightCount 기록'),
         ];
     }
   }
@@ -493,10 +518,5 @@ class _StatusConfig {
 class _StatItem {
   final String icon;
   final String value;
-  final String label;
-  const _StatItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
+  const _StatItem({required this.icon, required this.value});
 }
