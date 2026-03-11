@@ -271,8 +271,7 @@ struct CoverImageView: View {
 
 struct LinearProgressBar: View {
     let progress: Double
-    var trackColor: Color = Color(red: 0.165, green: 0.165, blue: 0.227)
-    var fillColor: Color = Color(red: 0.357, green: 0.498, blue: 1.0)
+    var trackColor: Color = Color(red: 0.22, green: 0.22, blue: 0.24)
 
     var body: some View {
         GeometryReader { geometry in
@@ -281,7 +280,13 @@ struct LinearProgressBar: View {
                     .fill(trackColor)
                     .frame(height: 5)
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(fillColor)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white, Color(white: 0.7)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 5)
             }
         }
@@ -422,76 +427,67 @@ struct BookgolasMediumWidgetView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .widgetURL(URL(string: "bookgolas://book/search"))
         } else {
-            ZStack(alignment: .bottom) {
-                HStack(spacing: 12) {
-                    CoverImageView(
-                        imagePath: entry.imagePath,
-                        size: CGSize(width: 95, height: 132)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 11))
+            HStack(spacing: 12) {
+                CoverImageView(
+                    imagePath: entry.imagePath,
+                    size: CGSize(width: 95, height: 132)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 11))
 
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(entry.displayTitle)
-                            .font(.system(size: 18, weight: .bold))
-                            .lineLimit(2)
-                            .truncationMode(.tail)
-                            .foregroundColor(.white)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(entry.displayTitle)
+                        .font(.system(size: 18, weight: .bold))
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .foregroundColor(.white)
 
-                        Text(entry.bookAuthor)
-                            .font(.system(size: 11))
-                            .lineLimit(1)
+                    Text(entry.bookAuthor)
+                        .font(.system(size: 11))
+                        .lineLimit(1)
+                        .foregroundColor(Color(red: 0.596, green: 0.596, blue: 0.627))
+                        .padding(.top, 2)
+
+                    Spacer(minLength: 4)
+
+                    HStack {
+                        Text("p.\(entry.currentPage) / \(entry.totalPages)")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundColor(Color(red: 0.596, green: 0.596, blue: 0.627))
-                            .padding(.top, 2)
-
-                        Spacer(minLength: 4)
-
-                        HStack {
-                            Text("p.\(entry.currentPage) / \(entry.totalPages)")
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
-                                .foregroundColor(Color(red: 0.596, green: 0.596, blue: 0.627))
-                            Spacer()
-                            Text("\(Int(entry.progress * 100))%")
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(Color(red: 0.357, green: 0.498, blue: 1.0))
-                        }
-
-                        LinearProgressBar(progress: entry.progress)
-                            .padding(.top, 4)
+                        Spacer()
+                        Text("\(Int(entry.progress * 100))%")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(red: 0.357, green: 0.498, blue: 1.0))
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Divider()
-                        .frame(height: 132)
-                        .overlay(Color(red: 0.161, green: 0.161, blue: 0.161))
-
-                    VStack(spacing: 10) {
-                        QuickActionButton(
-                            systemImage: "book.fill",
-                            label: NSLocalizedString("widget_action_book", tableName: nil, bundle: .main, value: "Book", comment: ""),
-                            url: URL(string: "bookgolas://book/detail/\(entry.bookId)")
-                        )
-                        QuickActionButton(
-                            systemImage: "doc.viewfinder",
-                            label: NSLocalizedString("widget_action_scan", tableName: nil, bundle: .main, value: "Scan", comment: ""),
-                            url: URL(string: "bookgolas://book/scan/\(entry.bookId)")
-                        )
-                        QuickActionButton(
-                            systemImage: "plus.circle",
-                            label: NSLocalizedString("widget_action_add", tableName: nil, bundle: .main, value: "Add", comment: ""),
-                            url: URL(string: "bookgolas://book/search")
-                        )
-                    }
-                    .frame(width: 52)
+                    LinearProgressBar(progress: entry.progress)
+                        .padding(.top, 4)
                 }
-                .padding(.horizontal, 14)
-                .padding(.top, 10)
-                .padding(.bottom, 24)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(NSLocalizedString("widget_app_name", tableName: nil, bundle: .main, value: "Bookgolas", comment: ""))
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.bottom, 6)
+                Divider()
+                    .frame(height: 132)
+                    .overlay(Color(red: 0.161, green: 0.161, blue: 0.161))
+
+                VStack(spacing: 10) {
+                    QuickActionButton(
+                        systemImage: "book.fill",
+                        label: NSLocalizedString("widget_action_book", tableName: nil, bundle: .main, value: "Book", comment: ""),
+                        url: URL(string: "bookgolas://book/detail/\(entry.bookId)")
+                    )
+                    QuickActionButton(
+                        systemImage: "doc.viewfinder",
+                        label: NSLocalizedString("widget_action_scan", tableName: nil, bundle: .main, value: "Scan", comment: ""),
+                        url: URL(string: "bookgolas://book/scan/\(entry.bookId)")
+                    )
+                    QuickActionButton(
+                        systemImage: "plus.circle",
+                        label: NSLocalizedString("widget_action_add", tableName: nil, bundle: .main, value: "Add", comment: ""),
+                        url: URL(string: "bookgolas://book/search")
+                    )
+                }
+                .frame(width: 52)
             }
+            .padding(0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
