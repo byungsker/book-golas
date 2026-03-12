@@ -271,19 +271,26 @@ struct CoverImageView: View {
 
 struct LinearProgressBar: View {
     let progress: Double
+    var trackColor: Color = Color(red: 0.22, green: 0.22, blue: 0.24)
 
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 6)
+                    .fill(trackColor)
+                    .frame(height: 5)
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.accentColor)
-                    .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 6)
+                    .fill(
+                        LinearGradient(
+                            colors: [.white, Color(white: 0.7)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: geometry.size.width * CGFloat(min(progress, 1.0)), height: 5)
             }
         }
-        .frame(height: 6)
+        .frame(height: 5)
     }
 }
 
@@ -423,32 +430,33 @@ struct BookgolasMediumWidgetView: View {
             HStack(spacing: 12) {
                 CoverImageView(
                     imagePath: entry.imagePath,
-                    size: CGSize(width: 60, height: 84)
+                    size: CGSize(width: 95, height: 132)
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 11))
 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(entry.displayTitle)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 18, weight: .bold))
                         .lineLimit(2)
                         .truncationMode(.tail)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.white)
 
                     Text(entry.bookAuthor)
                         .font(.system(size: 11))
                         .lineLimit(1)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color(red: 0.596, green: 0.596, blue: 0.627))
                         .padding(.top, 2)
 
                     Spacer(minLength: 4)
 
                     HStack {
                         Text("p.\(entry.currentPage) / \(entry.totalPages)")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(Color(red: 0.596, green: 0.596, blue: 0.627))
                         Spacer()
                         Text("\(Int(entry.progress * 100))%")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(.accentColor)
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(red: 0.357, green: 0.498, blue: 1.0))
                     }
 
                     LinearProgressBar(progress: entry.progress)
@@ -457,6 +465,8 @@ struct BookgolasMediumWidgetView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Divider()
+                    .frame(height: 132)
+                    .overlay(Color(red: 0.161, green: 0.161, blue: 0.161))
 
                 VStack(spacing: 10) {
                     QuickActionButton(
@@ -477,7 +487,7 @@ struct BookgolasMediumWidgetView: View {
                 }
                 .frame(width: 52)
             }
-            .padding(12)
+            .padding(0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
@@ -496,10 +506,10 @@ struct QuickActionButton: View {
                 VStack(spacing: 2) {
                     Image(systemName: systemImage)
                         .font(.system(size: 16))
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(Color(red: 0.357, green: 0.498, blue: 1.0))
                     Text(label)
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color(red: 0.357, green: 0.498, blue: 1.0))
                 }
                 .frame(maxWidth: .infinity, minHeight: 36)
             }
@@ -523,7 +533,19 @@ struct BookgolasMediumEntryView: View {
 
     var body: some View {
         BookgolasMediumWidgetView(entry: entry)
-            .containerBackground(.fill.tertiary, for: .widget)
+            .containerBackground(for: .widget) {
+                ContainerRelativeShape()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.208, green: 0.208, blue: 0.208),
+                                Color.black
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
     }
 }
 
