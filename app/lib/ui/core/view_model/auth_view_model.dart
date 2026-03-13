@@ -18,6 +18,7 @@ class AuthViewModel extends BaseViewModel {
 
   UserModel? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
+  bool get isAppleSignInAvailable => Platform.isIOS || Platform.isMacOS;
 
   AuthViewModel(this._authRepository) {
     _init();
@@ -119,6 +120,20 @@ class AuthViewModel extends BaseViewModel {
     clearError();
     try {
       final error = await _authRepository.signInWithGoogle();
+      if (error != null) {
+        setError(error);
+      }
+      return error;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<String?> signInWithApple() async {
+    setLoading(true);
+    clearError();
+    try {
+      final error = await _authRepository.signInWithApple();
       if (error != null) {
         setError(error);
       }
