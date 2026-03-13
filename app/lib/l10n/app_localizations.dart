@@ -6664,6 +6664,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다시 도전'**
   String get shareStatusWillRetry;
+
+  /// Continue with Google button
+  ///
+  /// In ko, this message translates to:
+  /// **'Google로 계속하기'**
+  String get loginSocialGoogle;
+
+  /// Continue with Apple button
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple로 계속하기'**
+  String get loginSocialApple;
 }
 
 class _AppLocalizationsDelegate

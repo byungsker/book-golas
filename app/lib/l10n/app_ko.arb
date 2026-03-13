@@ -3152,5 +3152,12 @@
          "@shareStatusPlanned": {"description": "Planned status label on share card"},
 
          "shareStatusWillRetry": "다시 도전",
-         "@shareStatusWillRetry": {"description": "Will retry status label on share card"}
+         "shareStatusWillRetry": "다시 도전",
+         "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+
+         "loginSocialGoogle": "Google로 계속하기",
+         "@loginSocialGoogle": {"description": "Continue with Google button"},
+
+         "loginSocialApple": "Apple로 계속하기",
+         "@loginSocialApple": {"description": "Continue with Apple button"}
 }

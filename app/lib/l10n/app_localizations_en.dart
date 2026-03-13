@@ -3648,4 +3648,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareStatusWillRetry => 'Re-reading';
+
+  @override
+  String get loginSocialGoogle => 'Continue with Google';
+
+  @override
+  String get loginSocialApple => 'Continue with Apple';
 }
