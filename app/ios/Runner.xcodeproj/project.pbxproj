@@ -1262,6 +1262,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
@@ -1290,6 +1292,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
@@ -1318,6 +1322,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
@@ -1345,6 +1351,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
@@ -1372,6 +1380,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
@@ -1399,6 +1409,8 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";

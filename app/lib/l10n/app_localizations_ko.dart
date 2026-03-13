@@ -3562,4 +3562,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get shareStatusWillRetry => '다시 도전';
+
+  @override
+  String get loginSocialGoogle => 'Google로 계속하기';
+
+  @override
+  String get loginSocialApple => 'Apple로 계속하기';
 }
