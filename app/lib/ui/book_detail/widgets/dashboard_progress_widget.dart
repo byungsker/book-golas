@@ -5,6 +5,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 import 'circular_progress_painter.dart';
+import 'page_swipe_updater.dart';
 
 class DashboardProgressWidget extends StatelessWidget {
   final double animatedProgress;
@@ -15,6 +16,7 @@ class DashboardProgressWidget extends StatelessWidget {
   final int? dailyTargetPages;
   final bool isTodayGoalAchieved;
   final VoidCallback onDailyTargetTap;
+  final Future<void> Function(int newPage)? onPageUpdate;
 
   const DashboardProgressWidget({
     super.key,
@@ -26,6 +28,7 @@ class DashboardProgressWidget extends StatelessWidget {
     required this.dailyTargetPages,
     this.isTodayGoalAchieved = false,
     required this.onDailyTargetTap,
+    this.onPageUpdate,
   });
 
   @override
@@ -50,56 +53,15 @@ class DashboardProgressWidget extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: CustomPaint(
-                          painter: CircularProgressPainter(
-                            progress: animatedProgress.clamp(0.0, 1.0),
-                            strokeWidth: 10,
-                            backgroundColor: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : BLabColors.subtleBlueLight,
-                            progressColor: BLabColors.primary,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$progressPercent%',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : Colors.black,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$currentPage / ${totalPages}p',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
+            child: onPageUpdate != null
+                ? PageSwipeUpdater(
+                    currentPage: currentPage,
+                    totalPages: totalPages,
+                    onPageUpdate: onPageUpdate!,
+                    child:
+                        _buildProgressColumn(context, isDark, progressPercent),
+                  )
+                : _buildProgressColumn(context, isDark, progressPercent),
           ),
           Container(
             width: 1,
@@ -136,6 +98,71 @@ class DashboardProgressWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildProgressColumn(
+      BuildContext context, bool isDark, String progressPercent) {
+    return Column(
+      children: [
+        SizedBox(
+          width: 100,
+          height: 100,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: CustomPaint(
+                  painter: CircularProgressPainter(
+                    progress: animatedProgress.clamp(0.0, 1.0),
+                    strokeWidth: 10,
+                    backgroundColor: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : BLabColors.subtleBlueLight,
+                    progressColor: BLabColors.primary,
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$progressPercent%',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : Colors.black,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '$currentPage / ${totalPages}p',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
+          ),
+        ),
+        if (onPageUpdate != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            AppLocalizations.of(context).pageSwipeHint,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
