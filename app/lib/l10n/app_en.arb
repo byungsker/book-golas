@@ -1620,5 +1620,8 @@
            "@loginSocialGoogle": {"description": "Continue with Google button"},
 
            "loginSocialApple": "Continue with Apple",
-           "@loginSocialApple": {"description": "Continue with Apple button"}
+           "@loginSocialApple": {"description": "Continue with Apple button"},
+
+           "pageSwipeHint": "◀ Swipe to update page ▶",
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
 }

@@ -3159,5 +3159,8 @@
          "@loginSocialGoogle": {"description": "Continue with Google button"},
 
          "loginSocialApple": "Apple로 계속하기",
-         "@loginSocialApple": {"description": "Continue with Apple button"}
+         "@loginSocialApple": {"description": "Continue with Apple button"},
+
+         "pageSwipeHint": "◀ 밀어서 페이지 업데이트 ▶",
+         "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
 }

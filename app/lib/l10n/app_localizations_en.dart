@@ -3654,4 +3654,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSocialApple => 'Continue with Apple';
+
+  @override
+  String get pageSwipeHint => '◀ Swipe to update page ▶';
 }

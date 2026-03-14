@@ -306,8 +306,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         size: 22,
                       ),
                       onPressed: () {
-                        final memorableVm = context.read<MemorablePageViewModel>();
-                        final highlightCount = memorableVm.cachedImages?.length ?? 0;
+                        final memorableVm =
+                            context.read<MemorablePageViewModel>();
+                        final highlightCount =
+                            memorableVm.cachedImages?.length ?? 0;
                         BookShareService.shareBookCard(
                           context: context,
                           book: book,
@@ -370,6 +372,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
                                       _showDailyTargetChangeDialog(bookVm),
+                                  onPageUpdate: (newPage) async =>
+                                      _updateCurrentPage(bookVm, newPage),
                                 ),
                                 const SizedBox(height: 12),
                                 CompactStreakRow(
@@ -635,16 +639,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context,
-              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요', type: BLabSnackbarType.info);
+              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요',
+              type: BLabSnackbarType.info);
         } else {
           CustomSnackbar.show(context,
-              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)', type: BLabSnackbarType.success);
+              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)',
+              type: BLabSnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(context, message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
+      CustomSnackbar.show(context,
+          message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
     }
   }
 
@@ -972,7 +979,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,
-            message: AppLocalizations.of(context).bookDetailSaved, type: BLabSnackbarType.success);
+            message: AppLocalizations.of(context).bookDetailSaved,
+            type: BLabSnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -1104,7 +1112,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
               pageNumber: null);
           if (newUrl != null && mounted) {
             CustomSnackbar.show(context,
-                message: AppLocalizations.of(context).bookDetailImageReplaced, type: BLabSnackbarType.success);
+                message: AppLocalizations.of(context).bookDetailImageReplaced,
+                type: BLabSnackbarType.success);
           }
           onReplaced(newUrl);
         }
@@ -1342,7 +1351,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          AppLocalizations.of(context).bookDetailAttemptCount(book.attemptCount + 1),
+                          AppLocalizations.of(context)
+                              .bookDetailAttemptCount(book.attemptCount + 1),
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1377,14 +1387,18 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: AppLocalizations.of(context).bookDetailAttemptStarted(newAttempt),
+              message: AppLocalizations.of(context)
+                  .bookDetailAttemptStarted(newAttempt),
               type: BLabSnackbarType.success,
               icon: Icons.play_arrow_rounded);
         } else if (!success && mounted && bookVm.shouldShowPaywall) {
           bookVm.clearPaywallState();
-          final paywallSuccess = await SubscriptionService().showPaywall(context);
+          final paywallSuccess =
+              await SubscriptionService().showPaywall(context);
           if (!paywallSuccess && mounted) {
-            CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+            CustomSnackbar.show(context,
+                message: AppLocalizations.of(context).subscriptionUnavailable,
+                type: BLabSnackbarType.info);
           }
         }
       },
@@ -1495,7 +1509,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasReview ? AppLocalizations.of(context).bookDetailEditReview : AppLocalizations.of(context).bookDetailWriteReview,
+                      hasReview
+                          ? AppLocalizations.of(context).bookDetailEditReview
+                          : AppLocalizations.of(context).bookDetailWriteReview,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1505,8 +1521,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     const SizedBox(height: 2),
                     Text(
                       hasReview
-                          ? AppLocalizations.of(context).bookDetailReviewYourWritten
-                          : AppLocalizations.of(context).bookDetailRecordThoughts,
+                          ? AppLocalizations.of(context)
+                              .bookDetailReviewYourWritten
+                          : AppLocalizations.of(context)
+                              .bookDetailRecordThoughts,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1662,7 +1680,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
       },
     );
   }
-
 
   void _showReadingTimerModal() {
     final bookVm = context.read<BookDetailViewModel>();

@@ -3568,4 +3568,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loginSocialApple => 'Apple로 계속하기';
+
+  @override
+  String get pageSwipeHint => '◀ 밀어서 페이지 업데이트 ▶';
 }
