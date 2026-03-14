@@ -40,7 +40,15 @@
 					<string>signinwithapple</string>
 				</array>
 			</dict>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>$(GID_REVERSED_CLIENT_ID)</string>
+				</array>
+			</dict>
 		</array>
+		<key>GIDClientID</key>
+		<string>$(GID_CLIENT_ID)</string>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>ITSAppUsesNonExemptEncryption</key>

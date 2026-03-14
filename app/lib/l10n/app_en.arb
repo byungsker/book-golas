@@ -1614,5 +1614,14 @@
            "@shareStatusPlanned": {"description": "Planned status label on share card"},
 
            "shareStatusWillRetry": "Re-reading",
-           "@shareStatusWillRetry": {"description": "Will retry status label on share card"}
+           "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+
+           "loginSocialGoogle": "Continue with Google",
+           "@loginSocialGoogle": {"description": "Continue with Google button"},
+
+           "loginSocialApple": "Continue with Apple",
+           "@loginSocialApple": {"description": "Continue with Apple button"},
+
+           "pageSwipeHint": "◀ Swipe to update page ▶",
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
 }

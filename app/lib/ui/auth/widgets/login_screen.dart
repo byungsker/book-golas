@@ -10,6 +10,7 @@ import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/auth/widgets/social_sign_in_button.dart';
 
 enum AuthMode { signIn, signUp, forgotPassword }
 
@@ -346,6 +347,65 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _authMode = mode);
   }
 
+  Widget _buildSocialButtons(BuildContext context) {
+    final authViewModel = context.watch<AuthViewModel>();
+    return Column(
+      children: [
+        SocialSignInButton(
+          type: SocialSignInType.google,
+          onPressed: _isLoading ? null : () => _handleGoogleSignIn(),
+        ),
+        if (authViewModel.isAppleSignInAvailable) ...[
+          const SizedBox(height: 12),
+          SocialSignInButton(
+            type: SocialSignInType.apple,
+            onPressed: _isLoading ? null : () => _handleAppleSignIn(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithGoogle();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithApple();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -680,6 +740,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     _buildDivider(isDark, context),
+                    const SizedBox(height: 8),
+                    _buildSocialButtons(context),
                     const SizedBox(height: 8),
                     _buildTextButton(
                       AppLocalizations.of(context).loginNoAccount,
