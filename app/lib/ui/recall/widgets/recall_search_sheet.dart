@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -97,8 +98,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     Clipboard.setData(ClipboardData(text: answer));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallTextCopied,
-      type: SnackbarType.success,
+      message: AppLocalizations.of(context).recallTextCopied,
+      type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
   }
@@ -150,7 +151,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : Colors.white,
+              color: isDark ? BLabColors.surfaceDark : Colors.white,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
@@ -180,18 +181,18 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color:
-                                      AppColors.primary.withValues(alpha: 0.1),
+                                      BLabColors.primary.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.auto_awesome,
-                                  color: AppColors.primary,
+                                  color: BLabColors.primary,
                                   size: 20,
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                AppLocalizations.of(context)!
+                                AppLocalizations.of(context)
                                     .recallSearchMyRecords,
                                 style: TextStyle(
                                   fontSize: 20,
@@ -244,7 +245,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                                     ? (isDark
                                         ? Colors.grey[600]
                                         : Colors.grey[400])
-                                    : AppColors.primary,
+                                    : BLabColors.primary,
                               ),
                               onPressed: () => _search(_controller.text),
                             ),
@@ -254,7 +255,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                             ),
                             filled: true,
                             fillColor: isDark
-                                ? AppColors.elevatedDark
+                                ? BLabColors.elevatedDark
                                 : Colors.grey[100],
                           ),
                           onSubmitted: _search,
@@ -269,7 +270,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? AppColors.elevatedDark
+                                  ? BLabColors.elevatedDark
                                   : Colors.grey[100],
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -365,10 +366,10 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(color: AppColors.primary),
+            const CircularProgressIndicator(color: BLabColors.primary),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.recallSearchingYourRecords,
+              AppLocalizations.of(context).recallSearchingYourRecords,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
@@ -384,17 +385,46 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              viewModel.shouldShowPaywall
+                  ? Icons.lock_outline
+                  : Icons.error_outline,
               size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
+              color: viewModel.shouldShowPaywall
+                  ? BLabColors.primary
+                  : (isDark ? Colors.grey[600] : Colors.grey[400]),
             ),
             const SizedBox(height: 16),
-            Text(
-              viewModel.errorMessage!,
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                viewModel.errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ),
+            if (viewModel.shouldShowPaywall) ...[
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  viewModel.clearPaywallState();
+                  final success = await SubscriptionService().showPaywall(context);
+                  if (!success && context.mounted) {
+                    CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                  }
+                },
+                icon: const Icon(Icons.star, size: 18),
+                label: const Text('Pro 업그레이드'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BLabColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       );
@@ -434,7 +464,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              AppLocalizations.of(context)!.recallRecentSearches,
+              AppLocalizations.of(context).recallRecentSearches,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -485,7 +515,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.elevatedDark : Colors.grey[100],
+            color: isDark ? BLabColors.elevatedDark : Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -535,7 +565,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (diff.inMinutes < 1) return l10n.recallJustNow;
     if (diff.inHours < 1) return l10n.recallMinutesAgo(diff.inMinutes);
@@ -545,7 +575,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
   }
 
   Widget _buildSuggestedQuestions(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final suggestions = [
       l10n.recallSuggestedQuestion1,
       l10n.recallSuggestedQuestion2,
@@ -602,7 +632,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.recallSearchCurious,
+            AppLocalizations.of(context).recallSearchCurious,
             style: TextStyle(
               fontSize: 16,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -610,7 +640,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.recallFindInRecords,
+            AppLocalizations.of(context).recallFindInRecords,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -629,8 +659,8 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark
-                ? AppColors.primary.withValues(alpha: 0.15)
-                : AppColors.primary.withValues(alpha: 0.08),
+                ? BLabColors.primary.withValues(alpha: 0.15)
+                : BLabColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -639,10 +669,10 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
               Row(
                 children: [
                   const Icon(Icons.auto_awesome,
-                      color: AppColors.primary, size: 20),
+                      color: BLabColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    AppLocalizations.of(context)!.recallAiAnswer,
+                    AppLocalizations.of(context).recallAiAnswer,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black,
@@ -670,7 +700,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            AppLocalizations.of(context)!.recallCopy,
+                            AppLocalizations.of(context).recallCopy,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -698,7 +728,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         if (result.sources.isNotEmpty) ...[
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.recallRelatedRecords,
+            AppLocalizations.of(context).recallRelatedRecords,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -744,7 +774,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.elevatedDark : Colors.white,
+          color: isDark ? BLabColors.elevatedDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -775,7 +805,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
                 const Spacer(),
                 if (source.pageNumber != null)
                   Text(
-                    '${source.pageNumber} ${AppLocalizations.of(context)!.recallPage}',
+                    '${source.pageNumber} ${AppLocalizations.of(context).recallPage}',
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],

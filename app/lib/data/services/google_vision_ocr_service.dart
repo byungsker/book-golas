@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -60,7 +59,7 @@ class GoogleVisionOcrService {
             },
             'features': [
               {
-                'type': 'TEXT_DETECTION',
+                'type': 'DOCUMENT_TEXT_DETECTION',
                 'maxResults': 1,
               },
             ],
@@ -115,6 +114,19 @@ class GoogleVisionOcrService {
         return null;
       }
 
+      final fullTextAnnotation =
+          firstResponse['fullTextAnnotation'] as Map<String, dynamic>?;
+
+      if (fullTextAnnotation != null) {
+        final structuredText =
+            _extractFromFullTextAnnotation(fullTextAnnotation);
+        if (structuredText.isNotEmpty) {
+          debugPrint(
+              '🟢 OCR: 구조화된 텍스트 추출 성공 (길이: ${structuredText.length})');
+          return _cleanupExtractedText(structuredText);
+        }
+      }
+
       final textAnnotations =
           firstResponse['textAnnotations'] as List<dynamic>?;
 
@@ -123,15 +135,14 @@ class GoogleVisionOcrService {
         return null;
       }
 
-      final fullText =
-          textAnnotations[0]['description'] as String?;
+      final fullText = textAnnotations[0]['description'] as String?;
 
       if (fullText == null || fullText.isEmpty) {
         debugPrint('🟠 OCR: 추출된 텍스트가 비어있습니다.');
         return null;
       }
 
-      debugPrint('🟢 OCR: 텍스트 추출 성공 (길이: ${fullText.length})');
+      debugPrint('🟢 OCR: 텍스트 추출 성공 - fallback (길이: ${fullText.length})');
       return _cleanupExtractedText(fullText);
     } catch (e) {
       debugPrint('🔴 OCR: 예외 발생 - $e');
@@ -152,6 +163,84 @@ class GoogleVisionOcrService {
     cleaned = cleanedLines.join('\n');
 
     return cleaned;
+  }
+
+  String _extractFromFullTextAnnotation(Map<String, dynamic> annotation) {
+    final pages = annotation['pages'] as List<dynamic>?;
+    if (pages == null || pages.isEmpty) {
+      return annotation['text'] as String? ?? '';
+    }
+
+    final paragraphs = <String>[];
+
+    for (final page in pages) {
+      final blocks =
+          (page as Map<String, dynamic>)['blocks'] as List<dynamic>?;
+      if (blocks == null) continue;
+
+      for (final block in blocks) {
+        final blockMap = block as Map<String, dynamic>;
+        final blockType = blockMap['blockType'] as String?;
+        if (blockType != null && blockType != 'TEXT') continue;
+
+        final blockParagraphs =
+            blockMap['paragraphs'] as List<dynamic>?;
+        if (blockParagraphs == null) continue;
+
+        for (final paragraph in blockParagraphs) {
+          final words =
+              (paragraph as Map<String, dynamic>)['words'] as List<dynamic>?;
+          if (words == null) continue;
+
+          final text = _buildParagraphText(words);
+          if (text.isNotEmpty) {
+            paragraphs.add(text);
+          }
+        }
+      }
+    }
+
+    if (paragraphs.isEmpty) {
+      return annotation['text'] as String? ?? '';
+    }
+
+    return paragraphs.join('\n\n');
+  }
+
+  String _buildParagraphText(List<dynamic> words) {
+    final buffer = StringBuffer();
+
+    for (final word in words) {
+      final symbols =
+          (word as Map<String, dynamic>)['symbols'] as List<dynamic>?;
+      if (symbols == null) continue;
+
+      for (final symbol in symbols) {
+        final symbolMap = symbol as Map<String, dynamic>;
+        final text = symbolMap['text'] as String?;
+        if (text != null) {
+          buffer.write(text);
+        }
+
+        final property =
+            symbolMap['property'] as Map<String, dynamic>?;
+        final detectedBreak =
+            property?['detectedBreak'] as Map<String, dynamic>?;
+        if (detectedBreak != null) {
+          final breakType = detectedBreak['type'] as String?;
+          if (breakType == 'SPACE' ||
+              breakType == 'SURE_SPACE' ||
+              breakType == 'EOL_SURE_SPACE' ||
+              breakType == 'LINE_BREAK') {
+            buffer.write(' ');
+          } else if (breakType == 'HYPHEN') {
+            buffer.write('-');
+          }
+        }
+      }
+    }
+
+    return buffer.toString().trim();
   }
 
   String getPreviewText(String? fullText, {int maxLines = 2}) {

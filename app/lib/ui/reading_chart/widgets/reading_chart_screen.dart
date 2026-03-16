@@ -1,24 +1,28 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:book_golas/l10n/app_localizations.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:collection';
-import 'package:book_golas/data/services/reading_progress_service.dart';
-import 'package:book_golas/data/services/reading_goal_service.dart';
-import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
-import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
-import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
-import 'package:book_golas/ui/core/theme/design_system.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
-import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
-import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+
+import 'package:flutter/material.dart';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+
+import 'package:book_golas/data/services/reading_goal_service.dart';
+import 'package:book_golas/data/services/reading_progress_service.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/annual_goal_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/completion_rate_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/genre_analysis_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/highlight_stats_card.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.dart';
+import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
+import 'package:book_golas/ui/reading_chart/widgets/reading_chart_skeleton.dart';
+import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -41,30 +45,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   late TabController _tabController;
   TimeFilter _selectedFilter = TimeFilter.daily;
   final ReadingProgressService _progressService = ReadingProgressService();
-  final ReadingGoalService _goalService = ReadingGoalService();
-  final BookService _bookService = BookService();
-
-  List<Map<String, dynamic>>? _cachedRawData;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  Map<String, int> _genreDistribution = {};
-  Map<int, int> _monthlyBookCount = {};
-  Map<String, dynamic> _goalProgress = {};
-  Map<DateTime, int> _heatmapData = {};
-
-  int _totalStarted = 0;
-  int _completedBooks = 0;
-  int _abandonedBooks = 0;
-  int _inProgressBooks = 0;
-  double _completionRate = 0.0;
-  double _abandonRate = 0.0;
-  double _retrySuccessRate = 0.0;
-
-  int _totalHighlights = 0;
-  int _totalNotes = 0;
-  int _totalPhotos = 0;
-  Map<String, int> _highlightGenreDistribution = {};
 
   int _selectedSectionIndex = 0;
   bool _isScrollingByTap = false;
@@ -77,7 +57,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReadingChartViewModel>().loadData();
+    });
   }
 
   @override
@@ -91,135 +73,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   void cycleToNextTab() {
     final nextIndex = (_tabController.index + 1) % 3;
     _tabController.animateTo(nextIndex);
-  }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final currentYear = DateTime.now().year;
-      final results = await Future.wait([
-        fetchUserProgressHistory(),
-        _progressService.getGenreDistribution(year: currentYear),
-        _progressService.getMonthlyBookCount(year: currentYear),
-        _goalService.getYearlyProgress(year: currentYear),
-        _progressService.getDailyReadingHeatmap(weeksToShow: 26),
-        _calculateCompletionStats(),
-        _calculateHighlightStats(),
-      ]);
-
-      if (mounted) {
-        setState(() {
-          _cachedRawData = results[0] as List<Map<String, dynamic>>;
-          _genreDistribution = results[1] as Map<String, int>;
-          _monthlyBookCount = results[2] as Map<int, int>;
-          _goalProgress = results[3] as Map<String, dynamic>;
-          _heatmapData = results[4] as Map<DateTime, int>;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _calculateCompletionStats() async {
-    final books = await _bookService.fetchBooks();
-
-    final startedBooks = books.where((b) => b.status != 'planned').toList();
-    final completed = books.where((b) => b.status == 'completed').length;
-    final reading = books.where((b) => b.status == 'reading').length;
-    final willRetry = books.where((b) => b.status == 'will_retry').length;
-
-    final totalStarted = startedBooks.length;
-
-    _totalStarted = totalStarted;
-    _completedBooks = completed;
-    _abandonedBooks = willRetry;
-    _inProgressBooks = reading;
-    _completionRate = totalStarted > 0 ? (completed / totalStarted * 100) : 0.0;
-    _abandonRate = totalStarted > 0 ? (willRetry / totalStarted * 100) : 0.0;
-
-    final retriedBooks = books
-        .where((b) => b.status == 'completed' && b.attemptCount > 1)
-        .length;
-    _retrySuccessRate = willRetry > 0 ? (retriedBooks / willRetry * 100) : 0.0;
-  }
-
-  Future<void> _calculateHighlightStats() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
-    final response = await Supabase.instance.client
-        .from('book_images')
-        .select('id, extracted_text, highlights, book_id')
-        .eq('user_id', user.id);
-
-    final images = response as List<Map<String, dynamic>>;
-
-    _totalPhotos = images.length;
-
-    int highlightCount = 0;
-    int noteCount = 0;
-    final Map<String, int> genreCount = {};
-
-    for (final image in images) {
-      final highlights = image['highlights'] as List?;
-      if (highlights != null && highlights.isNotEmpty) {
-        highlightCount += highlights.length;
-      }
-
-      final extractedText = image['extracted_text'] as String?;
-      if (extractedText != null && extractedText.trim().isNotEmpty) {
-        noteCount++;
-      }
-    }
-
-    final books = await _bookService.fetchBooks();
-    final bookGenreMap = {for (var b in books) b.id: b.genre};
-
-    for (final image in images) {
-      final bookId = image['book_id'] as String?;
-      if (bookId != null) {
-        final genre = bookGenreMap[bookId];
-        if (genre != null && genre.isNotEmpty) {
-          genreCount[genre] = (genreCount[genre] ?? 0) + 1;
-        }
-      }
-    }
-
-    _totalHighlights = highlightCount;
-    _totalNotes = noteCount;
-    _highlightGenreDistribution = genreCount;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchUserProgressHistory() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return [];
-
-    final response = await Supabase.instance.client
-        .from('reading_progress_history')
-        .select('page, book_id, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', ascending: true);
-
-    return (response as List)
-        .map(
-          (e) => {
-            'page': e['page'] as int,
-            'book_id': e['book_id'] as String?,
-            'created_at': DateTime.parse(e['created_at'] as String),
-          },
-        )
-        .toList();
   }
 
   List<Map<String, dynamic>> aggregateByDate(
@@ -349,21 +202,96 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  Future<double> _calculateGoalRate() async {
-    return await _progressService.calculateGoalAchievementRate();
+  String _formatReadingTime(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    }
+    if (minutes > 0) {
+      return '${minutes}m';
+    }
+    return '${totalSeconds}s';
   }
 
   void _showGoalSheet(BuildContext context) async {
+    final vm = context.read<ReadingChartViewModel>();
     final currentYear = DateTime.now().year;
     final result = await ReadingGoalSheet.show(
       context: context,
       year: currentYear,
-      currentGoal: _goalProgress['targetBooks'] as int?,
+      currentGoal: vm.goalProgress['targetBooks'] as int?,
     );
 
     if (result != null && mounted) {
-      await _goalService.setYearlyGoal(year: currentYear, targetBooks: result);
-      _loadData();
+      await ReadingGoalService().setYearlyGoal(
+        year: currentYear,
+        targetBooks: result,
+      );
+      context.read<ReadingChartViewModel>().forceRefresh();
+    }
+  }
+
+  void _showDateRangePicker(
+    BuildContext context,
+    ReadingChartViewModel vm,
+  ) async {
+    if (vm.customRangeStart != null) {
+      await vm.clearCustomRange();
+      return;
+    }
+    final now = DateTime.now();
+    final result = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: DateTime(now.year, 1, 1),
+        end: now,
+      ),
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final rangeColor = isDark
+            ? BLabColors.primary.withValues(alpha: 0.2)
+            : BLabColors.primary.withValues(alpha: 0.12);
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: BLabColors.primary.withValues(alpha: 0.35),
+                    onPrimaryContainer: Colors.white,
+                    surface: BLabColors.surfaceDark,
+                    onSurface: Colors.white,
+                    onSurfaceVariant: Colors.white70,
+                  )
+                : const ColorScheme.light(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFFDDE3FF),
+                    onPrimaryContainer: BLabColors.primary,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                    onSurfaceVariant: Colors.black54,
+                  ),
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: rangeColor,
+              headerBackgroundColor: isDark
+                  ? BLabColors.surfaceDark
+                  : BLabColors.primary,
+              headerForegroundColor: Colors.white,
+              rangePickerBackgroundColor: isDark
+                  ? BLabColors.scaffoldDark
+                  : BLabColors.scaffoldLight,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (result != null && mounted) {
+      vm.setCustomRange(result.start, result.end);
     }
   }
 
@@ -408,7 +336,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     int? closestIndex;
     double closestDistance = double.infinity;
-    final screenCenter = 300.0;
+    const screenCenter = 300.0;
 
     for (int i = 0; i < _sectionKeys.length; i++) {
       final context = _sectionKeys[i].currentContext;
@@ -457,21 +385,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final renderBox = tabContext.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
-    // Get tab's position relative to the scroll view
     final tabPosition = renderBox.localToGlobal(Offset.zero);
     final tabWidth = renderBox.size.width;
 
-    // Get viewport width
     final viewportWidth = _tabBarScrollController.position.viewportDimension;
 
-    // Calculate target scroll position to center the tab
-    // tabPosition.dx is the tab's left edge position on screen
-    // We want to center it, so: currentScroll + tabLeftEdge - (viewportWidth / 2) + (tabWidth / 2)
     final currentScroll = _tabBarScrollController.offset;
     final targetScroll =
         currentScroll + tabPosition.dx - (viewportWidth / 2) + (tabWidth / 2);
-
-    // Clamp to valid scroll range
     final maxScroll = _tabBarScrollController.position.maxScrollExtent;
     final clampedScroll = targetScroll.clamp(0.0, maxScroll);
 
@@ -483,7 +404,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   }
 
   String _getFilterLabel(TimeFilter filter) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     switch (filter) {
       case TimeFilter.daily:
         return l10n.chartPeriodDaily;
@@ -508,45 +429,62 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    context.watch<ReadingChartViewModel>();
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       appBar: AppBar(
         backgroundColor:
-            isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+            isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
         elevation: 0,
-        title: Text(AppLocalizations.of(context)!.chartTitle),
+        title: Text(AppLocalizations.of(context).chartTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
+        actions: [
+          Consumer<ReadingChartViewModel>(
+            builder: (context, vm, _) => IconButton(
+              icon: Icon(
+                CupertinoIcons.share,
+                color: isDark ? Colors.white : Colors.black,
+                size: 22,
+              ),
+              onPressed: vm.hasData
+                  ? () => BookShareService.shareStatsCard(
+                        context: context,
+                        vm: vm,
+                      )
+                  : null,
+            ),
+          ),
+        ],
         bottom: LiquidGlassTabBar(
           controller: _tabController,
           tabs: [
-            AppLocalizations.of(context)!.chartTabOverview,
-            AppLocalizations.of(context)!.chartTabAnalysis,
-            AppLocalizations.of(context)!.chartTabActivity,
+            AppLocalizations.of(context).chartTabOverview,
+            AppLocalizations.of(context).chartTabAnalysis,
+            AppLocalizations.of(context).chartTabActivity,
           ],
         ),
       ),
-      body: SafeArea(child: _buildContent(isDark)),
+      body: SafeArea(
+        child: Consumer<ReadingChartViewModel>(
+          builder: (context, vm, _) => _buildContent(isDark, vm),
+        ),
+      ),
     );
   }
 
-  Widget _buildContent(bool isDark) {
-    if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
+  Widget _buildContent(bool isDark, ReadingChartViewModel vm) {
+    if (vm.isLoading && !vm.hasData) {
+      return const ReadingChartSkeleton();
     }
 
-    if (_errorMessage != null) {
+    if (vm.errorMessage != null && !vm.hasData && vm.cachedRawData == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -556,21 +494,25 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context)!.chartErrorLoadFailed,
+                AppLocalizations.of(context).chartErrorLoadFailed,
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                  onPressed: _loadData,
-                  child: Text(AppLocalizations.of(context)!.chartErrorRetry)),
+                  onPressed: () =>
+                      context.read<ReadingChartViewModel>().loadData(),
+                  child: Text(AppLocalizations.of(context).chartErrorRetry)),
             ],
           ),
         ),
       );
     }
 
-    final rawData = _cachedRawData ?? [];
+    final rawData = vm.cachedRawData ?? [];
     final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final dailyAggregated = _selectedFilter == TimeFilter.daily
+        ? aggregated
+        : aggregateByDate(rawData, TimeFilter.daily);
     final stats = calculateStatistics(aggregated);
     final streak = _calculateStreak(aggregated);
     final currentYear = DateTime.now().year;
@@ -578,39 +520,43 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildOverviewTab(isDark, stats, streak, currentYear),
-        _buildAnalysisTab(isDark, currentYear, stats, streak),
-        _buildActivityTab(isDark, aggregated, streak, currentYear),
+        _buildOverviewTab(isDark, vm, stats, streak),
+        _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
+        _buildActivityTab(isDark, vm, aggregated, dailyAggregated, streak, currentYear),
       ],
     );
   }
 
   Widget _buildOverviewTab(
     bool isDark,
+    ReadingChartViewModel vm,
     Map<String, dynamic> stats,
     int streak,
-    int currentYear,
   ) {
-    final monthlyDataForChart = _monthlyBookCount.map(
-      (month, count) =>
-          MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
-    );
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnnualGoalCard(
-            targetBooks: _goalProgress['targetBooks'] as int? ?? 0,
-            completedBooks: _goalProgress['completedBooks'] as int? ?? 0,
-            year: currentYear,
+            targetBooks: vm.goalProgress['targetBooks'] as int? ?? 0,
+            completedBooks: vm.goalProgress['completedBooks'] as int? ?? 0,
+            year: DateTime.now().year,
             onSetGoal: () => _showGoalSheet(context),
           ),
           const SizedBox(height: 16),
           MonthlyBooksChart(
-            monthlyData: monthlyDataForChart,
-            year: currentYear,
+            filter: vm.bookChartFilter,
+            monthlyData: vm.monthlyBookCount,
+            dailyData: vm.dailyBookCompletionCount,
+            year: vm.selectedChartYear,
+            month: vm.selectedChartMonth,
+            weekStart: vm.selectedWeekStart,
+            customRangeStart: vm.customRangeStart,
+            customRangeEnd: vm.customRangeEnd,
+            onFilterChanged: (f) => vm.setBookChartFilter(f),
+            onNavigate: (dir) => vm.navigateBookChartPeriod(dir),
+            onCustomRangePressed: () => _showDateRangePicker(context, vm),
           ),
         ],
       ),
@@ -619,13 +565,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   Widget _buildAnalysisTab(
     bool isDark,
+    ReadingChartViewModel vm,
     int currentYear,
     Map<String, dynamic> stats,
     int streak,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final genreMessage = _progressService.getTopGenreMessage(
-      _genreDistribution,
+      vm.genreDistribution,
       l10n,
     );
     final sections = [
@@ -659,7 +606,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // AI Insight Card
                   Container(
                     key: _sectionKeys[0],
                     child: Consumer<ReadingInsightsViewModel>(
@@ -679,38 +625,35 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                   const SizedBox(height: 16),
 
-                  // Completion Rate Card
                   Container(
                     key: _sectionKeys[1],
                     child: CompletionRateCard(
-                      totalStarted: _totalStarted,
-                      completed: _completedBooks,
-                      abandoned: _abandonedBooks,
-                      inProgress: _inProgressBooks,
-                      completionRate: _completionRate,
-                      abandonRate: _abandonRate,
-                      retrySuccessRate: _retrySuccessRate,
+                      totalStarted: vm.totalStarted,
+                      completed: vm.completedBooks,
+                      abandoned: vm.abandonedBooks,
+                      inProgress: vm.inProgressBooks,
+                      completionRate: vm.completionRate,
+                      abandonRate: vm.abandonRate,
+                      retrySuccessRate: vm.retrySuccessRate,
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Highlight Stats Card
                   Container(
                     key: _sectionKeys[2],
                     child: HighlightStatsCard(
-                      totalHighlights: _totalHighlights,
-                      totalNotes: _totalNotes,
-                      totalPhotos: _totalPhotos,
-                      genreDistribution: _highlightGenreDistribution,
+                      totalHighlights: vm.totalHighlights,
+                      totalNotes: vm.totalNotes,
+                      totalPhotos: vm.totalPhotos,
+                      genreDistribution: vm.highlightGenreDistribution,
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Genre Analysis Card
                   Container(
                     key: _sectionKeys[3],
                     child: GenreAnalysisCard(
-                      genreDistribution: _genreDistribution,
+                      genreDistribution: vm.genreDistribution,
                       topGenreMessage: genreMessage,
                     ),
                   ),
@@ -721,7 +664,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.chartReadingStats,
+                          AppLocalizations.of(context).chartReadingStats,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -738,53 +681,47 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           childAspectRatio: 1.3,
                           children: [
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartTotalPages,
+                              AppLocalizations.of(context).chartTotalPages,
                               '${stats['total_pages']}p',
                               Icons.menu_book_rounded,
-                              AppColors.primary,
+                              BLabColors.primary,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartDailyAvgPages,
+                              AppLocalizations.of(context).chartDailyAvgPages,
                               '${(stats['average_daily'] as double).toStringAsFixed(1)}p',
                               Icons.calendar_today_rounded,
-                              AppColors.success,
+                              BLabColors.success,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartMaxDaily,
+                              AppLocalizations.of(context).chartMaxDaily,
                               '${stats['max_daily']}p',
                               Icons.trending_up_rounded,
-                              AppColors.warningAlt,
+                              BLabColors.warningAlt,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!
+                              AppLocalizations.of(context)
                                   .chartConsecutiveDays,
-                              '$streak${AppLocalizations.of(context)!.unitDay}',
+                              '$streak${AppLocalizations.of(context).unitDay}',
                               Icons.local_fire_department_rounded,
-                              AppColors.destructive,
+                              BLabColors.destructive,
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)!.chartMinDaily,
+                              AppLocalizations.of(context).chartMinDaily,
                               '${stats['min_daily']}p',
                               Icons.trending_down_rounded,
-                              AppColors.info,
+                              BLabColors.info,
                               isDark,
                             ),
-                            FutureBuilder<double>(
-                              future: _calculateGoalRate(),
-                              builder: (context, snapshot) {
-                                final goalRate = snapshot.data ?? 0.0;
-                                return _buildStatCard(
-                                  AppLocalizations.of(context)!.chartTodayGoal,
-                                  '${(goalRate * 100).toStringAsFixed(0)}%',
-                                  Icons.flag_rounded,
-                                  AppColors.info,
-                                  isDark,
-                                );
-                              },
+                            _buildStatCard(
+                              AppLocalizations.of(context).chartTodayGoal,
+                              '${(vm.goalRate * 100).toStringAsFixed(0)}%',
+                              Icons.flag_rounded,
+                              BLabColors.info,
+                              isDark,
                             ),
                           ],
                         ),
@@ -802,7 +739,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
   Widget _buildActivityTab(
     bool isDark,
+    ReadingChartViewModel vm,
     List<Map<String, dynamic>> aggregated,
+    List<Map<String, dynamic>> dailyAggregated,
     int streak,
     int currentYear,
   ) {
@@ -812,7 +751,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ReadingStreakHeatmap(
-            dailyPages: _heatmapData,
+            dailyPages: vm.heatmapData,
             year: currentYear,
             currentStreak: streak,
           ),
@@ -820,7 +759,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           _buildReadingProgressChart(isDark, aggregated),
           const SizedBox(height: 24),
           Text(
-            AppLocalizations.of(context)!.chartDailyPages,
+            AppLocalizations.of(context).chartDailyPages,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -828,25 +767,26 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             ),
           ),
           const SizedBox(height: 12),
-          if (aggregated.isEmpty)
+          if (dailyAggregated.isEmpty)
             _buildEmptyListState(isDark)
           else
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: aggregated.length > 10 ? 10 : aggregated.length,
+              itemCount: dailyAggregated.length > 10 ? 10 : dailyAggregated.length,
               itemBuilder: (context, index) {
-                final reversedIndex = aggregated.length - 1 - index;
-                final item = aggregated[reversedIndex];
+                final reversedIndex = dailyAggregated.length - 1 - index;
+                final item = dailyAggregated[reversedIndex];
                 final date = item['date'] as DateTime;
                 final dailyPage = item['daily_page'] as int;
                 final cumulativePage = item['cumulative_page'] as int;
-
+                final readingSeconds =
+                    vm.dailyReadingSeconds[date] ?? 0;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceDark : Colors.white,
+                    color: isDark ? BLabColors.surfaceDark : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -858,7 +798,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: BLabColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -867,7 +807,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: BLabColors.primary,
                             ),
                           ),
                         ),
@@ -878,7 +818,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${date.year}${AppLocalizations.of(context)!.unitYear} ${date.month}${AppLocalizations.of(context)!.unitMonth} ${date.day}${AppLocalizations.of(context)!.unitDay}',
+                              '${date.year}${AppLocalizations.of(context).unitYear} ${date.month}${AppLocalizations.of(context).unitMonth} ${date.day}${AppLocalizations.of(context).unitDay}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -887,7 +827,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${AppLocalizations.of(context)!.chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context)!.chartDailyReadPages}',
+                              '${AppLocalizations.of(context).chartCumulativePages}: ${cumulativePage}p',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
@@ -895,6 +835,30 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                     : Colors.grey[600],
                               ),
                             ),
+                            if (readingSeconds > 0) ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer_outlined,
+                                    size: 12,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatReadingTime(readingSeconds),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -907,7 +871,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                 Icons.add,
                                 size: 16,
                                 color: dailyPage > 0
-                                    ? AppColors.success
+                                    ? BLabColors.success
                                     : Colors.grey,
                               ),
                               Text(
@@ -916,14 +880,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: dailyPage > 0
-                                      ? AppColors.success
+                                      ? BLabColors.success
                                       : Colors.grey,
                                 ),
                               ),
                             ],
                           ),
                           Text(
-                            AppLocalizations.of(context)!.chartDailyReadPages,
+                            AppLocalizations.of(context).chartDailyReadPages,
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -949,7 +913,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
+        color: isDark ? BLabColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -962,7 +926,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.chartReadingProgress,
+                AppLocalizations.of(context).chartReadingProgress,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -990,7 +954,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.primary
+                                ? BLabColors.primary
                                 : (isDark
                                     ? Colors.grey[800]
                                     : Colors.grey[200]),
@@ -1026,7 +990,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color:
-                      isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                      isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -1035,7 +999,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               ),
               const SizedBox(width: 6),
               Text(
-                AppLocalizations.of(context)!.chartDailyPages,
+                AppLocalizations.of(context).chartDailyPages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1046,13 +1010,13 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 width: 12,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(width: 6),
               Text(
-                AppLocalizations.of(context)!.chartCumulativePages,
+                AppLocalizations.of(context).chartCumulativePages,
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1071,7 +1035,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
-                      AppLocalizations.of(context)!.chartNoData,
+                      AppLocalizations.of(context).chartNoData,
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
@@ -1089,7 +1053,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.grey[50],
+        color: isDark ? BLabColors.surfaceDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -1101,7 +1065,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             Icon(Icons.list_alt, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.chartNoReadingRecords,
+              AppLocalizations.of(context).chartNoReadingRecords,
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
@@ -1122,7 +1086,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final barGroups = aggregated.asMap().entries.map((entry) {
       final idx = entry.key;
       final dailyPage = entry.value['daily_page'] as int;
-      final normalizedDaily = maxCumulative > 0
+      final normalizedDaily = (maxCumulative > 0 && maxDaily > 0)
           ? (dailyPage / maxDaily) * maxCumulative * 0.3
           : 0.0;
       return BarChartGroupData(
@@ -1130,7 +1094,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         barRods: [
           BarChartRodData(
             toY: normalizedDaily,
-            color: AppColors.success.withValues(alpha: 0.7),
+            color: BLabColors.success.withValues(alpha: 0.7),
             width: aggregated.length > 30 ? 4 : 8,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(2),
@@ -1160,6 +1124,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     showTitles: true,
                     reservedSize: 50,
                     getTitlesWidget: (value, meta) {
+                      if (value.isNaN || value.isInfinite) return const SizedBox.shrink();
                       return Text(
                         value.toInt().toString(),
                         style: TextStyle(
@@ -1227,7 +1192,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                 ),
               ),
-              maxY: maxCumulative.toDouble() * 1.1,
+              maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
               minY: 0,
               barTouchData: BarTouchData(enabled: false),
             ),
@@ -1240,14 +1205,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   LineChartBarData(
                     spots: lineSpots,
                     isCurved: true,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     barWidth: 3,
                     dotData: FlDotData(
                       show: aggregated.length <= 30,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 3,
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           strokeWidth: 2,
                           strokeColor: Colors.white,
                         );
@@ -1259,7 +1224,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 titlesData: const FlTitlesData(show: false),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                maxY: maxCumulative.toDouble() * 1.1,
+                maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
                 minY: 0,
                 minX: 0,
                 maxX: (aggregated.length - 1).toDouble(),
@@ -1275,7 +1240,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           final cumulativePage =
                               aggregated[idx]['cumulative_page'] as int;
                           return LineTooltipItem(
-                            '${AppLocalizations.of(context)!.chartDailyPages}: ${dailyPage}p\n${AppLocalizations.of(context)!.chartCumulativePages}: ${cumulativePage}p',
+                            '${AppLocalizations.of(context).chartDailyPages}: ${dailyPage}p\n${AppLocalizations.of(context).chartCumulativePages}: ${cumulativePage}p',
                             const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -1306,7 +1271,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -1392,7 +1357,7 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return Container(
-      color: isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+      color: isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       child: SingleChildScrollView(
         controller: scrollController,
         scrollDirection: Axis.horizontal,
@@ -1416,12 +1381,12 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary
-                          : AppColors.primary.withOpacity(0.1),
+                          ? BLabColors.primary
+                          : BLabColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: !isSelected
                           ? Border.all(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: BLabColors.primary.withValues(alpha: 0.3),
                               width: 1,
                             )
                           : null,

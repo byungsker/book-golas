@@ -70,7 +70,7 @@ class BookReviewTab extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: BLabColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
@@ -93,7 +93,7 @@ class BookReviewTab extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -108,15 +108,15 @@ class BookReviewTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 CupertinoIcons.doc_text,
                 size: 18,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
               const SizedBox(width: 8),
               Builder(
                 builder: (context) => Text(
-                  AppLocalizations.of(context)!.bookReviewTabTitle,
+                  AppLocalizations.of(context).bookReviewTabTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -147,28 +147,28 @@ class BookReviewTab extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: BLabColors.primary.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               CupertinoIcons.pencil,
               size: 18,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.bookReviewTabEditButton,
-              style: TextStyle(
+              AppLocalizations.of(context).bookReviewTabEditButton,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
             ),
           ],

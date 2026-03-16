@@ -20,7 +20,7 @@ class CalendarBookThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scaffoldBg =
-        isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight;
+        isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight;
 
     const thumbnailWidth = 36.0;
     const thumbnailHeight = 48.0;
@@ -50,7 +50,7 @@ class CalendarBookThumbnail extends StatelessWidget {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: scaffoldBg,
@@ -77,7 +77,7 @@ class CalendarBookThumbnail extends StatelessWidget {
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: AppColors.successAlt,
+                  color: BLabColors.successAlt,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: scaffoldBg,

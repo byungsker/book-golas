@@ -29,7 +29,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -47,31 +47,36 @@ class ReadingStreakHeatmap extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.destructive.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+                Flexible(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: BLabColors.destructive.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.local_fire_department_rounded,
+                          size: 24,
+                          color: BLabColors.destructive,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.local_fire_department_rounded,
-                        size: 24,
-                        color: AppColors.destructive,
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(context)
+                              .chartReadingStreakTitle(year),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.of(context)!
-                          .chartReadingStreakTitle(year),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 if (isCurrentYear && currentStreak > 0)
                   Container(
@@ -80,7 +85,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.destructive.withOpacity(0.1),
+                      color: BLabColors.destructive.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -92,12 +97,12 @@ class ReadingStreakHeatmap extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          AppLocalizations.of(context)!
+                          AppLocalizations.of(context)
                               .chartReadingStreakDaysRead,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.destructive,
+                            color: BLabColors.destructive,
                           ),
                         ),
                       ],
@@ -111,9 +116,8 @@ class ReadingStreakHeatmap extends StatelessWidget {
               children: [
                 _buildStatItem(
                   label:
-                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
-                  value:
-                      AppLocalizations.of(context)!.chartReadingStreakDaysRead,
+                      AppLocalizations.of(context).chartReadingStreakDaysRead,
+                  value: '$totalDays${AppLocalizations.of(context).unitDay}',
                   isDark: isDark,
                 ),
                 Container(
@@ -122,7 +126,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!
+                  label: AppLocalizations.of(context)
                       .chartReadingStreakTotalPages,
                   value: _formatNumber(context, totalPages),
                   isDark: isDark,
@@ -133,11 +137,10 @@ class ReadingStreakHeatmap extends StatelessWidget {
                   color: isDark ? Colors.grey[700] : Colors.grey[300],
                 ),
                 _buildStatItem(
-                  label: AppLocalizations.of(context)!
+                  label: AppLocalizations.of(context)
                       .chartReadingStreakDailyAverage,
                   value: totalDays > 0
-                      ? AppLocalizations.of(context)!
-                          .chartReadingStreakDailyAverage
+                      ? '${(totalPages / totalDays).toStringAsFixed(1)}p'
                       : '0p',
                   isDark: isDark,
                 ),
@@ -169,13 +172,13 @@ class ReadingStreakHeatmap extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppLocalizations.of(context)!.weekdaySun,
-              AppLocalizations.of(context)!.weekdayMon,
-              AppLocalizations.of(context)!.weekdayTue,
-              AppLocalizations.of(context)!.weekdayWed,
-              AppLocalizations.of(context)!.weekdayThu,
-              AppLocalizations.of(context)!.weekdayFri,
-              AppLocalizations.of(context)!.weekdaySat,
+              AppLocalizations.of(context).weekdaySun,
+              AppLocalizations.of(context).weekdayMon,
+              AppLocalizations.of(context).weekdayTue,
+              AppLocalizations.of(context).weekdayWed,
+              AppLocalizations.of(context).weekdayThu,
+              AppLocalizations.of(context).weekdayFri,
+              AppLocalizations.of(context).weekdaySat,
             ]
                 .map(
                   (day) => SizedBox(
@@ -221,7 +224,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 2),
                         child: Tooltip(
-                          message: AppLocalizations.of(context)!
+                          message: AppLocalizations.of(context)
                               .chartReadingStreakTooltip(
                                   date.month, date.day, pages),
                           child: Container(
@@ -263,25 +266,25 @@ class ReadingStreakHeatmap extends StatelessWidget {
   }
 
   Widget _buildEmptyCell() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 2),
       child: SizedBox(width: 12, height: 12),
     );
   }
 
   List<String> _getMonthLabels(BuildContext context) {
     return [
-      AppLocalizations.of(context)!.chartReadingStreakMonthJan,
+      AppLocalizations.of(context).chartReadingStreakMonthJan,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthMar,
+      AppLocalizations.of(context).chartReadingStreakMonthMar,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthMay,
+      AppLocalizations.of(context).chartReadingStreakMonthMay,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthJul,
+      AppLocalizations.of(context).chartReadingStreakMonthJul,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthSep,
+      AppLocalizations.of(context).chartReadingStreakMonthSep,
       '',
-      AppLocalizations.of(context)!.chartReadingStreakMonthNov,
+      AppLocalizations.of(context).chartReadingStreakMonthNov,
       ''
     ];
   }
@@ -291,15 +294,15 @@ class ReadingStreakHeatmap extends StatelessWidget {
       return isDark ? Colors.grey[850]! : Colors.grey[200]!;
     }
     if (pages <= 10) {
-      return AppColors.info.withOpacity(0.3);
+      return BLabColors.info.withOpacity(0.3);
     }
     if (pages <= 30) {
-      return AppColors.info.withOpacity(0.5);
+      return BLabColors.info.withOpacity(0.5);
     }
     if (pages <= 50) {
-      return AppColors.info.withOpacity(0.7);
+      return BLabColors.info.withOpacity(0.7);
     }
-    return AppColors.info;
+    return BLabColors.info;
   }
 
   Widget _buildLegend(BuildContext context, bool isDark) {
@@ -307,7 +310,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          AppLocalizations.of(context)!.chartReadingStreakLess,
+          AppLocalizations.of(context).chartReadingStreakLess,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -321,7 +324,7 @@ class ReadingStreakHeatmap extends StatelessWidget {
         _buildLegendBox(_getColorForPages(60, isDark)),
         const SizedBox(width: 4),
         Text(
-          AppLocalizations.of(context)!.chartReadingStreakMore,
+          AppLocalizations.of(context).chartReadingStreakMore,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? Colors.grey[500] : Colors.grey[600],

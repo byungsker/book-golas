@@ -1,31 +1,46 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "북골라스 - 매일의 독서가 목표가 되는 곳",
-  description: "독서 목표 달성을 위한 스마트한 동반자",
+  title: {
+    default: "북골라스",
+    template: "%s | 북골라스",
+  },
+  description:
+    "읽고 싶은 책을 목표로 만들고, 매일의 독서를 기록하세요. 북골라스와 함께라면 독서 습관이 달라집니다.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="ko" className="dark">
+    <html
+      lang="ko"
+      className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
+    >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
+        style={{
+          fontFamily: "var(--font-body)",
+          backgroundColor: "#0D0F1A",
+          color: "#FAFAFA",
+          WebkitFontSmoothing: "antialiased",
+        }}
       >
         {children}
       </body>

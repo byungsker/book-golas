@@ -12,7 +12,6 @@ import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
 import 'package:book_golas/ui/core/widgets/full_text_view_modal.dart';
 import 'package:book_golas/ui/core/utils/text_history_manager.dart';
 import 'package:book_golas/data/services/image_cache_manager.dart';
-import 'package:book_golas/ui/book_detail/widgets/highlight/highlight_overlay.dart';
 import 'package:book_golas/ui/core/widgets/highlight_edit_view.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
@@ -91,7 +90,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       HighlightSettingsService.defaultStrokeWidth;
   bool _isEraserMode = false;
   final List<List<HighlightData>> _highlightHistory = [];
-  Size? _imageSize;
   final GlobalKey _imageKey = GlobalKey();
   bool _isImageLoaded = false;
 
@@ -139,17 +137,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     }
   }
 
-  void _updateImageSize() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final renderBox =
-          _imageKey.currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox != null && mounted) {
-        setState(() {
-          _imageSize = renderBox.size;
-        });
-      }
-    });
-  }
 
   bool get _hasHighlightChanges {
     if (_highlights.length != _originalHighlights.length) return true;
@@ -222,7 +209,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         builder: (bottomSheetContext) => Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(20),
             ),
@@ -240,7 +227,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 ),
               ),
               Text(
-                AppLocalizations.of(context)!.unsavedChangesMessage,
+                AppLocalizations.of(context).unsavedChangesMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -275,7 +262,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                         ),
                         child: Center(
                           child: Text(
-                            AppLocalizations.of(context)!.discardChangesButton,
+                            AppLocalizations.of(context).discardChangesButton,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -294,12 +281,12 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
                           child: Text(
-                            AppLocalizations.of(context)!.continueEditingButton,
+                            AppLocalizations.of(context).continueEditingButton,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -333,9 +320,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         HapticFeedback.vibrate();
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .pageExceedsTotalError(widget.totalPages),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           rootOverlay: true,
           aboveKeyboard: true,
         );
@@ -366,8 +353,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       if (success && mounted) {
         Navigator.pop(context);
         CustomSnackbar.show(context,
-            message: AppLocalizations.of(context)!.dialogSaved,
-            type: SnackbarType.success);
+            message: AppLocalizations.of(context).dialogSaved,
+            type: BLabSnackbarType.success);
       } else {
         setState(() => _isSaving = false);
       }
@@ -419,7 +406,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               Container(
                 height: modalHeight,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.surfaceDark : Colors.white,
+                  color: isDark ? BLabColors.surfaceDark : Colors.white,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
@@ -491,8 +478,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 : () => Navigator.pop(context),
             child: Text(
               _isEditing
-                  ? AppLocalizations.of(context)!.commonCancel
-                  : AppLocalizations.of(context)!.commonClose,
+                  ? AppLocalizations.of(context).commonCancel
+                  : AppLocalizations.of(context).commonClose,
               style: TextStyle(
                 fontSize: 16,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -505,7 +492,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             Text(
               _editingPageNumber != null
                   ? 'p.$_editingPageNumber'
-                  : AppLocalizations.of(context)!.pageNotSet,
+                  : AppLocalizations.of(context).pageNotSet,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -517,12 +504,12 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               onPressed: (_isSaving || _pageNumberError) ? null : _handleSave,
               child: Text(
                 _isSaving
-                    ? AppLocalizations.of(context)!.dialogSaving
-                    : AppLocalizations.of(context)!.commonSave,
+                    ? AppLocalizations.of(context).dialogSaving
+                    : AppLocalizations.of(context).commonSave,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: _isSaving ? Colors.grey : AppColors.primary,
+                  color: _isSaving ? Colors.grey : BLabColors.primary,
                 ),
               ),
             )
@@ -536,7 +523,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 );
               },
               child: Text(
-                AppLocalizations.of(context)!.commonDelete,
+                AppLocalizations.of(context).commonDelete,
                 style: TextStyle(fontSize: 16, color: Colors.red[400]),
               ),
             ),
@@ -594,7 +581,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: _pageNumberError ? Colors.red : AppColors.primary,
+                  color: _pageNumberError ? Colors.red : BLabColors.primary,
                 ),
               ),
             ),
@@ -606,23 +593,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
   }
 
   Widget _buildWithImageContent(bool isDark) {
-    final isTextFocused = _isEditing && _focusNode.hasFocus;
-
-    if (isTextFocused) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextHeader(isDark),
-            const SizedBox(height: 12),
-            Expanded(child: _buildFullModeTextField(isDark)),
-            const SizedBox(height: 20),
-          ],
-        ),
-      );
-    }
-
     if (_isHighlightMode) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -655,40 +625,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     );
   }
 
-  Widget _buildFullModeTextField(bool isDark) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-        ),
-      ),
-      child: TextField(
-        controller: _textController,
-        focusNode: _focusNode,
-        maxLines: null,
-        expands: true,
-        keyboardType: TextInputType.multiline,
-        textInputAction: TextInputAction.newline,
-        textAlignVertical: TextAlignVertical.top,
-        style: TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context)!.textInputHint,
-          hintStyle: TextStyle(
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTextOnlyContent(bool isDark) {
     return Padding(
@@ -812,20 +748,19 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           _isHighlightMode = true;
           _isEditing = true;
         });
-        _updateImageSize();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: hasHighlights
-              ? AppColors.primary.withValues(alpha: 0.9)
+              ? BLabColors.primary.withValues(alpha: 0.9)
               : Colors.black54,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               CupertinoIcons.pencil_outline,
               size: 14,
               color: Colors.white,
@@ -833,9 +768,9 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             const SizedBox(width: 4),
             Text(
               hasHighlights
-                  ? AppLocalizations.of(context)!
+                  ? AppLocalizations.of(context)
                       .highlightWithCount(_highlights.length)
-                  : AppLocalizations.of(context)!.highlightLabel,
+                  : AppLocalizations.of(context).highlightLabel,
               style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
           ],
@@ -930,7 +865,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 size: 14, color: Colors.white),
             const SizedBox(width: 4),
             Text(
-              AppLocalizations.of(context)!.extractTextButton,
+              AppLocalizations.of(context).extractTextButton,
               style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
           ],
@@ -967,7 +902,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             const Icon(CupertinoIcons.arrow_2_squarepath,
                 size: 14, color: Colors.white),
             const SizedBox(width: 4),
-            Text(AppLocalizations.of(context)!.dialogReplaceImage,
+            Text(AppLocalizations.of(context).dialogReplaceImage,
                 style: const TextStyle(fontSize: 12, color: Colors.white)),
           ],
         ),
@@ -988,7 +923,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
             ),
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.recordTextLabel,
+              AppLocalizations.of(context).recordTextLabel,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -1032,7 +967,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  AppLocalizations.of(context)!.viewFullButton,
+                  AppLocalizations.of(context).viewFullButton,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1050,7 +985,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               Clipboard.setData(ClipboardData(text: _textController.text));
               CustomSnackbar.show(
                 context,
-                message: AppLocalizations.of(context)!.textCopied,
+                message: AppLocalizations.of(context).textCopied,
                 rootOverlay: true,
                 bottomOffset: 40,
               );
@@ -1065,7 +1000,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               ),
               const SizedBox(width: 4),
               Text(
-                AppLocalizations.of(context)!.copyButton,
+                AppLocalizations.of(context).copyButton,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -1088,14 +1023,14 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           child: Row(
             children: [
               const Icon(CupertinoIcons.pencil,
-                  size: 14, color: AppColors.primary),
+                  size: 14, color: BLabColors.primary),
               const SizedBox(width: 4),
               Text(
-                AppLocalizations.of(context)!.editButton,
+                AppLocalizations.of(context).editButton,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ],
@@ -1113,7 +1048,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
           Icon(CupertinoIcons.trash, size: 14, color: Colors.red[400]),
           const SizedBox(width: 4),
           Text(
-            AppLocalizations.of(context)!.clearAllButton,
+            AppLocalizations.of(context).clearAllButton,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -1147,29 +1082,26 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               : null,
         ),
         child: _isEditing
-            ? Scrollbar(
-                thumbVisibility: true,
-                child: TextField(
-                  controller: _textController,
-                  focusNode: _focusNode,
-                  maxLines: null,
-                  expands: true,
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                  textAlignVertical: TextAlignVertical.top,
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.6,
-                    color: isDark ? Colors.white : Colors.black,
+            ? TextField(
+                controller: _textController,
+                focusNode: _focusNode,
+                maxLines: null,
+                expands: true,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                textAlignVertical: TextAlignVertical.top,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.6,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context).textInputHint,
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
                   ),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.textInputHint,
-                    hintStyle: TextStyle(
-                      color: isDark ? Colors.grey[600] : Colors.grey[400],
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(16),
                 ),
               )
             : Scrollbar(
@@ -1178,7 +1110,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                   padding: const EdgeInsets.all(16),
                   child: _textController.text.isEmpty
                       ? Text(
-                          AppLocalizations.of(context)!.noRecordedText,
+                          AppLocalizations.of(context).noRecordedText,
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.6,
@@ -1228,7 +1160,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
                 color: isDark ? Colors.white : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.textInputHint,
+                hintText: AppLocalizations.of(context).textInputHint,
                 hintStyle: TextStyle(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
@@ -1240,7 +1172,7 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
               padding: const EdgeInsets.all(16),
               child: _textController.text.isEmpty
                   ? Text(
-                      AppLocalizations.of(context)!.noRecordedText,
+                      AppLocalizations.of(context).noRecordedText,
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.6,
@@ -1346,7 +1278,7 @@ void showExistingImageModal({
     context: context,
     isScrollControlled: true,
     isDismissible: true,
-    enableDrag: false,
+    enableDrag: true,
     backgroundColor: Colors.transparent,
     builder: (modalContext) => ExistingImageModal(
       imageId: imageId,

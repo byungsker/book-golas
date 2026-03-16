@@ -95,13 +95,13 @@ class FloatingActionBar extends StatelessWidget {
               height: 62,
               decoration: BoxDecoration(
                 color: isDark
-                    ? AppColors.primary.withValues(alpha: 0.3)
-                    : AppColors.primary.withValues(alpha: 0.15),
+                    ? BLabColors.primary.withValues(alpha: 0.3)
+                    : BLabColors.primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isDark
-                      ? AppColors.primary.withValues(alpha: 0.5)
-                      : AppColors.primary.withValues(alpha: 0.3),
+                      ? BLabColors.primary.withValues(alpha: 0.5)
+                      : BLabColors.primary.withValues(alpha: 0.3),
                   width: 0.5,
                 ),
               ),
@@ -113,7 +113,7 @@ class FloatingActionBar extends StatelessWidget {
                     child: Icon(
                       Icons.auto_awesome,
                       size: 18,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                   ),
                   Positioned(
@@ -121,7 +121,7 @@ class FloatingActionBar extends StatelessWidget {
                     child: Icon(
                       Icons.search,
                       size: 18,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                   ),
                 ],
@@ -147,13 +147,13 @@ class FloatingActionBar extends StatelessWidget {
               height: 62,
               decoration: BoxDecoration(
                 color: isDark
-                    ? AppColors.primary.withValues(alpha: 0.3)
-                    : AppColors.primary.withValues(alpha: 0.15),
+                    ? BLabColors.primary.withValues(alpha: 0.3)
+                    : BLabColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: isDark
-                      ? AppColors.primary.withValues(alpha: 0.5)
-                      : AppColors.primary.withValues(alpha: 0.3),
+                      ? BLabColors.primary.withValues(alpha: 0.5)
+                      : BLabColors.primary.withValues(alpha: 0.3),
                   width: 0.5,
                 ),
               ),
@@ -164,15 +164,15 @@ class FloatingActionBar extends StatelessWidget {
                     const Icon(
                       Icons.auto_awesome,
                       size: 18,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppLocalizations.of(context)!.searchRecordsButton,
+                      AppLocalizations.of(context).searchRecordsButton,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                       ),
                     ),
                   ],
@@ -222,7 +222,7 @@ class FloatingActionBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      AppLocalizations.of(context)!.pageUpdateButton,
+                      AppLocalizations.of(context).pageUpdateButton,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -337,7 +337,7 @@ class KeyboardDoneButton extends StatelessWidget {
                       size: 20,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.9)
-                          : AppColors.primary,
+                          : BLabColors.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -347,7 +347,7 @@ class KeyboardDoneButton extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.9)
-                            : AppColors.primary,
+                            : BLabColors.primary,
                       ),
                     ),
                   ],

@@ -12,6 +12,9 @@ import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
 import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/empty_state_view.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 class BookListScreen extends StatefulWidget {
   const BookListScreen({super.key});
@@ -112,7 +115,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildTabBar(BookListViewModel vm, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return ScrollableTabBar(
       controller: _tabController,
       scrollController: _tabScrollController,
@@ -150,7 +153,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   Widget _buildErrorState(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -178,20 +181,12 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
+          BLabButton(
+            text: l10n.commonRetry,
+            icon: Icons.refresh,
             onPressed: () {
               setState(() {});
             },
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.commonRetry),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
-            ),
           ),
         ],
       ),
@@ -200,16 +195,16 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPlannedBooksTab(BookListViewModel vm, bool isDark) {
     final plannedBooks = vm.plannedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (plannedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyPlanned);
+      return EmptyStateView(message: l10n.bookListEmptyPlanned);
     }
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -225,16 +220,16 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildPausedBooksTab(BookListViewModel vm, bool isDark) {
     final pausedBooks = vm.pausedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (pausedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyPaused);
+      return EmptyStateView(message: l10n.bookListEmptyPaused);
     }
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -248,41 +243,34 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  Widget _buildEmptyState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.book_outlined,
-            size: 80,
-            color: Colors.grey,
+  Widget _buildReadingEmptyState(bool isDark, AppLocalizations l10n) {
+    return EmptyStateView(
+      message: l10n.bookListEmptyReading,
+      showButton: true,
+      buttonLabel: l10n.bookListReadingEmptyAction,
+      onButtonPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ReadingStartScreen(),
           ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildAllBooksTab(BookListViewModel vm, bool isDark) {
     final allBooks = vm.books;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (allBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyAll);
+      return EmptyStateView(message: l10n.bookListEmptyAll);
     }
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -474,16 +462,16 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildReadingBooksTab(BookListViewModel vm, bool isDark) {
     final readingBooks = vm.readingBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (readingBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyReading);
+      return _buildReadingEmptyState(isDark, l10n);
     }
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -499,16 +487,16 @@ class _BookListScreenState extends State<BookListScreen>
 
   Widget _buildCompletedBooksTab(BookListViewModel vm, bool isDark) {
     final completedBooks = vm.completedBooks;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (completedBooks.isEmpty) {
-      return _buildEmptyState(l10n.bookListEmptyCompleted);
+      return EmptyStateView(message: l10n.bookListEmptyCompleted);
     }
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(vm),
-      color: AppColors.primary,
-      backgroundColor: isDark ? AppColors.elevatedDark : Colors.white,
+      color: BLabColors.primary,
+      backgroundColor: isDark ? BLabColors.elevatedDark : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 200),
@@ -574,9 +562,9 @@ class _FilterBadgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Container(
-      color: isDark ? AppColors.scaffoldDark : Colors.white,
+      color: isDark ? BLabColors.scaffoldDark : Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

@@ -13,7 +13,7 @@ Future<bool?> showPauseReadingConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -27,13 +27,13 @@ Future<bool?> showPauseReadingConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.1),
+                color: BLabColors.warning.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.pause_circle,
                 size: 32,
-                color: AppColors.warning,
+                color: BLabColors.warning,
               ),
             ),
             const SizedBox(height: 16),
@@ -94,7 +94,7 @@ Future<bool?> showPauseReadingConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: AppColors.warning,
+                      backgroundColor: BLabColors.warning,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

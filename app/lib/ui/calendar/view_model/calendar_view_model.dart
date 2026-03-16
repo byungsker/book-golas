@@ -12,7 +12,7 @@ enum CalendarFilter {
 
 extension CalendarFilterExtension on CalendarFilter {
   String getLabel(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     switch (this) {
       case CalendarFilter.all:
         return l10n.calendarFilterAll;

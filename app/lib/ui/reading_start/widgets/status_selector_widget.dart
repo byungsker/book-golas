@@ -35,7 +35,7 @@ class StatusSelectorWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.subtleDark : AppColors.elevatedLight,
+            color: isDark ? BLabColors.subtleDark : BLabColors.elevatedLight,
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(4),
@@ -75,13 +75,13 @@ class StatusSelectorWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? AppColors.primary : AppColors.primary)
+                ? (isDark ? BLabColors.primary : BLabColors.primary)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: BLabColors.primary.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

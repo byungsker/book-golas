@@ -5,13 +5,13 @@ import 'package:flutter/services.dart';
 
 import 'pressable_wrapper.dart';
 
-class LiquidGlassCard extends StatelessWidget {
+class BLabCard extends StatelessWidget {
   final Widget child;
   final EdgeInsets? padding;
   final BorderRadius? borderRadius;
   final VoidCallback? onTap;
 
-  const LiquidGlassCard({
+  const BLabCard({
     super.key,
     required this.child,
     this.padding,
@@ -51,7 +51,7 @@ class LiquidGlassCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return PressableWrapper(
+      return BLabPressableWrapper(
         onTap: () {
           HapticFeedback.selectionClick();
           onTap!();

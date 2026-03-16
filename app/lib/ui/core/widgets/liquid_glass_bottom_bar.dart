@@ -13,37 +13,26 @@ import 'package:book_golas/l10n/app_localizations.dart';
 /// - 검색 버튼: 분리된 원형 버튼, 탭 시 검색 필드 표시
 /// - 물방울 확대 애니메이션: 롱프레스로 드래그하며 탭 전환
 /// - 렌즈 효과: 물방울 영역 내 콘텐츠 굴절
-class LiquidGlassBottomBar extends StatefulWidget {
+class BLabBottomBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
 
   /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
   final void Function(Offset position, double size) onSearchTap;
 
-  /// 진행 중인 독서 모드로 전환 버튼 표시 여부
-  final bool showReadingDetailButton;
 
-  /// 진행 중인 독서 모드로 전환 버튼 탭 콜백
-  final VoidCallback? onReadingDetailTap;
-
-  /// 마진 제거 여부 (애니메이션 스택에서 사용 시)
-  final bool noMargin;
-
-  const LiquidGlassBottomBar({
+  const BLabBottomBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
     required this.onSearchTap,
-    this.showReadingDetailButton = false,
-    this.onReadingDetailTap,
-    this.noMargin = false,
   });
 
   @override
-  State<LiquidGlassBottomBar> createState() => _LiquidGlassBottomBarState();
+  State<BLabBottomBar> createState() => _BLabBottomBarState();
 }
 
-class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
+class _BLabBottomBarState extends State<BLabBottomBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _slideAnimation;
@@ -80,7 +69,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   ];
 
   List<String> _getTabLabels(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return [
       l10n.navHome,
       l10n.navLibrary,
@@ -104,7 +93,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
   }
 
   @override
-  void didUpdateWidget(LiquidGlassBottomBar oldWidget) {
+  void didUpdateWidget(BLabBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
       _slideAnimation = Tween<double>(
@@ -193,9 +182,6 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
       ],
     );
 
-    if (widget.noMargin) {
-      return content;
-    }
 
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
@@ -398,32 +384,16 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar>
     Color inactiveForegroundColor,
     bool isHighlighted,
   ) {
-    final showArrow = index == 0 && widget.showReadingDetailButton;
     final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
 
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (showArrow)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Icon(
-                    CupertinoIcons.chevron_up_chevron_down,
-                    color: iconColor,
-                    size: 12,
-                  ),
-                ),
-              Icon(
-                isHighlighted ? tab.activeIcon : tab.icon,
-                color: iconColor,
-                size: 24,
-              ),
-            ],
+          Icon(
+            isHighlighted ? tab.activeIcon : tab.icon,
+            color: iconColor,
+            size: 24,
           ),
           const SizedBox(height: 2),
           Text(

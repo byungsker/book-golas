@@ -35,7 +35,7 @@ class CompletionRateCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -55,31 +55,31 @@ class CompletionRateCard extends StatelessWidget {
             _buildRateItem(
               context,
               isDark,
-              AppLocalizations.of(context)!.chartCompletionRateLabel,
+              AppLocalizations.of(context).chartCompletionRateLabel,
               completionRate,
               Icons.check_circle_outline,
-              AppColors.primary,
-              AppLocalizations.of(context)!.chartCompletionRateBooks(completed),
+              BLabColors.primary,
+              AppLocalizations.of(context).chartCompletionRateBooks(completed),
             ),
             const SizedBox(height: 16),
             _buildRateItem(
               context,
               isDark,
-              AppLocalizations.of(context)!.chartAbandonRateLabel,
+              AppLocalizations.of(context).chartAbandonRateLabel,
               abandonRate,
               Icons.cancel_outlined,
               Colors.orange,
-              AppLocalizations.of(context)!.chartAbandonRateBooks(abandoned),
+              AppLocalizations.of(context).chartAbandonRateBooks(abandoned),
             ),
             const SizedBox(height: 16),
             _buildRateItem(
               context,
               isDark,
-              AppLocalizations.of(context)!.chartRetrySuccessRateLabel,
+              AppLocalizations.of(context).chartRetrySuccessRateLabel,
               retrySuccessRate,
               Icons.refresh,
               Colors.green,
-              AppLocalizations.of(context)!.chartRetrySuccessRateBooks,
+              AppLocalizations.of(context).chartRetrySuccessRateBooks,
             ),
             const SizedBox(height: 16),
             _buildSummary(context, isDark),
@@ -95,18 +95,18 @@ class CompletionRateCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.analytics_outlined,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
         Text(
-          AppLocalizations.of(context)!.chartCompletionRateTitle,
+          AppLocalizations.of(context).chartCompletionRateTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -187,28 +187,28 @@ class CompletionRateCard extends StatelessWidget {
           _buildSummaryItem(
             context,
             isDark,
-            AppLocalizations.of(context)!.chartCompletionRateSummaryStarted,
+            AppLocalizations.of(context).chartCompletionRateSummaryStarted,
             totalStarted.toString(),
             Icons.play_arrow,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            AppLocalizations.of(context)!.chartCompletionRateSummaryCompleted,
+            AppLocalizations.of(context).chartCompletionRateSummaryCompleted,
             completed.toString(),
             Icons.check,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            AppLocalizations.of(context)!.chartCompletionRateSummaryInProgress,
+            AppLocalizations.of(context).chartCompletionRateSummaryInProgress,
             inProgress.toString(),
             Icons.hourglass_empty,
           ),
           _buildSummaryItem(
             context,
             isDark,
-            AppLocalizations.of(context)!.chartCompletionRateSummaryAbandoned,
+            AppLocalizations.of(context).chartCompletionRateSummaryAbandoned,
             abandoned.toString(),
             Icons.close,
           ),
@@ -254,7 +254,7 @@ class CompletionRateCard extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -277,7 +277,7 @@ class CompletionRateCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.chartCompletionRateEmptyMessage,
+              AppLocalizations.of(context).chartCompletionRateEmptyMessage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white60 : Colors.black54,
@@ -285,7 +285,7 @@ class CompletionRateCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              AppLocalizations.of(context)!.chartCompletionRateEmptyHint,
+              AppLocalizations.of(context).chartCompletionRateEmptyHint,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white54 : Colors.black45,

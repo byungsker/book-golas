@@ -70,8 +70,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         if (mounted) {
           CustomSnackbar.show(
             context,
-            message: AppLocalizations.of(context)!.reviewDraftLoaded,
-            type: SnackbarType.info,
+            message: AppLocalizations.of(context).reviewDraftLoaded,
+            type: BLabSnackbarType.info,
           );
         }
       });
@@ -175,8 +175,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (mounted) {
       CustomSnackbar.show(
         context,
-        message: AppLocalizations.of(context)!.reviewCopied,
-        type: SnackbarType.success,
+        message: AppLocalizations.of(context).reviewCopied,
+        type: BLabSnackbarType.success,
         icon: CupertinoIcons.doc_on_doc,
         aboveKeyboard: true,
       );
@@ -207,8 +207,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (bookId == null) {
       CustomSnackbar.show(
         context,
-        message: AppLocalizations.of(context)!.reviewBookNotFound,
-        type: SnackbarType.error,
+        message: AppLocalizations.of(context).reviewBookNotFound,
+        type: BLabSnackbarType.error,
       );
       return;
     }
@@ -236,8 +236,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       } else {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.reviewSaveFailed,
-          type: SnackbarType.error,
+          message: AppLocalizations.of(context).reviewSaveFailed,
+          type: BLabSnackbarType.error,
         );
       }
     } catch (e) {
@@ -245,8 +245,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.reviewSaveError,
-          type: SnackbarType.error,
+          message: AppLocalizations.of(context).reviewSaveError,
+          type: BLabSnackbarType.error,
         );
       }
     } finally {
@@ -265,8 +265,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (bookId == null) {
       CustomSnackbar.show(
         context,
-        message: AppLocalizations.of(context)!.reviewBookNotFound,
-        type: SnackbarType.error,
+        message: AppLocalizations.of(context).reviewBookNotFound,
+        type: BLabSnackbarType.error,
       );
       return;
     }
@@ -274,8 +274,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (_reviewController.text.trim().isNotEmpty) {
       final shouldReplace = await showConfirmationBottomSheet(
         context: context,
-        title: AppLocalizations.of(context)!.reviewReplaceConfirm,
-        confirmText: AppLocalizations.of(context)!.reviewReplaceButton,
+        title: AppLocalizations.of(context).reviewReplaceConfirm,
+        confirmText: AppLocalizations.of(context).reviewReplaceButton,
         isDestructive: true,
       );
 
@@ -296,15 +296,15 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         _reviewController.text = draft;
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.reviewAIDraftGenerated,
-          type: SnackbarType.success,
+          message: AppLocalizations.of(context).reviewAIDraftGenerated,
+          type: BLabSnackbarType.success,
           icon: CupertinoIcons.sparkles,
         );
       } else {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.reviewAIDraftFailed,
-          type: SnackbarType.error,
+          message: AppLocalizations.of(context).reviewAIDraftFailed,
+          type: BLabSnackbarType.error,
         );
       }
     } catch (e) {
@@ -312,8 +312,8 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.reviewAIDraftError,
-          type: SnackbarType.error,
+          message: AppLocalizations.of(context).reviewAIDraftError,
+          type: BLabSnackbarType.error,
         );
       }
     } finally {
@@ -335,7 +335,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -354,18 +354,18 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: BLabColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.checkmark_alt,
-                color: AppColors.success,
+                color: BLabColors.success,
                 size: 32,
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.reviewSaveComplete,
+              AppLocalizations.of(context).reviewSaveComplete,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -374,7 +374,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.reviewSaveCompleteMessage,
+              AppLocalizations.of(context).reviewSaveCompleteMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -389,12 +389,12 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
                   child: Text(
-                    AppLocalizations.of(context)!.commonConfirm,
+                    AppLocalizations.of(context).commonConfirm,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -418,9 +418,9 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
     final shouldDiscard = await showConfirmationBottomSheet(
       context: context,
-      title: AppLocalizations.of(context)!.reviewExitConfirm,
-      subtitle: AppLocalizations.of(context)!.reviewExitMessage,
-      confirmText: AppLocalizations.of(context)!.reviewExit,
+      title: AppLocalizations.of(context).reviewExitConfirm,
+      subtitle: AppLocalizations.of(context).reviewExitMessage,
+      confirmText: AppLocalizations.of(context).reviewExit,
       isDestructive: false,
     );
 
@@ -463,11 +463,11 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
         children: [
           Scaffold(
             backgroundColor:
-                isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+                isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
             resizeToAvoidBottomInset: true,
             appBar: AppBar(
               backgroundColor:
-                  isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+                  isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
               elevation: 0,
               leading: IconButton(
                 icon: Icon(
@@ -486,7 +486,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                 },
               ),
               title: Text(
-                AppLocalizations.of(context)!.reviewTitle,
+                AppLocalizations.of(context).reviewTitle,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -498,21 +498,21 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
                 TextButton(
                   onPressed: _hasChanges && !_isSaving ? _saveReview : null,
                   child: _isSaving
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppColors.primary,
+                            color: BLabColors.primary,
                           ),
                         )
                       : Text(
-                          AppLocalizations.of(context)!.commonSave,
+                          AppLocalizations.of(context).commonSave,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: _hasChanges
-                                ? AppColors.primary
+                                ? BLabColors.primary
                                 : (isDark
                                     ? Colors.grey[600]
                                     : Colors.grey[400]),
@@ -651,10 +651,10 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: BLabColors.primary.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
@@ -669,36 +669,36 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (_isGeneratingAI) ...[
-              SizedBox(
+              const SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               const SizedBox(width: 10),
               Text(
-                AppLocalizations.of(context)!.aiDraftGenerating,
-                style: TextStyle(
+                AppLocalizations.of(context).aiDraftGenerating,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ] else ...[
-              Icon(
+              const Icon(
                 CupertinoIcons.sparkles,
                 size: 18,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.aiDraftGenerate,
-                style: TextStyle(
+                AppLocalizations.of(context).aiDraftGenerate,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
             ],
@@ -711,7 +711,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   Widget _buildReviewTextField(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -739,7 +739,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
               color: isDark ? Colors.white : Colors.black,
             ),
             decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.reviewHint,
+              hintText: AppLocalizations.of(context).reviewHint,
               hintStyle: TextStyle(
                 fontSize: 15,
                 color: isDark ? Colors.grey[600] : Colors.grey[400],

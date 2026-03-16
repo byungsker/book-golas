@@ -18,7 +18,7 @@ class CustomTabBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border(
           bottom: BorderSide(

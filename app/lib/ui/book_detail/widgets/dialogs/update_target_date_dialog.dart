@@ -55,7 +55,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24),
@@ -82,12 +82,12 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.destructive.withOpacity(0.1),
+            color: BLabColors.destructive.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.calendar_month,
-            color: AppColors.destructive,
+            color: BLabColors.destructive,
             size: 24,
           ),
         ),
@@ -97,7 +97,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context)!.changeTargetDateTitle,
+                AppLocalizations.of(context).changeTargetDateTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -105,7 +105,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 ),
               ),
               Text(
-                AppLocalizations.of(context)!
+                AppLocalizations.of(context)
                     .attemptChangeMessage(widget.nextAttemptCount),
                 style: TextStyle(
                   fontSize: 13,
@@ -123,7 +123,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[100],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -143,8 +143,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: daysRemaining > 0
-                  ? AppColors.success.withValues(alpha: 0.1)
-                  : AppColors.destructive.withValues(alpha: 0.1),
+                  ? BLabColors.success.withValues(alpha: 0.1)
+                  : BLabColors.destructive.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -153,8 +153,8 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: daysRemaining > 0
-                    ? AppColors.success
-                    : AppColors.destructive,
+                    ? BLabColors.success
+                    : BLabColors.destructive,
               ),
             ),
           ),
@@ -167,7 +167,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[100],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: KoreanDatePicker(
@@ -192,7 +192,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: Text(AppLocalizations.of(context)!.commonCancel),
+            child: Text(AppLocalizations.of(context).commonCancel),
           ),
         ),
         const SizedBox(width: 12),
@@ -204,14 +204,14 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
               await widget.onConfirm(_selectedDate, widget.nextAttemptCount);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: BLabColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: Text(
-              AppLocalizations.of(context)!.confirmChange,
+              AppLocalizations.of(context).confirmChange,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

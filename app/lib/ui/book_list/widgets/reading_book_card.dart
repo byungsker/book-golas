@@ -73,14 +73,14 @@ class _ReadingBookCardState extends State<ReadingBookCard>
     final Color badgeColor;
     final Color badgeBgColor;
     if (daysLeft < 0) {
-      badgeColor = AppColors.error;
-      badgeBgColor = AppColors.error.withValues(alpha: 0.12);
+      badgeColor = BLabColors.error;
+      badgeBgColor = BLabColors.error.withValues(alpha: 0.12);
     } else if (daysLeft == 0) {
-      badgeColor = AppColors.warning;
-      badgeBgColor = AppColors.warning.withValues(alpha: 0.12);
+      badgeColor = BLabColors.warning;
+      badgeBgColor = BLabColors.warning.withValues(alpha: 0.12);
     } else {
-      badgeColor = AppColors.primary;
-      badgeBgColor = AppColors.primary.withValues(alpha: 0.12);
+      badgeColor = BLabColors.primary;
+      badgeBgColor = BLabColors.primary.withValues(alpha: 0.12);
     }
 
     return GestureDetector(
@@ -95,7 +95,7 @@ class _ReadingBookCardState extends State<ReadingBookCard>
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(

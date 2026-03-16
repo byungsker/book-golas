@@ -72,8 +72,8 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
     Clipboard.setData(ClipboardData(text: widget.source.content));
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context)!.recallContentCopied,
-      type: SnackbarType.success,
+      message: AppLocalizations.of(context).recallContentCopied,
+      type: BLabSnackbarType.success,
       bottomOffset: 32,
     );
   }
@@ -88,7 +88,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -287,7 +287,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.recallCopy,
+                      AppLocalizations.of(context).recallCopy,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -338,9 +338,9 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
           widget.onGoToBook?.call();
         },
         icon: const Icon(CupertinoIcons.book, size: 18),
-        label: Text(AppLocalizations.of(context)!.recallViewInBook),
+        label: Text(AppLocalizations.of(context).recallViewInBook),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: BLabColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
@@ -354,7 +354,7 @@ class _RecordDetailSheetContentState extends State<_RecordDetailSheetContent> {
   Color _getTypeColor(String type) {
     switch (type) {
       case 'highlight':
-        return AppColors.primary;
+        return BLabColors.primary;
       case 'note':
         return Colors.orange;
       case 'photo_ocr':

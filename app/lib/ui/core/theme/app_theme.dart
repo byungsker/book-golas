@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-class AppTheme {
-  AppTheme._();
+class BLabTheme {
+  BLabTheme._();
 
   static ThemeData get light => ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
+          seedColor: BLabColors.primary,
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.scaffoldLight,
+        scaffoldBackgroundColor: BLabColors.scaffoldLight,
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.grey[100],
@@ -25,14 +25,14 @@ class AppTheme {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: AppColors.primary,
+              color: BLabColors.primary,
               width: 2,
             ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: AppColors.error,
+              color: BLabColors.error,
               width: 1,
             ),
           ),
@@ -41,7 +41,7 @@ class AppTheme {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: BLabColors.primary,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 52),
             shape: RoundedRectangleBorder(
@@ -56,7 +56,7 @@ class AppTheme {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
+            foregroundColor: BLabColors.primary,
             textStyle: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -67,14 +67,14 @@ class AppTheme {
 
   static ThemeData get dark => ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
+          seedColor: BLabColors.primary,
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.scaffoldDark,
+        scaffoldBackgroundColor: BLabColors.scaffoldDark,
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: AppColors.elevatedDark,
+          fillColor: BLabColors.elevatedDark,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -86,14 +86,14 @@ class AppTheme {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: AppColors.primary,
+              color: BLabColors.primary,
               width: 2,
             ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: AppColors.error,
+              color: BLabColors.error,
               width: 1,
             ),
           ),
@@ -102,7 +102,7 @@ class AppTheme {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: BLabColors.primary,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 52),
             shape: RoundedRectangleBorder(
@@ -117,7 +117,7 @@ class AppTheme {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
+            foregroundColor: BLabColors.primary,
             textStyle: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,

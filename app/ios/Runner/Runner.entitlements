@@ -4,7 +4,15 @@
 <dict>
 	<key>aps-environment</key>
 	<string>production</string>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.bookgolas.app</string>
+	</array>
 	<key>com.apple.security.get-task-allow</key>
 	<true/>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

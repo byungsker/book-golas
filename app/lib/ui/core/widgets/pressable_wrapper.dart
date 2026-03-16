@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PressableWrapper extends StatefulWidget {
+class BLabPressableWrapper extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
@@ -10,7 +10,7 @@ class PressableWrapper extends StatefulWidget {
   final Duration animationDuration;
   final bool enableHaptic;
 
-  const PressableWrapper({
+  const BLabPressableWrapper({
     super.key,
     required this.child,
     required this.onTap,
@@ -22,10 +22,10 @@ class PressableWrapper extends StatefulWidget {
   });
 
   @override
-  State<PressableWrapper> createState() => _PressableWrapperState();
+  State<BLabPressableWrapper> createState() => _BLabPressableWrapperState();
 }
 
-class _PressableWrapperState extends State<PressableWrapper>
+class _BLabPressableWrapperState extends State<BLabPressableWrapper>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;

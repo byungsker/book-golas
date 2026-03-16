@@ -17,7 +17,7 @@ class PrioritySelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -32,13 +32,13 @@ class PrioritySelectorWidget extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            _buildPriorityButton(1, l10n.priorityUrgent, AppColors.error),
+            _buildPriorityButton(1, l10n.priorityUrgent, BLabColors.error),
             const SizedBox(width: 8),
-            _buildPriorityButton(2, l10n.priorityHigh, AppColors.warning),
+            _buildPriorityButton(2, l10n.priorityHigh, BLabColors.warning),
             const SizedBox(width: 8),
-            _buildPriorityButton(3, l10n.priorityMedium, AppColors.primary),
+            _buildPriorityButton(3, l10n.priorityMedium, BLabColors.primary),
             const SizedBox(width: 8),
-            _buildPriorityButton(4, l10n.priorityLow, AppColors.successAlt),
+            _buildPriorityButton(4, l10n.priorityLow, BLabColors.successAlt),
           ],
         ),
       ],

@@ -19,17 +19,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  late List<OnboardingPageData> _pages;
+  List<OnboardingPageData>? _pages;
 
   @override
-  void initState() {
-    super.initState();
-    _initializePages();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pages ??= _buildPages();
   }
 
-  void _initializePages() {
-    final l10n = AppLocalizations.of(context)!;
-    _pages = [
+  List<OnboardingPageData> _buildPages() {
+    final l10n = AppLocalizations.of(context);
+    return [
       OnboardingPageData(
         icon: Icons.menu_book_outlined,
         title: l10n.onboardingTitle1,
@@ -61,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage < _pages!.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -84,9 +84,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _pageController,
                 onPageChanged: _onPageChanged,
-                itemCount: _pages.length,
+                itemCount: _pages!.length,
                 itemBuilder: (context, index) {
-                  final page = _pages[index];
+                  final page = _pages![index];
                   return OnboardingPage(
                     icon: page.icon,
                     title: page.title,
@@ -103,8 +103,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildBottomSection(bool isDark) {
-    final isLastPage = _currentPage == _pages.length - 1;
-    final l10n = AppLocalizations.of(context)!;
+    final isLastPage = _currentPage == _pages!.length - 1;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
@@ -123,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           Row(
             children: List.generate(
-              _pages.length,
+              _pages!.length,
               (index) => _buildPageIndicator(index, isDark),
             ),
           ),

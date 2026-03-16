@@ -1,0 +1,15 @@
+"widget_empty_title" = "책을 추가해보세요";
+"widget_action_book" = "책";
+"widget_action_scan" = "스캔";
+"widget_action_add" = "추가";
+"widget_action_open_book" = "이어서 읽기";
+"widget_action_scan_page" = "페이지 스캔";
+"widget_action_add_book" = "책 추가";
+"widget_desc_small" = "한 눈에 보는 독서 진행률";
+"widget_desc_medium" = "책 정보와 빠른 실행";
+"widget_quick_action_title" = "빠른 실행";
+"widget_quick_action_desc" = "책 관련 빠른 동작";
+"shortcut_continue_reading" = "이어서 읽기";
+"shortcut_scan_page" = "페이지 스캔";
+"shortcut_add_book" = "책 추가";
+"widget_app_name" = "북골라스";

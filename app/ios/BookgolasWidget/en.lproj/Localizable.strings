@@ -1,0 +1,15 @@
+"widget_empty_title" = "Add a book";
+"widget_action_book" = "Book";
+"widget_action_scan" = "Scan";
+"widget_action_add" = "Add";
+"widget_action_open_book" = "Continue Reading";
+"widget_action_scan_page" = "Scan Page";
+"widget_action_add_book" = "Add Book";
+"widget_desc_small" = "Reading progress at a glance";
+"widget_desc_medium" = "Book info with quick actions";
+"widget_quick_action_title" = "Quick Action";
+"widget_quick_action_desc" = "Quick access to book actions";
+"shortcut_continue_reading" = "Continue Reading";
+"shortcut_scan_page" = "Scan Page";
+"shortcut_add_book" = "Add Book";
+"widget_app_name" = "Bookgolas";

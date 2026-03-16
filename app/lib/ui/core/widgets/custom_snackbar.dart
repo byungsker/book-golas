@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-enum SnackbarType { success, error, info, warning }
+enum BLabSnackbarType { success, error, info, warning }
 
 class CustomSnackbar {
   /// 스낵바 표시
@@ -10,7 +10,7 @@ class CustomSnackbar {
   static void show(
     BuildContext context, {
     required String message,
-    SnackbarType type = SnackbarType.success,
+    BLabSnackbarType type = BLabSnackbarType.success,
     IconData? icon,
     Duration duration = const Duration(seconds: 2),
     bool rootOverlay = false,
@@ -44,7 +44,7 @@ class CustomSnackbar {
 
 class _AnimatedSnackbar extends StatefulWidget {
   final String message;
-  final SnackbarType type;
+  final BLabSnackbarType type;
   final IconData? icon;
   final Duration duration;
   final double bottomOffset;
@@ -109,13 +109,13 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
   IconData _getIcon() {
     if (widget.icon != null) return widget.icon!;
     switch (widget.type) {
-      case SnackbarType.success:
+      case BLabSnackbarType.success:
         return Icons.check_circle_outline_rounded;
-      case SnackbarType.error:
+      case BLabSnackbarType.error:
         return Icons.error_outline_rounded;
-      case SnackbarType.info:
+      case BLabSnackbarType.info:
         return Icons.info_outline_rounded;
-      case SnackbarType.warning:
+      case BLabSnackbarType.warning:
         return Icons.warning_amber_rounded;
     }
   }
@@ -149,10 +149,10 @@ class _AnimatedSnackbarState extends State<_AnimatedSnackbar>
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: widget.type == SnackbarType.error
+                      color: widget.type == BLabSnackbarType.error
                           ? Colors.red.withValues(alpha: 0.7)
                           : Colors.white.withValues(alpha: 0.2),
-                      width: widget.type == SnackbarType.error ? 1.5 : 1,
+                      width: widget.type == BLabSnackbarType.error ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(

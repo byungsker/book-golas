@@ -11,7 +11,7 @@ Future<bool?> showDeleteConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -114,7 +114,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -128,13 +128,13 @@ Future<bool?> showBatchDeleteConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: AppColors.errorBg,
+                color: BLabColors.errorBg,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.trash_fill,
                 size: 32,
-                color: AppColors.error,
+                color: BLabColors.error,
               ),
             ),
             const SizedBox(height: 16),
@@ -185,7 +185,7 @@ Future<bool?> showBatchDeleteConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: AppColors.error,
+                      backgroundColor: BLabColors.error,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

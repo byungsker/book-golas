@@ -1,11 +1,16 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/auth/widgets/social_sign_in_button.dart';
 
 enum AuthMode { signIn, signUp, forgotPassword }
 
@@ -33,6 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _saveEmail = false;
   bool _obscurePassword = true;
   bool _isKeyboardVisible = false;
+  String? _unconfirmedEmail;
+  bool _isResendCooldown = false;
+  Timer? _resendCooldownTimer;
+  bool _emailHasText = false;
+  bool _passwordHasText = false;
+  bool _nicknameHasText = false;
 
   @override
   void initState() {
@@ -41,6 +52,24 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailFocusNode.addListener(() => _onFocusChange(_emailFieldKey));
     _passwordFocusNode.addListener(() => _onFocusChange(_passwordFieldKey));
     _nicknameFocusNode.addListener(() => _onFocusChange(_nicknameFieldKey));
+    _emailController.addListener(_onTextChanged);
+    _passwordController.addListener(_onTextChanged);
+    _nicknameController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    final emailHas = _emailController.text.isNotEmpty;
+    final passwordHas = _passwordController.text.isNotEmpty;
+    final nicknameHas = _nicknameController.text.isNotEmpty;
+    if (_emailHasText != emailHas ||
+        _passwordHasText != passwordHas ||
+        _nicknameHasText != nicknameHas) {
+      setState(() {
+        _emailHasText = emailHas;
+        _passwordHasText = passwordHas;
+        _nicknameHasText = nicknameHas;
+      });
+    }
   }
 
   void _onFocusChange(GlobalKey fieldKey) {
@@ -122,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _resendCooldownTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _nicknameController.dispose();
@@ -152,55 +182,85 @@ class _LoginScreenState extends State<LoginScreen> {
 
         case AuthMode.signUp:
           final nickname = _nicknameController.text.trim();
-          await supabase.auth.signUp(
+          final authViewModel = context.read<AuthViewModel>();
+          final error = await authViewModel.signUpWithEmail(
             email: email,
             password: password,
-            data: {'nickname': nickname},
+            name: nickname,
           );
+          if (error != null) {
+            if (mounted) {
+              final l10n = AppLocalizations.of(context);
+              CustomSnackbar.show(
+                context,
+                message: _getAuthErrorMessage(error, l10n),
+                type: BLabSnackbarType.error,
+                bottomOffset: 32,
+                aboveKeyboard: true,
+              );
+            }
+            return;
+          }
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = AppLocalizations.of(context);
+            final signedUpEmail = email;
+            _setAuthMode(AuthMode.signIn);
+            setState(() {
+              _unconfirmedEmail = signedUpEmail;
+            });
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
-              type: SnackbarType.success,
+              type: BLabSnackbarType.success,
               bottomOffset: 32,
+              aboveKeyboard: true,
             );
-            setState(() => _authMode = AuthMode.signIn);
           }
           break;
 
         case AuthMode.forgotPassword:
-          await supabase.auth.resetPasswordForEmail(email);
+          await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo: 'bookgolas://reset-callback',
+          );
           if (mounted) {
-            final l10n = AppLocalizations.of(context)!;
+            final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
               context,
               message: l10n.loginResetPasswordSuccess,
-              type: SnackbarType.success,
+              type: BLabSnackbarType.success,
               bottomOffset: 32,
+              aboveKeyboard: true,
             );
-            setState(() => _authMode = AuthMode.signIn);
+            _setAuthMode(AuthMode.signIn);
           }
           break;
       }
     } on AuthException catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        if (e.message.contains('Email not confirmed')) {
+          setState(() {
+            _unconfirmedEmail = _emailController.text.trim();
+          });
+        }
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: _getAuthErrorMessage(e.message, l10n),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         CustomSnackbar.show(
           context,
           message: l10n.loginUnexpectedError,
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
+          aboveKeyboard: true,
         );
       }
     } finally {
@@ -219,8 +279,131 @@ class _LoginScreenState extends State<LoginScreen> {
       return l10n.loginErrorEmailAlreadyRegistered;
     } else if (message.contains('Password should be at least')) {
       return l10n.loginErrorPasswordTooShort;
+    } else if (message.contains('Email address') &&
+        message.contains('invalid')) {
+      return l10n.loginErrorEmailInvalid;
+    } else if (message.contains('rate limit') ||
+        message.contains('Rate limit')) {
+      return l10n.loginErrorEmailRateLimit;
     }
     return message;
+  }
+
+  Future<void> _handleResendVerification() async {
+    if (_unconfirmedEmail == null || _isResendCooldown) return;
+
+    final supabase = Supabase.instance.client;
+    try {
+      await supabase.auth.resend(
+        type: OtpType.signup,
+        email: _unconfirmedEmail!,
+      );
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: l10n.loginResendVerificationSuccess,
+          type: BLabSnackbarType.success,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+        setState(() => _isResendCooldown = true);
+        _resendCooldownTimer?.cancel();
+        _resendCooldownTimer = Timer(const Duration(seconds: 60), () {
+          if (mounted) {
+            setState(() => _isResendCooldown = false);
+          }
+        });
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(e.message, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: l10n.loginUnexpectedError,
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    }
+  }
+
+  void _setAuthMode(AuthMode mode) {
+    _unconfirmedEmail = null;
+    _isResendCooldown = false;
+    _resendCooldownTimer?.cancel();
+    setState(() => _authMode = mode);
+  }
+
+  Widget _buildSocialButtons(BuildContext context) {
+    final authViewModel = context.watch<AuthViewModel>();
+    return Column(
+      children: [
+        SocialSignInButton(
+          type: SocialSignInType.google,
+          onPressed: _isLoading ? null : () => _handleGoogleSignIn(),
+        ),
+        if (authViewModel.isAppleSignInAvailable) ...[
+          const SizedBox(height: 12),
+          SocialSignInButton(
+            type: SocialSignInType.apple,
+            onPressed: _isLoading ? null : () => _handleAppleSignIn(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithGoogle();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithApple();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -307,24 +490,24 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.asset(
-              'assets/images/logo.png',
+              'assets/images/logo-bookgolas.png',
               fit: BoxFit.cover,
             ),
           ),
         ),
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.of(context)!.loginAppName,
+          AppLocalizations.of(context).loginAppName,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+            color: isDark ? Colors.white : BLabColors.textPrimaryLight,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          _getDescriptionText(AppLocalizations.of(context)!),
+          _getDescriptionText(AppLocalizations.of(context)),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
@@ -395,8 +578,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     fieldKey: _emailFieldKey,
                     focusNode: _emailFocusNode,
-                    label: AppLocalizations.of(context)!.loginEmailLabel,
-                    hint: AppLocalizations.of(context)!.loginEmailHint,
+                    label: AppLocalizations.of(context).loginEmailLabel,
+                    hint: AppLocalizations.of(context).loginEmailHint,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     isDark: isDark,
@@ -405,8 +588,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     autofillHints: const [AutofillHints.email],
                     autocorrect: false,
                     enableSuggestions: false,
+                    suffixIcon: _emailHasText
+                        ? _buildClearButton(
+                            controller: _emailController,
+                            isDark: isDark,
+                          )
+                        : null,
                     validator: (value) {
-                      final l10n = AppLocalizations.of(context)!;
+                      final l10n = AppLocalizations.of(context);
                       if (value == null || value.isEmpty) {
                         return l10n.loginEmailRequired;
                       }
@@ -423,8 +612,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       fieldKey: _passwordFieldKey,
                       focusNode: _passwordFocusNode,
-                      label: AppLocalizations.of(context)!.loginPasswordLabel,
-                      hint: AppLocalizations.of(context)!.loginPasswordHint,
+                      label: AppLocalizations.of(context).loginPasswordLabel,
+                      hint: AppLocalizations.of(context).loginPasswordHint,
                       obscureText: _obscurePassword,
                       prefixIcon: Icons.lock_outline,
                       isDark: isDark,
@@ -437,20 +626,32 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const [AutofillHints.newPassword],
                       autocorrect: false,
                       enableSuggestions: false,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
-                        },
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_passwordHasText)
+                            _buildClearButton(
+                              controller: _passwordController,
+                              isDark: isDark,
+                            ),
+                          IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(
+                                  () => _obscurePassword = !_obscurePassword);
+                            },
+                          ),
+                        ],
                       ),
                       validator: (value) {
-                        final l10n = AppLocalizations.of(context)!;
+                        final l10n = AppLocalizations.of(context);
                         if (value == null || value.isEmpty) {
                           return l10n.loginPasswordRequired;
                         }
@@ -468,15 +669,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _nicknameController,
                       fieldKey: _nicknameFieldKey,
                       focusNode: _nicknameFocusNode,
-                      label: AppLocalizations.of(context)!.loginNicknameLabel,
-                      hint: AppLocalizations.of(context)!.loginNicknameHint,
+                      label: AppLocalizations.of(context).loginNicknameLabel,
+                      hint: AppLocalizations.of(context).loginNicknameHint,
                       prefixIcon: Icons.person_outline,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _dismissKeyboard(),
                       isDark: isDark,
                       autofillHints: const [AutofillHints.nickname],
+                      suffixIcon: _nicknameHasText
+                          ? _buildClearButton(
+                              controller: _nicknameController,
+                              isDark: isDark,
+                            )
+                          : null,
                       validator: (value) {
-                        final l10n = AppLocalizations.of(context)!;
+                        final l10n = AppLocalizations.of(context);
                         if (value == null || value.isEmpty) {
                           return l10n.loginNicknameRequired;
                         }
@@ -504,7 +711,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : Text(
-                            _getButtonText(AppLocalizations.of(context)!),
+                            _getButtonText(AppLocalizations.of(context)),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -514,29 +721,43 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   if (_authMode == AuthMode.signIn) ...[
+                    if (_unconfirmedEmail != null)
+                      _buildTextButton(
+                        _isResendCooldown
+                            ? AppLocalizations.of(context)
+                                .loginResendVerificationCooldown
+                            : AppLocalizations.of(context)
+                                .loginResendVerification,
+                        _isResendCooldown
+                            ? null
+                            : () => _handleResendVerification(),
+                        isDark,
+                      ),
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginForgotPassword,
-                      () => setState(() => _authMode = AuthMode.forgotPassword),
+                      AppLocalizations.of(context).loginForgotPassword,
+                      () => _setAuthMode(AuthMode.forgotPassword),
                       isDark,
                     ),
                     const SizedBox(height: 8),
                     _buildDivider(isDark, context),
                     const SizedBox(height: 8),
+                    _buildSocialButtons(context),
+                    const SizedBox(height: 8),
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginNoAccount,
-                      () => setState(() => _authMode = AuthMode.signUp),
+                      AppLocalizations.of(context).loginNoAccount,
+                      () => _setAuthMode(AuthMode.signUp),
                       isDark,
                     ),
                   ] else if (_authMode == AuthMode.signUp) ...[
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginHaveAccount,
-                      () => setState(() => _authMode = AuthMode.signIn),
+                      AppLocalizations.of(context).loginHaveAccount,
+                      () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
                   ] else ...[
                     _buildTextButton(
-                      AppLocalizations.of(context)!.loginBackToSignIn,
-                      () => setState(() => _authMode = AuthMode.signIn),
+                      AppLocalizations.of(context).loginBackToSignIn,
+                      () => _setAuthMode(AuthMode.signIn),
                       isDark,
                     ),
                   ],
@@ -546,6 +767,22 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildClearButton({
+    required TextEditingController controller,
+    required bool isDark,
+  }) {
+    return IconButton(
+      icon: Icon(
+        Icons.cancel,
+        color: isDark ? Colors.grey[500] : Colors.grey[400],
+        size: 20,
+      ),
+      onPressed: () {
+        controller.clear();
+      },
     );
   }
 
@@ -642,11 +879,11 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 color: _saveEmail
-                    ? AppColors.primary
+                    ? BLabColors.primary
                     : (isDark ? Colors.grey[600]! : Colors.grey[400]!),
                 width: 1.5,
               ),
-              color: _saveEmail ? AppColors.primary : Colors.transparent,
+              color: _saveEmail ? BLabColors.primary : Colors.transparent,
             ),
             child: _saveEmail
                 ? const Icon(
@@ -658,7 +895,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            AppLocalizations.of(context)!.loginSaveEmail,
+            AppLocalizations.of(context).loginSaveEmail,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -681,18 +918,18 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Container(
           height: 52,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primaryLight,
-                AppColors.primary,
+                BLabColors.primaryLight,
+                BLabColors.primary,
               ],
             ),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.4),
+                color: BLabColors.primary.withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -711,11 +948,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextButton(String text, VoidCallback onPressed, bool isDark) {
+  Widget _buildTextButton(String text, VoidCallback? onPressed, bool isDark) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primary,
+        foregroundColor: BLabColors.primary,
         padding: const EdgeInsets.symmetric(vertical: 8),
       ),
       child: Text(
@@ -723,7 +960,9 @@ class _LoginScreenState extends State<LoginScreen> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: isDark ? Colors.grey[300] : AppColors.primary,
+          color: onPressed == null
+              ? (isDark ? Colors.grey[600] : Colors.grey[400])
+              : (isDark ? Colors.grey[300] : BLabColors.primary),
         ),
       ),
     );
@@ -743,7 +982,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            AppLocalizations.of(context)!.loginOrDivider,
+            AppLocalizations.of(context).loginOrDivider,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.grey[500] : Colors.grey[400],
@@ -769,7 +1008,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.signUp:
         return l10n.loginSignupButton;
       case AuthMode.forgotPassword:
-        return '${l10n.loginButton} ${l10n.loginPasswordLabel}';
+        return l10n.loginResetPasswordButton;
     }
   }
 }
@@ -828,7 +1067,7 @@ class _GlassTextFieldContainerState extends State<_GlassTextFieldContainer> {
                   color: widget.isDark
                       ? Colors.white.withValues(alpha: _isFocused ? 0.30 : 0.1)
                       : (_isFocused
-                          ? AppColors.primary.withValues(alpha: 0.5)
+                          ? BLabColors.primary.withValues(alpha: 0.5)
                           : Colors.grey.withValues(alpha: 0.15)),
                   width: _isFocused ? 1.5 : 1,
                 ),

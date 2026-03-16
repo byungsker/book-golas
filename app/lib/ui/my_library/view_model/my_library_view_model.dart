@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/reading_record.dart';
@@ -6,6 +9,9 @@ import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/data/services/record_service.dart';
 
 class MyLibraryViewModel extends ChangeNotifier {
+  static const _booksCacheKey = 'my_library_books_cache';
+  static const _recordsCacheKey = 'my_library_records_cache';
+
   final BookService _bookService = BookService();
   final RecordService _recordService = RecordService();
 
@@ -137,8 +143,28 @@ class MyLibraryViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _books = await _bookService.fetchBooks();
+      final prefs = await SharedPreferences.getInstance();
+      final cachedData = prefs.getString(_booksCacheKey);
+      if (cachedData != null) {
+        try {
+          final List<dynamic> jsonList = jsonDecode(cachedData);
+          _books = jsonList
+              .map((json) => Book.fromJson(json as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        } catch (e) {
+          debugPrint('Failed to parse books cache: $e');
+        }
+      }
+
+      final serverBooks = await _bookService.fetchBooks();
+      _books = serverBooks;
       _totalRecordCount = await _recordService.getTotalRecordCount();
+
+      await prefs.setString(
+        _booksCacheKey,
+        jsonEncode(_books.map((b) => b.toJson()).toList()),
+      );
     } catch (e) {
       debugPrint('Failed to load books: $e');
     } finally {
@@ -152,12 +178,39 @@ class MyLibraryViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _groupedRecords = await _recordService.fetchGroupedRecords(
+      final prefs = await SharedPreferences.getInstance();
+      final cacheKey = _selectedRecordType != null
+          ? '${_recordsCacheKey}_$_selectedRecordType'
+          : _recordsCacheKey;
+      final cachedData = prefs.getString(cacheKey);
+      if (cachedData != null) {
+        try {
+          final List<dynamic> jsonList = jsonDecode(cachedData);
+          _groupedRecords = jsonList
+              .map((json) =>
+                  GroupedRecords.fromJson(json as Map<String, dynamic>))
+              .toList();
+          if (_groupedRecords.isNotEmpty && _expandedBookIds.isEmpty) {
+            _expandedBookIds.add(_groupedRecords.first.bookId);
+          }
+          notifyListeners();
+        } catch (e) {
+          debugPrint('Failed to parse records cache: $e');
+        }
+      }
+
+      final serverRecords = await _recordService.fetchGroupedRecords(
         contentType: _selectedRecordType,
       );
+      _groupedRecords = serverRecords;
       if (_groupedRecords.isNotEmpty && _expandedBookIds.isEmpty) {
         _expandedBookIds.add(_groupedRecords.first.bookId);
       }
+
+      await prefs.setString(
+        cacheKey,
+        jsonEncode(_groupedRecords.map((g) => g.toJson()).toList()),
+      );
     } catch (e) {
       debugPrint('Failed to load records: $e');
     } finally {
@@ -182,5 +235,17 @@ class MyLibraryViewModel extends ChangeNotifier {
 
   bool isBookExpanded(String bookId) {
     return _expandedBookIds.contains(bookId);
+  }
+
+  Future<void> invalidateCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_booksCacheKey);
+    await prefs.remove(_recordsCacheKey);
+    final keys = prefs.getKeys();
+    for (final key in keys) {
+      if (key.startsWith(_recordsCacheKey)) {
+        await prefs.remove(key);
+      }
+    }
   }
 }

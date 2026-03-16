@@ -34,7 +34,7 @@ class ScrollableTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor =
-        backgroundColor ?? (isDark ? AppColors.scaffoldDark : Colors.white);
+        backgroundColor ?? (isDark ? BLabColors.scaffoldDark : Colors.white);
     final indicator = indicatorColor ?? (isDark ? Colors.white : Colors.black);
 
     return Container(

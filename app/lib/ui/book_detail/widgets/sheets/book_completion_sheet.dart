@@ -32,7 +32,7 @@ class BookCompletionSheet {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -133,7 +133,7 @@ class BookCompletionSheet {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           width: 2,
                         ),
                       ),
@@ -179,7 +179,7 @@ class BookCompletionSheet {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: BLabColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),

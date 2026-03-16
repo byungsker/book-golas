@@ -605,7 +605,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookListEmptyAll => '아직 시작한 독서가 없습니다';
 
   @override
-  String get bookListEmptyReading => '현재 읽고 있는 책이 없습니다';
+  String get bookListEmptyReading => '북골라스와 함께 독서 여정을 떠나볼까요?';
+
+  @override
+  String get bookListReadingEmptyAction => '독서 여정 떠나기';
+
+  @override
+  String get searchModeBookSearch => '도서 검색';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI 기록 검색';
 
   @override
   String get bookListEmptyCompleted => '완독한 책이 없습니다';
@@ -637,7 +646,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailReviewEditDescription => '작성한 독후감을 다시 확인하고 수정해보세요';
 
   @override
-  String get bookDetailContinueReading => '독서 다시 시작하기';
+  String get bookDetailContinueReading => '새로운 독서 시작하기';
 
   @override
   String get bookDetailContinueReadingDesc => '이번에도 몰입해서 독서 목표를 달성해보아요!';
@@ -695,8 +704,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailUploadFailed => '업로드 실패';
 
   @override
-  String get bookDetailNetworkError =>
-      '네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.';
+  String get bookDetailNetworkError => '네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.';
 
   @override
   String get bookDetailUploadError =>
@@ -1126,6 +1134,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceDocumentScan => '문서 스캔';
 
   @override
+  String get imageSourceDocumentScanDesc => '문서를 자동으로 인식하고 왜곡을 보정해요';
+
+  @override
   String get imageSourceAutoCorrection => '평탄화 및 자동 보정';
 
   @override
@@ -1150,7 +1161,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSourceCameraTitle => '카메라로 촬영';
 
   @override
-  String get imageSourceGalleryTitle => '갤러리에서 선택';
+  String get imageSourceCameraDesc => '사진을 찍어 텍스트를 바로 추출해요';
+
+  @override
+  String get imageSourceGalleryTitle => '라이브러리에서 선택';
+
+  @override
+  String get imageSourceGalleryDesc => '이미 저장된 이미지에서 텍스트를 추출해요';
 
   @override
   String get imageSourceReplaceConfirmation => '이미지를 교체하시겠습니까?';
@@ -2244,6 +2261,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proUpgradeBannerMini => 'Pro로 무제한 이용하기';
 
   @override
+  String get proUpgradeBannerMiniDesc => 'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Pro로 업그레이드';
 
   @override
@@ -2268,10 +2288,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ocrExtractionFailed => '텍스트 추출 실패';
 
   @override
-  String get extractTextConfirmTitle => '텍스트 추출';
+  String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
 
   @override
-  String get extractTextCreditsMessage => '크레딧이 사용됩니다';
+  String extractTextFreeRemaining(int remaining, int total) {
+    return '오늘 남은 무료 추출: $remaining/$total회';
+  }
+
+  @override
+  String get ocrProUnlimitedButton => 'Pro 멤버십은 무제한으로 추출할 수 있어요!';
+
+  @override
+  String get ocrLimitReachedTitle => '오늘의 무료 추출 횟수를 모두 사용했어요';
+
+  @override
+  String get ocrLimitReachedMessage =>
+      'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요';
+
+  @override
+  String get ocrLimitReachedUpgrade => 'Pro로 업그레이드';
 
   @override
   String get noThanksButton => '괜찮아요';
@@ -2594,6 +2629,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookstoreKyobo => '교보문고';
+
+  @override
+  String get bookstoreTabNew => '서점 검색';
+
+  @override
+  String get bookstoreTabUsed => '중고 검색';
+
+  @override
+  String get bookstoreSearchSuffix => '검색';
+
+  @override
+  String get bookstoreAladdinUsed => '알라딘 중고';
+
+  @override
+  String get bookstoreAladdinUsedStore => '알라딘 중고매장';
+
+  @override
+  String get bookstoreYes24Used => 'Yes24 중고';
+
+  @override
+  String get bookInfoTitleCopied => '제목이 복사되었습니다';
+
+  @override
+  String get bookInfoExpandTitle => '펼치기';
+
+  @override
+  String get bookInfoCollapseTitle => '접기';
 
   @override
   String get expandedNavBackToDetail => '상세로 돌아가기';
@@ -2955,6 +3017,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartMonthlyBooksChange => '변화';
 
   @override
+  String get chartMonthlyBooksCustomRange => '직접 범위 설정';
+
+  @override
+  String get chartBookStatusTitle => '독서 현황';
+
+  @override
+  String get chartBookStatusAnnual => '연간';
+
+  @override
+  String get chartBookStatusMonthly => '월간';
+
+  @override
+  String get chartBookStatusWeekly => '주간';
+
+  @override
+  String get chartBookStatusCustom => '기간 설정';
+
+  @override
+  String get chartBookStatusTotal => '총 완독';
+
+  @override
+  String get chartBookStatusDays => '완독일';
+
+  @override
+  String get chartBookStatusMaxDay => '최다';
+
+  @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count권';
   }
@@ -3257,4 +3346,229 @@ class AppLocalizationsKo extends AppLocalizations {
       int year, int month, int day, int hour, int minute) {
     return '$year년 $month월 $day일 $hour시 $minute분';
   }
+
+  @override
+  String get loginErrorEmailInvalid => '이메일 주소가 유효하지 않거나 이미 등록된 이메일입니다.';
+
+  @override
+  String get loginResendVerification => '인증 이메일 재전송';
+
+  @override
+  String get loginResendVerificationSuccess => '인증 이메일이 재전송되었습니다. 이메일을 확인해주세요.';
+
+  @override
+  String get loginResendVerificationCooldown => '잠시 후 다시 시도해주세요.';
+
+  @override
+  String get loginErrorEmailRateLimit => '이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get loginSignupExistingEmail => '이미 등록된 이메일입니다. 로그인을 시도해주세요.';
+
+  @override
+  String get bookInfoViewButton => '책 정보 보기';
+
+  @override
+  String get bookInfoSheetTitle => '도서 상세 정보';
+
+  @override
+  String get bookInfoTabDescription => '줄거리';
+
+  @override
+  String get bookInfoTabDetail => '기본정보';
+
+  @override
+  String get bookInfoNoDescription => '줄거리 정보가 없습니다';
+
+  @override
+  String get bookInfoNoDetail => '기본 정보가 없습니다';
+
+  @override
+  String get bookInfoNoIsbn => 'ISBN 정보가 없어 상세 정보를 불러올 수 없습니다';
+
+  @override
+  String get bookInfoPublisher => '출판사';
+
+  @override
+  String get bookInfoIsbn => 'ISBN';
+
+  @override
+  String get bookInfoPageCount => '페이지';
+
+  @override
+  String get bookInfoGenre => '장르';
+
+  @override
+  String get bookInfoViewInBookstore => '서점에서 보기';
+
+  @override
+  String get myPageAccountSection => '계정';
+
+  @override
+  String get myPageAnnouncements => '공지사항';
+
+  @override
+  String get myPageChangePassword => '비밀번호 변경';
+
+  @override
+  String get myPageChangePasswordTitle => '비밀번호 변경';
+
+  @override
+  String get myPageConfirmPassword => '비밀번호 확인';
+
+  @override
+  String get myPageCurrentPassword => '현재 비밀번호';
+
+  @override
+  String get myPageCurrentPasswordRequired => '현재 비밀번호를 입력해주세요';
+
+  @override
+  String get myPageInfoSection => '정보';
+
+  @override
+  String get myPageLogoutAndDelete => '로그아웃 | 회원탈퇴';
+
+  @override
+  String get myPageNewPassword => '새 비밀번호';
+
+  @override
+  String get myPageNotificationAnnouncements => '공지사항 알림';
+
+  @override
+  String get myPageNotificationCategories => '알림 설정';
+
+  @override
+  String get myPageNotificationDailyReminder => '매일 독서 리마인드';
+
+  @override
+  String get myPageNotificationGoalAlarm => '독서 목표 알람';
+
+  @override
+  String get myPageNotificationEventNudge => '이벤트 넛지 알림';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return '매일 $time에 독서 현황 확인';
+  }
+
+  @override
+  String get myPagePasswordChanged => '비밀번호가 변경되었습니다';
+
+  @override
+  String get myPagePasswordChangeFailed => '비밀번호 변경에 실패했습니다';
+
+  @override
+  String get myPagePasswordMismatch => '비밀번호가 일치하지 않습니다';
+
+  @override
+  String get myPagePasswordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return '비밀번호 변경 실패: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => '현재 비밀번호가 올바르지 않습니다';
+
+  @override
+  String get myPageTermsAndPolicy => '약관 및 정책';
+
+  @override
+  String get myPageVersion => '버전';
+
+  @override
+  String get bookDetailPlannedStart => '독서 시작 예정';
+
+  @override
+  String get bookDetailTbd => '미정';
+
+  @override
+  String get bookDetailRecordThoughts => '생각을 기록해보세요';
+
+  @override
+  String get bookDetailReviewYourWritten => '작성한 독후감을 확인해보세요';
+
+  @override
+  String get bookDetailResumeReading => '독서 재개하기';
+
+  @override
+  String bookDetailAttemptCount(int count) {
+    return '$count번째 도전';
+  }
+
+  @override
+  String get bookDetailAchieveGoal => '독서 목표를 달성해보세요!';
+
+  @override
+  String get bookDetailSaved => '저장되었습니다';
+
+  @override
+  String get bookDetailReadingPaused => '독서가 일시정지되었습니다';
+
+  @override
+  String get bookDetailDeleted => '삭제되었습니다';
+
+  @override
+  String bookDetailAttemptStarted(int count) {
+    return '$count번째 도전 시작!';
+  }
+
+  @override
+  String get bookDetailSaveError => '저장 중 오류가 발생했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
+
+  @override
+  String get myPagePasswordSameAsOld => '새 비밀번호는 기존 비밀번호와 달라야 합니다';
+
+  @override
+  String get passwordRecoveryTitle => '새 비밀번호 설정';
+
+  @override
+  String get passwordRecoveryDescription => '사용하실 새 비밀번호를 입력해주세요';
+
+  @override
+  String get passwordRecoveryNewPassword => '새 비밀번호';
+
+  @override
+  String get passwordRecoveryConfirmPassword => '새 비밀번호 확인';
+
+  @override
+  String get passwordRecoveryButton => '비밀번호 변경';
+
+  @override
+  String get passwordRecoverySuccess =>
+      '비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.';
+
+  @override
+  String get passwordRecoveryFailed => '비밀번호 변경에 실패했습니다';
+
+  @override
+  String get shareBookCard => '독서 카드 공유';
+
+  @override
+  String get shareBookCardError => '공유 중 오류가 발생했습니다';
+
+  @override
+  String get shareStatusReading => '독서 중';
+
+  @override
+  String get shareStatusCompleted => '완독';
+
+  @override
+  String get shareStatusPlanned => '읽을 예정';
+
+  @override
+  String get shareStatusWillRetry => '다시 도전';
+
+  @override
+  String get loginSocialGoogle => 'Google로 계속하기';
+
+  @override
+  String get loginSocialApple => 'Apple로 계속하기';
+
+  @override
+  String get pageSwipeHint => '◀ 밀어서 페이지 업데이트 ▶';
 }

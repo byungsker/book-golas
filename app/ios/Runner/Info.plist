@@ -6,7 +6,6 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
-
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -41,7 +40,15 @@
 					<string>signinwithapple</string>
 				</array>
 			</dict>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>$(GID_REVERSED_CLIENT_ID)</string>
+				</array>
+			</dict>
 		</array>
+		<key>GIDClientID</key>
+		<string>$(GID_CLIENT_ID)</string>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
@@ -81,6 +88,44 @@
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>remote-notification</string>
+		</array>
+		<key>io.flutter.embedded_views_preview</key>
+		<true/>
+		<key>GADApplicationIdentifier</key>
+		<string>ca-app-pub-2826132306659672~4100007314</string>
+		<key>SKAdNetworkItems</key>
+		<array>
+			<dict>
+				<key>SKAdNetworkIdentifier</key>
+				<string>cstr6suwn9.skadnetwork</string>
+			</dict>
+		</array>
+		<key>UIApplicationShortcutItems</key>
+		<array>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.continue-reading</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>이어서 읽기</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeBookmark</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.scan-page</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>페이지 스캔</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeCapturePhoto</string>
+			</dict>
+			<dict>
+				<key>UIApplicationShortcutItemType</key>
+				<string>com.bookgolas.add-book</string>
+				<key>UIApplicationShortcutItemTitle</key>
+				<string>책 추가</string>
+				<key>UIApplicationShortcutItemIconType</key>
+				<string>UIApplicationShortcutIconTypeAdd</string>
+			</dict>
 		</array>
 	</dict>
 </plist>

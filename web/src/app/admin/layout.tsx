@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
+  { href: "/admin/users", label: "유저 관리", icon: "👥" },
   { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
   { href: "/admin/test-push", label: "테스트 발송", icon: "🚀" },
+  { href: "/admin/announcements", label: "공지 발송", icon: "📢" },
 ];
 
 export default function AdminLayout({
@@ -50,13 +52,14 @@ export default function AdminLayout({
             <div className="flex">
               <Link href="/admin" className="flex-shrink-0 flex items-center gap-2">
                 <Image
-                  src="/logo.png"
-                  alt="Bookgolas Logo"
+                  src="/logo-bookgolas.png"
+                  alt="북골라스"
                   width={32}
                   height={32}
                   className="rounded-md"
                 />
-                <span className="text-xl font-bold text-foreground">Bookgolas Admin</span>
+                <span className="text-xl font-bold text-foreground">북골라스</span>
+                <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">Admin</span>
               </Link>
               <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
                 {navItems.map((item) => (

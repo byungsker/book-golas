@@ -1,4 +1,4 @@
-import { PromptTemplate } from "https://esm.sh/@langchain/core@0.3.0/prompts";
+import { PromptTemplate } from "@langchain/core/prompts";
 
 export const summaryPrompt = PromptTemplate.fromTemplate(`
 당신은 독서 기록 클러스터를 분석하여 핵심 인사이트를 요약하는 전문가입니다.

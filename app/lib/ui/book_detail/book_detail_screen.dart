@@ -16,6 +16,7 @@ import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'package:book_golas/ui/book_detail/utils/ocr_utils.dart';
 import 'widgets/dialogs/daily_target_dialog.dart';
 import 'widgets/dialogs/update_target_date_dialog.dart';
@@ -35,28 +36,29 @@ import 'widgets/custom_tab_bar.dart';
 import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
-import 'widgets/sheets/full_title_sheet.dart';
+import 'widgets/sheets/book_info_sheet.dart';
+// import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
 import 'widgets/tabs/book_review_tab.dart';
-import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
-import 'package:book_golas/data/services/note_structure_service.dart';
-import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
   final bool showCelebration;
   final bool isEmbedded;
   final int? initialTabIndex;
+  final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
@@ -66,6 +68,7 @@ class BookDetailScreen extends StatelessWidget {
     this.showCelebration = false,
     this.isEmbedded = false,
     this.initialTabIndex,
+    this.autoOpenScan = false,
     this.onCallbacksReady,
   });
 
@@ -88,16 +91,12 @@ class BookDetailScreen extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
         ),
-        ChangeNotifierProvider(
-          create: (_) => NoteStructureViewModel(
-            service: NoteStructureService(),
-          ),
-        ),
       ],
       child: _BookDetailContent(
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
         initialTabIndex: initialTabIndex,
+        autoOpenScan: autoOpenScan,
         onCallbacksReady: onCallbacksReady,
       ),
     );
@@ -108,6 +107,7 @@ class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
   final int? initialTabIndex;
+  final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
       onCallbacksReady;
 
@@ -115,6 +115,7 @@ class _BookDetailContent extends StatefulWidget {
     this.showCelebration = false,
     this.isEmbedded = false,
     this.initialTabIndex,
+    this.autoOpenScan = false,
     this.onCallbacksReady,
   });
 
@@ -216,6 +217,14 @@ class _BookDetailContentState extends State<_BookDetailContent>
           _showAddMemorablePageModal,
         );
       }
+
+      if (widget.autoOpenScan && mounted) {
+        _tabController?.animateTo(1);
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (mounted) {
+          _showAddMemorablePageModal();
+        }
+      }
     });
   }
 
@@ -232,7 +241,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         CustomSnackbar.show(
           context,
           message: 'New reading journey! 📚',
-          type: SnackbarType.success,
+          type: BLabSnackbarType.success,
         );
       }
     });
@@ -270,7 +279,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
         return Scaffold(
           backgroundColor:
-              isDark ? AppColors.scaffoldDark : AppColors.elevatedLight,
+              isDark ? BLabColors.scaffoldDark : BLabColors.elevatedLight,
           appBar: widget.isEmbedded
               ? null
               : AppBar(
@@ -283,12 +292,32 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
-                    AppLocalizations.of(context)!.bookDetailTabDetail,
+                    AppLocalizations.of(context).bookDetailTabDetail,
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.share,
+                        color: isDark ? Colors.white : Colors.black,
+                        size: 22,
+                      ),
+                      onPressed: () {
+                        final memorableVm =
+                            context.read<MemorablePageViewModel>();
+                        final highlightCount =
+                            memorableVm.cachedImages?.length ?? 0;
+                        BookShareService.shareBookCard(
+                          context: context,
+                          book: book,
+                          highlightCount: highlightCount,
+                        );
+                      },
+                    ),
+                  ],
                 ),
           body: Stack(
             children: [
@@ -314,8 +343,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 totalPages: book.totalPages,
                                 status: book.status,
                                 onImageTap: _showFullScreenImage,
-                                onTitleTap: () => showFullTitleSheet(
-                                    context: context, title: book.title),
+                                // onTitleTap: () => showFullTitleSheet(
+                                //     context: context, title: book.title),
+                                onTitleTap: () =>
+                                    showBookInfoSheet(context, book),
+                                onBookInfoTap: () =>
+                                    showBookInfoSheet(context, book),
                               ),
                               const SizedBox(height: 10),
                               CompactReadingSchedule(
@@ -334,11 +367,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   totalPages: book.totalPages,
                                   daysLeft: bookVm.daysLeft,
                                   pagesLeft: bookVm.pagesLeft,
-                                  dailyTargetPages: book.dailyTargetPages,
+                                  dailyTargetPages: bookVm.effectiveDailyTarget,
                                   isTodayGoalAchieved:
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
                                       _showDailyTargetChangeDialog(bookVm),
+                                  onPageUpdate: (newPage) async =>
+                                      _updateCurrentPage(bookVm, newPage),
                                 ),
                                 const SizedBox(height: 12),
                                 CompactStreakRow(
@@ -363,10 +398,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
                               ],
-                              if (!_isBookPlanned(book)) ...[
-                                const SizedBox(height: 12),
-                                _buildNoteStructureButton(context, book),
-                              ],
                               const SizedBox(height: 20),
                             ],
                           ),
@@ -379,27 +410,27 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             tabController: _tabController!,
                             tabLabels: _isBookCompleted(book)
                                 ? [
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabRecord,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabHistory,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabReview,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabDetail,
                                   ]
                                 : [
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabRecord,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabHistory,
-                                    AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)
                                         .bookDetailTabDetail,
                                   ],
                           ),
                           backgroundColor: isDark
-                              ? AppColors.scaffoldDark
-                              : AppColors.elevatedLight,
+                              ? BLabColors.scaffoldDark
+                              : BLabColors.elevatedLight,
                         ),
                       ),
                     ];
@@ -516,11 +547,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     blastDirectionality: BlastDirectionality.explosive,
                     shouldLoop: false,
                     colors: const [
-                      AppColors.primary,
-                      AppColors.success,
-                      AppColors.gold,
-                      AppColors.destructive,
-                      AppColors.purple,
+                      BLabColors.primary,
+                      BLabColors.success,
+                      BLabColors.gold,
+                      BLabColors.destructive,
+                      BLabColors.purple,
                     ],
                     numberOfParticles: 30,
                     gravity: 0.2,
@@ -597,8 +628,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
         CustomSnackbar.show(context,
-            message: 'Goal achieved! +$pagesRead 🎉',
-            type: SnackbarType.success);
+            message: '🎉 오늘 목표 달성! +$pagesRead 페이지를 읽었어요',
+            type: BLabSnackbarType.success);
 
         // 이번 업데이트로 목표 달성했으면 컨페티 표시
         if (!wasGoalAchieved) {
@@ -608,16 +639,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${remaining}p', type: SnackbarType.info);
+              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요',
+              type: BLabSnackbarType.info);
         } else {
           CustomSnackbar.show(context,
-              message: '+$pagesRead! ${newPage}p', type: SnackbarType.success);
+              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)',
+              type: BLabSnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(context, message: 'Error', type: SnackbarType.error);
+      CustomSnackbar.show(context,
+          message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
     }
   }
 
@@ -660,7 +694,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -723,7 +757,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.bookDetailLater,
+                          AppLocalizations.of(context).bookDetailLater,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -745,12 +779,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(context)!.bookDetailTabReview,
+                          AppLocalizations.of(context).bookDetailTabReview,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -799,7 +833,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
               message: 'Attempt $newAttempt! D-${bookVm.daysLeft}',
-              type: SnackbarType.info,
+              type: BLabSnackbarType.info,
               icon: Icons.flag);
         }
       },
@@ -945,7 +979,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
         _scrollController.animateTo(0,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
         CustomSnackbar.show(context,
-            message: 'Saved', type: SnackbarType.success);
+            message: AppLocalizations.of(context).bookDetailSaved,
+            type: BLabSnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -959,13 +994,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
         showCupertinoDialog(
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
-            title: const Text('Upload Failed'),
+            title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
             content: Text(isNetworkError
-                ? 'Please check your network connection.\nTry again if the connection is stable.'
-                : 'An error occurred while saving.\nPlease try again.'),
+                ? AppLocalizations.of(context).bookDetailNetworkError
+                : AppLocalizations.of(context).bookDetailSaveError),
             actions: [
               CupertinoDialogAction(
-                  child: const Text('OK'),
+                  child: Text(AppLocalizations.of(context).commonConfirm),
                   onPressed: () => Navigator.pop(dialogContext))
             ],
           ),
@@ -1007,7 +1042,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final success = await memorableVm.deleteSelectedImages();
     if (success && mounted) {
       CustomSnackbar.show(context,
-          message: '$count items deleted', type: SnackbarType.success);
+          message: '$count items deleted', type: BLabSnackbarType.success);
     }
   }
 
@@ -1077,7 +1112,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
               pageNumber: null);
           if (newUrl != null && mounted) {
             CustomSnackbar.show(context,
-                message: 'Image replaced', type: SnackbarType.success);
+                message: AppLocalizations.of(context).bookDetailImageReplaced,
+                type: BLabSnackbarType.success);
           }
           onReplaced(newUrl);
         }
@@ -1125,7 +1161,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -1143,12 +1179,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: BLabColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.schedule_rounded,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     size: 22,
                   ),
                 ),
@@ -1158,7 +1194,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Planned Start',
+                        AppLocalizations.of(context).bookDetailPlannedStart,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -1169,7 +1205,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       Text(
                         book.plannedStartDate != null
                             ? '${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(book.plannedStartDate!)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
-                            : 'TBD',
+                            : AppLocalizations.of(context).bookDetailTbd,
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1197,7 +1233,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _getPriorityLabel(book.priority!),
+                          _getPriorityLabel(context, book.priority!),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1235,7 +1271,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           CustomSnackbar.show(
             context,
             message: '독서 계획이 수정되었습니다',
-            type: SnackbarType.success,
+            type: BLabSnackbarType.success,
           );
         }
       },
@@ -1255,7 +1291,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           child: LinearProgressIndicator(
             value: progress,
             backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            valueColor: const AlwaysStoppedAnimation<Color>(BLabColors.primary),
             minHeight: 6,
           ),
         ),
@@ -1273,7 +1309,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : Colors.white,
+              color: isDark ? BLabColors.surfaceDark : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -1292,12 +1328,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
+                        color: BLabColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
                         Icons.play_arrow_rounded,
-                        color: AppColors.success,
+                        color: BLabColors.success,
                         size: 22,
                       ),
                     ),
@@ -1306,7 +1342,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Resume Reading',
+                          AppLocalizations.of(context).bookDetailResumeReading,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1315,7 +1351,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${book.attemptCount + 1} attempt',
+                          AppLocalizations.of(context)
+                              .bookDetailAttemptCount(book.attemptCount + 1),
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1350,9 +1387,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: 'Attempt $newAttempt started!',
-              type: SnackbarType.success,
+              message: AppLocalizations.of(context)
+                  .bookDetailAttemptStarted(newAttempt),
+              type: BLabSnackbarType.success,
               icon: Icons.play_arrow_rounded);
+        } else if (!success && mounted && bookVm.shouldShowPaywall) {
+          bookVm.clearPaywallState();
+          final paywallSuccess =
+              await SubscriptionService().showPaywall(context);
+          if (!paywallSuccess && mounted) {
+            CustomSnackbar.show(context,
+                message: AppLocalizations.of(context).subscriptionUnavailable,
+                type: BLabSnackbarType.info);
+          }
         }
       },
     );
@@ -1361,28 +1408,29 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return AppColors.error;
+        return BLabColors.error;
       case 2:
-        return AppColors.warning;
+        return BLabColors.warning;
       case 3:
-        return AppColors.primary;
+        return BLabColors.primary;
       case 4:
-        return AppColors.successAlt;
+        return BLabColors.successAlt;
       default:
         return Colors.grey;
     }
   }
 
-  String _getPriorityLabel(int priority) {
+  String _getPriorityLabel(BuildContext context, int priority) {
+    final l10n = AppLocalizations.of(context);
     switch (priority) {
       case 1:
-        return 'Urgent';
+        return l10n.bookDetailPriorityUrgent;
       case 2:
-        return 'High';
+        return l10n.bookDetailPriorityHigh;
       case 3:
-        return 'Medium';
+        return l10n.bookDetailPriorityMedium;
       case 4:
-        return 'Low';
+        return l10n.bookDetailPriorityLow;
       default:
         return '';
     }
@@ -1428,7 +1476,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -1447,12 +1495,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: BLabColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.pencil_outline,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     size: 22,
                   ),
                 ),
@@ -1461,7 +1509,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasReview ? 'Edit Review' : 'Write Review',
+                      hasReview
+                          ? AppLocalizations.of(context).bookDetailEditReview
+                          : AppLocalizations.of(context).bookDetailWriteReview,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1471,8 +1521,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     const SizedBox(height: 2),
                     Text(
                       hasReview
-                          ? 'Review your written review'
-                          : 'Record your thoughts',
+                          ? AppLocalizations.of(context)
+                              .bookDetailReviewYourWritten
+                          : AppLocalizations.of(context)
+                              .bookDetailRecordThoughts,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1501,7 +1553,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -1520,12 +1572,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: BLabColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.refresh_rounded,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     size: 22,
                   ),
                 ),
@@ -1534,7 +1586,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Continue Reading',
+                      AppLocalizations.of(context).bookDetailContinueReading,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1543,7 +1595,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Achieve your reading goal!',
+                      AppLocalizations.of(context).bookDetailAchieveGoal,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1577,8 +1629,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Reading paused',
-          type: SnackbarType.info,
+          message: AppLocalizations.of(context).bookDetailReadingPaused,
+          type: BLabSnackbarType.info,
           icon: CupertinoIcons.pause_circle,
         );
       }
@@ -1595,10 +1647,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
     if (confirmed == true && mounted) {
       final success = await BookService().deleteBook(bookVm.currentBook.id!);
       if (success && mounted) {
+        await ReadingChartViewModel.clearCache();
         CustomSnackbar.show(
           context,
-          message: 'Deleted',
-          type: SnackbarType.success,
+          message: AppLocalizations.of(context).bookDetailDeleted,
+          type: BLabSnackbarType.success,
         );
         Navigator.pop(context);
       }
@@ -1625,146 +1678,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
           }
         }
       },
-    );
-  }
-
-  Widget _buildNoteStructureButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => _showNoteStructureMindmap(book.id!),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.grey.shade200,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_tree_outlined,
-              size: 18,
-              color: AppColors.primary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Note Structure',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showNoteStructureMindmap(String bookId) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final noteStructureVm = context.read<NoteStructureViewModel>();
-
-    noteStructureVm.loadStructure(bookId);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (bottomSheetContext) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Note Structure',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    onPressed: () => Navigator.pop(bottomSheetContext),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListenableBuilder(
-                listenable: noteStructureVm,
-                builder: (context, _) {
-                  if (noteStructureVm.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  if (noteStructureVm.errorMessage != null) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              noteStructureVm.errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
-                  return NoteStructureMindmap(
-                      structure: noteStructureVm.structure);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

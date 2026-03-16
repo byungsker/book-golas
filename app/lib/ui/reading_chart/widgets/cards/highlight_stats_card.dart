@@ -30,7 +30,7 @@ class HighlightStatsCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -64,19 +64,19 @@ class HighlightStatsCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.highlight_outlined,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            AppLocalizations.of(context)!.chartHighlightStatsTitle,
+            AppLocalizations.of(context).chartHighlightStatsTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.format_quote,
           totalHighlights.toString(),
-          AppLocalizations.of(context)!.chartHighlightStatsHighlights,
+          AppLocalizations.of(context).chartHighlightStatsHighlights,
           Colors.amber,
         ),
         _buildStatItem(
@@ -105,7 +105,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.edit_note,
           totalNotes.toString(),
-          AppLocalizations.of(context)!.chartHighlightStatsMemos,
+          AppLocalizations.of(context).chartHighlightStatsMemos,
           Colors.blue,
         ),
         _buildStatItem(
@@ -113,7 +113,7 @@ class HighlightStatsCard extends StatelessWidget {
           isDark,
           Icons.photo_library_outlined,
           totalPhotos.toString(),
-          AppLocalizations.of(context)!.chartHighlightStatsPhotos,
+          AppLocalizations.of(context).chartHighlightStatsPhotos,
           Colors.green,
         ),
       ],
@@ -167,7 +167,7 @@ class HighlightStatsCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.chartHighlightStatsByGenre,
+          AppLocalizations.of(context).chartHighlightStatsByGenre,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -176,7 +176,7 @@ class HighlightStatsCard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         ...topGenres.map((entry) {
-          final percentage = (entry.value / totalHighlights * 100).toInt();
+          final percentage = totalHighlights > 0 ? (entry.value / totalHighlights * 100).toInt() : 0;
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
@@ -185,7 +185,7 @@ class HighlightStatsCard extends StatelessWidget {
                   flex: 3,
                   child: Text(
                     entry.key == '미분류'
-                        ? AppLocalizations.of(context)!.genreUncategorized
+                        ? AppLocalizations.of(context).genreUncategorized
                         : entry.key,
                     style: TextStyle(
                       fontSize: 13,
@@ -202,8 +202,8 @@ class HighlightStatsCard extends StatelessWidget {
                       minHeight: 6,
                       backgroundColor:
                           isDark ? Colors.grey[800] : Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primary,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        BLabColors.primary,
                       ),
                     ),
                   ),
@@ -212,7 +212,7 @@ class HighlightStatsCard extends StatelessWidget {
                 SizedBox(
                   width: 50,
                   child: Text(
-                    AppLocalizations.of(context)!.chartHighlightStatsPhotos,
+                    AppLocalizations.of(context).chartHighlightStatsPhotos,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -232,7 +232,7 @@ class HighlightStatsCard extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -255,7 +255,7 @@ class HighlightStatsCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context)!.chartHighlightStatsEmptyMessage,
+              AppLocalizations.of(context).chartHighlightStatsEmptyMessage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white60 : Colors.black54,
@@ -263,7 +263,7 @@ class HighlightStatsCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              AppLocalizations.of(context)!.chartHighlightStatsEmptyHint,
+              AppLocalizations.of(context).chartHighlightStatsEmptyHint,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white54 : Colors.black45,

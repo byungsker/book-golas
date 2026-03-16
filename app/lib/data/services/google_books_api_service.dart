@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/domain/models/book_detail_info.dart';
 import 'package:book_golas/ui/core/utils/isbn_validator.dart';
 
 class GoogleBooksApiService {
@@ -131,5 +132,35 @@ class GoogleBooksApiService {
   static Future<BookSearchResult?> lookupByISBN(String isbn) async {
     final results = await _searchByISBN(isbn);
     return results.isNotEmpty ? results.first : null;
+  }
+
+  static Future<BookDetailInfo?> fetchBookDetail(String isbn) async {
+    try {
+      final uri = Uri.parse(_baseUrl).replace(queryParameters: {
+        'q': 'isbn:$isbn',
+        if (AppConfig.googleBooksApiKey.isNotEmpty)
+          'key': AppConfig.googleBooksApiKey,
+      });
+
+      final response = await http.get(uri).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> items = data['items'] ?? [];
+
+        if (items.isEmpty) return null;
+
+        final volumeInfo = items.first['volumeInfo'] as Map<String, dynamic>?;
+        if (volumeInfo == null) return null;
+
+        return BookDetailInfo.fromGoogleBooks(volumeInfo);
+      } else {
+        debugPrint('Failed to fetch book detail: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error fetching book detail: $e');
+      return null;
+    }
   }
 }

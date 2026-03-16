@@ -6,8 +6,11 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:book_golas/data/services/fcm_service.dart';
+import 'package:book_golas/data/services/auth_service.dart';
+import 'package:book_golas/data/services/notification_category_prefs.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
@@ -22,6 +25,7 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 import 'login_screen.dart';
+import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
@@ -55,6 +59,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
+      context.read<MyPageViewModel>().loadCategoryStates();
     });
   }
 
@@ -80,19 +85,19 @@ class _MyPageContentState extends State<_MyPageContent> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+          backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccount,
+            AppLocalizations.of(context).myPageDeleteAccount,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            AppLocalizations.of(context)!.myPageDeleteAccountConfirm,
+            AppLocalizations.of(context).myPageDeleteAccountConfirm,
             style: TextStyle(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.7)
@@ -103,7 +108,7 @@ class _MyPageContentState extends State<_MyPageContent> {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                AppLocalizations.of(context)!.commonCancel,
+                AppLocalizations.of(context).commonCancel,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                 ),
@@ -115,9 +120,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                 await _deleteAccount();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.error,
+                foregroundColor: BLabColors.error,
               ),
-              child: Text(AppLocalizations.of(context)!.commonDelete),
+              child: Text(AppLocalizations.of(context).commonDelete),
             ),
           ],
         );
@@ -133,8 +138,8 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountSuccess,
-          type: SnackbarType.success,
+          message: AppLocalizations.of(context).myPageDeleteAccountSuccess,
+          type: BLabSnackbarType.success,
           bottomOffset: 32,
         );
 
@@ -145,8 +150,8 @@ class _MyPageContentState extends State<_MyPageContent> {
       } else if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!.myPageDeleteAccountFailed,
-          type: SnackbarType.error,
+          message: AppLocalizations.of(context).myPageDeleteAccountFailed,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
       }
@@ -154,9 +159,9 @@ class _MyPageContentState extends State<_MyPageContent> {
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context)!
+          message: AppLocalizations.of(context)
               .myPageDeleteAccountError(e.toString()),
-          type: SnackbarType.error,
+          type: BLabSnackbarType.error,
           bottomOffset: 32,
         );
       }
@@ -166,6 +171,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   Future<void> _showTimePicker({
     required int initialHour,
     required int initialMinute,
+    required String type,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     int selectedHour = initialHour;
@@ -178,7 +184,7 @@ class _MyPageContentState extends State<_MyPageContent> {
         return Container(
           height: 350,
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -205,16 +211,16 @@ class _MyPageContentState extends State<_MyPageContent> {
                     TextButton(
                       onPressed: () => Navigator.pop(sheetContext),
                       child: Text(
-                        AppLocalizations.of(context)!.commonCancel,
+                        AppLocalizations.of(context).commonCancel,
                         style: const TextStyle(
-                          color: AppColors.error,
+                          color: BLabColors.error,
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                     Text(
-                      AppLocalizations.of(context)!.myPageNotificationTimeTitle,
+                      AppLocalizations.of(context).myPageNotificationTimeTitle,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -225,12 +231,12 @@ class _MyPageContentState extends State<_MyPageContent> {
                       onPressed: () async {
                         Navigator.pop(sheetContext);
                         await _saveNotificationTime(
-                            selectedHour, selectedMinute);
+                            selectedHour, selectedMinute, type);
                       },
                       child: Text(
-                        AppLocalizations.of(context)!.commonConfirm,
+                        AppLocalizations.of(context).commonConfirm,
                         style: const TextStyle(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
@@ -257,38 +263,47 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Future<void> _saveNotificationTime(int hour, int minute) async {
+  Future<void> _saveNotificationTime(
+      int hour, int minute, String type) async {
     final settingsViewModel = context.read<NotificationSettingsViewModel>();
-    final success = await settingsViewModel.updatePreferredTime(hour, minute);
 
-    if (success) {
-      await FCMService().scheduleDailyNotification(
-        hour: hour,
-        minute: minute,
-      );
-
-      if (mounted) {
-        CustomSnackbar.show(
-          context,
-          message: AppLocalizations.of(context)!
-              .myPageNotificationTime(settingsViewModel.getFormattedTime()),
-          type: SnackbarType.success,
-          bottomOffset: 32,
-        );
+    bool success;
+    if (type == 'goalAlarm') {
+      success = await settingsViewModel.updateGoalAlarmTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleGoalAlarm(hour: hour, minute: minute);
       }
-    } else if (mounted) {
+    } else {
+      success = await settingsViewModel.updateDailyReminderTime(hour, minute);
+      if (success) {
+        await FCMService().scheduleDailyReminder(hour: hour, minute: minute);
+      }
+    }
+
+    if (success && mounted) {
+      final formattedTime = type == 'goalAlarm'
+          ? settingsViewModel.getFormattedGoalAlarmTime()
+          : settingsViewModel.getFormattedDailyReminderTime();
+      CustomSnackbar.show(
+        context,
+        message: AppLocalizations.of(context)
+            .myPageNotificationTime(formattedTime),
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+    } else if (!success && mounted) {
       CustomSnackbar.show(
         context,
         message: settingsViewModel.errorMessage ??
-            AppLocalizations.of(context)!.myPageNotificationChangeFailed,
-        type: SnackbarType.error,
+            AppLocalizations.of(context).myPageNotificationChangeFailed,
+        type: BLabSnackbarType.error,
         bottomOffset: 32,
       );
     }
   }
 
   String _formatTime(int hour, [int minute = 0]) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String hourStr;
     if (hour == 0) {
       hourStr = '${l10n.timeAm} 12${l10n.unitHour}';
@@ -318,7 +333,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
     final textColor = isDark ? Colors.white : Colors.black;
 
-    return LiquidGlassCard(
+    return BLabCard(
       child: Column(
         children: [
           GestureDetector(
@@ -398,10 +413,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? BLabColors.surfaceDark : Colors.white,
                           width: 2,
                         ),
                       ),
@@ -420,9 +435,9 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                LiquidGlassButton(
+                BLabButton(
                   text: _isUploadingAvatar ? '' : '변경',
-                  variant: LiquidGlassButtonVariant.primary,
+                  variant: BLabButtonVariant.primary,
                   onPressed: _isUploadingAvatar
                       ? null
                       : () async {
@@ -436,9 +451,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChanged,
-                                  type: SnackbarType.success,
+                                  type: BLabSnackbarType.success,
                                   bottomOffset: 32,
                                 );
                               }
@@ -448,9 +463,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                               if (context.mounted) {
                                 CustomSnackbar.show(
                                   context,
-                                  message: AppLocalizations.of(context)!
+                                  message: AppLocalizations.of(context)
                                       .myPageAvatarChangeFailed(e.toString()),
-                                  type: SnackbarType.error,
+                                  type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
                               }
@@ -473,9 +488,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                       : null,
                 ),
                 const SizedBox(width: 8),
-                LiquidGlassButton(
+                BLabButton(
                   text: '취소',
-                  variant: LiquidGlassButtonVariant.secondary,
+                  variant: BLabButtonVariant.secondary,
                   onPressed: _isUploadingAvatar
                       ? null
                       : () {
@@ -492,7 +507,7 @@ class _MyPageContentState extends State<_MyPageContent> {
               children: [
                 Text(
                   user.nickname ??
-                      AppLocalizations.of(context)!.myPageNoNickname,
+                      AppLocalizations.of(context).myPageNoNickname,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -506,19 +521,10 @@ class _MyPageContentState extends State<_MyPageContent> {
                     vm.startEditingNickname();
                     _nicknameController.text = user.nickname ?? '';
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: textColor.withValues(alpha: 0.6),
-                    ),
+                  child: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: textColor.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -527,9 +533,9 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               children: [
                 Expanded(
-                  child: LiquidGlassTextField(
+                  child: BLabTextField(
                     controller: _nicknameController,
-                    hintText: AppLocalizations.of(context)!.myPageNicknameHint,
+                    hintText: AppLocalizations.of(context).myPageNicknameHint,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -543,7 +549,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.success,
+                      color: BLabColors.success,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -596,7 +602,7 @@ class _MyPageContentState extends State<_MyPageContent> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.blue[50],
+        color: isDark ? BLabColors.subtleDark : Colors.blue[50],
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -611,12 +617,12 @@ class _MyPageContentState extends State<_MyPageContent> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
 
-    return LiquidGlassCard(
+    return BLabCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.myPageSettings,
+            AppLocalizations.of(context).myPageSettings,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -631,14 +637,14 @@ class _MyPageContentState extends State<_MyPageContent> {
                 icon: themeViewModel.isDarkMode
                     ? Icons.dark_mode
                     : Icons.light_mode,
-                title: AppLocalizations.of(context)!.myPageDarkMode,
+                title: AppLocalizations.of(context).myPageDarkMode,
                 trailing: Switch(
                   value: themeViewModel.isDarkMode,
                   onChanged: (value) {
                     HapticFeedback.selectionClick();
                     themeViewModel.toggleTheme();
                   },
-                  activeTrackColor: AppColors.primary,
+                  activeTrackColor: BLabColors.primary,
                 ),
               );
             },
@@ -657,7 +663,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.language,
-                    title: AppLocalizations.of(context)!.languageSettingLabel,
+                    title: AppLocalizations.of(context).languageSettingLabel,
                     trailing: const SizedBox.shrink(),
                   ),
                   const SizedBox(height: 12),
@@ -668,11 +674,11 @@ class _MyPageContentState extends State<_MyPageContent> {
                         ButtonSegment(
                             value: 'ko',
                             label: Text(
-                                AppLocalizations.of(context)!.languageKorean)),
+                                AppLocalizations.of(context).languageKorean)),
                         ButtonSegment(
                             value: 'en',
                             label: Text(
-                                AppLocalizations.of(context)!.languageEnglish)),
+                                AppLocalizations.of(context).languageEnglish)),
                       ],
                       selected: {localeViewModel.locale.languageCode},
                       onSelectionChanged: (selection) async {
@@ -683,7 +689,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                         HapticFeedback.selectionClick();
 
-                        final localizations = AppLocalizations.of(context)!;
+                        final localizations = AppLocalizations.of(context);
                         final languageName = newLocale == 'ko'
                             ? localizations.languageKorean
                             : localizations.languageEnglish;
@@ -694,7 +700,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                           builder: (context) => Container(
                             decoration: BoxDecoration(
                               color:
-                                  isDark ? AppColors.surfaceDark : Colors.white,
+                                  isDark ? BLabColors.surfaceDark : Colors.white,
                               borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(24)),
                             ),
@@ -773,7 +779,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                                         style: ElevatedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 14),
-                                          backgroundColor: AppColors.primary,
+                                          backgroundColor: BLabColors.primary,
                                           foregroundColor: Colors.white,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
@@ -807,12 +813,28 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          Divider(
-            height: 32,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context).myPageNotificationCategories,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
+          const SizedBox(height: 20),
           Consumer<NotificationSettingsViewModel>(
             builder: (context, settingsViewModel, child) {
               final settings = settingsViewModel.settings;
@@ -823,13 +845,13 @@ class _MyPageContentState extends State<_MyPageContent> {
                   _buildSettingRow(
                     context: context,
                     icon: Icons.notifications,
-                    title: AppLocalizations.of(context)!
+                    title: AppLocalizations.of(context)
                         .myPageDailyReadingNotification,
                     subtitle: settings.notificationEnabled
-                        ? AppLocalizations.of(context)!.myPageNotificationTime(
-                            _formatTime(settings.preferredHour,
-                                settings.preferredMinute))
-                        : AppLocalizations.of(context)!.myPageNoNotification,
+                        ? AppLocalizations.of(context).myPageNotificationTime(
+                            _formatTime(settings.dailyReminderHour,
+                                settings.dailyReminderMinute))
+                        : AppLocalizations.of(context).myPageNoNotification,
                     trailing: isLoading
                         ? const SizedBox(
                             width: 24,
@@ -845,25 +867,30 @@ class _MyPageContentState extends State<_MyPageContent> {
 
                               if (success) {
                                 if (value) {
-                                  await FCMService().scheduleDailyNotification(
-                                    hour: settings.preferredHour,
-                                    minute: settings.preferredMinute,
+                                  await FCMService().scheduleDailyReminder(
+                                    hour: settings.dailyReminderHour,
+                                    minute: settings.dailyReminderMinute,
+                                  );
+                                  await FCMService().scheduleGoalAlarm(
+                                    hour: settings.goalAlarmHour,
+                                    minute: settings.goalAlarmMinute,
                                   );
                                 } else {
-                                  await FCMService().cancelDailyNotification();
+                                  await FCMService().cancelDailyReminder();
+                                  await FCMService().cancelGoalAlarm();
                                 }
 
                                 if (mounted) {
                                   CustomSnackbar.show(
                                     context,
                                     message: value
-                                        ? AppLocalizations.of(context)!
+                                        ? AppLocalizations.of(context)
                                             .myPageNotificationEnabled
-                                        : AppLocalizations.of(context)!
+                                        : AppLocalizations.of(context)
                                             .myPageNotificationDisabled,
                                     type: value
-                                        ? SnackbarType.success
-                                        : SnackbarType.info,
+                                        ? BLabSnackbarType.success
+                                        : BLabSnackbarType.info,
                                     bottomOffset: 32,
                                   );
                                 }
@@ -871,44 +898,244 @@ class _MyPageContentState extends State<_MyPageContent> {
                                 CustomSnackbar.show(
                                   context,
                                   message: settingsViewModel.errorMessage ??
-                                      '알림 설정 변경에 실패했습니다',
-                                  type: SnackbarType.error,
+                                      AppLocalizations.of(context)
+                                          .myPageNotificationChangeFailed,
+                                  type: BLabSnackbarType.error,
                                   bottomOffset: 32,
                                 );
                               }
                             },
-                            activeTrackColor: AppColors.primary,
+                            activeTrackColor: BLabColors.primary,
                           ),
                   ),
                   if (settings.notificationEnabled) ...[
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.bookmark,
+                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
+                      subtitle: settings.dailyReminderEnabled
+                          ? _formatTime(settings.dailyReminderHour,
+                              settings.dailyReminderMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.dailyReminderEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateDailyReminderEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleDailyReminder(
+                                      hour: settings.dailyReminderHour,
+                                      minute: settings.dailyReminderMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelDailyReminder();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.dailyReminderEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.dailyReminderHour,
+                            settings.dailyReminderMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.dailyReminderHour,
+                                  initialMinute:
+                                      settings.dailyReminderMinute,
+                                  type: 'dailyReminder',
+                                ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
-                    LiquidGlassButton(
-                      text: _formatTime(
-                          settings.preferredHour, settings.preferredMinute),
-                      icon: Icons.access_time,
-                      variant: LiquidGlassButtonVariant.secondary,
-                      isFullWidth: true,
-                      onPressed: isLoading
-                          ? null
-                          : () => _showTimePicker(
-                                initialHour: settings.preferredHour,
-                                initialMinute: settings.preferredMinute,
-                              ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.emoji_events,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationGoalAlarm,
+                      subtitle: settings.goalAlarmEnabled
+                          ? _formatTime(settings.goalAlarmHour,
+                              settings.goalAlarmMinute)
+                          : null,
+                      trailing: Switch(
+                        value: settings.goalAlarmEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                final success = await settingsViewModel
+                                    .updateGoalAlarmEnabled(value);
+                                if (success) {
+                                  if (value) {
+                                    await FCMService().scheduleGoalAlarm(
+                                      hour: settings.goalAlarmHour,
+                                      minute: settings.goalAlarmMinute,
+                                    );
+                                  } else {
+                                    await FCMService().cancelGoalAlarm();
+                                  }
+                                }
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    if (settings.goalAlarmEnabled) ...[
+                      const SizedBox(height: 8),
+                      BLabButton(
+                        text: _formatTime(settings.goalAlarmHour,
+                            settings.goalAlarmMinute),
+                        icon: Icons.access_time,
+                        variant: BLabButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: isLoading
+                            ? null
+                            : () => _showTimePicker(
+                                  initialHour: settings.goalAlarmHour,
+                                  initialMinute: settings.goalAlarmMinute,
+                                  type: 'goalAlarm',
+                                ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.flash_on,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationEventNudge,
+                      trailing: Switch(
+                        value: settings.eventNudgeEnabled,
+                        onChanged: isLoading
+                            ? null
+                            : (value) async {
+                                HapticFeedback.selectionClick();
+                                await settingsViewModel
+                                    .updateEventNudgeEnabled(value);
+                              },
+                        activeTrackColor: BLabColors.primary,
+                      ),
+                    ),
+                    Divider(
+                      height: 32,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                    ),
+                    _buildSettingRow(
+                      context: context,
+                      icon: Icons.campaign,
+                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
+                      trailing: Consumer<MyPageViewModel>(
+                        builder: (context, vm, child) {
+                          return Switch(
+                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                            onChanged: (value) {
+                              HapticFeedback.selectionClick();
+                        vm.toggleCategory(NotificationCategory.announcements, value);
+                            },
+                            activeTrackColor: BLabColors.primary,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ],
               );
             },
           ),
-          const SizedBox(height: 16),
+          if (kDebugMode) ...[
+            const SizedBox(height: 20),
+            BLabButton(
+              text: AppLocalizations.of(context).myPageTestNotification,
+              icon: Icons.notifications_active,
+              variant: BLabButtonVariant.secondary,
+              isFullWidth: true,
+              onPressed: () async {
+                await FCMService().scheduleTestNotification(seconds: 30);
+
+                if (mounted) {
+                  CustomSnackbar.show(
+                    context,
+                    message: AppLocalizations.of(context)
+                        .myPageTestNotificationSent,
+                    type: BLabSnackbarType.success,
+                    bottomOffset: 32,
+                    duration: const Duration(seconds: 3),
+                  );
+                }
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context).myPageAccountSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          if (AuthService().isEmailAuthUser()) ...[
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _showPasswordChangeSheet();
+              },
+              behavior: HitTestBehavior.opaque,
+              child: _buildSettingRow(
+                context: context,
+                icon: Icons.lock,
+                title: AppLocalizations.of(context).myPageChangePassword,
+                trailing: Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Divider(
+              height: 32,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+            ),
+          ],
           Consumer<SubscriptionViewModel>(
             builder: (context, subscriptionVm, child) {
-              return LiquidGlassButton(
+              return BLabButton(
                 text: subscriptionVm.isProUser
-                    ? AppLocalizations.of(context)!.myPageSubscriptionManage
-                    : AppLocalizations.of(context)!.myPageSubscriptionUpgrade,
+                    ? AppLocalizations.of(context).myPageSubscriptionManage
+                    : AppLocalizations.of(context).myPageSubscriptionUpgrade,
                 icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
-                variant: LiquidGlassButtonVariant.secondary,
+                variant: BLabButtonVariant.secondary,
                 isFullWidth: true,
                 onPressed: () {
                   Navigator.push(
@@ -923,29 +1150,6 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
-          if (kDebugMode) ...[
-            const SizedBox(height: 20),
-            LiquidGlassButton(
-              text: AppLocalizations.of(context)!.myPageTestNotification,
-              icon: Icons.notifications_active,
-              variant: LiquidGlassButtonVariant.secondary,
-              isFullWidth: true,
-              onPressed: () async {
-                await FCMService().scheduleTestNotification(seconds: 30);
-
-                if (mounted) {
-                  CustomSnackbar.show(
-                    context,
-                    message: AppLocalizations.of(context)!
-                        .myPageTestNotificationSent,
-                    type: SnackbarType.success,
-                    bottomOffset: 32,
-                    duration: const Duration(seconds: 3),
-                  );
-                }
-              },
-            ),
-          ],
         ],
       ),
     );
@@ -1008,15 +1212,153 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Widget _buildDangerZoneCard(BuildContext context) {
-    return LiquidGlassCard(
+  Future<void> _showPasswordChangeSheet() async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => const _PasswordChangeSheet(),
+    );
+  }
+
+  Widget _buildInfoCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return BLabCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LiquidGlassButton(
-            text: AppLocalizations.of(context)!.myPageLogout,
-            icon: Icons.logout,
-            variant: LiquidGlassButtonVariant.destructive,
-            isFullWidth: true,
+          Text(
+            AppLocalizations.of(context).myPageInfoSection,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.description,
+            title: AppLocalizations.of(context).myPageTermsAndPolicy,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context).myPageTermsAndPolicy,
+                    url: 'https://placeholder.com/terms',
+                  ),
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.campaign,
+            title: AppLocalizations.of(context).myPageAnnouncements,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context).myPageAnnouncements,
+                    url: 'https://placeholder.com/announcements',
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: textColor.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: textColor,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: textColor.withValues(alpha: 0.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersionInfo(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        return Text(
+          '${AppLocalizations.of(context).myPageVersion} ${snapshot.data!.version}',
+          style: TextStyle(
+            fontSize: 12,
+            color: textColor.withValues(alpha: 0.3),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDangerZoneCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
             onPressed: () async {
               await context.read<AuthViewModel>().signOut();
               if (context.mounted) {
@@ -1026,18 +1368,41 @@ class _MyPageContentState extends State<_MyPageContent> {
                 );
               }
             },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              AppLocalizations.of(context).myPageLogout,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '|',
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
           TextButton(
             onPressed: () => _showDeleteAccountDialog(context),
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.error,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              AppLocalizations.of(context)!.myPageDeleteAccount,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              AppLocalizations.of(context).myPageDeleteAccount,
+              style: TextStyle(
+                fontSize: 13,
+                color: textColor.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -1049,11 +1414,11 @@ class _MyPageContentState extends State<_MyPageContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authViewModel = context.watch<AuthViewModel>();
+    context.watch<AuthViewModel>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.myPageTitle),
+        title: Text(AppLocalizations.of(context).myPageTitle),
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
@@ -1062,26 +1427,253 @@ class _MyPageContentState extends State<_MyPageContent> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await authViewModel.fetchCurrentUser();
-          await context.read<NotificationSettingsViewModel>().loadSettings();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                _buildProfileCard(context),
-                const SizedBox(height: 24),
-                _buildSettingsCard(context),
-                const SizedBox(height: 24),
-                _buildDangerZoneCard(context),
-                const SizedBox(height: 40),
-              ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              _buildProfileCard(context),
+              const SizedBox(height: 16),
+              _buildSettingsCard(context),
+              const SizedBox(height: 16),
+              _buildNotificationCard(context),
+              const SizedBox(height: 16),
+              _buildAccountCard(context),
+              const SizedBox(height: 16),
+              _buildInfoCard(context),
+              const SizedBox(height: 16),
+              _buildDangerZoneCard(context),
+              const SizedBox(height: 8),
+              _buildVersionInfo(context),
+              const SizedBox(height: 80),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class _PasswordChangeSheet extends StatefulWidget {
+  const _PasswordChangeSheet();
+
+  @override
+  State<_PasswordChangeSheet> createState() => _PasswordChangeSheetState();
+}
+
+class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentController.addListener(() => setState(() {}));
+    _newController.addListener(() => setState(() {}));
+    _confirmController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
+    final currentPw = _currentController.text;
+    final newPw = _newController.text;
+    final confirmPw = _confirmController.text;
+
+    if (currentPw.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPageCurrentPasswordRequired,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw.length < 6) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordTooShort,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+    if (newPw != confirmPw) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordMismatch,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final error = await AuthService().updatePassword(newPw);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (error == null) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.myPagePasswordChanged,
+        type: BLabSnackbarType.success,
+        bottomOffset: 32,
+      );
+      Navigator.pop(context);
+    } else {
+      final message =
+          error.contains('same as') || error.contains('different')
+              ? l10n.myPagePasswordSameAsOld
+              : l10n.myPagePasswordChangeErrorDetail(error);
+      CustomSnackbar.show(
+        context,
+        message: message,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+    }
+
+  }
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String hint,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor =
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4);
+    return BLabTextField(
+      controller: controller,
+      hintText: hint,
+      obscureText: obscure,
+      suffixIcon: IntrinsicWidth(
+        child: Row(
+          children: [
+            if (controller.text.isNotEmpty)
+              IconButton(
+                icon: Icon(Icons.close, size: 18, color: iconColor),
+                onPressed: () => controller.clear(),
+              ),
+            IconButton(
+              icon: Icon(
+                obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 20,
+                color: iconColor,
+              ),
+              onPressed: onToggle,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                l10n.myPageChangePasswordTitle,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildPasswordField(
+                controller: _currentController,
+                hint: l10n.myPageCurrentPassword,
+                obscure: _obscureCurrent,
+                onToggle: () =>
+                    setState(() => _obscureCurrent = !_obscureCurrent),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _newController,
+                hint: l10n.myPageNewPassword,
+                obscure: _obscureNew,
+                onToggle: () => setState(() => _obscureNew = !_obscureNew),
+              ),
+              const SizedBox(height: 12),
+              _buildPasswordField(
+                controller: _confirmController,
+                hint: l10n.myPageConfirmPassword,
+                obscure: _obscureConfirm,
+                onToggle: () =>
+                    setState(() => _obscureConfirm = !_obscureConfirm),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: BLabButton(
+                  text: _isLoading ? '' : l10n.myPageChangePassword,
+                  variant: BLabButtonVariant.primary,
+                  isFullWidth: true,
+                  onPressed: _isLoading ? null : _submit,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+            ],
           ),
         ),
       ),

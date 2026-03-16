@@ -11,17 +11,30 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		43827EE4CF0DB6AE5B6DBC44 /* BookgolasWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 76ACDE82FAC10185DD75195F /* BookgolasWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		54EDFA9993FBA1BB905F8E5C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F747935BA02C2D76009BA695 /* GoogleService-Info.plist */; };
+		5F9108091E56AE292D1D5696 /* BookgolasWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F56D6365BC848B6DFB4620E /* BookgolasWidget.swift */; };
+		64BCF93059ADF02DA4C54F4A /* BookgolasWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E93C235E49C04F8BE25440 /* BookgolasWidgetBundle.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		8A0952C42EFA72BB00C940AF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A0952C22EFA72BB00C940AF /* InfoPlist.strings */; };
 		8A0952C82EFA72D400C940AF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A0952C62EFA72D400C940AF /* InfoPlist.strings */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		BG0267A1F3C8D5E900A1B2C3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BG0267A2F3C8D5E900A1B2C4 /* Localizable.strings */; };
 		C27162BC43ADABF3AB9880EB /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81EA9A41A8A270F98EB71CE8 /* Pods_RunnerTests.framework */; };
+		C2AB7B30BFE191E4F5FA9C6C /* Pods_BookgolasWidgetExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABAE4E26627A60CEA4C06D0A /* Pods_BookgolasWidgetExtension.framework */; };
+		D4BF267A1C3E9D5400B1A2C3 /* BackgroundIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF267B1C3E9D5400B1A2C4 /* BackgroundIntent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2442B084433B31CC71F0A7FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D6B20221B8AC4FFB1973C0C;
+			remoteInfo = BookgolasWidgetExtension;
+		};
 		331C8085294A63A400263BE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
@@ -32,6 +45,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		55A2E258C4EA587AEEC956FB /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				43827EE4CF0DB6AE5B6DBC44 /* BookgolasWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,28 +69,37 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		026435B40F5D6D38103EE909 /* Pods-BookgolasWidgetExtension.release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.release-prod.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.release-prod.xcconfig"; sourceTree = "<group>"; };
 		05A910046BCC764D63AF8855 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		09196E2A7BB7FC4E9B031FE1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		099B536B266254801F28EF53 /* Pods-Runner.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-prod.xcconfig"; sourceTree = "<group>"; };
 		0F3345BCA7AE9708FA6A218C /* Pods-RunnerTests.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-dev.xcconfig"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		16842BFA9936C21D57FD7445 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		1F8045F03B2E30B502987B88 /* Pods-BookgolasWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		32EBEF081BB30209BF101384 /* Pods-RunnerTests.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-prod.xcconfig"; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		436277256C677B872E47CF8F /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		562DD5125C8DDE3B52D0D26C /* Pods-BookgolasWidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		641DE86D8293245336169414 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		76ACDE82FAC10185DD75195F /* BookgolasWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookgolasWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7840AB1C970D41C1E3E53CD4 /* Pods-RunnerTests.profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-prod.xcconfig"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		81EA9A41A8A270F98EB71CE8 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8269ADF22A95D4DA30D4FCC2 /* Pods-BookgolasWidgetExtension.profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.profile-prod.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.profile-prod.xcconfig"; sourceTree = "<group>"; };
+		86F1D913ED84AED287C4824A /* Pods-BookgolasWidgetExtension.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.profile-dev.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		8732CA4BF43197F8343A933D /* Pods-RunnerTests.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-dev.xcconfig"; sourceTree = "<group>"; };
+		89F8A365B81EC6FE6403EE40 /* Pods-BookgolasWidgetExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.profile.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.profile.xcconfig"; sourceTree = "<group>"; };
 		8A0952C12EFA72BB00C940AF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		8A0952C52EFA72D400C940AF /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = InfoPlist.strings; sourceTree = "<group>"; };
 		8ACD4F572EEB0B24002FADE3 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		8B4467FEFCC73CB10A574301 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		8EC93858E8CFE8C450842643 /* Pods-BookgolasWidgetExtension.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.debug-dev.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.debug-dev.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,11 +108,21 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AC1FACDC412F5E178B10112 /* Pods-Runner.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"; sourceTree = "<group>"; };
+		9C23DACFB0264E5C308D57D5 /* Pods-BookgolasWidgetExtension.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.debug-prod.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.debug-prod.xcconfig"; sourceTree = "<group>"; };
+		9C8BC30CF8A678F59BDA1F6E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9F56D6365BC848B6DFB4620E /* BookgolasWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BookgolasWidget.swift; sourceTree = "<group>"; };
+		A0E93C235E49C04F8BE25440 /* BookgolasWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BookgolasWidgetBundle.swift; sourceTree = "<group>"; };
+		ABAE4E26627A60CEA4C06D0A /* Pods_BookgolasWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BookgolasWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B07FFCDF42956AF74FFEB9A9 /* BookgolasWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = BookgolasWidget.entitlements; sourceTree = "<group>"; };
 		B5EBF7E618810F455E78B136 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
+		BG0267A3F3C8D5E900A1B2C5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		BG0267A4F3C8D5E900A1B2C6 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1627116CBB07BBC8B9A8348 /* Pods-Runner.release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-prod.xcconfig"; sourceTree = "<group>"; };
 		C201BD1AEE79E912008D611E /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB62ABF520913381DD291E4D /* Pods-Runner.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-dev.xcconfig"; sourceTree = "<group>"; };
+		D4BF267B1C3E9D5400B1A2C4 /* BackgroundIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundIntent.swift; sourceTree = "<group>"; };
 		D4C020510BA595F6D34831C4 /* Pods-Runner.profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-prod.xcconfig"; sourceTree = "<group>"; };
+		D6D3FC26DE5858D41109EE99 /* Pods-BookgolasWidgetExtension.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookgolasWidgetExtension.release-dev.xcconfig"; path = "Target Support Files/Pods-BookgolasWidgetExtension/Pods-BookgolasWidgetExtension.release-dev.xcconfig"; sourceTree = "<group>"; };
 		DD4347E22CA1310DA6617646 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		F6CA224E1ECF901AD6B976D7 /* Pods-RunnerTests.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		F715FCF1C63F424BA089655C /* Pods-RunnerTests.release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-prod.xcconfig"; sourceTree = "<group>"; };
@@ -103,14 +146,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3BAF96381583EF8719A5138 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2AB7B30BFE191E4F5FA9C6C /* Pods_BookgolasWidgetExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A10FE6D4A5C20AB9E21F169 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				09196E2A7BB7FC4E9B031FE1 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		2C3DE4750215F65BCCAB495F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				C201BD1AEE79E912008D611E /* Pods_Runner.framework */,
 				81EA9A41A8A270F98EB71CE8 /* Pods_RunnerTests.framework */,
+				1A10FE6D4A5C20AB9E21F169 /* iOS */,
+				ABAE4E26627A60CEA4C06D0A /* Pods_BookgolasWidgetExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -144,8 +205,31 @@
 				F715FCF1C63F424BA089655C /* Pods-RunnerTests.release-prod.xcconfig */,
 				F6CA224E1ECF901AD6B976D7 /* Pods-RunnerTests.profile-dev.xcconfig */,
 				7840AB1C970D41C1E3E53CD4 /* Pods-RunnerTests.profile-prod.xcconfig */,
+				562DD5125C8DDE3B52D0D26C /* Pods-BookgolasWidgetExtension.release.xcconfig */,
+				1F8045F03B2E30B502987B88 /* Pods-BookgolasWidgetExtension.debug.xcconfig */,
+				89F8A365B81EC6FE6403EE40 /* Pods-BookgolasWidgetExtension.profile.xcconfig */,
+				8EC93858E8CFE8C450842643 /* Pods-BookgolasWidgetExtension.debug-dev.xcconfig */,
+				9C23DACFB0264E5C308D57D5 /* Pods-BookgolasWidgetExtension.debug-prod.xcconfig */,
+				D6D3FC26DE5858D41109EE99 /* Pods-BookgolasWidgetExtension.release-dev.xcconfig */,
+				026435B40F5D6D38103EE909 /* Pods-BookgolasWidgetExtension.release-prod.xcconfig */,
+				86F1D913ED84AED287C4824A /* Pods-BookgolasWidgetExtension.profile-dev.xcconfig */,
+				8269ADF22A95D4DA30D4FCC2 /* Pods-BookgolasWidgetExtension.profile-prod.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		80BD51421E934C46EDA3E65E /* BookgolasWidget */ = {
+			isa = PBXGroup;
+			children = (
+				9F56D6365BC848B6DFB4620E /* BookgolasWidget.swift */,
+				A0E93C235E49C04F8BE25440 /* BookgolasWidgetBundle.swift */,
+				D4BF267B1C3E9D5400B1A2C4 /* BackgroundIntent.swift */,
+				B07FFCDF42956AF74FFEB9A9 /* BookgolasWidget.entitlements */,
+				9C8BC30CF8A678F59BDA1F6E /* Info.plist */,
+				BG0267A2F3C8D5E900A1B2C4 /* Localizable.strings */,
+			);
+			name = BookgolasWidget;
+			path = BookgolasWidget;
 			sourceTree = "<group>";
 		};
 		8A0952C32EFA72BB00C940AF /* en.lproj */ = {
@@ -187,6 +271,7 @@
 				55FCB83E09965C1A945A7329 /* Pods */,
 				2C3DE4750215F65BCCAB495F /* Frameworks */,
 				F747935BA02C2D76009BA695 /* GoogleService-Info.plist */,
+				80BD51421E934C46EDA3E65E /* BookgolasWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -195,6 +280,7 @@
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				76ACDE82FAC10185DD75195F /* BookgolasWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -237,17 +323,36 @@
 			productReference = 331C8081294A63A400263BE5 /* RunnerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		6D6B20221B8AC4FFB1973C0C /* BookgolasWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F2C0FF06E15DD89494E5623 /* Build configuration list for PBXNativeTarget "BookgolasWidgetExtension" */;
+			buildPhases = (
+				7B8A3B63DD426200B84447F1 /* [CP] Check Pods Manifest.lock */,
+				AC9A248B09F6F83A76A7C82D /* Sources */,
+				D3BAF96381583EF8719A5138 /* Frameworks */,
+				677B9EEA5DC72B96EFBC75F0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BookgolasWidgetExtension;
+			productName = BookgolasWidgetExtension;
+			productReference = 76ACDE82FAC10185DD75195F /* BookgolasWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		97C146ED1CF9000F007C117D /* Runner */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
-		buildPhases = (
-			5B919502E9159F28EA25E9B1 /* [CP] Check Pods Manifest.lock */,
-			9740EEB61CF901F6004384FC /* Run Script */,
-			8DD39094CA0CA9C428D44460 /* Copy GoogleService-Info.plist */,
-			97C146EA1CF9000F007C117D /* Sources */,
+			buildPhases = (
+				5B919502E9159F28EA25E9B1 /* [CP] Check Pods Manifest.lock */,
+				9740EEB61CF901F6004384FC /* Run Script */,
+				8DD39094CA0CA9C428D44460 /* Copy GoogleService-Info.plist */,
+				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				55A2E258C4EA587AEEC956FB /* Embed App Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				BF6A8ADA9859E3D1C7C09E4B /* [CP] Embed Pods Frameworks */,
 				A93C5D479B321BFD8E6274AA /* [CP] Copy Pods Resources */,
@@ -255,6 +360,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				C652BA068B3F232E8CD4450F /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -297,6 +403,7 @@
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
+				6D6B20221B8AC4FFB1973C0C /* BookgolasWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -306,6 +413,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		677B9EEA5DC72B96EFBC75F0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BG0267A1F3C8D5E900A1B2C3 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,22 +440,8 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-	/* Begin PBXShellScriptBuildPhase section */
-	8DD39094CA0CA9C428D44460 /* Copy GoogleService-Info.plist */ = {
-		isa = PBXShellScriptBuildPhase;
-		buildActionMask = 2147483647;
-		files = (
-		);
-		inputPaths = (
-		);
-		name = "Copy GoogleService-Info.plist";
-		outputPaths = (
-		);
-		runOnlyForDeploymentPostprocessing = 0;
-		shellPath = /bin/sh;
-		shellScript = "# Copy Firebase config based on build configuration\nif [[ \"${CONFIGURATION}\" == *-dev ]]; then\n    cp \"${PROJECT_DIR}/Runner/Firebase/dev/GoogleService-Info.plist\" \"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\n    echo \"Copied DEV GoogleService-Info.plist\"\nelif [[ \"${CONFIGURATION}\" == *-prod ]]; then\n    cp \"${PROJECT_DIR}/Runner/Firebase/prod/GoogleService-Info.plist\" \"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\n    echo \"Copied PROD GoogleService-Info.plist\"\nelse\n    echo \"Using existing GoogleService-Info.plist (no flavor specified)\"\nfi\n";
-	};
-	3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
+/* Begin PBXShellScriptBuildPhase section */
+		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -377,6 +478,42 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		7B8A3B63DD426200B84447F1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BookgolasWidgetExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8DD39094CA0CA9C428D44460 /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Copy Firebase config based on build configuration\nif [[ \"${CONFIGURATION}\" == *-dev ]]; then\n    cp \"${PROJECT_DIR}/Runner/Firebase/dev/GoogleService-Info.plist\" \"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\n    echo \"Copied DEV GoogleService-Info.plist\"\nelif [[ \"${CONFIGURATION}\" == *-prod ]]; then\n    cp \"${PROJECT_DIR}/Runner/Firebase/prod/GoogleService-Info.plist\" \"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\n    echo \"Copied PROD GoogleService-Info.plist\"\nelse\n    cp \"${PROJECT_DIR}/Runner/Firebase/dev/GoogleService-Info.plist\" \"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\n    echo \"Copied DEV GoogleService-Info.plist (default fallback)\"\nfi\n";
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -469,6 +606,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AC9A248B09F6F83A76A7C82D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F9108091E56AE292D1D5696 /* BookgolasWidget.swift in Sources */,
+				64BCF93059ADF02DA4C54F4A /* BookgolasWidgetBundle.swift in Sources */,
+				D4BF267A1C3E9D5400B1A2C3 /* BackgroundIntent.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -476,6 +623,12 @@
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		C652BA068B3F232E8CD4450F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = BookgolasWidgetExtension;
+			target = 6D6B20221B8AC4FFB1973C0C /* BookgolasWidgetExtension */;
+			targetProxy = 2442B084433B31CC71F0A7FB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -512,14 +665,51 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		BG0267A2F3C8D5E900A1B2C4 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BG0267A3F3C8D5E900A1B2C5 /* en */,
+				BG0267A4F3C8D5E900A1B2C6 /* ko */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		185056E62FE4E1E18223816F /* Profile-dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86F1D913ED84AED287C4824A /* Pods-BookgolasWidgetExtension.profile-dev.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Profile-dev";
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -559,7 +749,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -572,28 +762,58 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
 				ENABLE_BITCODE = NO;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
+				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Profile;
+		};
+		2D33DC1D1498A33D314B50E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 562DD5125C8DDE3B52D0D26C /* Pods-BookgolasWidgetExtension.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		331C8088294A63A400263BE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -645,6 +865,63 @@
 			};
 			name = Profile;
 		};
+		4708E46EBB01356882FDD46A /* Release-dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6D3FC26DE5858D41109EE99 /* Pods-BookgolasWidgetExtension.release-dev.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-dev";
+		};
+		4A8EDCF8D5FD097FBB7F8AC3 /* Debug-prod */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9C23DACFB0264E5C308D57D5 /* Pods-BookgolasWidgetExtension.debug-prod.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = "Debug-prod";
+		};
 		8B0000010000DEV0DEBUG001 /* Debug-dev */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -695,7 +972,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -753,7 +1030,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -805,7 +1082,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -860,7 +1137,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -875,7 +1152,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -915,7 +1192,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -928,7 +1205,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -968,7 +1245,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -977,19 +1254,21 @@
 			};
 			name = "Profile-prod";
 		};
-	8B0000110000DEV0DEBUG001 /* Debug-dev */ = {
-		isa = XCBuildConfiguration;
-		baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
-		buildSettings = {
-			ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-dev";
+		8B0000110000DEV0DEBUG001 /* Debug-dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
-			APP_DISPLAY_NAME = "북골라스 DEV";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1009,15 +1288,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1036,43 +1317,47 @@
 		8B0000120000DEV0RELEAS01 /* Release-dev */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
-		buildSettings = {
-			ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-dev";
-			CLANG_ENABLE_MODULES = YES;
-			CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-			CURRENT_PROJECT_VERSION = 1;
-			DEVELOPMENT_TEAM = 7PFH55UQ86;
-			ENABLE_BITCODE = NO;
-			INFOPLIST_FILE = Runner/Info.plist;
-			INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
-			APP_DISPLAY_NAME = "북골라스 DEV";
-			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-			LD_RUNPATH_SEARCH_PATHS = (
-				"$(inherited)",
-				"@executable_path/Frameworks",
-			);
-			MARKETING_VERSION = 1;
-			PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
-			PRODUCT_NAME = "$(TARGET_NAME)";
-			SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
-			SWIFT_VERSION = 5.0;
-			VERSIONING_SYSTEM = "apple-generic";
-		};
-		name = "Release-dev";
-		};
-		8B0000120000PRD0RELEAS01 /* Release-prod */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Release-dev";
+		};
+		8B0000120000PRD0RELEAS01 /* Release-prod */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1090,43 +1375,47 @@
 		8B0000130000DEV0PROFIL01 /* Profile-dev */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
-		buildSettings = {
-			ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-dev";
-			CLANG_ENABLE_MODULES = YES;
-			CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-			CURRENT_PROJECT_VERSION = 1;
-			DEVELOPMENT_TEAM = 7PFH55UQ86;
-			ENABLE_BITCODE = NO;
-			INFOPLIST_FILE = Runner/Info.plist;
-			INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
-			APP_DISPLAY_NAME = "북골라스 DEV";
-			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
-			LD_RUNPATH_SEARCH_PATHS = (
-				"$(inherited)",
-				"@executable_path/Frameworks",
-			);
-			MARKETING_VERSION = 1;
-			PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
-			PRODUCT_NAME = "$(TARGET_NAME)";
-			SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
-			SWIFT_VERSION = 5.0;
-			VERSIONING_SYSTEM = "apple-generic";
-		};
-		name = "Profile-dev";
-		};
-		8B0000130000PRD0PROFIL01 /* Profile-prod */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Profile-dev";
+		};
+		8B0000130000PRD0PROFIL01 /* Profile-prod */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GID_CLIENT_ID = "817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-3mouummdph1e5hpsqt6scrovs4r3bo4m";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1291,7 +1580,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1343,7 +1632,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1358,22 +1647,24 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
 				ENABLE_BITCODE = NO;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
+				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1386,28 +1677,172 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				APP_DISPLAY_NAME = "북골라스 DEV";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7PFH55UQ86;
 				ENABLE_BITCODE = NO;
+				GID_CLIENT_ID = "817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com";
+				GID_REVERSED_CLIENT_ID = "com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v";
 				INFOPLIST_FILE = Runner/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "북골라스";
-				APP_DISPLAY_NAME = "북골라스";
+				INFOPLIST_KEY_CFBundleDisplayName = "북골라스 DEV";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
+		};
+		BF5F5791097E4EF9B07B31F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1F8045F03B2E30B502987B88 /* Pods-BookgolasWidgetExtension.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CBA9D20315F3CA7A099EDF3F /* Release-prod */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 026435B40F5D6D38103EE909 /* Pods-BookgolasWidgetExtension.release-prod.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-prod";
+		};
+		CBF3F888AFA48AD667B506DE /* Debug-dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8EC93858E8CFE8C450842643 /* Pods-BookgolasWidgetExtension.debug-dev.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = "Debug-dev";
+		};
+		D8236D7E985AE4B3AFCD4A15 /* Profile-prod */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8269ADF22A95D4DA30D4FCC2 /* Pods-BookgolasWidgetExtension.profile-prod.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Profile-prod";
+		};
+		FAAFC36F7526FBDFB670378B /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 89F8A365B81EC6FE6403EE40 /* Pods-BookgolasWidgetExtension.profile.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BookgolasWidget/BookgolasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PFH55UQ86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookgolasWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bookgolas.app.dev.BookgolasWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
 		};
 /* End XCBuildConfiguration section */
 
@@ -1424,6 +1859,22 @@
 				8B0000220000PRD0RELEAS01 /* Release-prod */,
 				8B0000230000DEV0PROFIL01 /* Profile-dev */,
 				8B0000230000PRD0PROFIL01 /* Profile-prod */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F2C0FF06E15DD89494E5623 /* Build configuration list for PBXNativeTarget "BookgolasWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D33DC1D1498A33D314B50E8 /* Release */,
+				BF5F5791097E4EF9B07B31F0 /* Debug */,
+				FAAFC36F7526FBDFB670378B /* Profile */,
+				CBF3F888AFA48AD667B506DE /* Debug-dev */,
+				4A8EDCF8D5FD097FBB7F8AC3 /* Debug-prod */,
+				4708E46EBB01356882FDD46A /* Release-dev */,
+				CBA9D20315F3CA7A099EDF3F /* Release-prod */,
+				185056E62FE4E1E18223816F /* Profile-dev */,
+				D8236D7E985AE4B3AFCD4A15 /* Profile-prod */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

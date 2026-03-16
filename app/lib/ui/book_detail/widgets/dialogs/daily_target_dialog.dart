@@ -61,7 +61,7 @@ class DailyTargetDialog {
         pagesToRead = pagesToRead.clamp(1, remainingPages);
 
         List<String> getWeekdayLabels(BuildContext context) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           return [
             l10n.weekdayMon,
             l10n.weekdayTue,
@@ -164,7 +164,7 @@ class DailyTargetDialog {
                     builder: (context, scrollController) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          color: isDark ? BLabColors.surfaceDark : Colors.white,
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24)),
                         ),
@@ -239,7 +239,7 @@ class DailyTargetDialog {
                                               ),
                                               const SizedBox(height: 16),
                                               Text(
-                                                AppLocalizations.of(context)!
+                                                AppLocalizations.of(context)
                                                     .expectedSchedule,
                                                 style: TextStyle(
                                                   fontSize: 16,
@@ -325,18 +325,18 @@ class DailyTargetDialog {
     required int pagesLeft,
     required int daysLeft,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.1),
+            color: BLabColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             CupertinoIcons.book,
-            color: AppColors.success,
+            color: BLabColors.success,
             size: 24,
           ),
         ),
@@ -391,7 +391,7 @@ class DailyTargetDialog {
     return Container(
       height: 120,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[100],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -401,7 +401,7 @@ class DailyTargetDialog {
               width: 100,
               height: 90,
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.12),
+                color: BLabColors.success.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -444,7 +444,7 @@ class DailyTargetDialog {
                                     ? FontWeight.w700
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? AppColors.success
+                                    ? BLabColors.success
                                     : (isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[400]),
@@ -453,7 +453,7 @@ class DailyTargetDialog {
                             if (isSelected)
                               Builder(
                                 builder: (context) => Text(
-                                  AppLocalizations.of(context)!.pagesPerDay,
+                                  AppLocalizations.of(context).pagesPerDay,
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: isDark
@@ -508,7 +508,7 @@ class DailyTargetDialog {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppColors.success),
+              borderSide: const BorderSide(color: BLabColors.success),
             ),
             suffixText: 'p',
             suffixStyle: TextStyle(
@@ -549,8 +549,8 @@ class DailyTargetDialog {
       ),
       decoration: BoxDecoration(
         color: isToday
-            ? AppColors.primary.withValues(alpha: 0.1)
-            : (isDark ? AppColors.subtleDark : Colors.grey[50]),
+            ? BLabColors.primary.withValues(alpha: 0.1)
+            : (isDark ? BLabColors.subtleDark : Colors.grey[50]),
         borderRadius: index == 0
             ? const BorderRadius.vertical(top: Radius.circular(12))
             : (index == totalCount - 1
@@ -567,7 +567,7 @@ class DailyTargetDialog {
                 fontSize: 14,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
                 color: isToday
-                    ? AppColors.primary
+                    ? BLabColors.primary
                     : (isDark ? Colors.grey[300] : Colors.grey[700]),
               ),
             ),
@@ -585,7 +585,7 @@ class DailyTargetDialog {
                 widthFactor: pages / maxPages,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.success,
+                    color: BLabColors.success,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -628,7 +628,7 @@ class DailyTargetDialog {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text(AppLocalizations.of(context)!.commonCancel),
+              child: Text(AppLocalizations.of(context).commonCancel),
             ),
           ),
           const SizedBox(width: 12),
@@ -637,14 +637,14 @@ class DailyTargetDialog {
             child: ElevatedButton(
               onPressed: () async {
                 // book id 확인
-                final l10n = AppLocalizations.of(context)!;
+                final l10n = AppLocalizations.of(context);
                 final bookId = book.id;
                 if (bookId == null) {
                   Navigator.pop(context);
                   CustomSnackbar.show(
                     parentContext,
                     message: l10n.bookInfoNotFound,
-                    type: SnackbarType.error,
+                    type: BLabSnackbarType.error,
                     bottomOffset: 100,
                   );
                   return;
@@ -662,7 +662,7 @@ class DailyTargetDialog {
                   CustomSnackbar.show(
                     parentContext,
                     message: l10n.todayGoalChanged(newDailyTarget),
-                    type: SnackbarType.success,
+                    type: BLabSnackbarType.success,
                     bottomOffset: 100,
                   );
                 } catch (e) {
@@ -671,20 +671,20 @@ class DailyTargetDialog {
                   CustomSnackbar.show(
                     parentContext,
                     message: '${l10n.goalChangeFailed}: $e',
-                    type: SnackbarType.error,
+                    type: BLabSnackbarType.error,
                     bottomOffset: 100,
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success,
+                backgroundColor: BLabColors.success,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
-                AppLocalizations.of(context)!.commonChange,
+                AppLocalizations.of(context).commonChange,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

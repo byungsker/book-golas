@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 
@@ -434,6 +433,10 @@ class ReadingStartViewModel extends BaseViewModel {
         dailyTargetPages: _dailyTargetPages,
         priority: _priority,
         plannedStartDate: actualPlannedStartDate,
+        isbn: _selectedBook?.isbn,
+        genre: _selectedBook?.genre,
+        publisher: _selectedBook?.publisher,
+        aladinUrl: _selectedBook?.aladinUrl,
       );
 
       final bookData = book.toJson();

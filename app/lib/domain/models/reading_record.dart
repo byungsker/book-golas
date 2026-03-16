@@ -28,14 +28,31 @@ class ReadingRecord {
     return ReadingRecord(
       id: json['id'] as String,
       bookId: json['book_id'] as String,
-      bookTitle: books?['title'] as String? ?? 'Unknown Book',
-      bookImageUrl: books?['image_url'] as String?,
+      bookTitle: books?['title'] as String? ??
+          json['book_title'] as String? ??
+          'Unknown Book',
+      bookImageUrl:
+          books?['image_url'] as String? ?? json['book_image_url'] as String?,
       contentType: json['content_type'] as String,
       contentText: json['content_text'] as String,
       pageNumber: json['page_number'] as int?,
       sourceId: json['source_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'book_id': bookId,
+      'book_title': bookTitle,
+      'book_image_url': bookImageUrl,
+      'content_type': contentType,
+      'content_text': contentText,
+      'page_number': pageNumber,
+      'source_id': sourceId,
+      'created_at': createdAt.toIso8601String(),
+    };
   }
 
   String getTypeLabel(AppLocalizations l10n) {
@@ -91,6 +108,26 @@ class GroupedRecords {
     this.bookImageUrl,
     required this.records,
   });
+
+  factory GroupedRecords.fromJson(Map<String, dynamic> json) {
+    return GroupedRecords(
+      bookId: json['book_id'] as String,
+      bookTitle: json['book_title'] as String,
+      bookImageUrl: json['book_image_url'] as String?,
+      records: (json['records'] as List<dynamic>)
+          .map((r) => ReadingRecord.fromJson(r as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'book_id': bookId,
+      'book_title': bookTitle,
+      'book_image_url': bookImageUrl,
+      'records': records.map((r) => r.toJson()).toList(),
+    };
+  }
 
   int get highlightCount =>
       records.where((r) => r.contentType == 'highlight').length;

@@ -2,31 +2,33 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-class LiquidGlassTextField extends StatefulWidget {
+class BLabTextField extends StatefulWidget {
   final TextEditingController controller;
   final String? label;
   final String? hintText;
   final bool readOnly;
+  final bool obscureText;
   final VoidCallback? onTap;
   final Widget? suffixIcon;
   final int maxLines;
 
-  const LiquidGlassTextField({
+  const BLabTextField({
     super.key,
     required this.controller,
     this.label,
     this.hintText,
     this.readOnly = false,
+    this.obscureText = false,
     this.onTap,
     this.suffixIcon,
     this.maxLines = 1,
   });
 
   @override
-  State<LiquidGlassTextField> createState() => _LiquidGlassTextFieldState();
+  State<BLabTextField> createState() => _BLabTextFieldState();
 }
 
-class _LiquidGlassTextFieldState extends State<LiquidGlassTextField> {
+class _BLabTextFieldState extends State<BLabTextField> {
   bool _hasText = false;
 
   @override
@@ -100,8 +102,9 @@ class _LiquidGlassTextFieldState extends State<LiquidGlassTextField> {
               child: TextField(
                 controller: widget.controller,
                 readOnly: widget.readOnly,
+                obscureText: widget.obscureText,
                 onTap: widget.onTap,
-                maxLines: widget.maxLines,
+                maxLines: widget.obscureText ? 1 : widget.maxLines,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 16,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -15,6 +16,7 @@ class CompactBookHeader extends StatelessWidget {
   final String? status;
   final void Function(String heroTag, String imageUrl) onImageTap;
   final VoidCallback? onTitleTap;
+  final VoidCallback? onBookInfoTap;
 
   const CompactBookHeader({
     super.key,
@@ -27,6 +29,7 @@ class CompactBookHeader extends StatelessWidget {
     this.status,
     required this.onImageTap,
     this.onTitleTap,
+    this.onBookInfoTap,
   });
 
   bool get isCompleted =>
@@ -40,7 +43,7 @@ class CompactBookHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -62,6 +65,31 @@ class CompactBookHeader extends StatelessWidget {
                 _buildTitle(isDark),
                 const SizedBox(height: 4),
                 _buildAuthorAndStatus(context, isDark),
+                if (onBookInfoTap != null) ...[
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: onBookInfoTap,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.info_circle,
+                          size: 14,
+                          color: BLabColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          AppLocalizations.of(context).bookInfoViewButton,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: BLabColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -108,7 +136,7 @@ class CompactBookHeader extends StatelessWidget {
 
   Widget _buildTitle(bool isDark) {
     return GestureDetector(
-      onTap: title.length > 20 ? onTitleTap : null,
+      onTap: onTitleTap,
       child: Text(
         title,
         style: TextStyle(
@@ -128,15 +156,18 @@ class CompactBookHeader extends StatelessWidget {
       children: [
         if (author != null) ...[
           Flexible(
-            child: Text(
-              author!,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onTap: onBookInfoTap,
+              child: Text(
+                author!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
@@ -187,20 +218,20 @@ class CompactBookHeader extends StatelessWidget {
   }
 
   ({String label, Color color}) _getStatusInfo(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (isCompleted) {
-      return (label: l10n.statusCompleted, color: AppColors.success);
+      return (label: l10n.statusCompleted, color: BLabColors.success);
     }
 
     switch (status) {
       case 'planned':
-        return (label: l10n.statusPlanned, color: AppColors.purple);
+        return (label: l10n.statusPlanned, color: BLabColors.purple);
       case 'will_retry':
-        return (label: l10n.statusReread, color: AppColors.warning);
+        return (label: l10n.statusReread, color: BLabColors.warning);
       case 'reading':
       default:
-        return (label: l10n.statusReading, color: AppColors.primary);
+        return (label: l10n.statusReading, color: BLabColors.primary);
     }
   }
 }

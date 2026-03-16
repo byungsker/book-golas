@@ -18,7 +18,7 @@ class PausedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final progress =
         book.totalPages > 0 ? book.currentPage / book.totalPages : 0.0;
 
@@ -28,7 +28,7 @@ class PausedBookCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -107,7 +107,7 @@ class PausedBookCard extends StatelessWidget {
                 value: progress,
                 backgroundColor: isDark ? Colors.grey[700] : Colors.grey[200],
                 valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    const AlwaysStoppedAnimation<Color>(BLabColors.primary),
                 minHeight: 6,
               ),
             ),

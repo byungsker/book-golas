@@ -113,7 +113,7 @@ class RecordListItem extends StatelessWidget {
   Color _getTypeColor(String type) {
     switch (type) {
       case 'highlight':
-        return AppColors.primary;
+        return BLabColors.primary;
       case 'note':
         return Colors.orange;
       case 'photo_ocr':
@@ -274,9 +274,9 @@ class GroupedRecordSection extends StatelessWidget {
                   onTap: onBookTap,
                   child: Text(
                     '${group.records.length - 5}개 더 보기',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

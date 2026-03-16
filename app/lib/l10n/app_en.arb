@@ -235,6 +235,25 @@
          }
        }
      },
+     "myPageDarkMode": "Dark Mode",
+     "myPageDailyReadingNotification": "Daily Reading Goal Reminder",
+     "myPageNotificationTimeTitle": "Notification Time",
+     "myPageNotificationsEnabled": "Notifications enabled",
+     "myPageNotificationsDisabled": "Notifications disabled",
+     "myPageNotificationSettingsFailed": "Failed to change notification settings",
+     "myPageNotificationTimeChanged": "Notification time changed to {time}",
+     "@myPageNotificationTimeChanged": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
+     "myPageNotificationTimeChangeFailed": "Failed to change notification time",
+     "myPageDailyReadingNotificationSubtitle": "Notification at {time} daily",
+     "@myPageDailyReadingNotificationSubtitle": {
+       "placeholders": {
+         "time": {"type": "String"}
+       }
+     },
      "myPageNotificationChangeFailed": "Failed to change notification settings",
      "@myPageNotificationChangeFailed": {"description": "Notification change failed"},
      "myPageAvatarChanged": "Avatar changed",
@@ -326,7 +345,10 @@
      "bookListEmptyPlanned": "No books planned to read",
      "bookListEmptyPaused": "No paused books",
      "bookListEmptyAll": "No reading started yet",
-     "bookListEmptyReading": "No books currently reading",
+     "bookListEmptyReading": "Shall we start a reading journey with Bookgolas?",
+     "bookListReadingEmptyAction": "Start Reading Journey",
+     "searchModeBookSearch": "Book Search",
+     "searchModeAiRecordSearch": "AI Record Search",
      "bookListEmptyCompleted": "No completed books",
      "bookListEmptyStatus": "No {status} books",
     
@@ -527,6 +549,7 @@
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
        "imageSourceDocumentScan": "Document Scan",
+       "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
        "imageSourceSimulatorError": "Camera is not available on simulator",
        "imageSourceTakePhoto": "Take Photo",
@@ -535,7 +558,9 @@
        "imageSourceSelectSaved": "Select Saved Image",
        "imageSourceReplaceTitle": "Replace Image",
        "imageSourceCameraTitle": "Take Photo",
-       "imageSourceGalleryTitle": "Select from Gallery",
+       "imageSourceCameraDesc": "Take a photo and extract text instantly",
+       "imageSourceGalleryTitle": "Select from Library",
+       "imageSourceGalleryDesc": "Extract text from a saved image",
        "imageSourceReplaceConfirmation": "Replace this image?",
        "imageSourceReplaceWarning": "Previously extracted text will be lost.",
        "dailyTargetDialogTitle": "Change Daily Target Page",
@@ -999,6 +1024,9 @@
            "proUpgradeBannerMini": "Upgrade to Pro",
            "@proUpgradeBannerMini": {"description": "Mini pro upgrade banner"},
 
+           "proUpgradeBannerMiniDesc": "AI search, reading insights & all features unlimited",
+           "@proUpgradeBannerMiniDesc": {"description": "Mini pro upgrade banner description"},
+
            "myPageSubscriptionUpgrade": "Upgrade to Pro",
            "@myPageSubscriptionUpgrade": {"description": "Upgrade to Pro in my page"},
 
@@ -1011,8 +1039,13 @@
            "scannerErrorDefault": "Scanner error occurred",
            "extractingText": "Extracting text...",
            "ocrExtractionFailed": "Text extraction failed",
-           "extractTextConfirmTitle": "Extract Text",
-           "extractTextCreditsMessage": "This will use your credits",
+           "extractTextConfirmTitle": "Extract text?",
+           "extractTextFreeRemaining": "Free extractions remaining: {remaining}/{total}",
+           "@extractTextFreeRemaining": {"placeholders": {"remaining": {"type": "int"}, "total": {"type": "int"}}},
+           "ocrProUnlimitedButton": "Pro members get unlimited extractions!",
+           "ocrLimitReachedTitle": "You've used all free extractions for today",
+           "ocrLimitReachedMessage": "Upgrade to Pro for unlimited\ntext extractions every day",
+           "ocrLimitReachedUpgrade": "Upgrade to Pro",
            "noThanksButton": "No thanks",
            "extractButton": "Extract",
            "ocrAreaSelectTitle": "Select area to extract",
@@ -1125,6 +1158,15 @@
            "bookstoreSelectTitle": "Select Bookstore",
            "bookstoreAladdin": "Aladin",
            "bookstoreKyobo": "Kyobo",
+           "bookstoreTabNew": "Bookstores",
+           "bookstoreTabUsed": "Used Books",
+           "bookstoreSearchSuffix": "search",
+           "bookstoreAladdinUsed": "Aladin Used",
+           "bookstoreAladdinUsedStore": "Aladin Used Store",
+           "bookstoreYes24Used": "Yes24 Used",
+           "bookInfoTitleCopied": "Title copied",
+           "bookInfoExpandTitle": "Show full title",
+           "bookInfoCollapseTitle": "Collapse",
            "expandedNavBackToDetail": "Back to Detail",
            "highlightEditTitle": "Edit Highlight",
            "highlightEditDone": "Done",
@@ -1250,6 +1292,15 @@
            "chartMonthlyBooksThisMonth": "This Month",
            "chartMonthlyBooksLastMonth": "Last Month",
            "chartMonthlyBooksChange": "Change",
+           "chartMonthlyBooksCustomRange": "Custom Range",
+           "chartBookStatusTitle": "Reading Status",
+           "chartBookStatusAnnual": "Annual",
+           "chartBookStatusMonthly": "Monthly",
+           "chartBookStatusWeekly": "Weekly",
+           "chartBookStatusCustom": "Custom",
+           "chartBookStatusTotal": "Total",
+           "chartBookStatusDays": "Days",
+           "chartBookStatusMaxDay": "Max Day",
            "chartMonthlyBooksTooltip": "{month}: {count} books",
            "@chartMonthlyBooksTooltip": {"placeholders": {"month": {"type": "int"}, "count": {"type": "int"}}},
            "chartReadingStreakTitle": "{year} Reading Activity",
@@ -1354,6 +1405,223 @@
             "@durationHours": {"placeholders": {"hours": {"type": "int"}}},
             "durationHoursMinutes": "{hours}h {minutes}m",
             "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
-            "historyDateTimeFormat": "{month}/{day}/{year} {hour}:{minute}",
-            "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}}
+             "historyDateTimeFormat": "{month}/{day}/{year} {hour}:{minute}",
+             "@historyDateTimeFormat": {"placeholders": {"year": {"type": "int"}, "month": {"type": "int"}, "day": {"type": "int"}, "hour": {"type": "int"}, "minute": {"type": "int"}}},
+
+             "loginErrorEmailInvalid": "Email address is invalid or already registered.",
+             "@loginErrorEmailInvalid": {"description": "Email invalid or already registered error"},
+
+             "loginResendVerification": "Resend verification email",
+             "@loginResendVerification": {"description": "Resend verification email button"},
+
+             "loginResendVerificationSuccess": "Verification email has been resent. Please check your email.",
+             "@loginResendVerificationSuccess": {"description": "Resend verification email success message"},
+
+             "loginResendVerificationCooldown": "Please try again in a moment.",
+             "@loginResendVerificationCooldown": {"description": "Resend verification email cooldown message"},
+
+             "loginErrorEmailRateLimit": "Email send limit exceeded. Please try again later.",
+             "@loginErrorEmailRateLimit": {"description": "Email rate limit exceeded error"},
+
+              "loginSignupExistingEmail": "This email is already registered. Please try logging in.",
+              "@loginSignupExistingEmail": {"description": "Signup with existing email error message"},
+
+              "bookInfoViewButton": "View Book Info",
+              "bookInfoSheetTitle": "Book Details",
+              "bookInfoTabDescription": "Synopsis",
+              "bookInfoTabDetail": "Details",
+              "bookInfoNoDescription": "No synopsis available",
+              "bookInfoNoDetail": "No details available",
+              "bookInfoNoIsbn": "Cannot load details without ISBN",
+              "bookInfoPublisher": "Publisher",
+              "bookInfoIsbn": "ISBN",
+              "bookInfoPageCount": "Pages",
+              "bookInfoGenre": "Genre",
+              "bookInfoViewInBookstore": "View in Bookstore",
+
+           "myPageAccountSection": "Account",
+           "@myPageAccountSection": {"description": "Account section in my page"},
+
+           "myPageAnnouncements": "Announcements",
+           "@myPageAnnouncements": {"description": "Announcements in my page"},
+
+           "myPageChangePassword": "Change Password",
+           "@myPageChangePassword": {"description": "Change password in my page"},
+
+           "myPageChangePasswordTitle": "Change Password",
+           "@myPageChangePasswordTitle": {"description": "Change password screen title"},
+
+           "myPageConfirmPassword": "Confirm Password",
+           "@myPageConfirmPassword": {"description": "Confirm password field"},
+
+
+            "myPageCurrentPassword": "Current Password",
+            "@myPageCurrentPassword": {"description": "Current password field"},
+
+            "myPageCurrentPasswordRequired": "Please enter your current password",
+            "@myPageCurrentPasswordRequired": {"description": "Current password required error"},
+
+           "myPageInfoSection": "Info",
+           "@myPageInfoSection": {"description": "Info section in my page"},
+
+           "myPageLogoutAndDelete": "Logout | Delete Account",
+           "@myPageLogoutAndDelete": {"description": "Logout and delete account in my page"},
+
+           "myPageNewPassword": "New Password",
+           "@myPageNewPassword": {"description": "New password field"},
+
+           "myPageNotificationAnnouncements": "Announcements",
+           "@myPageNotificationAnnouncements": {"description": "Announcements notification setting"},
+
+           "myPageNotificationCategories": "Notification Settings",
+           "@myPageNotificationCategories": {"description": "Notification categories in my page"},
+
+           "myPageNotificationDailyReminder": "Daily Reading Reminder",
+           "@myPageNotificationDailyReminder": {"description": "Daily reading reminder notification"},
+
+           "myPageNotificationGoalAlarm": "Reading Goal Alarm",
+           "@myPageNotificationGoalAlarm": {"description": "Goal alarm notification setting"},
+
+           "myPageNotificationEventNudge": "Event Nudge Notifications",
+           "@myPageNotificationEventNudge": {"description": "Event nudge notification setting"},
+
+           "myPageNotificationGoalAlarmSubtitle": "Check reading status daily at {time}",
+           "@myPageNotificationGoalAlarmSubtitle": {
+             "description": "Goal alarm notification subtitle with time",
+             "placeholders": {
+               "time": {
+                 "type": "String"
+               }
+             }
+           },
+
+           "myPagePasswordChanged": "Password changed successfully",
+           "@myPagePasswordChanged": {"description": "Password changed success message"},
+
+           "myPagePasswordChangeFailed": "Failed to change password",
+           "@myPagePasswordChangeFailed": {"description": "Password change failed message"},
+
+           "myPagePasswordMismatch": "Passwords do not match",
+           "@myPagePasswordMismatch": {"description": "Password mismatch error"},
+
+           "myPagePasswordTooShort": "Password must be at least 6 characters",
+           "@myPagePasswordTooShort": {"description": "Password too short error"},
+
+
+            "myPagePasswordChangeErrorDetail": "Password change failed: {error}",
+            "@myPagePasswordChangeErrorDetail": {"description": "Password change failed with detail", "placeholders": {"error": {"type": "String"}}},
+
+            "myPageWrongCurrentPassword": "Current password is incorrect",
+            "@myPageWrongCurrentPassword": {"description": "Wrong current password error"},
+
+           "myPageTermsAndPolicy": "Terms & Policy",
+           "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
+
+           "myPageVersion": "Version",
+           "@myPageVersion": {"description": "Version in my page"},
+
+           "bookDetailPlannedStart": "Planned Start",
+           "@bookDetailPlannedStart": {"description": "Planned start date label in book detail"},
+
+           "bookDetailTbd": "TBD",
+           "@bookDetailTbd": {"description": "To be determined text when no planned date"},
+
+           "bookDetailRecordThoughts": "Record your thoughts",
+           "@bookDetailRecordThoughts": {"description": "Subtitle for write review button"},
+
+           "bookDetailReviewYourWritten": "Review your written review",
+           "@bookDetailReviewYourWritten": {"description": "Subtitle for edit review button"},
+
+           "bookDetailResumeReading": "Resume Reading",
+           "@bookDetailResumeReading": {"description": "Resume reading button text for will_retry books"},
+
+           "bookDetailAttemptCount": "{count} attempt",
+           "@bookDetailAttemptCount": {"description": "Attempt count for resumed reading", "placeholders": {"count": {"type": "int"}}},
+
+           "bookDetailAchieveGoal": "Achieve your reading goal!",
+           "@bookDetailAchieveGoal": {"description": "Subtitle for continue reading button"},
+
+           "bookDetailSaved": "Saved",
+           "@bookDetailSaved": {"description": "Snackbar message after saving"},
+
+           "bookDetailReadingPaused": "Reading paused",
+           "@bookDetailReadingPaused": {"description": "Snackbar message after pausing reading"},
+
+           "bookDetailDeleted": "Deleted",
+           "@bookDetailDeleted": {"description": "Snackbar message after deleting book"},
+
+           "bookDetailPriorityUrgent": "Urgent",
+           "@bookDetailPriorityUrgent": {"description": "Urgent priority label"},
+
+           "bookDetailPriorityHigh": "High",
+           "@bookDetailPriorityHigh": {"description": "High priority label"},
+
+           "bookDetailPriorityMedium": "Medium",
+           "@bookDetailPriorityMedium": {"description": "Medium priority label"},
+
+           "bookDetailPriorityLow": "Low",
+           "@bookDetailPriorityLow": {"description": "Low priority label"},
+
+           "bookDetailAttemptStarted": "Attempt {count} started!",
+           "@bookDetailAttemptStarted": {"description": "Snackbar when new reading attempt starts", "placeholders": {"count": {"type": "int"}}},
+
+           "bookDetailNetworkError": "Please check your network connection.\nTry again if the connection is stable.",
+           "@bookDetailNetworkError": {"description": "Network error message in upload dialog"},
+
+           "bookDetailSaveError": "An error occurred while saving.\nPlease try again.",
+           "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
+
+           "subscriptionUnavailable": "Subscription service is currently unavailable.",
+           "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},
+
+           "myPagePasswordSameAsOld": "New password must be different from the current password",
+           "@myPagePasswordSameAsOld": {"description": "Error when new password is same as old"},
+
+           "passwordRecoveryTitle": "Set New Password",
+           "@passwordRecoveryTitle": {"description": "Password recovery screen title"},
+
+           "passwordRecoveryDescription": "Enter your new password",
+           "@passwordRecoveryDescription": {"description": "Password recovery screen description"},
+
+           "passwordRecoveryNewPassword": "New Password",
+           "@passwordRecoveryNewPassword": {"description": "New password field label"},
+
+           "passwordRecoveryConfirmPassword": "Confirm New Password",
+           "@passwordRecoveryConfirmPassword": {"description": "Confirm password field label"},
+
+           "passwordRecoveryButton": "Change Password",
+           "@passwordRecoveryButton": {"description": "Password recovery submit button"},
+
+           "passwordRecoverySuccess": "Password changed successfully. Please log in with your new password.",
+           "@passwordRecoverySuccess": {"description": "Password recovery success message"},
+
+           "passwordRecoveryFailed": "Failed to change password",
+           "@passwordRecoveryFailed": {"description": "Password recovery failed message"},
+
+           "shareBookCard": "Share book card",
+           "@shareBookCard": {"description": "Share book card button tooltip"},
+
+           "shareBookCardError": "An error occurred while sharing",
+           "@shareBookCardError": {"description": "Error message when share fails"},
+
+           "shareStatusReading": "Reading",
+           "@shareStatusReading": {"description": "Reading status label on share card"},
+
+           "shareStatusCompleted": "Completed",
+           "@shareStatusCompleted": {"description": "Completed status label on share card"},
+
+           "shareStatusPlanned": "To Read",
+           "@shareStatusPlanned": {"description": "Planned status label on share card"},
+
+           "shareStatusWillRetry": "Re-reading",
+           "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+
+           "loginSocialGoogle": "Continue with Google",
+           "@loginSocialGoogle": {"description": "Continue with Google button"},
+
+           "loginSocialApple": "Continue with Apple",
+           "@loginSocialApple": {"description": "Continue with Apple button"},
+
+           "pageSwipeHint": "◀ Swipe to update page ▶",
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
 }

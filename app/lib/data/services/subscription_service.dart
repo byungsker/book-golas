@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
@@ -50,12 +51,29 @@ class SubscriptionService {
 
   /// Presents the RevenueCat Paywall UI.
   ///
-  /// Uses RevenueCat's built-in paywall presentation.
-  Future<void> showPaywall(BuildContext context) async {
+  /// Checks offerings availability before presenting.
+  /// Returns true if paywall was shown, false if configuration is unavailable.
+  Future<bool> showPaywall(BuildContext context) async {
     try {
+      final offerings = await Purchases.getOfferings();
+      if (offerings.current == null ||
+          offerings.current!.availablePackages.isEmpty) {
+        debugPrint('⚠️ Paywall skipped: no offerings available');
+        return false;
+      }
       await RevenueCatUI.presentPaywall();
+      return true;
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.configurationError) {
+        debugPrint('⚠️ Paywall config error (Error 23): ${e.message}');
+      } else {
+        debugPrint('Paywall platform error: ${e.code} - ${e.message}');
+      }
+      return false;
     } catch (e) {
       debugPrint('Failed to show paywall: $e');
+      return false;
     }
   }
 
@@ -79,6 +97,56 @@ class SubscriptionService {
       debugPrint('Purchases restored successfully');
     } catch (e) {
       debugPrint('Failed to restore purchases: $e');
+    }
+  }
+
+  /// Logs in the user to RevenueCat (call after Supabase auth)
+  Future<void> initialize(String userId) async {
+    try {
+      await Purchases.logIn(userId);
+      debugPrint('RevenueCat logged in: $userId');
+    } catch (e) {
+      debugPrint('Failed to initialize RevenueCat for user: $e');
+    }
+  }
+
+  /// Returns simplified subscription status: 'free' or 'pro'
+  Future<String> getSubscriptionStatus() async {
+    final proStatus = await isPro();
+    return proStatus ? 'pro' : 'free';
+  }
+
+  /// Purchases the monthly subscription
+  Future<bool> purchaseMonthly() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final monthlyPackage = offerings.current?.availablePackages.firstWhere(
+        (p) => p.identifier == 'monthly',
+        orElse: () => offerings.current!.monthly!,
+      );
+      if (monthlyPackage == null) return false;
+      await Purchases.purchasePackage(monthlyPackage);
+      return true;
+    } catch (e) {
+      debugPrint('Failed to purchase monthly: $e');
+      return false;
+    }
+  }
+
+  /// Purchases the yearly subscription
+  Future<bool> purchaseYearly() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final yearlyPackage = offerings.current?.availablePackages.firstWhere(
+        (p) => p.identifier == 'yearly',
+        orElse: () => offerings.current!.annual!,
+      );
+      if (yearlyPackage == null) return false;
+      await Purchases.purchasePackage(yearlyPackage);
+      return true;
+    } catch (e) {
+      debugPrint('Failed to purchase yearly: $e');
+      return false;
     }
   }
 

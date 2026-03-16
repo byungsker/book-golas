@@ -36,7 +36,7 @@ class AiInsightCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -81,18 +81,18 @@ class AiInsightCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: BLabColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.auto_awesome,
             size: 24,
-            color: AppColors.primary,
+            color: BLabColors.primary,
           ),
         ),
         const SizedBox(width: 12),
         Text(
-          AppLocalizations.of(context)!.chartAiInsightTitle,
+          AppLocalizations.of(context).chartAiInsightTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class AiInsightCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.delete_outline, size: 20),
                     const SizedBox(width: 8),
-                    Text(AppLocalizations.of(context)!
+                    Text(AppLocalizations.of(context)
                         .chartAiInsightClearMemory),
                   ],
                 ),
@@ -134,15 +134,15 @@ class AiInsightCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title:
-            Text(AppLocalizations.of(context)!.chartAiInsightClearMemoryTitle),
+            Text(AppLocalizations.of(context).chartAiInsightClearMemoryTitle),
         content: Text(
-          AppLocalizations.of(context)!.chartAiInsightClearMemoryMessage,
+          AppLocalizations.of(context).chartAiInsightClearMemoryMessage,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-                AppLocalizations.of(context)!.chartAiInsightClearMemoryCancel),
+                AppLocalizations.of(context).chartAiInsightClearMemoryCancel),
           ),
           TextButton(
             onPressed: () {
@@ -151,7 +151,7 @@ class AiInsightCard extends StatelessWidget {
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(
-                AppLocalizations.of(context)!.chartAiInsightClearMemoryConfirm),
+                AppLocalizations.of(context).chartAiInsightClearMemoryConfirm),
           ),
         ],
       ),
@@ -166,7 +166,7 @@ class AiInsightCard extends StatelessWidget {
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.chartAiInsightAnalyzing,
+            AppLocalizations.of(context).chartAiInsightAnalyzing,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -190,7 +190,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            error ?? AppLocalizations.of(context)!.chartAiInsightUnknownError,
+            error ?? AppLocalizations.of(context).chartAiInsightUnknownError,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white70 : Colors.black54,
@@ -202,10 +202,10 @@ class AiInsightCard extends StatelessWidget {
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: BLabColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: Text(AppLocalizations.of(context)!.chartAiInsightRetry),
+              child: Text(AppLocalizations.of(context).chartAiInsightRetry),
             ),
           const SizedBox(height: 20),
         ],
@@ -224,7 +224,7 @@ class AiInsightCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.chartAiInsightMinBooksRequired,
+            AppLocalizations.of(context).chartAiInsightMinBooksRequired,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -233,7 +233,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!
+            AppLocalizations.of(context)
                 .chartAiInsightMinBooksMessage(bookCount),
             style: TextStyle(
               fontSize: 13,
@@ -242,7 +242,7 @@ class AiInsightCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.chartAiInsightMinBooksHint,
+            AppLocalizations.of(context).chartAiInsightMinBooksHint,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,
@@ -287,15 +287,15 @@ class AiInsightCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.15),
+            color: BLabColors.primary.withOpacity(0.15),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightSampleLabel,
-            style: TextStyle(
+            AppLocalizations.of(context).chartAiInsightSampleLabel,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
         ),
@@ -308,8 +308,8 @@ class AiInsightCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.primary.withOpacity(0.05),
+                    BLabColors.primary.withOpacity(0.1),
+                    BLabColors.primary.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -346,7 +346,7 @@ class AiInsightCard extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -362,8 +362,8 @@ class AiInsightCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.primary.withOpacity(0.05),
+                  BLabColors.primary.withOpacity(0.1),
+                  BLabColors.primary.withOpacity(0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -413,7 +413,7 @@ class AiInsightCard extends StatelessWidget {
                               : Colors.white.withOpacity(0.8),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: BLabColors.primary.withOpacity(0.3),
                             width: 1,
                           ),
                         ),
@@ -445,7 +445,7 @@ class AiInsightCard extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          AppLocalizations.of(context)!.chartAiInsightEmptyState,
+          AppLocalizations.of(context).chartAiInsightEmptyState,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white60 : Colors.black54,
@@ -462,7 +462,7 @@ class AiInsightCard extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onGenerate,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: BLabColors.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(
@@ -470,7 +470,7 @@ class AiInsightCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightGenerateButton,
+            AppLocalizations.of(context).chartAiInsightGenerateButton,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ),
@@ -484,7 +484,7 @@ class AiInsightCard extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            AppLocalizations.of(context)!.chartAiInsightAlreadyAnalyzed,
+            AppLocalizations.of(context).chartAiInsightAlreadyAnalyzed,
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.white60 : Colors.black54,
@@ -500,7 +500,7 @@ class AiInsightCard extends StatelessWidget {
 
   Icon _getCategoryIcon(String category, bool isDark) {
     final color =
-        isDark ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
+        isDark ? BLabColors.primary.withOpacity(0.8) : BLabColors.primary;
 
     switch (category) {
       case 'pattern':

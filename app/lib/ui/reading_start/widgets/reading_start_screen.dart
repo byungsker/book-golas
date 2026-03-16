@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/barcode_scanner/barcode_scanner_screen.dart';
@@ -237,7 +238,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
     // Consumer 범위 최소화: TextField가 리빌드되지 않도록 Scaffold는 밖에 위치
     return Scaffold(
-      backgroundColor: isDark ? AppColors.scaffoldDark : Colors.white,
+      backgroundColor: isDark ? BLabColors.scaffoldDark : Colors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
@@ -305,7 +306,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             const SizedBox(height: 8),
             // 제목
             Text(
-              AppLocalizations.of(context)!.readingStartTitle,
+              AppLocalizations.of(context).readingStartTitle,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -316,7 +317,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             // 부제목 (검색 페이지일 때만)
             if (vm.currentPageIndex == 0)
               Text(
-                AppLocalizations.of(context)!.readingStartSubtitle,
+                AppLocalizations.of(context).readingStartSubtitle,
                 style: TextStyle(
                   fontSize: 14,
                   color: isDark ? Colors.white54 : Colors.grey[600],
@@ -395,7 +396,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
     if (_titleController.text.trim().isNotEmpty) {
       return Center(
         child: Text(
-          AppLocalizations.of(context)!.readingStartNoResults,
+          AppLocalizations.of(context).readingStartNoResults,
           style: TextStyle(
             color: isDark ? Colors.white54 : Colors.grey[600],
             fontSize: 14,
@@ -429,7 +430,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)!.readingStartAnalyzing,
+              AppLocalizations.of(context).readingStartAnalyzing,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white54 : Colors.grey[600],
@@ -458,14 +459,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    AppLocalizations.of(context)!.readingStartAiRecommendation,
+                    AppLocalizations.of(context).readingStartAiRecommendation,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -476,7 +477,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
               const SizedBox(height: 6),
               Text(
-                AppLocalizations.of(context)!
+                AppLocalizations.of(context)
                     .readingStartAiRecommendationDesc(userName),
                 style: TextStyle(
                   fontSize: 13,
@@ -506,7 +507,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.subtleDark : Colors.white,
+          color: isDark ? BLabColors.subtleDark : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDark
@@ -538,7 +539,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         width: 48,
                         height: 64,
                         color:
-                            isDark ? AppColors.elevatedDark : Colors.grey[200],
+                            isDark ? BLabColors.elevatedDark : Colors.grey[200],
                         child: Icon(
                           Icons.menu_book_rounded,
                           color: isDark ? Colors.white38 : Colors.grey[400],
@@ -549,7 +550,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   : Container(
                       width: 48,
                       height: 64,
-                      color: isDark ? AppColors.elevatedDark : Colors.grey[200],
+                      color: isDark ? BLabColors.elevatedDark : Colors.grey[200],
                       child: Icon(
                         Icons.menu_book_rounded,
                         color: isDark ? Colors.white38 : Colors.grey[400],
@@ -607,14 +608,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      AppColors.primary.withValues(alpha: 0.12),
+                                      BLabColors.primary.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   keyword,
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.primary,
+                                    color: BLabColors.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -646,11 +647,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           // 다크 배경 (#343434)
-          color: AppColors.elevatedDark,
+          color: BLabColors.elevatedDark,
           borderRadius: BorderRadius.circular(16),
           // 이너 보더: 항상 2px로 유지 (레이아웃 시프트 방지)
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
+            color: isSelected ? BLabColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -741,7 +742,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : Colors.transparent,
+                  color: isSelected ? BLabColors.primary : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: isSelected
@@ -911,7 +912,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                             cursorColor: foregroundColor,
                             textAlignVertical: TextAlignVertical.center,
                             decoration: InputDecoration(
-                              hintText: AppLocalizations.of(context)!
+                              hintText: AppLocalizations.of(context)
                                   .readingStartSearchHint,
                               hintStyle: TextStyle(
                                 color: hintColor,
@@ -1088,7 +1089,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ),
               child: Center(
                 child: Text(
-                  AppLocalizations.of(context)!.readingStartSelectionComplete,
+                  AppLocalizations.of(context).readingStartSelectionComplete,
                   style: TextStyle(
                     color: Colors.black.withValues(alpha: 0.9),
                     fontSize: 16,
@@ -1122,7 +1123,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -1144,7 +1145,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? BLabColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -1165,7 +1166,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.subtleDark : Colors.grey[100],
+                      color: isDark ? BLabColors.subtleDark : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: KoreanDatePicker(
@@ -1191,7 +1192,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: BLabColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -1199,7 +1200,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         elevation: 0,
                       ),
                       child: Text(
-                        AppLocalizations.of(context)!.readingStartConfirm,
+                        AppLocalizations.of(context).readingStartConfirm,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -1269,7 +1270,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 const SizedBox(height: 4),
                 Center(
                   child: Text(
-                    AppLocalizations.of(context)!.readingStartPages(totalPages),
+                    AppLocalizations.of(context).readingStartPages(totalPages),
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.white54 : Colors.grey[600],
@@ -1297,7 +1298,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
 
               if (vm.readingStatus == BookStatus.planned) ...[
                 Text(
-                  AppLocalizations.of(context)!.readingStartSetDate,
+                  AppLocalizations.of(context).readingStartSetDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1310,11 +1311,11 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     ButtonSegment<bool>(
                       value: true,
                       label: Text(
-                          AppLocalizations.of(context)!.readingStartSetDate),
+                          AppLocalizations.of(context).readingStartSetDate),
                     ),
                     ButtonSegment<bool>(
                       value: false,
-                      label: Text(AppLocalizations.of(context)!
+                      label: Text(AppLocalizations.of(context)
                           .readingStartUndetermined),
                     ),
                   ],
@@ -1329,7 +1330,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               if (vm.readingStatus == BookStatus.planned &&
                   vm.hasPlannedDate) ...[
                 Text(
-                  AppLocalizations.of(context)!.readingStartPlannedDate,
+                  AppLocalizations.of(context).readingStartPlannedDate,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1352,8 +1353,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     ),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.subtleDark
-                          : AppColors.elevatedLight,
+                          ? BLabColors.subtleDark
+                          : BLabColors.elevatedLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1383,22 +1384,22 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: BLabColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.check_circle_outline,
-                        color: AppColors.success,
+                        color: BLabColors.success,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        AppLocalizations.of(context)!.readingStartToday,
+                        AppLocalizations.of(context).readingStartToday,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppColors.success,
+                          color: BLabColors.success,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1409,7 +1410,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
               ],
 
               Text(
-                AppLocalizations.of(context)!.readingStartTargetDate,
+                AppLocalizations.of(context).readingStartTargetDate,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -1432,7 +1433,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   ),
                   decoration: BoxDecoration(
                     color:
-                        isDark ? AppColors.subtleDark : AppColors.elevatedLight,
+                        isDark ? BLabColors.subtleDark : BLabColors.elevatedLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -1458,7 +1459,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        AppLocalizations.of(context)!
+                        AppLocalizations.of(context)
                             .readingStartTargetDateNote,
                         style: TextStyle(
                           fontSize: 12,
@@ -1522,20 +1523,28 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                               ),
                             );
                           } else if (mounted && !success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  vm.errorMessage ??
-                                      AppLocalizations.of(context)!
-                                          .readingStartSaveError,
+                            if (vm.shouldShowPaywall) {
+                              vm.clearPaywallState();
+                              final paywallSuccess = await SubscriptionService().showPaywall(context);
+                              if (!paywallSuccess && mounted) {
+                                CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    vm.errorMessage ??
+                                        AppLocalizations.of(context)
+                                            .readingStartSaveError,
+                                  ),
+                                  backgroundColor: Colors.red,
                                 ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
+                              );
+                            }
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: BLabColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -1553,9 +1562,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         )
                       : Text(
                           vm.readingStatus == BookStatus.planned
-                              ? AppLocalizations.of(context)!
+                              ? AppLocalizations.of(context)
                                   .readingStartReserve
-                              : AppLocalizations.of(context)!.readingStartBegin,
+                              : AppLocalizations.of(context).readingStartBegin,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

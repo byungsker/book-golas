@@ -31,7 +31,7 @@ class ReviewLinkSection extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.grey[50],
+        color: isDark ? BLabColors.subtleDark : Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
@@ -51,7 +51,7 @@ class ReviewLinkSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.dialogViewFull,
+                  AppLocalizations.of(context).dialogViewFull,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -68,7 +68,7 @@ class ReviewLinkSection extends StatelessWidget {
               icon: Icons.store_rounded,
               iconColor: Colors.blue,
               title: '알라딘에서 보기',
-              subtitle: AppLocalizations.of(context)!.bookInfoDetail,
+              subtitle: AppLocalizations.of(context).bookInfoDetail,
               url: aladinUrl!,
               isDark: isDark,
             ),
@@ -145,8 +145,8 @@ class ReviewLinkSection extends StatelessWidget {
       ),
       title: Text(
         hasReviewLink
-            ? AppLocalizations.of(context)!.dialogViewFull
-            : AppLocalizations.of(context)!.dialogEdit,
+            ? AppLocalizations.of(context).dialogViewFull
+            : AppLocalizations.of(context).dialogEdit,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -155,8 +155,8 @@ class ReviewLinkSection extends StatelessWidget {
       ),
       subtitle: Text(
         hasReviewLink
-            ? AppLocalizations.of(context)!.dialogViewFull
-            : AppLocalizations.of(context)!.dialogEdit,
+            ? AppLocalizations.of(context).dialogViewFull
+            : AppLocalizations.of(context).dialogEdit,
         style: TextStyle(
           fontSize: 12,
           color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -211,7 +211,7 @@ class ReviewLinkSection extends StatelessWidget {
           builder: (context, setModalState) {
             return Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
+                color: isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -226,7 +226,7 @@ class ReviewLinkSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.dialogEdit,
+                    AppLocalizations.of(context).dialogEdit,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -235,7 +235,7 @@ class ReviewLinkSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppLocalizations.of(context)!.dialogEdit,
+                    AppLocalizations.of(context).dialogEdit,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -249,14 +249,14 @@ class ReviewLinkSection extends StatelessWidget {
                     onChanged: (value) {
                       setModalState(() {
                         if (value.isNotEmpty && !_isValidUrl(value)) {
-                          errorText = AppLocalizations.of(context)!.invalidUrl;
+                          errorText = AppLocalizations.of(context).invalidUrl;
                         } else {
                           errorText = null;
                         }
                       });
                     },
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.dialogEdit,
+                      labelText: AppLocalizations.of(context).dialogEdit,
                       hintText: 'https://blog.naver.com/...',
                       errorText: errorText,
                       prefixIcon: const Icon(Icons.link_rounded),
@@ -268,7 +268,7 @@ class ReviewLinkSection extends StatelessWidget {
                         borderSide: BorderSide(
                           color: errorText != null
                               ? Colors.red
-                              : AppColors.primary,
+                              : BLabColors.primary,
                           width: 2,
                         ),
                       ),
@@ -289,7 +289,7 @@ class ReviewLinkSection extends StatelessWidget {
                               foregroundColor: Colors.red,
                             ),
                             child: Text(
-                                AppLocalizations.of(context)!.commonDelete),
+                                AppLocalizations.of(context).commonDelete),
                           ),
                         )
                       else
@@ -300,7 +300,7 @@ class ReviewLinkSection extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: Text(
-                                AppLocalizations.of(context)!.commonCancel),
+                                AppLocalizations.of(context).commonCancel),
                           ),
                         ),
                       const SizedBox(width: 12),
@@ -315,7 +315,7 @@ class ReviewLinkSection extends StatelessWidget {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: BLabColors.primary,
                             disabledBackgroundColor:
                                 isDark ? Colors.grey[700] : Colors.grey[300],
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -324,7 +324,7 @@ class ReviewLinkSection extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.commonSave,
+                            AppLocalizations.of(context).commonSave,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: errorText == null &&

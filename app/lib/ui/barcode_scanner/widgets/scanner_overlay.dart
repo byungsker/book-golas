@@ -74,11 +74,11 @@ class ScannerOverlay extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
+            const Positioned(
               bottom: 120,
               left: 0,
               right: 0,
-              child: const Text(
+              child: Text(
                 '바코드를 프레임 안에 맞춰주세요',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -101,16 +101,16 @@ class ScannerOverlay extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           top: isTop
-              ? const BorderSide(color: AppColors.primary, width: 4)
+              ? const BorderSide(color: BLabColors.primary, width: 4)
               : BorderSide.none,
           bottom: !isTop
-              ? const BorderSide(color: AppColors.primary, width: 4)
+              ? const BorderSide(color: BLabColors.primary, width: 4)
               : BorderSide.none,
           left: isLeft
-              ? const BorderSide(color: AppColors.primary, width: 4)
+              ? const BorderSide(color: BLabColors.primary, width: 4)
               : BorderSide.none,
           right: !isLeft
-              ? const BorderSide(color: AppColors.primary, width: 4)
+              ? const BorderSide(color: BLabColors.primary, width: 4)
               : BorderSide.none,
         ),
         borderRadius: BorderRadius.only(

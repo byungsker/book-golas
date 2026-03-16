@@ -38,12 +38,12 @@ class GlobalTimerIndicator extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: timerVm.isRunning
-                  ? AppColors.primary.withValues(alpha: isDark ? 0.3 : 0.15)
+                  ? BLabColors.primary.withValues(alpha: isDark ? 0.3 : 0.15)
                   : Colors.orange.withValues(alpha: isDark ? 0.3 : 0.15),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: timerVm.isRunning
-                    ? AppColors.primary.withValues(alpha: 0.5)
+                    ? BLabColors.primary.withValues(alpha: 0.5)
                     : Colors.orange.withValues(alpha: 0.5),
                 width: 1,
               ),
@@ -56,7 +56,7 @@ class GlobalTimerIndicator extends StatelessWidget {
                       ? CupertinoIcons.timer_fill
                       : CupertinoIcons.pause_fill,
                   size: 14,
-                  color: timerVm.isRunning ? AppColors.primary : Colors.orange,
+                  color: timerVm.isRunning ? BLabColors.primary : Colors.orange,
                 ),
                 const SizedBox(width: 6),
                 Text(

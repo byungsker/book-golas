@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +28,7 @@ class PageUpdateModal {
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     await showModalBottomSheet(
       context: context,
@@ -211,7 +210,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               Text(
@@ -269,7 +268,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: _errorText != null ? Colors.red : AppColors.primary,
+                color: _errorText != null ? Colors.red : BLabColors.primary,
                 width: 2,
               ),
             ),
@@ -300,8 +299,8 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: _isLoading
-                    ? AppColors.primary.withValues(alpha: 0.5)
-                    : AppColors.primary,
+                    ? BLabColors.primary.withValues(alpha: 0.5)
+                    : BLabColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: _isLoading

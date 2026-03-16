@@ -64,7 +64,7 @@ class _ReadingTimerModalContent extends StatelessWidget {
         24 + MediaQuery.of(context).viewPadding.bottom,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -82,12 +82,12 @@ class _ReadingTimerModalContent extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: BLabColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(
               CupertinoIcons.timer,
-              color: AppColors.primary,
+              color: BLabColors.primary,
               size: 32,
             ),
           ),
@@ -124,10 +124,10 @@ class _ReadingTimerModalContent extends StatelessWidget {
                     children: [
                       if (!viewModel.isRunning && !viewModel.isPaused)
                         Expanded(
-                          child: LiquidGlassButton(
+                          child: BLabButton(
                             text: '시작',
                             icon: CupertinoIcons.play_fill,
-                            variant: LiquidGlassButtonVariant.primary,
+                            variant: BLabButtonVariant.primary,
                             isFullWidth: true,
                             onPressed: () {
                               viewModel.start(
@@ -141,10 +141,10 @@ class _ReadingTimerModalContent extends StatelessWidget {
                         ),
                       if (viewModel.isRunning) ...[
                         Expanded(
-                          child: LiquidGlassButton(
+                          child: BLabButton(
                             text: '일시정지',
                             icon: CupertinoIcons.pause_fill,
-                            variant: LiquidGlassButtonVariant.secondary,
+                            variant: BLabButtonVariant.secondary,
                             isFullWidth: true,
                             onPressed: () {
                               viewModel.pause();
@@ -153,10 +153,10 @@ class _ReadingTimerModalContent extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: LiquidGlassButton(
+                          child: BLabButton(
                             text: '종료',
                             icon: CupertinoIcons.stop_fill,
-                            variant: LiquidGlassButtonVariant.destructive,
+                            variant: BLabButtonVariant.destructive,
                             isFullWidth: true,
                             onPressed: () async {
                               await viewModel.stop();
@@ -170,10 +170,10 @@ class _ReadingTimerModalContent extends StatelessWidget {
                       ],
                       if (viewModel.isPaused) ...[
                         Expanded(
-                          child: LiquidGlassButton(
+                          child: BLabButton(
                             text: '재개',
                             icon: CupertinoIcons.play_fill,
-                            variant: LiquidGlassButtonVariant.primary,
+                            variant: BLabButtonVariant.primary,
                             isFullWidth: true,
                             onPressed: () {
                               viewModel.resume();
@@ -182,10 +182,10 @@ class _ReadingTimerModalContent extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: LiquidGlassButton(
+                          child: BLabButton(
                             text: '종료',
                             icon: CupertinoIcons.stop_fill,
-                            variant: LiquidGlassButtonVariant.destructive,
+                            variant: BLabButtonVariant.destructive,
                             isFullWidth: true,
                             onPressed: () async {
                               await viewModel.stop();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -10,9 +11,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:book_golas/ui/home/widgets/home_screen.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_bottom_bar.dart';
-import 'package:book_golas/ui/core/widgets/reading_detail_bottom_bar.dart';
-import 'package:book_golas/ui/core/widgets/expanded_navigation_bottom_bar.dart';
-import 'package:book_golas/domain/models/home_display_mode.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_screen.dart';
 import 'package:book_golas/ui/calendar/widgets/calendar_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -31,9 +29,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/deep_link_service.dart';
 import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
 import 'data/services/reading_progress_service.dart';
+import 'data/services/widget_data_service.dart';
 import 'ui/auth/widgets/login_screen.dart';
 import 'ui/calendar/view_model/calendar_view_model.dart';
 import 'ui/auth/widgets/my_page_screen.dart';
@@ -46,30 +46,64 @@ import 'ui/onboarding/widgets/onboarding_screen.dart';
 import 'data/services/note_structure_service.dart';
 import 'data/services/subscription_service.dart';
 import 'ui/subscription/view_model/subscription_view_model.dart';
-import 'ui/book_detail/view_model/note_structure_view_model.dart';
 import 'ui/my_library/view_model/my_library_view_model.dart';
-import 'ui/my_library/widgets/my_library_screen.dart';
 import 'ui/reading_chart/view_model/reading_insights_view_model.dart';
-import 'ui/my_library/view_model/my_library_view_model.dart';
+import 'ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'ui/core/widgets/floating_timer_bar.dart';
+import 'ui/core/view_model/ad_view_model.dart';
+import 'ui/core/widgets/ad_banner_widget.dart';
 
+import 'ui/core/widgets/search_mode_dropdown.dart';
+import 'ui/recall/widgets/global_recall_search_sheet.dart';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// 백그라운드 메시지 핸들러 (main 함수 밖에 정의)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  }
   debugPrint('📨 백그라운드 메시지 수신: ${message.notification?.title}');
-  debugPrint('📦 데이터 페이로드: ${message.data}');
+}
 
-  // 백그라운드에서도 데이터 페이로드를 활용할 수 있음
-  // 예: 로컬 알림 스케줄링, 데이터 저장 등
+@pragma('vm:entry-point')
+Future<void> widgetBackgroundCallback(Uri? uri) async {
+  if (uri == null) return;
+  if (uri.host != 'widget' || uri.path != '/update-page') return;
+
+  final bookId = uri.queryParameters['bookId'];
+  final deltaStr = uri.queryParameters['delta'];
+  final currentPageStr = uri.queryParameters['currentPage'];
+  final totalPagesStr = uri.queryParameters['totalPages'];
+
+  if (bookId == null ||
+      deltaStr == null ||
+      currentPageStr == null ||
+      totalPagesStr == null) {
+    return;
+  }
+
+  final delta = int.tryParse(deltaStr) ?? 0;
+  final currentPage = int.tryParse(currentPageStr) ?? 0;
+  final totalPages = int.tryParse(totalPagesStr) ?? 0;
+
+  if (delta <= 0 || totalPages <= 0) return;
+
+  final newPage = (currentPage + delta).clamp(0, totalPages);
+
+  await HomeWidget.saveWidgetData<int>('current_page', newPage);
+  await HomeWidget.saveWidgetData<bool>('needs_sync', true);
+  await HomeWidget.updateWidget(
+      iOSName: 'BookgolasSmallWidget', name: 'BookgolasSmallWidget');
+  await HomeWidget.updateWidget(
+      iOSName: 'BookgolasMediumWidget', name: 'BookgolasMediumWidget');
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
   runApp(const AppBootstrap());
 }
 
@@ -126,6 +160,9 @@ class AppBootstrap extends StatelessWidget {
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
+
+      HomeWidget.setAppGroupId('group.com.bookgolas.app');
+      debugPrint('✅ HomeWidget App Group 설정 완료');
 
       // HomeViewModel preferences 프리로드
       debugPrint('📚 홈 화면 설정 프리로드 시작');
@@ -238,6 +275,7 @@ class MyApp extends StatelessWidget {
         ),
         Provider<NoteStructureService>(create: (_) => NoteStructureService()),
         Provider<SubscriptionService>(create: (_) => SubscriptionService()),
+        Provider<WidgetDataService>(create: (_) => WidgetDataService()),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -277,10 +315,15 @@ class MyApp extends StatelessWidget {
             userId: Supabase.instance.client.auth.currentUser!.id,
           ),
         ),
+        ChangeNotifierProvider(create: (_) => ReadingChartViewModel()),
         ChangeNotifierProvider(create: (_) => MyLibraryViewModel()),
         ChangeNotifierProvider<SubscriptionViewModel>(
           create: (context) =>
               SubscriptionViewModel(context.read<SubscriptionService>()),
+        ),
+        ChangeNotifierProvider<AdViewModel>(
+          create: (context) =>
+              AdViewModel(context.read<SubscriptionService>()),
         ),
         ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
@@ -289,11 +332,12 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Bookgolas',
             debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
             themeMode: themeViewModel.themeMode,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
+            theme: BLabTheme.light,
+            darkTheme: BLabTheme.dark,
             locale: localeViewModel.locale,
-            localizationsDelegates: [
+            localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -353,16 +397,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen>
-    with RouteAware, TickerProviderStateMixin {
+    with RouteAware, WidgetsBindingObserver {
   int _selectedIndex = 0;
-  bool _showRegularBarInReadingMode = false;
-  bool _showExpandedMenu = false;
-  late AnimationController _barSwitchController;
-  late Animation<Offset> _readingDetailBarSlide;
-  late Animation<Offset> _regularBarSlide;
-
-  VoidCallback? _updatePageCallback;
-  VoidCallback? _addMemorablePageCallback;
 
   @override
   void didChangeDependencies() {
@@ -372,9 +408,20 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
-    _barSwitchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WidgetDataService().handleNeedsSyncFlag().then((_) {
+        if (mounted && _selectedIndex == 0) {
+          context.read<BookListViewModel>().refresh();
+        }
+      });
+    }
   }
 
   @override
@@ -387,48 +434,47 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
-
-    _barSwitchController = AnimationController(
-      duration: const Duration(milliseconds: 350),
-      vsync: this,
-    );
-
-    _readingDetailBarSlide =
-        Tween<Offset>(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    _regularBarSlide =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _barSwitchController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    WidgetsBinding.instance.addObserver(this);
 
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
 
+      DeepLinkService.init(context, navigatorKey: navigatorKey);
+
       // RevenueCat 초기화 (인증 후)
       try {
         debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
         final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId != null) {
+        final rcKey = AppConfig.revenueCatPublicKey;
+        if (userId != null && rcKey.isNotEmpty) {
+          await Purchases.setLogLevel(LogLevel.info);
           await Purchases.configure(
-            PurchasesConfiguration(AppConfig.revenueCatPublicKey)
-              ..appUserID = userId,
+            PurchasesConfiguration(rcKey)..appUserID = userId,
           );
           debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
+          await context.read<SubscriptionService>().initialize(userId);
+
+          Purchases.addCustomerInfoUpdateListener((customerInfo) {
+            if (context.mounted) {
+              context.read<SubscriptionViewModel>().loadSubscriptionStatus();
+            }
+          });
+
+          if (context.mounted) {
+            await context.read<SubscriptionViewModel>().loadAll();
+          }
+        } else if (rcKey.isEmpty) {
+          debugPrint('⚠️ RevenueCat 초기화 스킵: API 키 미설정');
         } else {
           debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
         }
       } catch (e) {
         debugPrint('❌ RevenueCat 초기화 실패: $e');
       }
+
+      // AdMob 초기화 (인증 후)
+      context.read<AdViewModel>().initialize();
 
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
@@ -521,18 +567,27 @@ class _MainScreenState extends State<MainScreen>
       // 로그인된 사용자의 토큰을 Supabase에 저장
       FCMService().saveTokenToSupabase();
 
-      // 오후 9시 고정 알림 스케줄링
-      FCMService().scheduleEveningReflectionNotification();
+      final notifService = context.read<NotificationSettingsService>();
+      final loadedSettings = await notifService.loadSettings();
+      if (loadedSettings != null && loadedSettings.notificationEnabled) {
+        if (loadedSettings.dailyReminderEnabled) {
+          FCMService().scheduleDailyReminder(
+            hour: loadedSettings.dailyReminderHour,
+            minute: loadedSettings.dailyReminderMinute,
+          );
+        }
+        if (loadedSettings.goalAlarmEnabled) {
+          FCMService().scheduleGoalAlarm(
+            hour: loadedSettings.goalAlarmHour,
+            minute: loadedSettings.goalAlarmMinute,
+          );
+        }
+      }
     });
   }
 
   List<Widget> get _pages => [
-        HomeScreen(
-          onCallbacksReady: (updatePage, addMemorable) {
-            _updatePageCallback = updatePage;
-            _addMemorablePageCallback = addMemorable;
-          },
-        ),
+        const HomeScreen(),
         const MyLibraryScreen(),
         ReadingChartScreen(key: ReadingChartScreen.globalKey),
         const CalendarScreen(),
@@ -558,42 +613,34 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _onSearchTap(Offset searchButtonPosition, double searchButtonSize) {
-    Navigator.push(
+    showSearchModeDropdown(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const ReadingStartScreen(),
+      buttonPosition: searchButtonPosition,
+      buttonSize: searchButtonSize,
+      onSelected: (mode) {
+        switch (mode) {
+          case SearchMode.bookSearch:
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 200),
-      ),
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                transitionDuration: const Duration(milliseconds: 200),
+              ),
+            );
+          case SearchMode.aiRecordSearch:
+            showGlobalRecallSearchSheet(context: context);
+        }
+      },
     );
-  }
-
-  void _switchToRegularBar() {
-    setState(() {
-      _showRegularBarInReadingMode = true;
-    });
-    _barSwitchController.forward();
-  }
-
-  void _switchToReadingDetailBar() {
-    _barSwitchController.reverse().then((_) {
-      if (mounted) {
-        setState(() {
-          _showRegularBarInReadingMode = false;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final homeVm = context.watch<HomeViewModel>();
-    final isInReadingDetailContext =
-        homeVm.displayMode == HomeDisplayMode.readingDetail;
 
     Widget body;
     try {
@@ -604,25 +651,6 @@ class _MainScreenState extends State<MainScreen>
       rethrow;
     }
 
-    if (_showExpandedMenu) {
-      body = Stack(
-        children: [
-          body,
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showExpandedMenu = false;
-                });
-              },
-              behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-        ],
-      );
-    }
-
     return Scaffold(
       body: Stack(
         children: [
@@ -631,144 +659,19 @@ class _MainScreenState extends State<MainScreen>
         ],
       ),
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       extendBody: true,
-      bottomNavigationBar: _buildAnimatedBottomBar(isInReadingDetailContext),
-    );
-  }
-
-  Widget _buildAnimatedBottomBar(bool isInReadingDetailContext) {
-    if (!isInReadingDetailContext) {
-      if (_showRegularBarInReadingMode || _showExpandedMenu) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              _showRegularBarInReadingMode = false;
-              _showExpandedMenu = false;
-            });
-            _barSwitchController.reset();
-          }
-        });
-      }
-      return LiquidGlassBottomBar(
-        selectedIndex: _selectedIndex,
-        onTabSelected: _onItemTapped,
-        onSearchTap: _onSearchTap,
-      );
-    }
-
-    if (_showExpandedMenu) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
-        child: ExpandedNavigationBottomBar(
-          selectedIndex: _selectedIndex,
-          onTabSelected: _onExpandedMenuTabSelected,
-          onBackToReadingDetail: _onBackToReadingDetailFromMenu,
-          onUpdatePageTap: _onUpdatePageTap,
-          onSearchTap: _onSearchTap,
-        ),
-      );
-    }
-
-    if (_selectedIndex != 0) {
-      return LiquidGlassBottomBar(
-        selectedIndex: _selectedIndex,
-        onTabSelected: _onTabSelectedInReadingModeFromOtherTab,
-        onSearchTap: _onSearchTap,
-        showReadingDetailButton: true,
-        onReadingDetailTap: _switchToHomeWithReadingDetail,
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
-      child: SizedBox(
-        height: 62,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            SlideTransition(
-              position: _readingDetailBarSlide,
-              child: ReadingDetailBottomBar(
-                onBackTap: _switchToRegularBar,
-                onUpdatePageTap: _onUpdatePageTap,
-                onAddMemorablePageTap: _onAddMemorablePageTap,
-              ),
-            ),
-            if (_showRegularBarInReadingMode)
-              SlideTransition(
-                position: _regularBarSlide,
-                child: _buildRegularBarContent(),
-              ),
-          ],
-        ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AdBannerWidget(),
+          BLabBottomBar(
+            selectedIndex: _selectedIndex,
+            onTabSelected: _onItemTapped,
+            onSearchTap: _onSearchTap,
+          ),
+        ],
       ),
     );
-  }
-
-  Widget _buildRegularBarContent() {
-    return LiquidGlassBottomBar(
-      selectedIndex: _selectedIndex,
-      onTabSelected: _onTabSelectedInReadingMode,
-      onSearchTap: _onSearchTap,
-      showReadingDetailButton: true,
-      onReadingDetailTap: _switchToReadingDetailBar,
-      noMargin: true,
-    );
-  }
-
-  void _onTabSelectedInReadingMode(int index) {
-    if (index == 0) {
-      setState(() {
-        _showExpandedMenu = true;
-      });
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  void _onExpandedMenuTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _showExpandedMenu = false;
-    });
-  }
-
-  void _onBackToReadingDetailFromMenu() {
-    setState(() {
-      _selectedIndex = 0;
-      _showExpandedMenu = false;
-      _showRegularBarInReadingMode = false;
-    });
-    _barSwitchController.reverse();
-  }
-
-  void _onTabSelectedInReadingModeFromOtherTab(int index) {
-    if (index == 0) {
-      _switchToHomeWithReadingDetail();
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  void _switchToHomeWithReadingDetail() {
-    setState(() {
-      _selectedIndex = 0;
-      _showRegularBarInReadingMode = false;
-      _showExpandedMenu = false;
-    });
-    _barSwitchController.reverse();
-  }
-
-  void _onUpdatePageTap() {
-    _updatePageCallback?.call();
-  }
-
-  void _onAddMemorablePageTap() {
-    _addMemorablePageCallback?.call();
   }
 }

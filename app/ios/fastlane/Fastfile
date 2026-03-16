@@ -19,14 +19,44 @@ platform :ios do
       profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "7PFH55UQ86",
+      bundle_identifier: "com.bookgolas.app.dev.BookgolasWidget",
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Dev Widget - Distribution",
+      targets: ["BookgolasWidgetExtension"]
+    )
+
+    archive_path = "./build/Runner.xcarchive"
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "dev",
       configuration: "Release-dev",
+      skip_package_ipa: true,
+      archive_path: archive_path
+    )
+
+    plist_path = "#{archive_path}/Products/Applications/Runner.app/Frameworks/App.framework/Info.plist"
+    if File.exist?(plist_path)
+      sh("/usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 14.0' '#{File.expand_path(plist_path)}' 2>/dev/null || " \
+         "/usr/libexec/PlistBuddy -c 'Add :MinimumOSVersion string 14.0' '#{File.expand_path(plist_path)}'")
+      UI.success("Fixed MinimumOSVersion in App.framework/Info.plist")
+    end
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "dev",
+      configuration: "Release-dev",
+      skip_build_archive: true,
+      archive_path: archive_path,
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "com.bookgolas.app.dev" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution"
+          "com.bookgolas.app.dev" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas Dev - Distribution",
+          "com.bookgolas.app.dev.BookgolasWidget" => ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Dev Widget - Distribution"
         }
       },
       output_directory: "./build",

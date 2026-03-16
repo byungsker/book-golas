@@ -39,6 +39,11 @@ class AppConfig {
   static String get googleCloudVisionApiKey =>
       dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';
 
+  // Naver Books API 설정
+  static String get naverClientId => dotenv.env['NAVER_CLIENT_ID'] ?? '';
+  static String get naverClientSecret =>
+      dotenv.env['NAVER_CLIENT_SECRET'] ?? '';
+
   // RevenueCat 설정
   static String get revenueCatPublicKey =>
       dotenv.env['REVENUECAT_PUBLIC_KEY'] ?? '';

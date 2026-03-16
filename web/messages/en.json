@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "appName": "Bookgolas",
+    "download": "Download App"
+  },
+  "lang": {
+    "ko": "한국어",
+    "en": "English"
+  },
+  "hero": {
+    "badge": "Now on iOS · Start Your Reading Journey",
+    "headline1": "Where Every Book",
+    "headline2": "Becomes a Goal",
+    "sub": "Turn the books you want to read into achievable goals. Track your daily reading and build a habit that lasts — with Bookgolas.",
+    "stat1Value": "100+",
+    "stat1Label": "Book Catalog",
+    "stat2Value": "30 min",
+    "stat2Label": "Avg. Daily Reading",
+    "stat3Value": "Free",
+    "stat3Label": "Completely Free",
+    "appStore": "App Store",
+    "appStoreSubtitle": "Download on the",
+    "androidComingSoon": "Coming Soon"
+  },
+  "features": {
+    "label": "Features",
+    "title": "Reading made this rewarding",
+    "sub": "Set goals, track progress, achieve more. Bookgolas is your trusted companion on every reading journey.",
+    "f1Icon": "📚",
+    "f1Title": "Reading Goals",
+    "f1Desc": "Add books you want to read and set target finish dates. Build a personal reading plan that works for you.",
+    "f2Icon": "📈",
+    "f2Title": "Progress Tracking",
+    "f2Desc": "Log today's pages and watch your progress bar grow. Small records, big achievements.",
+    "f3Icon": "🔔",
+    "f3Title": "Smart Reminders",
+    "f3Desc": "Get reading reminders at the time you choose. Stay consistent even on your busiest days.",
+    "f4Icon": "🏆",
+    "f4Title": "Reading History",
+    "f4Desc": "All your finished books in one place. Look back on your reading journey and celebrate every win."
+  },
+  "appDetail": {
+    "label": "App Details",
+    "title": "Here's how Bookgolas works",
+    "sub": "Record every reading moment and move toward your goals. Simple, but everything you need.",
+    "d1Icon": "🎯",
+    "d1Title": "Goal-driven Reading",
+    "d1Desc": "Set a target finish date for each book and manage your daily page goals. Progress updates in real time, and your estimated finish date is calculated automatically.",
+    "d2Icon": "📖",
+    "d2Title": "Book Search Integration",
+    "d2Desc": "Search books via the Aladin API and get the cover, author, and page count filled in automatically. Start a goal in seconds — no manual entry needed.",
+    "d3Icon": "📅",
+    "d3Title": "Reading Streak & Calendar",
+    "d3Desc": "Daily reading entries stack up on your calendar. Maintain your reading streak and build a lasting habit. Missed days are easy to spot at a glance.",
+    "d4Icon": "📊",
+    "d4Title": "Reading Stats & Reports",
+    "d4Desc": "See how many books you've read this month and how many pages you've logged. Understand your reading patterns and set smarter goals."
+  },
+  "howItWorks": {
+    "label": "How It Works",
+    "title": "3 steps to get started",
+    "sub": "No complicated setup. From install to your first reading log in under 2 minutes.",
+    "s1Title": "Install & Sign Up",
+    "s1Desc": "Sign up in 10 seconds with email or Apple account",
+    "s2Title": "Add Books & Set Goals",
+    "s2Desc": "Search for books and set your target finish date",
+    "s3Title": "Log Daily Reading",
+    "s3Desc": "Record today's pages and watch your progress update automatically"
+  },
+  "cta": {
+    "title": "Start reading today",
+    "sub": "Free on iOS. Build the reading habit you've always wanted, one book at a time ✨"
+  },
+  "footer": {
+    "copyright": "© 2026 Bookgolas · Made by",
+    "developerName": "byungsker",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "tagline": "Made with ❤️ for book lovers"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: February 2026",
+    "backHome": "← Back to Home"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: February 2026",
+    "backHome": "← Back to Home"
+  },
+  "mockup": {
+    "headerTitle": "My Reading Goals",
+    "todayGoal": "Today's goal: 30 min reading",
+    "realtime": "Active",
+    "streakLabel": "day streak",
+    "book1Title": "Clean Code",
+    "book1Author": "Robert C. Martin",
+    "book1Progress": "234",
+    "book1Total": "334",
+    "book1Percent": 70,
+    "book2Title": "Sapiens",
+    "book2Author": "Yuval Noah Harari",
+    "book2Progress": "132",
+    "book2Total": "443",
+    "book2Percent": 30,
+    "book3Title": "The ONE Thing",
+    "book3Author": "Gary Keller",
+    "book3Progress": "0",
+    "book3Total": "256",
+    "book3Percent": 0,
+    "addSession": "Add reading session",
+    "typingBook": "The Little Prince",
+    "pagesRead": "pages",
+    "typingBy": "Today's reading",
+    "today": "Today",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started"
+  },
+  "screenshots": {
+    "label": "App Screens",
+    "title": "See it in action",
+    "sub": "Take a peek at the key screens. Clean and intuitive — reading made enjoyable.",
+    "readingList": {
+      "title": "Reading List",
+      "desc": "Progress and target dates at a glance"
+    },
+    "progress": {
+      "title": "Reading Log",
+      "desc": "Log today's pages and keep your streak alive"
+    },
+    "stats": {
+      "title": "Reading Stats",
+      "desc": "Monthly totals and finished books in one view"
+    }
+  }
+}

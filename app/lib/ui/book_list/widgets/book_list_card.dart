@@ -19,7 +19,7 @@ class BookListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -34,11 +34,11 @@ class BookListCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: PressableWrapper(
+      child: BLabPressableWrapper(
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
+            color: isDark ? BLabColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -150,26 +150,26 @@ class BookListCard extends StatelessWidget {
 
   Color _getDdayBackgroundColor(int daysLeft, bool isCompleted) {
     if (daysLeft < 0) {
-      return AppColors.errorAlt.withValues(alpha: 0.12);
+      return BLabColors.errorAlt.withValues(alpha: 0.12);
     }
     if (isCompleted) {
-      return AppColors.success.withValues(alpha: 0.12);
+      return BLabColors.success.withValues(alpha: 0.12);
     }
-    return AppColors.primary.withValues(alpha: 0.12);
+    return BLabColors.primary.withValues(alpha: 0.12);
   }
 
   Color _getDdayTextColor(int daysLeft, bool isCompleted) {
     if (daysLeft < 0) {
-      return AppColors.errorAlt;
+      return BLabColors.errorAlt;
     }
     if (isCompleted) {
-      return AppColors.success;
+      return BLabColors.success;
     }
-    return AppColors.primary;
+    return BLabColors.primary;
   }
 
   Widget _buildProgressBar(bool isDark, double pageProgress, bool isCompleted) {
-    final progressColor = isCompleted ? AppColors.success : AppColors.primary;
+    final progressColor = isCompleted ? BLabColors.success : BLabColors.primary;
 
     return Row(
       children: [

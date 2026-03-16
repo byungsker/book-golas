@@ -42,7 +42,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: widget.isDark ? AppColors.surfaceDark : AppColors.elevatedLight,
+        color: widget.isDark ? BLabColors.surfaceDark : BLabColors.elevatedLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.isDark
@@ -91,13 +91,13 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: BLabColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               size: 18,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
           const SizedBox(width: 10),
@@ -140,13 +140,13 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: BLabColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               size: 18,
-              color: AppColors.primary,
+              color: BLabColors.primary,
             ),
           ),
           const SizedBox(width: 10),
@@ -184,7 +184,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: BLabColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -192,7 +192,7 @@ class _SchedulePreviewWidgetState extends State<SchedulePreviewWidget> {
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                              color: BLabColors.primary,
                             ),
                           ),
                         ),

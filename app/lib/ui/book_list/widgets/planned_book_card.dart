@@ -18,7 +18,7 @@ class PlannedBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final daysUntilStart =
         book.plannedStartDate?.difference(DateTime.now()).inDays;
@@ -29,7 +29,7 @@ class PlannedBookCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -126,13 +126,13 @@ class PlannedBookCard extends StatelessWidget {
   Color _getPriorityColor(int priority) {
     switch (priority) {
       case 1:
-        return AppColors.error;
+        return BLabColors.error;
       case 2:
-        return AppColors.warning;
+        return BLabColors.warning;
       case 3:
-        return AppColors.primary;
+        return BLabColors.primary;
       case 4:
-        return AppColors.successAlt;
+        return BLabColors.successAlt;
       default:
         return Colors.grey;
     }

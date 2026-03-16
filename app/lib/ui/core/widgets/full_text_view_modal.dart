@@ -137,7 +137,7 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
               height: availableHeight,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               decoration: BoxDecoration(
-                color: widget.isDark ? AppColors.surfaceDark : Colors.white,
+                color: widget.isDark ? BLabColors.surfaceDark : Colors.white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -217,12 +217,12 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
         if (_isEditing)
           GestureDetector(
             onTap: _handleSave,
-            child: Text(
+            child: const Text(
               '저장',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
             ),
           )
@@ -291,20 +291,20 @@ class _FullTextViewModalState extends State<FullTextViewModal> {
             const SizedBox(width: 16),
             GestureDetector(
               onTap: _startEditing,
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     CupertinoIcons.pencil,
                     size: 14,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '수정하기',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.primary,
+                      color: BLabColors.primary,
                     ),
                   ),
                 ],

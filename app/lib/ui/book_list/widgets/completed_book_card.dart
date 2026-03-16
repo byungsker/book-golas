@@ -95,7 +95,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final completedDate = widget.book.updatedAt ?? DateTime.now();
     final daysToComplete =
@@ -107,7 +107,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -161,7 +161,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.1),
+                          color: BLabColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -170,7 +170,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                             const Icon(
                               CupertinoIcons.checkmark_seal_fill,
                               size: 14,
-                              color: AppColors.success,
+                              color: BLabColors.success,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -180,7 +180,7 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.success,
+                                color: BLabColors.success,
                               ),
                             ),
                           ],
@@ -192,10 +192,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: _achievementRate! >= 80
-                                ? AppColors.successBg
+                                ? BLabColors.successBg
                                 : _achievementRate! >= 50
-                                    ? AppColors.amber
-                                    : AppColors.errorBg,
+                                    ? BLabColors.amber
+                                    : BLabColors.errorBg,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -209,10 +209,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                                         : CupertinoIcons.flame_fill,
                                 size: 12,
                                 color: _achievementRate! >= 80
-                                    ? AppColors.success
+                                    ? BLabColors.success
                                     : _achievementRate! >= 50
-                                        ? AppColors.dangerAlt
-                                        : AppColors.danger,
+                                        ? BLabColors.dangerAlt
+                                        : BLabColors.danger,
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -221,10 +221,10 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   color: _achievementRate! >= 80
-                                      ? AppColors.success
+                                      ? BLabColors.success
                                       : _achievementRate! >= 50
-                                          ? AppColors.dangerAlt
-                                          : AppColors.danger,
+                                          ? BLabColors.dangerAlt
+                                          : BLabColors.danger,
                                 ),
                               ),
                             ],

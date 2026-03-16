@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/widget_data_service.dart';
 
 enum AllTabFilter { all, reading, planned, completed, paused }
 
@@ -111,6 +112,7 @@ class BookListViewModel extends BaseViewModel {
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      _syncWidgetData();
       setLoading(false);
       notifyListeners();
     } catch (e) {
@@ -131,6 +133,7 @@ class BookListViewModel extends BaseViewModel {
                 .where((e) => e['deleted_at'] == null)
                 .map((e) => Book.fromJson(e))
                 .toList();
+            _syncWidgetData();
             notifyListeners();
           },
           onError: (error) {
@@ -171,10 +174,24 @@ class BookListViewModel extends BaseViewModel {
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      _syncWidgetData();
       debugPrint('[BookListViewModel] refresh done: ${_books.length} books');
       notifyListeners();
     } catch (e) {
       debugPrint('[BookListViewModel] refresh failed: $e');
+    }
+  }
+
+  void _syncWidgetData() {
+    final reading = _books
+        .where((b) =>
+            b.status == BookStatus.reading.value &&
+            !(b.currentPage >= b.totalPages && b.totalPages > 0))
+        .toList();
+    if (reading.isNotEmpty) {
+      WidgetDataService().syncReadingBooks(reading);
+    } else {
+      WidgetDataService().clearWidgetData();
     }
   }
 

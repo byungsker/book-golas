@@ -55,7 +55,7 @@ class AiFeatureBanner extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                AppLocalizations.of(context)!.aiFeaturesTitle,
+                AppLocalizations.of(context).aiFeaturesTitle,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -71,7 +71,7 @@ class AiFeatureBanner extends StatelessWidget {
                 child: _buildFeatureButton(
                   context: context,
                   icon: Icons.search,
-                  label: AppLocalizations.of(context)!.searchRecordsButton,
+                  label: AppLocalizations.of(context).searchRecordsButton,
                   onTap: onRecallTap,
                   isDark: isDark,
                 ),
@@ -81,7 +81,7 @@ class AiFeatureBanner extends StatelessWidget {
                 child: _buildFeatureButton(
                   context: context,
                   icon: Icons.lightbulb_outline,
-                  label: AppLocalizations.of(context)!.bookRecommendButton,
+                  label: AppLocalizations.of(context).bookRecommendButton,
                   onTap: onRecommendTap,
                   isDark: isDark,
                 ),

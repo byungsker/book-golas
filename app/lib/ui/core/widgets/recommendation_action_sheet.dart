@@ -70,7 +70,7 @@ class _RecommendationActionSheetContentState
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -112,7 +112,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildActionPage(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       key: const ValueKey('action'),
       padding: const EdgeInsets.all(24),
@@ -142,14 +142,14 @@ class _RecommendationActionSheetContentState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: BLabColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               widget.reason,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
-                color: AppColors.primary,
+                color: BLabColors.primary,
                 fontWeight: FontWeight.w500,
                 height: 1.4,
               ),
@@ -178,7 +178,7 @@ class _RecommendationActionSheetContentState
   }
 
   Widget _buildBookstorePage(bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final searchTitle = getSearchTitle(widget.title);
     final encodedTitle = Uri.encodeComponent(searchTitle);
 
@@ -300,8 +300,8 @@ class _ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isPrimary
-              ? AppColors.primary
-              : (isDark ? AppColors.subtleDark : Colors.grey[50]),
+              ? BLabColors.primary
+              : (isDark ? BLabColors.subtleDark : Colors.grey[50]),
           borderRadius: BorderRadius.circular(12),
           border: isPrimary
               ? null
@@ -382,7 +382,7 @@ class _BookstoreButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.subtleDark : Colors.grey[50],
+          color: isDark ? BLabColors.subtleDark : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.grey[700]! : Colors.grey[200]!,

@@ -110,14 +110,14 @@ class _TimerButtonState extends State<TimerButton>
                         end: Alignment.bottomRight,
                         colors: [
                           if (widget.isRunning) ...[
-                            AppColors.primary
+                            BLabColors.primary
                                 .withValues(alpha: isDark ? 0.6 : 0.4),
-                            AppColors.primary
+                            BLabColors.primary
                                 .withValues(alpha: isDark ? 0.4 : 0.25),
                           ] else ...[
-                            AppColors.primary
+                            BLabColors.primary
                                 .withValues(alpha: isDark ? 0.4 : 0.2),
-                            AppColors.primary
+                            BLabColors.primary
                                 .withValues(alpha: isDark ? 0.2 : 0.1),
                           ],
                         ],
@@ -125,14 +125,14 @@ class _TimerButtonState extends State<TimerButton>
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: widget.isRunning
-                            ? AppColors.primary.withValues(alpha: 0.8)
-                            : AppColors.primary.withValues(alpha: 0.4),
+                            ? BLabColors.primary.withValues(alpha: 0.8)
+                            : BLabColors.primary.withValues(alpha: 0.4),
                         width: widget.isRunning ? 2 : 1,
                       ),
                       boxShadow: widget.isRunning
                           ? [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.4),
+                                color: BLabColors.primary.withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 spreadRadius: 2,
                               ),

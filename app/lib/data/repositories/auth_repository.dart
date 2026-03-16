@@ -21,9 +21,13 @@ abstract class AuthRepository {
 
   Future<String?> signInWithGoogle();
 
+  Future<String?> signInWithApple();
+
   Future<String?> signOut();
 
   Future<String?> resetPassword(String email);
+
+  Future<String?> resendVerificationEmail(String email);
 
   Future<UserModel?> fetchCurrentUser();
 
@@ -73,11 +77,18 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<String?> signInWithGoogle() => _authService.signInWithGoogle();
 
   @override
+  Future<String?> signInWithApple() => _authService.signInWithApple();
+
+  @override
   Future<String?> signOut() => _authService.signOut();
 
   @override
   Future<String?> resetPassword(String email) =>
       _authService.resetPassword(email);
+
+  @override
+  Future<String?> resendVerificationEmail(String email) =>
+      _authService.resendVerificationEmail(email);
 
   @override
   Future<UserModel?> fetchCurrentUser() => _authService.fetchCurrentUser();

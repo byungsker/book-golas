@@ -91,7 +91,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
   }
 
   Widget _buildHeader(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -110,7 +110,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: BLabColors.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -186,7 +186,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.subtleDark : Colors.white,
+            color: isDark ? BLabColors.subtleDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -312,7 +312,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.subtleDark : Colors.white,
+        color: isDark ? BLabColors.subtleDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -430,7 +430,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         height: 36,
         decoration: BoxDecoration(
           color: _showSettings
-              ? AppColors.primary
+              ? BLabColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -456,7 +456,7 @@ class _HighlightEditViewState extends State<HighlightEditView> {
         height: 36,
         decoration: BoxDecoration(
           color: widget.isEraserMode
-              ? AppColors.primary
+              ? BLabColors.primary
               : (isDark ? Colors.grey[800] : Colors.grey[100]),
           borderRadius: BorderRadius.circular(8),
         ),

@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.bookgolas.app</string>
+	<string>com.bookgolas.app.dev</string>
 	<key>PROJECT_ID</key>
 	<string>book-golas</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,10 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:817480840922:ios:a6d9bcdceddd457773d7e3</string>
+	<string>1:817480840922:ios:27fe608d861f33c973d7e3</string>
+	<key>CLIENT_ID</key>
+	<string>817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.817480840922-5qsq3bcefv328l7aihs5mhq9k38o6g6v</string>
 </dict>
 </plist>

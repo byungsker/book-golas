@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -59,13 +58,17 @@ class SubscriptionViewModel extends BaseViewModel {
 
   /// Presents the paywall UI for subscription purchase.
   ///
-  /// Uses RevenueCat's built-in paywall presentation.
-  Future<void> showPaywall(BuildContext context) async {
+  /// Returns true if paywall was shown, false if unavailable.
+  Future<bool> showPaywall(BuildContext context) async {
     try {
-      await _subscriptionService.showPaywall(context);
-      await loadSubscriptionStatus();
+      final shown = await _subscriptionService.showPaywall(context);
+      if (shown) {
+        await loadSubscriptionStatus();
+      }
+      return shown;
     } catch (e) {
       debugPrint('Failed to show paywall: $e');
+      return false;
     }
   }
 

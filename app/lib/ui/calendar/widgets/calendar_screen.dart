@@ -74,7 +74,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       body: SafeArea(
         child: Consumer<CalendarViewModel>(
           builder: (context, viewModel, child) {

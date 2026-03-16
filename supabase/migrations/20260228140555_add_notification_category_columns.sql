@@ -1,0 +1,4 @@
+ALTER TABLE fcm_tokens
+  ADD COLUMN IF NOT EXISTS daily_reminder_enabled BOOLEAN DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS goal_achievement_enabled BOOLEAN DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS announcements_enabled BOOLEAN DEFAULT TRUE;

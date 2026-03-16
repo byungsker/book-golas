@@ -57,7 +57,7 @@ class ScannerErrorWidget extends StatelessWidget {
                 child: const Text(
                   '닫기',
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

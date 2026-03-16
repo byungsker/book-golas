@@ -15,7 +15,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
 
   return showModalBottomSheet<ReadingManagementAction>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -29,13 +29,13 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: BLabColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 CupertinoIcons.book_fill,
                 size: 32,
-                color: AppColors.primary,
+                color: BLabColors.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -62,7 +62,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
               icon: CupertinoIcons.pause_circle,
               label: '잠시 쉬어가기',
               description: '나중에 다시 읽을 수 있어요',
-              color: AppColors.warning,
+              color: BLabColors.warning,
               isDark: isDark,
               onTap: () =>
                   Navigator.pop(sheetContext, ReadingManagementAction.pause),
@@ -73,7 +73,7 @@ Future<ReadingManagementAction?> showReadingManagementSheet({
               icon: CupertinoIcons.trash,
               label: '삭제하기',
               description: '독서 기록이 삭제됩니다',
-              color: AppColors.errorAlt,
+              color: BLabColors.errorAlt,
               isDark: isDark,
               onTap: () =>
                   Navigator.pop(sheetContext, ReadingManagementAction.delete),
@@ -171,7 +171,7 @@ Widget _buildCancelButton({
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.elevatedDark : AppColors.grey100Light,
+        color: isDark ? BLabColors.elevatedDark : BLabColors.grey100Light,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(

@@ -29,7 +29,7 @@ Future<ImageSourceType?> showImageSourceSheet({
     builder: (sheetContext) {
       return Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
@@ -50,23 +50,23 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withAlpha(25),
+                    color: BLabColors.success.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.doc_text_viewfinder,
-                    color: AppColors.success,
+                    color: BLabColors.success,
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceDocumentScan,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceDocumentScanDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -80,31 +80,32 @@ Future<ImageSourceType?> showImageSourceSheet({
                         CustomSnackbar.show(
                           context,
                           message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
-                          type: SnackbarType.warning,
+                          type: BLabSnackbarType.warning,
                         );
                       },
               ),
+
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: BLabColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.camera_fill,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceCameraTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceCameraDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -117,7 +118,7 @@ Future<ImageSourceType?> showImageSourceSheet({
                         CustomSnackbar.show(
                           context,
                           message: '시뮬레이터에서는 카메라를 사용할 수 없습니다',
-                          type: SnackbarType.warning,
+                          type: BLabSnackbarType.warning,
                         );
                       },
               ),
@@ -125,23 +126,23 @@ Future<ImageSourceType?> showImageSourceSheet({
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: BLabColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     CupertinoIcons.photo_fill,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext)!.dialogSelect,
+                  AppLocalizations.of(sheetContext).imageSourceGalleryTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext)!.dialogSelect,
+                  AppLocalizations.of(sheetContext).imageSourceGalleryDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -166,7 +167,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
 
   return showModalBottomSheet<ImageSource>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -186,7 +187,7 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
             ),
             const SizedBox(height: 20),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -198,30 +199,30 @@ Future<ImageSource?> showImageReplaceOptionsSheet({
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: BLabColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.camera,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
-              title: Text(AppLocalizations.of(sheetContext)!.dialogTakePhoto),
+              title: Text(AppLocalizations.of(sheetContext).dialogTakePhoto),
               onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
             ),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
+                  color: BLabColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.photo,
-                  color: AppColors.success,
+                  color: BLabColors.success,
                 ),
               ),
-              title: Text(AppLocalizations.of(sheetContext)!.dialogSelect),
+              title: Text(AppLocalizations.of(sheetContext).dialogSelect),
               onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
             ),
           ],
@@ -238,7 +239,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
 
   return showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+    backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -252,7 +253,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: AppColors.amber,
+                color: BLabColors.amber,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -263,7 +264,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -272,7 +273,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+              AppLocalizations.of(sheetContext).dialogReplaceImage,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -294,7 +295,7 @@ Future<bool?> showReplaceImageConfirmationSheet({
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(sheetContext)!.commonCancel,
+                      AppLocalizations.of(sheetContext).commonCancel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -309,13 +310,13 @@ Future<bool?> showReplaceImageConfirmationSheet({
                     onPressed: () => Navigator.pop(sheetContext, true),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: BLabColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(sheetContext)!.dialogReplaceImage,
+                      AppLocalizations.of(sheetContext).dialogReplaceImage,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

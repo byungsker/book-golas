@@ -31,13 +31,13 @@ class _BookListSkeletonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final placeholderColor =
-        isDark ? AppColors.elevatedDark : Colors.grey[300]!;
+        isDark ? BLabColors.elevatedDark : Colors.grey[300]!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Shimmer.fromColors(

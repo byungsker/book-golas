@@ -13,8 +13,14 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/my_library/view_model/my_library_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/core/widgets/empty_state_view.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_list/widgets/book_list_card.dart';
+import 'package:book_golas/ui/book_list/widgets/completed_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/planned_book_card.dart';
+import 'package:book_golas/ui/book_list/widgets/paused_book_card.dart';
+import 'package:book_golas/ui/my_library/widgets/my_library_book_skeleton.dart';
+import 'package:book_golas/ui/my_library/widgets/my_library_record_skeleton.dart';
 import 'package:book_golas/ui/my_library/widgets/record_list_item.dart';
 import 'package:book_golas/ui/recall/widgets/global_recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
@@ -161,7 +167,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
 
     return Scaffold(
       backgroundColor:
-          isDark ? AppColors.scaffoldDark : AppColors.scaffoldLight,
+          isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
       appBar: AppBar(
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -365,8 +371,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoading && vm.books.isEmpty) {
+                return const MyLibraryBookSkeleton();
               }
 
               final books = vm.filteredBooks;
@@ -375,7 +381,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 final emptyMessage = vm.readingSearchQuery.isNotEmpty
                     ? AppLocalizations.of(context).myLibraryNoSearchResults
                     : AppLocalizations.of(context).myLibraryNoBooks;
-                return _buildEmptyState(isDark, emptyMessage);
+                return EmptyStateView(message: emptyMessage);
               }
 
               return ListView.builder(
@@ -383,7 +389,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return BookListCard(
+                  return _buildBookCardByStatus(
                     book: book,
                     onTap: () => _navigateToBookDetail(book),
                   );
@@ -394,6 +400,27 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         ),
       ],
     );
+  }
+
+  Widget _buildBookCardByStatus({
+    required Book book,
+    required VoidCallback onTap,
+  }) {
+    final isCompleted = book.status == BookStatus.completed.value ||
+        (book.currentPage >= book.totalPages && book.totalPages > 0);
+
+    if (isCompleted) {
+      return CompletedBookCard(book: book, onTap: onTap);
+    }
+
+    switch (book.status) {
+      case 'planned':
+        return PlannedBookCard(book: book, onTap: onTap);
+      case 'will_retry':
+        return PausedBookCard(book: book, onTap: onTap);
+      default:
+        return BookListCard(book: book, onTap: onTap);
+    }
   }
 
   Widget _buildReviewTab(bool isDark) {
@@ -409,8 +436,8 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoading && vm.books.isEmpty) {
+                return const MyLibraryBookSkeleton();
               }
 
               final books = vm.booksWithReview;
@@ -419,7 +446,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 final emptyMessage = vm.reviewSearchQuery.isNotEmpty
                     ? AppLocalizations.of(context).myLibraryNoSearchResults
                     : AppLocalizations.of(context).myLibraryNoReviewBooks;
-                return _buildEmptyState(isDark, emptyMessage);
+                return EmptyStateView(message: emptyMessage);
               }
 
               return ListView.builder(
@@ -427,7 +454,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return BookListCard(
+                  return _buildBookCardByStatus(
                     book: book,
                     onTap: () =>
                         _navigateToBookDetail(book, initialTabIndex: 2),
@@ -449,15 +476,15 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
         Expanded(
           child: Consumer<MyLibraryViewModel>(
             builder: (context, vm, _) {
-              if (vm.isLoadingRecords) {
-                return const Center(child: CircularProgressIndicator());
+              if (vm.isLoadingRecords && vm.groupedRecords.isEmpty) {
+                return const MyLibraryRecordSkeleton();
               }
 
               final groups = vm.groupedRecords;
 
               if (groups.isEmpty) {
-                return _buildEmptyState(
-                    isDark, AppLocalizations.of(context).myLibraryNoRecords);
+                return EmptyStateView(
+                    message: AppLocalizations.of(context).myLibraryNoRecords);
               }
 
               return ListView.builder(
@@ -506,12 +533,12 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
+                        color: BLabColors.primary.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.auto_awesome,
-                        color: AppColors.primary,
+                        color: BLabColors.primary,
                         size: 16,
                       ),
                     ),
@@ -585,30 +612,4 @@ class _MyLibraryScreenState extends State<MyLibraryScreen>
     );
   }
 
-  Widget _buildEmptyState(bool isDark, String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.book,
-            size: 48,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 16,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

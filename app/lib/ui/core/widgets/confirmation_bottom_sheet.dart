@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -29,12 +28,12 @@ class ConfirmationBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveConfirmColor =
-        confirmColor ?? (isDestructive ? Colors.red[400]! : AppColors.primary);
+        confirmColor ?? (isDestructive ? Colors.red[400]! : BLabColors.primary);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

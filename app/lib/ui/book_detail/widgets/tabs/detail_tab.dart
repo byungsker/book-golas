@@ -90,7 +90,7 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -105,12 +105,12 @@ class DetailTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: BLabColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 CupertinoIcons.slider_horizontal_3,
-                color: AppColors.primary,
+                color: BLabColors.primary,
                 size: 20,
               ),
             ),
@@ -150,16 +150,16 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildDeleteButton(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onDelete,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.errorAlt.withValues(alpha: 0.3),
+            color: BLabColors.errorAlt.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -168,7 +168,7 @@ class DetailTab extends StatelessWidget {
           children: [
             const Icon(
               CupertinoIcons.trash,
-              color: AppColors.errorAlt,
+              color: BLabColors.errorAlt,
               size: 18,
             ),
             const SizedBox(width: 8),
@@ -177,7 +177,7 @@ class DetailTab extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.errorAlt,
+                color: BLabColors.errorAlt,
               ),
             ),
           ],
@@ -194,7 +194,7 @@ class DetailTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -212,13 +212,13 @@ class DetailTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: BLabColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     CupertinoIcons.doc_text_fill,
                     size: 20,
-                    color: AppColors.primary,
+                    color: BLabColors.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -231,7 +231,7 @@ class DetailTab extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : AppColors.scaffoldDark,
+                          color: isDark ? Colors.white : BLabColors.scaffoldDark,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -240,7 +240,7 @@ class DetailTab extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           color: hasReview
-                              ? AppColors.success
+                              ? BLabColors.success
                               : (isDark ? Colors.grey[500] : Colors.grey[600]),
                         ),
                       ),
@@ -294,11 +294,11 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildReadingScheduleCard(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -316,13 +316,13 @@ class DetailTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: BLabColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.calendar,
                   size: 20,
-                  color: AppColors.primary,
+                  color: BLabColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -380,7 +380,7 @@ class DetailTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.warning.withValues(alpha: 0.12),
+                          color: BLabColors.warning.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -388,7 +388,7 @@ class DetailTab extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.warning,
+                            color: BLabColors.warning,
                           ),
                         ),
                       ),
@@ -473,7 +473,7 @@ class DetailTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -499,14 +499,14 @@ class DetailTab extends StatelessWidget {
 
   Widget _buildGoalHeader(BuildContext context, int passedDays,
       int achievedCount, int achievementRate, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AppColors.success, AppColors.success],
+              colors: [BLabColors.success, BLabColors.success],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -526,7 +526,7 @@ class DetailTab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : AppColors.scaffoldDark,
+                  color: isDark ? Colors.white : BLabColors.scaffoldDark,
                 ),
               ),
               const SizedBox(height: 2),
@@ -552,10 +552,10 @@ class DetailTab extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: achievementRate >= 80
-            ? AppColors.successBg
+            ? BLabColors.successBg
             : achievementRate >= 50
-                ? AppColors.amber
-                : AppColors.errorBg,
+                ? BLabColors.amber
+                : BLabColors.errorBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -569,10 +569,10 @@ class DetailTab extends StatelessWidget {
                     : CupertinoIcons.flame_fill,
             size: 14,
             color: achievementRate >= 80
-                ? AppColors.success
+                ? BLabColors.success
                 : achievementRate >= 50
-                    ? AppColors.dangerAlt
-                    : AppColors.danger,
+                    ? BLabColors.dangerAlt
+                    : BLabColors.danger,
           ),
           const SizedBox(width: 4),
           Text(
@@ -581,10 +581,10 @@ class DetailTab extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: achievementRate >= 80
-                  ? AppColors.success
+                  ? BLabColors.success
                   : achievementRate >= 50
-                      ? AppColors.dangerAlt
-                      : AppColors.danger,
+                      ? BLabColors.dangerAlt
+                      : BLabColors.danger,
             ),
           ),
         ],
@@ -605,8 +605,9 @@ class DetailTab extends StatelessWidget {
             final date = book.startDate.add(Duration(days: index));
             final dateKey =
                 '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+            final dateOnly = DateTime(date.year, date.month, date.day);
             final isFuture =
-                date.isAfter(DateTime(now.year, now.month, now.day));
+                dateOnly.isAfter(DateTime(now.year, now.month, now.day));
             final isToday = date.year == now.year &&
                 date.month == now.month &&
                 date.day == now.day;
@@ -616,15 +617,15 @@ class DetailTab extends StatelessWidget {
             if (isFuture) {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.05)
-                  : AppColors.grey100Light;
+                  : BLabColors.grey100Light;
             } else if (isAchieved == true) {
-              cellColor = AppColors.success;
+              cellColor = BLabColors.success;
             } else if (isAchieved == false) {
-              cellColor = AppColors.errorLight;
+              cellColor = BLabColors.errorLight;
             } else {
               cellColor = isDark
                   ? Colors.white.withValues(alpha: 0.1)
-                  : AppColors.grey200Light;
+                  : BLabColors.grey200Light;
             }
 
             return Tooltip(
@@ -638,7 +639,7 @@ class DetailTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   border: isToday
                       ? Border.all(
-                          color: AppColors.primary,
+                          color: BLabColors.primary,
                           width: 2,
                         )
                       : null,
@@ -649,7 +650,7 @@ class DetailTab extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: AppColors.primary,
+                            color: BLabColors.primary,
                             shape: BoxShape.circle,
                           ),
                         )
@@ -664,21 +665,21 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-            l10n.bookDetailLegendAchieved, AppColors.success, isDark),
+            l10n.bookDetailLegendAchieved, BLabColors.success, isDark),
         const SizedBox(width: 16),
         _buildLegendItem(
-            l10n.bookDetailLegendMissed, AppColors.errorLight, isDark),
+            l10n.bookDetailLegendMissed, BLabColors.errorLight, isDark),
         const SizedBox(width: 16),
         _buildLegendItem(
             l10n.bookDetailLegendScheduled,
             isDark
                 ? Colors.white.withValues(alpha: 0.1)
-                : AppColors.grey100Light,
+                : BLabColors.grey100Light,
             isDark),
       ],
     );
