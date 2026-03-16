@@ -3,12 +3,26 @@ ALTER TABLE public.fcm_tokens
   ADD COLUMN IF NOT EXISTS daily_reminder_hour INTEGER DEFAULT 9,
   ADD COLUMN IF NOT EXISTS daily_reminder_minute INTEGER DEFAULT 0;
 
-UPDATE public.fcm_tokens
-SET daily_reminder_hour = preferred_hour,
-    daily_reminder_minute = CASE
-      WHEN preferred_minute <= 15 THEN 0
-      ELSE 30
-    END;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'fcm_tokens' AND column_name = 'preferred_minute'
+  ) THEN
+    UPDATE public.fcm_tokens
+    SET daily_reminder_hour = preferred_hour,
+        daily_reminder_minute = CASE
+          WHEN preferred_minute <= 15 THEN 0
+          ELSE 30
+        END;
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'fcm_tokens' AND column_name = 'preferred_hour'
+  ) THEN
+    UPDATE public.fcm_tokens
+    SET daily_reminder_hour = preferred_hour;
+  END IF;
+END $$;
 
 ALTER TABLE public.fcm_tokens
   ADD COLUMN IF NOT EXISTS goal_alarm_enabled BOOLEAN DEFAULT true,
@@ -21,9 +35,19 @@ ALTER TABLE public.fcm_tokens
 ALTER TABLE public.fcm_tokens
   ADD COLUMN IF NOT EXISTS locale TEXT DEFAULT 'ko';
 
-ALTER TABLE public.fcm_tokens
-  ADD CONSTRAINT daily_reminder_minute_check CHECK (daily_reminder_minute IN (0, 30)),
-  ADD CONSTRAINT goal_alarm_minute_check CHECK (goal_alarm_minute IN (0, 30));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'daily_reminder_minute_check'
+  ) THEN
+    ALTER TABLE public.fcm_tokens ADD CONSTRAINT daily_reminder_minute_check CHECK (daily_reminder_minute IN (0, 30));
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'goal_alarm_minute_check'
+  ) THEN
+    ALTER TABLE public.fcm_tokens ADD CONSTRAINT goal_alarm_minute_check CHECK (goal_alarm_minute IN (0, 30));
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_fcm_daily_reminder_time
   ON public.fcm_tokens (daily_reminder_hour, daily_reminder_minute)
