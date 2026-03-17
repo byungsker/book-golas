@@ -11,7 +11,7 @@ Future<void> showReadingTimerModal({
   required String bookId,
   required String bookTitle,
   String? bookImageUrl,
-  VoidCallback? onTimerStopped,
+  void Function(Duration duration)? onTimerStopped,
 }) async {
   final viewModel = context.read<ReadingTimerViewModel>();
   return showModalBottomSheet<void>(
@@ -35,7 +35,7 @@ class _ReadingTimerModalContent extends StatelessWidget {
   final String bookTitle;
   final String? bookImageUrl;
   final ReadingTimerViewModel viewModel;
-  final VoidCallback? onTimerStopped;
+  final void Function(Duration duration)? onTimerStopped;
 
   const _ReadingTimerModalContent({
     required this.bookId,
@@ -159,10 +159,11 @@ class _ReadingTimerModalContent extends StatelessWidget {
                             variant: BLabButtonVariant.destructive,
                             isFullWidth: true,
                             onPressed: () async {
+                              final elapsed = viewModel.elapsed;
                               await viewModel.stop();
                               if (context.mounted) {
                                 Navigator.pop(context);
-                                onTimerStopped?.call();
+                                onTimerStopped?.call(elapsed);
                               }
                             },
                           ),
@@ -188,10 +189,11 @@ class _ReadingTimerModalContent extends StatelessWidget {
                             variant: BLabButtonVariant.destructive,
                             isFullWidth: true,
                             onPressed: () async {
+                              final elapsed = viewModel.elapsed;
                               await viewModel.stop();
                               if (context.mounted) {
                                 Navigator.pop(context);
-                                onTimerStopped?.call();
+                                onTimerStopped?.call(elapsed);
                               }
                             },
                           ),
