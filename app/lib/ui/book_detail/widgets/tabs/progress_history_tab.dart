@@ -9,7 +9,9 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/data/services/reading_timer_service.dart';
 
-class ProgressHistoryTab extends StatelessWidget {
+enum _ChartMode { cumulativePages, readingTime }
+
+class ProgressHistoryTab extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> progressFuture;
   final int attemptCount;
   final String attemptEncouragement;
@@ -32,11 +34,18 @@ class ProgressHistoryTab extends StatelessWidget {
   });
 
   @override
+  State<ProgressHistoryTab> createState() => _ProgressHistoryTabState();
+}
+
+class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
+  _ChartMode _chartMode = _ChartMode.cumulativePages;
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: progressFuture,
+      future: widget.progressFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildSkeleton(isDark);
@@ -90,7 +99,7 @@ class ProgressHistoryTab extends StatelessWidget {
 
     final maxPage = data.isNotEmpty
         ? (data.map((e) => e['page'] as int).reduce((a, b) => a > b ? a : b))
-            .toDouble()
+              .toDouble()
         : 100.0;
 
     final dailyPagesSpots = data.asMap().entries.map((entry) {
@@ -109,8 +118,15 @@ class ProgressHistoryTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildChartCard(context, data, spots, maxPage, dailyPagesSpots,
-                maxDailyPage, isDark),
+            _buildChartCard(
+              context,
+              data,
+              spots,
+              maxPage,
+              dailyPagesSpots,
+              maxDailyPage,
+              isDark,
+            ),
             const SizedBox(height: 16),
             _buildReadingTimeCard(isDark),
             const SizedBox(height: 16),
@@ -145,11 +161,25 @@ class ProgressHistoryTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildChartHeader(context, data.length, isDark),
-          const SizedBox(height: 16),
-          _buildLegendRow(context, isDark),
+          const SizedBox(height: 12),
+          _buildChartModeToggle(isDark),
+          const SizedBox(height: 12),
+          if (_chartMode == _ChartMode.cumulativePages)
+            _buildLegendRow(context, isDark)
+          else
+            _buildReadingTimeLegendRow(isDark),
           const SizedBox(height: 20),
-          _buildChart(
-              data, spots, maxPage, dailyPagesSpots, maxDailyPage, isDark),
+          if (_chartMode == _ChartMode.cumulativePages)
+            _buildChart(
+              data,
+              spots,
+              maxPage,
+              dailyPagesSpots,
+              maxDailyPage,
+              isDark,
+            )
+          else
+            _buildReadingTimeChart(data, isDark),
         ],
       ),
     );
@@ -157,20 +187,23 @@ class ProgressHistoryTab extends StatelessWidget {
 
   Widget _buildChartHeader(BuildContext context, int recordCount, bool isDark) {
     final l10n = AppLocalizations.of(context);
+    final headerTitle = _chartMode == _ChartMode.cumulativePages
+        ? l10n.historyTabCumulativePages
+        : '독서 시간';
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
             Text(
-              l10n.historyTabCumulativePages,
+              headerTitle,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black,
               ),
             ),
-            if (attemptCount > 1) ...[
+            if (widget.attemptCount > 1) ...[
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -179,7 +212,7 @@ class ProgressHistoryTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '$attemptCount번째 · $attemptEncouragement',
+                  '${widget.attemptCount}번째 · ${widget.attemptEncouragement}',
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -215,7 +248,10 @@ class ProgressHistoryTab extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildLegendItem(
-            l10n.historyTabCumulativePages, BLabColors.primary, isDark),
+          l10n.historyTabCumulativePages,
+          BLabColors.primary,
+          isDark,
+        ),
         const SizedBox(width: 24),
         _buildLegendItem(l10n.historyTabDailyPages, BLabColors.success, isDark),
       ],
@@ -271,15 +307,18 @@ class ProgressHistoryTab extends StatelessWidget {
             LineChartData(
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor:
-                      isDark ? BLabColors.elevatedDark : Colors.white,
+                  tooltipBgColor: isDark
+                      ? BLabColors.elevatedDark
+                      : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
                   ),
                   tooltipRoundedRadius: 8,
-                  tooltipPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((touchedSpot) {
                       final idx = touchedSpot.x.toInt();
@@ -417,9 +456,10 @@ class ProgressHistoryTab extends StatelessWidget {
                       );
                     },
                     interval: data.length > 5
-                        ? ((data.length - 1) / 4)
-                            .ceilToDouble()
-                            .clamp(1, data.length.toDouble())
+                        ? ((data.length - 1) / 4).ceilToDouble().clamp(
+                            1,
+                            data.length.toDouble(),
+                          )
                         : 1,
                   ),
                 ),
@@ -456,9 +496,284 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
+  Widget _buildChartModeToggle(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[800] : Colors.grey[200],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () =>
+                  setState(() => _chartMode = _ChartMode.cumulativePages),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _chartMode == _ChartMode.cumulativePages
+                      ? (isDark ? BLabColors.surfaceDark : Colors.white)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: _chartMode == _ChartMode.cumulativePages
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    '누적 페이지',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: _chartMode == _ChartMode.cumulativePages
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: _chartMode == _ChartMode.cumulativePages
+                          ? BLabColors.primary
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _chartMode = _ChartMode.readingTime),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _chartMode == _ChartMode.readingTime
+                      ? (isDark ? BLabColors.surfaceDark : Colors.white)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: _chartMode == _ChartMode.readingTime
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    '독서 시간',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: _chartMode == _ChartMode.readingTime
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: _chartMode == _ChartMode.readingTime
+                          ? BLabColors.warning
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadingTimeLegendRow(bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [_buildLegendItem('독서 시간', BLabColors.warning, isDark)],
+    );
+  }
+
+  Widget _buildReadingTimeChart(List<Map<String, dynamic>> data, bool isDark) {
+    final readingTimeMinutes = data.map((e) {
+      final seconds = e['reading_time'] as int? ?? 0;
+      return seconds / 60.0;
+    }).toList();
+
+    final maxMinutes = readingTimeMinutes.isNotEmpty
+        ? readingTimeMinutes.reduce((a, b) => a > b ? a : b)
+        : 10.0;
+    final scaledMaxY = maxMinutes > 0
+        ? (maxMinutes * 1.3).ceilToDouble()
+        : 10.0;
+
+    return SizedBox(
+      height: 250,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final chartWidth = constraints.maxWidth - 40;
+          final barWidth = data.length > 1
+              ? (chartWidth / data.length * 0.5).clamp(8.0, 24.0)
+              : 24.0;
+
+          return BarChart(
+            BarChartData(
+              barTouchData: BarTouchData(
+                touchTooltipData: BarTouchTooltipData(
+                  tooltipBgColor: isDark
+                      ? BLabColors.elevatedDark
+                      : Colors.white,
+                  tooltipBorder: BorderSide(
+                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                    width: 1,
+                  ),
+                  tooltipRoundedRadius: 8,
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final idx = group.x;
+                    if (idx < 0 || idx >= data.length) return null;
+                    final entry = data[idx];
+                    final date = entry['created_at'] as DateTime;
+                    final minutes = readingTimeMinutes[idx];
+                    return BarTooltipItem(
+                      '${date.month}/${date.day}\n',
+                      TextStyle(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontSize: 11,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: _formatMinutesLabel(minutes),
+                          style: const TextStyle(
+                            color: BLabColors.warning,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              barGroups: data.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final minutes = readingTimeMinutes[idx];
+                return BarChartGroupData(
+                  x: idx,
+                  barRods: [
+                    BarChartRodData(
+                      toY: minutes,
+                      color: BLabColors.warning,
+                      width: barWidth,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 50,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        _formatMinutesLabel(value),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                    getTitlesWidget: (value, meta) {
+                      final idx = value.round();
+                      if (idx < 0 ||
+                          idx >= data.length ||
+                          (value - idx).abs() > 0.01) {
+                        return const SizedBox();
+                      }
+                      final date = data[idx]['created_at'] as DateTime;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          '${date.month}/${date.day}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      );
+                    },
+                    interval: data.length > 5
+                        ? ((data.length - 1) / 4).ceilToDouble().clamp(
+                            1,
+                            data.length.toDouble(),
+                          )
+                        : 1,
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                    strokeWidth: 1,
+                  );
+                },
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                  ),
+                  left: BorderSide(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                  ),
+                ),
+              ),
+              maxY: scaledMaxY,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String _formatMinutesLabel(double minutes) {
+    if (minutes < 1) {
+      return '${(minutes * 60).round()}초';
+    }
+    if (minutes < 60) {
+      return '${minutes.round()}분';
+    }
+    final hours = (minutes / 60).floor();
+    final remainingMinutes = (minutes % 60).round();
+    if (remainingMinutes == 0) {
+      return '$hours시간';
+    }
+    return '$hours시간 $remainingMinutes분';
+  }
+
   Widget _buildReadingTimeCard(bool isDark) {
     return FutureBuilder<int>(
-      future: ReadingTimerService().getTotalReadingTime(bookId),
+      future: ReadingTimerService().getTotalReadingTime(widget.bookId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildReadingTimeCardSkeleton(isDark);
@@ -572,20 +887,13 @@ class ProgressHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(
-    String label,
-    String value,
-    Color color,
-    bool isDark,
-  ) {
+  Widget _buildStatItem(String label, String value, Color color, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,7 +921,9 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildReadingStateAnalysis(
-      bool isDark, List<Map<String, dynamic>> progressData) {
+    bool isDark,
+    List<Map<String, dynamic>> progressData,
+  ) {
     final analysisResult = _analyzeReadingState(progressData);
     final emoji = analysisResult['emoji'] as String;
     final title = analysisResult['title'] as String;
@@ -625,17 +935,12 @@ class ProgressHistoryTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            emoji,
-            style: const TextStyle(fontSize: 24),
-          ),
+          Text(emoji, style: const TextStyle(fontSize: 24)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -651,17 +956,19 @@ class ProgressHistoryTab extends StatelessWidget {
                         color: color,
                       ),
                     ),
-                    if (attemptCount > 1) ...[
+                    if (widget.attemptCount > 1) ...[
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 1),
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: BLabColors.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '$attemptCount번째 · $attemptEncouragement',
+                          '${widget.attemptCount}번째 · ${widget.attemptEncouragement}',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -690,20 +997,23 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Map<String, dynamic> _analyzeReadingState(
-      List<Map<String, dynamic>> progressData) {
-    final totalDays = targetDate.difference(startDate).inDays + 1;
-    final elapsedDays = DateTime.now().difference(startDate).inDays;
+    List<Map<String, dynamic>> progressData,
+  ) {
+    final totalDays = widget.targetDate.difference(widget.startDate).inDays + 1;
+    final elapsedDays = DateTime.now().difference(widget.startDate).inDays;
 
-    final expectedProgress =
-        elapsedDays > 0 ? (elapsedDays / totalDays * 100).clamp(0, 100) : 0.0;
-    final progressDiff = progressPercentage - expectedProgress;
+    final expectedProgress = elapsedDays > 0
+        ? (elapsedDays / totalDays * 100).clamp(0, 100)
+        : 0.0;
+    final progressDiff = widget.progressPercentage - expectedProgress;
 
-    if (progressPercentage >= 100) {
-      if (attemptCount > 1) {
+    if (widget.progressPercentage >= 100) {
+      if (widget.attemptCount > 1) {
         return {
           'emoji': '🏆',
           'title': '드디어 완독!',
-          'message': '$attemptCount번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
+          'message':
+              '${widget.attemptCount}번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
           'color': BLabColors.success,
         };
       }
@@ -715,12 +1025,12 @@ class ProgressHistoryTab extends StatelessWidget {
       };
     }
 
-    if (daysLeft < 0) {
-      if (attemptCount > 1) {
+    if (widget.daysLeft < 0) {
+      if (widget.attemptCount > 1) {
         return {
           'emoji': '💪',
           'title': '이번엔 완주해봐요',
-          'message': '$attemptCount번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
+          'message': '${widget.attemptCount}번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
           'color': BLabColors.destructive,
         };
       }
@@ -760,7 +1070,7 @@ class ProgressHistoryTab extends StatelessWidget {
     }
 
     if (progressDiff > -15) {
-      if (attemptCount > 1) {
+      if (widget.attemptCount > 1) {
         return {
           'emoji': '🔥',
           'title': '조금 더 속도를 내볼까요?',
@@ -776,11 +1086,11 @@ class ProgressHistoryTab extends StatelessWidget {
       };
     }
 
-    if (attemptCount > 1) {
+    if (widget.attemptCount > 1) {
       return {
         'emoji': '💫',
         'title': '포기하지 마세요!',
-        'message': '$attemptCount번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
+        'message': '${widget.attemptCount}번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
         'color': BLabColors.destructive,
       };
     }
@@ -817,7 +1127,12 @@ class ProgressHistoryTab extends StatelessWidget {
               final readingTime = record['reading_time'] as int? ?? 0;
 
               return _buildDailyRecordItem(
-                  date, page, pagesRead, readingTime, isDark);
+                date,
+                page,
+                pagesRead,
+                readingTime,
+                isDark,
+              );
             }),
           ],
         );
@@ -826,7 +1141,12 @@ class ProgressHistoryTab extends StatelessWidget {
   }
 
   Widget _buildDailyRecordItem(
-      DateTime date, int page, int pagesRead, int readingTime, bool isDark) {
+    DateTime date,
+    int page,
+    int pagesRead,
+    int readingTime,
+    bool isDark,
+  ) {
     return Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context);
@@ -961,8 +1281,11 @@ class ProgressHistoryTab extends StatelessWidget {
       if (!dateMap.containsKey(dateKey)) {
         dateMap[dateKey] = {
           'page': page,
-          'created_at':
-              DateTime(createdAt.year, createdAt.month, createdAt.day),
+          'created_at': DateTime(
+            createdAt.year,
+            createdAt.month,
+            createdAt.day,
+          ),
           'reading_time': readingTime,
         };
       } else {
@@ -1119,62 +1442,63 @@ class ProgressHistoryTab extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             ...List.generate(
-                3,
-                (index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
+              3,
+              (index) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Row(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 100,
+                              height: 13,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    height: 13,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Container(
-                                    width: 60,
-                                    height: 11,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            const SizedBox(height: 6),
                             Container(
-                              width: 50,
-                              height: 24,
+                              width: 60,
+                              height: 11,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    )),
+                      Container(
+                        width: 50,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
