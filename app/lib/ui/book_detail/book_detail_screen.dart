@@ -614,6 +614,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
           );
         }
       },
+      onSkip: effectiveDuration != null
+          ? () {
+              final progressVm = context.read<ReadingProgressViewModel>();
+              progressVm.addProgressRecord(
+                page: book.currentPage,
+                previousPage: book.currentPage,
+                readingTime: effectiveDuration.inSeconds,
+              );
+            }
+          : null,
     );
   }
 
