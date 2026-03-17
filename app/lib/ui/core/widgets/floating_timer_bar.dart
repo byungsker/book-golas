@@ -290,15 +290,16 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       Duration duration, bool isInBookDetailScreen) async {
     final l10n = AppLocalizations.of(context);
 
-    // Fetch book info to get currentPage and totalPages
     final bookService = BookService();
     final book = await bookService.getBookById(bookId);
 
     if (book == null || !mounted) return;
 
+    final currentPage = book.currentPage;
+
     await PageUpdateModal.show(
       context: context,
-      currentPage: book.currentPage,
+      currentPage: currentPage,
       totalPages: book.totalPages,
       readingDuration: duration,
       onUpdate: (newPage) async {
@@ -321,7 +322,11 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         }
       },
       onSkip: () {
-        // Do nothing on skip - just close the dialog
+        bookService.recordReadingTime(
+          bookId: bookId,
+          currentPage: currentPage,
+          readingTimeSeconds: duration.inSeconds,
+        );
       },
     );
   }
