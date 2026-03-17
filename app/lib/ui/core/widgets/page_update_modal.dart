@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -130,23 +129,25 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
 
     if (page == null || page <= 0) return;
 
-    // Validate
     final error = _validatePage(pageText);
     if (error != null) {
       setState(() => _errorText = error);
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
 
     try {
-      await widget.onUpdate(page);
+      await widget.onUpdate(page).timeout(const Duration(seconds: 15));
       if (mounted) {
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -274,17 +275,11 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
             ),
           ),
         ),

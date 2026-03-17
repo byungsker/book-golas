@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
@@ -290,15 +292,16 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       Duration duration, bool isInBookDetailScreen) async {
     final l10n = AppLocalizations.of(context);
 
-    // Fetch book info to get currentPage and totalPages
     final bookService = BookService();
     final book = await bookService.getBookById(bookId);
 
     if (book == null || !mounted) return;
 
+    final currentPage = book.currentPage;
+
     await PageUpdateModal.show(
       context: context,
-      currentPage: book.currentPage,
+      currentPage: currentPage,
       totalPages: book.totalPages,
       readingDuration: duration,
       onUpdate: (newPage) async {
@@ -321,9 +324,26 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
         }
       },
       onSkip: () {
-        // Do nothing on skip - just close the dialog
+        _recordReadingTimeWithoutPageUpdate(
+            bookId, currentPage, duration.inSeconds);
       },
     );
+  }
+
+  void _recordReadingTimeWithoutPageUpdate(
+      String bookId, int currentPage, int readingTimeSeconds) {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    Supabase.instance.client.from('reading_progress_history').insert({
+      'book_id': bookId,
+      'user_id': userId,
+      'page': currentPage,
+      'previous_page': currentPage,
+      'reading_time': readingTimeSeconds,
+    }).catchError((e) {
+      debugPrint('타이머 기록 저장 실패 (나중에하기): $e');
+    });
   }
 
   @override
