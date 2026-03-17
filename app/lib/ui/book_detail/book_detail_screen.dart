@@ -60,7 +60,7 @@ class BookDetailScreen extends StatelessWidget {
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
-  onCallbacksReady;
+      onCallbacksReady;
 
   const BookDetailScreen({
     super.key,
@@ -91,10 +91,6 @@ class BookDetailScreen extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
         ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              NoteStructureViewModel(service: NoteStructureService()),
-        ),
       ],
       child: _BookDetailContent(
         showCelebration: showCelebration,
@@ -113,7 +109,7 @@ class _BookDetailContent extends StatefulWidget {
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
-  onCallbacksReady;
+      onCallbacksReady;
 
   const _BookDetailContent({
     this.showCelebration = false,
@@ -282,9 +278,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
         }
 
         return Scaffold(
-          backgroundColor: isDark
-              ? BLabColors.scaffoldDark
-              : BLabColors.elevatedLight,
+          backgroundColor:
+              isDark ? BLabColors.scaffoldDark : BLabColors.elevatedLight,
           appBar: widget.isEmbedded
               ? null
               : AppBar(
@@ -292,10 +287,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   elevation: 0,
                   surfaceTintColor: Colors.transparent,
                   leading: IconButton(
-                    icon: Icon(
-                      CupertinoIcons.back,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
+                    icon: Icon(CupertinoIcons.back,
+                        color: isDark ? Colors.white : Colors.black),
                     onPressed: () => Navigator.pop(context),
                   ),
                   title: Text(
@@ -350,10 +343,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 totalPages: book.totalPages,
                                 status: book.status,
                                 onImageTap: _showFullScreenImage,
-                                onTitleTap: () => showFullTitleSheet(
-                                  context: context,
-                                  title: book.title,
-                                ),
+                                // onTitleTap: () => showFullTitleSheet(
+                                //     context: context, title: book.title),
+                                onTitleTap: () =>
+                                    showBookInfoSheet(context, book),
                                 onBookInfoTap: () =>
                                     showBookInfoSheet(context, book),
                               ),
@@ -384,8 +377,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 ),
                                 const SizedBox(height: 12),
                                 CompactStreakRow(
-                                  dailyAchievements: bookVm.dailyAchievements,
-                                ),
+                                    dailyAchievements:
+                                        bookVm.dailyAchievements),
                               ],
                               if (_isBookPlanned(book)) ...[
                                 const SizedBox(height: 12),
@@ -394,10 +387,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               if (_isBookPaused(book)) ...[
                                 const SizedBox(height: 12),
                                 _buildResumeReadingButton(
-                                  context,
-                                  book,
-                                  bookVm,
-                                ),
+                                    context, book, bookVm),
                               ],
                               if (_isBookCompleted(book)) ...[
                                 if (book.longReview == null ||
@@ -420,29 +410,22 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             tabController: _tabController!,
                             tabLabels: _isBookCompleted(book)
                                 ? [
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabRecord,
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabHistory,
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabReview,
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabDetail,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabRecord,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabHistory,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabReview,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabDetail,
                                   ]
                                 : [
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabRecord,
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabHistory,
-                                    AppLocalizations.of(
-                                      context,
-                                    ).bookDetailTabDetail,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabRecord,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabHistory,
+                                    AppLocalizations.of(context)
+                                        .bookDetailTabDetail,
                                   ],
                           ),
                           backgroundColor: isDark
@@ -457,21 +440,18 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     child: Consumer<MemorablePageViewModel>(
                       builder: (context, memorableVm, _) {
                         // TabController와 children 개수가 맞지 않으면 로딩 표시
-                        final expectedChildrenCount = _isBookCompleted(book)
-                            ? 4
-                            : 3;
+                        final expectedChildrenCount =
+                            _isBookCompleted(book) ? 4 : 3;
                         if (_currentTabLength != expectedChildrenCount) {
                           return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                              child: CircularProgressIndicator());
                         }
                         return TabBarView(
                           controller: _tabController,
                           children: [
                             MemorablePagesTab(
-                              imagesFuture: Future.value(
-                                memorableVm.cachedImages ?? [],
-                              ),
+                              imagesFuture:
+                                  Future.value(memorableVm.cachedImages ?? []),
                               cachedImages: memorableVm.cachedImages,
                               sortMode: memorableVm.sortMode,
                               isSelectionMode: memorableVm.isSelectionMode,
@@ -489,20 +469,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               onDeleteSelected: () =>
                                   _deleteSelectedImages(memorableVm),
                               onImageTap: (id, url, text, page) =>
-                                  _showExistingImageModal(
-                                    id,
-                                    url,
-                                    text,
-                                    pageNumber: page,
-                                  ),
+                                  _showExistingImageModal(id, url, text,
+                                      pageNumber: page),
                               onImagesLoaded: memorableVm.onImagesLoaded,
                             ),
                             Consumer<ReadingProgressViewModel>(
                               builder: (context, progressVm, _) {
                                 return ProgressHistoryTab(
                                   progressFuture: Future.value(
-                                    progressVm.progressHistory ?? [],
-                                  ),
+                                      progressVm.progressHistory ?? []),
                                   attemptCount: bookVm.attemptCount,
                                   attemptEncouragement:
                                       bookVm.attemptEncouragement,
@@ -546,8 +521,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   !widget.isEmbedded)
                 Consumer<ReadingTimerViewModel>(
                   builder: (context, timerVm, child) {
-                    final isTimerActiveForThisBook =
-                        timerVm.isRunning &&
+                    final isTimerActiveForThisBook = timerVm.isRunning &&
                         timerVm.currentBookId == bookVm.currentBook.id;
                     return FloatingActionBar(
                       onUpdatePageTap: _isBookReading(bookVm.currentBook)
@@ -555,8 +529,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           : null,
                       onAddMemorablePageTap: _showAddMemorablePageModal,
                       onRecallSearchTap: () => _showRecallSearchSheet(bookVm),
-                      onTimerTap:
-                          _isBookReading(bookVm.currentBook) &&
+                      onTimerTap: _isBookReading(bookVm.currentBook) &&
                               !isTimerActiveForThisBook
                           ? _showReadingTimerModal
                           : null,
@@ -598,10 +571,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   void _animateProgress(double fromProgress, double toProgress) {
     _progressAnimController.reset();
-    final progressTween = Tween<double>(
-      begin: fromProgress,
-      end: toProgress,
-    ).animate(_progressAnimation);
+    final progressTween = Tween<double>(begin: fromProgress, end: toProgress)
+        .animate(_progressAnimation);
 
     void listener() {
       setState(() => _animatedProgress = progressTween.value);
@@ -621,8 +592,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final book = bookVm.currentBook;
     final timerVm = context.read<ReadingTimerViewModel>();
 
-    final isTimerActiveForThisBook =
-        (timerVm.isRunning || timerVm.isPaused) &&
+    final isTimerActiveForThisBook = (timerVm.isRunning || timerVm.isPaused) &&
         timerVm.currentBookId == book.id;
 
     final effectiveDuration =
@@ -648,9 +618,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   Future<void> _updateCurrentPage(
-    BookDetailViewModel bookVm,
-    int newPage,
-  ) async {
+      BookDetailViewModel bookVm, int newPage) async {
     final oldPage = bookVm.currentBook.currentPage;
     final totalPages = bookVm.currentBook.totalPages;
     final oldProgress = oldPage / totalPages;
@@ -662,11 +630,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final success = await bookVm.updateCurrentPage(newPage);
     if (success && mounted) {
       _animateProgress(oldProgress, newProgress);
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOutCubic,
-      );
+      _scrollController.animateTo(0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic);
 
       // 완독 달성 시 축하 애니메이션 + 독후감 작성 유도
       if (!wasCompleted && isNowCompleted) {
@@ -676,11 +642,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
       final pagesRead = newPage - oldPage;
       if (bookVm.isTodayGoalAchieved) {
-        CustomSnackbar.show(
-          context,
-          message: 'Goal achieved! +$pagesRead 🎉',
-          type: BLabSnackbarType.success,
-        );
+        CustomSnackbar.show(context,
+            message: '🎉 오늘 목표 달성! +$pagesRead 페이지를 읽었어요',
+            type: BLabSnackbarType.success);
 
         // 이번 업데이트로 목표 달성했으면 컨페티 표시
         if (!wasGoalAchieved) {
@@ -689,27 +653,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       } else {
         final remaining = bookVm.pagesToGoal;
         if (remaining > 0) {
-          CustomSnackbar.show(
-            context,
-            message: '+$pagesRead! ${remaining}p',
-            type: BLabSnackbarType.info,
-          );
+          CustomSnackbar.show(context,
+              message: '📖 +$pagesRead 페이지 읽었어요! 목표까지 ${remaining}p 남았어요',
+              type: BLabSnackbarType.info);
         } else {
-          CustomSnackbar.show(
-            context,
-            message: '+$pagesRead! ${newPage}p',
-            type: BLabSnackbarType.success,
-          );
+          CustomSnackbar.show(context,
+              message: '📖 +$pagesRead 페이지 읽었어요! (총 ${newPage}p)',
+              type: BLabSnackbarType.success);
         }
       }
 
       context.read<ReadingProgressViewModel>().fetchProgressHistory();
     } else if (mounted) {
-      CustomSnackbar.show(
-        context,
-        message: 'Error',
-        type: BLabSnackbarType.error,
-      );
+      CustomSnackbar.show(context,
+          message: '업데이트에 실패했어요. 다시 시도해주세요.', type: BLabSnackbarType.error);
     }
   }
 
@@ -767,7 +724,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const Text('🎉', style: TextStyle(fontSize: 48)),
+            const Text(
+              '🎉',
+              style: TextStyle(fontSize: 48),
+            ),
             const SizedBox(height: 12),
             Text(
               'Congratulations!',
@@ -871,8 +831,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       pagesLeft: bookVm.pagesLeft,
       daysLeft: bookVm.daysLeft,
       onSave: (newDailyTarget) => bookVm.updateBook(
-        bookVm.currentBook.copyWith(dailyTargetPages: newDailyTarget),
-      ),
+          bookVm.currentBook.copyWith(dailyTargetPages: newDailyTarget)),
     );
   }
 
@@ -884,27 +843,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onConfirm: (newDate, newAttempt) async {
         final success = await bookVm.updateTargetDate(newDate, newAttempt);
         if (success && mounted) {
-          _scrollController.animateTo(
-            0,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOutCubic,
-          );
-          CustomSnackbar.show(
-            context,
-            message: 'Attempt $newAttempt! D-${bookVm.daysLeft}',
-            type: BLabSnackbarType.info,
-            icon: Icons.flag,
-          );
+          _scrollController.animateTo(0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic);
+          CustomSnackbar.show(context,
+              message: 'Attempt $newAttempt! D-${bookVm.daysLeft}',
+              type: BLabSnackbarType.info,
+              icon: Icons.flag);
         }
       },
     );
   }
 
-  void _showFullScreenImage(
-    String imageId,
-    String imageUrl, {
-    List<HighlightData>? highlights,
-  }) {
+  void _showFullScreenImage(String imageId, String imageUrl,
+      {List<HighlightData>? highlights}) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -929,9 +881,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
         barrierColor: Colors.black87,
         pageBuilder: (context, animation, secondaryAnimation) {
           return DraggableDismissImage(
-            animation: animation,
-            imageBytes: imageBytes,
-          );
+              animation: animation, imageBytes: imageBytes);
         },
       ),
     );
@@ -951,29 +901,25 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onShowImageSourceSheet: (onImageSelected) =>
           _showImageSourceActionSheet(onImageSelected: onImageSelected),
       onShowReplaceImageConfirmation: (onConfirm) async {
-        final confirmed = await showReplaceImageConfirmationSheet(
-          context: context,
-        );
+        final confirmed =
+            await showReplaceImageConfirmationSheet(context: context);
         if (confirmed == true) onConfirm();
       },
       onExtractText: (imageBytes, onResult) {
         if (!mounted) return;
         extractTextFromLocalImage(context, imageBytes, onResult);
       },
-      onUpload:
-          ({
-            Uint8List? imageBytes,
-            required String extractedText,
-            int? pageNumber,
-            List<HighlightData>? highlights,
-          }) async {
-            return await _uploadAndSaveMemorablePage(
-              imageBytes: imageBytes,
-              extractedText: extractedText,
-              pageNumber: pageNumber,
-              highlights: highlights,
-            );
-          },
+      onUpload: (
+          {Uint8List? imageBytes,
+          required String extractedText,
+          int? pageNumber,
+          List<HighlightData>? highlights}) async {
+        return await _uploadAndSaveMemorablePage(
+            imageBytes: imageBytes,
+            extractedText: extractedText,
+            pageNumber: pageNumber,
+            highlights: highlights);
+      },
       onStateChanged: (imageBytes, text, pageNumber) {
         if (imageBytes != null || text.isNotEmpty || pageNumber != null) {
           memorableVm.setPendingImage(
@@ -992,12 +938,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
     }
   }
 
-  Future<bool> _uploadAndSaveMemorablePage({
-    Uint8List? imageBytes,
-    required String extractedText,
-    int? pageNumber,
-    List<HighlightData>? highlights,
-  }) async {
+  Future<bool> _uploadAndSaveMemorablePage(
+      {Uint8List? imageBytes,
+      required String extractedText,
+      int? pageNumber,
+      List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
@@ -1007,13 +952,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
         final fileName =
             'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
         final storage = Supabase.instance.client.storage;
-        await storage
-            .from('book-images')
-            .uploadBinary(
-              fileName,
-              imageBytes,
-              fileOptions: const FileOptions(upsert: true),
-            );
+        await storage.from('book-images').uploadBinary(fileName, imageBytes,
+            fileOptions: const FileOptions(upsert: true));
         publicUrl = storage.from('book-images').getPublicUrl(fileName);
       }
 
@@ -1051,16 +991,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
       if (mounted) {
         _tabController?.animateTo(0);
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-        CustomSnackbar.show(
-          context,
-          message: 'Saved',
-          type: BLabSnackbarType.success,
-        );
+        _scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+        CustomSnackbar.show(context,
+            message: AppLocalizations.of(context).bookDetailSaved,
+            type: BLabSnackbarType.success);
       }
       return true;
     } catch (e, stackTrace) {
@@ -1068,24 +1003,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       debugPrint('🔴 스택 트레이스: $stackTrace');
       if (mounted) {
         final errorMessage = e.toString();
-        final isNetworkError =
-            errorMessage.contains('SocketException') ||
+        final isNetworkError = errorMessage.contains('SocketException') ||
             errorMessage.contains('Connection') ||
             errorMessage.contains('timeout');
         showCupertinoDialog(
           context: context,
           builder: (dialogContext) => CupertinoAlertDialog(
-            title: const Text('Upload Failed'),
-            content: Text(
-              isNetworkError
-                  ? 'Please check your network connection.\nTry again if the connection is stable.'
-                  : 'An error occurred while saving.\nPlease try again.',
-            ),
+            title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
+            content: Text(isNetworkError
+                ? AppLocalizations.of(context).bookDetailNetworkError
+                : AppLocalizations.of(context).bookDetailSaveError),
             actions: [
               CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(dialogContext),
-              ),
+                  child: Text(AppLocalizations.of(context).commonConfirm),
+                  onPressed: () => Navigator.pop(dialogContext))
             ],
           ),
         );
@@ -1094,10 +1025,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
     }
   }
 
-  Future<void> _showImageSourceActionSheet({
-    required Function(Uint8List imageBytes, String ocrText, int? pageNumber)
-    onImageSelected,
-  }) async {
+  Future<void> _showImageSourceActionSheet(
+      {required Function(Uint8List imageBytes, String ocrText, int? pageNumber)
+          onImageSelected}) async {
     final sourceType = await showImageSourceSheet(context: context);
     if (sourceType == null || !mounted) return;
 
@@ -1107,17 +1037,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
         break;
       case ImageSourceType.camera:
         await pickImageAndExtractText(
-          context,
-          ImageSource.camera,
-          onImageSelected,
-        );
+            context, ImageSource.camera, onImageSelected);
         break;
       case ImageSourceType.gallery:
         await pickImageAndExtractText(
-          context,
-          ImageSource.gallery,
-          onImageSelected,
-        );
+            context, ImageSource.gallery, onImageSelected);
         break;
     }
   }
@@ -1126,28 +1050,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
     if (memorableVm.selectedImageIds.isEmpty) return;
 
     final count = memorableVm.selectedImageIds.length;
-    final confirmed = await showBatchDeleteConfirmationSheet(
-      context: context,
-      count: count,
-    );
+    final confirmed =
+        await showBatchDeleteConfirmationSheet(context: context, count: count);
     if (confirmed != true) return;
 
     final success = await memorableVm.deleteSelectedImages();
     if (success && mounted) {
-      CustomSnackbar.show(
-        context,
-        message: '$count items deleted',
-        type: BLabSnackbarType.success,
-      );
+      CustomSnackbar.show(context,
+          message: '$count items deleted', type: BLabSnackbarType.success);
     }
   }
 
   void _showExistingImageModal(
-    String imageId,
-    String? initialImageUrl,
-    String? extractedText, {
-    int? pageNumber,
-  }) {
+      String imageId, String? initialImageUrl, String? extractedText,
+      {int? pageNumber}) {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
 
@@ -1179,70 +1095,56 @@ class _BookDetailContentState extends State<_BookDetailContent>
       },
       onDeleteImage: (id, url, {bool dismissParentOnDelete = false}) async {
         final confirmed = await showDeleteConfirmationSheet(
-          context: context,
-          title: 'Delete?',
-          message: 'This action cannot be undone.',
-        );
+            context: context,
+            title: 'Delete?',
+            message: 'This action cannot be undone.');
         if (confirmed != true) return;
         if (dismissParentOnDelete && mounted) Navigator.pop(context);
         await memorableVm.deleteBookImage(id);
       },
-      onReExtractText:
-          ({
-            required String imageUrl,
-            required void Function(String extractedText) onConfirm,
-          }) {
-            if (!mounted) return;
-            reExtractTextFromImage(
-              context,
-              imageUrl: imageUrl,
-              onConfirm: onConfirm,
-            );
-          },
-      onReplaceImage:
-          ({
-            required String imageId,
-            required String currentText,
-            required void Function(String? newImageUrl) onReplaced,
-          }) async {
-            final source = await showImageReplaceOptionsSheet(context: context);
-            if (source != null && mounted) {
-              final picker = ImagePicker();
-              final pickedFile = await picker.pickImage(source: source);
-              if (pickedFile == null) return;
-              final imageBytes = await pickedFile.readAsBytes();
-              if (!mounted) return;
-              final newUrl = await memorableVm.replaceImage(
-                imageId: imageId,
-                imageBytes: imageBytes,
-                extractedText: currentText,
-                pageNumber: null,
-              );
-              if (newUrl != null && mounted) {
-                CustomSnackbar.show(
-                  context,
-                  message: 'Image replaced',
-                  type: BLabSnackbarType.success,
-                );
-              }
-              onReplaced(newUrl);
-            }
-          },
-      onSave:
-          ({
-            required String imageId,
-            required String extractedText,
-            required int? pageNumber,
-            required List<HighlightData>? highlights,
-          }) async {
-            final success = await memorableVm.updateImageRecord(
+      onReExtractText: (
+          {required String imageUrl,
+          required void Function(String extractedText) onConfirm}) {
+        if (!mounted) return;
+        reExtractTextFromImage(context,
+            imageUrl: imageUrl, onConfirm: onConfirm);
+      },
+      onReplaceImage: (
+          {required String imageId,
+          required String currentText,
+          required void Function(String? newImageUrl) onReplaced}) async {
+        final source = await showImageReplaceOptionsSheet(context: context);
+        if (source != null && mounted) {
+          final picker = ImagePicker();
+          final pickedFile = await picker.pickImage(source: source);
+          if (pickedFile == null) return;
+          final imageBytes = await pickedFile.readAsBytes();
+          if (!mounted) return;
+          final newUrl = await memorableVm.replaceImage(
               imageId: imageId,
-              extractedText: extractedText,
-              pageNumber: pageNumber,
-              highlights: highlights,
-            );
-            return success;
-          },
+              imageBytes: imageBytes,
+              extractedText: currentText,
+              pageNumber: null);
+          if (newUrl != null && mounted) {
+            CustomSnackbar.show(context,
+                message: AppLocalizations.of(context).bookDetailImageReplaced,
+                type: BLabSnackbarType.success);
+          }
+          onReplaced(newUrl);
+        }
+      },
+      onSave: (
+          {required String imageId,
+          required String extractedText,
+          required int? pageNumber,
+          required List<HighlightData>? highlights}) async {
+        final success = await memorableVm.updateImageRecord(
+            imageId: imageId,
+            extractedText: extractedText,
+            pageNumber: pageNumber,
+            highlights: highlights);
+        return success;
+      },
       onTextEdited: (id, text) => memorableVm.setEditedText(id, text),
     );
   }
@@ -1264,14 +1166,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   Widget _buildPlannedBookInfo(
-    BuildContext context,
-    Book book,
-    BookDetailViewModel bookVm,
-  ) {
+      BuildContext context, Book book, BookDetailViewModel bookVm) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final daysUntilStart = book.plannedStartDate
-        ?.difference(DateTime.now())
-        .inDays;
+    final daysUntilStart =
+        book.plannedStartDate?.difference(DateTime.now()).inDays;
 
     return GestureDetector(
       onTap: () => _showEditPlannedBookDialog(bookVm),
@@ -1333,14 +1231,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
                 ),
                 if (book.priority != null) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getPriorityColor(
-                        book.priority!,
-                      ).withValues(alpha: 0.1),
+                      color: _getPriorityColor(book.priority!)
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -1385,10 +1280,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       currentPriority: book.priority,
       currentPlannedStartDate: book.plannedStartDate,
       onConfirm: (priority, plannedStartDate) async {
-        final success = await bookVm.updatePlannedBookInfo(
-          priority,
-          plannedStartDate,
-        );
+        final success =
+            await bookVm.updatePlannedBookInfo(priority, plannedStartDate);
         if (success && mounted) {
           CustomSnackbar.show(
             context,
@@ -1401,14 +1294,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   Widget _buildResumeReadingButton(
-    BuildContext context,
-    Book book,
-    BookDetailViewModel bookVm,
-  ) {
+      BuildContext context, Book book, BookDetailViewModel bookVm) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final progress = book.totalPages > 0
-        ? book.currentPage / book.totalPages
-        : 0.0;
+    final progress =
+        book.totalPages > 0 ? book.currentPage / book.totalPages : 0.0;
 
     return Column(
       children: [
@@ -1509,17 +1398,23 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onConfirm: (newDate, newAttempt) async {
         final success = await bookVm.resumeReading(newDate);
         if (success && mounted) {
-          _scrollController.animateTo(
-            0,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOutCubic,
-          );
-          CustomSnackbar.show(
-            context,
-            message: 'Attempt $newAttempt started!',
-            type: BLabSnackbarType.success,
-            icon: Icons.play_arrow_rounded,
-          );
+          _scrollController.animateTo(0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic);
+          CustomSnackbar.show(context,
+              message: AppLocalizations.of(context)
+                  .bookDetailAttemptStarted(newAttempt),
+              type: BLabSnackbarType.success,
+              icon: Icons.play_arrow_rounded);
+        } else if (!success && mounted && bookVm.shouldShowPaywall) {
+          bookVm.clearPaywallState();
+          final paywallSuccess =
+              await SubscriptionService().showPaywall(context);
+          if (!paywallSuccess && mounted) {
+            CustomSnackbar.show(context,
+                message: AppLocalizations.of(context).subscriptionUnavailable,
+                type: BLabSnackbarType.info);
+          }
         }
       },
     );
@@ -1563,7 +1458,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
         pageBuilder: (context, animation, secondaryAnimation) =>
             const ReadingStartScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
         },
         transitionDuration: const Duration(milliseconds: 200),
       ),
@@ -1573,7 +1471,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
   Future<void> _navigateToBookReview(BuildContext context, Book book) async {
     final result = await Navigator.push<bool>(
       context,
-      CupertinoPageRoute(builder: (context) => BookReviewScreen(book: book)),
+      CupertinoPageRoute(
+        builder: (context) => BookReviewScreen(book: book),
+      ),
     );
 
     if (result == true && mounted) {
@@ -1781,9 +1681,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       existingViewModel: recallVm,
       onSourceTap: (source) async {
         if (source.type == 'photo_ocr' && source.sourceId != null) {
-          final imageUrl = await RecallService().getImageUrlBySourceId(
-            source.sourceId!,
-          );
+          final imageUrl =
+              await RecallService().getImageUrlBySourceId(source.sourceId!);
           if (mounted) {
             _showExistingImageModal(
               source.sourceId!,
@@ -1794,145 +1693,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
           }
         }
       },
-    );
-  }
-
-  Widget _buildNoteStructureButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => _showNoteStructureMindmap(book.id!),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.grey.shade200,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.account_tree_outlined,
-              size: 18,
-              color: BLabColors.primary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Note Structure',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showNoteStructureMindmap(String bookId) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final noteStructureVm = context.read<NoteStructureViewModel>();
-
-    noteStructureVm.loadStructure(bookId);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (bottomSheetContext) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Note Structure',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    onPressed: () => Navigator.pop(bottomSheetContext),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListenableBuilder(
-                listenable: noteStructureVm,
-                builder: (context, _) {
-                  if (noteStructureVm.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (noteStructureVm.errorMessage != null) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              noteStructureVm.errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
-                  return NoteStructureMindmap(
-                    structure: noteStructureVm.structure,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
