@@ -59,14 +59,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext).dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceDocumentScan,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext).dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceDocumentScanDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -84,6 +84,7 @@ Future<ImageSourceType?> showImageSourceSheet({
                         );
                       },
               ),
+
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
@@ -97,14 +98,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext).dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceCameraTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext).dialogTakePhoto,
+                  AppLocalizations.of(sheetContext).imageSourceCameraDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -134,14 +135,14 @@ Future<ImageSourceType?> showImageSourceSheet({
                   ),
                 ),
                 title: Text(
-                  AppLocalizations.of(sheetContext).dialogSelect,
+                  AppLocalizations.of(sheetContext).imageSourceGalleryTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(sheetContext).dialogSelect,
+                  AppLocalizations.of(sheetContext).imageSourceGalleryDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],

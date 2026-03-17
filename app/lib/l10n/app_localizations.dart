@@ -1238,11 +1238,29 @@ abstract class AppLocalizations {
   /// **'아직 시작한 독서가 없습니다'**
   String get bookListEmptyAll;
 
-  /// Empty state message for reading books
+  /// Empty state placeholder for reading tab
   ///
   /// In ko, this message translates to:
-  /// **'현재 읽고 있는 책이 없습니다'**
+  /// **'북골라스와 함께 독서 여정을 떠나볼까요?'**
   String get bookListEmptyReading;
+
+  /// Button label for reading empty state action
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 여정 떠나기'**
+  String get bookListReadingEmptyAction;
+
+  /// Search mode dropdown - book search label
+  ///
+  /// In ko, this message translates to:
+  /// **'도서 검색'**
+  String get searchModeBookSearch;
+
+  /// Search mode dropdown - AI record search label
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get searchModeAiRecordSearch;
 
   /// Empty state message for completed books
   ///
@@ -1301,7 +1319,7 @@ abstract class AppLocalizations {
   /// Continue reading button
   ///
   /// In ko, this message translates to:
-  /// **'독서 다시 시작하기'**
+  /// **'새로운 독서 시작하기'**
   String get bookDetailContinueReading;
 
   /// Continue reading description
@@ -1389,10 +1407,10 @@ abstract class AppLocalizations {
   /// **'업로드 실패'**
   String get bookDetailUploadFailed;
 
-  /// Network error message
+  /// Network error message in upload dialog
   ///
   /// In ko, this message translates to:
-  /// **'네트워크 연결을 확인해주세요.\n연결 상태가 양호하면 다시 시도해주세요.'**
+  /// **'네트워크 연결을 확인해주세요.\n연결이 안정적이면 다시 시도해주세요.'**
   String get bookDetailNetworkError;
 
   /// Upload error message
@@ -1461,25 +1479,25 @@ abstract class AppLocalizations {
   /// **'노트 구조화'**
   String get bookDetailNoteStructure;
 
-  /// Urgent priority
+  /// Urgent priority label
   ///
   /// In ko, this message translates to:
   /// **'긴급'**
   String get bookDetailPriorityUrgent;
 
-  /// High priority
+  /// High priority label
   ///
   /// In ko, this message translates to:
   /// **'높음'**
   String get bookDetailPriorityHigh;
 
-  /// Medium priority
+  /// Medium priority label
   ///
   /// In ko, this message translates to:
   /// **'보통'**
   String get bookDetailPriorityMedium;
 
-  /// Low priority
+  /// Low priority label
   ///
   /// In ko, this message translates to:
   /// **'낮음'**
@@ -2181,6 +2199,12 @@ abstract class AppLocalizations {
   /// **'문서 스캔'**
   String get imageSourceDocumentScan;
 
+  /// Document scan description
+  ///
+  /// In ko, this message translates to:
+  /// **'문서를 자동으로 인식하고 왜곡을 보정해요'**
+  String get imageSourceDocumentScanDesc;
+
   /// Auto correction option
   ///
   /// In ko, this message translates to:
@@ -2229,11 +2253,23 @@ abstract class AppLocalizations {
   /// **'카메라로 촬영'**
   String get imageSourceCameraTitle;
 
+  /// Camera option description
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 찍어 텍스트를 바로 추출해요'**
+  String get imageSourceCameraDesc;
+
   /// Select from gallery title
   ///
   /// In ko, this message translates to:
-  /// **'갤러리에서 선택'**
+  /// **'라이브러리에서 선택'**
   String get imageSourceGalleryTitle;
+
+  /// Gallery option description
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 저장된 이미지에서 텍스트를 추출해요'**
+  String get imageSourceGalleryDesc;
 
   /// Replace image confirmation
   ///
@@ -4228,6 +4264,12 @@ abstract class AppLocalizations {
   /// **'Pro로 무제한 이용하기'**
   String get proUpgradeBannerMini;
 
+  /// Mini pro upgrade banner description
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색, 독서 인사이트 등 모든 기능을 제한 없이'**
+  String get proUpgradeBannerMiniDesc;
+
   /// Upgrade to Pro in my page
   ///
   /// In ko, this message translates to:
@@ -4279,14 +4321,38 @@ abstract class AppLocalizations {
   /// No description provided for @extractTextConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출'**
+  /// **'텍스트를 추출하시겠어요?'**
   String get extractTextConfirmTitle;
 
-  /// No description provided for @extractTextCreditsMessage.
+  /// No description provided for @extractTextFreeRemaining.
   ///
   /// In ko, this message translates to:
-  /// **'크레딧이 사용됩니다'**
-  String get extractTextCreditsMessage;
+  /// **'오늘 남은 무료 추출: {remaining}/{total}회'**
+  String extractTextFreeRemaining(int remaining, int total);
+
+  /// No description provided for @ocrProUnlimitedButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십은 무제한으로 추출할 수 있어요!'**
+  String get ocrProUnlimitedButton;
+
+  /// No description provided for @ocrLimitReachedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 무료 추출 횟수를 모두 사용했어요'**
+  String get ocrLimitReachedTitle;
+
+  /// No description provided for @ocrLimitReachedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 멤버십으로 업그레이드하면\n매일 무제한으로 텍스트를 추출할 수 있어요'**
+  String get ocrLimitReachedMessage;
+
+  /// No description provided for @ocrLimitReachedUpgrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro로 업그레이드'**
+  String get ocrLimitReachedUpgrade;
 
   /// No description provided for @noThanksButton.
   ///
@@ -4875,6 +4941,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'교보문고'**
   String get bookstoreKyobo;
+
+  /// New bookstore search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'서점 검색'**
+  String get bookstoreTabNew;
+
+  /// Used book search tab label
+  ///
+  /// In ko, this message translates to:
+  /// **'중고 검색'**
+  String get bookstoreTabUsed;
+
+  /// Search suffix text
+  ///
+  /// In ko, this message translates to:
+  /// **'검색'**
+  String get bookstoreSearchSuffix;
+
+  /// Aladin used books
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고'**
+  String get bookstoreAladdinUsed;
+
+  /// Aladin used book physical store
+  ///
+  /// In ko, this message translates to:
+  /// **'알라딘 중고매장'**
+  String get bookstoreAladdinUsedStore;
+
+  /// Yes24 used books
+  ///
+  /// In ko, this message translates to:
+  /// **'Yes24 중고'**
+  String get bookstoreYes24Used;
+
+  /// Snackbar message when book title is copied
+  ///
+  /// In ko, this message translates to:
+  /// **'제목이 복사되었습니다'**
+  String get bookInfoTitleCopied;
+
+  /// Button to expand truncated book title
+  ///
+  /// In ko, this message translates to:
+  /// **'펼치기'**
+  String get bookInfoExpandTitle;
+
+  /// Button to collapse expanded book title
+  ///
+  /// In ko, this message translates to:
+  /// **'접기'**
+  String get bookInfoCollapseTitle;
 
   /// No description provided for @expandedNavBackToDetail.
   ///
@@ -5530,6 +5650,60 @@ abstract class AppLocalizations {
   /// **'변화'**
   String get chartMonthlyBooksChange;
 
+  /// No description provided for @chartMonthlyBooksCustomRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 범위 설정'**
+  String get chartMonthlyBooksCustomRange;
+
+  /// No description provided for @chartBookStatusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 현황'**
+  String get chartBookStatusTitle;
+
+  /// No description provided for @chartBookStatusAnnual.
+  ///
+  /// In ko, this message translates to:
+  /// **'연간'**
+  String get chartBookStatusAnnual;
+
+  /// No description provided for @chartBookStatusMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간'**
+  String get chartBookStatusMonthly;
+
+  /// No description provided for @chartBookStatusWeekly.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간'**
+  String get chartBookStatusWeekly;
+
+  /// No description provided for @chartBookStatusCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 설정'**
+  String get chartBookStatusCustom;
+
+  /// No description provided for @chartBookStatusTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 완독'**
+  String get chartBookStatusTotal;
+
+  /// No description provided for @chartBookStatusDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'완독일'**
+  String get chartBookStatusDays;
+
+  /// No description provided for @chartBookStatusMaxDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'최다'**
+  String get chartBookStatusMaxDay;
+
   /// No description provided for @chartMonthlyBooksTooltip.
   ///
   /// In ko, this message translates to:
@@ -6101,6 +6275,12 @@ abstract class AppLocalizations {
   /// **'잠시 후 다시 시도해주세요.'**
   String get loginResendVerificationCooldown;
 
+  /// Email rate limit exceeded error
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 전송 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'**
+  String get loginErrorEmailRateLimit;
+
   /// Signup with existing email error message
   ///
   /// In ko, this message translates to:
@@ -6209,6 +6389,18 @@ abstract class AppLocalizations {
   /// **'비밀번호 확인'**
   String get myPageConfirmPassword;
 
+  /// Current password field
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호'**
+  String get myPageCurrentPassword;
+
+  /// Current password required error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호를 입력해주세요'**
+  String get myPageCurrentPasswordRequired;
+
   /// Info section in my page
   ///
   /// In ko, this message translates to:
@@ -6245,11 +6437,23 @@ abstract class AppLocalizations {
   /// **'매일 독서 리마인드'**
   String get myPageNotificationDailyReminder;
 
-  /// Reading goal achievement notification
+  /// Goal alarm notification setting
   ///
   /// In ko, this message translates to:
-  /// **'독서 목표 달성'**
-  String get myPageNotificationGoalAchievement;
+  /// **'독서 목표 알람'**
+  String get myPageNotificationGoalAlarm;
+
+  /// Event nudge notification setting
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 넛지 알림'**
+  String get myPageNotificationEventNudge;
+
+  /// Goal alarm notification subtitle with time
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 {time}에 독서 현황 확인'**
+  String myPageNotificationGoalAlarmSubtitle(String time);
 
   /// Password changed success message
   ///
@@ -6275,6 +6479,18 @@ abstract class AppLocalizations {
   /// **'비밀번호는 6자 이상이어야 합니다'**
   String get myPagePasswordTooShort;
 
+  /// Password change failed with detail
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경 실패: {error}'**
+  String myPagePasswordChangeErrorDetail(String error);
+
+  /// Wrong current password error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호가 올바르지 않습니다'**
+  String get myPageWrongCurrentPassword;
+
   /// Terms and policy in my page
   ///
   /// In ko, this message translates to:
@@ -6286,6 +6502,186 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'버전'**
   String get myPageVersion;
+
+  /// Planned start date label in book detail
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작 예정'**
+  String get bookDetailPlannedStart;
+
+  /// To be determined text when no planned date
+  ///
+  /// In ko, this message translates to:
+  /// **'미정'**
+  String get bookDetailTbd;
+
+  /// Subtitle for write review button
+  ///
+  /// In ko, this message translates to:
+  /// **'생각을 기록해보세요'**
+  String get bookDetailRecordThoughts;
+
+  /// Subtitle for edit review button
+  ///
+  /// In ko, this message translates to:
+  /// **'작성한 독후감을 확인해보세요'**
+  String get bookDetailReviewYourWritten;
+
+  /// Resume reading button text for will_retry books
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 재개하기'**
+  String get bookDetailResumeReading;
+
+  /// Attempt count for resumed reading
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전'**
+  String bookDetailAttemptCount(int count);
+
+  /// Subtitle for continue reading button
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 목표를 달성해보세요!'**
+  String get bookDetailAchieveGoal;
+
+  /// Snackbar message after saving
+  ///
+  /// In ko, this message translates to:
+  /// **'저장되었습니다'**
+  String get bookDetailSaved;
+
+  /// Snackbar message after pausing reading
+  ///
+  /// In ko, this message translates to:
+  /// **'독서가 일시정지되었습니다'**
+  String get bookDetailReadingPaused;
+
+  /// Snackbar message after deleting book
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제되었습니다'**
+  String get bookDetailDeleted;
+
+  /// Snackbar when new reading attempt starts
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전 시작!'**
+  String bookDetailAttemptStarted(int count);
+
+  /// Generic save error message in upload dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중 오류가 발생했습니다.\n다시 시도해주세요.'**
+  String get bookDetailSaveError;
+
+  /// Snackbar message when paywall cannot be presented
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 서비스를 현재 이용할 수 없습니다.'**
+  String get subscriptionUnavailable;
+
+  /// Error when new password is same as old
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호는 기존 비밀번호와 달라야 합니다'**
+  String get myPagePasswordSameAsOld;
+
+  /// Password recovery screen title
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 설정'**
+  String get passwordRecoveryTitle;
+
+  /// Password recovery screen description
+  ///
+  /// In ko, this message translates to:
+  /// **'사용하실 새 비밀번호를 입력해주세요'**
+  String get passwordRecoveryDescription;
+
+  /// New password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호'**
+  String get passwordRecoveryNewPassword;
+
+  /// Confirm password field label
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 확인'**
+  String get passwordRecoveryConfirmPassword;
+
+  /// Password recovery submit button
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경'**
+  String get passwordRecoveryButton;
+
+  /// Password recovery success message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요.'**
+  String get passwordRecoverySuccess;
+
+  /// Password recovery failed message
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경에 실패했습니다'**
+  String get passwordRecoveryFailed;
+
+  /// Share book card button tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 카드 공유'**
+  String get shareBookCard;
+
+  /// Error message when share fails
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 중 오류가 발생했습니다'**
+  String get shareBookCardError;
+
+  /// Reading status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 중'**
+  String get shareStatusReading;
+
+  /// Completed status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'완독'**
+  String get shareStatusCompleted;
+
+  /// Planned status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'읽을 예정'**
+  String get shareStatusPlanned;
+
+  /// Will retry status label on share card
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 도전'**
+  String get shareStatusWillRetry;
+
+  /// Continue with Google button
+  ///
+  /// In ko, this message translates to:
+  /// **'Google로 계속하기'**
+  String get loginSocialGoogle;
+
+  /// Continue with Apple button
+  ///
+  /// In ko, this message translates to:
+  /// **'Apple로 계속하기'**
+  String get loginSocialApple;
+
+  /// Hint text for swipe to update page gesture
+  ///
+  /// In ko, this message translates to:
+  /// **'◀ 밀어서 페이지 업데이트 ▶'**
+  String get pageSwipeHint;
 }
 
 class _AppLocalizationsDelegate

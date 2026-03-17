@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/data/repositories/auth_repository.dart';
 import 'package:book_golas/domain/models/user_model.dart';
+import 'package:book_golas/ui/auth/widgets/password_recovery_screen.dart';
+import 'package:book_golas/main.dart';
 
 class AuthViewModel extends BaseViewModel {
   final AuthRepository _authRepository;
@@ -15,6 +18,7 @@ class AuthViewModel extends BaseViewModel {
 
   UserModel? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
+  bool get isAppleSignInAvailable => Platform.isIOS || Platform.isMacOS;
 
   AuthViewModel(this._authRepository) {
     _init();
@@ -38,6 +42,16 @@ class AuthViewModel extends BaseViewModel {
         case AuthChangeEvent.signedOut:
           _currentUser = null;
           notifyListeners();
+          break;
+        case AuthChangeEvent.passwordRecovery:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => const PasswordRecoveryScreen(),
+              ),
+              (route) => route.isFirst,
+            );
+          });
           break;
         default:
           break;
@@ -106,6 +120,20 @@ class AuthViewModel extends BaseViewModel {
     clearError();
     try {
       final error = await _authRepository.signInWithGoogle();
+      if (error != null) {
+        setError(error);
+      }
+      return error;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<String?> signInWithApple() async {
+    setLoading(true);
+    clearError();
+    try {
+      final error = await _authRepository.signInWithApple();
       if (error != null) {
         setError(error);
       }

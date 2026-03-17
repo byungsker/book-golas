@@ -10,6 +10,7 @@ import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/auth/widgets/social_sign_in_button.dart';
 
 enum AuthMode { signIn, signUp, forgotPassword }
 
@@ -202,6 +203,11 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           if (mounted) {
             final l10n = AppLocalizations.of(context);
+            final signedUpEmail = email;
+            _setAuthMode(AuthMode.signIn);
+            setState(() {
+              _unconfirmedEmail = signedUpEmail;
+            });
             CustomSnackbar.show(
               context,
               message: l10n.loginSignupSuccess,
@@ -209,12 +215,14 @@ class _LoginScreenState extends State<LoginScreen> {
               bottomOffset: 32,
               aboveKeyboard: true,
             );
-            _setAuthMode(AuthMode.signIn);
           }
           break;
 
         case AuthMode.forgotPassword:
-          await supabase.auth.resetPasswordForEmail(email);
+          await supabase.auth.resetPasswordForEmail(
+            email,
+            redirectTo: 'bookgolas://reset-callback',
+          );
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             CustomSnackbar.show(
@@ -274,6 +282,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (message.contains('Email address') &&
         message.contains('invalid')) {
       return l10n.loginErrorEmailInvalid;
+    } else if (message.contains('rate limit') ||
+        message.contains('Rate limit')) {
+      return l10n.loginErrorEmailRateLimit;
     }
     return message;
   }
@@ -304,6 +315,17 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         });
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(e.message, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
@@ -323,6 +345,65 @@ class _LoginScreenState extends State<LoginScreen> {
     _isResendCooldown = false;
     _resendCooldownTimer?.cancel();
     setState(() => _authMode = mode);
+  }
+
+  Widget _buildSocialButtons(BuildContext context) {
+    final authViewModel = context.watch<AuthViewModel>();
+    return Column(
+      children: [
+        SocialSignInButton(
+          type: SocialSignInType.google,
+          onPressed: _isLoading ? null : () => _handleGoogleSignIn(),
+        ),
+        if (authViewModel.isAppleSignInAvailable) ...[
+          const SizedBox(height: 12),
+          SocialSignInButton(
+            type: SocialSignInType.apple,
+            onPressed: _isLoading ? null : () => _handleAppleSignIn(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithGoogle();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() => _isLoading = true);
+    try {
+      final authViewModel = context.read<AuthViewModel>();
+      final error = await authViewModel.signInWithApple();
+      if (error != null && mounted) {
+        final l10n = AppLocalizations.of(context);
+        CustomSnackbar.show(
+          context,
+          message: _getAuthErrorMessage(error, l10n),
+          type: BLabSnackbarType.error,
+          bottomOffset: 32,
+          aboveKeyboard: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -409,7 +490,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.asset(
-              'assets/images/logo.png',
+              'assets/images/logo-bookgolas.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -659,6 +740,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     _buildDivider(isDark, context),
+                    const SizedBox(height: 8),
+                    _buildSocialButtons(context),
                     const SizedBox(height: 8),
                     _buildTextButton(
                       AppLocalizations.of(context).loginNoAccount,
@@ -925,7 +1008,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case AuthMode.signUp:
         return l10n.loginSignupButton;
       case AuthMode.forgotPassword:
-        return '${l10n.loginButton} ${l10n.loginPasswordLabel}';
+        return l10n.loginResetPasswordButton;
     }
   }
 }

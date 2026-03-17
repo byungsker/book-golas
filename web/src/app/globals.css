@@ -115,7 +115,29 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-16px) rotate(1deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(91,127,255,0.3); }
+  50% { box-shadow: 0 0 45px rgba(91,127,255,0.65); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes book-item {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   * {
     @apply border-border outline-ring/50;
   }
@@ -123,3 +145,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .glass {
+    background: rgba(28, 31, 50, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(91, 127, 255, 0.12);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #FAFAFA 0%, #A8B8FF 55%, #5B7FFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .mesh-gradient {
+    background:
+      radial-gradient(ellipse 80% 55% at 15% -15%, rgba(91,127,255,0.14) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 85% 110%, rgba(245,158,11,0.07) 0%, transparent 50%),
+      #0D0F1A;
+  }
+
+  .phone-glow {
+    filter: drop-shadow(0 40px 80px rgba(91,127,255,0.28))
+            drop-shadow(0 0 30px rgba(91,127,255,0.12));
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #5B7FFF 0%, #6B8AFF 100%);
+    box-shadow: 0 0 28px rgba(91,127,255,0.38), 0 8px 24px rgba(0,0,0,0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 40px rgba(91,127,255,0.5), 0 12px 32px rgba(0,0,0,0.35);
+  }
+
+  .feature-card {
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .feature-card:hover {
+    border-color: rgba(91,127,255,0.3) !important;
+    transform: translateY(-4px);
+  }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0D0F1A; }
+::-webkit-scrollbar-thumb { background: rgba(91,127,255,0.28); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(91,127,255,0.5); }

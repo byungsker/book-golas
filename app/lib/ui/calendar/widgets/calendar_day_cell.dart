@@ -28,6 +28,8 @@ class CalendarDayCell extends StatelessWidget {
     return GestureDetector(
       onTap: hasBooks ? onTap : null,
       child: Container(
+        width: double.infinity,
+        height: double.infinity,
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           color: isToday
@@ -39,12 +41,14 @@ class CalendarDayCell extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (hasBooks) ...[
-              CalendarBookThumbnail(
-                imageUrl: readingData!.representativeBook?.imageUrl,
-                bookCount: readingData!.bookCount,
-                isCompletedToday: readingData!.isRepresentativeBookCompleted,
+              Flexible(
+                child: CalendarBookThumbnail(
+                  imageUrl: readingData!.representativeBook?.imageUrl,
+                  bookCount: readingData!.bookCount,
+                  isCompletedToday: readingData!.isRepresentativeBookCompleted,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 '${day.day}',
                 style: TextStyle(

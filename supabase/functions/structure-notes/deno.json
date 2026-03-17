@@ -1,1 +1,7 @@
-{}
+{
+  "imports": {
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "@langchain/openai": "npm:@langchain/openai@0.3.0",
+    "@langchain/core/prompts": "npm:@langchain/core@0.3.0/prompts"
+  }
+}

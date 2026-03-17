@@ -21,6 +21,8 @@ import 'package:book_golas/ui/reading_chart/widgets/cards/monthly_books_chart.da
 import 'package:book_golas/ui/reading_chart/widgets/cards/reading_streak_heatmap.dart';
 import 'package:book_golas/ui/reading_chart/widgets/reading_chart_skeleton.dart';
 import 'package:book_golas/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 enum TimeFilter { daily, weekly, monthly }
 
@@ -200,6 +202,18 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  String _formatReadingTime(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    }
+    if (minutes > 0) {
+      return '${minutes}m';
+    }
+    return '${totalSeconds}s';
+  }
+
   void _showGoalSheet(BuildContext context) async {
     final vm = context.read<ReadingChartViewModel>();
     final currentYear = DateTime.now().year;
@@ -215,6 +229,69 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         targetBooks: result,
       );
       context.read<ReadingChartViewModel>().forceRefresh();
+    }
+  }
+
+  void _showDateRangePicker(
+    BuildContext context,
+    ReadingChartViewModel vm,
+  ) async {
+    if (vm.customRangeStart != null) {
+      await vm.clearCustomRange();
+      return;
+    }
+    final now = DateTime.now();
+    final result = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: DateTime(now.year, 1, 1),
+        end: now,
+      ),
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final rangeColor = isDark
+            ? BLabColors.primary.withValues(alpha: 0.2)
+            : BLabColors.primary.withValues(alpha: 0.12);
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: BLabColors.primary.withValues(alpha: 0.35),
+                    onPrimaryContainer: Colors.white,
+                    surface: BLabColors.surfaceDark,
+                    onSurface: Colors.white,
+                    onSurfaceVariant: Colors.white70,
+                  )
+                : const ColorScheme.light(
+                    primary: BLabColors.primary,
+                    onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFFDDE3FF),
+                    onPrimaryContainer: BLabColors.primary,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                    onSurfaceVariant: Colors.black54,
+                  ),
+            datePickerTheme: DatePickerThemeData(
+              rangeSelectionBackgroundColor: rangeColor,
+              headerBackgroundColor: isDark
+                  ? BLabColors.surfaceDark
+                  : BLabColors.primary,
+              headerForegroundColor: Colors.white,
+              rangePickerBackgroundColor: isDark
+                  ? BLabColors.scaffoldDark
+                  : BLabColors.scaffoldLight,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (result != null && mounted) {
+      vm.setCustomRange(result.start, result.end);
     }
   }
 
@@ -308,21 +385,14 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final renderBox = tabContext.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
-    // Get tab's position relative to the scroll view
     final tabPosition = renderBox.localToGlobal(Offset.zero);
     final tabWidth = renderBox.size.width;
 
-    // Get viewport width
     final viewportWidth = _tabBarScrollController.position.viewportDimension;
 
-    // Calculate target scroll position to center the tab
-    // tabPosition.dx is the tab's left edge position on screen
-    // We want to center it, so: currentScroll + tabLeftEdge - (viewportWidth / 2) + (tabWidth / 2)
     final currentScroll = _tabBarScrollController.offset;
     final targetScroll =
         currentScroll + tabPosition.dx - (viewportWidth / 2) + (tabWidth / 2);
-
-    // Clamp to valid scroll range
     final maxScroll = _tabBarScrollController.position.maxScrollExtent;
     final clampedScroll = targetScroll.clamp(0.0, maxScroll);
 
@@ -375,6 +445,23 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white : Colors.black,
         ),
+        actions: [
+          Consumer<ReadingChartViewModel>(
+            builder: (context, vm, _) => IconButton(
+              icon: Icon(
+                CupertinoIcons.share,
+                color: isDark ? Colors.white : Colors.black,
+                size: 22,
+              ),
+              onPressed: vm.hasData
+                  ? () => BookShareService.shareStatsCard(
+                        context: context,
+                        vm: vm,
+                      )
+                  : null,
+            ),
+          ),
+        ],
         bottom: LiquidGlassTabBar(
           controller: _tabController,
           tabs: [
@@ -397,7 +484,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       return const ReadingChartSkeleton();
     }
 
-    if (vm.errorMessage != null) {
+    if (vm.errorMessage != null && !vm.hasData && vm.cachedRawData == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -423,6 +510,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
 
     final rawData = vm.cachedRawData ?? [];
     final aggregated = aggregateByDate(rawData, _selectedFilter);
+    final dailyAggregated = _selectedFilter == TimeFilter.daily
+        ? aggregated
+        : aggregateByDate(rawData, TimeFilter.daily);
     final stats = calculateStatistics(aggregated);
     final streak = _calculateStreak(aggregated);
     final currentYear = DateTime.now().year;
@@ -430,9 +520,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildOverviewTab(isDark, vm, stats, streak, currentYear),
+        _buildOverviewTab(isDark, vm, stats, streak),
         _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
-        _buildActivityTab(isDark, vm, aggregated, streak, currentYear),
+        _buildActivityTab(isDark, vm, aggregated, dailyAggregated, streak, currentYear),
       ],
     );
   }
@@ -442,13 +532,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     ReadingChartViewModel vm,
     Map<String, dynamic> stats,
     int streak,
-    int currentYear,
   ) {
-    final monthlyDataForChart = vm.monthlyBookCount.map(
-      (month, count) =>
-          MapEntry('$currentYear-${month.toString().padLeft(2, '0')}', count),
-    );
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -457,13 +541,22 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
           AnnualGoalCard(
             targetBooks: vm.goalProgress['targetBooks'] as int? ?? 0,
             completedBooks: vm.goalProgress['completedBooks'] as int? ?? 0,
-            year: currentYear,
+            year: DateTime.now().year,
             onSetGoal: () => _showGoalSheet(context),
           ),
           const SizedBox(height: 16),
           MonthlyBooksChart(
-            monthlyData: monthlyDataForChart,
-            year: currentYear,
+            filter: vm.bookChartFilter,
+            monthlyData: vm.monthlyBookCount,
+            dailyData: vm.dailyBookCompletionCount,
+            year: vm.selectedChartYear,
+            month: vm.selectedChartMonth,
+            weekStart: vm.selectedWeekStart,
+            customRangeStart: vm.customRangeStart,
+            customRangeEnd: vm.customRangeEnd,
+            onFilterChanged: (f) => vm.setBookChartFilter(f),
+            onNavigate: (dir) => vm.navigateBookChartPeriod(dir),
+            onCustomRangePressed: () => _showDateRangePicker(context, vm),
           ),
         ],
       ),
@@ -513,7 +606,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // AI Insight Card
                   Container(
                     key: _sectionKeys[0],
                     child: Consumer<ReadingInsightsViewModel>(
@@ -533,7 +625,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                   const SizedBox(height: 16),
 
-                  // Completion Rate Card
                   Container(
                     key: _sectionKeys[1],
                     child: CompletionRateCard(
@@ -650,6 +741,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     bool isDark,
     ReadingChartViewModel vm,
     List<Map<String, dynamic>> aggregated,
+    List<Map<String, dynamic>> dailyAggregated,
     int streak,
     int currentYear,
   ) {
@@ -675,20 +767,21 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             ),
           ),
           const SizedBox(height: 12),
-          if (aggregated.isEmpty)
+          if (dailyAggregated.isEmpty)
             _buildEmptyListState(isDark)
           else
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: aggregated.length > 10 ? 10 : aggregated.length,
+              itemCount: dailyAggregated.length > 10 ? 10 : dailyAggregated.length,
               itemBuilder: (context, index) {
-                final reversedIndex = aggregated.length - 1 - index;
-                final item = aggregated[reversedIndex];
+                final reversedIndex = dailyAggregated.length - 1 - index;
+                final item = dailyAggregated[reversedIndex];
                 final date = item['date'] as DateTime;
                 final dailyPage = item['daily_page'] as int;
                 final cumulativePage = item['cumulative_page'] as int;
-
+                final readingSeconds =
+                    vm.dailyReadingSeconds[date] ?? 0;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
@@ -734,7 +827,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${AppLocalizations.of(context).chartCumulativePages}: $cumulativePage ${AppLocalizations.of(context).chartDailyReadPages}',
+                              '${AppLocalizations.of(context).chartCumulativePages}: ${cumulativePage}p',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
@@ -742,6 +835,30 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                                     : Colors.grey[600],
                               ),
                             ),
+                            if (readingSeconds > 0) ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer_outlined,
+                                    size: 12,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatReadingTime(readingSeconds),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -969,7 +1086,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
     final barGroups = aggregated.asMap().entries.map((entry) {
       final idx = entry.key;
       final dailyPage = entry.value['daily_page'] as int;
-      final normalizedDaily = maxCumulative > 0
+      final normalizedDaily = (maxCumulative > 0 && maxDaily > 0)
           ? (dailyPage / maxDaily) * maxCumulative * 0.3
           : 0.0;
       return BarChartGroupData(
@@ -1007,6 +1124,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     showTitles: true,
                     reservedSize: 50,
                     getTitlesWidget: (value, meta) {
+                      if (value.isNaN || value.isInfinite) return const SizedBox.shrink();
                       return Text(
                         value.toInt().toString(),
                         style: TextStyle(
@@ -1074,7 +1192,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
                 ),
               ),
-              maxY: maxCumulative.toDouble() * 1.1,
+              maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
               minY: 0,
               barTouchData: BarTouchData(enabled: false),
             ),
@@ -1106,7 +1224,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 titlesData: const FlTitlesData(show: false),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                maxY: maxCumulative.toDouble() * 1.1,
+                maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
                 minY: 0,
                 minX: 0,
                 maxX: (aggregated.length - 1).toDouble(),
@@ -1264,11 +1382,11 @@ class _SectionTabBarDelegate extends SliverPersistentHeaderDelegate {
                     decoration: BoxDecoration(
                       color: isSelected
                           ? BLabColors.primary
-                          : BLabColors.primary.withOpacity(0.1),
+                          : BLabColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: !isSelected
                           ? Border.all(
-                              color: BLabColors.primary.withOpacity(0.3),
+                              color: BLabColors.primary.withValues(alpha: 0.3),
                               width: 1,
                             )
                           : null,

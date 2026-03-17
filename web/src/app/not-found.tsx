@@ -6,7 +6,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <main className="flex flex-col items-center text-center">
         <Image
-          src="/logo.png"
+          src="/logo-bookgolas.png"
           alt="Bookgolas Logo"
           width={80}
           height={80}

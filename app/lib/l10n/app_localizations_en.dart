@@ -632,7 +632,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookListEmptyAll => 'No reading started yet';
 
   @override
-  String get bookListEmptyReading => 'No books currently reading';
+  String get bookListEmptyReading =>
+      'Shall we start a reading journey with Bookgolas?';
+
+  @override
+  String get bookListReadingEmptyAction => 'Start Reading Journey';
+
+  @override
+  String get searchModeBookSearch => 'Book Search';
+
+  @override
+  String get searchModeAiRecordSearch => 'AI Record Search';
 
   @override
   String get bookListEmptyCompleted => 'No completed books';
@@ -727,7 +737,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookDetailNetworkError =>
-      'Please check your network connection.\nIf the connection is good, please try again.';
+      'Please check your network connection.\nTry again if the connection is stable.';
 
   @override
   String get bookDetailUploadError =>
@@ -835,25 +845,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get myPageNotificationTimeTitle => '알림 시간 설정';
+  String get myPageNotificationTimeTitle => 'Notification Time';
 
   @override
-  String get myPageDarkMode => '다크 모드';
+  String get myPageDarkMode => 'Dark Mode';
 
   @override
-  String get myPageDailyReadingNotification => '매일 독서 목표 알림';
+  String get myPageDailyReadingNotification => 'Daily Reading Goal Reminder';
 
   @override
   String get myPageNoNotifications => '알림을 받지 않습니다';
 
   @override
-  String get myPageNotificationsEnabled => '알림이 활성화되었습니다';
+  String get myPageNotificationsEnabled => 'Notifications enabled';
 
   @override
-  String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
+  String get myPageNotificationsDisabled => 'Notifications disabled';
 
   @override
-  String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
+  String get myPageNotificationSettingsFailed =>
+      'Failed to change notification settings';
 
   @override
   String get myPageTestNotification => '테스트 알림 (30초 후)';
@@ -886,15 +897,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String myPageNotificationTimeChanged(String time) {
-    return '알림 시간이 $time으로 변경되었습니다';
+    return 'Notification time changed to $time';
   }
 
   @override
-  String get myPageNotificationTimeChangeFailed => '알림 시간 변경에 실패했습니다';
+  String get myPageNotificationTimeChangeFailed =>
+      'Failed to change notification time';
 
   @override
   String myPageDailyReadingNotificationSubtitle(String time) {
-    return '매일 $time에 알림';
+    return 'Notification at $time daily';
   }
 
   @override
@@ -1167,6 +1179,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceDocumentScan => 'Document Scan';
 
   @override
+  String get imageSourceDocumentScanDesc =>
+      'Auto-detects documents and corrects distortion';
+
+  @override
   String get imageSourceAutoCorrection => 'Flatten & Auto Correct';
 
   @override
@@ -1192,7 +1208,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageSourceCameraTitle => 'Take Photo';
 
   @override
-  String get imageSourceGalleryTitle => 'Select from Gallery';
+  String get imageSourceCameraDesc => 'Take a photo and extract text instantly';
+
+  @override
+  String get imageSourceGalleryTitle => 'Select from Library';
+
+  @override
+  String get imageSourceGalleryDesc => 'Extract text from a saved image';
 
   @override
   String get imageSourceReplaceConfirmation => 'Replace this image?';
@@ -2306,6 +2328,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proUpgradeBannerMini => 'Upgrade to Pro';
 
   @override
+  String get proUpgradeBannerMiniDesc =>
+      'AI search, reading insights & all features unlimited';
+
+  @override
   String get myPageSubscriptionUpgrade => 'Upgrade to Pro';
 
   @override
@@ -2330,10 +2356,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrExtractionFailed => 'Text extraction failed';
 
   @override
-  String get extractTextConfirmTitle => 'Extract Text';
+  String get extractTextConfirmTitle => 'Extract text?';
 
   @override
-  String get extractTextCreditsMessage => 'This will use your credits';
+  String extractTextFreeRemaining(int remaining, int total) {
+    return 'Free extractions remaining: $remaining/$total';
+  }
+
+  @override
+  String get ocrProUnlimitedButton => 'Pro members get unlimited extractions!';
+
+  @override
+  String get ocrLimitReachedTitle =>
+      'You\'ve used all free extractions for today';
+
+  @override
+  String get ocrLimitReachedMessage =>
+      'Upgrade to Pro for unlimited\ntext extractions every day';
+
+  @override
+  String get ocrLimitReachedUpgrade => 'Upgrade to Pro';
 
   @override
   String get noThanksButton => 'No thanks';
@@ -2657,6 +2699,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookstoreKyobo => 'Kyobo';
+
+  @override
+  String get bookstoreTabNew => 'Bookstores';
+
+  @override
+  String get bookstoreTabUsed => 'Used Books';
+
+  @override
+  String get bookstoreSearchSuffix => 'search';
+
+  @override
+  String get bookstoreAladdinUsed => 'Aladin Used';
+
+  @override
+  String get bookstoreAladdinUsedStore => 'Aladin Used Store';
+
+  @override
+  String get bookstoreYes24Used => 'Yes24 Used';
+
+  @override
+  String get bookInfoTitleCopied => 'Title copied';
+
+  @override
+  String get bookInfoExpandTitle => 'Show full title';
+
+  @override
+  String get bookInfoCollapseTitle => 'Collapse';
 
   @override
   String get expandedNavBackToDetail => 'Back to Detail';
@@ -3024,6 +3093,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartMonthlyBooksChange => 'Change';
 
   @override
+  String get chartMonthlyBooksCustomRange => 'Custom Range';
+
+  @override
+  String get chartBookStatusTitle => 'Reading Status';
+
+  @override
+  String get chartBookStatusAnnual => 'Annual';
+
+  @override
+  String get chartBookStatusMonthly => 'Monthly';
+
+  @override
+  String get chartBookStatusWeekly => 'Weekly';
+
+  @override
+  String get chartBookStatusCustom => 'Custom';
+
+  @override
+  String get chartBookStatusTotal => 'Total';
+
+  @override
+  String get chartBookStatusDays => 'Days';
+
+  @override
+  String get chartBookStatusMaxDay => 'Max Day';
+
+  @override
   String chartMonthlyBooksTooltip(int month, int count) {
     return '$month: $count books';
   }
@@ -3344,6 +3440,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginResendVerificationCooldown => 'Please try again in a moment.';
 
   @override
+  String get loginErrorEmailRateLimit =>
+      'Email send limit exceeded. Please try again later.';
+
+  @override
   String get loginSignupExistingEmail =>
       'This email is already registered. Please try logging in.';
 
@@ -3399,6 +3499,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageConfirmPassword => 'Confirm Password';
 
   @override
+  String get myPageCurrentPassword => 'Current Password';
+
+  @override
+  String get myPageCurrentPasswordRequired =>
+      'Please enter your current password';
+
+  @override
   String get myPageInfoSection => 'Info';
 
   @override
@@ -3417,7 +3524,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationDailyReminder => 'Daily Reading Reminder';
 
   @override
-  String get myPageNotificationGoalAchievement => 'Reading Goal Achievement';
+  String get myPageNotificationGoalAlarm => 'Reading Goal Alarm';
+
+  @override
+  String get myPageNotificationEventNudge => 'Event Nudge Notifications';
+
+  @override
+  String myPageNotificationGoalAlarmSubtitle(String time) {
+    return 'Check reading status daily at $time';
+  }
 
   @override
   String get myPagePasswordChanged => 'Password changed successfully';
@@ -3432,8 +3547,114 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPagePasswordTooShort => 'Password must be at least 6 characters';
 
   @override
+  String myPagePasswordChangeErrorDetail(String error) {
+    return 'Password change failed: $error';
+  }
+
+  @override
+  String get myPageWrongCurrentPassword => 'Current password is incorrect';
+
+  @override
   String get myPageTermsAndPolicy => 'Terms & Policy';
 
   @override
   String get myPageVersion => 'Version';
+
+  @override
+  String get bookDetailPlannedStart => 'Planned Start';
+
+  @override
+  String get bookDetailTbd => 'TBD';
+
+  @override
+  String get bookDetailRecordThoughts => 'Record your thoughts';
+
+  @override
+  String get bookDetailReviewYourWritten => 'Review your written review';
+
+  @override
+  String get bookDetailResumeReading => 'Resume Reading';
+
+  @override
+  String bookDetailAttemptCount(int count) {
+    return '$count attempt';
+  }
+
+  @override
+  String get bookDetailAchieveGoal => 'Achieve your reading goal!';
+
+  @override
+  String get bookDetailSaved => 'Saved';
+
+  @override
+  String get bookDetailReadingPaused => 'Reading paused';
+
+  @override
+  String get bookDetailDeleted => 'Deleted';
+
+  @override
+  String bookDetailAttemptStarted(int count) {
+    return 'Attempt $count started!';
+  }
+
+  @override
+  String get bookDetailSaveError =>
+      'An error occurred while saving.\nPlease try again.';
+
+  @override
+  String get subscriptionUnavailable =>
+      'Subscription service is currently unavailable.';
+
+  @override
+  String get myPagePasswordSameAsOld =>
+      'New password must be different from the current password';
+
+  @override
+  String get passwordRecoveryTitle => 'Set New Password';
+
+  @override
+  String get passwordRecoveryDescription => 'Enter your new password';
+
+  @override
+  String get passwordRecoveryNewPassword => 'New Password';
+
+  @override
+  String get passwordRecoveryConfirmPassword => 'Confirm New Password';
+
+  @override
+  String get passwordRecoveryButton => 'Change Password';
+
+  @override
+  String get passwordRecoverySuccess =>
+      'Password changed successfully. Please log in with your new password.';
+
+  @override
+  String get passwordRecoveryFailed => 'Failed to change password';
+
+  @override
+  String get shareBookCard => 'Share book card';
+
+  @override
+  String get shareBookCardError => 'An error occurred while sharing';
+
+  @override
+  String get shareStatusReading => 'Reading';
+
+  @override
+  String get shareStatusCompleted => 'Completed';
+
+  @override
+  String get shareStatusPlanned => 'To Read';
+
+  @override
+  String get shareStatusWillRetry => 'Re-reading';
+
+  @override
+  String get loginSocialGoogle => 'Continue with Google';
+
+  @override
+  String get loginSocialApple => 'Continue with Apple';
+
+  @override
+  String get pageSwipeHint => '◀ Swipe to update page ▶';
 }

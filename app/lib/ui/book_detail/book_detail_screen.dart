@@ -16,6 +16,7 @@ import 'package:book_golas/ui/core/widgets/page_update_modal.dart';
 import 'package:book_golas/ui/book_detail/view_model/book_detail_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/memorable_page_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
+import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'package:book_golas/ui/book_detail/utils/ocr_utils.dart';
 import 'widgets/dialogs/daily_target_dialog.dart';
 import 'widgets/dialogs/update_target_date_dialog.dart';
@@ -36,22 +37,21 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/book_info_sheet.dart';
-import 'widgets/sheets/full_title_sheet.dart';
+// import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 import 'package:book_golas/ui/recall/widgets/recall_search_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/data/services/recall_service.dart';
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/book_review/book_review_screen.dart';
 import 'widgets/tabs/book_review_tab.dart';
-import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
-import 'package:book_golas/data/services/note_structure_service.dart';
-import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
+import 'package:book_golas/data/services/book_share_service.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -305,6 +305,26 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        CupertinoIcons.share,
+                        color: isDark ? Colors.white : Colors.black,
+                        size: 22,
+                      ),
+                      onPressed: () {
+                        final memorableVm =
+                            context.read<MemorablePageViewModel>();
+                        final highlightCount =
+                            memorableVm.cachedImages?.length ?? 0;
+                        BookShareService.shareBookCard(
+                          context: context,
+                          book: book,
+                          highlightCount: highlightCount,
+                        );
+                      },
+                    ),
+                  ],
                 ),
           body: Stack(
             children: [
@@ -354,11 +374,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   totalPages: book.totalPages,
                                   daysLeft: bookVm.daysLeft,
                                   pagesLeft: bookVm.pagesLeft,
-                                  dailyTargetPages: book.dailyTargetPages,
+                                  dailyTargetPages: bookVm.effectiveDailyTarget,
                                   isTodayGoalAchieved:
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
                                       _showDailyTargetChangeDialog(bookVm),
+                                  onPageUpdate: (newPage) async =>
+                                      _updateCurrentPage(bookVm, newPage),
                                 ),
                                 const SizedBox(height: 12),
                                 CompactStreakRow(
@@ -385,10 +407,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 ],
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context, book),
-                              ],
-                              if (!_isBookPlanned(book)) ...[
-                                const SizedBox(height: 12),
-                                _buildNoteStructureButton(context, book),
                               ],
                               const SizedBox(height: 20),
                             ],
@@ -1293,7 +1311,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Planned Start',
+                        AppLocalizations.of(context).bookDetailPlannedStart,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -1304,7 +1322,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       Text(
                         book.plannedStartDate != null
                             ? '${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(book.plannedStartDate!)}${daysUntilStart != null ? " (D${daysUntilStart >= 0 ? '-' : '+'}${daysUntilStart.abs()})" : ""}'
-                            : 'TBD',
+                            : AppLocalizations.of(context).bookDetailTbd,
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1335,7 +1353,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _getPriorityLabel(book.priority!),
+                          _getPriorityLabel(context, book.priority!),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1450,7 +1468,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Resume Reading',
+                          AppLocalizations.of(context).bookDetailResumeReading,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1459,7 +1477,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${book.attemptCount + 1} attempt',
+                          AppLocalizations.of(context)
+                              .bookDetailAttemptCount(book.attemptCount + 1),
                           style: TextStyle(
                             fontSize: 12,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1521,16 +1540,17 @@ class _BookDetailContentState extends State<_BookDetailContent>
     }
   }
 
-  String _getPriorityLabel(int priority) {
+  String _getPriorityLabel(BuildContext context, int priority) {
+    final l10n = AppLocalizations.of(context);
     switch (priority) {
       case 1:
-        return 'Urgent';
+        return l10n.bookDetailPriorityUrgent;
       case 2:
-        return 'High';
+        return l10n.bookDetailPriorityHigh;
       case 3:
-        return 'Medium';
+        return l10n.bookDetailPriorityMedium;
       case 4:
-        return 'Low';
+        return l10n.bookDetailPriorityLow;
       default:
         return '';
     }
@@ -1604,7 +1624,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasReview ? 'Edit Review' : 'Write Review',
+                      hasReview
+                          ? AppLocalizations.of(context).bookDetailEditReview
+                          : AppLocalizations.of(context).bookDetailWriteReview,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1614,8 +1636,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     const SizedBox(height: 2),
                     Text(
                       hasReview
-                          ? 'Review your written review'
-                          : 'Record your thoughts',
+                          ? AppLocalizations.of(context)
+                              .bookDetailReviewYourWritten
+                          : AppLocalizations.of(context)
+                              .bookDetailRecordThoughts,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1677,7 +1701,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Continue Reading',
+                      AppLocalizations.of(context).bookDetailContinueReading,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1686,7 +1710,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Achieve your reading goal!',
+                      AppLocalizations.of(context).bookDetailAchieveGoal,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -1720,7 +1744,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
       if (success && mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Reading paused',
+          message: AppLocalizations.of(context).bookDetailReadingPaused,
           type: BLabSnackbarType.info,
           icon: CupertinoIcons.pause_circle,
         );
@@ -1738,9 +1762,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
     if (confirmed == true && mounted) {
       final success = await BookService().deleteBook(bookVm.currentBook.id!);
       if (success && mounted) {
+        await ReadingChartViewModel.clearCache();
         CustomSnackbar.show(
           context,
-          message: 'Deleted',
+          message: AppLocalizations.of(context).bookDetailDeleted,
           type: BLabSnackbarType.success,
         );
         Navigator.pop(context);

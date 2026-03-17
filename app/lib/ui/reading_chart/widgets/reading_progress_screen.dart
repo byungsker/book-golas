@@ -11,8 +11,9 @@ class ReadingProgressScreen extends StatelessWidget {
   Future<List<Map<String, dynamic>>> fetchProgressHistory(String bookId) async {
     final response = await Supabase.instance.client
         .from('reading_progress_history')
-        .select('page, created_at')
+        .select('page, created_at, books!inner(deleted_at)')
         .eq('book_id', bookId)
+        .isFilter('books.deleted_at', null)
         .order('created_at', ascending: true);
     return (response as List)
         .map((e) => {

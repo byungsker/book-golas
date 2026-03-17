@@ -38,6 +38,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
     }
 
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
@@ -285,6 +286,7 @@ class _GenreAnalysisCardState extends State<GenreAnalysisCard> {
   Widget _buildEmptyState(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),

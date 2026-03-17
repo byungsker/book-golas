@@ -6,7 +6,6 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
-
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -41,7 +40,15 @@
 					<string>signinwithapple</string>
 				</array>
 			</dict>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>$(GID_REVERSED_CLIENT_ID)</string>
+				</array>
+			</dict>
 		</array>
+		<key>GIDClientID</key>
+		<string>$(GID_CLIENT_ID)</string>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
@@ -84,6 +91,15 @@
 		</array>
 		<key>io.flutter.embedded_views_preview</key>
 		<true/>
+		<key>GADApplicationIdentifier</key>
+		<string>ca-app-pub-2826132306659672~4100007314</string>
+		<key>SKAdNetworkItems</key>
+		<array>
+			<dict>
+				<key>SKAdNetworkIdentifier</key>
+				<string>cstr6suwn9.skadnetwork</string>
+			</dict>
+		</array>
 		<key>UIApplicationShortcutItems</key>
 		<array>
 			<dict>

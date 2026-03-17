@@ -21,6 +21,8 @@ abstract class AuthRepository {
 
   Future<String?> signInWithGoogle();
 
+  Future<String?> signInWithApple();
+
   Future<String?> signOut();
 
   Future<String?> resetPassword(String email);
@@ -73,6 +75,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> signInWithGoogle() => _authService.signInWithGoogle();
+
+  @override
+  Future<String?> signInWithApple() => _authService.signInWithApple();
 
   @override
   Future<String?> signOut() => _authService.signOut();

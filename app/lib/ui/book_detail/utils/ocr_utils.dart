@@ -11,6 +11,9 @@ import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/ui/book_detail/utils/document_scan_utils.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/home/widgets/pro_upgrade_banner.dart';
+import 'package:book_golas/ui/subscription/widgets/ocr_limit_dialog.dart';
+import 'package:book_golas/utils/subscription_utils.dart';
 
 String sanitizeOcrText(String text) {
   if (text.isEmpty) return text;
@@ -150,6 +153,14 @@ Future<void> extractTextFromLocalImage(
   Uint8List imageBytes,
   Function(String extractedText, int? pageNumber) onComplete,
 ) async {
+  final canUse = await SubscriptionUtils.canUseOcr();
+  if (!canUse) {
+    if (context.mounted) {
+      showOcrLimitDialog(context);
+    }
+    return;
+  }
+
   bool isLoadingDialogShown = false;
   final parentContext = context;
 
@@ -252,6 +263,7 @@ Future<void> extractTextFromLocalImage(
     }
 
     debugPrint('OCR: 텍스트 추출 성공 (길이: ${ocrText.length})');
+    await SubscriptionUtils.incrementOcrUsage();
     onComplete(ocrText, pageNumber);
   } catch (e) {
     debugPrint('OCR: 예외 발생 - $e');
@@ -273,6 +285,7 @@ Future<void> pickImageAndExtractText(
   ImageSource source,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
+
   final parentContext = context;
 
   try {
@@ -283,13 +296,26 @@ Future<void> pickImageAndExtractText(
     final fullImageBytes = await pickedFile.readAsBytes();
     debugPrint('이미지 선택 완료 (${fullImageBytes.length} bytes)');
 
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
+    final isPro = await SubscriptionUtils.isProUser();
+    final remaining =
+        isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
 
     final shouldExtract = await showModalBottomSheet<bool>(
       context: parentContext,
       backgroundColor: Colors.transparent,
       isDismissible: false,
       enableDrag: false,
+      useRootNavigator: true,
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -308,22 +334,46 @@ Future<void> pickImageAndExtractText(
                 color: isDark ? Colors.white : Colors.black,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(bottomSheetContext)
-                  .extractTextCreditsMessage,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+            if (!isPro) ...[
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(bottomSheetContext)
+                    .extractTextFreeRemaining(
+                        remaining,
+                        SubscriptionConstants.maxOcrPerDayFree),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: bottomSheetContext,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    useRootNavigator: true,
+                    builder: (_) => const ProFeaturesSheet(),
+                  );
+                },
+                child: Text(
+                  AppLocalizations.of(bottomSheetContext).ocrProUnlimitedButton,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: BLabColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, false),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -347,7 +397,7 @@ Future<void> pickImageAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, true),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -356,8 +406,7 @@ Future<void> pickImageAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)
-                              .extractButton,
+                          AppLocalizations.of(bottomSheetContext).extractButton,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -381,6 +430,7 @@ Future<void> pickImageAndExtractText(
       onComplete(fullImageBytes, '', null);
       return;
     }
+
 
     String? extractedText;
     int? extractedPageNumber;
@@ -406,8 +456,7 @@ Future<void> pickImageAndExtractText(
             rotateClockwiseButtonHidden: true,
           ),
           AndroidUiSettings(
-            toolbarTitle:
-                AppLocalizations.of(parentContext).ocrAreaSelectTitle,
+            toolbarTitle: AppLocalizations.of(parentContext).ocrAreaSelectTitle,
             toolbarColor: BLabColors.primary,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
@@ -496,6 +545,7 @@ Future<void> pickImageAndExtractText(
       }
     }
 
+    await SubscriptionUtils.incrementOcrUsage();
     onComplete(fullImageBytes, extractedText ?? '', extractedPageNumber);
   } catch (e) {
     debugPrint('이미지 선택 예외 발생 - $e');
@@ -510,11 +560,22 @@ Future<void> reExtractTextFromImage(
   required String imageUrl,
   required Function(String extractedText) onConfirm,
 }) async {
+  final canUse = await SubscriptionUtils.canUseOcr();
+  if (!canUse) {
+    if (context.mounted) {
+      showOcrLimitDialog(context);
+    }
+    return;
+  }
+
   final isDark = Theme.of(context).brightness == Brightness.dark;
+  final isPro = await SubscriptionUtils.isProUser();
+  final remaining = isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
 
   final shouldProceed = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
+    useRootNavigator: true,
     builder: (bottomSheetContext) => Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -545,8 +606,7 @@ Future<void> reExtractTextFromImage(
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(bottomSheetContext)
-                .extractTextOverwriteMessage,
+            AppLocalizations.of(bottomSheetContext).extractTextOverwriteMessage,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -554,12 +614,45 @@ Future<void> reExtractTextFromImage(
               height: 1.4,
             ),
           ),
+          if (!isPro) ...[
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(bottomSheetContext).extractTextFreeRemaining(
+                  remaining,
+                  SubscriptionConstants.maxOcrPerDayFree),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: bottomSheetContext,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  useRootNavigator: true,
+                  builder: (_) => const ProFeaturesSheet(),
+                );
+              },
+              child: Text(
+                AppLocalizations.of(bottomSheetContext).ocrProUnlimitedButton,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: BLabColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(bottomSheetContext, false),
+                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -582,7 +675,7 @@ Future<void> reExtractTextFromImage(
               const SizedBox(width: 12),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.pop(bottomSheetContext, true),
+                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -731,6 +824,9 @@ Future<void> reExtractTextFromImage(
 
     Navigator.of(context, rootNavigator: true).pop();
 
+    if (ocrText.isNotEmpty) {
+      await SubscriptionUtils.incrementOcrUsage();
+    }
     onConfirm(ocrText);
   } catch (e) {
     Navigator.of(context, rootNavigator: true).pop();
@@ -744,6 +840,7 @@ Future<void> scanDocumentAndExtractText(
   BuildContext context,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
+
   final parentContext = context;
 
   try {
@@ -755,12 +852,26 @@ Future<void> scanDocumentAndExtractText(
 
     debugPrint('문서 스캔 완료 (${scannedBytes.length} bytes)');
 
+    final canUse = await SubscriptionUtils.canUseOcr();
+    if (!canUse) {
+      if (parentContext.mounted) {
+        showOcrLimitDialog(parentContext);
+      }
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
+    final isPro = await SubscriptionUtils.isProUser();
+    final remaining =
+        isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
+
     final shouldExtract = await showModalBottomSheet<bool>(
       context: parentContext,
       backgroundColor: Colors.transparent,
       isDismissible: false,
       enableDrag: false,
+      useRootNavigator: true,
       builder: (bottomSheetContext) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -779,22 +890,46 @@ Future<void> scanDocumentAndExtractText(
                 color: isDark ? Colors.white : Colors.black,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(bottomSheetContext)
-                  .extractTextCreditsMessage,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+            if (!isPro) ...[
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(bottomSheetContext)
+                    .extractTextFreeRemaining(
+                        remaining,
+                        SubscriptionConstants.maxOcrPerDayFree),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: bottomSheetContext,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    useRootNavigator: true,
+                    builder: (_) => const ProFeaturesSheet(),
+                  );
+                },
+                child: Text(
+                  AppLocalizations.of(bottomSheetContext).ocrProUnlimitedButton,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: BLabColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, false),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -818,7 +953,7 @@ Future<void> scanDocumentAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext, true),
+                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -827,8 +962,7 @@ Future<void> scanDocumentAndExtractText(
                       ),
                       child: Center(
                         child: Text(
-                          AppLocalizations.of(bottomSheetContext)
-                              .extractButton,
+                          AppLocalizations.of(bottomSheetContext).extractButton,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -852,6 +986,7 @@ Future<void> scanDocumentAndExtractText(
       onComplete(scannedBytes, '', null);
       return;
     }
+
 
     showDialog(
       context: parentContext,
@@ -914,6 +1049,7 @@ Future<void> scanDocumentAndExtractText(
     );
 
     if (modifiedText != null) {
+      await SubscriptionUtils.incrementOcrUsage();
       onComplete(scannedBytes, modifiedText, pageNumber);
     } else {
       await scanDocumentAndExtractText(parentContext, onComplete);

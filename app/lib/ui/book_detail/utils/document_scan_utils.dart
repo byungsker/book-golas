@@ -25,6 +25,7 @@ Future<Uint8List?> scanDocumentWithCamera(BuildContext context) async {
     debugPrint('문서 스캔 시작');
 
     final imagesPath = await CunningDocumentScanner.getPictures(
+      noOfPages: 1,
       isGalleryImportAllowed: false,
     );
 
