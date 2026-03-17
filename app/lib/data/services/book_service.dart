@@ -345,8 +345,11 @@ class BookService {
     DateTime? newTargetDate,
     bool incrementAttempt = true,
   }) async {
-    final currentReadingCount = _books.where((b) => b.status == BookStatus.reading.value && b.id != bookId).length;
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(currentReadingCount)) {
+    final currentReadingCount = _books
+        .where((b) => b.status == BookStatus.reading.value && b.id != bookId)
+        .length;
+    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+        currentReadingCount)) {
       throw ConcurrentReadingLimitException(
         '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
       );
@@ -559,6 +562,27 @@ class BookService {
     } catch (e) {
       debugPrint('완독 책 개수 조회 실패: $e');
       return 0;
+    }
+  }
+
+  Future<void> recordReadingTime({
+    required String bookId,
+    required int currentPage,
+    required int readingTimeSeconds,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return;
+
+      await _supabase.from('reading_progress_history').insert({
+        'book_id': bookId,
+        'user_id': userId,
+        'page': currentPage,
+        'previous_page': currentPage,
+        'reading_time': readingTimeSeconds,
+      });
+    } catch (e) {
+      debugPrint('타이머 기록 저장 실패 (나중에하기): $e');
     }
   }
 }

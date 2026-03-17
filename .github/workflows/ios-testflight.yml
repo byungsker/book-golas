@@ -38,6 +38,7 @@ jobs:
           echo "Deploying Edge Functions to Dev..."
           for fn in supabase/functions/*/; do
             fn_name=$(basename "$fn")
+            [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
             echo "  Deploying: $fn_name"
             supabase functions deploy "$fn_name"
           done
