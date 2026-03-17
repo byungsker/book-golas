@@ -147,7 +147,10 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _errorText = widget.l10n.pageUpdateFailed;
+        });
       }
     }
   }
