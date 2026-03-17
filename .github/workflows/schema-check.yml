@@ -11,7 +11,7 @@ on:
 jobs:
   check-migrations:
     name: Validate Database Migrations
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -184,7 +184,7 @@ jobs:
 
   check-edge-functions:
     name: Validate Edge Functions
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository

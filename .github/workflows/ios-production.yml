@@ -9,7 +9,7 @@ on:
 jobs:
   migrate-database:
     name: Apply Database Migrations (Production)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment:
       name: production
       # GitHub Settings → Environments → production에서:
@@ -48,7 +48,7 @@ jobs:
 
   build-and-deploy:
     needs: migrate-database
-    runs-on: macos-15
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
