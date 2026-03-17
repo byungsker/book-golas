@@ -80,7 +80,12 @@ class ReadingProgressViewModel extends BaseViewModel {
         createdAt = DateTime.tryParse(rawCreatedAt)?.toLocal();
       }
       if (createdAt == null) continue;
-      final recordDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
+
+      final recordDate = DateTime(
+        createdAt.year,
+        createdAt.month,
+        createdAt.day,
+      );
       final expectedDate = today.subtract(Duration(days: streak));
 
       if (recordDate == expectedDate) {
@@ -96,6 +101,7 @@ class ReadingProgressViewModel extends BaseViewModel {
   Future<bool> addProgressRecord({
     required int page,
     required int previousPage,
+    int? readingTime,
   }) async {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -109,6 +115,7 @@ class ReadingProgressViewModel extends BaseViewModel {
         'user_id': userId,
         'page': page,
         'previous_page': previousPage,
+        'reading_time': readingTime ?? 0,
       });
 
       await fetchProgressHistory();
