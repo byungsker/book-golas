@@ -114,7 +114,7 @@ class DeepLinkService {
           await HomeWidget.initiallyLaunchedFromHomeWidget();
       if (initialWidgetUri != null) {
         debugPrint('📱 위젯 콜드스타트 딥링크: $initialWidgetUri');
-        await _handleDeepLink(initialWidgetUri);
+        await _handleDeepLink(initialWidgetUri, useReplacement: true);
       }
     } catch (e) {
       debugPrint('📱 위젯 초기 링크 처리 실패: $e');
@@ -125,7 +125,7 @@ class DeepLinkService {
       (Uri? uri) {
         if (uri != null) {
           debugPrint('📱 위젯 클릭 딥링크: $uri');
-          _handleDeepLink(uri);
+          _handleDeepLink(uri, useReplacement: true);
         }
       },
       onError: (e) {
@@ -188,8 +188,9 @@ class DeepLinkService {
     return null;
   }
 
-  static Future<void> _handleDeepLink(Uri uri) async {
-    debugPrint('🔗 딥링크 수신: $uri');
+  static Future<void> _handleDeepLink(Uri uri,
+      {bool useReplacement = false}) async {
+    debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
 
     if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
       if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
@@ -226,11 +227,14 @@ class DeepLinkService {
 
     switch (result.action) {
       case DeepLinkAction.search:
-        navigator.push(
-          MaterialPageRoute(
-            builder: (context) => const ReadingStartScreen(),
-          ),
+        final searchRoute = MaterialPageRoute(
+          builder: (context) => const ReadingStartScreen(),
         );
+        if (useReplacement) {
+          navigator.pushReplacement(searchRoute);
+        } else {
+          navigator.push(searchRoute);
+        }
         break;
 
       case DeepLinkAction.bookDetail:
@@ -241,11 +245,14 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
           return;
         }
-        navigator.push(
-          MaterialPageRoute(
-            builder: (context) => BookDetailScreen(book: book),
-          ),
+        final detailRoute = MaterialPageRoute(
+          builder: (context) => BookDetailScreen(book: book),
         );
+        if (useReplacement) {
+          navigator.pushReplacement(detailRoute);
+        } else {
+          navigator.push(detailRoute);
+        }
         break;
 
       case DeepLinkAction.bookRecord:
@@ -256,14 +263,17 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: $resolvedRecordId');
           return;
         }
-        navigator.push(
-          MaterialPageRoute(
-            builder: (context) => BookDetailScreen(
-              book: recordBook,
-              initialTabIndex: 1,
-            ),
+        final recordRoute = MaterialPageRoute(
+          builder: (context) => BookDetailScreen(
+            book: recordBook,
+            initialTabIndex: 1,
           ),
         );
+        if (useReplacement) {
+          navigator.pushReplacement(recordRoute);
+        } else {
+          navigator.push(recordRoute);
+        }
         break;
 
       case DeepLinkAction.bookScan:
@@ -274,14 +284,17 @@ class DeepLinkService {
           debugPrint('🔗 책을 찾을 수 없음: $resolvedScanId');
           return;
         }
-        navigator.push(
-          MaterialPageRoute(
-            builder: (context) => BookDetailScreen(
-              book: scanBook,
-              autoOpenScan: true,
-            ),
+        final scanRoute = MaterialPageRoute(
+          builder: (context) => BookDetailScreen(
+            book: scanBook,
+            autoOpenScan: true,
           ),
         );
+        if (useReplacement) {
+          navigator.pushReplacement(scanRoute);
+        } else {
+          navigator.push(scanRoute);
+        }
         break;
     }
   }
