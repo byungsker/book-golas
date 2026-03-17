@@ -235,30 +235,16 @@ class ReadingTimerViewModel extends BaseViewModel with WidgetsBindingObserver {
   Future<void> _saveStateOnBackground() async {
     if (!_isRunning && !_isPaused) return;
 
-    if (_isRunning && _startTime != null) {
-      _accumulatedMs += DateTime.now().difference(_startTime!).inMilliseconds;
-      _startTime = null;
-    }
-
     _stopDisplayTimer();
     await _persistState();
 
-    debugPrint('백그라운드 진입: 상태 저장 완료');
+    debugPrint('백그라운드 진입: 상태 저장 완료 (elapsed=${elapsed.inSeconds}s)');
   }
 
   Future<void> _restoreStateOnForeground() async {
     if (!_isRunning && !_isPaused) return;
 
-    final state = await _service.restoreTimerState();
-    if (state == null) return;
-
-    final wasRunning = state['timer_is_running'] as bool? ?? false;
-    _accumulatedMs = state['timer_accumulated_ms'] as int? ?? 0;
-    _currentBookTitle = state['timer_book_title'] as String?;
-    _currentBookImageUrl = state['timer_book_image_url'] as String?;
-
-    if (wasRunning) {
-      _startTime = DateTime.now();
+    if (_isRunning) {
       _startDisplayTimer();
       _checkMaxDuration();
     }
