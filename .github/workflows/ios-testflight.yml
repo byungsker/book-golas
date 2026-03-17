@@ -33,6 +33,19 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Deploy Edge Functions (Dev)
+        run: |
+          echo "Deploying Edge Functions to Dev..."
+          for fn in supabase/functions/*/; do
+            fn_name=$(basename "$fn")
+            [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
+            echo "  Deploying: $fn_name"
+            supabase functions deploy "$fn_name"
+          done
+          echo "✅ All Edge Functions deployed"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Verify Migration Status
         run: |
           echo "Checking migration status..."
