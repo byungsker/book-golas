@@ -3475,6 +3475,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageTermsAndPolicy => '약관 및 정책';
 
   @override
+  String get myPageTermsOfService => '이용약관';
+
+  @override
+  String get myPagePrivacyPolicy => '개인정보처리방침';
+
+  @override
   String get myPageVersion => '버전';
 
   @override

@@ -3558,6 +3558,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageTermsAndPolicy => 'Terms & Policy';
 
   @override
+  String get myPageTermsOfService => 'Terms of Service';
+
+  @override
+  String get myPagePrivacyPolicy => 'Privacy Policy';
+
+  @override
   String get myPageVersion => 'Version';
 
   @override
