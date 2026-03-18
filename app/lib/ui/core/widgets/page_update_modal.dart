@@ -30,6 +30,7 @@ class PageUpdateModal {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
     final l10n = AppLocalizations.of(context);
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
 
     await showModalBottomSheet(
       context: context,
@@ -62,6 +63,7 @@ class PageUpdateModal {
             onUpdate: onUpdate,
             onSkip: onSkip,
             requirePageUpdate: requirePageUpdate,
+            rootNavigator: rootNavigator,
           ),
         ),
       ),
@@ -79,6 +81,7 @@ class _PageUpdateModalContent extends StatefulWidget {
   final Future<void> Function(int newPage) onUpdate;
   final VoidCallback? onSkip;
   final bool requirePageUpdate;
+  final NavigatorState rootNavigator;
 
   const _PageUpdateModalContent({
     required this.isDark,
@@ -90,6 +93,7 @@ class _PageUpdateModalContent extends StatefulWidget {
     required this.onUpdate,
     this.onSkip,
     this.requirePageUpdate = false,
+    required this.rootNavigator,
   });
 
   @override
@@ -147,9 +151,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
 
     try {
       await widget.onUpdate(page).timeout(const Duration(seconds: 15));
-      if (mounted) {
-        Navigator.pop(context);
-      }
+      widget.rootNavigator.pop();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -335,7 +337,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             width: double.infinity,
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                widget.rootNavigator.pop();
                 widget.onSkip?.call();
               },
               child: Container(
