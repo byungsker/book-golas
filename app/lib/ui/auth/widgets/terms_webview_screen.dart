@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class TermsWebViewScreen extends StatefulWidget {
@@ -13,7 +14,8 @@ class TermsWebViewScreen extends StatefulWidget {
     required this.title,
     this.url,
     this.htmlContent,
-  });
+  }) : assert(url != null || htmlContent != null,
+            'Either url or htmlContent must be provided');
 
   @override
   State<TermsWebViewScreen> createState() => _TermsWebViewScreenState();
@@ -59,6 +61,9 @@ class _TermsWebViewScreenState extends State<TermsWebViewScreen> {
       _controller.loadHtmlString(widget.htmlContent!);
     } else if (widget.url != null) {
       _controller.loadRequest(Uri.parse(widget.url!));
+    } else {
+      _isLoading = false;
+      _hasError = true;
     }
   }
 
@@ -92,7 +97,7 @@ class _TermsWebViewScreenState extends State<TermsWebViewScreen> {
             child: _hasError
                 ? Center(
                     child: Text(
-                      '페이지를 불러올 수 없습니다',
+                      AppLocalizations.of(context).webviewLoadError,
                       style: TextStyle(
                         fontSize: 16,
                         color: isDark

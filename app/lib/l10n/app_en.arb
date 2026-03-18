@@ -1629,5 +1629,8 @@
            "@loginSocialApple": {"description": "Continue with Apple button"},
 
            "pageSwipeHint": "◀ Swipe to update page ▶",
-           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"},
+
+           "webviewLoadError": "Unable to load page",
+           "@webviewLoadError": {"description": "Error message when webview fails to load a page"}
 }

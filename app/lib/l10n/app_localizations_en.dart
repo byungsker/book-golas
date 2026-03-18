@@ -3663,4 +3663,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageSwipeHint => '◀ Swipe to update page ▶';
+
+  @override
+  String get webviewLoadError => 'Unable to load page';
 }

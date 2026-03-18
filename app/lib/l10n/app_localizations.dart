@@ -6694,6 +6694,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'◀ 밀어서 페이지 업데이트 ▶'**
   String get pageSwipeHint;
+
+  /// Error message when webview fails to load a page
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지를 불러올 수 없습니다'**
+  String get webviewLoadError;
 }
 
 class _AppLocalizationsDelegate
