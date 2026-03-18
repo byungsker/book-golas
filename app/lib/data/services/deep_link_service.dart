@@ -33,6 +33,7 @@ class DeepLinkService {
   static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
   static final Set<String> _handledAuthUrls = {};
   static final Map<String, DateTime> _recentlyHandledDeepLinks = {};
+  static bool _isProcessingDeepLink = false;
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -138,7 +139,7 @@ class DeepLinkService {
   static Future<void> _initAppLinks() async {
     try {
       final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null) {
+      if (initialUri != null && initialUri.scheme != 'bookgolas') {
         await _handleDeepLink(initialUri);
       }
     } catch (e) {
@@ -148,6 +149,7 @@ class DeepLinkService {
     _linkSubscription?.cancel();
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (Uri uri) {
+        if (uri.scheme == 'bookgolas') return;
         _handleDeepLink(uri);
       },
       onError: (e) {
@@ -193,121 +195,131 @@ class DeepLinkService {
       {bool useReplacement = false}) async {
     debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
 
+    if (_isProcessingDeepLink) {
+      debugPrint('🔗 딥링크 처리 중 — 중복 요청 무시: $uri');
+      return;
+    }
+
     final uriKey = uri.toString();
     final now = DateTime.now();
     final lastHandled = _recentlyHandledDeepLinks[uriKey];
     if (lastHandled != null &&
-        now.difference(lastHandled).inMilliseconds < 800) {
+        now.difference(lastHandled).inMilliseconds < 2000) {
       debugPrint(
           '🔗 중복 딥링크 무시 (${now.difference(lastHandled).inMilliseconds}ms 이내): $uri');
       return;
     }
     _recentlyHandledDeepLinks[uriKey] = now;
+    _isProcessingDeepLink = true;
 
-    if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
-      if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
-        debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시: $uri');
+    try {
+      if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
+        if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
+          debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시: $uri');
+          return;
+        }
+        final urlKey = uri.toString();
+        if (_handledAuthUrls.contains(urlKey)) {
+          debugPrint('🔗 이미 처리된 인증 콜백 — 무시: $uri');
+          return;
+        }
+        _handledAuthUrls.add(urlKey);
+        debugPrint('🔗 Supabase 인증 콜백: $uri');
+        try {
+          await Supabase.instance.client.auth.getSessionFromUrl(uri);
+          debugPrint('🔗 Supabase 인증 콜백 완료');
+        } catch (e) {
+          debugPrint('🔗 Supabase 인증 콜백 실패: $e');
+        }
         return;
       }
-      final urlKey = uri.toString();
-      if (_handledAuthUrls.contains(urlKey)) {
-        debugPrint('🔗 이미 처리된 인증 콜백 — 무시: $uri');
+
+      final navigator = _navigator;
+      if (navigator == null) {
+        debugPrint('🔗 Navigator 없음 — 딥링크 무시');
         return;
       }
-      _handledAuthUrls.add(urlKey);
-      debugPrint('🔗 Supabase 인증 콜백: $uri');
-      try {
-        await Supabase.instance.client.auth.getSessionFromUrl(uri);
-        debugPrint('🔗 Supabase 인증 콜백 완료');
-      } catch (e) {
-        debugPrint('🔗 Supabase 인증 콜백 실패: $e');
+
+      final result = parseUri(uri);
+      if (result == null) {
+        debugPrint('🔗 유효하지 않은 딥링크: $uri');
+        return;
       }
-      return;
-    }
 
-    final navigator = _navigator;
-    if (navigator == null) {
-      debugPrint('🔗 Navigator 없음 — 딥링크 무시');
-      return;
-    }
+      switch (result.action) {
+        case DeepLinkAction.search:
+          final searchRoute = MaterialPageRoute(
+            builder: (context) => const ReadingStartScreen(),
+          );
+          if (useReplacement) {
+            navigator.pushReplacement(searchRoute);
+          } else {
+            navigator.push(searchRoute);
+          }
+          break;
 
-    final result = parseUri(uri);
-    if (result == null) {
-      debugPrint('🔗 유효하지 않은 딥링크: $uri');
-      return;
-    }
+        case DeepLinkAction.bookDetail:
+          final resolvedId = await _resolveBookId(result.bookId);
+          if (resolvedId == null) return;
+          final book = await _fetchBook(resolvedId);
+          if (book == null) {
+            debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
+            return;
+          }
+          final detailRoute = MaterialPageRoute(
+            builder: (context) => BookDetailScreen(book: book),
+          );
+          if (useReplacement) {
+            navigator.pushReplacement(detailRoute);
+          } else {
+            navigator.push(detailRoute);
+          }
+          break;
 
-    switch (result.action) {
-      case DeepLinkAction.search:
-        final searchRoute = MaterialPageRoute(
-          builder: (context) => const ReadingStartScreen(),
-        );
-        if (useReplacement) {
-          navigator.pushReplacement(searchRoute);
-        } else {
-          navigator.push(searchRoute);
-        }
-        break;
+        case DeepLinkAction.bookRecord:
+          final resolvedRecordId = await _resolveBookId(result.bookId);
+          if (resolvedRecordId == null) return;
+          final recordBook = await _fetchBook(resolvedRecordId);
+          if (recordBook == null) {
+            debugPrint('🔗 책을 찾을 수 없음: $resolvedRecordId');
+            return;
+          }
+          final recordRoute = MaterialPageRoute(
+            builder: (context) => BookDetailScreen(
+              book: recordBook,
+              initialTabIndex: 1,
+            ),
+          );
+          if (useReplacement) {
+            navigator.pushReplacement(recordRoute);
+          } else {
+            navigator.push(recordRoute);
+          }
+          break;
 
-      case DeepLinkAction.bookDetail:
-        final resolvedId = await _resolveBookId(result.bookId);
-        if (resolvedId == null) return;
-        final book = await _fetchBook(resolvedId);
-        if (book == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
-          return;
-        }
-        final detailRoute = MaterialPageRoute(
-          builder: (context) => BookDetailScreen(book: book),
-        );
-        if (useReplacement) {
-          navigator.pushReplacement(detailRoute);
-        } else {
-          navigator.push(detailRoute);
-        }
-        break;
-
-      case DeepLinkAction.bookRecord:
-        final resolvedRecordId = await _resolveBookId(result.bookId);
-        if (resolvedRecordId == null) return;
-        final recordBook = await _fetchBook(resolvedRecordId);
-        if (recordBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedRecordId');
-          return;
-        }
-        final recordRoute = MaterialPageRoute(
-          builder: (context) => BookDetailScreen(
-            book: recordBook,
-            initialTabIndex: 1,
-          ),
-        );
-        if (useReplacement) {
-          navigator.pushReplacement(recordRoute);
-        } else {
-          navigator.push(recordRoute);
-        }
-        break;
-
-      case DeepLinkAction.bookScan:
-        final resolvedScanId = await _resolveBookId(result.bookId);
-        if (resolvedScanId == null) return;
-        final scanBook = await _fetchBook(resolvedScanId);
-        if (scanBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedScanId');
-          return;
-        }
-        final scanRoute = MaterialPageRoute(
-          builder: (context) => BookDetailScreen(
-            book: scanBook,
-            autoOpenScan: true,
-          ),
-        );
-        if (useReplacement) {
-          navigator.pushReplacement(scanRoute);
-        } else {
-          navigator.push(scanRoute);
-        }
-        break;
+        case DeepLinkAction.bookScan:
+          final resolvedScanId = await _resolveBookId(result.bookId);
+          if (resolvedScanId == null) return;
+          final scanBook = await _fetchBook(resolvedScanId);
+          if (scanBook == null) {
+            debugPrint('🔗 책을 찾을 수 없음: $resolvedScanId');
+            return;
+          }
+          final scanRoute = MaterialPageRoute(
+            builder: (context) => BookDetailScreen(
+              book: scanBook,
+              autoOpenScan: true,
+            ),
+          );
+          if (useReplacement) {
+            navigator.pushReplacement(scanRoute);
+          } else {
+            navigator.push(scanRoute);
+          }
+          break;
+      }
+    } finally {
+      _isProcessingDeepLink = false;
     }
   }
 

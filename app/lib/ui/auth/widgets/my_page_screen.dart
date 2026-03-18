@@ -26,6 +26,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 import 'login_screen.dart';
 import 'terms_webview_screen.dart';
+import 'package:book_golas/ui/auth/utils/legal_content.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
@@ -263,8 +264,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
-  Future<void> _saveNotificationTime(
-      int hour, int minute, String type) async {
+  Future<void> _saveNotificationTime(int hour, int minute, String type) async {
     final settingsViewModel = context.read<NotificationSettingsViewModel>();
 
     bool success;
@@ -286,8 +286,8 @@ class _MyPageContentState extends State<_MyPageContent> {
           : settingsViewModel.getFormattedDailyReminderTime();
       CustomSnackbar.show(
         context,
-        message: AppLocalizations.of(context)
-            .myPageNotificationTime(formattedTime),
+        message:
+            AppLocalizations.of(context).myPageNotificationTime(formattedTime),
         type: BLabSnackbarType.success,
         bottomOffset: 32,
       );
@@ -699,8 +699,9 @@ class _MyPageContentState extends State<_MyPageContent> {
                           backgroundColor: Colors.transparent,
                           builder: (context) => Container(
                             decoration: BoxDecoration(
-                              color:
-                                  isDark ? BLabColors.surfaceDark : Colors.white,
+                              color: isDark
+                                  ? BLabColors.surfaceDark
+                                  : Colors.white,
                               borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(24)),
                             ),
@@ -918,7 +919,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                     _buildSettingRow(
                       context: context,
                       icon: Icons.bookmark,
-                    title: AppLocalizations.of(context).myPageNotificationDailyReminder,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationDailyReminder,
                       subtitle: settings.dailyReminderEnabled
                           ? _formatTime(settings.dailyReminderHour,
                               settings.dailyReminderMinute)
@@ -957,8 +959,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                             ? null
                             : () => _showTimePicker(
                                   initialHour: settings.dailyReminderHour,
-                                  initialMinute:
-                                      settings.dailyReminderMinute,
+                                  initialMinute: settings.dailyReminderMinute,
                                   type: 'dailyReminder',
                                 ),
                       ),
@@ -970,8 +971,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                       title: AppLocalizations.of(context)
                           .myPageNotificationGoalAlarm,
                       subtitle: settings.goalAlarmEnabled
-                          ? _formatTime(settings.goalAlarmHour,
-                              settings.goalAlarmMinute)
+                          ? _formatTime(
+                              settings.goalAlarmHour, settings.goalAlarmMinute)
                           : null,
                       trailing: Switch(
                         value: settings.goalAlarmEnabled,
@@ -998,8 +999,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                     if (settings.goalAlarmEnabled) ...[
                       const SizedBox(height: 8),
                       BLabButton(
-                        text: _formatTime(settings.goalAlarmHour,
-                            settings.goalAlarmMinute),
+                        text: _formatTime(
+                            settings.goalAlarmHour, settings.goalAlarmMinute),
                         icon: Icons.access_time,
                         variant: BLabButtonVariant.secondary,
                         isFullWidth: true,
@@ -1039,14 +1040,17 @@ class _MyPageContentState extends State<_MyPageContent> {
                     _buildSettingRow(
                       context: context,
                       icon: Icons.campaign,
-                    title: AppLocalizations.of(context).myPageNotificationAnnouncements,
+                      title: AppLocalizations.of(context)
+                          .myPageNotificationAnnouncements,
                       trailing: Consumer<MyPageViewModel>(
                         builder: (context, vm, child) {
                           return Switch(
-                      value: vm.isCategoryEnabled(NotificationCategory.announcements),
+                            value: vm.isCategoryEnabled(
+                                NotificationCategory.announcements),
                             onChanged: (value) {
                               HapticFeedback.selectionClick();
-                        vm.toggleCategory(NotificationCategory.announcements, value);
+                              vm.toggleCategory(
+                                  NotificationCategory.announcements, value);
                             },
                             activeTrackColor: BLabColors.primary,
                           );
@@ -1071,8 +1075,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                 if (mounted) {
                   CustomSnackbar.show(
                     context,
-                    message: AppLocalizations.of(context)
-                        .myPageTestNotificationSent,
+                    message:
+                        AppLocalizations.of(context).myPageTestNotificationSent,
                     type: BLabSnackbarType.success,
                     bottomOffset: 32,
                     duration: const Duration(seconds: 3),
@@ -1117,7 +1121,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                 trailing: Icon(
                   Icons.chevron_right,
                   size: 20,
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.4),
                 ),
               ),
             ),
@@ -1224,6 +1229,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   Widget _buildInfoCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black;
+    final locale = Localizations.localeOf(context).languageCode;
 
     return BLabCard(
       child: Column(
@@ -1241,14 +1247,36 @@ class _MyPageContentState extends State<_MyPageContent> {
           _buildInfoRow(
             context: context,
             icon: Icons.description,
-            title: AppLocalizations.of(context).myPageTermsAndPolicy,
+            title: AppLocalizations.of(context).myPageTermsOfService,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => TermsWebViewScreen(
-                    title: AppLocalizations.of(context).myPageTermsAndPolicy,
-                    url: 'https://placeholder.com/terms',
+                    title: AppLocalizations.of(context).myPageTermsOfService,
+                    htmlContent: LegalContent.termsOfService(locale, isDark),
+                  ),
+                ),
+              );
+            },
+          ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.shield,
+            title: AppLocalizations.of(context).myPagePrivacyPolicy,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TermsWebViewScreen(
+                    title: AppLocalizations.of(context).myPagePrivacyPolicy,
+                    htmlContent: LegalContent.privacyPolicy(locale, isDark),
                   ),
                 ),
               );
@@ -1270,7 +1298,7 @@ class _MyPageContentState extends State<_MyPageContent> {
                 MaterialPageRoute(
                   builder: (_) => TermsWebViewScreen(
                     title: AppLocalizations.of(context).myPageAnnouncements,
-                    url: 'https://placeholder.com/announcements',
+                    htmlContent: LegalContent.announcements(locale, isDark),
                   ),
                 ),
               );
@@ -1456,7 +1484,6 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 }
 
-
 class _PasswordChangeSheet extends StatefulWidget {
   const _PasswordChangeSheet();
 
@@ -1540,10 +1567,9 @@ class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
       );
       Navigator.pop(context);
     } else {
-      final message =
-          error.contains('same as') || error.contains('different')
-              ? l10n.myPagePasswordSameAsOld
-              : l10n.myPagePasswordChangeErrorDetail(error);
+      final message = error.contains('same as') || error.contains('different')
+          ? l10n.myPagePasswordSameAsOld
+          : l10n.myPagePasswordChangeErrorDetail(error);
       CustomSnackbar.show(
         context,
         message: message,
@@ -1551,8 +1577,8 @@ class _PasswordChangeSheetState extends State<_PasswordChangeSheet> {
         bottomOffset: 32,
       );
     }
-
   }
+
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String hint,

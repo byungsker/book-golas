@@ -1517,6 +1517,12 @@
            "myPageTermsAndPolicy": "Terms & Policy",
            "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
 
+           "myPageTermsOfService": "Terms of Service",
+           "@myPageTermsOfService": {"description": "Terms of service in my page"},
+
+           "myPagePrivacyPolicy": "Privacy Policy",
+           "@myPagePrivacyPolicy": {"description": "Privacy policy in my page"},
+
            "myPageVersion": "Version",
            "@myPageVersion": {"description": "Version in my page"},
 
@@ -1623,5 +1629,8 @@
            "@loginSocialApple": {"description": "Continue with Apple button"},
 
            "pageSwipeHint": "◀ Swipe to update page ▶",
-           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"},
+
+           "webviewLoadError": "Unable to load page",
+           "@webviewLoadError": {"description": "Error message when webview fails to load a page"}
 }
