@@ -6497,6 +6497,18 @@ abstract class AppLocalizations {
   /// **'약관 및 정책'**
   String get myPageTermsAndPolicy;
 
+  /// Terms of service in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get myPageTermsOfService;
+
+  /// Privacy policy in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보처리방침'**
+  String get myPagePrivacyPolicy;
+
   /// Version in my page
   ///
   /// In ko, this message translates to:
