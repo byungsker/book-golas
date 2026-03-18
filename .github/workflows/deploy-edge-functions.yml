@@ -1,0 +1,63 @@
+name: Deploy Edge Functions
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      function_name:
+        description: 'Function name (leave empty for all)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link to Project
+        run: |
+          if [ "${{ inputs.target }}" = "prod" ]; then
+            echo "Linking to Production..."
+            supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
+          else
+            echo "Linking to Dev..."
+            supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF_DEV }}
+          fi
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy Edge Functions
+        run: |
+          TARGET="${{ inputs.target }}"
+          FUNCTION="${{ inputs.function_name }}"
+
+          if [ -n "$FUNCTION" ]; then
+            echo "Deploying single function: $FUNCTION to $TARGET"
+            supabase functions deploy "$FUNCTION"
+          else
+            echo "Deploying all functions to $TARGET..."
+            for fn in supabase/functions/*/; do
+              fn_name=$(basename "$fn")
+              [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
+              echo "  Deploying: $fn_name"
+              supabase functions deploy "$fn_name"
+            done
+          fi
+          echo "✅ Deployment complete"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
