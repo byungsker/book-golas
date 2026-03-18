@@ -3577,4 +3577,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pageSwipeHint => '◀ 밀어서 페이지 업데이트 ▶';
+
+  @override
+  String get webviewLoadError => '페이지를 불러올 수 없습니다';
 }
