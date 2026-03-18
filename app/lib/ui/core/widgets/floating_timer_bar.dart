@@ -296,6 +296,8 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
     if (book == null || !mounted) return;
 
     final currentPage = book.currentPage;
+    bool pageUpdated = false;
+    int? updatedPage;
 
     await PageUpdateModal.show(
       context: context,
@@ -309,24 +311,26 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
           newPage,
           readingTime: duration.inSeconds,
         );
-
-        if (mounted) {
-          if (!isInBookDetailScreen) {
-            await _navigateToBookDetail(bookId);
-          }
-
-          if (mounted) {
-            CustomSnackbar.show(
-              context,
-              message: l10n.pageUpdateSuccess(newPage),
-              type: BLabSnackbarType.success,
-              rootOverlay: true,
-              bottomOffset: 100,
-            );
-          }
-        }
+        pageUpdated = true;
+        updatedPage = newPage;
       },
     );
+
+    if (pageUpdated && mounted) {
+      if (!isInBookDetailScreen) {
+        await _navigateToBookDetail(bookId);
+      }
+
+      if (mounted && updatedPage != null) {
+        CustomSnackbar.show(
+          context,
+          message: l10n.pageUpdateSuccess(updatedPage!),
+          type: BLabSnackbarType.success,
+          rootOverlay: true,
+          bottomOffset: 100,
+        );
+      }
+    }
   }
 
   @override
