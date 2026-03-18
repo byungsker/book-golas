@@ -486,6 +486,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   startDate: book.startDate,
                                   targetDate: book.targetDate,
                                   bookId: book.id ?? '',
+                                  dailySessionDurations:
+                                      progressVm.dailySessionDurations,
                                 );
                               },
                             ),
