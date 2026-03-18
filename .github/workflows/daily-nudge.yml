@@ -10,7 +10,7 @@ on:
 
 jobs:
   send-batch-nudge:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Send Smart Nudge to All Users

@@ -9,7 +9,7 @@ on:
 jobs:
   migrate-database:
     name: Apply Database Migrations (Dev)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -42,7 +42,7 @@ jobs:
 
   build-and-deploy:
     # needs: migrate-database  # Temporarily disabled due to migration history mismatch
-    runs-on: macos-15
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
