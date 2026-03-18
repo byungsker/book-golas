@@ -161,6 +161,7 @@ class BookService {
     String bookId,
     int currentPage, {
     int? previousPage,
+    int? readingTime,
   }) async {
     try {
       int prevPage = previousPage ?? 0;
@@ -225,6 +226,8 @@ class BookService {
               'book_id': bookId,
               'page': currentPage,
               'previous_page': prevPage,
+              if (readingTime != null && readingTime > 0)
+                'reading_time': readingTime,
             });
             debugPrint('📖 [BookService] 히스토리 기록 성공: $prevPage → $currentPage');
           }

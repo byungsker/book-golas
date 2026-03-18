@@ -302,8 +302,13 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       currentPage: currentPage,
       totalPages: book.totalPages,
       readingDuration: duration,
+      requirePageUpdate: true,
       onUpdate: (newPage) async {
-        await bookService.updateCurrentPage(bookId, newPage);
+        await bookService.updateCurrentPage(
+          bookId,
+          newPage,
+          readingTime: duration.inSeconds,
+        );
 
         if (mounted) {
           if (!isInBookDetailScreen) {
@@ -320,13 +325,6 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
             );
           }
         }
-      },
-      onSkip: () {
-        bookService.recordReadingTime(
-          bookId: bookId,
-          currentPage: currentPage,
-          readingTimeSeconds: duration.inSeconds,
-        );
       },
     );
   }
