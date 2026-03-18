@@ -2193,6 +2193,12 @@ abstract class AppLocalizations {
   /// **'업데이트'**
   String get pageUpdateButton;
 
+  /// Did not read button after timer - cancels timer session
+  ///
+  /// In ko, this message translates to:
+  /// **'안읽었어요'**
+  String get timerDidNotRead;
+
   /// Document scan option
   ///
   /// In ko, this message translates to:

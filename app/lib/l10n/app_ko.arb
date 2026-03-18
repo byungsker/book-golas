@@ -1224,6 +1224,9 @@
      "pageUpdateButton": "업데이트",
      "@pageUpdateButton": {"description": "Update button"},
      
+     "timerDidNotRead": "안읽었어요",
+     "@timerDidNotRead": {"description": "Did not read button after timer - cancels timer session"},
+     
      "imageSourceDocumentScan": "문서 스캔",
      "@imageSourceDocumentScan": {"description": "Document scan option"},
      

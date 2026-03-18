@@ -1176,6 +1176,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pageUpdateButton => 'Update';
 
   @override
+  String get timerDidNotRead => 'I didn\'t read';
+
+  @override
   String get imageSourceDocumentScan => 'Document Scan';
 
   @override
