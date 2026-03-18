@@ -407,10 +407,13 @@ serve(async (req) => {
     }
 
     // ── Phase 2: event nudge (batch SQL) ──
-    const { data: eligibleNudges } = await supabaseClient.rpc(
-      "get_eligible_event_nudges",
-      {}
-    ).catch(() => ({ data: null }));
+    let eligibleNudges = null;
+    try {
+      const rpcResult = await supabaseClient.rpc("get_eligible_event_nudges", {});
+      eligibleNudges = rpcResult.data;
+    } catch {
+      eligibleNudges = null;
+    }
 
     if (!eligibleNudges) {
       const nudgeResult = await processEventNudgesFallback(
