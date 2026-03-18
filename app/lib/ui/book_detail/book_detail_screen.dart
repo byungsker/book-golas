@@ -598,37 +598,29 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final effectiveDuration =
         readingDuration ?? (isTimerActiveForThisBook ? timerVm.elapsed : null);
 
+    final isTimerCompleted = readingDuration != null;
+
     await PageUpdateModal.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
       readingDuration: effectiveDuration,
+      requirePageUpdate: isTimerCompleted,
       onUpdate: (newPage) async {
-        await _updateCurrentPage(bookVm, newPage);
-        if (effectiveDuration != null) {
-          final progressVm = context.read<ReadingProgressViewModel>();
-          await progressVm.addProgressRecord(
-            page: newPage,
-            previousPage: book.currentPage,
-            readingTime: effectiveDuration.inSeconds,
-          );
-        }
+        await _updateCurrentPage(
+          bookVm,
+          newPage,
+          readingTime: effectiveDuration?.inSeconds,
+        );
       },
-      onSkip: effectiveDuration != null
-          ? () {
-              final progressVm = context.read<ReadingProgressViewModel>();
-              progressVm.addProgressRecord(
-                page: book.currentPage,
-                previousPage: book.currentPage,
-                readingTime: effectiveDuration.inSeconds,
-              );
-            }
-          : null,
     );
   }
 
   Future<void> _updateCurrentPage(
-      BookDetailViewModel bookVm, int newPage) async {
+    BookDetailViewModel bookVm,
+    int newPage, {
+    int? readingTime,
+  }) async {
     final oldPage = bookVm.currentBook.currentPage;
     final totalPages = bookVm.currentBook.totalPages;
     final oldProgress = oldPage / totalPages;
@@ -637,7 +629,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final wasCompleted = oldPage >= totalPages;
     final isNowCompleted = newPage >= totalPages;
 
-    final success = await bookVm.updateCurrentPage(newPage);
+    final success =
+        await bookVm.updateCurrentPage(newPage, readingTime: readingTime);
     if (success && mounted) {
       _animateProgress(oldProgress, newProgress);
       _scrollController.animateTo(0,

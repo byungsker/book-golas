@@ -17,6 +17,7 @@ class PageUpdateModal {
   /// [readingDuration] - 독서 시간 (optional, 표시용)
   /// [onUpdate] - 업데이트 완료 콜백 (새 페이지 번호 전달)
   /// [onSkip] - 나중에 하기 콜백 (optional)
+  /// [requirePageUpdate] - true면 스킵/취소 버튼 숨김 (타이머 완료 후 필수 업데이트)
   static Future<void> show({
     required BuildContext context,
     int? currentPage,
@@ -24,6 +25,7 @@ class PageUpdateModal {
     Duration? readingDuration,
     required Future<void> Function(int newPage) onUpdate,
     VoidCallback? onSkip,
+    bool requirePageUpdate = false,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
@@ -59,6 +61,7 @@ class PageUpdateModal {
             readingDuration: readingDuration,
             onUpdate: onUpdate,
             onSkip: onSkip,
+            requirePageUpdate: requirePageUpdate,
           ),
         ),
       ),
@@ -75,6 +78,7 @@ class _PageUpdateModalContent extends StatefulWidget {
   final Duration? readingDuration;
   final Future<void> Function(int newPage) onUpdate;
   final VoidCallback? onSkip;
+  final bool requirePageUpdate;
 
   const _PageUpdateModalContent({
     required this.isDark,
@@ -85,6 +89,7 @@ class _PageUpdateModalContent extends StatefulWidget {
     this.readingDuration,
     required this.onUpdate,
     this.onSkip,
+    this.requirePageUpdate = false,
   });
 
   @override
@@ -324,32 +329,32 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
-
-        // Skip/Cancel button
-        SizedBox(
-          width: double.infinity,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              widget.onSkip?.call();
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                widget.onSkip != null
-                    ? widget.l10n.pageUpdateLater
-                    : widget.l10n.commonCancel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+        if (!widget.requirePageUpdate) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                widget.onSkip?.call();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  widget.onSkip != null
+                      ? widget.l10n.pageUpdateLater
+                      : widget.l10n.commonCancel,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
