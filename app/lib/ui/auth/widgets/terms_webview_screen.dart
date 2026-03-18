@@ -5,12 +5,14 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class TermsWebViewScreen extends StatefulWidget {
   final String title;
-  final String url;
+  final String? url;
+  final String? htmlContent;
 
   const TermsWebViewScreen({
     super.key,
     required this.title,
-    required this.url,
+    this.url,
+    this.htmlContent,
   });
 
   @override
@@ -51,8 +53,13 @@ class _TermsWebViewScreenState extends State<TermsWebViewScreen> {
             }
           },
         ),
-      )
-      ..loadRequest(Uri.parse(widget.url));
+      );
+
+    if (widget.htmlContent != null) {
+      _controller.loadHtmlString(widget.htmlContent!);
+    } else if (widget.url != null) {
+      _controller.loadRequest(Uri.parse(widget.url!));
+    }
   }
 
   @override
