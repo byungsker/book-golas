@@ -3475,6 +3475,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageTermsAndPolicy => '약관 및 정책';
 
   @override
+  String get myPageTermsOfService => '이용약관';
+
+  @override
+  String get myPagePrivacyPolicy => '개인정보처리방침';
+
+  @override
   String get myPageVersion => '버전';
 
   @override
@@ -3571,4 +3577,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pageSwipeHint => '◀ 밀어서 페이지 업데이트 ▶';
+
+  @override
+  String get webviewLoadError => '페이지를 불러올 수 없습니다';
 }

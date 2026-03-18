@@ -3052,8 +3052,14 @@
          "myPageWrongCurrentPassword": "현재 비밀번호가 올바르지 않습니다",
          "@myPageWrongCurrentPassword": {"description": "Wrong current password error"},
 
-         "myPageTermsAndPolicy": "약관 및 정책",
-         "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
+     "myPageTermsAndPolicy": "약관 및 정책",
+     "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
+
+     "myPageTermsOfService": "이용약관",
+     "@myPageTermsOfService": {"description": "Terms of service in my page"},
+
+     "myPagePrivacyPolicy": "개인정보처리방침",
+     "@myPagePrivacyPolicy": {"description": "Privacy policy in my page"},
 
          "myPageVersion": "버전",
          "@myPageVersion": {"description": "Version in my page"},
@@ -3162,5 +3168,8 @@
          "@loginSocialApple": {"description": "Continue with Apple button"},
 
          "pageSwipeHint": "◀ 밀어서 페이지 업데이트 ▶",
-         "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
+         "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"},
+
+         "webviewLoadError": "페이지를 불러올 수 없습니다",
+         "@webviewLoadError": {"description": "Error message when webview fails to load a page"}
 }

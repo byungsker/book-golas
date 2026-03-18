@@ -6497,6 +6497,18 @@ abstract class AppLocalizations {
   /// **'약관 및 정책'**
   String get myPageTermsAndPolicy;
 
+  /// Terms of service in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get myPageTermsOfService;
+
+  /// Privacy policy in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보처리방침'**
+  String get myPagePrivacyPolicy;
+
   /// Version in my page
   ///
   /// In ko, this message translates to:
@@ -6682,6 +6694,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'◀ 밀어서 페이지 업데이트 ▶'**
   String get pageSwipeHint;
+
+  /// Error message when webview fails to load a page
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지를 불러올 수 없습니다'**
+  String get webviewLoadError;
 }
 
 class _AppLocalizationsDelegate
