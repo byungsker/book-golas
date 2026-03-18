@@ -600,22 +600,23 @@ class _BookDetailContentState extends State<_BookDetailContent>
     final effectiveDuration =
         readingDuration ?? (isTimerActiveForThisBook ? timerVm.elapsed : null);
 
-    final isTimerCompleted = readingDuration != null;
+    final isTimerFlow = readingDuration != null;
 
-    await PageUpdateModal.show(
+    final result = await PageUpdateModal.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
       readingDuration: effectiveDuration,
-      requirePageUpdate: isTimerCompleted,
-      onUpdate: (newPage) async {
-        await _updateCurrentPage(
-          bookVm,
-          newPage,
-          readingTime: effectiveDuration?.inSeconds,
-        );
-      },
+      isTimerFlow: isTimerFlow,
     );
+
+    if (result.page != null && mounted) {
+      await _updateCurrentPage(
+        bookVm,
+        result.page!,
+        readingTime: effectiveDuration?.inSeconds,
+      );
+    }
   }
 
   Future<void> _updateCurrentPage(

@@ -1131,6 +1131,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get pageUpdateButton => '업데이트';
 
   @override
+  String get timerDidNotRead => '안읽었어요';
+
+  @override
   String get imageSourceDocumentScan => '문서 스캔';
 
   @override
