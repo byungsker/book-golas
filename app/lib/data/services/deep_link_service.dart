@@ -32,6 +32,7 @@ class DeepLinkService {
   static GlobalKey<NavigatorState>? _navigatorKey;
   static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
   static final Set<String> _handledAuthUrls = {};
+  static final Map<String, DateTime> _recentlyHandledDeepLinks = {};
 
   static DeepLinkResult? parseUri(Uri uri) {
     if (uri.scheme != 'bookgolas') return null;
@@ -192,6 +193,17 @@ class DeepLinkService {
       {bool useReplacement = false}) async {
     debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
 
+    final uriKey = uri.toString();
+    final now = DateTime.now();
+    final lastHandled = _recentlyHandledDeepLinks[uriKey];
+    if (lastHandled != null &&
+        now.difference(lastHandled).inMilliseconds < 800) {
+      debugPrint(
+          '🔗 중복 딥링크 무시 (${now.difference(lastHandled).inMilliseconds}ms 이내): $uri');
+      return;
+    }
+    _recentlyHandledDeepLinks[uriKey] = now;
+
     if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
       if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
         debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시: $uri');
@@ -315,5 +327,6 @@ class DeepLinkService {
     _widgetClickSubscription?.cancel();
     _widgetClickSubscription = null;
     _navigatorKey = null;
+    _recentlyHandledDeepLinks.clear();
   }
 }
