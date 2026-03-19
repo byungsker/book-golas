@@ -3672,4 +3672,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webviewLoadError => 'Unable to load page';
+
+  @override
+  String get bottomBarStartReading => 'Start Reading';
+
+  @override
+  String get bottomBarRecord => 'Record';
+
+  @override
+  String get bottomBarTimerStart => 'Start Timer';
+
+  @override
+  String get bottomBarPageUpdate => 'Update Page';
+
+  @override
+  String get bottomBarAddRecord => 'Add Record';
+
+  @override
+  String get bottomBarAiRecordSearch => 'AI Record Search';
 }

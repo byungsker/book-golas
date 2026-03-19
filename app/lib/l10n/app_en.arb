@@ -1636,6 +1636,24 @@
            "pageSwipeHint": "◀ Swipe to update page ▶",
            "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"},
 
-           "webviewLoadError": "Unable to load page",
-           "@webviewLoadError": {"description": "Error message when webview fails to load a page"}
+            "webviewLoadError": "Unable to load page",
+            "@webviewLoadError": {"description": "Error message when webview fails to load a page"},
+
+            "bottomBarStartReading": "Start Reading",
+            "@bottomBarStartReading": {"description": "Start reading button in floating action bar"},
+
+            "bottomBarRecord": "Record",
+            "@bottomBarRecord": {"description": "Record button in floating action bar"},
+
+            "bottomBarTimerStart": "Start Timer",
+            "@bottomBarTimerStart": {"description": "Start timer menu item in floating action bar"},
+
+            "bottomBarPageUpdate": "Update Page",
+            "@bottomBarPageUpdate": {"description": "Update page menu item in floating action bar"},
+
+            "bottomBarAddRecord": "Add Record",
+            "@bottomBarAddRecord": {"description": "Add record menu item in floating action bar"},
+
+            "bottomBarAiRecordSearch": "AI Record Search",
+            "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"}
 }

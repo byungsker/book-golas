@@ -6712,6 +6712,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'페이지를 불러올 수 없습니다'**
   String get webviewLoadError;
+
+  /// Start reading button in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get bottomBarStartReading;
+
+  /// Record button in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get bottomBarRecord;
+
+  /// Start timer menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'타이머 시작'**
+  String get bottomBarTimerStart;
+
+  /// Update page menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 업데이트'**
+  String get bottomBarPageUpdate;
+
+  /// Add record menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 추가'**
+  String get bottomBarAddRecord;
+
+  /// AI record search menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get bottomBarAiRecordSearch;
 }
 
 class _AppLocalizationsDelegate
