@@ -3586,4 +3586,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get webviewLoadError => '페이지를 불러올 수 없습니다';
+
+  @override
+  String get bottomBarStartReading => '독서 시작';
+
+  @override
+  String get bottomBarRecord => '기록';
+
+  @override
+  String get bottomBarTimerStart => '타이머 시작';
+
+  @override
+  String get bottomBarPageUpdate => '페이지 업데이트';
+
+  @override
+  String get bottomBarAddRecord => '기록 추가';
+
+  @override
+  String get bottomBarAiRecordSearch => 'AI 기록 검색';
 }
