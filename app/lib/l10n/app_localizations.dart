@@ -5872,6 +5872,12 @@ abstract class AppLocalizations {
   /// **'오늘 목표'**
   String get chartTodayGoal;
 
+  /// Label for overall reading progress bar on book list card
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 진행'**
+  String get bookListCardOverallProgress;
+
   /// No description provided for @chartDailyPages.
   ///
   /// In ko, this message translates to:
