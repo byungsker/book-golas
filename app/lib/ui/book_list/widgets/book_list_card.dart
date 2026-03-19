@@ -10,11 +10,7 @@ class BookListCard extends StatelessWidget {
   final Book book;
   final VoidCallback onTap;
 
-  const BookListCard({
-    super.key,
-    required this.book,
-    required this.onTap,
-  });
+  const BookListCard({super.key, required this.book, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,10 @@ class BookListCard extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(
-        book.targetDate.year, book.targetDate.month, book.targetDate.day);
+      book.targetDate.year,
+      book.targetDate.month,
+      book.targetDate.day,
+    );
     final daysLeft = target.difference(today).inDays;
     final pageProgress = book.totalPages > 0
         ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
@@ -59,7 +58,12 @@ class BookListCard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildBookInfo(
-                      isDark, daysLeft, pageProgress, isCompleted, l10n),
+                    isDark,
+                    daysLeft,
+                    pageProgress,
+                    isCompleted,
+                    l10n,
+                  ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -86,16 +90,18 @@ class BookListCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
-        child: BookImageWidget(
-          imageUrl: book.imageUrl,
-          iconSize: 30,
-        ),
+        child: BookImageWidget(imageUrl: book.imageUrl, iconSize: 30),
       ),
     );
   }
 
-  Widget _buildBookInfo(bool isDark, int daysLeft, double pageProgress,
-      bool isCompleted, AppLocalizations l10n) {
+  Widget _buildBookInfo(
+    bool isDark,
+    int daysLeft,
+    double pageProgress,
+    bool isCompleted,
+    AppLocalizations l10n,
+  ) {
     final isReading = book.status == BookStatus.reading.value && !isCompleted;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,17 +128,27 @@ class BookListCard extends StatelessWidget {
   }
 
   Widget _buildDualProgressBars(
-      bool isDark, int daysLeft, double pageProgress, AppLocalizations l10n) {
+    bool isDark,
+    int daysLeft,
+    double pageProgress,
+    AppLocalizations l10n,
+  ) {
     final pagesLeft = book.totalPages - book.currentPage;
-    final dailyTarget = book.dailyTargetPages ??
+    final dailyTarget =
+        book.dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final start =
-        DateTime(book.startDate.year, book.startDate.month, book.startDate.day);
-    final totalDays =
-        book.targetDate.difference(book.startDate).inDays.clamp(1, 99999);
+    final start = DateTime(
+      book.startDate.year,
+      book.startDate.month,
+      book.startDate.day,
+    );
+    final totalDays = book.targetDate
+        .difference(book.startDate)
+        .inDays
+        .clamp(1, 99999);
     final daysPassed = today.difference(start).inDays;
     final expectedPage = ((daysPassed + 1) * book.totalPages / totalDays)
         .ceil()
@@ -174,9 +190,12 @@ class BookListCard extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 52,
+          width: 62,
           child: Text(
             label,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
@@ -214,7 +233,11 @@ class BookListCard extends StatelessWidget {
   }
 
   Widget _buildDdayAndPages(
-      bool isDark, int daysLeft, bool isCompleted, AppLocalizations l10n) {
+    bool isDark,
+    int daysLeft,
+    bool isCompleted,
+    AppLocalizations l10n,
+  ) {
     return Row(
       children: [
         Container(
