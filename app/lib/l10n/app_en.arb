@@ -1332,6 +1332,10 @@
            "chartConsecutiveDays": "Consecutive Days",
            "chartMinDaily": "Min Daily",
            "chartTodayGoal": "Today's Goal",
+           "bookListCardOverallProgress": "Progress",
+           "@bookListCardOverallProgress": {
+               "description": "Label for overall reading progress bar on book list card"
+           },
            "chartDailyPages": "Daily Pages",
            "chartCumulativePages": "Cumulative Pages",
            "chartDailyReadPages": "Daily Read Pages",
