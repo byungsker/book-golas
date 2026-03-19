@@ -91,7 +91,10 @@ class DashboardProgressWidget extends StatelessWidget {
   }
 
   Widget _buildProgressColumn(
-      BuildContext context, bool isDark, String progressPercent) {
+    BuildContext context,
+    bool isDark,
+    String progressPercent,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -145,7 +148,8 @@ class DashboardProgressWidget extends StatelessWidget {
   }
 
   Widget _buildDailyTargetButton(BuildContext context, bool isDark) {
-    final dailyTarget = dailyTargetPages ??
+    final dailyTarget =
+        dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
     if (dailyTarget <= 0) return const SizedBox.shrink();
 
@@ -165,14 +169,17 @@ class DashboardProgressWidget extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    AppLocalizations.of(context)
-                        .todayGoalWithPages(dailyTarget),
+                    AppLocalizations.of(
+                      context,
+                    ).todayGoalWithPages(dailyTarget),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: BLabColors.success,
                     ),
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
                   ),
                 ),
                 const SizedBox(width: 6),
