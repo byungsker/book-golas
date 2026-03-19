@@ -372,8 +372,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                       bookVm.isTodayGoalAchieved,
                                   onDailyTargetTap: () =>
                                       _showDailyTargetChangeDialog(bookVm),
-                                  onPageUpdate: (newPage) async =>
-                                      _updateCurrentPage(bookVm, newPage),
                                 ),
                                 const SizedBox(height: 12),
                                 CompactStreakRow(
