@@ -3134,6 +3134,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartTodayGoal => '오늘 목표';
 
   @override
+  String get bookListCardOverallProgress => '전체 진행';
+
+  @override
   String get chartDailyPages => '일일 페이지';
 
   @override

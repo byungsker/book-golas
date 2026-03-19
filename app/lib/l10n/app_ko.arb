@@ -2872,6 +2872,10 @@
         "chartConsecutiveDays": "연속 일수",
         "chartMinDaily": "최소 일일",
         "chartTodayGoal": "오늘 목표",
+        "bookListCardOverallProgress": "전체 진행",
+        "@bookListCardOverallProgress": {
+            "description": "Label for overall reading progress bar on book list card"
+        },
         "chartDailyPages": "일일 페이지",
         "chartCumulativePages": "누적 페이지",
         "chartDailyReadPages": "일별 읽은 페이지",
