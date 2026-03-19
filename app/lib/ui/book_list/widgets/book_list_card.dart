@@ -96,6 +96,7 @@ class BookListCard extends StatelessWidget {
 
   Widget _buildBookInfo(bool isDark, int daysLeft, double pageProgress,
       bool isCompleted, AppLocalizations l10n) {
+    final isReading = book.status == BookStatus.reading.value && !isCompleted;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -111,8 +112,53 @@ class BookListCard extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         _buildDdayAndPages(isDark, daysLeft, isCompleted, l10n),
+        if (isReading) ...[
+          const SizedBox(height: 6),
+          _buildGoalAndTargetDate(isDark, daysLeft, l10n),
+        ],
         const SizedBox(height: 8),
         _buildProgressBar(isDark, pageProgress, isCompleted),
+      ],
+    );
+  }
+
+  Widget _buildGoalAndTargetDate(
+      bool isDark, int daysLeft, AppLocalizations l10n) {
+    final pagesLeft = book.totalPages - book.currentPage;
+    final dailyTarget = book.dailyTargetPages ??
+        (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
+    final targetDateStr =
+        '${book.targetDate.year}.${book.targetDate.month.toString().padLeft(2, '0')}.${book.targetDate.day.toString().padLeft(2, '0')}';
+
+    return Row(
+      children: [
+        if (dailyTarget > 0) ...[
+          Text(
+            l10n.todayGoalWithPages(dailyTarget),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: BLabColors.success,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              '·',
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              ),
+            ),
+          ),
+        ],
+        Text(
+          '${l10n.bookDetailTargetDate} $targetDateStr',
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark ? Colors.grey[400] : Colors.grey[500],
+          ),
+        ),
       ],
     );
   }
