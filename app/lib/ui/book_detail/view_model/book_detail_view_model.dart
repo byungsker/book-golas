@@ -138,7 +138,8 @@ class BookDetailViewModel extends BaseViewModel {
 
       final dailyPages = <String, int>{};
       for (final record in response) {
-        final createdAt = DateTime.parse(record['created_at'] as String).toLocal();
+        final createdAt =
+            DateTime.parse(record['created_at'] as String).toLocal();
         final dateKey =
             '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
         final pagesRead =
@@ -189,7 +190,7 @@ class BookDetailViewModel extends BaseViewModel {
     }
   }
 
-  Future<bool> updateCurrentPage(int newPage) async {
+  Future<bool> updateCurrentPage(int newPage, {int? readingTime}) async {
     try {
       final previousPage = _currentBook.currentPage;
       debugPrint(
@@ -201,6 +202,7 @@ class BookDetailViewModel extends BaseViewModel {
         _currentBook.id!,
         newPage,
         previousPage: previousPage,
+        readingTime: readingTime,
       );
 
       if (updatedBook != null) {

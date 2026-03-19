@@ -5,8 +5,10 @@ class ReadingProgressViewModel extends BaseViewModel {
   String _bookId;
 
   List<Map<String, dynamic>>? _progressHistory;
+  Map<String, int> _dailySessionDurations = {};
 
   List<Map<String, dynamic>>? get progressHistory => _progressHistory;
+  Map<String, int> get dailySessionDurations => _dailySessionDurations;
 
   ReadingProgressViewModel({required String bookId}) : _bookId = bookId;
 
@@ -17,19 +19,38 @@ class ReadingProgressViewModel extends BaseViewModel {
   Future<List<Map<String, dynamic>>> fetchProgressHistory() async {
     setLoading(true);
     try {
-      final response = await Supabase.instance.client
-          .from('reading_progress_history')
-          .select()
-          .eq('book_id', _bookId)
-          .order('created_at', ascending: true);
+      final client = Supabase.instance.client;
 
-      _progressHistory = (response as List).map((record) {
+      final responses = await Future.wait([
+        client
+            .from('reading_progress_history')
+            .select()
+            .eq('book_id', _bookId)
+            .order('created_at', ascending: true),
+        client
+            .from('reading_sessions')
+            .select('duration_seconds, created_at')
+            .eq('book_id', _bookId),
+      ]);
+
+      _progressHistory = (responses[0] as List).map((record) {
         final map = Map<String, dynamic>.from(record as Map);
         if (map['created_at'] != null && map['created_at'] is String) {
           map['created_at'] = DateTime.parse(map['created_at'] as String);
         }
         return map;
       }).toList();
+
+      _dailySessionDurations = {};
+      for (final session in responses[1] as List) {
+        final createdAt =
+            DateTime.parse(session['created_at'] as String).toLocal();
+        final dateKey =
+            '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
+        final duration = session['duration_seconds'] as int? ?? 0;
+        _dailySessionDurations[dateKey] =
+            (_dailySessionDurations[dateKey] ?? 0) + duration;
+      }
 
       notifyListeners();
       return _progressHistory!;

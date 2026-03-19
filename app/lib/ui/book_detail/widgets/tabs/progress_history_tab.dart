@@ -20,6 +20,7 @@ class ProgressHistoryTab extends StatefulWidget {
   final DateTime startDate;
   final DateTime targetDate;
   final String bookId;
+  final Map<String, int> dailySessionDurations;
 
   const ProgressHistoryTab({
     super.key,
@@ -31,6 +32,7 @@ class ProgressHistoryTab extends StatefulWidget {
     required this.startDate,
     required this.targetDate,
     required this.bookId,
+    this.dailySessionDurations = const {},
   });
 
   @override
@@ -99,7 +101,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
     final maxPage = data.isNotEmpty
         ? (data.map((e) => e['page'] as int).reduce((a, b) => a > b ? a : b))
-              .toDouble()
+            .toDouble()
         : 100.0;
 
     final dailyPagesSpots = data.asMap().entries.map((entry) {
@@ -307,9 +309,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
             LineChartData(
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor: isDark
-                      ? BLabColors.elevatedDark
-                      : Colors.white,
+                  tooltipBgColor:
+                      isDark ? BLabColors.elevatedDark : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
@@ -457,9 +458,9 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                     },
                     interval: data.length > 5
                         ? ((data.length - 1) / 4).ceilToDouble().clamp(
-                            1,
-                            data.length.toDouble(),
-                          )
+                              1,
+                              data.length.toDouble(),
+                            )
                         : 1,
                   ),
                 ),
@@ -601,9 +602,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     final maxMinutes = readingTimeMinutes.isNotEmpty
         ? readingTimeMinutes.reduce((a, b) => a > b ? a : b)
         : 10.0;
-    final scaledMaxY = maxMinutes > 0
-        ? (maxMinutes * 1.3).ceilToDouble()
-        : 10.0;
+    final scaledMaxY =
+        maxMinutes > 0 ? (maxMinutes * 1.3).ceilToDouble() : 10.0;
 
     return SizedBox(
       height: 250,
@@ -618,9 +618,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
             BarChartData(
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  tooltipBgColor: isDark
-                      ? BLabColors.elevatedDark
-                      : Colors.white,
+                  tooltipBgColor:
+                      isDark ? BLabColors.elevatedDark : Colors.white,
                   tooltipBorder: BorderSide(
                     color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
                     width: 1,
@@ -720,9 +719,9 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                     },
                     interval: data.length > 5
                         ? ((data.length - 1) / 4).ceilToDouble().clamp(
-                            1,
-                            data.length.toDouble(),
-                          )
+                              1,
+                              data.length.toDouble(),
+                            )
                         : 1,
                   ),
                 ),
@@ -1002,9 +1001,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     final totalDays = widget.targetDate.difference(widget.startDate).inDays + 1;
     final elapsedDays = DateTime.now().difference(widget.startDate).inDays;
 
-    final expectedProgress = elapsedDays > 0
-        ? (elapsedDays / totalDays * 100).clamp(0, 100)
-        : 0.0;
+    final expectedProgress =
+        elapsedDays > 0 ? (elapsedDays / totalDays * 100).clamp(0, 100) : 0.0;
     final progressDiff = widget.progressPercentage - expectedProgress;
 
     if (widget.progressPercentage >= 100) {
@@ -1305,6 +1303,14 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
       final currentPage = aggregatedList[i]['page'] as int;
       aggregatedList[i]['daily_page'] = currentPage - prevPage;
       prevPage = currentPage;
+
+      final date = aggregatedList[i]['created_at'] as DateTime;
+      final dateKey =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final sessionDuration = widget.dailySessionDurations[dateKey] ?? 0;
+      if (sessionDuration > 0) {
+        aggregatedList[i]['reading_time'] = sessionDuration;
+      }
     }
 
     return aggregatedList;

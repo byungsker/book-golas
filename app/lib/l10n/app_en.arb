@@ -548,6 +548,7 @@
        "pageUpdateNewPageLabel": "New Page Number",
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
+       "timerDidNotRead": "I didn't read",
        "imageSourceDocumentScan": "Document Scan",
        "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
