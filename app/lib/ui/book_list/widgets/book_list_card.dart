@@ -112,23 +112,20 @@ class BookListCard extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         _buildDdayAndPages(isDark, daysLeft, isCompleted, l10n),
-        if (isReading) ...[
-          const SizedBox(height: 6),
-          _buildGoalAndTargetDate(isDark, daysLeft, l10n),
-        ],
         const SizedBox(height: 8),
-        _buildProgressBar(isDark, pageProgress, isCompleted),
+        if (isReading)
+          _buildDualProgressBars(isDark, daysLeft, pageProgress, l10n)
+        else
+          _buildProgressBar(isDark, pageProgress, isCompleted),
       ],
     );
   }
 
-  Widget _buildGoalAndTargetDate(
-      bool isDark, int daysLeft, AppLocalizations l10n) {
+  Widget _buildDualProgressBars(
+      bool isDark, int daysLeft, double pageProgress, AppLocalizations l10n) {
     final pagesLeft = book.totalPages - book.currentPage;
     final dailyTarget = book.dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
-    final targetDateStr =
-        '${book.targetDate.year}.${book.targetDate.month.toString().padLeft(2, '0')}.${book.targetDate.day.toString().padLeft(2, '0')}';
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -143,54 +140,75 @@ class BookListCard extends StatelessWidget {
     final scheduleProgress = expectedPage > 0
         ? (book.currentPage / expectedPage).clamp(0.0, 1.0)
         : 1.0;
+    final schedulePercent = (scheduleProgress * 100).toStringAsFixed(0);
+    final overallPercent = (pageProgress * 100).toStringAsFixed(0);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            if (dailyTarget > 0) ...[
-              Text(
-                l10n.todayGoalWithPages(dailyTarget),
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: BLabColors.success,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Text(
-                  '·',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? Colors.grey[600] : Colors.grey[400],
-                  ),
-                ),
-              ),
-            ],
-            Text(
-              '${l10n.bookDetailTargetDate} $targetDateStr',
-              style: TextStyle(
-                fontSize: 11,
-                color: isDark ? Colors.grey[400] : Colors.grey[500],
-              ),
-            ),
-          ],
+        _buildLabeledProgressRow(
+          label: l10n.chartTodayGoal,
+          percent: '$schedulePercent%',
+          progress: scheduleProgress,
+          color: BLabColors.success,
+          isDark: isDark,
         ),
-        if (dailyTarget > 0) ...[
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(2),
-            child: LinearProgressIndicator(
-              value: scheduleProgress,
-              backgroundColor: BLabColors.success.withValues(alpha: 0.12),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(BLabColors.success),
-              minHeight: 3,
+        const SizedBox(height: 6),
+        _buildLabeledProgressRow(
+          label: l10n.bookListCardOverallProgress,
+          percent: '$overallPercent%',
+          progress: pageProgress,
+          color: BLabColors.primary,
+          isDark: isDark,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabeledProgressRow({
+    required String label,
+    required String percent,
+    required double progress,
+    required Color color,
+    required bool isDark,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 52,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
             ),
           ),
-        ],
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 5,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        SizedBox(
+          width: 32,
+          child: Text(
+            percent,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ),
       ],
     );
   }

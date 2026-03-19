@@ -3210,6 +3210,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartTodayGoal => 'Today\'s Goal';
 
   @override
+  String get bookListCardOverallProgress => 'Progress';
+
+  @override
   String get chartDailyPages => 'Daily Pages';
 
   @override
