@@ -283,6 +283,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                   color: BLabColors.primary,
                 ),
               ),
+              const SizedBox(width: 6),
               Text(
                 widget.l10n.totalPageLabel(widget.totalPages!),
                 style: TextStyle(
@@ -335,6 +336,12 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                 : widget.l10n.pageInputHint,
             hintStyle: TextStyle(
               color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+            suffixText: 'p',
+            suffixStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: widget.isDark ? Colors.grey[500] : Colors.grey[500],
             ),
             errorText: _errorText,
             border: OutlineInputBorder(
