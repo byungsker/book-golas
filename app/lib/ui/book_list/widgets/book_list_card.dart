@@ -130,35 +130,67 @@ class BookListCard extends StatelessWidget {
     final targetDateStr =
         '${book.targetDate.year}.${book.targetDate.month.toString().padLeft(2, '0')}.${book.targetDate.day.toString().padLeft(2, '0')}';
 
-    return Row(
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start =
+        DateTime(book.startDate.year, book.startDate.month, book.startDate.day);
+    final totalDays =
+        book.targetDate.difference(book.startDate).inDays.clamp(1, 99999);
+    final daysPassed = today.difference(start).inDays;
+    final expectedPage = ((daysPassed + 1) * book.totalPages / totalDays)
+        .ceil()
+        .clamp(0, book.totalPages);
+    final scheduleProgress = expectedPage > 0
+        ? (book.currentPage / expectedPage).clamp(0.0, 1.0)
+        : 1.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (dailyTarget > 0) ...[
-          Text(
-            l10n.todayGoalWithPages(dailyTarget),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: BLabColors.success,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: Text(
-              '·',
+        Row(
+          children: [
+            if (dailyTarget > 0) ...[
+              Text(
+                l10n.todayGoalWithPages(dailyTarget),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: BLabColors.success,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  '·',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? Colors.grey[600] : Colors.grey[400],
+                  ),
+                ),
+              ),
+            ],
+            Text(
+              '${l10n.bookDetailTargetDate} $targetDateStr',
               style: TextStyle(
                 fontSize: 11,
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
+                color: isDark ? Colors.grey[400] : Colors.grey[500],
               ),
+            ),
+          ],
+        ),
+        if (dailyTarget > 0) ...[
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: scheduleProgress,
+              backgroundColor: BLabColors.success.withValues(alpha: 0.12),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(BLabColors.success),
+              minHeight: 3,
             ),
           ),
         ],
-        Text(
-          '${l10n.bookDetailTargetDate} $targetDateStr',
-          style: TextStyle(
-            fontSize: 11,
-            color: isDark ? Colors.grey[400] : Colors.grey[500],
-          ),
-        ),
       ],
     );
   }
