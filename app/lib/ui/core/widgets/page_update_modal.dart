@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
@@ -92,6 +93,27 @@ class _PageUpdateModalContent extends StatefulWidget {
 
 class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   String? _errorText;
+  late FixedExtentScrollController _wheelController;
+  int _selectedPage = 0;
+  bool _updatingFromWheel = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final start = (widget.currentPage ?? 0) + 1;
+    _selectedPage = start;
+    _wheelController = FixedExtentScrollController(initialItem: 0);
+  }
+
+  @override
+  void dispose() {
+    _wheelController.dispose();
+    super.dispose();
+  }
+
+  int get _minPage => (widget.currentPage ?? 0) + 1;
+  int get _maxPage => widget.totalPages ?? 9999;
+  int get _itemCount => (_maxPage - _minPage + 1).clamp(1, 9999);
 
   String _formatReadingComplete(Duration duration) {
     final hours = duration.inHours;
@@ -134,6 +156,76 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
 
     Navigator.of(context, rootNavigator: true)
         .pop(PageUpdateResult(page: page));
+  }
+
+  Widget _buildDialPicker() {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: widget.isDark ? BLabColors.subtleDark : Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Container(
+              width: 100,
+              height: 90,
+              decoration: BoxDecoration(
+                color: BLabColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          RotatedBox(
+            quarterTurns: 3,
+            child: ListWheelScrollView.useDelegate(
+              controller: _wheelController,
+              itemExtent: 90,
+              perspective: 0.005,
+              diameterRatio: 1.5,
+              physics: const FixedExtentScrollPhysics(),
+              onSelectedItemChanged: (index) {
+                HapticFeedback.selectionClick();
+                final value = _minPage + index;
+                _updatingFromWheel = true;
+                setState(() {
+                  _selectedPage = value;
+                  widget.pageController.text = value.toString();
+                  _errorText = _validatePage(value.toString());
+                });
+                _updatingFromWheel = false;
+              },
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: _itemCount,
+                builder: (context, index) {
+                  final value = _minPage + index;
+                  final isSelected = value == _selectedPage;
+                  return RotatedBox(
+                    quarterTurns: 1,
+                    child: Center(
+                      child: Text(
+                        '$value',
+                        style: TextStyle(
+                          fontSize: isSelected ? 42 : 18,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w400,
+                          color: isSelected
+                              ? BLabColors.primary
+                              : (widget.isDark
+                                  ? Colors.grey[500]
+                                  : Colors.grey[400]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -209,16 +301,27 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
               color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
-        const SizedBox(height: 24),
+        if (hasPageInfo) ...[
+          const SizedBox(height: 20),
+          _buildDialPicker(),
+        ],
+        const SizedBox(height: 16),
         TextField(
           controller: widget.pageController,
           keyboardType: TextInputType.number,
-          autofocus: true,
+          autofocus: !hasPageInfo,
           textAlign: TextAlign.center,
           onChanged: (value) {
             setState(() {
               _errorText = _validatePage(value);
             });
+            if (!_updatingFromWheel) {
+              final parsed = int.tryParse(value);
+              if (parsed != null && parsed >= _minPage && parsed <= _maxPage) {
+                _selectedPage = parsed;
+                _wheelController.jumpToItem(parsed - _minPage);
+              }
+            }
           },
           onSubmitted: (_) => _handleUpdate(),
           style: TextStyle(
