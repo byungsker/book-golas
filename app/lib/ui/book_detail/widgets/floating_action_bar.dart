@@ -50,17 +50,14 @@ class FloatingActionBar extends StatelessWidget {
   }
 }
 
-class _ReadingModeBar extends StatelessWidget {
+class _ReadingModeBar extends StatefulWidget {
   final bool isDark;
   final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
   final VoidCallback? onTimerTap;
 
-  final GlobalKey _startReadingKey = GlobalKey();
-  final GlobalKey _recordKey = GlobalKey();
-
-  _ReadingModeBar({
+  const _ReadingModeBar({
     required this.isDark,
     this.onUpdatePageTap,
     required this.onAddMemorablePageTap,
@@ -68,11 +65,28 @@ class _ReadingModeBar extends StatelessWidget {
     this.onTimerTap,
   });
 
-  void _onStartReadingTap(BuildContext context) {
+  @override
+  State<_ReadingModeBar> createState() => _ReadingModeBarState();
+}
+
+class _ReadingModeBarState extends State<_ReadingModeBar> {
+  final GlobalKey _startReadingKey = GlobalKey();
+  final GlobalKey _recordKey = GlobalKey();
+
+  FloatingContextDropdownController<String>? _activeMenuController;
+
+  @override
+  void dispose() {
+    _activeMenuController?.dismiss();
+    super.dispose();
+  }
+
+  List<FloatingContextDropdownItem<String>> _buildStartReadingItems(
+      BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final items = <FloatingContextDropdownItem<String>>[];
 
-    if (onTimerTap != null) {
+    if (widget.onTimerTap != null) {
       items.add(FloatingContextDropdownItem(
         icon: CupertinoIcons.timer,
         label: l10n.bottomBarTimerStart,
@@ -80,7 +94,7 @@ class _ReadingModeBar extends StatelessWidget {
       ));
     }
 
-    if (onUpdatePageTap != null) {
+    if (widget.onUpdatePageTap != null) {
       items.add(FloatingContextDropdownItem(
         icon: CupertinoIcons.book_fill,
         label: l10n.bottomBarPageUpdate,
@@ -88,41 +102,11 @@ class _ReadingModeBar extends StatelessWidget {
       ));
     }
 
-    if (items.length == 1) {
-      if (items.first.value == 'timer') {
-        onTimerTap?.call();
-      } else {
-        onUpdatePageTap?.call();
-      }
-      return;
-    }
-
-    if (items.isEmpty) return;
-
-    final renderBox =
-        _startReadingKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-    final position = renderBox.localToGlobal(Offset.zero);
-
-    showFloatingContextDropdown<String>(
-      context,
-      buttonPosition: position,
-      buttonWidth: renderBox.size.width,
-      buttonHeight: renderBox.size.height,
-      alignment: Alignment.bottomLeft,
-      items: items,
-      onSelected: (value) {
-        switch (value) {
-          case 'timer':
-            onTimerTap?.call();
-          case 'page_update':
-            onUpdatePageTap?.call();
-        }
-      },
-    );
+    return items;
   }
 
-  void _onRecordTap(BuildContext context) {
+  List<FloatingContextDropdownItem<String>> _buildRecordItems(
+      BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final items = <FloatingContextDropdownItem<String>>[
       FloatingContextDropdownItem(
@@ -132,7 +116,7 @@ class _ReadingModeBar extends StatelessWidget {
       ),
     ];
 
-    if (onRecallSearchTap != null) {
+    if (widget.onRecallSearchTap != null) {
       items.add(FloatingContextDropdownItem(
         icon: Icons.auto_awesome,
         label: l10n.bottomBarAiRecordSearch,
@@ -140,32 +124,144 @@ class _ReadingModeBar extends StatelessWidget {
       ));
     }
 
-    if (items.length == 1) {
-      onAddMemorablePageTap();
-      return;
+    return items;
+  }
+
+  void _handleStartReadingSelection(String value) {
+    switch (value) {
+      case 'timer':
+        widget.onTimerTap?.call();
+        return;
+      case 'page_update':
+        widget.onUpdatePageTap?.call();
+        return;
     }
+  }
 
+  void _handleRecordSelection(String value) {
+    switch (value) {
+      case 'add_record':
+        widget.onAddMemorablePageTap();
+        return;
+      case 'ai_search':
+        widget.onRecallSearchTap?.call();
+        return;
+    }
+  }
+
+  void _dismissActiveMenu() {
+    _activeMenuController?.dismiss();
+    _activeMenuController = null;
+  }
+
+  void _showMenu({
+    required BuildContext context,
+    required GlobalKey buttonKey,
+    required Alignment alignment,
+    required List<FloatingContextDropdownItem<String>> items,
+    required ValueChanged<String> onSelected,
+  }) {
     final renderBox =
-        _recordKey.currentContext?.findRenderObject() as RenderBox?;
+        buttonKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-    final position = renderBox.localToGlobal(Offset.zero);
 
-    showFloatingContextDropdown<String>(
+    final position = renderBox.localToGlobal(Offset.zero);
+    _dismissActiveMenu();
+    late final FloatingContextDropdownController<String> controller;
+    controller = showFloatingContextDropdown<String>(
       context,
       buttonPosition: position,
       buttonWidth: renderBox.size.width,
       buttonHeight: renderBox.size.height,
-      alignment: Alignment.bottomRight,
+      alignment: alignment,
       items: items,
-      onSelected: (value) {
-        switch (value) {
-          case 'add_record':
-            onAddMemorablePageTap();
-          case 'ai_search':
-            onRecallSearchTap?.call();
+      onDismissed: () {
+        if (identical(_activeMenuController, controller)) {
+          _activeMenuController = null;
         }
       },
+      onSelected: (value) {
+        _activeMenuController = null;
+        onSelected(value);
+      },
     );
+    _activeMenuController = controller;
+  }
+
+  void _onStartReadingTap(BuildContext context) {
+    final items = _buildStartReadingItems(context);
+    if (items.isEmpty) return;
+
+    if (items.length == 1) {
+      _handleStartReadingSelection(items.first.value);
+      return;
+    }
+
+    _showMenu(
+      context: context,
+      buttonKey: _startReadingKey,
+      alignment: Alignment.bottomRight,
+      items: items,
+      onSelected: _handleStartReadingSelection,
+    );
+  }
+
+  void _onRecordTap(BuildContext context) {
+    final items = _buildRecordItems(context);
+
+    if (items.length == 1) {
+      widget.onAddMemorablePageTap();
+      return;
+    }
+
+    _showMenu(
+      context: context,
+      buttonKey: _recordKey,
+      alignment: Alignment.bottomLeft,
+      items: items,
+      onSelected: _handleRecordSelection,
+    );
+  }
+
+  void _onStartReadingLongPressStart(
+    BuildContext context,
+    LongPressStartDetails details,
+  ) {
+    final items = _buildStartReadingItems(context);
+    if (items.length <= 1) return;
+
+    _showMenu(
+      context: context,
+      buttonKey: _startReadingKey,
+      alignment: Alignment.bottomRight,
+      items: items,
+      onSelected: _handleStartReadingSelection,
+    );
+  }
+
+  void _onRecordLongPressStart(
+    BuildContext context,
+    LongPressStartDetails details,
+  ) {
+    final items = _buildRecordItems(context);
+    if (items.length <= 1) return;
+
+    _showMenu(
+      context: context,
+      buttonKey: _recordKey,
+      alignment: Alignment.bottomLeft,
+      items: items,
+      onSelected: _handleRecordSelection,
+    );
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    _activeMenuController?.updateDragPosition(details.globalPosition);
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    final controller = _activeMenuController;
+    controller?.completeDragSelection();
   }
 
   @override
@@ -175,24 +271,32 @@ class _ReadingModeBar extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          flex: 7,
+          flex: 3,
           child: _GlassPillButton(
-            key: _startReadingKey,
-            isDark: isDark,
-            icon: CupertinoIcons.book_fill,
-            label: l10n.bottomBarStartReading,
-            onTap: () => _onStartReadingTap(context),
+            key: _recordKey,
+            isDark: widget.isDark,
+            icon: CupertinoIcons.pencil,
+            label: l10n.bottomBarRecord,
+            onTap: () => _onRecordTap(context),
+            onLongPressStart: (details) =>
+                _onRecordLongPressStart(context, details),
+            onLongPressMoveUpdate: _onLongPressMoveUpdate,
+            onLongPressEnd: _onLongPressEnd,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          flex: 3,
+          flex: 7,
           child: _GlassPillButton(
-            key: _recordKey,
-            isDark: isDark,
-            icon: CupertinoIcons.pencil,
-            label: l10n.bottomBarRecord,
-            onTap: () => _onRecordTap(context),
+            key: _startReadingKey,
+            isDark: widget.isDark,
+            icon: CupertinoIcons.book_fill,
+            label: l10n.bottomBarStartReading,
+            onTap: () => _onStartReadingTap(context),
+            onLongPressStart: (details) =>
+                _onStartReadingLongPressStart(context, details),
+            onLongPressMoveUpdate: _onLongPressMoveUpdate,
+            onLongPressEnd: _onLongPressEnd,
           ),
         ),
       ],
@@ -200,20 +304,34 @@ class _ReadingModeBar extends StatelessWidget {
   }
 }
 
-class _CompletedModeBar extends StatelessWidget {
+class _CompletedModeBar extends StatefulWidget {
   final bool isDark;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
 
-  final GlobalKey _recordKey = GlobalKey();
-
-  _CompletedModeBar({
+  const _CompletedModeBar({
     required this.isDark,
     required this.onAddMemorablePageTap,
     this.onRecallSearchTap,
   });
 
-  void _onRecordTap(BuildContext context) {
+  @override
+  State<_CompletedModeBar> createState() => _CompletedModeBarState();
+}
+
+class _CompletedModeBarState extends State<_CompletedModeBar> {
+  final GlobalKey _recordKey = GlobalKey();
+
+  FloatingContextDropdownController<String>? _activeMenuController;
+
+  @override
+  void dispose() {
+    _activeMenuController?.dismiss();
+    super.dispose();
+  }
+
+  List<FloatingContextDropdownItem<String>> _buildRecordItems(
+      BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final items = <FloatingContextDropdownItem<String>>[
       FloatingContextDropdownItem(
@@ -223,7 +341,7 @@ class _CompletedModeBar extends StatelessWidget {
       ),
     ];
 
-    if (onRecallSearchTap != null) {
+    if (widget.onRecallSearchTap != null) {
       items.add(FloatingContextDropdownItem(
         icon: Icons.auto_awesome,
         label: l10n.bottomBarAiRecordSearch,
@@ -231,32 +349,76 @@ class _CompletedModeBar extends StatelessWidget {
       ));
     }
 
+    return items;
+  }
+
+  void _handleRecordSelection(String value) {
+    switch (value) {
+      case 'add_record':
+        widget.onAddMemorablePageTap();
+        return;
+      case 'ai_search':
+        widget.onRecallSearchTap?.call();
+        return;
+    }
+  }
+
+  void _dismissActiveMenu() {
+    _activeMenuController?.dismiss();
+    _activeMenuController = null;
+  }
+
+  void _showRecordMenu(BuildContext context) {
+    final items = _buildRecordItems(context);
+
     if (items.length == 1) {
-      onAddMemorablePageTap();
+      widget.onAddMemorablePageTap();
       return;
     }
 
     final renderBox =
         _recordKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-    final position = renderBox.localToGlobal(Offset.zero);
 
-    showFloatingContextDropdown<String>(
+    final position = renderBox.localToGlobal(Offset.zero);
+    _dismissActiveMenu();
+    late final FloatingContextDropdownController<String> controller;
+    controller = showFloatingContextDropdown<String>(
       context,
       buttonPosition: position,
       buttonWidth: renderBox.size.width,
       buttonHeight: renderBox.size.height,
       alignment: Alignment.bottomLeft,
       items: items,
-      onSelected: (value) {
-        switch (value) {
-          case 'add_record':
-            onAddMemorablePageTap();
-          case 'ai_search':
-            onRecallSearchTap?.call();
+      onDismissed: () {
+        if (identical(_activeMenuController, controller)) {
+          _activeMenuController = null;
         }
       },
+      onSelected: (value) {
+        _activeMenuController = null;
+        _handleRecordSelection(value);
+      },
     );
+    _activeMenuController = controller;
+  }
+
+  void _onRecordLongPressStart(
+    BuildContext context,
+    LongPressStartDetails details,
+  ) {
+    final items = _buildRecordItems(context);
+    if (items.length <= 1) return;
+    _showRecordMenu(context);
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    _activeMenuController?.updateDragPosition(details.globalPosition);
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    final controller = _activeMenuController;
+    controller?.completeDragSelection();
   }
 
   @override
@@ -269,10 +431,14 @@ class _CompletedModeBar extends StatelessWidget {
           flex: 7,
           child: _GlassPillButton(
             key: _recordKey,
-            isDark: isDark,
+            isDark: widget.isDark,
             icon: CupertinoIcons.pencil,
             label: l10n.bottomBarRecord,
-            onTap: () => _onRecordTap(context),
+            onTap: () => _showRecordMenu(context),
+            onLongPressStart: (details) =>
+                _onRecordLongPressStart(context, details),
+            onLongPressMoveUpdate: _onLongPressMoveUpdate,
+            onLongPressEnd: _onLongPressEnd,
           ),
         ),
       ],
@@ -285,6 +451,9 @@ class _GlassPillButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final GestureLongPressStartCallback? onLongPressStart;
+  final GestureLongPressMoveUpdateCallback? onLongPressMoveUpdate;
+  final GestureLongPressEndCallback? onLongPressEnd;
 
   const _GlassPillButton({
     super.key,
@@ -292,46 +461,53 @@ class _GlassPillButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.onLongPressStart,
+    this.onLongPressMoveUpdate,
+    this.onLongPressEnd,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(100),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(100),
-            child: Container(
-              height: 62,
-              decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: onTap,
+      onLongPressStart: onLongPressStart,
+      onLongPressMoveUpdate: onLongPressMoveUpdate,
+      onLongPressEnd: onLongPressEnd,
+      behavior: HitTestBehavior.opaque,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            height: 62,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : Colors.black.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
                 color: isDark
-                    ? Colors.white.withValues(alpha: 0.12)
+                    ? Colors.white.withValues(alpha: 0.15)
                     : Colors.black.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(100),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.15)
-                      : Colors.black.withValues(alpha: 0.08),
-                  width: 0.5,
-                ),
+                width: 0.5,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 17,
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.85)
-                        : Colors.black.withValues(alpha: 0.65),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 17,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.85)
+                      : Colors.black.withValues(alpha: 0.65),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
                     label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -340,8 +516,8 @@ class _GlassPillButton extends StatelessWidget {
                           : Colors.black.withValues(alpha: 0.65),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

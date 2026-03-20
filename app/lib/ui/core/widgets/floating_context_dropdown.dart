@@ -15,7 +15,33 @@ class FloatingContextDropdownItem<T> {
   });
 }
 
-void showFloatingContextDropdown<T>(
+class FloatingContextDropdownController<T> {
+  _FloatingContextDropdownOverlayState<T>? _state;
+
+  void _attach(_FloatingContextDropdownOverlayState<T>? state) {
+    _state = state;
+  }
+
+  void _detach(_FloatingContextDropdownOverlayState<T>? state) {
+    if (identical(_state, state)) {
+      _state = null;
+    }
+  }
+
+  void updateDragPosition(Offset globalPosition) {
+    _state?._updateDragPosition(globalPosition);
+  }
+
+  void completeDragSelection() {
+    _state?._completeDragSelection();
+  }
+
+  void dismiss() {
+    _state?._dismiss();
+  }
+}
+
+FloatingContextDropdownController<T> showFloatingContextDropdown<T>(
   BuildContext context, {
   required Offset buttonPosition,
   required double buttonWidth,
@@ -23,10 +49,25 @@ void showFloatingContextDropdown<T>(
   required List<FloatingContextDropdownItem<T>> items,
   required ValueChanged<T> onSelected,
   Alignment alignment = Alignment.bottomLeft,
+  VoidCallback? onDismissed,
 }) {
   HapticFeedback.selectionClick();
 
+  final controller = FloatingContextDropdownController<T>();
+
   late OverlayEntry entry;
+  var isRemoved = false;
+
+  void removeEntry() {
+    if (isRemoved) return;
+    isRemoved = true;
+    controller._detach(null);
+    if (entry.mounted) {
+      entry.remove();
+    }
+    onDismissed?.call();
+  }
+
   entry = OverlayEntry(
     builder: (context) => _FloatingContextDropdownOverlay<T>(
       buttonPosition: buttonPosition,
@@ -34,15 +75,17 @@ void showFloatingContextDropdown<T>(
       buttonHeight: buttonHeight,
       items: items,
       alignment: alignment,
+      controller: controller,
       onSelected: (value) {
-        entry.remove();
+        removeEntry();
         onSelected(value);
       },
-      onDismiss: () => entry.remove(),
+      onDismiss: removeEntry,
     ),
   );
 
   Overlay.of(context).insert(entry);
+  return controller;
 }
 
 class _FloatingContextDropdownOverlay<T> extends StatefulWidget {
@@ -51,15 +94,18 @@ class _FloatingContextDropdownOverlay<T> extends StatefulWidget {
   final double buttonHeight;
   final List<FloatingContextDropdownItem<T>> items;
   final Alignment alignment;
+  final FloatingContextDropdownController<T> controller;
   final ValueChanged<T> onSelected;
   final VoidCallback onDismiss;
 
   const _FloatingContextDropdownOverlay({
+    super.key,
     required this.buttonPosition,
     required this.buttonWidth,
     required this.buttonHeight,
     required this.items,
     required this.alignment,
+    required this.controller,
     required this.onSelected,
     required this.onDismiss,
   });
@@ -75,10 +121,14 @@ class _FloatingContextDropdownOverlayState<T>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  late final List<GlobalKey> _itemKeys;
+  int? _highlightedIndex;
 
   @override
   void initState() {
     super.initState();
+    widget.controller._attach(this);
+    _itemKeys = List.generate(widget.items.length, (_) => GlobalKey());
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -94,6 +144,7 @@ class _FloatingContextDropdownOverlayState<T>
 
   @override
   void dispose() {
+    widget.controller._detach(this);
     _controller.dispose();
     super.dispose();
   }
@@ -102,10 +153,49 @@ class _FloatingContextDropdownOverlayState<T>
     _controller.reverse().then((_) => widget.onDismiss());
   }
 
+  void _updateDragPosition(Offset globalPosition) {
+    final nextIndex = _indexForGlobalPosition(globalPosition);
+    if (nextIndex != _highlightedIndex) {
+      if (nextIndex != null) {
+        HapticFeedback.selectionClick();
+      }
+      setState(() {
+        _highlightedIndex = nextIndex;
+      });
+    }
+  }
+
+  void _completeDragSelection() {
+    final index = _highlightedIndex;
+    if (index == null) {
+      _dismiss();
+      return;
+    }
+
+    HapticFeedback.selectionClick();
+    widget.onSelected(widget.items[index].value);
+  }
+
+  int? _indexForGlobalPosition(Offset globalPosition) {
+    for (var i = 0; i < _itemKeys.length; i++) {
+      final itemContext = _itemKeys[i].currentContext;
+      if (itemContext == null) continue;
+      final renderBox = itemContext.findRenderObject() as RenderBox?;
+      if (renderBox == null || !renderBox.hasSize) continue;
+
+      final origin = renderBox.localToGlobal(Offset.zero);
+      final rect = origin & renderBox.size;
+      if (rect.contains(globalPosition)) {
+        return i;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const dropdownWidth = 200.0;
+    final dropdownWidth = widget.buttonWidth;
 
     final dropdownBottom =
         MediaQuery.of(context).size.height - widget.buttonPosition.dy + 8;
@@ -147,36 +237,41 @@ class _FloatingContextDropdownOverlayState<T>
                 ),
               );
             },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                child: Container(
-                  width: dropdownWidth,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.14)
-                        : Colors.white.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.15)
-                          : Colors.black.withValues(alpha: 0.08),
-                      width: 0.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: dropdownWidth),
+              child: IntrinsicWidth(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.14)
+                            : Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.15)
+                              : Colors.black.withValues(alpha: 0.08),
+                          width: 0.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: _buildItems(isDark),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: _buildItems(isDark),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -194,9 +289,11 @@ class _FloatingContextDropdownOverlayState<T>
       final item = widget.items[i];
       widgets.add(
         _buildItem(
+          key: _itemKeys[i],
           icon: item.icon,
           label: item.label,
           isDark: isDark,
+          isHighlighted: _highlightedIndex == i,
           onTap: () {
             HapticFeedback.selectionClick();
             widget.onSelected(item.value);
@@ -219,31 +316,45 @@ class _FloatingContextDropdownOverlayState<T>
   }
 
   Widget _buildItem({
+    required GlobalKey key,
     required IconData icon,
     required String label,
     required bool isDark,
+    required bool isHighlighted,
     required VoidCallback onTap,
   }) {
     final textColor = isDark ? Colors.white : Colors.black;
+    final highlightColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.06);
 
     return GestureDetector(
+      key: key,
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: textColor),
-            const SizedBox(width: 10),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: textColor,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        color: isHighlighted ? highlightColor : Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: textColor),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
