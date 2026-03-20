@@ -6689,6 +6689,66 @@ abstract class AppLocalizations {
   /// **'다시 도전'**
   String get shareStatusWillRetry;
 
+  /// Brand name shown in shared cards
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스'**
+  String get shareBrandName;
+
+  /// Title shown on the reading stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 독서 기록'**
+  String get shareReadingRecordTitle;
+
+  /// Label for the goal completion rate on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 달성률'**
+  String get shareGoalAchievement;
+
+  /// Label for the top genres row on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'많이 읽은 장르'**
+  String get shareMostReadGenres;
+
+  /// Label for completed books stat on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'완독한 책'**
+  String get shareCompletedBooksLabel;
+
+  /// Label for the records stat on shared cards
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get shareRecordsLabel;
+
+  /// Label for the photos stat on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'사진'**
+  String get sharePhotosLabel;
+
+  /// Short stat text for the reading start date on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 시작'**
+  String shareStartedOn(Object date);
+
+  /// Short stat text for how many days it took to complete a book on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 완독'**
+  String shareCompletedInDays(int days);
+
+  /// Short stat text for the number of highlights or records on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{count} 기록'**
+  String shareHighlightCount(int count);
+
   /// Continue with Google button
   ///
   /// In ko, this message translates to:

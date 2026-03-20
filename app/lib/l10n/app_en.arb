@@ -1624,11 +1624,41 @@
            "shareStatusPlanned": "To Read",
            "@shareStatusPlanned": {"description": "Planned status label on share card"},
 
-           "shareStatusWillRetry": "Re-reading",
-           "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+            "shareStatusWillRetry": "Re-reading",
+            "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
 
-           "loginSocialGoogle": "Continue with Google",
-           "@loginSocialGoogle": {"description": "Continue with Google button"},
+            "shareBrandName": "Bookgolas",
+            "@shareBrandName": {"description": "Brand name shown in shared cards"},
+
+            "shareReadingRecordTitle": "My Reading Record",
+            "@shareReadingRecordTitle": {"description": "Title shown on the reading stats share card"},
+
+            "shareGoalAchievement": "Goal achievement",
+            "@shareGoalAchievement": {"description": "Label for the goal completion rate on the stats share card"},
+
+            "shareMostReadGenres": "Top genres",
+            "@shareMostReadGenres": {"description": "Label for the top genres row on the stats share card"},
+
+            "shareCompletedBooksLabel": "Books finished",
+            "@shareCompletedBooksLabel": {"description": "Label for completed books stat on the stats share card"},
+
+            "shareRecordsLabel": "Records",
+            "@shareRecordsLabel": {"description": "Label for the records stat on shared cards"},
+
+            "sharePhotosLabel": "Photos",
+            "@sharePhotosLabel": {"description": "Label for the photos stat on the stats share card"},
+
+            "shareStartedOn": "Started {date}",
+            "@shareStartedOn": {"description": "Short stat text for the reading start date on the book share card","placeholders": {"date": {}}},
+
+            "shareCompletedInDays": "Finished in {days} days",
+            "@shareCompletedInDays": {"description": "Short stat text for how many days it took to complete a book on the book share card","placeholders": {"days": {"type": "int"}}},
+
+            "shareHighlightCount": "{count} records",
+            "@shareHighlightCount": {"description": "Short stat text for the number of highlights or records on the book share card","placeholders": {"count": {"type": "int"}}},
+
+            "loginSocialGoogle": "Continue with Google",
+            "@loginSocialGoogle": {"description": "Continue with Google button"},
 
            "loginSocialApple": "Continue with Apple",
            "@loginSocialApple": {"description": "Continue with Apple button"},

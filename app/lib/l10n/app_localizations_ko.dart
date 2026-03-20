@@ -3576,6 +3576,42 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shareStatusWillRetry => '다시 도전';
 
   @override
+  String get shareBrandName => '북골라스';
+
+  @override
+  String get shareReadingRecordTitle => '나의 독서 기록';
+
+  @override
+  String get shareGoalAchievement => '목표 달성률';
+
+  @override
+  String get shareMostReadGenres => '많이 읽은 장르';
+
+  @override
+  String get shareCompletedBooksLabel => '완독한 책';
+
+  @override
+  String get shareRecordsLabel => '기록';
+
+  @override
+  String get sharePhotosLabel => '사진';
+
+  @override
+  String shareStartedOn(Object date) {
+    return '$date 시작';
+  }
+
+  @override
+  String shareCompletedInDays(int days) {
+    return '$days일 완독';
+  }
+
+  @override
+  String shareHighlightCount(int count) {
+    return '$count 기록';
+  }
+
+  @override
   String get loginSocialGoogle => 'Google로 계속하기';
 
   @override
