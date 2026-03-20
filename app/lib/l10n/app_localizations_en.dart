@@ -3662,6 +3662,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareStatusWillRetry => 'Re-reading';
 
   @override
+  String get shareBrandName => 'Bookgolas';
+
+  @override
+  String get shareReadingRecordTitle => 'My Reading Record';
+
+  @override
+  String get shareGoalAchievement => 'Goal achievement';
+
+  @override
+  String get shareMostReadGenres => 'Top genres';
+
+  @override
+  String get shareCompletedBooksLabel => 'Books finished';
+
+  @override
+  String get shareRecordsLabel => 'Records';
+
+  @override
+  String get sharePhotosLabel => 'Photos';
+
+  @override
+  String shareStartedOn(Object date) {
+    return 'Started $date';
+  }
+
+  @override
+  String shareCompletedInDays(int days) {
+    return 'Finished in $days days';
+  }
+
+  @override
+  String shareHighlightCount(int count) {
+    return '$count records';
+  }
+
+  @override
   String get loginSocialGoogle => 'Continue with Google';
 
   @override

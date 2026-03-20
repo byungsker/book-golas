@@ -3165,8 +3165,37 @@
          "@shareStatusPlanned": {"description": "Planned status label on share card"},
 
          "shareStatusWillRetry": "다시 도전",
-         "shareStatusWillRetry": "다시 도전",
          "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+
+         "shareBrandName": "북골라스",
+         "@shareBrandName": {"description": "Brand name shown in shared cards"},
+
+         "shareReadingRecordTitle": "나의 독서 기록",
+         "@shareReadingRecordTitle": {"description": "Title shown on the reading stats share card"},
+
+         "shareGoalAchievement": "목표 달성률",
+         "@shareGoalAchievement": {"description": "Label for the goal completion rate on the stats share card"},
+
+         "shareMostReadGenres": "많이 읽은 장르",
+         "@shareMostReadGenres": {"description": "Label for the top genres row on the stats share card"},
+
+         "shareCompletedBooksLabel": "완독한 책",
+         "@shareCompletedBooksLabel": {"description": "Label for completed books stat on the stats share card"},
+
+         "shareRecordsLabel": "기록",
+         "@shareRecordsLabel": {"description": "Label for the records stat on shared cards"},
+
+         "sharePhotosLabel": "사진",
+         "@sharePhotosLabel": {"description": "Label for the photos stat on the stats share card"},
+
+         "shareStartedOn": "{date} 시작",
+         "@shareStartedOn": {"description": "Short stat text for the reading start date on the book share card","placeholders": {"date": {}}},
+
+         "shareCompletedInDays": "{days}일 완독",
+         "@shareCompletedInDays": {"description": "Short stat text for how many days it took to complete a book on the book share card","placeholders": {"days": {"type": "int"}}},
+
+         "shareHighlightCount": "{count} 기록",
+         "@shareHighlightCount": {"description": "Short stat text for the number of highlights or records on the book share card","placeholders": {"count": {"type": "int"}}},
 
          "loginSocialGoogle": "Google로 계속하기",
          "@loginSocialGoogle": {"description": "Continue with Google button"},

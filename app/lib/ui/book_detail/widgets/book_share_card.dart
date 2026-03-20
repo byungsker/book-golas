@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 class BookShareCard extends StatelessWidget {
@@ -29,6 +30,8 @@ class BookShareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return SizedBox(
       width: cardWidth,
       height: cardHeight,
@@ -45,7 +48,7 @@ class BookShareCard extends StatelessWidget {
             const SizedBox(height: 28),
             _buildCoverWithGlow(),
             const SizedBox(height: 18),
-            _buildStatusBadge(),
+            _buildStatusBadge(l10n),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -54,12 +57,12 @@ class BookShareCard extends StatelessWidget {
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: _buildMainContent(),
+              child: _buildMainContent(l10n),
             ),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: _buildMiniStats(),
+              child: _buildMiniStats(l10n),
             ),
             const SizedBox(height: 14),
             Padding(
@@ -69,7 +72,7 @@ class BookShareCard extends StatelessWidget {
             const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: _buildFooter(),
+              child: _buildFooter(l10n),
             ),
             const SizedBox(height: 20),
           ],
@@ -79,7 +82,7 @@ class BookShareCard extends StatelessWidget {
   }
 
   Widget _buildCoverWithGlow() {
-    final config = _statusConfig;
+    final config = _statusConfig(null);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -124,8 +127,8 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge() {
-    final config = _statusConfig;
+  Widget _buildStatusBadge(AppLocalizations? l10n) {
+    final config = _statusConfig(l10n);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
@@ -188,7 +191,7 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(AppLocalizations? l10n) {
     switch (book.status) {
       case 'reading':
         return _buildReadingProgress();
@@ -346,8 +349,8 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMiniStats() {
-    final stats = _buildStats();
+  Widget _buildMiniStats(AppLocalizations? l10n) {
+    final stats = _buildStats(l10n);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: stats.asMap().entries.map((entry) {
@@ -379,7 +382,7 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(AppLocalizations? l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -395,9 +398,9 @@ class BookShareCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 7),
-            const Text(
-              '북골라스',
-              style: TextStyle(
+            Text(
+              l10n?.shareBrandName ?? '북골라스',
+              style: const TextStyle(
                 color: _textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -414,27 +417,40 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  List<_StatItem> _buildStats() {
+  List<_StatItem> _buildStats(AppLocalizations? l10n) {
     switch (book.status) {
       case 'reading':
         return [
           _StatItem(
             icon: '📅',
-            value: '${DateFormat('MM.dd').format(book.startDate)} 시작',
+            value: l10n?.shareStartedOn(
+                    DateFormat('MM.dd').format(book.startDate)) ??
+                '${DateFormat('MM.dd').format(book.startDate)} 시작',
           ),
-          _StatItem(icon: '💡', value: '$highlightCount 기록'),
+          _StatItem(
+            icon: '💡',
+            value: l10n?.shareHighlightCount(highlightCount) ??
+                '$highlightCount 기록',
+          ),
         ];
       case 'completed':
         final readDays = book.updatedAt != null
             ? book.updatedAt!.difference(book.startDate).inDays + 1
             : DateTime.now().difference(book.startDate).inDays + 1;
         return [
-          _StatItem(icon: '📅', value: '$readDays일 완독'),
+          _StatItem(
+            icon: '📅',
+            value: l10n?.shareCompletedInDays(readDays) ?? '$readDays일 완독',
+          ),
           _StatItem(
             icon: '📄',
             value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
           ),
-          _StatItem(icon: '💡', value: '$highlightCount 기록'),
+          _StatItem(
+            icon: '💡',
+            value: l10n?.shareHighlightCount(highlightCount) ??
+                '$highlightCount 기록',
+          ),
         ];
       case 'planned':
         return [
@@ -468,35 +484,35 @@ class BookShareCard extends StatelessWidget {
     }
   }
 
-  _StatusConfig get _statusConfig {
+  _StatusConfig _statusConfig(AppLocalizations? l10n) {
     switch (book.status) {
       case 'reading':
-        return const _StatusConfig(
-          label: '독서 중',
+        return _StatusConfig(
+          label: l10n?.shareStatusReading ?? '독서 중',
           icon: CupertinoIcons.book,
           color: BLabColors.primary,
         );
       case 'completed':
-        return const _StatusConfig(
-          label: '완독',
+        return _StatusConfig(
+          label: l10n?.shareStatusCompleted ?? '완독',
           icon: CupertinoIcons.checkmark_circle_fill,
           color: BLabColors.success,
         );
       case 'planned':
-        return const _StatusConfig(
-          label: '읽을 예정',
+        return _StatusConfig(
+          label: l10n?.shareStatusPlanned ?? '읽을 예정',
           icon: CupertinoIcons.bookmark_fill,
           color: BLabColors.warning,
         );
       case 'will_retry':
-        return const _StatusConfig(
-          label: '다시 도전',
+        return _StatusConfig(
+          label: l10n?.shareStatusWillRetry ?? '다시 도전',
           icon: CupertinoIcons.arrow_2_circlepath,
           color: BLabColors.purple,
         );
       default:
-        return const _StatusConfig(
-          label: '독서 중',
+        return _StatusConfig(
+          label: l10n?.shareStatusReading ?? '독서 중',
           icon: CupertinoIcons.book,
           color: BLabColors.primary,
         );
