@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 
@@ -8,7 +9,7 @@ class ReadingStatsShareCard extends StatelessWidget {
   final ReadingChartViewModel vm;
 
   static const double cardWidth = 400.0;
-  static const double cardHeight = 520.0;
+  static const double cardHeight = 560.0;
 
   static const Color _bgColor = Color(0xFF121418);
   static const Color _surfaceColor = Color(0xFF1C1F26);
@@ -21,6 +22,8 @@ class ReadingStatsShareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return SizedBox(
       width: cardWidth,
       height: cardHeight,
@@ -30,54 +33,59 @@ class ReadingStatsShareCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             const SizedBox(height: 22),
             _buildDivider(),
             const SizedBox(height: 22),
-            _buildMainStats(),
+            _buildMainStats(l10n),
             const SizedBox(height: 20),
-            _buildGoalBar(),
+            _buildGoalBar(l10n),
             const SizedBox(height: 20),
-            _buildGenreRow(),
+            _buildGenreRow(l10n),
             const Spacer(),
             _buildDivider(),
             const SizedBox(height: 16),
-            _buildFooter(),
+            _buildFooter(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations? l10n) {
     final year = DateTime.now().year;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$year',
-              style: const TextStyle(
-                color: BLabColors.primary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.5,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$year',
+                style: const TextStyle(
+                  color: BLabColors.primary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              '나의 독서 기록',
-              style: TextStyle(
-                color: _textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+              const SizedBox(height: 4),
+              Text(
+                l10n?.shareReadingRecordTitle ?? '나의 독서 기록',
+                style: const TextStyle(
+                  color: _textPrimary,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(width: 16),
         Container(
           width: 44,
           height: 44,
@@ -100,14 +108,14 @@ class ReadingStatsShareCard extends StatelessWidget {
     return Container(height: 1, color: _dividerColor);
   }
 
-  Widget _buildMainStats() {
+  Widget _buildMainStats(AppLocalizations? l10n) {
     return Row(
       children: [
         Expanded(
           child: _buildMainStatBox(
             icon: '✅',
             value: '${vm.completedBooks}',
-            label: '완독한 책',
+            label: l10n?.shareCompletedBooksLabel ?? '완독한 책',
             color: BLabColors.success,
           ),
         ),
@@ -116,7 +124,7 @@ class ReadingStatsShareCard extends StatelessWidget {
           child: _buildMainStatBox(
             icon: '💡',
             value: '${vm.totalHighlights + vm.totalNotes}',
-            label: '기록',
+            label: l10n?.shareRecordsLabel ?? '기록',
             color: BLabColors.primary,
           ),
         ),
@@ -125,7 +133,7 @@ class ReadingStatsShareCard extends StatelessWidget {
           child: _buildMainStatBox(
             icon: '📸',
             value: '${vm.totalPhotos}',
-            label: '사진',
+            label: l10n?.sharePhotosLabel ?? '사진',
             color: BLabColors.warningAlt,
           ),
         ),
@@ -172,7 +180,7 @@ class ReadingStatsShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildGoalBar() {
+  Widget _buildGoalBar(AppLocalizations? l10n) {
     final goalRate = vm.goalRate.clamp(0.0, 1.0);
     final percent = (goalRate * 100).toStringAsFixed(0);
 
@@ -188,13 +196,16 @@ class ReadingStatsShareCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Text('🎯', style: TextStyle(fontSize: 14)),
-                  SizedBox(width: 6),
+                  const Text('🎯', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 6),
                   Text(
-                    '목표 달성률',
-                    style: TextStyle(color: _textSecondary, fontSize: 13),
+                    l10n?.shareGoalAchievement ?? '목표 달성률',
+                    style: const TextStyle(
+                      color: _textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -224,7 +235,7 @@ class ReadingStatsShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildGenreRow() {
+  Widget _buildGenreRow(AppLocalizations? l10n) {
     if (vm.genreDistribution.isEmpty) return const SizedBox.shrink();
 
     final sorted = vm.genreDistribution.entries.toList()
@@ -235,37 +246,40 @@ class ReadingStatsShareCard extends StatelessWidget {
       children: [
         const Text('🏷️', style: TextStyle(fontSize: 14)),
         const SizedBox(width: 8),
-        const Text(
-          '많이 읽은 장르',
-          style: TextStyle(color: _textSecondary, fontSize: 13),
+        Text(
+          l10n?.shareMostReadGenres ?? '많이 읽은 장르',
+          style: const TextStyle(color: _textSecondary, fontSize: 13),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Row(
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
             children: topGenres.asMap().entries.map((entry) {
               final color = BLabColors
                   .chartColors[entry.key % BLabColors.chartColors.length];
-              return Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: color.withValues(alpha: 0.3), width: 1),
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: color.withValues(alpha: 0.3),
+                    width: 1,
                   ),
-                  child: Text(
-                    entry.value.key,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                ),
+                child: Text(
+                  entry.value.key,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               );
             }).toList(),
@@ -275,7 +289,7 @@ class ReadingStatsShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(AppLocalizations? l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -291,9 +305,9 @@ class ReadingStatsShareCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 7),
-            const Text(
-              '북골라스',
-              style: TextStyle(
+            Text(
+              l10n?.shareBrandName ?? '북골라스',
+              style: const TextStyle(
                 color: _textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
