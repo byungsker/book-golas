@@ -200,7 +200,7 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
     _showMenu(
       context: context,
       buttonKey: _startReadingKey,
-      alignment: Alignment.bottomRight,
+      alignment: Alignment.bottomLeft,
       items: items,
       onSelected: _handleStartReadingSelection,
     );
@@ -217,7 +217,7 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
     _showMenu(
       context: context,
       buttonKey: _recordKey,
-      alignment: Alignment.bottomLeft,
+      alignment: Alignment.bottomRight,
       items: items,
       onSelected: _handleRecordSelection,
     );
@@ -233,7 +233,7 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
     _showMenu(
       context: context,
       buttonKey: _startReadingKey,
-      alignment: Alignment.bottomRight,
+      alignment: Alignment.bottomLeft,
       items: items,
       onSelected: _handleStartReadingSelection,
     );
@@ -249,7 +249,7 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
     _showMenu(
       context: context,
       buttonKey: _recordKey,
-      alignment: Alignment.bottomLeft,
+      alignment: Alignment.bottomRight,
       items: items,
       onSelected: _handleRecordSelection,
     );
@@ -271,21 +271,6 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
     return Row(
       children: [
         Expanded(
-          flex: 3,
-          child: _GlassPillButton(
-            key: _recordKey,
-            isDark: widget.isDark,
-            icon: CupertinoIcons.pencil,
-            label: l10n.bottomBarRecord,
-            onTap: () => _onRecordTap(context),
-            onLongPressStart: (details) =>
-                _onRecordLongPressStart(context, details),
-            onLongPressMoveUpdate: _onLongPressMoveUpdate,
-            onLongPressEnd: _onLongPressEnd,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
           flex: 7,
           child: _GlassPillButton(
             key: _startReadingKey,
@@ -295,6 +280,21 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
             onTap: () => _onStartReadingTap(context),
             onLongPressStart: (details) =>
                 _onStartReadingLongPressStart(context, details),
+            onLongPressMoveUpdate: _onLongPressMoveUpdate,
+            onLongPressEnd: _onLongPressEnd,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 3,
+          child: _GlassPillButton(
+            key: _recordKey,
+            isDark: widget.isDark,
+            icon: CupertinoIcons.pencil,
+            label: l10n.bottomBarRecord,
+            onTap: () => _onRecordTap(context),
+            onLongPressStart: (details) =>
+                _onRecordLongPressStart(context, details),
             onLongPressMoveUpdate: _onLongPressMoveUpdate,
             onLongPressEnd: _onLongPressEnd,
           ),
