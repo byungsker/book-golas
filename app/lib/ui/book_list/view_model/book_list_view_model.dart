@@ -72,6 +72,11 @@ class BookListViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void jumpToTab(int index) {
+    _selectedTabIndex = index.clamp(0, 4);
+    notifyListeners();
+  }
+
   List<Book> get plannedBooks =>
       _books.where((book) => book.status == BookStatus.planned.value).toList()
         ..sort((a, b) {
