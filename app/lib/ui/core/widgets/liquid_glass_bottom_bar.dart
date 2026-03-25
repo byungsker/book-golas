@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/widgets/floating_context_dropdown.dart';
+import 'package:book_golas/ui/core/widgets/search_mode_dropdown.dart';
 
 /// Apple HIG Liquid Glass 스타일 Bottom Navigation Bar
 ///
@@ -20,12 +22,19 @@ class BLabBottomBar extends StatefulWidget {
   /// 검색 버튼 탭 콜백: (버튼 위치, 버튼 크기) 전달
   final void Function(Offset position, double size) onSearchTap;
 
+  /// 검색 모드 롱프레스 선택 콜백 (선택된 SearchMode 전달)
+  final void Function(SearchMode mode)? onSearchModeSelected;
+
+  /// 홈 서브탭 롱프레스 선택 콜백 (선택된 탭 인덱스 전달)
+  final void Function(int subTabIndex)? onHomeSubTabLongPressSelected;
 
   const BLabBottomBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
     required this.onSearchTap,
+    this.onSearchModeSelected,
+    this.onHomeSubTabLongPressSelected,
   });
 
   @override
@@ -42,8 +51,18 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   double _dragPosition = 0.0;
   double _tabWidth = 0.0;
 
+  // 홈 컨텍스트 메뉴 상태
+  FloatingContextDropdownController<int>? _homeMenuController;
+  bool _isShowingHomeContextMenu = false;
+
+  // 검색 컨텍스트 메뉴 상태
+  FloatingContextDropdownController<SearchMode>? _searchMenuController;
+
   // 검색 버튼 위치 추적
   final GlobalKey _searchButtonKey = GlobalKey();
+
+  // Pill bar 위치 추적
+  final GlobalKey _pillBarKey = GlobalKey();
 
   static const List<_TabItemData> _tabIcons = [
     _TabItemData(
@@ -108,12 +127,28 @@ class _BLabBottomBarState extends State<BLabBottomBar>
 
   @override
   void dispose() {
+    _homeMenuController?.dismiss();
+    _searchMenuController?.dismiss();
     _controller.dispose();
     super.dispose();
   }
 
   /// 롱프레스 시작
   void _onLongPressStart(LongPressStartDetails details) {
+    if (_tabWidth <= 0) return;
+
+    // 홈 탭(인덱스 0) 여부 체크
+    final tabIndex =
+        (details.localPosition.dx / _tabWidth).floor().clamp(0, _tabIcons.length - 1);
+
+    if (tabIndex == 0 && widget.onHomeSubTabLongPressSelected != null) {
+      _isShowingHomeContextMenu = true;
+      HapticFeedback.mediumImpact();
+      _showHomeSubTabMenu(details.globalPosition);
+      return;
+    }
+
+    // 기존 드래그 로직
     setState(() {
       _isDragging = true;
       _dragPosition = _slideAnimation.value;
@@ -123,6 +158,11 @@ class _BLabBottomBarState extends State<BLabBottomBar>
 
   /// 롱프레스 드래그 중
   void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    if (_isShowingHomeContextMenu) {
+      _homeMenuController?.updateDragPosition(details.globalPosition);
+      return;
+    }
+
     if (!_isDragging || _tabWidth <= 0) return;
 
     final newPosition = details.localPosition.dx / _tabWidth;
@@ -145,6 +185,12 @@ class _BLabBottomBarState extends State<BLabBottomBar>
 
   /// 롱프레스 종료
   void _onLongPressEnd(LongPressEndDetails details) {
+    if (_isShowingHomeContextMenu) {
+      _homeMenuController?.completeDragSelection();
+      _isShowingHomeContextMenu = false;
+      return;
+    }
+
     if (!_isDragging) return;
 
     final targetIndex = _dragPosition.round().clamp(0, _tabIcons.length - 1);
@@ -166,6 +212,98 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     }
 
     HapticFeedback.lightImpact();
+  }
+
+  /// 홈 서브탭 컨텍스트 메뉴 표시
+  void _showHomeSubTabMenu(Offset startGlobalPosition) {
+    final l10n = AppLocalizations.of(context);
+
+    // Pill bar의 위치 계산
+    final renderBox = _pillBarKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      _isShowingHomeContextMenu = false;
+      return;
+    }
+    final pillPosition = renderBox.localToGlobal(Offset.zero);
+    // 홈 탭은 pill bar 맨 왼쪽 (padding 4px 고려)
+    final homeTabPosition = Offset(pillPosition.dx + 4, pillPosition.dy);
+
+    _homeMenuController?.dismiss();
+
+    late final FloatingContextDropdownController<int> controller;
+    controller = showFloatingContextDropdown<int>(
+      context,
+      buttonPosition: homeTabPosition,
+      buttonWidth: _tabWidth - 8, // padding 고려
+      buttonHeight: 54,
+      alignment: Alignment.bottomLeft,
+      items: [
+        FloatingContextDropdownItem(
+          icon: CupertinoIcons.book_fill,
+          label: l10n.bookListTabReading,
+          value: 0,
+        ),
+        FloatingContextDropdownItem(
+          icon: CupertinoIcons.bookmark_fill,
+          label: l10n.bookListTabPlanned,
+          value: 1,
+        ),
+        FloatingContextDropdownItem(
+          icon: CupertinoIcons.checkmark_seal_fill,
+          label: l10n.bookListTabCompleted,
+          value: 2,
+        ),
+        FloatingContextDropdownItem(
+          icon: CupertinoIcons.arrow_counterclockwise,
+          label: l10n.bookListTabReread,
+          value: 3,
+        ),
+        FloatingContextDropdownItem(
+          icon: CupertinoIcons.square_stack_3d_up_fill,
+          label: l10n.bookListTabAll,
+          value: 4,
+        ),
+      ],
+      onDismissed: () {
+        if (identical(_homeMenuController, controller)) {
+          _homeMenuController = null;
+        }
+        _isShowingHomeContextMenu = false;
+      },
+      onSelected: (value) {
+        _homeMenuController = null;
+        _isShowingHomeContextMenu = false;
+        widget.onHomeSubTabLongPressSelected?.call(value);
+      },
+    );
+    _homeMenuController = controller;
+  }
+
+  /// 검색 컨텍스트 메뉴 표시
+  void _showSearchMenu() {
+    final renderBox =
+        _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final position = renderBox.localToGlobal(Offset.zero);
+
+    _searchMenuController?.dismiss();
+
+    late final FloatingContextDropdownController<SearchMode> controller;
+    controller = showSearchModeDropdown(
+      context,
+      buttonPosition: position,
+      buttonSize: 62.0,
+      onDismissed: () {
+        if (identical(_searchMenuController, controller)) {
+          _searchMenuController = null;
+        }
+      },
+      onSelected: (mode) {
+        _searchMenuController = null;
+        widget.onSearchModeSelected?.call(mode);
+      },
+    );
+    _searchMenuController = controller;
   }
 
   @override
@@ -210,6 +348,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       onLongPressMoveUpdate: _onLongPressMoveUpdate,
       onLongPressEnd: _onLongPressEnd,
       child: ClipRRect(
+        key: _pillBarKey,
         borderRadius: BorderRadius.circular(100),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
@@ -437,6 +576,16 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           final position = renderBox.localToGlobal(Offset.zero);
           widget.onSearchTap(position, buttonSize);
         }
+      },
+      onLongPressStart: (details) {
+        HapticFeedback.mediumImpact();
+        _showSearchMenu();
+      },
+      onLongPressMoveUpdate: (details) {
+        _searchMenuController?.updateDragPosition(details.globalPosition);
+      },
+      onLongPressEnd: (details) {
+        _searchMenuController?.completeDragSelection();
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(100),

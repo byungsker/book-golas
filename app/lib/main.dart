@@ -618,24 +618,39 @@ class _MainScreenState extends State<MainScreen>
       buttonPosition: searchButtonPosition,
       buttonSize: searchButtonSize,
       onSelected: (mode) {
-        switch (mode) {
-          case SearchMode.bookSearch:
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const ReadingStartScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 200),
-              ),
-            );
-          case SearchMode.aiRecordSearch:
-            showGlobalRecallSearchSheet(context: context);
-        }
+        _onSearchModeSelected(mode);
       },
     );
+  }
+
+  void _onSearchModeSelected(SearchMode mode) {
+    switch (mode) {
+      case SearchMode.bookSearch:
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const ReadingStartScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 200),
+          ),
+        );
+      case SearchMode.aiRecordSearch:
+        showGlobalRecallSearchSheet(context: context);
+    }
+  }
+
+  void _onHomeSubTabLongPressSelected(int tabIndex) {
+    context.read<BookListViewModel>().jumpToTab(tabIndex);
+    // 홈 탭이 아니라면 홈 탭으로 이동
+    if (_selectedIndex != 0) {
+      setState(() {
+        _selectedIndex = 0;
+      });
+    }
   }
 
   @override
@@ -669,6 +684,8 @@ class _MainScreenState extends State<MainScreen>
             selectedIndex: _selectedIndex,
             onTabSelected: _onItemTapped,
             onSearchTap: _onSearchTap,
+            onSearchModeSelected: _onSearchModeSelected,
+            onHomeSubTabLongPressSelected: _onHomeSubTabLongPressSelected,
           ),
         ],
       ),

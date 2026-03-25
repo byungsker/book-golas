@@ -6,15 +6,16 @@ import 'package:book_golas/ui/core/widgets/floating_context_dropdown.dart';
 
 enum SearchMode { bookSearch, aiRecordSearch }
 
-void showSearchModeDropdown(
+FloatingContextDropdownController<SearchMode> showSearchModeDropdown(
   BuildContext context, {
   required Offset buttonPosition,
   required double buttonSize,
   required void Function(SearchMode mode) onSelected,
+  VoidCallback? onDismissed,
 }) {
   final l10n = AppLocalizations.of(context);
 
-  showFloatingContextDropdown<SearchMode>(
+  return showFloatingContextDropdown<SearchMode>(
     context,
     buttonPosition: buttonPosition,
     buttonWidth: buttonSize,
@@ -32,6 +33,7 @@ void showSearchModeDropdown(
         value: SearchMode.aiRecordSearch,
       ),
     ],
+    onDismissed: onDismissed,
     onSelected: onSelected,
   );
 }
