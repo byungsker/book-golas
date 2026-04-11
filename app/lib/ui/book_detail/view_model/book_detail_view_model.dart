@@ -351,6 +351,31 @@ class BookDetailViewModel extends BaseViewModel {
     }
   }
 
+  Future<bool> startPlannedReading(DateTime targetDate) async {
+    try {
+      final updatedBook = await _bookService.resumeReading(
+        _currentBook.id!,
+        newTargetDate: targetDate,
+        incrementAttempt: false,
+      );
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        _attemptCount = updatedBook.attemptCount;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } on ConcurrentReadingLimitException {
+      _shouldShowPaywall = true;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      setError('독서 시작에 실패했습니다: $e');
+      return false;
+    }
+  }
+
   Future<bool> pauseReading() async {
     try {
       final updatedBook = await _bookService.pauseReading(_currentBook.id!);

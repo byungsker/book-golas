@@ -9,12 +9,16 @@ class UpdateTargetDateDialog extends StatefulWidget {
   final DateTime currentTargetDate;
   final int nextAttemptCount;
   final Future<void> Function(DateTime newDate, int newAttempt) onConfirm;
+  final String? title;
+  final String? subtitle;
 
   const UpdateTargetDateDialog({
     super.key,
     required this.currentTargetDate,
     required this.nextAttemptCount,
     required this.onConfirm,
+    this.title,
+    this.subtitle,
   });
 
   static Future<void> show({
@@ -22,6 +26,8 @@ class UpdateTargetDateDialog extends StatefulWidget {
     required DateTime currentTargetDate,
     required int nextAttemptCount,
     required Future<void> Function(DateTime newDate, int newAttempt) onConfirm,
+    String? title,
+    String? subtitle,
   }) async {
     await showModalBottomSheet(
       context: context,
@@ -31,6 +37,8 @@ class UpdateTargetDateDialog extends StatefulWidget {
         currentTargetDate: currentTargetDate,
         nextAttemptCount: nextAttemptCount,
         onConfirm: onConfirm,
+        title: title,
+        subtitle: subtitle,
       ),
     );
   }
@@ -97,7 +105,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context).changeTargetDateTitle,
+                widget.title ?? AppLocalizations.of(context).changeTargetDateTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -105,8 +113,7 @@ class _UpdateTargetDateDialogState extends State<UpdateTargetDateDialog> {
                 ),
               ),
               Text(
-                AppLocalizations.of(context)
-                    .attemptChangeMessage(widget.nextAttemptCount),
+                widget.subtitle ?? AppLocalizations.of(context).attemptChangeMessage(widget.nextAttemptCount),
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark ? Colors.grey[400] : Colors.grey[600],

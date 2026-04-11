@@ -3225,5 +3225,17 @@
          "@bottomBarAddRecord": {"description": "Add record menu item in floating action bar"},
 
          "bottomBarAiRecordSearch": "AI 기록 검색",
-         "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"}
+         "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"},
+
+         "bookDetailStartNow": "바로 시작",
+         "@bookDetailStartNow": {"description": "Start now button for planned books"},
+
+         "bookDetailStartNowSubtitle": "독서를 지금 바로 시작합니다",
+         "@bookDetailStartNowSubtitle": {"description": "Subtitle for start now button"},
+
+         "bookDetailStartReadingTitle": "독서 시작",
+         "@bookDetailStartReadingTitle": {"description": "Title for start reading dialog"},
+
+         "bookDetailStartReadingSubtitle": "목표 완독일을 설정하세요",
+         "@bookDetailStartReadingSubtitle": {"description": "Subtitle for start reading dialog"}
 }

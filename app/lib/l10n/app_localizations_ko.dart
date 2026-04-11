@@ -3640,4 +3640,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bottomBarAiRecordSearch => 'AI 기록 검색';
+
+  @override
+  String get bookDetailStartNow => '바로 시작';
+
+  @override
+  String get bookDetailStartNowSubtitle => '독서를 지금 바로 시작합니다';
+
+  @override
+  String get bookDetailStartReadingTitle => '독서 시작';
+
+  @override
+  String get bookDetailStartReadingSubtitle => '목표 완독일을 설정하세요';
 }
