@@ -381,6 +381,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               if (_isBookPlanned(book)) ...[
                                 const SizedBox(height: 12),
                                 _buildPlannedBookInfo(context, book, bookVm),
+                                const SizedBox(height: 8),
+                                _buildStartNowButton(context, book, bookVm),
                               ],
                               if (_isBookPaused(book)) ...[
                                 const SizedBox(height: 12),
@@ -1417,6 +1419,115 @@ class _BookDetailContentState extends State<_BookDetailContent>
           if (!paywallSuccess && mounted) {
             CustomSnackbar.show(context,
                 message: AppLocalizations.of(context).subscriptionUnavailable,
+                type: BLabSnackbarType.info);
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildStartNowButton(
+      BuildContext context, Book book, BookDetailViewModel bookVm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => _showStartNowDialog(bookVm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isDark ? BLabColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: BLabColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: BLabColors.success,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context).bookDetailStartNow,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppLocalizations.of(context).bookDetailStartNowSubtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: isDark ? Colors.grey[400] : Colors.grey[500],
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showStartNowDialog(BookDetailViewModel bookVm) async {
+    final book = bookVm.currentBook;
+    final defaultTarget =
+        book.targetDate ?? DateTime.now().add(const Duration(days: 14));
+
+    await UpdateTargetDateDialog.show(
+      context: context,
+      currentTargetDate: defaultTarget,
+      nextAttemptCount: 1,
+      title: AppLocalizations.of(context).bookDetailStartReadingTitle,
+      subtitle: AppLocalizations.of(context).bookDetailStartReadingSubtitle,
+      onConfirm: (newDate, newAttempt) async {
+        final success = await bookVm.startPlannedReading(newDate);
+        if (success && mounted) {
+          _scrollController.animateTo(0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic);
+          CustomSnackbar.show(context,
+              message: AppLocalizations.of(context)
+                  .bookDetailAttemptStarted(1),
+              type: BLabSnackbarType.success,
+              icon: Icons.play_arrow_rounded);
+        } else if (!success && mounted && bookVm.shouldShowPaywall) {
+          bookVm.clearPaywallState();
+          final paywallSuccess =
+              await SubscriptionService().showPaywall(context);
+          if (!paywallSuccess && mounted) {
+            CustomSnackbar.show(context,
+                message:
+                    AppLocalizations.of(context).subscriptionUnavailable,
                 type: BLabSnackbarType.info);
           }
         }
