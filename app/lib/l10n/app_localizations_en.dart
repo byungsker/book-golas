@@ -3726,4 +3726,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bottomBarAiRecordSearch => 'AI Record Search';
+
+  @override
+  String get bookDetailStartNow => 'Start Now';
+
+  @override
+  String get bookDetailStartNowSubtitle => 'Start reading right now';
+
+  @override
+  String get bookDetailStartReadingTitle => 'Start Reading';
+
+  @override
+  String get bookDetailStartReadingSubtitle =>
+      'Set your target completion date';
 }
