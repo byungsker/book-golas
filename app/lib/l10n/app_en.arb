@@ -1685,5 +1685,17 @@
             "@bottomBarAddRecord": {"description": "Add record menu item in floating action bar"},
 
             "bottomBarAiRecordSearch": "AI Record Search",
-            "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"}
+            "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"},
+
+            "bookDetailStartNow": "Start Now",
+            "@bookDetailStartNow": {"description": "Start now button for planned books"},
+
+            "bookDetailStartNowSubtitle": "Start reading right now",
+            "@bookDetailStartNowSubtitle": {"description": "Subtitle for start now button"},
+
+            "bookDetailStartReadingTitle": "Start Reading",
+            "@bookDetailStartReadingTitle": {"description": "Title for start reading dialog"},
+
+            "bookDetailStartReadingSubtitle": "Set your target completion date",
+            "@bookDetailStartReadingSubtitle": {"description": "Subtitle for start reading dialog"}
 }

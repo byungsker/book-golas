@@ -6808,6 +6808,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'AI 기록 검색'**
   String get bottomBarAiRecordSearch;
+
+  /// Start now button for planned books
+  ///
+  /// In ko, this message translates to:
+  /// **'바로 시작'**
+  String get bookDetailStartNow;
+
+  /// Subtitle for start now button
+  ///
+  /// In ko, this message translates to:
+  /// **'독서를 지금 바로 시작합니다'**
+  String get bookDetailStartNowSubtitle;
+
+  /// Title for start reading dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get bookDetailStartReadingTitle;
+
+  /// Subtitle for start reading dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 완독일을 설정하세요'**
+  String get bookDetailStartReadingSubtitle;
 }
 
 class _AppLocalizationsDelegate
