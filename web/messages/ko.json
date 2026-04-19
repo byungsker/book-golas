@@ -1,14 +1,15 @@
 {
   "nav": {
     "appName": "북골라스",
-    "download": "앱 다운로드"
+    "download": "앱 다운로드",
+    "waitlist": "출시 알림 받기"
   },
   "lang": {
     "ko": "한국어",
     "en": "English"
   },
   "hero": {
-    "badge": "iOS 출시 · 독서 목표 달성의 시작",
+    "badge": "iOS 출시 예정 · 가장 먼저 알림 받기",
     "headline1": "매일의 독서가",
     "headline2": "목표가 되는 곳",
     "sub": "읽고 싶은 책을 목표로 만들고, 매일의 독서를 기록하세요. 북골라스와 함께라면 독서 습관이 달라집니다.",
@@ -20,7 +21,8 @@
     "stat3Label": "완전 무료",
     "appStore": "App Store",
     "appStoreSubtitle": "Download on the",
-    "androidComingSoon": "개발 중"
+    "androidComingSoon": "개발 중",
+    "iosComingSoon": "곧 출시"
   },
   "features": {
     "label": "Features",
@@ -68,8 +70,22 @@
     "s3Desc": "오늘 읽은 페이지를 기록하면 진행률이 자동으로 업데이트돼요"
   },
   "cta": {
-    "title": "지금 독서를 시작해보세요",
-    "sub": "iOS에서 무료로 이용할 수 있어요. 오늘부터 독서 목표를 향해 한 걸음씩 ✨"
+    "title": "출시 알림을 가장 먼저 받으세요",
+    "sub": "iOS App Store 출시 즉시 이메일로 알려드릴게요. 잠깐의 등록으로 첫날부터 함께해요 ✨"
+  },
+  "waitlist": {
+    "title": "iOS 출시 알림 받기",
+    "description": "곧 App Store에 출시됩니다. 가장 먼저 알림을 받아보세요.",
+    "emailLabel": "이메일",
+    "emailPlaceholder": "your@email.com",
+    "submit": "알림 받기",
+    "submitting": "처리 중...",
+    "successTitle": "신청 완료!",
+    "successDesc": "iOS 출시 시점에 이메일로 알려드릴게요.",
+    "duplicate": "이미 등록된 이메일이에요. 출시 알림은 약속드릴게요!",
+    "invalid": "올바른 이메일을 입력해주세요.",
+    "error": "잠시 후 다시 시도해주세요.",
+    "privacy": "이메일은 출시 알림 외 다른 용도로 사용되지 않아요."
   },
   "footer": {
     "copyright": "© 2026 북골라스 · Made by",
