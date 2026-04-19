@@ -1,14 +1,15 @@
 {
   "nav": {
     "appName": "Bookgolas",
-    "download": "Download App"
+    "download": "Download App",
+    "waitlist": "Get Notified"
   },
   "lang": {
     "ko": "한국어",
     "en": "English"
   },
   "hero": {
-    "badge": "Now on iOS · Start Your Reading Journey",
+    "badge": "Launching Soon on iOS · Be the First to Know",
     "headline1": "Where Every Book",
     "headline2": "Becomes a Goal",
     "sub": "Turn the books you want to read into achievable goals. Track your daily reading and build a habit that lasts — with Bookgolas.",
@@ -20,7 +21,8 @@
     "stat3Label": "Completely Free",
     "appStore": "App Store",
     "appStoreSubtitle": "Download on the",
-    "androidComingSoon": "Coming Soon"
+    "androidComingSoon": "Coming Soon",
+    "iosComingSoon": "Coming Soon"
   },
   "features": {
     "label": "Features",
@@ -68,8 +70,22 @@
     "s3Desc": "Record today's pages and watch your progress update automatically"
   },
   "cta": {
-    "title": "Start reading today",
-    "sub": "Free on iOS. Build the reading habit you've always wanted, one book at a time ✨"
+    "title": "Be the First to Know",
+    "sub": "We'll email you the moment Bookgolas hits the App Store. Sign up once and you're set for launch day ✨"
+  },
+  "waitlist": {
+    "title": "Get Launch Notification",
+    "description": "Bookgolas is launching on iOS soon. Be the first to hear when it's live.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "submit": "Notify Me",
+    "submitting": "Submitting...",
+    "successTitle": "You're on the list!",
+    "successDesc": "We'll email you the moment Bookgolas launches.",
+    "duplicate": "You're already on the list — see you at launch!",
+    "invalid": "Please enter a valid email address.",
+    "error": "Something went wrong. Please try again later.",
+    "privacy": "We'll only email you about the launch — nothing else."
   },
   "footer": {
     "copyright": "© 2026 Bookgolas · Made by",
