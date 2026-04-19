@@ -126,14 +126,20 @@ export default function WaitlistAdminPage() {
     const rows = filtered.map((e) =>
       [e.email, e.locale, e.source ?? "", e.created_at].map(csvEscape).join(","),
     );
-    const csv = [header.join(","), ...rows].join("\n");
-    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const csv = [header.join(","), ...rows].join("\r\n");
+    const blob = new Blob([`\uFEFF${csv}`], {
+      type: "application/octet-stream",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `waitlist-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.rel = "noopener";
+    a.style.display = "none";
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   function formatDate(dateStr: string) {
@@ -150,7 +156,7 @@ export default function WaitlistAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">출시 알림 명단</h1>
+          <h1 className="text-2xl font-bold text-foreground">출시 알림 명단</h1>
           <p className="text-sm text-muted-foreground">
             iOS 출시 알림 신청자 (BOK-371)
           </p>
@@ -324,7 +330,7 @@ function StatCard({
           className={
             accent === "primary"
               ? "mt-1 text-2xl font-bold text-primary"
-              : "mt-1 text-2xl font-bold"
+              : "mt-1 text-2xl font-bold text-foreground"
           }
         >
           {value.toLocaleString()}
