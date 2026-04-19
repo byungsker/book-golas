@@ -105,11 +105,11 @@ export default function AnnouncementsPage() {
   function getStatusBadge(status: string) {
     switch (status) {
       case "sending":
-        return <Badge variant="outline" className="text-blue-500 border-blue-500/30 bg-blue-500/10">발송 중</Badge>;
+        return <Badge variant="outline" className="text-blue-700 dark:text-blue-400 border-blue-500/40 bg-blue-500/10">발송 중</Badge>;
       case "sent":
-        return <Badge variant="outline" className="text-green-500 border-green-500/30 bg-green-500/10">완료</Badge>;
+        return <Badge variant="outline" className="text-green-700 dark:text-green-400 border-green-500/40 bg-green-500/10">완료</Badge>;
       case "failed":
-        return <Badge variant="outline" className="text-red-500 border-red-500/30 bg-red-500/10">실패</Badge>;
+        return <Badge variant="outline" className="text-red-700 dark:text-red-400 border-red-500/40 bg-red-500/10">실패</Badge>;
       default:
         return <Badge variant="outline">대기</Badge>;
     }
@@ -175,8 +175,8 @@ export default function AnnouncementsPage() {
               <div
                 className={`p-3 rounded-md text-sm ${
                   result.type === "success"
-                    ? "bg-green-50 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-                    : "bg-red-50 text-red-800 dark:bg-red-500/10 dark:text-red-400"
+                    ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
+                    : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
                 }`}
               >
                 {result.message}
@@ -258,13 +258,13 @@ export default function AnnouncementsPage() {
                     <TableCell className="text-center">
                       {a.total_count}
                     </TableCell>
-                    <TableCell className="text-center text-green-500">
+                    <TableCell className="text-center text-green-700 dark:text-green-500">
                       {a.sent_count}
                     </TableCell>
                     <TableCell
                       className={`text-center ${
                         a.failed_count > 0
-                          ? "text-red-500"
+                          ? "text-red-700 dark:text-red-500"
                           : "text-muted-foreground"
                       }`}
                     >

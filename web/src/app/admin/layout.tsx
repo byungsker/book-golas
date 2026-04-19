@@ -6,7 +6,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
@@ -26,6 +34,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     async function getUser() {
@@ -50,7 +59,55 @@ export default function AdminLayout({
       <nav className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex">
+            <div className="flex items-center min-w-0">
+              <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden mr-2 text-foreground"
+                    aria-label="메뉴 열기"
+                  >
+                    <Menu className="size-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-72 p-0">
+                  <SheetHeader className="border-b border-border">
+                    <SheetTitle className="flex items-center gap-2">
+                      <Image
+                        src="/logo-bookgolas.png"
+                        alt="북골라스"
+                        width={28}
+                        height={28}
+                        className="rounded-md"
+                      />
+                      <span className="text-base font-bold text-foreground">북골라스</span>
+                      <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                        Admin
+                      </span>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-1 p-3">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileNavOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                          pathname === item.href
+                            ? "bg-accent text-accent-foreground"
+                            : "text-foreground hover:bg-accent/60"
+                        )}
+                      >
+                        <span className="text-base">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
               <Link href="/admin" className="flex-shrink-0 flex items-center gap-2">
                 <Image
                   src="/logo-bookgolas.png"
@@ -60,15 +117,17 @@ export default function AdminLayout({
                   className="rounded-md"
                 />
                 <span className="text-xl font-bold text-foreground">북골라스</span>
-                <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">Admin</span>
+                <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                  Admin
+                </span>
               </Link>
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+              <div className="hidden lg:ml-8 lg:flex lg:items-center lg:gap-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      "inline-flex items-center whitespace-nowrap px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       pathname === item.href
                         ? "bg-accent text-accent-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -80,9 +139,11 @@ export default function AdminLayout({
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {userEmail && (
-                <span className="text-sm text-muted-foreground">{userEmail}</span>
+                <span className="hidden sm:inline text-sm text-muted-foreground truncate max-w-[200px]">
+                  {userEmail}
+                </span>
               )}
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃

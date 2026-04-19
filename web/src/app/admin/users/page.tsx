@@ -131,7 +131,7 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">전체 유저</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold text-foreground">{users.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -139,7 +139,7 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">관리자</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{adminCount}</div>
+            <div className="text-2xl font-bold text-red-600 dark:text-red-500">{adminCount}</div>
           </CardContent>
         </Card>
         <Card>
@@ -147,7 +147,7 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Pro 구독자</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">{proCount}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-yellow-500">{proCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -193,7 +193,7 @@ export default function UsersPage() {
               ) : (
                 filteredUsers.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-foreground">
                       <div className="flex items-center gap-2">
                         {user.email}
                         {user.id === currentUserId && (
