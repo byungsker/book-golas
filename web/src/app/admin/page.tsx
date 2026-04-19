@@ -146,7 +146,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-400">
+            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
               {stats.fatigueUsers}
             </div>
           </CardContent>
@@ -191,7 +191,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-foreground">최근 발송 로그</CardTitle>
             <a
               href="/admin/push-logs"
-              className="text-sm text-blue-400 hover:underline"
+              className="text-sm text-primary hover:underline"
             >
               더보기 →
             </a>
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       {log.is_clicked ? (
-                        <span className="text-green-400">✅ clicked</span>
+                        <span className="text-green-600 dark:text-green-400">✅ clicked</span>
                       ) : (
                         <span className="text-muted-foreground">⏳ pending</span>
                       )}

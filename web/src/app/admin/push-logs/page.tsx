@@ -174,7 +174,7 @@ export default function PushLogsPage() {
                       </TableCell>
                       <TableCell className="text-center">
                         {log.is_clicked ? (
-                          <span className="text-green-400 font-medium">
+                          <span className="text-green-600 dark:text-green-400 font-medium">
                             ✅ Clicked
                           </span>
                         ) : (

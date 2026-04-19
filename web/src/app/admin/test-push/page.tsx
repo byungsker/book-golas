@@ -280,8 +280,10 @@ export default function TestPushPage() {
             {/* 결과 메시지 */}
             {result && (
               <div
-                className={`p-3 rounded-md ${
-                  result.success ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+                className={`p-3 rounded-md text-sm ${
+                  result.success
+                    ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
+                    : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
                 }`}
               >
                 {result.message}

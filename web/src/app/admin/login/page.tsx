@@ -47,12 +47,12 @@ function LoginForm() {
         </CardHeader>
         <CardContent>
           {unauthorizedError && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded-md text-sm">
+            <div className="mb-4 p-3 bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400 rounded-md text-sm">
               관리자 권한이 없습니다.
             </div>
           )}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded-md text-sm">
+            <div className="mb-4 p-3 bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400 rounded-md text-sm">
               {error}
             </div>
           )}
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-gray-500">로딩 중...</div>
+        <div className="text-muted-foreground">로딩 중...</div>
       </div>
     }>
       <LoginForm />
