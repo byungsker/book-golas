@@ -135,18 +135,18 @@
   "screenshots": {
     "label": "App Screens",
     "title": "Here's what it really looks like",
-    "sub": "From progress tracking to AI semantic search and pattern analysis — preview the screens that matter.",
+    "sub": "From progress tracking to AI semantic search and reading streaks — preview the screens that matter.",
     "readingList": {
-      "title": "Reading List",
-      "desc": "Progress and target dates at a glance"
+      "title": "AI Search & Capture",
+      "desc": "Search by meaning, log with a single photo"
     },
     "progress": {
-      "title": "Reading Log",
-      "desc": "Log today's pages and keep your streak alive"
+      "title": "Reading Progress",
+      "desc": "D-day and completion at a glance"
     },
     "stats": {
-      "title": "Reading Stats",
-      "desc": "Monthly totals and finished books in one view"
+      "title": "Reading Streak",
+      "desc": "See your consistency, visualized"
     }
   }
 }

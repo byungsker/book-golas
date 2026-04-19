@@ -89,715 +89,54 @@ function ProgressBar({ percent, color = "#5B7FFF" }: { percent: number; color?: 
   );
 }
 
-function PhoneMockup() {
-  const t = useTranslations("mockup");
-  const [count, setCount] = useState(2);
-  const [typed, setTyped] = useState("");
-  const [typing, setTyping] = useState(false);
-
-  const books = [
-    {
-      id: 1,
-      title: t("book1Title"),
-      author: t("book1Author"),
-      progress: parseInt(t("book1Progress")),
-      total: parseInt(t("book1Total")),
-      percent: 70,
-      color: "#5B7FFF",
-      coverColor: "rgba(91,127,255,0.1)",
-      dday: 14,
-      active: true,
-    },
-    {
-      id: 2,
-      title: t("book2Title"),
-      author: t("book2Author"),
-      progress: parseInt(t("book2Progress")),
-      total: parseInt(t("book2Total")),
-      percent: 30,
-      color: "#10B981",
-      coverColor: "rgba(16,185,129,0.1)",
-      dday: 30,
-      active: false,
-    },
-    {
-      id: 3,
-      title: t("book3Title"),
-      author: t("book3Author"),
-      progress: 0,
-      total: parseInt(t("book3Total")),
-      percent: 0,
-      color: "#F59E0B",
-      coverColor: "rgba(245,158,11,0.1)",
-      dday: 45,
-      active: false,
-    },
-  ];
-
-  const typingText = t("typingBook");
-
-  useEffect(() => {
-    let i = 0;
-    const start = setInterval(() => {
-      if (i <= typingText.length) {
-        setTyped(typingText.slice(0, i));
-        setTyping(true);
-        i++;
-      } else {
-        clearInterval(start);
-        setTimeout(() => {
-          setCount((c) => Math.min(c + 1, books.length));
-          setTyped("");
-          setTyping(false);
-          setTimeout(() => setCount(2), 4800);
-        }, 600);
-      }
-    }, 80);
-    return () => clearInterval(start);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
-
+function PhoneFrame({
+  src,
+  alt,
+  priority = false,
+  className = "",
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  className?: string;
+}) {
   return (
-    <div className="relative flex items-center justify-center select-none">
+    <div
+      className={className}
+      style={{
+        width: 320,
+        height: 680,
+        borderRadius: 44,
+        background: "#000",
+        padding: 6,
+        boxShadow:
+          "0 32px 80px -24px rgba(91,127,255,.35), 0 16px 32px rgba(0,0,0,.35)",
+        border: "1px solid rgba(255,255,255,.08)",
+      }}
+    >
       <div
-        className="absolute inset-0 rounded-[40px] pointer-events-none animate-pulse"
         style={{
-          background: "rgba(91,127,255,0.14)",
-          filter: "blur(32px)",
-          zIndex: 0,
-        }}
-      />
-      <div
-        className="relative z-10 overflow-hidden phone-glow"
-        style={{
-          width: 268,
-          height: 558,
-          borderRadius: 44,
-          background: "linear-gradient(180deg,#181a2c 0%,#111320 100%)",
-          border: "1.5px solid rgba(255,255,255,0.1)",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.07), 0 40px 80px rgba(0,0,0,0.6)",
+          width: "100%",
+          height: "100%",
+          borderRadius: 38,
+          overflow: "hidden",
+          position: "relative",
+          background: "#0b0b10",
         }}
       >
-        <div
-          className="absolute top-3 left-1/2 -translate-x-1/2 z-30"
-          style={{
-            width: 88,
-            height: 24,
-            background: "#000",
-            borderRadius: 12,
-          }}
-        />
-
-        <div className="absolute inset-0 flex flex-col pt-14 pb-6 px-4">
-          <div
-            className="flex justify-between items-center mb-4 px-1"
-            style={{ fontSize: 10, color: "rgba(255,255,255,0.45)" }}
-          >
-            <span>9:41</span>
-            <div className="flex items-center gap-1.5">
-              <LiveDot />
-              <span style={{ fontSize: 9, color: "#34d399" }}>
-                {t("realtime")}
-              </span>
-            </div>
-          </div>
-
-          <div className="mb-2 px-1">
-            <div
-              className="text-white font-semibold"
-              style={{ fontSize: 14, fontFamily: "var(--font-display)" }}
-            >
-              {t("headerTitle")}
-            </div>
-          </div>
-
-          <div
-            className="rounded-2xl px-3 py-2 mb-2"
-            style={{
-              background: "linear-gradient(135deg, rgba(91,127,255,0.35), rgba(91,127,255,0.15))",
-              border: "0.5px solid rgba(91,127,255,0.4)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(245,158,11,0.15)" }}
-              >
-                <span style={{ fontSize: 10 }}>⭐</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>
-                  Pro로 업그레이드
-                </div>
-                <div style={{ fontSize: 7.5, color: "rgba(255,255,255,0.5)" }}>
-                  AI 기록 검색, 무제한 독서 목표
-                </div>
-              </div>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>✕</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 mb-2 px-0.5">
-            <span
-              className="px-2.5 py-1 rounded-full"
-              style={{ fontSize: 8.5, fontWeight: 600, background: "#fff", color: "#000" }}
-            >
-              독서 중
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full"
-              style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
-            >
-              읽을 예정
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full"
-              style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
-            >
-              완독
-            </span>
-            <span
-              className="px-2.5 py-1 rounded-full"
-              style={{ fontSize: 7.5, fontWeight: 500, color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
-            >
-              ···
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2 flex-1 overflow-hidden">
-            {books.slice(0, count).map((book, i) => (
-              <div
-                key={book.id}
-                className="rounded-xl px-3 py-2.5"
-                style={{
-                  background: book.active
-                    ? "rgba(91,127,255,0.07)"
-                    : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${book.active ? "rgba(91,127,255,0.2)" : "rgba(255,255,255,0.07)"}`,
-                  animation:
-                    i >= 2 ? "book-item 0.4s ease-out both" : "none",
-                }}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="w-10 h-14 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: book.coverColor, border: `1px solid ${book.color}20` }}
-                  >
-                    <span style={{ fontSize: 16 }}>📖</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className="font-medium truncate"
-                      style={{
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.9)",
-                        fontFamily: "var(--font-display)",
-                      }}
-                    >
-                      {book.title}
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span
-                        className="px-1.5 py-px rounded-full font-medium"
-                        style={{
-                          fontSize: 7.5,
-                          background: `${book.color}20`,
-                          color: book.color,
-                          border: `1px solid ${book.color}30`,
-                        }}
-                      >
-                        D-{book.dday}
-                      </span>
-                      <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.35)" }}>
-                        {book.progress}/{book.total} {t("pagesRead")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <div className="flex-1">
-                        <ProgressBar percent={book.percent} color={book.color} />
-                      </div>
-                      <span style={{ fontSize: 8, color: "rgba(255,255,255,0.45)" }}>
-                        {book.percent}%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {typing && (
-              <div
-                className="rounded-xl px-3 py-2.5"
-                style={{
-                  background: "rgba(91,127,255,0.05)",
-                  border: "1px solid rgba(91,127,255,0.22)",
-                }}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{
-                      border: "1.5px solid rgba(91,127,255,0.35)",
-                    }}
-                  />
-                  <span
-                    className="flex-1 text-xs"
-                    style={{ color: "rgba(255,255,255,0.65)" }}
-                  >
-                    {typed}
-                    <span className="animate-pulse">|</span>
-                  </span>
-                </div>
-                <div style={{ fontSize: 8.5, color: "rgba(107,138,255,0.6)" }}>
-                  {t("typingBy")}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div
-            className="mt-3 rounded-xl flex items-center justify-center gap-1.5 py-2.5"
-            style={{
-              background: "rgba(91,127,255,0.12)",
-              border: "1px solid rgba(91,127,255,0.22)",
-            }}
-          >
-            <span
-              className="text-lg leading-none"
-              style={{ color: "#6B8AFF" }}
-            >
-              +
-            </span>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "#6B8AFF" }}
-            >
-              {t("addSession")}
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="absolute bottom-2 left-1/2 -translate-x-1/2"
-          style={{
-            width: 96,
-            height: 4,
-            borderRadius: 2,
-            background: "rgba(255,255,255,0.18)",
-          }}
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="320px"
+          priority={priority}
+          style={{ objectFit: "cover" }}
         />
       </div>
     </div>
   );
 }
 
-function ReadingListPhone() {
-  const books = [
-    { title: "클린 코드", author: "로버트 C. 마틴", percent: 70, color: "#5B7FFF", coverColor: "rgba(91,127,255,0.1)", pages: "234/334", dday: 14 },
-    { title: "사피엔스", author: "유발 하라리", percent: 30, color: "#10B981", coverColor: "rgba(16,185,129,0.1)", pages: "132/443", dday: 30 },
-    { title: "원씽", author: "게리 켈러", percent: 0, color: "#F59E0B", coverColor: "rgba(245,158,11,0.1)", pages: "0/256", dday: 45 },
-    { title: "어린 왕자", author: "생텍쥐페리", percent: 100, color: "#34d399", coverColor: "rgba(52,211,153,0.1)", pages: "96/96", dday: 0 },
-  ];
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: 240,
-        height: 500,
-        borderRadius: 40,
-        background: "linear-gradient(180deg,#181a2c 0%,#111320 100%)",
-        border: "1.5px solid rgba(255,255,255,0.1)",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.07),0 32px 64px rgba(0,0,0,0.55)",
-        flexShrink: 0,
-      }}
-    >
-      <div
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30"
-        style={{ width: 80, height: 22, background: "#000", borderRadius: 11 }}
-      />
-      <div className="absolute inset-0 flex flex-col pt-12 pb-5 px-3.5">
-        <div
-          className="flex justify-between items-center mb-3 px-1"
-          style={{ fontSize: 9, color: "rgba(255,255,255,0.38)" }}
-        >
-          <span>9:41</span>
-          <div className="flex items-center gap-1">
-            <LiveDot />
-            <span style={{ fontSize: 8, color: "#34d399" }}>진행 중</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 mb-3">
-          <div
-            className="w-6 h-6 rounded-lg flex items-center justify-center text-xs"
-            style={{ background: "rgba(91,127,255,0.18)", border: "1px solid rgba(91,127,255,0.25)" }}
-          >
-            📚
-          </div>
-          <div className="text-white font-semibold" style={{ fontSize: 12, fontFamily: "var(--font-display)" }}>
-            나의 독서 목표
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
-          {books.map((book, i) => (
-            <div
-              key={i}
-              className="rounded-xl px-2.5 py-2"
-              style={{
-                background: book.percent === 100 ? "rgba(16,185,129,0.07)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${book.percent === 100 ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.07)"}`,
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-11 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{ background: book.coverColor, border: `1px solid ${book.color}20` }}
-                >
-                  <span style={{ fontSize: 12 }}>📖</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div
-                    className="font-medium truncate"
-                    style={{ fontSize: 9.5, color: "rgba(255,255,255,0.88)", fontFamily: "var(--font-display)" }}
-                  >
-                    {book.title}
-                  </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {book.dday > 0 ? (
-                      <span
-                        className="px-1 py-px rounded-full"
-                        style={{ fontSize: 6.5, background: `${book.color}20`, color: book.color, border: `1px solid ${book.color}30` }}
-                      >
-                        D-{book.dday}
-                      </span>
-                    ) : (
-                      <span
-                        className="px-1 py-px rounded-full"
-                        style={{ fontSize: 6.5, background: "rgba(52,211,153,0.2)", color: "#34d399" }}
-                      >
-                        완독
-                      </span>
-                    )}
-                    <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.3)" }}>
-                      {book.pages} 페이지
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 mt-1">
-                    <div className="flex-1">
-                      <ProgressBar percent={book.percent} color={book.color} />
-                    </div>
-                    <span style={{ fontSize: 7, color: "rgba(255,255,255,0.4)" }}>{book.percent}%</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.15)" }}>
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                    <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div
-        className="absolute bottom-2 left-1/2 -translate-x-1/2"
-        style={{ width: 80, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.18)" }}
-      />
-    </div>
-  );
-}
-
-function ReadingLogPhone() {
-  const calendarDays = [
-    0, 0, 0, 0, 0, 1, 2,
-    3, 1, 2, 0, 3, 2, 1,
-    2, 3, 1, 0, 2, 1, 3,
-    2, 1, 0, 3, 2, 1, 2,
-  ];
-  const dayHeaders = ["월", "화", "수", "목", "금", "토", "일"];
-  const filterTabs = ["전체", "독서", "메모", "리뷰"];
-
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: 268,
-        height: 558,
-        borderRadius: 44,
-        background: "linear-gradient(180deg,#181a2c 0%,#111320 100%)",
-        border: "1.5px solid rgba(255,255,255,0.1)",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.07),0 40px 80px rgba(0,0,0,0.6)",
-        flexShrink: 0,
-      }}
-    >
-      <div
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30"
-        style={{ width: 88, height: 24, background: "#000", borderRadius: 12 }}
-      />
-      <div className="absolute inset-0 flex flex-col pt-14 pb-6 px-4">
-        <div
-          className="flex justify-between items-center mb-4 px-1"
-          style={{ fontSize: 10, color: "rgba(255,255,255,0.38)" }}
-        >
-          <span>9:41</span>
-          <span>독서 기록</span>
-        </div>
-
-        <div className="flex items-center justify-between mb-3">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ opacity: 0.4 }}>
-            <path d="M9 3L5 7l4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <div className="text-white font-bold" style={{ fontSize: 15, fontFamily: "var(--font-display)" }}>
-            2월
-          </div>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ opacity: 0.4 }}>
-            <path d="M5 3l4 4-4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-
-        <div className="flex gap-1.5 mb-3">
-          {filterTabs.map((tab, i) => (
-            <div
-              key={i}
-              className="flex-1 text-center py-1 rounded-lg"
-              style={{
-                fontSize: 8.5,
-                fontWeight: i === 0 ? 600 : 400,
-                color: i === 0 ? "white" : "rgba(255,255,255,0.35)",
-                background: i === 0 ? "rgba(91,127,255,0.2)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${i === 0 ? "rgba(91,127,255,0.3)" : "rgba(255,255,255,0.06)"}`,
-              }}
-            >
-              {tab}
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="rounded-xl p-2.5 mb-3"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <div className="grid grid-cols-7 gap-1 mb-1.5">
-            {dayHeaders.map((d, i) => (
-              <div key={i} className="text-center" style={{ fontSize: 7, color: "rgba(255,255,255,0.3)" }}>
-                {d}
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((level, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-md flex items-center justify-center"
-                style={{
-                  background: level === 0
-                    ? "rgba(255,255,255,0.03)"
-                    : level === 1
-                      ? "rgba(91,127,255,0.15)"
-                      : level === 2
-                        ? "rgba(91,127,255,0.3)"
-                        : "rgba(91,127,255,0.5)",
-                }}
-              >
-                <span style={{ fontSize: 7, color: level > 0 ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)" }}>
-                  {i + 1}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-2.5">
-          <div className="font-semibold text-white mb-2" style={{ fontSize: 11, fontFamily: "var(--font-display)" }}>
-            오늘 독서
-          </div>
-          <div
-            className="rounded-xl px-3 py-2.5"
-            style={{ background: "rgba(91,127,255,0.07)", border: "1px solid rgba(91,127,255,0.18)" }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-11 rounded-md flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(91,127,255,0.1)", border: "1px solid rgba(91,127,255,0.2)" }}
-              >
-                <span style={{ fontSize: 12 }}>📖</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-white font-medium truncate" style={{ fontSize: 10, fontFamily: "var(--font-display)" }}>
-                    클린 코드
-                  </span>
-                  <span style={{ fontSize: 8, color: "#6B8AFF" }}>+15p</span>
-                </div>
-                <ProgressBar percent={70} color="#5B7FFF" />
-                <div className="mt-0.5 flex justify-between" style={{ fontSize: 7.5, color: "rgba(255,255,255,0.3)" }}>
-                  <span>234 / 334</span>
-                  <span>완독까지 100p</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="rounded-xl p-2.5"
-          style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)" }}
-        >
-          <div style={{ fontSize: 9, color: "rgba(245,158,11,0.8)", lineHeight: 1.5 }}>
-            오늘 목표까지 12분 더 읽으면 달성! 화이팅 🎯
-          </div>
-        </div>
-      </div>
-      <div
-        className="absolute bottom-2 left-1/2 -translate-x-1/2"
-        style={{ width: 96, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.18)" }}
-      />
-    </div>
-  );
-}
-
-function StatsPhone() {
-  const months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
-  const counts = [2, 3, 1, 4, 2, 3];
-  const maxCount = Math.max(...counts);
-  const tabs = ["개요", "분석", "활동"];
-
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: 240,
-        height: 500,
-        borderRadius: 40,
-        background: "linear-gradient(180deg,#181a2c 0%,#111320 100%)",
-        border: "1.5px solid rgba(255,255,255,0.1)",
-        boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.07),0 32px 64px rgba(0,0,0,0.55)",
-        flexShrink: 0,
-      }}
-    >
-      <div
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30"
-        style={{ width: 80, height: 22, background: "#000", borderRadius: 11 }}
-      />
-      <div className="absolute inset-0 flex flex-col pt-12 pb-5 px-3.5">
-        <div
-          className="flex justify-between items-center mb-3 px-1"
-          style={{ fontSize: 9, color: "rgba(255,255,255,0.38)" }}
-        >
-          <span>9:41</span>
-          <span>통계</span>
-        </div>
-
-        <div className="flex gap-1 mb-3">
-          {tabs.map((tab, i) => (
-            <div
-              key={i}
-              className="flex-1 text-center py-1.5 rounded-lg"
-              style={{
-                fontSize: 9,
-                fontWeight: i === 0 ? 600 : 400,
-                color: i === 0 ? "white" : "rgba(255,255,255,0.35)",
-                background: i === 0 ? "rgba(91,127,255,0.2)" : "transparent",
-                border: i === 0 ? "1px solid rgba(91,127,255,0.3)" : "1px solid transparent",
-              }}
-            >
-              {tab}
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="rounded-xl p-2.5 mb-3"
-          style={{ background: "rgba(91,127,255,0.07)", border: "1px solid rgba(91,127,255,0.15)" }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <div className="text-white font-semibold" style={{ fontSize: 10, fontFamily: "var(--font-display)" }}>
-                2026년 목표
-              </div>
-              <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)" }}>
-                24권 중 3권 완독
-              </div>
-            </div>
-            <div
-              className="font-bold"
-              style={{ fontSize: 16, color: "#5B7FFF", fontFamily: "var(--font-display)" }}
-            >
-              12.5%
-            </div>
-          </div>
-          <div className="relative w-full rounded-full overflow-hidden" style={{ height: 6, background: "rgba(255,255,255,0.08)" }}>
-            <div style={{ width: "12.5%", height: "100%", background: "linear-gradient(90deg, #5B7FFF, #6B8AFF)", borderRadius: 3 }} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-1.5 mb-3">
-          {[
-            { icon: "📚", label: "총 페이지", value: "1,234p", color: "#5B7FFF" },
-            { icon: "📅", label: "일평균 페이지", value: "45.2p", color: "#10B981" },
-            { icon: "🔥", label: "연속 독서", value: "7일", color: "#F59E0B" },
-            { icon: "🏁", label: "완독률", value: "67%", color: "#FF6B6B" },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="rounded-xl p-2"
-              style={{
-                background: `${stat.color}09`,
-                border: `1px solid ${stat.color}20`,
-              }}
-            >
-              <div className="flex items-center gap-1 mb-1">
-                <span style={{ fontSize: 10 }}>{stat.icon}</span>
-                <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.35)" }}>{stat.label}</span>
-              </div>
-              <div className="font-bold" style={{ fontSize: 14, color: stat.color, fontFamily: "var(--font-display)" }}>
-                {stat.value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="rounded-xl p-2.5"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
-          <div className="text-white font-semibold mb-2" style={{ fontSize: 9, fontFamily: "var(--font-display)" }}>
-            월별 완독
-          </div>
-          <div className="flex items-end gap-1.5 h-16">
-            {counts.map((count, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className="w-full rounded-sm"
-                  style={{
-                    height: `${(count / maxCount) * 48}px`,
-                    background: i === counts.length - 1
-                      ? "linear-gradient(180deg, #6B8AFF, #5B7FFF)"
-                      : "rgba(91,127,255,0.25)",
-                    minHeight: 4,
-                  }}
-                />
-                <span style={{ fontSize: 6.5, color: "rgba(255,255,255,0.3)" }}>{months[i]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div
-        className="absolute bottom-2 left-1/2 -translate-x-1/2"
-        style={{ width: 80, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.18)" }}
-      />
-    </div>
-  );
-}
 
 type FeatureCardProps = {
   icon: string;
@@ -1192,7 +531,11 @@ export default function Page() {
               transition: "opacity .8s ease .15s",
             }}
           >
-            <PhoneMockup />
+            <PhoneFrame
+              src="/screenshots/01-reading-list.png"
+              alt={t("mockup.headerTitle")}
+              priority
+            />
           </div>
         </div>
       </section>
@@ -1300,7 +643,10 @@ export default function Page() {
               className="hidden sm:flex flex-col items-center gap-5"
               style={{ transform: "rotate(-4deg) translateY(24px)", transformOrigin: "bottom center" }}
             >
-              <ReadingListPhone />
+              <PhoneFrame
+                src="/screenshots/03-ai-search.png"
+                alt={t("screenshots.readingList.title")}
+              />
               <div className="text-center">
                 <div className="font-semibold text-white" style={{ fontSize: 14, fontFamily: "var(--font-display)" }}>
                   {t("screenshots.readingList.title")}
@@ -1317,7 +663,10 @@ export default function Page() {
                   filter: "drop-shadow(0 0 32px rgba(91,127,255,0.28)) drop-shadow(0 24px 48px rgba(0,0,0,0.55))",
                 }}
               >
-                <ReadingLogPhone />
+                <PhoneFrame
+                  src="/screenshots/02-book-detail.png"
+                  alt={t("screenshots.progress.title")}
+                />
               </div>
               <div className="text-center">
                 <div className="font-semibold text-white" style={{ fontSize: 14, fontFamily: "var(--font-display)" }}>
@@ -1333,7 +682,10 @@ export default function Page() {
               className="hidden sm:flex flex-col items-center gap-5"
               style={{ transform: "rotate(4deg) translateY(24px)", transformOrigin: "bottom center" }}
             >
-              <StatsPhone />
+              <PhoneFrame
+                src="/screenshots/06-activity-heatmap.png"
+                alt={t("screenshots.stats.title")}
+              />
               <div className="text-center">
                 <div className="font-semibold text-white" style={{ fontSize: 14, fontFamily: "var(--font-display)" }}>
                   {t("screenshots.stats.title")}
