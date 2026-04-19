@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import { WaitlistModal } from "@/components/waitlist-modal";
 
 function useReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -892,6 +893,74 @@ function Step({
   );
 }
 
+function AppStoreWaitlistButton({
+  size = "default",
+  label,
+  subtitle,
+  ctaLabel,
+  onClick,
+}: {
+  size?: "default" | "lg";
+  label: string;
+  subtitle: string;
+  ctaLabel: string;
+  onClick: () => void;
+}) {
+  const Icon = (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+    </svg>
+  );
+
+  return (
+    <div className="relative">
+      {size === "lg" ? (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white btn-primary cursor-pointer"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {Icon}
+          {ctaLabel}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all hover:scale-105 hover:-translate-y-0.5 cursor-pointer"
+          style={{
+            background: "rgba(28,31,50,0.85)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+        >
+          {Icon}
+          <div className="text-left">
+            <div className="text-white/45 text-[9px]">{subtitle}</div>
+            <div
+              className="text-white font-semibold text-sm"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {ctaLabel}
+            </div>
+          </div>
+        </button>
+      )}
+      <span
+        className="absolute -top-2 -right-2 text-[9px] font-bold px-2 py-0.5 rounded-full"
+        style={{
+          background: "rgba(255,150,50,0.9)",
+          color: "white",
+          fontFamily: "var(--font-display)",
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function GooglePlayDisabled({ label }: { label: string }) {
   return (
     <div className="relative">
@@ -948,6 +1017,13 @@ export default function Page() {
   const cta = useReveal();
   const shots = useReveal();
   const [hero, setHero] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [waitlistSource, setWaitlistSource] = useState<string>("nav");
+
+  const openWaitlist = (source: string) => {
+    setWaitlistSource(source);
+    setWaitlistOpen(true);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setHero(true), 80);
@@ -990,12 +1066,13 @@ export default function Page() {
         </div>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <a
-            href="#download"
-            className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full font-medium text-sm text-white btn-primary"
+          <button
+            type="button"
+            onClick={() => openWaitlist("nav")}
+            className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full font-medium text-sm text-white btn-primary cursor-pointer"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            {t("nav.download")}
+            {t("nav.waitlist")}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
                 d="M3 7h8M7 3l4 4-4 4"
@@ -1005,7 +1082,7 @@ export default function Page() {
                 strokeLinejoin="round"
               />
             </svg>
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -1095,30 +1172,13 @@ export default function Page() {
               className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
               style={trans(320)}
             >
-              <a
-                href="#"
-                className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all hover:scale-105 hover:-translate-y-0.5"
-                style={{
-                  background: "rgba(28,31,50,0.85)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-white/45 text-[9px]">
-                    {t("hero.appStoreSubtitle")}
-                  </div>
-                  <div
-                    className="text-white font-semibold text-sm"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {t("hero.appStore")}
-                  </div>
-                </div>
-              </a>
+              <AppStoreWaitlistButton
+                size="default"
+                label={t("hero.iosComingSoon")}
+                subtitle={t("hero.appStoreSubtitle")}
+                ctaLabel={t("hero.appStore")}
+                onClick={() => openWaitlist("hero")}
+              />
 
               <GooglePlayDisabled label={t("hero.androidComingSoon")} />
             </div>
@@ -1496,20 +1556,15 @@ export default function Page() {
             {t("cta.sub")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#"
-              className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white btn-primary"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-              </svg>
-              App Store
-            </a>
-            <div className="flex justify-center">
-              <GooglePlayDisabled label={t("hero.androidComingSoon")} />
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <AppStoreWaitlistButton
+              size="lg"
+              label={t("hero.iosComingSoon")}
+              subtitle={t("hero.appStoreSubtitle")}
+              ctaLabel={t("hero.appStore")}
+              onClick={() => openWaitlist("cta")}
+            />
+            <GooglePlayDisabled label={t("hero.androidComingSoon")} />
           </div>
         </div>
       </section>
@@ -1608,6 +1663,13 @@ export default function Page() {
           </div>
         </div>
       </footer>
+
+      <WaitlistModal
+        open={waitlistOpen}
+        onOpenChange={setWaitlistOpen}
+        source={waitlistSource}
+        locale={locale}
+      />
     </div>
   );
 }
