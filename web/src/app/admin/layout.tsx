@@ -58,8 +58,8 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-background">
       <nav className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 2xl:max-w-screen-2xl">
+          <div className="flex justify-between h-16 gap-4">
             <div className="flex items-center min-w-0">
               <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
                 <SheetTrigger asChild>
@@ -140,9 +140,9 @@ export default function AdminLayout({
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {userEmail && (
-                <span className="hidden xl:inline text-sm text-muted-foreground truncate max-w-[180px]">
+                <span className="hidden 2xl:inline text-sm text-muted-foreground truncate max-w-[180px]">
                   {userEmail}
                 </span>
               )}
