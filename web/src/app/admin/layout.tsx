@@ -15,6 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/admin/theme-toggle";
 
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
@@ -65,7 +66,7 @@ export default function AdminLayout({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden mr-2 text-foreground"
+                    className="xl:hidden mr-2 text-foreground"
                     aria-label="메뉴 열기"
                   >
                     <Menu className="size-5" />
@@ -121,7 +122,7 @@ export default function AdminLayout({
                   Admin
                 </span>
               </Link>
-              <div className="hidden lg:ml-8 lg:flex lg:items-center lg:gap-1">
+              <div className="hidden xl:ml-8 xl:flex xl:items-center xl:gap-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
@@ -139,12 +140,13 @@ export default function AdminLayout({
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               {userEmail && (
-                <span className="hidden sm:inline text-sm text-muted-foreground truncate max-w-[200px]">
+                <span className="hidden xl:inline text-sm text-muted-foreground truncate max-w-[180px]">
                   {userEmail}
                 </span>
               )}
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃
               </Button>
