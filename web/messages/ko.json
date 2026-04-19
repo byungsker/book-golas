@@ -105,29 +105,20 @@
     "backHome": "← 홈으로"
   },
   "mockup": {
-    "headerTitle": "나의 독서 목표",
-    "todayGoal": "오늘 목표: 30분 독서",
+    "headerTitle": "독서 목록",
+    "todayGoalLabel": "오늘 목표",
+    "overallLabel": "전체 진행",
     "realtime": "진행 중",
     "streakLabel": "일 연속 독서",
-    "book1Title": "클린 코드",
-    "book1Author": "로버트 C. 마틴",
-    "book1Progress": "234",
-    "book1Total": "334",
-    "book1Percent": 70,
-    "book2Title": "사피엔스",
-    "book2Author": "유발 하라리",
-    "book2Progress": "132",
-    "book2Total": "443",
-    "book2Percent": 30,
-    "book3Title": "원씽",
-    "book3Author": "게리 켈러",
-    "book3Progress": "0",
-    "book3Total": "256",
-    "book3Percent": 0,
+    "tabReading": "독서 중",
+    "tabToRead": "읽을 예정",
+    "tabDone": "완독",
+    "proTitle": "Pro로 업그레이드",
+    "proSub": "AI 기록 검색, 독서 인사이트 무제한",
     "addSession": "독서 기록 추가",
-    "typingBook": "어린 왕자",
+    "typingBook": "행렬의 곱셈이 뭐였지?",
     "pagesRead": "페이지",
-    "typingBy": "오늘 읽은 페이지",
+    "typingBy": "AI 의미 검색 중",
     "today": "오늘",
     "inProgress": "읽는 중",
     "notStarted": "시작 전"
@@ -137,12 +128,12 @@
     "title": "실제로 이렇게 생겼어요",
     "sub": "진행률부터 AI 의미 검색, 독서 스트릭까지. 북골라스의 핵심 화면을 미리 살펴보세요.",
     "readingList": {
-      "title": "AI 검색 & 기록",
-      "desc": "의미로 검색, 사진 한 장으로 기록"
+      "title": "독서 목록",
+      "desc": "일일 목표와 전체 진행률을 한눈에"
     },
     "progress": {
-      "title": "독서 진행률",
-      "desc": "D-day와 완독률을 한눈에"
+      "title": "독서 기록",
+      "desc": "매일의 독서가 캘린더에 쌓여요"
     },
     "stats": {
       "title": "독서 스트릭",

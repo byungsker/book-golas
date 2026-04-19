@@ -105,29 +105,20 @@
     "backHome": "← Back to Home"
   },
   "mockup": {
-    "headerTitle": "My Reading Goals",
-    "todayGoal": "Today's goal: 30 min reading",
-    "realtime": "Active",
+    "headerTitle": "Reading List",
+    "todayGoalLabel": "Today",
+    "overallLabel": "Overall",
+    "realtime": "Live",
     "streakLabel": "day streak",
-    "book1Title": "Clean Code",
-    "book1Author": "Robert C. Martin",
-    "book1Progress": "234",
-    "book1Total": "334",
-    "book1Percent": 70,
-    "book2Title": "Sapiens",
-    "book2Author": "Yuval Noah Harari",
-    "book2Progress": "132",
-    "book2Total": "443",
-    "book2Percent": 30,
-    "book3Title": "The ONE Thing",
-    "book3Author": "Gary Keller",
-    "book3Progress": "0",
-    "book3Total": "256",
-    "book3Percent": 0,
+    "tabReading": "Reading",
+    "tabToRead": "To Read",
+    "tabDone": "Finished",
+    "proTitle": "Upgrade to Pro",
+    "proSub": "AI Recall & Insights, unlimited",
     "addSession": "Add reading session",
-    "typingBook": "The Little Prince",
+    "typingBook": "What was matrix multiplication?",
     "pagesRead": "pages",
-    "typingBy": "Today's reading",
+    "typingBy": "AI semantic search",
     "today": "Today",
     "inProgress": "In Progress",
     "notStarted": "Not Started"
@@ -137,12 +128,12 @@
     "title": "Here's what it really looks like",
     "sub": "From progress tracking to AI semantic search and reading streaks — preview the screens that matter.",
     "readingList": {
-      "title": "AI Search & Capture",
-      "desc": "Search by meaning, log with a single photo"
+      "title": "Reading List",
+      "desc": "Today's goal and overall progress at a glance"
     },
     "progress": {
-      "title": "Reading Progress",
-      "desc": "D-day and completion at a glance"
+      "title": "Reading Log",
+      "desc": "Every day's reading, stacked on the calendar"
     },
     "stats": {
       "title": "Reading Streak",
