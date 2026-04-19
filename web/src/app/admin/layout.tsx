@@ -15,6 +15,7 @@ const navItems = [
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
   { href: "/admin/test-push", label: "테스트 발송", icon: "🚀" },
   { href: "/admin/announcements", label: "공지 발송", icon: "📢" },
+  { href: "/admin/waitlist", label: "출시 알림 명단", icon: "📧" },
 ];
 
 export default function AdminLayout({
