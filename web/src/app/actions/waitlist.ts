@@ -1,7 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { headers } from "next/headers";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { sendWaitlistWelcome } from "@/lib/email/client";
 
 const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
@@ -36,5 +38,13 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
     if (error.code === "23505") return { ok: false, code: "duplicate" };
     return { ok: false, code: "unknown" };
   }
+
+  after(async () => {
+    const result = await sendWaitlistWelcome(email, locale);
+    if (!result.ok) {
+      console.error("[waitlist] email send failed", { email, reason: result.reason });
+    }
+  });
+
   return { ok: true };
 }
