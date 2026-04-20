@@ -106,7 +106,7 @@ function PhoneMockup() {
       overallPercent: 0,
       dday: "D-7",
       ddayType: "future" as const,
-      coverBg: "linear-gradient(135deg,#b8342d 0%,#7a2820 100%)",
+      cover: "/book-covers/book-1.jpg",
       active: true,
     },
     {
@@ -119,7 +119,7 @@ function PhoneMockup() {
       overallPercent: 7,
       dday: "D+23",
       ddayType: "past" as const,
-      coverBg: "linear-gradient(135deg,#d5d9e3 0%,#9aa0ae 100%)",
+      cover: "/book-covers/book-2.jpg",
       active: false,
     },
     {
@@ -132,7 +132,7 @@ function PhoneMockup() {
       overallPercent: 44,
       dday: "D+21",
       ddayType: "past" as const,
-      coverBg: "linear-gradient(135deg,#c6dfe7 0%,#6e96a4 100%)",
+      cover: "/book-covers/book-3.jpg",
       active: false,
     },
   ];
@@ -215,32 +215,6 @@ function PhoneMockup() {
             </div>
           </div>
 
-          <div
-            className="rounded-2xl px-3 py-2 mb-2"
-            style={{
-              background: "linear-gradient(135deg, rgba(91,127,255,0.35), rgba(91,127,255,0.15))",
-              border: "0.5px solid rgba(91,127,255,0.4)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(245,158,11,0.15)" }}
-              >
-                <span style={{ fontSize: 10 }}>⭐</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>
-                  {t("proTitle")}
-                </div>
-                <div style={{ fontSize: 7.5, color: "rgba(255,255,255,0.5)" }}>
-                  {t("proSub")}
-                </div>
-              </div>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>✕</span>
-            </div>
-          </div>
-
           <div className="flex items-center gap-1 mb-2 px-0.5">
             <span
               className="px-2.5 py-1 rounded-full"
@@ -285,12 +259,21 @@ function PhoneMockup() {
                 >
                   <div className="flex items-center gap-2.5">
                     <div
-                      className="w-9 h-12 rounded-md flex-shrink-0"
+                      className="relative rounded-md flex-shrink-0 overflow-hidden"
                       style={{
-                        background: book.coverBg,
+                        width: 36,
+                        height: 48,
                         boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.3)",
                       }}
-                    />
+                    >
+                      <Image
+                        src={book.cover}
+                        alt={book.title}
+                        fill
+                        sizes="36px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div
                         className="font-semibold truncate"
@@ -381,25 +364,89 @@ function PhoneMockup() {
             )}
           </div>
 
-          <div
-            className="mt-3 rounded-xl flex items-center justify-center gap-1.5 py-2.5"
-            style={{
-              background: "rgba(91,127,255,0.12)",
-              border: "1px solid rgba(91,127,255,0.22)",
-            }}
-          >
-            <span
-              className="text-lg leading-none"
-              style={{ color: "#6B8AFF" }}
+          <div className="mt-3 relative" style={{ height: 40 }}>
+            <div
+              className="absolute inset-x-0 top-0 bottom-0 rounded-full flex items-center justify-around px-3"
+              style={{
+                background: "rgba(24,26,44,0.92)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
+                backdropFilter: "blur(20px)",
+                marginRight: 36,
+              }}
             >
-              +
-            </span>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "#6B8AFF" }}
+              {[
+                { label: "홈", active: true, icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                )},
+                { label: "서재", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                    <path d="M18 13l-6-6-2 2 6 6"/>
+                    <path d="M2 2l7.586 7.586"/>
+                    <circle cx="11" cy="11" r="2"/>
+                  </svg>
+                )},
+                { label: "상태", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+                  </svg>
+                )},
+                { label: "캘린더", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                )},
+                { label: "MY", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                )},
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center justify-center"
+                  style={{
+                    color: item.active ? "white" : "rgba(255,255,255,0.42)",
+                    gap: 1,
+                    background: item.active ? "rgba(255,255,255,0.07)" : "transparent",
+                    borderRadius: 9999,
+                    width: 32,
+                    height: 32,
+                  }}
+                >
+                  {item.icon}
+                  <span style={{ fontSize: 6.5, fontWeight: item.active ? 600 : 400 }}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div
+              className="absolute right-0 top-0 rounded-full flex items-center justify-center"
+              style={{
+                width: 40,
+                height: 40,
+                background: "rgba(24,26,44,0.92)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
+                backdropFilter: "blur(20px)",
+                color: "rgba(255,255,255,0.85)",
+              }}
             >
-              {t("addSession")}
-            </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -426,7 +473,7 @@ function ReadingListPhone() {
       todayPercent: 0,
       overallPercent: 0,
       pages: "0/550",
-      coverBg: "linear-gradient(135deg,#b8342d 0%,#7a2820 100%)",
+      cover: "/book-covers/book-1.jpg",
     },
     {
       title: "미니멀리즘 프로그래머",
@@ -435,7 +482,7 @@ function ReadingListPhone() {
       todayPercent: 7,
       overallPercent: 7,
       pages: "14/192",
-      coverBg: "linear-gradient(135deg,#d5d9e3 0%,#9aa0ae 100%)",
+      cover: "/book-covers/book-2.jpg",
     },
     {
       title: "히사이시 조의 음악일기",
@@ -444,7 +491,7 @@ function ReadingListPhone() {
       todayPercent: 44,
       overallPercent: 44,
       pages: "128/288",
-      coverBg: "linear-gradient(135deg,#c6dfe7 0%,#6e96a4 100%)",
+      cover: "/book-covers/book-3.jpg",
     },
     {
       title: "시대예보: 경량문명의 탄생",
@@ -453,7 +500,7 @@ function ReadingListPhone() {
       todayPercent: 0,
       overallPercent: 0,
       pages: "0/312",
-      coverBg: "linear-gradient(135deg,#f3e4c3 0%,#c9ad7a 100%)",
+      cover: null as string | null,
     },
   ];
   return (
@@ -538,12 +585,31 @@ function ReadingListPhone() {
               >
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-8 h-11 rounded-md flex-shrink-0"
+                    className="relative rounded-md flex-shrink-0 overflow-hidden"
                     style={{
-                      background: book.coverBg,
+                      width: 32,
+                      height: 44,
+                      background: book.cover ? "transparent" : "linear-gradient(135deg,#2a2d3f,#1a1d2e)",
                       boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 2px 5px rgba(0,0,0,0.3)",
                     }}
-                  />
+                  >
+                    {book.cover ? (
+                      <Image
+                        src={book.cover}
+                        alt={book.title}
+                        fill
+                        sizes="32px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}
+                      >
+                        📘
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div
                       className="font-semibold truncate"
@@ -759,12 +825,21 @@ function ReadingLogPhone() {
           >
             <div className="flex items-center gap-2">
               <div
-                className="w-8 h-11 rounded-md flex-shrink-0"
+                className="relative rounded-md flex-shrink-0 overflow-hidden"
                 style={{
-                  background: "linear-gradient(135deg,#c6dfe7 0%,#6e96a4 100%)",
+                  width: 32,
+                  height: 44,
                   boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1), 0 2px 5px rgba(0,0,0,0.3)",
                 }}
-              />
+              >
+                <Image
+                  src="/book-covers/book-3.jpg"
+                  alt="히사이시 조의 음악일기"
+                  fill
+                  sizes="32px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-white font-medium truncate" style={{ fontSize: 10, fontFamily: "var(--font-display)" }}>
