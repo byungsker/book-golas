@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
+    paths-ignore:
+      - 'web/**'
+      - 'docs/**'
+      - '**/*.md'
+      - '.gitignore'
+      - '.editorconfig'
   workflow_dispatch:
 
 jobs:
