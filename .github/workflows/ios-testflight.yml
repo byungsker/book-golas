@@ -10,6 +10,8 @@ jobs:
   migrate-database:
     name: Apply Database Migrations (Dev)
     runs-on: self-hosted
+    # Dev DB 마이그레이션 히스토리가 로컬과 맞지 않아 실패하더라도 iOS 빌드는 막지 않음
+    continue-on-error: true
 
     steps:
       - name: Checkout repository
@@ -95,6 +97,9 @@ jobs:
           flutter pub get
 
       - name: Install CocoaPods
+        env:
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
           bundle exec pod install --repo-update
