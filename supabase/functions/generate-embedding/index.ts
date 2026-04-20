@@ -55,6 +55,30 @@ serve(async (req: Request) => {
       );
     }
 
+    // Platform-level verify_jwt is disabled (config.toml) because the project
+    // uses asymmetric (ES256) JWTs which the platform gate does not accept.
+    // Validate the caller's JWT here instead so the service role upsert below
+    // cannot be abused to write rows for arbitrary users.
+    const authHeader = req.headers.get("Authorization");
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader ?? "" } } }
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     const {
       userId,
       bookId,
@@ -68,6 +92,19 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "userId does not match authenticated user" }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
       );
     }
 
