@@ -75,14 +75,17 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
+      - name: Setup Ruby (Homebrew)
+        run: |
+          echo "/opt/homebrew/opt/ruby/bin" >> $GITHUB_PATH
+          export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+          ruby -v
+          gem list bundler
 
       - name: Install Ruby dependencies
         run: |
           cd app/ios
+          bundle config set --local path vendor/bundle
           bundle install
 
       - name: Flutter pub get

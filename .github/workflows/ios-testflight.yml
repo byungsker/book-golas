@@ -26,6 +26,13 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Repair migration history (orphan remote migrations)
+        run: |
+          echo "Marking orphan remote migrations as reverted (idempotent)..."
+          supabase migration repair --status reverted 20260419123526 20260419130933 || true
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Apply Migrations
         run: |
           echo "Applying migrations to Dev database..."
@@ -69,14 +76,17 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
+      - name: Setup Ruby (Homebrew)
+        run: |
+          echo "/opt/homebrew/opt/ruby/bin" >> $GITHUB_PATH
+          export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+          ruby -v
+          gem list bundler
 
       - name: Install Ruby dependencies
         run: |
           cd app/ios
+          bundle config set --local path vendor/bundle
           bundle install
 
       - name: Flutter pub get
