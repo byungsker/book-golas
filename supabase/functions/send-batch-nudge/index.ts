@@ -172,6 +172,8 @@ function replaceTemplateVariables(template: string, variables: Record<string, st
   return result;
 }
 
+const FCM_BATCH_SIZE = 100;
+
 async function sendToTargets(
   accessToken: string,
   projectId: string,
@@ -189,32 +191,41 @@ async function sendToTargets(
   let failed = 0;
   const invalidTokens: string[] = [];
 
-  for (const target of targets) {
-    try {
-      const { title, bodyTemplate } = getLocalizedTemplate(template, target.locale);
-      const body = replaceTemplateVariables(bodyTemplate, variables);
+  for (let i = 0; i < targets.length; i += FCM_BATCH_SIZE) {
+    const batch = targets.slice(i, i + FCM_BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map(async (target) => {
+        const { title, bodyTemplate } = getLocalizedTemplate(template, target.locale);
+        const body = replaceTemplateVariables(bodyTemplate, variables);
 
-      await sendFCMMessage(accessToken, projectId, target.token, title, body, {
-        type: templateType,
-        ...extraData,
-      });
+        await sendFCMMessage(accessToken, projectId, target.token, title, body, {
+          type: templateType,
+          ...extraData,
+        });
 
-      await supabaseClient.from("push_logs").insert({
-        user_id: target.userId,
-        push_type: templateType,
-        book_id: extraData?.bookId || null,
-        title: title,
-        body: body,
-      });
+        await supabaseClient.from("push_logs").insert({
+          user_id: target.userId,
+          push_type: templateType,
+          book_id: extraData?.bookId || null,
+          title: title,
+          body: body,
+        });
 
-      sent++;
-    } catch (error: any) {
-      const msg = error?.message || "";
-      if (msg.includes("UNREGISTERED") || msg.includes("INVALID_ARGUMENT")) {
-        invalidTokens.push(target.token);
+        return target;
+      })
+    );
+
+    results.forEach((result, idx) => {
+      if (result.status === "fulfilled") {
+        sent++;
+      } else {
+        const msg = result.reason?.message || "";
+        if (msg.includes("UNREGISTERED") || msg.includes("INVALID_ARGUMENT")) {
+          invalidTokens.push(batch[idx].token);
+        }
+        failed++;
       }
-      failed++;
-    }
+    });
   }
 
   if (invalidTokens.length > 0) {
@@ -223,6 +234,31 @@ async function sendToTargets(
   }
 
   return { sent, failed };
+}
+
+async function runInBatches<T, R>(
+  items: T[],
+  batchSize: number,
+  fn: (item: T) => Promise<R>
+): Promise<{ results: R[]; errors: any[] }> {
+  const results: R[] = [];
+  const errors: any[] = [];
+
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await Promise.allSettled(batch.map(fn));
+
+    batchResults.forEach((r) => {
+      if (r.status === "fulfilled") {
+        results.push(r.value);
+      } else {
+        errors.push(r.reason);
+        console.error("Batch error:", r.reason);
+      }
+    });
+  }
+
+  return { results, errors };
 }
 
 serve(async (req) => {
@@ -307,24 +343,29 @@ serve(async (req) => {
         });
       }
 
-      for (const user of dailyReminderUsers) {
-        const bookTitle = userBookMap.get(user.user_id) || "";
-        const variables: Record<string, string> = { bookTitle };
-
-        const result = await sendToTargets(
-          accessToken,
-          serviceAccount.project_id,
-          [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
-          "daily_reminder",
-          variables,
-          templates,
-          supabaseClient,
-          {}
-        );
-        totalSent += result.sent;
-        totalFailed += result.failed;
-      }
-      console.log(`daily_reminder: ${dailyReminderUsers.length} targets`);
+      const dailyResults = await runInBatches(
+        dailyReminderUsers,
+        FCM_BATCH_SIZE,
+        async (user: any) => {
+          const bookTitle = userBookMap.get(user.user_id) || "";
+          const variables: Record<string, string> = { bookTitle };
+          return sendToTargets(
+            accessToken,
+            serviceAccount.project_id,
+            [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
+            "daily_reminder",
+            variables,
+            templates,
+            supabaseClient,
+            {}
+          );
+        }
+      );
+      dailyResults.results.forEach((r) => {
+        totalSent += r.sent;
+        totalFailed += r.failed;
+      });
+      console.log(`daily_reminder: ${dailyReminderUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`);
     }
 
     // ── Phase 1: goal_alarm ──
@@ -356,54 +397,60 @@ serve(async (req) => {
         });
       }
 
-      for (const user of goalAlarmUsers) {
-        const book = userGoalMap.get(user.user_id);
-        if (!book) {
-          totalSkipped++;
-          continue;
+      const goalResults = await runInBatches(
+        goalAlarmUsers,
+        FCM_BATCH_SIZE,
+        async (user: any) => {
+          const book = userGoalMap.get(user.user_id);
+          if (!book) {
+            totalSkipped++;
+            return { sent: 0, failed: 0 };
+          }
+
+          const daysLeft = Math.max(
+            0,
+            Math.ceil(
+              (new Date(book.target_date).getTime() - now.getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          );
+          const remainingPages = Math.max(0, book.total_pages - book.current_page);
+          const targetPages = daysLeft > 0 ? Math.ceil(remainingPages / daysLeft) : remainingPages;
+
+          let templateType = "goal_alarm";
+          const variables: Record<string, string> = {
+            bookTitle: book.title,
+            targetPages: String(targetPages),
+            daysLeft: String(daysLeft),
+            percent: String(
+              book.total_pages > 0
+                ? Math.round((book.current_page / book.total_pages) * 100)
+                : 0
+            ),
+          };
+
+          if (daysLeft === 0 || !book.target_date) {
+            templateType = "daily_reminder";
+            variables.bookTitle = book.title;
+          }
+
+          return sendToTargets(
+            accessToken,
+            serviceAccount.project_id,
+            [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
+            templateType,
+            variables,
+            templates,
+            supabaseClient,
+            { bookId: book.id, bookTitle: book.title }
+          );
         }
-
-        const daysLeft = Math.max(
-          0,
-          Math.ceil(
-            (new Date(book.target_date).getTime() - now.getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
-        );
-        const remainingPages = Math.max(0, book.total_pages - book.current_page);
-        const targetPages = daysLeft > 0 ? Math.ceil(remainingPages / daysLeft) : remainingPages;
-
-        let templateType = "goal_alarm";
-        const variables: Record<string, string> = {
-          bookTitle: book.title,
-          targetPages: String(targetPages),
-          daysLeft: String(daysLeft),
-          percent: String(
-            book.total_pages > 0
-              ? Math.round((book.current_page / book.total_pages) * 100)
-              : 0
-          ),
-        };
-
-        if (daysLeft === 0 || !book.target_date) {
-          templateType = "daily_reminder";
-          variables.bookTitle = book.title;
-        }
-
-        const result = await sendToTargets(
-          accessToken,
-          serviceAccount.project_id,
-          [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
-          templateType,
-          variables,
-          templates,
-          supabaseClient,
-          { bookId: book.id, bookTitle: book.title }
-        );
-        totalSent += result.sent;
-        totalFailed += result.failed;
-      }
-      console.log(`goal_alarm: ${goalAlarmUsers.length} targets`);
+      );
+      goalResults.results.forEach((r) => {
+        totalSent += r.sent;
+        totalFailed += r.failed;
+      });
+      console.log(`goal_alarm: ${goalAlarmUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`);
     }
 
     // ── Phase 2: event nudge (batch SQL) ──
@@ -427,38 +474,44 @@ serve(async (req) => {
       totalFailed += nudgeResult.failed;
       totalSkipped += nudgeResult.skipped;
     } else {
-      for (const nudge of eligibleNudges) {
-        const { data: tokenData } = await supabaseClient
-          .from("fcm_tokens")
-          .select("token, locale")
-          .eq("user_id", nudge.user_id)
-          .eq("notification_enabled", true)
-          .eq("event_nudge_enabled", true);
+      const eventResults = await runInBatches(
+        eligibleNudges,
+        FCM_BATCH_SIZE,
+        async (nudge: any) => {
+          const { data: tokenData } = await supabaseClient
+            .from("fcm_tokens")
+            .select("token, locale")
+            .eq("user_id", nudge.user_id)
+            .eq("notification_enabled", true)
+            .eq("event_nudge_enabled", true);
 
-        if (!tokenData || tokenData.length === 0) {
-          totalSkipped++;
-          continue;
+          if (!tokenData || tokenData.length === 0) {
+            totalSkipped++;
+            return { sent: 0, failed: 0 };
+          }
+
+          const targets: PushTarget[] = tokenData.map((t: any) => ({
+            userId: nudge.user_id,
+            token: t.token,
+            locale: t.locale || "ko",
+          }));
+
+          return sendToTargets(
+            accessToken,
+            serviceAccount.project_id,
+            targets,
+            nudge.nudge_type,
+            nudge.variables || {},
+            templates,
+            supabaseClient,
+            { bookId: nudge.book_id || "", bookTitle: nudge.variables?.bookTitle || "" }
+          );
         }
-
-        const targets: PushTarget[] = tokenData.map((t: any) => ({
-          userId: nudge.user_id,
-          token: t.token,
-          locale: t.locale || "ko",
-        }));
-
-        const result = await sendToTargets(
-          accessToken,
-          serviceAccount.project_id,
-          targets,
-          nudge.nudge_type,
-          nudge.variables || {},
-          templates,
-          supabaseClient,
-          { bookId: nudge.book_id || "", bookTitle: nudge.variables?.bookTitle || "" }
-        );
-        totalSent += result.sent;
-        totalFailed += result.failed;
-      }
+      );
+      eventResults.results.forEach((r) => {
+        totalSent += r.sent;
+        totalFailed += r.failed;
+      });
     }
 
     return new Response(
@@ -549,80 +602,87 @@ async function processEventNudgesFallback(
     userBooksMap.set(b.user_id, list);
   });
 
-  for (const [userId, targets] of userTokensMap) {
-    const userBooks = userBooksMap.get(userId);
-    if (!userBooks || userBooks.length === 0) {
-      skipped++;
-      continue;
-    }
-
-    const currentBook = userBooks[0];
-    const lastReadingDate = currentBook.updated_at ? new Date(currentBook.updated_at) : null;
-    const daysSinceLastReading = lastReadingDate
-      ? Math.floor((now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24))
-      : null;
-
-    const progress =
-      currentBook.total_pages > 0 ? currentBook.current_page / currentBook.total_pages : 0;
-    const targetDate = currentBook.target_date ? new Date(currentBook.target_date) : null;
-    const daysUntilDeadline = targetDate
-      ? Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-      : null;
-
-    const sevenDaysAgo = new Date(now);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const readingDates = new Set<string>();
-    userBooks.forEach((book: any) => {
-      if (book.updated_at) {
-        const date = new Date(book.updated_at);
-        if (date >= sevenDaysAgo) {
-          readingDates.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
-        }
+  const userEntries = [...userTokensMap.entries()];
+  const fallbackResults = await runInBatches(
+    userEntries,
+    FCM_BATCH_SIZE,
+    async ([userId, targets]: [string, PushTarget[]]) => {
+      const userBooks = userBooksMap.get(userId);
+      if (!userBooks || userBooks.length === 0) {
+        return { sent: 0, failed: 0, skipped: 1 };
       }
-    });
-    const streak = readingDates.size;
 
-    let nudgeType = "";
-    let variables: Record<string, string> = {};
+      const currentBook = userBooks[0];
+      const lastReadingDate = currentBook.updated_at ? new Date(currentBook.updated_at) : null;
+      const daysSinceLastReading = lastReadingDate
+        ? Math.floor((now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
-    if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
-      nudgeType = "inactive";
-      variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
-    } else if (progress >= 1.0 && currentBook.status === "reading") {
-      nudgeType = "achievement";
-      variables = { bookTitle: currentBook.title };
-    } else if (daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 3) {
-      nudgeType = "deadline";
-      variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
-    } else if (progress >= 0.8 && progress < 1.0) {
-      nudgeType = "progress";
-      variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
-    } else if (streak > 0 && streak < 7) {
-      nudgeType = "streak";
-      variables = { days: String(streak) };
-    } else {
-      skipped++;
-      continue;
+      const progress =
+        currentBook.total_pages > 0 ? currentBook.current_page / currentBook.total_pages : 0;
+      const targetDate = currentBook.target_date ? new Date(currentBook.target_date) : null;
+      const daysUntilDeadline = targetDate
+        ? Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
+
+      const sevenDaysAgo = new Date(now);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const readingDates = new Set<string>();
+      userBooks.forEach((book: any) => {
+        if (book.updated_at) {
+          const date = new Date(book.updated_at);
+          if (date >= sevenDaysAgo) {
+            readingDates.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+          }
+        }
+      });
+      const streak = readingDates.size;
+
+      let nudgeType = "";
+      let variables: Record<string, string> = {};
+
+      if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
+        nudgeType = "inactive";
+        variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
+      } else if (progress >= 1.0 && currentBook.status === "reading") {
+        nudgeType = "achievement";
+        variables = { bookTitle: currentBook.title };
+      } else if (daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 3) {
+        nudgeType = "deadline";
+        variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
+      } else if (progress >= 0.8 && progress < 1.0) {
+        nudgeType = "progress";
+        variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
+      } else if (streak > 0 && streak < 7) {
+        nudgeType = "streak";
+        variables = { days: String(streak) };
+      } else {
+        return { sent: 0, failed: 0, skipped: 1 };
+      }
+
+      if (sentToday.has(`${userId}:${nudgeType}`)) {
+        return { sent: 0, failed: 0, skipped: 1 };
+      }
+
+      const result = await sendToTargets(
+        accessToken,
+        projectId,
+        targets,
+        nudgeType,
+        variables,
+        templates,
+        supabaseClient,
+        { bookId: currentBook.id, bookTitle: currentBook.title }
+      );
+      return { sent: result.sent, failed: result.failed, skipped: 0 };
     }
+  );
 
-    if (sentToday.has(`${userId}:${nudgeType}`)) {
-      skipped++;
-      continue;
-    }
-
-    const result = await sendToTargets(
-      accessToken,
-      projectId,
-      targets,
-      nudgeType,
-      variables,
-      templates,
-      supabaseClient,
-      { bookId: currentBook.id, bookTitle: currentBook.title }
-    );
-    sent += result.sent;
-    failed += result.failed;
-  }
+  fallbackResults.results.forEach((r) => {
+    sent += r.sent;
+    failed += r.failed;
+    skipped += r.skipped;
+  });
 
   return { sent, failed, skipped };
 }
