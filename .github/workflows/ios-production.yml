@@ -69,7 +69,7 @@ jobs:
 
   build-and-deploy:
     needs: migrate-database
-    runs-on: self-hosted
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
@@ -87,7 +87,7 @@ jobs:
           done
 
           if [ -z "$XCODE_26_PATH" ]; then
-            echo "::error::Xcode 26+ is required for App Store Connect uploads. Install Xcode 26+ on the self-hosted runner."
+            echo "::error::Xcode 26+ is required for App Store Connect uploads. Install/select Xcode 26+ on the runner."
             xcodebuild -version || true
             exit 1
           fi
