@@ -54,6 +54,7 @@ void main() {
       expect(viewModel.effectiveDailyTarget, 324);
       expect(viewModel.todayGoalPage, 404);
       expect(viewModel.pagesToGoal, 324);
+      expect(viewModel.isTodayGoalAchieved, isFalse);
     });
   });
 }
