@@ -2198,7 +2198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallBenefit1 => 'Unlimited concurrent reading';
 
   @override
-  String get paywallBenefit2 => 'AI Recall 30 times per month';
+  String get paywallBenefit2 => 'Unlimited AI Recall';
 
   @override
   String get paywallBenefit3 => 'Reading insights & statistics';
@@ -2207,7 +2207,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallMonthly => 'Monthly';
 
   @override
-  String get paywallMonthlyPrice => '\$3.90';
+  String get paywallMonthlyPrice => 'US\$2.99';
 
   @override
   String get paywallPerMonth => '/mo';
@@ -2216,13 +2216,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallYearly => 'Yearly';
 
   @override
-  String get paywallYearlyPrice => '\$29.90';
+  String get paywallYearlyPrice => 'US\$19.99';
 
   @override
   String get paywallPerYear => '/yr';
 
   @override
-  String get paywallYearlySavings => 'Save 36% with yearly';
+  String get paywallYearlySavings => 'Save 44% with yearly';
 
   @override
   String get paywallRestore => 'Restore purchases';
@@ -2271,7 +2271,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionMonthly => 'Monthly';
 
   @override
-  String get subscriptionMonthlyPrice => '\$3.90';
+  String get subscriptionMonthlyPrice => 'US\$2.99';
 
   @override
   String get subscriptionPerMonth => '/mo';
@@ -2280,13 +2280,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionYearly => 'Yearly';
 
   @override
-  String get subscriptionYearlyPrice => '\$29.90';
+  String get subscriptionYearlyPrice => 'US\$19.99';
 
   @override
   String get subscriptionPerYear => '/yr';
 
   @override
-  String get subscriptionYearlySavings => 'Save 36%';
+  String get subscriptionYearlySavings => 'Save 44%';
 
   @override
   String get subscriptionBenefitsTitle => 'Pro Benefits';
@@ -2295,7 +2295,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionBenefit1 => 'Unlimited concurrent reading';
 
   @override
-  String get subscriptionBenefit2 => 'AI Recall 30 times per month';
+  String get subscriptionBenefit2 => 'Unlimited AI Recall';
 
   @override
   String get subscriptionBenefit3 => 'Reading insights & statistics';

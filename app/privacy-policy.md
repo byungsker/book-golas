@@ -70,7 +70,7 @@ Bookgolas은 서비스 제공을 위해 다음과 같은 업체에 개인정보 
 ### 권리 행사 방법
 
 - 앱 내 설정 → 계정 삭제
-- 이메일: support@bookgolas.com
+- 이메일: support@bookgolas.app
 
 ## 7. 개인정보의 안전성 확보 조치
 
@@ -86,7 +86,7 @@ Bookgolas은 개인정보의 안전성 확보를 위해 다음과 같은 조치�
 ### 개인정보 보호책임자
 
 - **이름**: 이병우
-- **이메일**: support@bookgolas.com
+- **이메일**: support@bookgolas.app
 
 ### 개인정보 분쟁조정위원회
 
@@ -101,7 +101,7 @@ Bookgolas은 개인정보의 안전성 확보를 위해 다음과 같은 조치�
 
 개인정보 처리방침과 관련된 문의사항이 있으시면 언제든지 연락주시기 바랍니다.
 
-- **이메일**: support@bookgolas.com
+- **이메일**: support@bookgolas.app
 - **개발자**: 이병우
 
 ---
