@@ -2424,7 +2424,7 @@
         "paywallBenefit1": "동시 읽기 무제한",
         "@paywallBenefit1": {"description": "Unlimited concurrent reading"},
 
-        "paywallBenefit2": "AI Recall 월 30회 사용",
+        "paywallBenefit2": "AI Recall 무제한",
         "@paywallBenefit2": {"description": "AI Recall monthly usage"},
 
         "paywallBenefit3": "독서 인사이트 및 통계",
@@ -2433,7 +2433,7 @@
         "paywallMonthly": "월간 구독",
         "@paywallMonthly": {"description": "Monthly subscription"},
 
-        "paywallMonthlyPrice": "₩3,900",
+        "paywallMonthlyPrice": "US$2.99",
         "@paywallMonthlyPrice": {"description": "Monthly price"},
 
         "paywallPerMonth": "/월",
@@ -2442,13 +2442,13 @@
         "paywallYearly": "연간 구독",
         "@paywallYearly": {"description": "Yearly subscription"},
 
-        "paywallYearlyPrice": "₩29,900",
+        "paywallYearlyPrice": "US$19.99",
         "@paywallYearlyPrice": {"description": "Yearly price"},
 
         "paywallPerYear": "/년",
         "@paywallPerYear": {"description": "Per year label"},
 
-        "paywallYearlySavings": "연간 구독 시 36% 절약",
+        "paywallYearlySavings": "연간 구독 시 44% 절약",
         "@paywallYearlySavings": {"description": "Yearly savings message"},
 
         "paywallRestore": "이전 구매 복원",
@@ -2496,7 +2496,7 @@
         "subscriptionMonthly": "월간 구독",
         "@subscriptionMonthly": {"description": "Monthly subscription"},
 
-        "subscriptionMonthlyPrice": "₩3,900",
+        "subscriptionMonthlyPrice": "US$2.99",
         "@subscriptionMonthlyPrice": {"description": "Monthly price"},
 
         "subscriptionPerMonth": "/월",
@@ -2505,13 +2505,13 @@
         "subscriptionYearly": "연간 구독",
         "@subscriptionYearly": {"description": "Yearly subscription"},
 
-        "subscriptionYearlyPrice": "₩29,900",
+        "subscriptionYearlyPrice": "US$19.99",
         "@subscriptionYearlyPrice": {"description": "Yearly price"},
 
         "subscriptionPerYear": "/년",
         "@subscriptionPerYear": {"description": "Per year label"},
 
-        "subscriptionYearlySavings": "36% 절약",
+        "subscriptionYearlySavings": "44% 절약",
         "@subscriptionYearlySavings": {"description": "Yearly savings"},
 
         "subscriptionBenefitsTitle": "Pro 혜택",
@@ -2520,7 +2520,7 @@
         "subscriptionBenefit1": "동시 읽기 무제한",
         "@subscriptionBenefit1": {"description": "Unlimited concurrent reading"},
 
-        "subscriptionBenefit2": "AI Recall 월 30회 사용",
+        "subscriptionBenefit2": "AI Recall 무제한",
         "@subscriptionBenefit2": {"description": "AI Recall monthly usage"},
 
         "subscriptionBenefit3": "독서 인사이트 및 통계",

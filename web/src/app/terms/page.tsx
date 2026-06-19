@@ -145,7 +145,7 @@ export default function TermsPage() {
             </li>
             <li>
               <strong className="text-gray-200">이메일</strong>:
-              support@bookgolas.com
+              support@bookgolas.app
             </li>
           </ul>
         </div>

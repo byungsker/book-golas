@@ -4015,7 +4015,7 @@ abstract class AppLocalizations {
   /// AI Recall monthly usage
   ///
   /// In ko, this message translates to:
-  /// **'AI Recall 월 30회 사용'**
+  /// **'AI Recall 무제한'**
   String get paywallBenefit2;
 
   /// Reading insights and statistics
@@ -4033,7 +4033,7 @@ abstract class AppLocalizations {
   /// Monthly price
   ///
   /// In ko, this message translates to:
-  /// **'₩3,900'**
+  /// **'US\$2.99'**
   String get paywallMonthlyPrice;
 
   /// Per month label
@@ -4051,7 +4051,7 @@ abstract class AppLocalizations {
   /// Yearly price
   ///
   /// In ko, this message translates to:
-  /// **'₩29,900'**
+  /// **'US\$19.99'**
   String get paywallYearlyPrice;
 
   /// Per year label
@@ -4063,7 +4063,7 @@ abstract class AppLocalizations {
   /// Yearly savings message
   ///
   /// In ko, this message translates to:
-  /// **'연간 구독 시 36% 절약'**
+  /// **'연간 구독 시 44% 절약'**
   String get paywallYearlySavings;
 
   /// Restore purchases button
@@ -4153,7 +4153,7 @@ abstract class AppLocalizations {
   /// Monthly price
   ///
   /// In ko, this message translates to:
-  /// **'₩3,900'**
+  /// **'US\$2.99'**
   String get subscriptionMonthlyPrice;
 
   /// Per month label
@@ -4171,7 +4171,7 @@ abstract class AppLocalizations {
   /// Yearly price
   ///
   /// In ko, this message translates to:
-  /// **'₩29,900'**
+  /// **'US\$19.99'**
   String get subscriptionYearlyPrice;
 
   /// Per year label
@@ -4183,7 +4183,7 @@ abstract class AppLocalizations {
   /// Yearly savings
   ///
   /// In ko, this message translates to:
-  /// **'36% 절약'**
+  /// **'44% 절약'**
   String get subscriptionYearlySavings;
 
   /// Pro benefits title
@@ -4201,7 +4201,7 @@ abstract class AppLocalizations {
   /// AI Recall monthly usage
   ///
   /// In ko, this message translates to:
-  /// **'AI Recall 월 30회 사용'**
+  /// **'AI Recall 무제한'**
   String get subscriptionBenefit2;
 
   /// Reading insights

@@ -2132,7 +2132,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallBenefit1 => '동시 읽기 무제한';
 
   @override
-  String get paywallBenefit2 => 'AI Recall 월 30회 사용';
+  String get paywallBenefit2 => 'AI Recall 무제한';
 
   @override
   String get paywallBenefit3 => '독서 인사이트 및 통계';
@@ -2141,7 +2141,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallMonthly => '월간 구독';
 
   @override
-  String get paywallMonthlyPrice => '₩3,900';
+  String get paywallMonthlyPrice => 'US\$2.99';
 
   @override
   String get paywallPerMonth => '/월';
@@ -2150,13 +2150,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallYearly => '연간 구독';
 
   @override
-  String get paywallYearlyPrice => '₩29,900';
+  String get paywallYearlyPrice => 'US\$19.99';
 
   @override
   String get paywallPerYear => '/년';
 
   @override
-  String get paywallYearlySavings => '연간 구독 시 36% 절약';
+  String get paywallYearlySavings => '연간 구독 시 44% 절약';
 
   @override
   String get paywallRestore => '이전 구매 복원';
@@ -2204,7 +2204,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionMonthly => '월간 구독';
 
   @override
-  String get subscriptionMonthlyPrice => '₩3,900';
+  String get subscriptionMonthlyPrice => 'US\$2.99';
 
   @override
   String get subscriptionPerMonth => '/월';
@@ -2213,13 +2213,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionYearly => '연간 구독';
 
   @override
-  String get subscriptionYearlyPrice => '₩29,900';
+  String get subscriptionYearlyPrice => 'US\$19.99';
 
   @override
   String get subscriptionPerYear => '/년';
 
   @override
-  String get subscriptionYearlySavings => '36% 절약';
+  String get subscriptionYearlySavings => '44% 절약';
 
   @override
   String get subscriptionBenefitsTitle => 'Pro 혜택';
@@ -2228,7 +2228,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionBenefit1 => '동시 읽기 무제한';
 
   @override
-  String get subscriptionBenefit2 => 'AI Recall 월 30회 사용';
+  String get subscriptionBenefit2 => 'AI Recall 무제한';
 
   @override
   String get subscriptionBenefit3 => '독서 인사이트 및 통계';

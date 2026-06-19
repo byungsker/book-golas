@@ -8,7 +8,7 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 /// Provides methods for checking subscription status, presenting paywall,
 /// and managing customer center interactions.
 class SubscriptionService {
-  static const String _proEntitlementId = "byungsker's lab Pro";
+  static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
 
   /// Gets the current customer info from RevenueCat.
   ///
@@ -91,12 +91,14 @@ class SubscriptionService {
   /// Restores previous purchases for the current user.
   ///
   /// Useful when user reinstalls app or switches devices.
-  Future<void> restorePurchases() async {
+  Future<bool> restorePurchases() async {
     try {
-      await Purchases.restorePurchases();
+      final customerInfo = await Purchases.restorePurchases();
       debugPrint('Purchases restored successfully');
+      return _hasProEntitlement(customerInfo);
     } catch (e) {
       debugPrint('Failed to restore purchases: $e');
+      return false;
     }
   }
 
@@ -125,7 +127,7 @@ class SubscriptionService {
         orElse: () => offerings.current!.monthly!,
       );
       if (monthlyPackage == null) return false;
-      await Purchases.purchasePackage(monthlyPackage);
+      await Purchases.purchase(PurchaseParams.package(monthlyPackage));
       return true;
     } catch (e) {
       debugPrint('Failed to purchase monthly: $e');
@@ -142,7 +144,7 @@ class SubscriptionService {
         orElse: () => offerings.current!.annual!,
       );
       if (yearlyPackage == null) return false;
-      await Purchases.purchasePackage(yearlyPackage);
+      await Purchases.purchase(PurchaseParams.package(yearlyPackage));
       return true;
     } catch (e) {
       debugPrint('Failed to purchase yearly: $e');

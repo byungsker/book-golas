@@ -51,6 +51,7 @@ class AuthService {
           'id': userId,
           'email': email,
           'nickname': name,
+          'revenuecat_user_id': userId,
           'created_at': DateTime.now().toUtc().toIso8601String(),
         });
       }
@@ -309,6 +310,7 @@ class AuthService {
         'id': userId,
         'email': email,
         'nickname': nickname,
+        'revenuecat_user_id': userId,
       });
 
       final newData =

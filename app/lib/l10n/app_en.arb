@@ -893,7 +893,7 @@
            "paywallBenefit1": "Unlimited concurrent reading",
            "@paywallBenefit1": {"description": "Unlimited concurrent reading"},
 
-           "paywallBenefit2": "AI Recall 30 times per month",
+           "paywallBenefit2": "Unlimited AI Recall",
            "@paywallBenefit2": {"description": "AI Recall monthly usage"},
 
            "paywallBenefit3": "Reading insights & statistics",
@@ -902,7 +902,7 @@
            "paywallMonthly": "Monthly",
            "@paywallMonthly": {"description": "Monthly subscription"},
 
-           "paywallMonthlyPrice": "$3.90",
+           "paywallMonthlyPrice": "US$2.99",
            "@paywallMonthlyPrice": {"description": "Monthly price"},
 
            "paywallPerMonth": "/mo",
@@ -911,13 +911,13 @@
            "paywallYearly": "Yearly",
            "@paywallYearly": {"description": "Yearly subscription"},
 
-           "paywallYearlyPrice": "$29.90",
+           "paywallYearlyPrice": "US$19.99",
            "@paywallYearlyPrice": {"description": "Yearly price"},
 
            "paywallPerYear": "/yr",
            "@paywallPerYear": {"description": "Per year label"},
 
-           "paywallYearlySavings": "Save 36% with yearly",
+           "paywallYearlySavings": "Save 44% with yearly",
            "@paywallYearlySavings": {"description": "Yearly savings message"},
 
            "paywallRestore": "Restore purchases",
@@ -965,7 +965,7 @@
            "subscriptionMonthly": "Monthly",
            "@subscriptionMonthly": {"description": "Monthly subscription"},
 
-           "subscriptionMonthlyPrice": "$3.90",
+           "subscriptionMonthlyPrice": "US$2.99",
            "@subscriptionMonthlyPrice": {"description": "Monthly price"},
 
            "subscriptionPerMonth": "/mo",
@@ -974,13 +974,13 @@
            "subscriptionYearly": "Yearly",
            "@subscriptionYearly": {"description": "Yearly subscription"},
 
-           "subscriptionYearlyPrice": "$29.90",
+           "subscriptionYearlyPrice": "US$19.99",
            "@subscriptionYearlyPrice": {"description": "Yearly price"},
 
            "subscriptionPerYear": "/yr",
            "@subscriptionPerYear": {"description": "Per year label"},
 
-           "subscriptionYearlySavings": "Save 36%",
+           "subscriptionYearlySavings": "Save 44%",
            "@subscriptionYearlySavings": {"description": "Yearly savings"},
 
            "subscriptionBenefitsTitle": "Pro Benefits",
@@ -989,7 +989,7 @@
            "subscriptionBenefit1": "Unlimited concurrent reading",
            "@subscriptionBenefit1": {"description": "Unlimited concurrent reading"},
 
-           "subscriptionBenefit2": "AI Recall 30 times per month",
+           "subscriptionBenefit2": "Unlimited AI Recall",
            "@subscriptionBenefit2": {"description": "AI Recall monthly usage"},
 
            "subscriptionBenefit3": "Reading insights & statistics",
