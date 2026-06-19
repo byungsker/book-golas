@@ -58,4 +58,4 @@ AI Recall and book search require an internet connection. Reading logs and notes
 - Pro Monthly: US$2.99/month
 - Pro Annual: US$19.99/year (44% savings)
 
-Subscriptions are managed through StoreKit 2. Auto-renewable subscription with standard Apple billing.
+Subscriptions are managed through Apple in-app purchase. Auto-renewable subscription with standard Apple billing.

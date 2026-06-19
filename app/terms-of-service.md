@@ -92,7 +92,7 @@
 
 **운영자 정보**
 - **이름**: 이병우
-- **이메일**: support@bookgolas.com
+- **이메일**: support@bookgolas.app
 - **서비스명**: Bookgolas
 
 ---
