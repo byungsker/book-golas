@@ -75,6 +75,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Select Xcode 26
+        run: |
+          XCODE_26_PATH=""
+          for candidate in /Applications/Xcode*.app; do
+            [ -d "$candidate" ] || continue
+            if "$candidate/Contents/Developer/usr/bin/xcodebuild" -version | grep -q '^Xcode 26'; then
+              XCODE_26_PATH="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$XCODE_26_PATH" ]; then
+            echo "::error::Xcode 26+ is required for App Store Connect uploads. Install Xcode 26+ on the self-hosted runner."
+            xcodebuild -version || true
+            exit 1
+          fi
+
+          echo "DEVELOPER_DIR=$XCODE_26_PATH/Contents/Developer" >> "$GITHUB_ENV"
+          DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -version
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
