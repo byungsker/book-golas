@@ -36,9 +36,9 @@ jobs:
               if [ -f "$file" ]; then
                 filename=$(basename "$file")
                 
-                if ! [[ $filename =~ ^[0-9]{8}_[a-z_]+\.sql$ ]]; then
+                if ! [[ $filename =~ ^[0-9]{8}([0-9]{6})?_[a-z0-9_]+\.sql$ ]]; then
                   echo "::error file=$file::Invalid migration filename: $filename"
-                  echo "  Expected format: YYYYMMDD_description.sql (lowercase, underscores)"
+                  echo "  Expected format: YYYYMMDD_description.sql or YYYYMMDDHHMMSS_description.sql (lowercase, underscores)"
                   ERRORS=$((ERRORS + 1))
                 fi
               fi
