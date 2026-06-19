@@ -197,8 +197,8 @@ jobs:
       - name: Build Flutter iOS
         run: |
           cd app
-          # Build number starts from 200 (run_number + 135)
-          BUILD_NUMBER=$(( ${{ github.run_number }} + 135 ))
+          # Use a timestamp build number so reruns and App Store Connect retries stay monotonic.
+          BUILD_NUMBER=$(date -u +%Y%m%d%H%M%S)
           flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-number=$BUILD_NUMBER
 
       - name: Build and Upload to TestFlight
