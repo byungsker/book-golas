@@ -134,6 +134,43 @@ class ReadingProgressService {
     }
   }
 
+  /// 오늘 책별로 읽은 페이지 수 조회
+  Future<Map<String, int>> fetchTodayPagesReadByBook() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return {};
+
+      final now = DateTime.now();
+      final startOfToday = DateTime(now.year, now.month, now.day);
+      final startOfTomorrow = startOfToday.add(const Duration(days: 1));
+
+      final response = await _supabase
+          .from(_tableName)
+          .select('book_id, page, previous_page')
+          .eq('user_id', userId)
+          .gte('created_at', startOfToday.toIso8601String())
+          .lt('created_at', startOfTomorrow.toIso8601String());
+
+      final pagesReadByBook = <String, int>{};
+      for (final record in response as List) {
+        final bookId = record['book_id'] as String?;
+        if (bookId == null) continue;
+
+        final page = record['page'] as int? ?? 0;
+        final previousPage = record['previous_page'] as int? ?? 0;
+        final pagesRead = page - previousPage;
+        if (pagesRead <= 0) continue;
+
+        pagesReadByBook[bookId] = (pagesReadByBook[bookId] ?? 0) + pagesRead;
+      }
+
+      return pagesReadByBook;
+    } catch (e) {
+      debugPrint('오늘 책별 진행 기록 조회 실패: $e');
+      return {};
+    }
+  }
+
   /// 목표 달성률 계산 (일별 목표 대비 실제 읽은 페이지)
   Future<double> calculateGoalAchievementRate() async {
     try {

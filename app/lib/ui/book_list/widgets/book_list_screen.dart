@@ -304,14 +304,14 @@ class _BookListScreenState extends State<BookListScreen>
       case AllTabFilter.all:
         return _buildAllSectionsContent(vm, isDark);
       case AllTabFilter.reading:
-        return _buildSingleStatusContent(vm.readingBooks, '독서 중', isDark,
+        return _buildSingleStatusContent(vm, vm.readingBooks, '독서 중', isDark,
             isReading: true);
       case AllTabFilter.planned:
-        return _buildSingleStatusContent(vm.plannedBooks, '읽을 예정', isDark);
+        return _buildSingleStatusContent(vm, vm.plannedBooks, '읽을 예정', isDark);
       case AllTabFilter.completed:
-        return _buildSingleStatusContent(vm.completedBooks, '완독', isDark);
+        return _buildSingleStatusContent(vm, vm.completedBooks, '완독', isDark);
       case AllTabFilter.paused:
-        return _buildSingleStatusContent(vm.pausedBooks, '다시 읽을 책', isDark);
+        return _buildSingleStatusContent(vm, vm.pausedBooks, '다시 읽을 책', isDark);
     }
   }
 
@@ -320,6 +320,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     if (vm.readingBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
+        vm: vm,
         title: '독서 중',
         count: vm.readingBooks.length,
         books: vm.readingBooks,
@@ -330,6 +331,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     if (vm.plannedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
+        vm: vm,
         title: '읽을 예정',
         count: vm.plannedBooks.length,
         books: vm.plannedBooks,
@@ -340,6 +342,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     if (vm.completedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
+        vm: vm,
         title: '완독',
         count: vm.completedBooks.length,
         books: vm.completedBooks,
@@ -350,6 +353,7 @@ class _BookListScreenState extends State<BookListScreen>
 
     if (vm.pausedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
+        vm: vm,
         title: '다시 읽을 책',
         count: vm.pausedBooks.length,
         books: vm.pausedBooks,
@@ -362,6 +366,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   List<Widget> _buildSection({
+    required BookListViewModel vm,
     required String title,
     required int count,
     required List<Book> books,
@@ -387,6 +392,7 @@ class _BookListScreenState extends State<BookListScreen>
       ...books.map((book) => isReading
           ? BookListCard(
               book: book,
+              todayPagesRead: vm.todayPagesReadFor(book),
               onTap: () => _navigateToBookDetail(book),
             )
           : _buildBookCardByStatus(book, isDark)),
@@ -394,7 +400,7 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   List<Widget> _buildSingleStatusContent(
-      List<Book> books, String title, bool isDark,
+      BookListViewModel vm, List<Book> books, String title, bool isDark,
       {bool isReading = false}) {
     if (books.isEmpty) {
       return [
@@ -424,6 +430,7 @@ class _BookListScreenState extends State<BookListScreen>
       ...books.map((book) => isReading
           ? BookListCard(
               book: book,
+              todayPagesRead: vm.todayPagesReadFor(book),
               onTap: () => _navigateToBookDetail(book),
             )
           : _buildBookCardByStatus(book, isDark)),
@@ -478,6 +485,7 @@ class _BookListScreenState extends State<BookListScreen>
         children: readingBooks
             .map((book) => BookListCard(
                   book: book,
+                  todayPagesRead: vm.todayPagesReadFor(book),
                   onTap: () => _navigateToBookDetail(book),
                 ))
             .toList(),
