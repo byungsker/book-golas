@@ -300,28 +300,35 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   List<Widget> _buildFilteredContent(BookListViewModel vm, bool isDark) {
+    final l10n = AppLocalizations.of(context);
+
     switch (vm.allTabFilter) {
       case AllTabFilter.all:
         return _buildAllSectionsContent(vm, isDark);
       case AllTabFilter.reading:
-        return _buildSingleStatusContent(vm, vm.readingBooks, '독서 중', isDark,
+        return _buildSingleStatusContent(
+            vm, vm.readingBooks, l10n.statusReading, isDark,
             isReading: true);
       case AllTabFilter.planned:
-        return _buildSingleStatusContent(vm, vm.plannedBooks, '읽을 예정', isDark);
+        return _buildSingleStatusContent(
+            vm, vm.plannedBooks, l10n.statusPlanned, isDark);
       case AllTabFilter.completed:
-        return _buildSingleStatusContent(vm, vm.completedBooks, '완독', isDark);
+        return _buildSingleStatusContent(
+            vm, vm.completedBooks, l10n.statusCompleted, isDark);
       case AllTabFilter.paused:
-        return _buildSingleStatusContent(vm, vm.pausedBooks, '다시 읽을 책', isDark);
+        return _buildSingleStatusContent(
+            vm, vm.pausedBooks, l10n.statusReread, isDark);
     }
   }
 
   List<Widget> _buildAllSectionsContent(BookListViewModel vm, bool isDark) {
+    final l10n = AppLocalizations.of(context);
     final List<Widget> widgets = [];
 
     if (vm.readingBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
         vm: vm,
-        title: '독서 중',
+        title: l10n.statusReading,
         count: vm.readingBooks.length,
         books: vm.readingBooks,
         isDark: isDark,
@@ -332,7 +339,7 @@ class _BookListScreenState extends State<BookListScreen>
     if (vm.plannedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
         vm: vm,
-        title: '읽을 예정',
+        title: l10n.statusPlanned,
         count: vm.plannedBooks.length,
         books: vm.plannedBooks,
         isDark: isDark,
@@ -343,7 +350,7 @@ class _BookListScreenState extends State<BookListScreen>
     if (vm.completedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
         vm: vm,
-        title: '완독',
+        title: l10n.statusCompleted,
         count: vm.completedBooks.length,
         books: vm.completedBooks,
         isDark: isDark,
@@ -354,7 +361,7 @@ class _BookListScreenState extends State<BookListScreen>
     if (vm.pausedBooks.isNotEmpty) {
       widgets.addAll(_buildSection(
         vm: vm,
-        title: '다시 읽을 책',
+        title: l10n.statusReread,
         count: vm.pausedBooks.length,
         books: vm.pausedBooks,
         isDark: isDark,

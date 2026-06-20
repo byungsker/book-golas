@@ -151,7 +151,7 @@ class BookListCard extends StatelessWidget {
       children: [
         _buildLabeledProgressRow(
           label: l10n.chartTodayGoal,
-          percent: '$schedulePercent%',
+          percent: schedulePercent,
           progress: scheduleProgress,
           color: BLabColors.success,
           isDark: isDark,

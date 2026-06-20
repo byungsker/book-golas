@@ -5,13 +5,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/repositories/reading_progress_repository.dart';
 import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/widget_data_service.dart';
 
 enum AllTabFilter { all, reading, planned, completed, paused }
 
 class BookListViewModel extends BaseViewModel {
-  final ReadingProgressService _readingProgressService;
+  final ReadingProgressRepository _readingProgressRepository;
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
   StreamSubscription<AuthState>? _authSubscription;
 
@@ -48,9 +49,9 @@ class BookListViewModel extends BaseViewModel {
           (book.currentPage >= book.totalPages && book.totalPages > 0))
       .toList();
 
-  BookListViewModel({ReadingProgressService? readingProgressService})
-      : _readingProgressService =
-            readingProgressService ?? ReadingProgressService();
+  BookListViewModel({ReadingProgressRepository? readingProgressRepository})
+      : _readingProgressRepository = readingProgressRepository ??
+            ReadingProgressRepositoryImpl(ReadingProgressService());
 
   void initialize() {
     if (_isInitialized) return;
@@ -129,7 +130,7 @@ class BookListViewModel extends BaseViewModel {
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
       _todayPagesReadByBook =
-          await _readingProgressService.fetchTodayPagesReadByBook();
+          await _readingProgressRepository.getTodayPagesReadByBook();
       _syncWidgetData();
       setLoading(false);
       notifyListeners();
@@ -152,7 +153,7 @@ class BookListViewModel extends BaseViewModel {
                 .map((e) => Book.fromJson(e))
                 .toList();
             _todayPagesReadByBook =
-                await _readingProgressService.fetchTodayPagesReadByBook();
+                await _readingProgressRepository.getTodayPagesReadByBook();
             _syncWidgetData();
             notifyListeners();
           },
@@ -195,7 +196,7 @@ class BookListViewModel extends BaseViewModel {
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
       _todayPagesReadByBook =
-          await _readingProgressService.fetchTodayPagesReadByBook();
+          await _readingProgressRepository.getTodayPagesReadByBook();
       _syncWidgetData();
       debugPrint('[BookListViewModel] refresh done: ${_books.length} books');
       notifyListeners();
