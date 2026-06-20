@@ -5,12 +5,19 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/pressable_wrapper.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/book_list/widgets/book_list_progress_calculator.dart';
 
 class BookListCard extends StatelessWidget {
   final Book book;
   final VoidCallback onTap;
+  final int todayPagesRead;
 
-  const BookListCard({super.key, required this.book, required this.onTap});
+  const BookListCard({
+    super.key,
+    required this.book,
+    required this.onTap,
+    this.todayPagesRead = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +127,7 @@ class BookListCard extends StatelessWidget {
         _buildDdayAndPages(isDark, daysLeft, isCompleted, l10n),
         const SizedBox(height: 8),
         if (isReading)
-          _buildDualProgressBars(isDark, daysLeft, pageProgress, l10n)
+          _buildDualProgressBars(isDark, pageProgress, l10n)
         else
           _buildProgressBar(isDark, pageProgress, isCompleted),
       ],
@@ -129,41 +136,22 @@ class BookListCard extends StatelessWidget {
 
   Widget _buildDualProgressBars(
     bool isDark,
-    int daysLeft,
     double pageProgress,
     AppLocalizations l10n,
   ) {
-    final pagesLeft = book.totalPages - book.currentPage;
-    final dailyTarget =
-        book.dailyTargetPages ??
-        (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final start = DateTime(
-      book.startDate.year,
-      book.startDate.month,
-      book.startDate.day,
+    final todayGoalProgress = calculateTodayGoalProgress(
+      book: book,
+      todayPagesRead: todayPagesRead,
     );
-    final totalDays = book.targetDate
-        .difference(book.startDate)
-        .inDays
-        .clamp(1, 99999);
-    final daysPassed = today.difference(start).inDays;
-    final expectedPage = ((daysPassed + 1) * book.totalPages / totalDays)
-        .ceil()
-        .clamp(0, book.totalPages);
-    final scheduleProgress = expectedPage > 0
-        ? (book.currentPage / expectedPage).clamp(0.0, 1.0)
-        : 1.0;
-    final schedulePercent = (scheduleProgress * 100).toStringAsFixed(0);
+    final scheduleProgress = todayGoalProgress.progress;
+    final schedulePercent = todayGoalProgress.percentLabel;
     final overallPercent = (pageProgress * 100).toStringAsFixed(0);
 
     return Column(
       children: [
         _buildLabeledProgressRow(
           label: l10n.chartTodayGoal,
-          percent: '$schedulePercent%',
+          percent: schedulePercent,
           progress: scheduleProgress,
           color: BLabColors.success,
           isDark: isDark,
