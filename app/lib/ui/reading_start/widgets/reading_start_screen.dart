@@ -550,7 +550,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   : Container(
                       width: 48,
                       height: 64,
-                      color: isDark ? BLabColors.elevatedDark : Colors.grey[200],
+                      color:
+                          isDark ? BLabColors.elevatedDark : Colors.grey[200],
                       child: Icon(
                         Icons.menu_book_rounded,
                         color: isDark ? Colors.white38 : Colors.grey[400],
@@ -607,8 +608,8 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color:
-                                      BLabColors.primary.withValues(alpha: 0.12),
+                                  color: BLabColors.primary
+                                      .withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -1432,8 +1433,9 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        isDark ? BLabColors.subtleDark : BLabColors.elevatedLight,
+                    color: isDark
+                        ? BLabColors.subtleDark
+                        : BLabColors.elevatedLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -1459,8 +1461,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        AppLocalizations.of(context)
-                            .readingStartTargetDateNote,
+                        AppLocalizations.of(context).readingStartTargetDateNote,
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -1525,9 +1526,15 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                           } else if (mounted && !success) {
                             if (vm.shouldShowPaywall) {
                               vm.clearPaywallState();
-                              final paywallSuccess = await SubscriptionService().showPaywall(context);
+                              final paywallSuccess = await SubscriptionService()
+                                  .showPaywall(context);
                               if (!paywallSuccess && mounted) {
-                                CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                                CustomSnackbar.show(
+                                  context,
+                                  message: AppLocalizations.of(context)
+                                      .subscriptionUnavailableDuringBookLimit,
+                                  type: BLabSnackbarType.info,
+                                );
                               }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -1562,8 +1569,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                         )
                       : Text(
                           vm.readingStatus == BookStatus.planned
-                              ? AppLocalizations.of(context)
-                                  .readingStartReserve
+                              ? AppLocalizations.of(context).readingStartReserve
                               : AppLocalizations.of(context).readingStartBegin,
                           style: const TextStyle(
                             fontSize: 16,

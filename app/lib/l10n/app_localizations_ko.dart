@@ -3533,6 +3533,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 
   @override
+  String get subscriptionUnavailableDuringBookLimit =>
+      '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다.\n구독 화면을 열 수 없어 Pro 업그레이드를 진행하지 못했습니다. 잠시 후 다시 시도하거나 기존 책을 완독/중단해 주세요.';
+
+  @override
   String get myPagePasswordSameAsOld => '새 비밀번호는 기존 비밀번호와 달라야 합니다';
 
   @override

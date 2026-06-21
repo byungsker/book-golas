@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/book_limit_calculator.dart';
 import 'package:book_golas/data/services/widget_data_service.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
@@ -43,11 +44,15 @@ class BookService {
   }
 
   Future<Book?> addBook(Book book) async {
-    // Check concurrent reading limit for free users
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
-      throw ConcurrentReadingLimitException(
-        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
-      );
+    if (book.status == BookStatus.reading.value) {
+      final currentReadingCount =
+          BookLimitCalculator.countConcurrentReadingBooks(_books);
+      if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+          currentReadingCount)) {
+        throw ConcurrentReadingLimitException(
+          '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다. 기존 책을 완독/중단하거나 Pro로 업그레이드하세요.',
+        );
+      }
     }
 
     try {
@@ -69,11 +74,15 @@ class BookService {
   }
 
   Future<Book?> addBookWithUserId(Map<String, dynamic> bookData) async {
-    // Check concurrent reading limit for free users
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
-      throw ConcurrentReadingLimitException(
-        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
-      );
+    if (bookData['status'] == BookStatus.reading.value) {
+      final currentReadingCount =
+          BookLimitCalculator.countConcurrentReadingBooks(_books);
+      if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+          currentReadingCount)) {
+        throw ConcurrentReadingLimitException(
+          '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다. 기존 책을 완독/중단하거나 Pro로 업그레이드하세요.',
+        );
+      }
     }
 
     try {
@@ -348,9 +357,10 @@ class BookService {
     DateTime? newTargetDate,
     bool incrementAttempt = true,
   }) async {
-    final currentReadingCount = _books
-        .where((b) => b.status == BookStatus.reading.value && b.id != bookId)
-        .length;
+    final currentReadingCount = BookLimitCalculator.countConcurrentReadingBooks(
+      _books,
+      excludeBookId: bookId,
+    );
     if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
         currentReadingCount)) {
       throw ConcurrentReadingLimitException(

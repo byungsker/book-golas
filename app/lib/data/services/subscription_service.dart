@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:book_golas/config/app_config.dart';
 
 /// Service for managing in-app subscriptions via RevenueCat.
 ///
@@ -9,6 +12,34 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 /// and managing customer center interactions.
 class SubscriptionService {
   static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
+
+  Future<bool> ensureConfigured() async {
+    try {
+      if (await Purchases.isConfigured) return true;
+
+      final rcKey = AppConfig.revenueCatPublicKey.trim();
+      if (rcKey.isEmpty) {
+        debugPrint('⚠️ RevenueCat unavailable: API key is not configured');
+        return false;
+      }
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        debugPrint('⚠️ RevenueCat unavailable: user is not authenticated');
+        return false;
+      }
+
+      await Purchases.setLogLevel(LogLevel.info);
+      await Purchases.configure(
+        PurchasesConfiguration(rcKey)..appUserID = userId,
+      );
+      debugPrint('✅ RevenueCat configured lazily');
+      return true;
+    } catch (e) {
+      debugPrint('❌ RevenueCat configuration failed: $e');
+      return false;
+    }
+  }
 
   /// Gets the current customer info from RevenueCat.
   ///
@@ -55,6 +86,8 @@ class SubscriptionService {
   /// Returns true if paywall was shown, false if configuration is unavailable.
   Future<bool> showPaywall(BuildContext context) async {
     try {
+      if (!await ensureConfigured()) return false;
+
       final offerings = await Purchases.getOfferings();
       if (offerings.current == null ||
           offerings.current!.availablePackages.isEmpty) {
