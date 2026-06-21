@@ -3618,6 +3618,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Subscription service is currently unavailable.';
 
   @override
+  String get subscriptionUnavailableDuringBookLimit =>
+      'Free users can read up to 3 books simultaneously.\nWe couldn\'t open the subscription screen, so Pro upgrade is unavailable right now. Please try again later, or finish/pause an existing book first.';
+
+  @override
   String get myPagePasswordSameAsOld =>
       'New password must be different from the current password';
 

@@ -1584,6 +1584,8 @@
 
            "subscriptionUnavailable": "Subscription service is currently unavailable.",
            "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},
+           "subscriptionUnavailableDuringBookLimit": "Free users can read up to 3 books simultaneously.\nWe couldn't open the subscription screen, so Pro upgrade is unavailable right now. Please try again later, or finish/pause an existing book first.",
+           "@subscriptionUnavailableDuringBookLimit": {"description": "Snackbar message when the reading limit blocks book registration and the paywall cannot be presented"},
 
            "myPagePasswordSameAsOld": "New password must be different from the current password",
            "@myPagePasswordSameAsOld": {"description": "Error when new password is same as old"},
