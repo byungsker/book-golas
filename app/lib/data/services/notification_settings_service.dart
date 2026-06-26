@@ -19,7 +19,7 @@ class NotificationSettings {
   NotificationSettings({
     required this.notificationEnabled,
     this.dailyReminderEnabled = true,
-    this.dailyReminderHour = 9,
+    this.dailyReminderHour = 18,
     this.dailyReminderMinute = 0,
     this.goalAlarmEnabled = true,
     this.goalAlarmHour = 20,
@@ -32,7 +32,7 @@ class NotificationSettings {
     return NotificationSettings(
       notificationEnabled: json['notification_enabled'] ?? true,
       dailyReminderEnabled: json['daily_reminder_enabled'] ?? true,
-      dailyReminderHour: json['daily_reminder_hour'] ?? 9,
+      dailyReminderHour: json['daily_reminder_hour'] ?? 18,
       dailyReminderMinute: json['daily_reminder_minute'] ?? 0,
       goalAlarmEnabled: json['goal_alarm_enabled'] ?? true,
       goalAlarmHour: json['goal_alarm_hour'] ?? 20,
