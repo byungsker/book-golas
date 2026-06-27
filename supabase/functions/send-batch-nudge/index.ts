@@ -2,6 +2,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
+import {
+  buildDailyReminderVariables,
+  DailyReminderBook,
+  selectDailyReminderBook,
+} from "./daily-reminder.ts";
+
 const FIREBASE_SERVICE_ACCOUNT = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
 interface ServiceAccount {
@@ -329,17 +335,17 @@ serve(async (req) => {
 
       const { data: books } = await supabaseClient
         .from("books")
-        .select("user_id, title, status")
+        .select("user_id, id, title, current_page, total_pages, updated_at, status")
         .in("user_id", userIds)
         .eq("status", "reading")
         .order("updated_at", { ascending: false });
 
-      const userBookMap = new Map<string, string>();
+      const userBooksMap = new Map<string, DailyReminderBook[]>();
       if (books) {
-        books.forEach((b: any) => {
-          if (!userBookMap.has(b.user_id)) {
-            userBookMap.set(b.user_id, b.title);
-          }
+        books.forEach((book: DailyReminderBook) => {
+          const list = userBooksMap.get(book.user_id) || [];
+          list.push(book);
+          userBooksMap.set(book.user_id, list);
         });
       }
 
@@ -347,9 +353,14 @@ serve(async (req) => {
         dailyReminderUsers,
         FCM_BATCH_SIZE,
         async (user: any) => {
-          const bookTitle = userBookMap.get(user.user_id) || "";
-          const variables: Record<string, string> = { bookTitle };
-          return sendToTargets(
+          const book = selectDailyReminderBook(userBooksMap.get(user.user_id) || []);
+          if (!book) {
+            totalSkipped++;
+            return { sent: 0, failed: 0 };
+          }
+
+          const variables = buildDailyReminderVariables(book);
+          return await sendToTargets(
             accessToken,
             serviceAccount.project_id,
             [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
@@ -357,7 +368,7 @@ serve(async (req) => {
             variables,
             templates,
             supabaseClient,
-            {}
+            { bookId: book.id, bookTitle: book.title, percent: variables.percent }
           );
         }
       );

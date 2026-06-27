@@ -342,20 +342,14 @@ class FCMService {
         }).eq('id', existing['id']);
         debugPrint('FCM token updated (locale=$locale)');
       } else {
-        await supabase.from('fcm_tokens').insert({
-          'user_id': userId,
-          'token': _fcmToken,
-          'device_type': deviceType,
-          'locale': locale,
-          'daily_reminder_enabled': true,
-          'daily_reminder_hour': 9,
-          'daily_reminder_minute': 0,
-          'goal_alarm_enabled': true,
-          'goal_alarm_hour': 20,
-          'goal_alarm_minute': 0,
-          'event_nudge_enabled': true,
-          'notification_enabled': true,
-        });
+        await supabase.from('fcm_tokens').insert(
+              buildFcmTokenInsertPayload(
+                userId: userId,
+                token: _fcmToken!,
+                deviceType: deviceType,
+                locale: locale,
+              ),
+            );
         debugPrint('FCM token saved with default settings (locale=$locale)');
       }
     } catch (e) {
@@ -413,4 +407,24 @@ class FCMService {
       return false;
     }
   }
+}
+
+Map<String, dynamic> buildFcmTokenInsertPayload({
+  required String userId,
+  required String token,
+  required String deviceType,
+  required String locale,
+}) {
+  return {
+    'user_id': userId,
+    'token': token,
+    'device_type': deviceType,
+    'locale': locale,
+    'daily_reminder_enabled': true,
+    'goal_alarm_enabled': true,
+    'goal_alarm_hour': 20,
+    'goal_alarm_minute': 0,
+    'event_nudge_enabled': true,
+    'notification_enabled': true,
+  };
 }
