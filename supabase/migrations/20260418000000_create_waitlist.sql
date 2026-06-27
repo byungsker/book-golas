@@ -12,6 +12,8 @@ CREATE INDEX IF NOT EXISTS waitlist_created_at_idx ON public.waitlist(created_at
 
 ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "waitlist_anon_insert" ON public.waitlist;
+
 CREATE POLICY "waitlist_anon_insert"
   ON public.waitlist
   FOR INSERT

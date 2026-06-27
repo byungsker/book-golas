@@ -1,6 +1,8 @@
 -- BOK-371: Admin SELECT/DELETE policies for waitlist
 -- Admins (whitelist by email) can read and remove waitlist entries
 
+DROP POLICY IF EXISTS "waitlist_admin_select" ON public.waitlist;
+
 CREATE POLICY "waitlist_admin_select"
   ON public.waitlist
   FOR SELECT
@@ -12,6 +14,8 @@ CREATE POLICY "waitlist_admin_select"
       'extreme0728@gmail.com'
     )
   );
+
+DROP POLICY IF EXISTS "waitlist_admin_delete" ON public.waitlist;
 
 CREATE POLICY "waitlist_admin_delete"
   ON public.waitlist
