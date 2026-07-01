@@ -346,7 +346,7 @@ class ReadingStartViewModel extends BaseViewModel {
     _readingStatus = status;
     if (status == BookStatus.planned) {
       _targetDate = _plannedStartDate.add(const Duration(days: 14));
-      _hasPlannedDate = true;
+      _hasPlannedDate = false;
     } else {
       _targetDate = DateTime.now().add(const Duration(days: 14));
     }
@@ -355,6 +355,7 @@ class ReadingStartViewModel extends BaseViewModel {
 
   void setPlannedStartDate(DateTime date) {
     _plannedStartDate = date;
+    _hasPlannedDate = true;
     if (_readingStatus == BookStatus.planned) {
       _targetDate = date.add(const Duration(days: 14));
     }
@@ -437,6 +438,7 @@ class ReadingStartViewModel extends BaseViewModel {
         genre: _selectedBook?.genre,
         publisher: _selectedBook?.publisher,
         aladinUrl: _selectedBook?.aladinUrl,
+        price: _selectedBook?.price,
       );
 
       final bookData = book.toJson();

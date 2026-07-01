@@ -6359,6 +6359,12 @@ abstract class AppLocalizations {
   /// **'페이지'**
   String get bookInfoPageCount;
 
+  /// Price label in book info sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'가격'**
+  String get bookInfoPrice;
+
   /// No description provided for @bookInfoGenre.
   ///
   /// In ko, this message translates to:
