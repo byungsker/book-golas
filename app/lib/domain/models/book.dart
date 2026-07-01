@@ -22,6 +22,7 @@ class BookSearchResult {
   final String? genre;
   final String? publisher;
   final String? aladinUrl;
+  final int? price;
 
   BookSearchResult({
     required this.title,
@@ -32,6 +33,7 @@ class BookSearchResult {
     this.genre,
     this.publisher,
     this.aladinUrl,
+    this.price,
   });
 
   factory BookSearchResult.fromJson(Map<String, dynamic> json) {
@@ -67,8 +69,16 @@ class BookSearchResult {
       genre: parsedGenre,
       publisher: json['publisher'] as String?,
       aladinUrl: json['link'] as String?,
+      price: _parseInt(json['priceStandard'] ?? json['priceSales']),
     );
   }
+}
+
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }
 
 class Book {
@@ -97,6 +107,7 @@ class Book {
   final String? reviewLink;
   final String? aladinUrl;
   final String? longReview;
+  final int? price;
 
   Book({
     this.id,
@@ -124,6 +135,7 @@ class Book {
     this.reviewLink,
     this.aladinUrl,
     this.longReview,
+    this.price,
   });
 
   Book copyWith({
@@ -152,6 +164,7 @@ class Book {
     String? reviewLink,
     String? aladinUrl,
     String? longReview,
+    int? price,
   }) {
     return Book(
       id: id ?? this.id,
@@ -179,6 +192,7 @@ class Book {
       reviewLink: reviewLink ?? this.reviewLink,
       aladinUrl: aladinUrl ?? this.aladinUrl,
       longReview: longReview ?? this.longReview,
+      price: price ?? this.price,
     );
   }
 
@@ -210,6 +224,7 @@ class Book {
       if (reviewLink != null) 'review_link': reviewLink,
       if (aladinUrl != null) 'aladin_url': aladinUrl,
       if (longReview != null) 'long_review': longReview,
+      if (price != null) 'price': price,
     };
   }
 
@@ -249,6 +264,7 @@ class Book {
       reviewLink: json['review_link'] as String?,
       aladinUrl: json['aladin_url'] as String?,
       longReview: json['long_review'] as String?,
+      price: _parseInt(json['price']),
     );
   }
 }

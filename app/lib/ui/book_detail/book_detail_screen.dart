@@ -342,13 +342,23 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 currentPage: book.currentPage,
                                 totalPages: book.totalPages,
                                 status: book.status,
-                                onImageTap: _showFullScreenImage,
+                                onImageTap: (_, __) => showBookInfoSheet(
+                                  context,
+                                  book,
+                                  onCoverTap: _showFullScreenImage,
+                                ),
                                 // onTitleTap: () => showFullTitleSheet(
                                 //     context: context, title: book.title),
-                                onTitleTap: () =>
-                                    showBookInfoSheet(context, book),
-                                onBookInfoTap: () =>
-                                    showBookInfoSheet(context, book),
+                                onTitleTap: () => showBookInfoSheet(
+                                  context,
+                                  book,
+                                  onCoverTap: _showFullScreenImage,
+                                ),
+                                onBookInfoTap: () => showBookInfoSheet(
+                                  context,
+                                  book,
+                                  onCoverTap: _showFullScreenImage,
+                                ),
                               ),
                               const SizedBox(height: 10),
                               CompactReadingSchedule(
@@ -1500,8 +1510,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   Future<void> _showStartNowDialog(BookDetailViewModel bookVm) async {
     final book = bookVm.currentBook;
-    final defaultTarget =
-        book.targetDate ?? DateTime.now().add(const Duration(days: 14));
+    final defaultTarget = book.targetDate;
 
     await UpdateTargetDateDialog.show(
       context: context,
@@ -1516,8 +1525,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic);
           CustomSnackbar.show(context,
-              message: AppLocalizations.of(context)
-                  .bookDetailAttemptStarted(1),
+              message: AppLocalizations.of(context).bookDetailAttemptStarted(1),
               type: BLabSnackbarType.success,
               icon: Icons.play_arrow_rounded);
         } else if (!success && mounted && bookVm.shouldShowPaywall) {
@@ -1526,8 +1534,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
               await SubscriptionService().showPaywall(context);
           if (!paywallSuccess && mounted) {
             CustomSnackbar.show(context,
-                message:
-                    AppLocalizations.of(context).subscriptionUnavailable,
+                message: AppLocalizations.of(context).subscriptionUnavailable,
                 type: BLabSnackbarType.info);
           }
         }

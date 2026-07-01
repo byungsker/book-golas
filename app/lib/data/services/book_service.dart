@@ -106,6 +106,7 @@ class BookService {
     String? isbn,
     String? genre,
     String? aladinUrl,
+    int? price,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -115,6 +116,7 @@ class BookService {
       if (isbn != null) updateData['isbn'] = isbn;
       if (genre != null) updateData['genre'] = genre;
       if (aladinUrl != null) updateData['aladin_url'] = aladinUrl;
+      if (price != null) updateData['price'] = price;
 
       if (updateData.length <= 1) return null;
 

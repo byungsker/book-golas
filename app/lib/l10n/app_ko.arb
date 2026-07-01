@@ -2981,7 +2981,10 @@
          "bookInfoPublisher": "출판사",
          "bookInfoIsbn": "ISBN",
          "bookInfoPageCount": "페이지",
-         "bookInfoGenre": "장르",
+         "bookInfoPrice": "가격",
+  "@bookInfoPrice": {"description": "Price label in book info sheet"},
+  
+  "bookInfoGenre": "장르",
          "bookInfoViewInBookstore": "서점에서 보기",
 
          "myPageAccountSection": "계정",
