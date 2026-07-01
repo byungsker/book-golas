@@ -3484,6 +3484,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookInfoPageCount => 'Pages';
 
   @override
+  String get bookInfoPrice => 'Price';
+
+  @override
   String get bookInfoGenre => 'Genre';
 
   @override

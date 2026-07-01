@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:book_golas/data/services/aladin_api_service.dart';
@@ -15,21 +16,26 @@ import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
-Future<void> showBookInfoSheet(BuildContext context, Book book) {
+Future<void> showBookInfoSheet(
+  BuildContext context,
+  Book book, {
+  void Function(String imageId, String imageUrl)? onCoverTap,
+}) {
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     isDismissible: true,
     enableDrag: true,
-    builder: (_) => _BookInfoSheetContent(book: book),
+    builder: (_) => _BookInfoSheetContent(book: book, onCoverTap: onCoverTap),
   );
 }
 
 class _BookInfoSheetContent extends StatefulWidget {
   final Book book;
+  final void Function(String imageId, String imageUrl)? onCoverTap;
 
-  const _BookInfoSheetContent({required this.book});
+  const _BookInfoSheetContent({required this.book, this.onCoverTap});
 
   @override
   State<_BookInfoSheetContent> createState() => _BookInfoSheetContentState();
@@ -176,13 +182,15 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           (widget.book.publisher == null ||
               widget.book.isbn == null ||
               widget.book.genre == null ||
-              widget.book.aladinUrl == null);
+              widget.book.aladinUrl == null ||
+              widget.book.price == null);
 
       if (needsBackfill) {
         debugPrint(
           '📚 [BookInfo] 메타데이터 보정 시작: '
           'publisher=${widget.book.publisher}, isbn=${widget.book.isbn}, '
-          'genre=${widget.book.genre}, aladinUrl=${widget.book.aladinUrl}',
+          'genre=${widget.book.genre}, aladinUrl=${widget.book.aladinUrl}, '
+          'price=${widget.book.price}',
         );
         BookSearchResult? aladinResult;
 
@@ -218,36 +226,42 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
               widget.book.genre == null ? aladinResult.genre : null;
           final backfillAladinUrl =
               widget.book.aladinUrl == null ? aladinResult.aladinUrl : null;
+          final backfillPrice =
+              widget.book.price == null ? aladinResult.price : null;
 
           detail = detail.copyWith(
             publisher: detail.publisher ?? aladinResult.publisher,
             isbn: detail.isbn ?? aladinResult.isbn,
             categories: detail.categories ??
                 (aladinResult.genre != null ? [aladinResult.genre!] : null),
+            price: detail.price ?? aladinResult.price,
           );
 
           debugPrint(
             '📚 [BookInfo] detail 보정 후: '
             'publisher=${detail.publisher}, isbn=${detail.isbn}, '
-            'categories=${detail.categories}',
+            'categories=${detail.categories}, price=${detail.price}',
           );
 
           if (backfillPublisher != null ||
               backfillIsbn != null ||
               backfillGenre != null ||
-              backfillAladinUrl != null) {
+              backfillAladinUrl != null ||
+              backfillPrice != null) {
             BookService().updateBookMetadata(
               widget.book.id!,
               publisher: backfillPublisher,
               isbn: backfillIsbn,
               genre: backfillGenre,
               aladinUrl: backfillAladinUrl,
+              price: backfillPrice,
             );
 
             debugPrint(
               '📚 [BookInfo] DB 보정 요청: '
               'publisher=$backfillPublisher, isbn=$backfillIsbn, '
-              'genre=$backfillGenre, aladinUrl=${backfillAladinUrl != null}',
+              'genre=$backfillGenre, aladinUrl=${backfillAladinUrl != null}, '
+              'price=$backfillPrice',
             );
           }
         }
@@ -328,27 +342,38 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
   }
 
   Widget _buildCoverImage(bool isDark) {
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: BookImageWidget(
-            imageUrl: widget.book.imageUrl,
-            width: 140,
-            height: 200,
-            iconSize: 48,
+    final imageUrl = widget.book.imageUrl;
+    final cover = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BookImageWidget(
+          imageUrl: imageUrl,
+          width: 140,
+          height: 200,
+          iconSize: 48,
         ),
+      ),
+    );
+
+    return Center(
+      child: GestureDetector(
+        onTap: imageUrl == null || imageUrl.isEmpty || widget.onCoverTap == null
+            ? null
+            : () => widget.onCoverTap!(
+                  'book_info_cover_${widget.book.id ?? widget.book.title}',
+                  imageUrl,
+                ),
+        child: cover,
       ),
     );
   }
@@ -625,8 +650,10 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     final pageCount =
         detail?.pageCount ?? (book.totalPages > 0 ? book.totalPages : null);
     final genre = detail?.categories?.join(', ') ?? book.genre ?? '-';
+    final price = detail?.price ?? book.price;
 
     final rows = <MapEntry<String, String>>[
+      MapEntry(l10n.bookInfoPrice, _formatPrice(l10n, price)),
       MapEntry(l10n.bookInfoPublisher, publisher),
       MapEntry(l10n.bookInfoIsbn, isbn),
       MapEntry(l10n.bookInfoPageCount, pageCount?.toString() ?? '-'),
@@ -649,6 +676,13 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
             .toList(),
       ),
     );
+  }
+
+  String _formatPrice(AppLocalizations l10n, int? price) {
+    if (price == null || price <= 0) return '-';
+    final formatted =
+        NumberFormat.decimalPattern(l10n.localeName).format(price);
+    return l10n.localeName == 'ko' ? '$formatted원' : formatted;
   }
 
   Widget _buildInfoRow(bool isDark, String label, String value) {

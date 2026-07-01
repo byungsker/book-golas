@@ -11,6 +11,7 @@ class BookDetailInfo {
   final String? imageUrl;
   final String? publisher;
   final String? isbn;
+  final int? price;
 
   BookDetailInfo({
     this.description,
@@ -23,6 +24,7 @@ class BookDetailInfo {
     this.imageUrl,
     this.publisher,
     this.isbn,
+    this.price,
   });
 
   factory BookDetailInfo.fromGoogleBooks(Map<String, dynamic> volumeInfo) {
@@ -71,6 +73,7 @@ class BookDetailInfo {
       imageUrl: book.imageUrl,
       publisher: book.publisher,
       isbn: book.isbn,
+      price: book.price,
       pageCount: book.totalPages > 0 ? book.totalPages : null,
     );
   }
@@ -86,6 +89,7 @@ class BookDetailInfo {
     String? imageUrl,
     String? publisher,
     String? isbn,
+    int? price,
   }) {
     return BookDetailInfo(
       description: description ?? this.description,
@@ -98,6 +102,7 @@ class BookDetailInfo {
       imageUrl: imageUrl ?? this.imageUrl,
       publisher: publisher ?? this.publisher,
       isbn: isbn ?? this.isbn,
+      price: price ?? this.price,
     );
   }
 }

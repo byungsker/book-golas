@@ -1441,7 +1441,10 @@
               "bookInfoPublisher": "Publisher",
               "bookInfoIsbn": "ISBN",
               "bookInfoPageCount": "Pages",
-              "bookInfoGenre": "Genre",
+              "bookInfoPrice": "Price",
+  "@bookInfoPrice": {"description": "Price label in book info sheet"},
+  
+  "bookInfoGenre": "Genre",
               "bookInfoViewInBookstore": "View in Bookstore",
 
            "myPageAccountSection": "Account",

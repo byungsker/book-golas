@@ -3402,6 +3402,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookInfoPageCount => '페이지';
 
   @override
+  String get bookInfoPrice => '가격';
+
+  @override
   String get bookInfoGenre => '장르';
 
   @override
