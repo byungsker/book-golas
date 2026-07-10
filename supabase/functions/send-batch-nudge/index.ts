@@ -7,6 +7,17 @@ import {
   DailyReminderBook,
   selectDailyReminderBook,
 } from "./daily-reminder.ts";
+import {
+  buildDeadlineDedupeKey,
+  buildDeadlineReminderVariables,
+  calculateDeadlineState,
+  DeadlineReminderBook,
+  getKstDateString,
+  getKstDaysLeft,
+  MAX_BOOKS_PER_SLOT,
+  selectDeadlineReminderBooks,
+  shouldSendDeadlineReminder,
+} from "./deadline-reminder.ts";
 
 const FIREBASE_SERVICE_ACCOUNT = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
@@ -59,7 +70,7 @@ async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
     binaryDer,
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const jwtPayload = {
@@ -100,9 +111,10 @@ async function sendFCMMessage(
   fcmToken: string,
   title: string,
   body: string,
-  data?: Record<string, string>
+  data?: Record<string, string>,
 ): Promise<any> {
-  const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+  const fcmUrl =
+    `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
 
   const message = {
     message: {
@@ -143,7 +155,9 @@ async function sendFCMMessage(
 
 let templatesCache: Map<string, TemplateRow> | null = null;
 
-async function loadPushTemplates(supabaseClient: any): Promise<Map<string, TemplateRow>> {
+async function loadPushTemplates(
+  supabaseClient: any,
+): Promise<Map<string, TemplateRow>> {
   if (templatesCache) return templatesCache;
 
   const { data: templates } = await supabaseClient
@@ -162,15 +176,21 @@ async function loadPushTemplates(supabaseClient: any): Promise<Map<string, Templ
 
 function getLocalizedTemplate(
   template: TemplateRow,
-  locale: string
+  locale: string,
 ): { title: string; bodyTemplate: string } {
   if (locale === "en" && template.title_en && template.body_template_en) {
-    return { title: template.title_en, bodyTemplate: template.body_template_en };
+    return {
+      title: template.title_en,
+      bodyTemplate: template.body_template_en,
+    };
   }
   return { title: template.title, bodyTemplate: template.body_template };
 }
 
-function replaceTemplateVariables(template: string, variables: Record<string, string>): string {
+function replaceTemplateVariables(
+  template: string,
+  variables: Record<string, string>,
+): string {
   let result = template;
   for (const [key, value] of Object.entries(variables)) {
     result = result.replace(new RegExp(`\\{${key}\\}`, "g"), value);
@@ -180,6 +200,14 @@ function replaceTemplateVariables(template: string, variables: Record<string, st
 
 const FCM_BATCH_SIZE = 100;
 
+function stableTokenHash(token: string): string {
+  let hash = 5381;
+  for (let i = 0; i < token.length; i++) {
+    hash = ((hash << 5) + hash + token.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(36);
+}
+
 async function sendToTargets(
   accessToken: string,
   projectId: string,
@@ -188,7 +216,8 @@ async function sendToTargets(
   variables: Record<string, string>,
   templates: Map<string, TemplateRow>,
   supabaseClient: any,
-  extraData?: Record<string, string>
+  extraData?: Record<string, string>,
+  dedupeKey?: string,
 ): Promise<{ sent: number; failed: number }> {
   const template = templates.get(templateType);
   if (!template) return { sent: 0, failed: 0 };
@@ -201,29 +230,98 @@ async function sendToTargets(
     const batch = targets.slice(i, i + FCM_BATCH_SIZE);
     const results = await Promise.allSettled(
       batch.map(async (target) => {
-        const { title, bodyTemplate } = getLocalizedTemplate(template, target.locale);
+        const { title, bodyTemplate } = getLocalizedTemplate(
+          template,
+          target.locale,
+        );
+        const resolvedTitle = replaceTemplateVariables(title, variables);
         const body = replaceTemplateVariables(bodyTemplate, variables);
+        let reservedLogId: string | null = null;
 
-        await sendFCMMessage(accessToken, projectId, target.token, title, body, {
-          type: templateType,
-          ...extraData,
-        });
+        if (dedupeKey) {
+          const { data: reservation, error: reservationError } =
+            await supabaseClient
+              .from("push_logs")
+              .insert({
+                user_id: target.userId,
+                push_type: templateType,
+                book_id: extraData?.bookId || null,
+                title: resolvedTitle,
+                body,
+                sent_at: null,
+                dedupe_key: dedupeKey,
+              })
+              .select("id")
+              .single();
 
-        await supabaseClient.from("push_logs").insert({
-          user_id: target.userId,
-          push_type: templateType,
-          book_id: extraData?.bookId || null,
-          title: title,
-          body: body,
-        });
+          if (reservationError) {
+            const isDuplicate = reservationError.code === "23505" ||
+              String(reservationError.message || "").includes(
+                "duplicate key",
+              );
+            if (isDuplicate) {
+              return { target, status: "skipped" as const };
+            }
+            throw reservationError;
+          }
 
-        return target;
-      })
+          reservedLogId = reservation?.id ?? null;
+        }
+
+        try {
+          await sendFCMMessage(
+            accessToken,
+            projectId,
+            target.token,
+            resolvedTitle,
+            body,
+            {
+              type: templateType,
+              ...extraData,
+            },
+          );
+        } catch (error) {
+          if (reservedLogId) {
+            const { error: releaseError } = await supabaseClient
+              .from("push_logs")
+              .delete()
+              .eq("id", reservedLogId);
+            if (releaseError) {
+              console.error("Failed to release push dedupe reservation", {
+                dedupeKey,
+                releaseError,
+              });
+            }
+          }
+          throw error;
+        }
+
+        if (reservedLogId) {
+          const { error: markSentError } = await supabaseClient
+            .from("push_logs")
+            .update({ sent_at: new Date().toISOString() })
+            .eq("id", reservedLogId);
+          if (markSentError) {
+            throw markSentError;
+          }
+        } else {
+          await supabaseClient.from("push_logs").insert({
+            user_id: target.userId,
+            push_type: templateType,
+            book_id: extraData?.bookId || null,
+            title: resolvedTitle,
+            body,
+            dedupe_key: null,
+          });
+        }
+
+        return { target, status: "sent" as const };
+      }),
     );
 
     results.forEach((result, idx) => {
       if (result.status === "fulfilled") {
-        sent++;
+        if (result.value.status === "sent") sent++;
       } else {
         const msg = result.reason?.message || "";
         if (msg.includes("UNREGISTERED") || msg.includes("INVALID_ARGUMENT")) {
@@ -245,7 +343,7 @@ async function sendToTargets(
 async function runInBatches<T, R>(
   items: T[],
   batchSize: number,
-  fn: (item: T) => Promise<R>
+  fn: (item: T) => Promise<R>,
 ): Promise<{ results: R[]; errors: any[] }> {
   const results: R[] = [];
   const errors: any[] = [];
@@ -284,7 +382,7 @@ serve(async (req) => {
     if (!FIREBASE_SERVICE_ACCOUNT) {
       return new Response(
         JSON.stringify({ error: "FIREBASE_SERVICE_ACCOUNT not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -294,7 +392,7 @@ serve(async (req) => {
     } catch {
       return new Response(
         JSON.stringify({ error: "Invalid FIREBASE_SERVICE_ACCOUNT format" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -306,13 +404,15 @@ serve(async (req) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const now = new Date();
     const kstHour = (now.getUTCHours() + 9) % 24;
     const kstMinute = now.getUTCMinutes() < 30 ? 0 : 30;
-    console.log(`Current KST slot: ${kstHour}:${kstMinute === 0 ? "00" : "30"}`);
+    console.log(
+      `Current KST slot: ${kstHour}:${kstMinute === 0 ? "00" : "30"}`,
+    );
 
     const accessToken = await getAccessToken(serviceAccount);
     const templates = await loadPushTemplates(supabaseClient);
@@ -331,11 +431,15 @@ serve(async (req) => {
       .eq("daily_reminder_minute", kstMinute);
 
     if (dailyReminderUsers && dailyReminderUsers.length > 0) {
-      const userIds = [...new Set(dailyReminderUsers.map((u: any) => u.user_id))];
+      const userIds = [
+        ...new Set(dailyReminderUsers.map((u: any) => u.user_id)),
+      ];
 
       const { data: books } = await supabaseClient
         .from("books")
-        .select("user_id, id, title, current_page, total_pages, updated_at, status")
+        .select(
+          "user_id, id, title, current_page, total_pages, updated_at, status",
+        )
         .in("user_id", userIds)
         .eq("status", "reading")
         .order("updated_at", { ascending: false });
@@ -353,7 +457,9 @@ serve(async (req) => {
         dailyReminderUsers,
         FCM_BATCH_SIZE,
         async (user: any) => {
-          const book = selectDailyReminderBook(userBooksMap.get(user.user_id) || []);
+          const book = selectDailyReminderBook(
+            userBooksMap.get(user.user_id) || [],
+          );
           if (!book) {
             totalSkipped++;
             return { sent: 0, failed: 0 };
@@ -363,48 +469,72 @@ serve(async (req) => {
           return await sendToTargets(
             accessToken,
             serviceAccount.project_id,
-            [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
+            [{
+              userId: user.user_id,
+              token: user.token,
+              locale: user.locale || "ko",
+            }],
             "daily_reminder",
             variables,
             templates,
             supabaseClient,
-            { bookId: book.id, bookTitle: book.title, percent: variables.percent }
+            {
+              bookId: book.id,
+              bookTitle: book.title,
+              percent: variables.percent,
+            },
           );
-        }
+        },
       );
       dailyResults.results.forEach((r) => {
         totalSent += r.sent;
         totalFailed += r.failed;
       });
-      console.log(`daily_reminder: ${dailyReminderUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`);
+      console.log(
+        `daily_reminder: ${dailyReminderUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`,
+      );
     }
 
-    // ── Phase 1: goal_alarm ──
+    // ── Phase 1: deadline escalation / goal_alarm ──
     const { data: goalAlarmUsers } = await supabaseClient
       .from("fcm_tokens")
-      .select("user_id, token, locale")
+      .select("user_id, token, locale, goal_alarm_hour, goal_alarm_minute")
       .eq("notification_enabled", true)
-      .eq("goal_alarm_enabled", true)
-      .eq("goal_alarm_hour", kstHour)
-      .eq("goal_alarm_minute", kstMinute);
+      .eq("goal_alarm_enabled", true);
 
     if (goalAlarmUsers && goalAlarmUsers.length > 0) {
       const userIds = [...new Set(goalAlarmUsers.map((u: any) => u.user_id))];
+      const kstDate = getKstDateString(now);
+
+      const { data: sentDeadlineLogs } = await supabaseClient
+        .from("push_logs")
+        .select("dedupe_key")
+        .in("user_id", userIds)
+        .like("dedupe_key", `deadline:${kstDate}:%`);
+
+      const sentDeadlineKeys = new Set<string>();
+      if (sentDeadlineLogs) {
+        sentDeadlineLogs.forEach((log: any) => {
+          if (log.dedupe_key) sentDeadlineKeys.add(log.dedupe_key);
+        });
+      }
 
       const { data: books } = await supabaseClient
         .from("books")
-        .select("user_id, id, title, current_page, total_pages, target_date, status")
+        .select(
+          "user_id, id, title, current_page, total_pages, target_date, updated_at, status",
+        )
         .in("user_id", userIds)
         .eq("status", "reading")
         .not("target_date", "is", null)
         .order("target_date", { ascending: true });
 
-      const userGoalMap = new Map<string, any>();
+      const userBooksMap = new Map<string, DeadlineReminderBook[]>();
       if (books) {
-        books.forEach((b: any) => {
-          if (!userGoalMap.has(b.user_id)) {
-            userGoalMap.set(b.user_id, b);
-          }
+        books.forEach((book: DeadlineReminderBook) => {
+          const list = userBooksMap.get(book.user_id) || [];
+          list.push(book);
+          userBooksMap.set(book.user_id, list);
         });
       }
 
@@ -412,62 +542,173 @@ serve(async (req) => {
         goalAlarmUsers,
         FCM_BATCH_SIZE,
         async (user: any) => {
-          const book = userGoalMap.get(user.user_id);
-          if (!book) {
+          const userBooks = userBooksMap.get(user.user_id) || [];
+          const deadlineBooks = selectDeadlineReminderBooks(userBooks, now);
+          const results: { sent: number; failed: number }[] = [];
+          let currentSlotCandidateCount = 0;
+          let hasCurrentSlotDeadlineCandidate = false;
+
+          for (const book of deadlineBooks) {
+            const state = calculateDeadlineState(book, now);
+            if (!state) continue;
+
+            const slotProbe = shouldSendDeadlineReminder({
+              stage: state.stage,
+              kstHour,
+              kstMinute,
+              goalHour: user.goal_alarm_hour ?? 20,
+              goalMinute: user.goal_alarm_minute ?? 0,
+              dedupeKey: "",
+              sentKeys: new Set(),
+            });
+            if (!slotProbe.shouldSend || !slotProbe.slotLabel) continue;
+            hasCurrentSlotDeadlineCandidate = true;
+            currentSlotCandidateCount++;
+            if (currentSlotCandidateCount > MAX_BOOKS_PER_SLOT) break;
+
+            const baseDedupeKey = buildDeadlineDedupeKey({
+              kstDate,
+              userId: user.user_id,
+              bookId: book.id,
+              stage: state.stage,
+              slotLabel: slotProbe.slotLabel,
+            });
+            const dedupeKey = `${baseDedupeKey}:${stableTokenHash(user.token)}`;
+
+            const decision = shouldSendDeadlineReminder({
+              stage: state.stage,
+              kstHour,
+              kstMinute,
+              goalHour: user.goal_alarm_hour ?? 20,
+              goalMinute: user.goal_alarm_minute ?? 0,
+              dedupeKey,
+              sentKeys: sentDeadlineKeys,
+            });
+            if (!decision.shouldSend) {
+              totalSkipped++;
+              continue;
+            }
+
+            const variables = buildDeadlineReminderVariables(state);
+            const result = await sendToTargets(
+              accessToken,
+              serviceAccount.project_id,
+              [{
+                userId: user.user_id,
+                token: user.token,
+                locale: user.locale || "ko",
+              }],
+              state.stage,
+              variables,
+              templates,
+              supabaseClient,
+              {
+                bookId: book.id,
+                bookTitle: book.title,
+                stage: state.stage,
+                daysLeft: String(state.daysLeft),
+                remainingPages: variables.remainingPages,
+                targetPages: variables.targetPages,
+                percent: variables.percent,
+              },
+              dedupeKey,
+            );
+            sentDeadlineKeys.add(dedupeKey);
+            results.push(result);
+          }
+
+          if (results.length > 0) {
+            return results.reduce(
+              (acc, result) => ({
+                sent: acc.sent + result.sent,
+                failed: acc.failed + result.failed,
+              }),
+              { sent: 0, failed: 0 },
+            );
+          }
+
+          if (hasCurrentSlotDeadlineCandidate) {
             totalSkipped++;
             return { sent: 0, failed: 0 };
           }
 
-          const daysLeft = Math.max(
-            0,
-            Math.ceil(
-              (new Date(book.target_date).getTime() - now.getTime()) /
-                (1000 * 60 * 60 * 24)
-            )
-          );
-          const remainingPages = Math.max(0, book.total_pages - book.current_page);
-          const targetPages = daysLeft > 0 ? Math.ceil(remainingPages / daysLeft) : remainingPages;
+          const fallbackBook = userBooks
+            .filter((book) => {
+              if (book.status !== "reading") return false;
+              if (!book.target_date) return false;
+              if (!book.total_pages || book.total_pages <= 0) return false;
+              if (Math.max(0, book.current_page ?? 0) >= book.total_pages) {
+                return false;
+              }
+              return getKstDaysLeft(now, book.target_date) > 7;
+            })
+            .sort((a, b) =>
+              getKstDaysLeft(now, a.target_date!) -
+              getKstDaysLeft(now, b.target_date!)
+            )[0];
 
-          let templateType = "goal_alarm";
+          if (
+            !fallbackBook || kstHour !== (user.goal_alarm_hour ?? 20) ||
+            kstMinute !== (user.goal_alarm_minute ?? 0)
+          ) {
+            totalSkipped++;
+            return { sent: 0, failed: 0 };
+          }
+
+          const remainingPages = Math.max(
+            0,
+            (fallbackBook.total_pages ?? 0) - (fallbackBook.current_page ?? 0),
+          );
+          const fallbackDaysLeft = fallbackBook.target_date
+            ? Math.max(1, getKstDaysLeft(now, fallbackBook.target_date))
+            : 1;
+          const targetPages = Math.ceil(remainingPages / fallbackDaysLeft);
           const variables: Record<string, string> = {
-            bookTitle: book.title,
+            bookTitle: fallbackBook.title,
             targetPages: String(targetPages),
-            daysLeft: String(daysLeft),
+            daysLeft: String(fallbackDaysLeft),
             percent: String(
-              book.total_pages > 0
-                ? Math.round((book.current_page / book.total_pages) * 100)
-                : 0
+              fallbackBook.total_pages && fallbackBook.total_pages > 0
+                ? Math.round(
+                  ((fallbackBook.current_page ?? 0) /
+                    fallbackBook.total_pages) * 100,
+                )
+                : 0,
             ),
           };
-
-          if (daysLeft === 0 || !book.target_date) {
-            templateType = "daily_reminder";
-            variables.bookTitle = book.title;
-          }
 
           return sendToTargets(
             accessToken,
             serviceAccount.project_id,
-            [{ userId: user.user_id, token: user.token, locale: user.locale || "ko" }],
-            templateType,
+            [{
+              userId: user.user_id,
+              token: user.token,
+              locale: user.locale || "ko",
+            }],
+            "goal_alarm",
             variables,
             templates,
             supabaseClient,
-            { bookId: book.id, bookTitle: book.title }
+            { bookId: fallbackBook.id, bookTitle: fallbackBook.title },
           );
-        }
+        },
       );
       goalResults.results.forEach((r) => {
         totalSent += r.sent;
         totalFailed += r.failed;
       });
-      console.log(`goal_alarm: ${goalAlarmUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`);
+      console.log(
+        `deadline/goal_alarm: ${goalAlarmUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`,
+      );
     }
 
     // ── Phase 2: event nudge (batch SQL) ──
     let eligibleNudges = null;
     try {
-      const rpcResult = await supabaseClient.rpc("get_eligible_event_nudges", {});
+      const rpcResult = await supabaseClient.rpc(
+        "get_eligible_event_nudges",
+        {},
+      );
       eligibleNudges = rpcResult.data;
     } catch {
       eligibleNudges = null;
@@ -479,7 +720,7 @@ serve(async (req) => {
         accessToken,
         serviceAccount.project_id,
         templates,
-        now
+        now,
       );
       totalSent += nudgeResult.sent;
       totalFailed += nudgeResult.failed;
@@ -515,9 +756,12 @@ serve(async (req) => {
             nudge.variables || {},
             templates,
             supabaseClient,
-            { bookId: nudge.book_id || "", bookTitle: nudge.variables?.bookTitle || "" }
+            {
+              bookId: nudge.book_id || "",
+              bookTitle: nudge.variables?.bookTitle || "",
+            },
           );
-        }
+        },
       );
       eventResults.results.forEach((r) => {
         totalSent += r.sent;
@@ -541,7 +785,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error: any) {
     console.error("Error:", error);
@@ -560,7 +804,7 @@ async function processEventNudgesFallback(
   accessToken: string,
   projectId: string,
   templates: Map<string, TemplateRow>,
-  now: Date
+  now: Date,
 ): Promise<{ sent: number; failed: number; skipped: number }> {
   let sent = 0;
   let failed = 0;
@@ -577,7 +821,11 @@ async function processEventNudgesFallback(
   const userTokensMap = new Map<string, PushTarget[]>();
   nudgeUsers.forEach((row: any) => {
     const targets = userTokensMap.get(row.user_id) || [];
-    targets.push({ userId: row.user_id, token: row.token, locale: row.locale || "ko" });
+    targets.push({
+      userId: row.user_id,
+      token: row.token,
+      locale: row.locale || "ko",
+    });
     userTokensMap.set(row.user_id, targets);
   });
 
@@ -588,7 +836,13 @@ async function processEventNudgesFallback(
     .from("push_logs")
     .select("user_id, push_type")
     .in("user_id", userIds)
-    .in("push_type", ["inactive", "deadline", "progress", "streak", "achievement"])
+    .in("push_type", [
+      "inactive",
+      "deadline",
+      "progress",
+      "streak",
+      "achievement",
+    ])
     .gte("created_at", `${todayStr}T00:00:00`);
 
   const sentToday = new Set<string>();
@@ -600,7 +854,9 @@ async function processEventNudgesFallback(
 
   const { data: books } = await supabaseClient
     .from("books")
-    .select("user_id, id, title, current_page, total_pages, target_date, updated_at, status")
+    .select(
+      "user_id, id, title, current_page, total_pages, target_date, updated_at, status",
+    )
     .in("user_id", userIds)
     .order("updated_at", { ascending: false });
 
@@ -624,16 +880,25 @@ async function processEventNudgesFallback(
       }
 
       const currentBook = userBooks[0];
-      const lastReadingDate = currentBook.updated_at ? new Date(currentBook.updated_at) : null;
+      const lastReadingDate = currentBook.updated_at
+        ? new Date(currentBook.updated_at)
+        : null;
       const daysSinceLastReading = lastReadingDate
-        ? Math.floor((now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.floor(
+          (now.getTime() - lastReadingDate.getTime()) / (1000 * 60 * 60 * 24),
+        )
         : null;
 
-      const progress =
-        currentBook.total_pages > 0 ? currentBook.current_page / currentBook.total_pages : 0;
-      const targetDate = currentBook.target_date ? new Date(currentBook.target_date) : null;
+      const progress = currentBook.total_pages > 0
+        ? currentBook.current_page / currentBook.total_pages
+        : 0;
+      const targetDate = currentBook.target_date
+        ? new Date(currentBook.target_date)
+        : null;
       const daysUntilDeadline = targetDate
-        ? Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.ceil(
+          (targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+        )
         : null;
 
       const sevenDaysAgo = new Date(now);
@@ -643,7 +908,9 @@ async function processEventNudgesFallback(
         if (book.updated_at) {
           const date = new Date(book.updated_at);
           if (date >= sevenDaysAgo) {
-            readingDates.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+            readingDates.add(
+              `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+            );
           }
         }
       });
@@ -654,16 +921,28 @@ async function processEventNudgesFallback(
 
       if (daysSinceLastReading !== null && daysSinceLastReading >= 3) {
         nudgeType = "inactive";
-        variables = { days: String(daysSinceLastReading), bookTitle: currentBook.title };
+        variables = {
+          days: String(daysSinceLastReading),
+          bookTitle: currentBook.title,
+        };
       } else if (progress >= 1.0 && currentBook.status === "reading") {
         nudgeType = "achievement";
         variables = { bookTitle: currentBook.title };
-      } else if (daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 3) {
+      } else if (
+        daysUntilDeadline !== null && daysUntilDeadline > 0 &&
+        daysUntilDeadline <= 3
+      ) {
         nudgeType = "deadline";
-        variables = { days: String(daysUntilDeadline), bookTitle: currentBook.title };
+        variables = {
+          days: String(daysUntilDeadline),
+          bookTitle: currentBook.title,
+        };
       } else if (progress >= 0.8 && progress < 1.0) {
         nudgeType = "progress";
-        variables = { percent: String(Math.round(progress * 100)), bookTitle: currentBook.title };
+        variables = {
+          percent: String(Math.round(progress * 100)),
+          bookTitle: currentBook.title,
+        };
       } else if (streak > 0 && streak < 7) {
         nudgeType = "streak";
         variables = { days: String(streak) };
@@ -683,10 +962,10 @@ async function processEventNudgesFallback(
         variables,
         templates,
         supabaseClient,
-        { bookId: currentBook.id, bookTitle: currentBook.title }
+        { bookId: currentBook.id, bookTitle: currentBook.title },
       );
       return { sent: result.sent, failed: result.failed, skipped: 0 };
-    }
+    },
   );
 
   fallbackResults.results.forEach((r) => {
