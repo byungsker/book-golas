@@ -827,21 +827,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarLoadError => 'Failed to load data';
 
   @override
-  String get myPageDeleteAccountTitle => '계정 삭제';
+  String get myPageDeleteAccountTitle => 'Delete Account';
 
   @override
   String get myPageDeleteAccountConfirm =>
-      '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
+      'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
 
   @override
-  String get myPageDeleteAccountSuccess => '계정이 성공적으로 삭제되었습니다.';
+  String get myPageDeleteAccountSuccess =>
+      'Your account was deleted successfully.';
 
   @override
-  String get myPageDeleteAccountFailed => '계정 삭제에 실패했습니다. 다시 시도해주세요.';
+  String get myPageDeleteAccountFailed =>
+      'Failed to delete your account. Please try again.';
 
   @override
   String myPageErrorOccurred(String error) {
-    return '오류가 발생했습니다: $error';
+    return 'An error occurred: $error';
   }
 
   @override
@@ -854,7 +856,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageDailyReadingNotification => 'Daily Reading Goal Reminder';
 
   @override
-  String get myPageNoNotifications => '알림을 받지 않습니다';
+  String get myPageNoNotifications => 'Notifications are off';
 
   @override
   String get myPageNotificationsEnabled => 'Notifications enabled';
@@ -867,33 +869,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to change notification settings';
 
   @override
-  String get myPageTestNotification => '테스트 알림 (30초 후)';
+  String get myPageTestNotification => 'Test notification (in 30 seconds)';
 
   @override
-  String get myPageTestNotificationScheduled => '30초 후에 테스트 알림이 발송됩니다!';
+  String get myPageTestNotificationScheduled =>
+      'A test notification will be sent in 30 seconds.';
 
   @override
-  String get myPageNoNickname => '닉네임 없음';
+  String get myPageNoNickname => 'No nickname';
 
   @override
-  String get myPageEnterNickname => '닉네임을 입력하세요';
+  String get myPageEnterNickname => 'Enter a nickname';
 
   @override
-  String get myPageProfileImageChanged => '프로필 이미지가 변경되었습니다';
+  String get myPageProfileImageChanged => 'Profile image updated';
 
   @override
   String myPageProfileImageChangeFailed(String error) {
-    return '프로필 이미지 변경 실패: $error';
+    return 'Failed to change profile image: $error';
   }
 
   @override
-  String get myPageLanguageKorean => '한국어';
+  String get myPageLanguageKorean => 'Korean';
 
   @override
   String get myPageLanguageEnglish => 'English';
 
   @override
-  String get myPageDeleteAccountButton => '계정 삭제';
+  String get myPageDeleteAccountButton => 'Delete Account';
 
   @override
   String myPageNotificationTimeChanged(String time) {
@@ -2937,7 +2940,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightClearMemoryConfirm => 'Clear';
 
   @override
-  String get chartAiInsightAnalyzing => 'Analyzing...';
+  String get chartAiInsightAnalyzing => 'Analyzing your reading patterns...';
 
   @override
   String get chartAiInsightUnknownError => 'Unknown error occurred';
@@ -2946,27 +2949,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightRetry => 'Retry';
 
   @override
-  String get chartAiInsightMinBooksRequired => 'More books needed';
+  String get chartAiInsightMinBooksRequired =>
+      'Read more books to unlock AI insights';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
-    return 'Complete at least $count books for AI analysis';
+    return 'Books completed: $count';
   }
 
   @override
-  String get chartAiInsightMinBooksHint => 'Keep reading to unlock insights';
+  String get chartAiInsightMinBooksHint =>
+      'At least 3 books; 5 or more recommended';
 
   @override
   String get chartAiInsightSampleLabel => 'Sample';
 
   @override
-  String get chartAiInsightEmptyState => 'No insights yet';
+  String get chartAiInsightEmptyState =>
+      'Tap the button below to generate insights';
 
   @override
-  String get chartAiInsightGenerateButton => 'Generate Insight';
+  String get chartAiInsightGenerateButton => 'Analyze';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed => 'Already analyzed';
+  String get chartAiInsightAlreadyAnalyzed =>
+      'You\'ve already analyzed today. Try again tomorrow.';
 
   @override
   String chartAnnualGoalTitle(int year) {

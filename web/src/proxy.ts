@@ -2,17 +2,11 @@ import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
-
-const ADMIN_EMAILS = [
-  "admin@bookgolas.com",
-  "byungsker@naver.com",
-  "extreme0728@gmail.com",
-  "test@admin.com",
-];
+import { isAdminEmail } from "./lib/admin-auth";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
 
   if (isAdminRoute) {
@@ -52,7 +46,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
-      if (!ADMIN_EMAILS.includes(user.email || "")) {
+      if (!isAdminEmail(user.email)) {
         const url = request.nextUrl.clone();
         url.pathname = "/admin/login";
         url.searchParams.set("error", "unauthorized");
@@ -60,7 +54,7 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    if (isLoginPage && user && ADMIN_EMAILS.includes(user.email || "")) {
+    if (isLoginPage && user && isAdminEmail(user.email)) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);

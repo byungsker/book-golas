@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+      - dev
+      - 'daily/**'
     paths:
       - 'supabase/migrations/**'
       - 'supabase/functions/**'
@@ -11,7 +13,7 @@ on:
 jobs:
   check-migrations:
     name: Validate Database Migrations
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -58,8 +60,7 @@ jobs:
         run: |
           echo "Checking for new migration files in this PR..."
           
-          git fetch origin main
-          NEW_MIGRATIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/migrations/*.sql' || true)
+          NEW_MIGRATIONS=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD -- 'supabase/migrations/*.sql' || true)
           
           if [ -n "$NEW_MIGRATIONS" ]; then
             echo "new_migrations=true" >> $GITHUB_OUTPUT
@@ -80,8 +81,8 @@ jobs:
         run: |
           echo "::warning::This PR contains database migrations!"
           echo ""
-          echo "IMPORTANT: Before merging to main, ensure:"
-          echo "1. Migrations have been applied to PRODUCTION Supabase (enyxrgxixrnoazzgqyyd)"
+          echo "IMPORTANT: Before merging, ensure:"
+          echo "1. The local migration validation passed"
           echo "2. The PR checklist in the description is complete"
           echo "3. Rollback SQL is prepared if needed"
           echo ""
@@ -94,8 +95,9 @@ jobs:
           
           | Check | Status |
           |-------|--------|
-          | Migrations applied to **Dev DB** | ☐ |
-          | Migrations applied to **Prod DB** | ☐ |
+          | Local migration validation | ☐ |
+          | Dev deployment after `dev` merge | ☐ |
+          | Production deployment after `main` merge | ☐ |
           | Rollback SQL prepared | ☐ |
           | Data migration plan (if needed) | ☐ |
           
@@ -110,8 +112,7 @@ jobs:
         run: |
           echo "Checking for dangerous SQL operations..."
           
-          git fetch origin main
-          NEW_MIGRATIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/migrations/*.sql' || true)
+          NEW_MIGRATIONS=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD -- 'supabase/migrations/*.sql' || true)
           
           BLOCKED=0
           
@@ -182,9 +183,19 @@ jobs:
           
           echo "✅ SQL validation complete - no dangerous operations detected"
 
+      - name: Apply all migrations locally
+        run: supabase db start
+
+      - name: Lint local schema
+        run: supabase db lint --local --level error
+
+      - name: Stop local database
+        if: always()
+        run: supabase stop --no-backup || true
+
   check-edge-functions:
     name: Validate Edge Functions
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -195,8 +206,7 @@ jobs:
       - name: Check for new Edge Functions in PR
         id: check-functions
         run: |
-          git fetch origin main
-          NEW_FUNCTIONS=$(git diff --name-only origin/main...HEAD -- 'supabase/functions/**' || true)
+          NEW_FUNCTIONS=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD -- 'supabase/functions/**' || true)
           
           if [ -n "$NEW_FUNCTIONS" ]; then
             echo "new_functions=true" >> $GITHUB_OUTPUT
@@ -216,18 +226,14 @@ jobs:
         run: |
           echo "::warning::This PR contains Edge Function changes!"
           echo ""
-          echo "Ensure Edge Functions are deployed to PRODUCTION before merging."
+          echo "Edge Functions deploy through the dev and main release workflows."
           echo ""
           
           cat << 'EOF' >> $GITHUB_STEP_SUMMARY
           
           ## ⚠️ Edge Function Changes
           
-          Ensure functions are deployed to production:
-          
-          ```bash
-          supabase link --project-ref enyxrgxixrnoazzgqyyd
-          supabase functions deploy <function-name>
-          ```
+          Functions deploy to development after merge to `dev` and to production
+          only after merge to `main` through the release workflows.
           
           EOF

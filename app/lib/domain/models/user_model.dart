@@ -29,7 +29,7 @@ class UserModel {
       name: user.userMetadata?['name'] as String?,
       avatarUrl: user.userMetadata?['avatar_url'] as String?,
       metadata: user.userMetadata,
-      createdAt: DateTime.tryParse(user.createdAt ?? ''),
+      createdAt: DateTime.tryParse(user.createdAt),
       lastSignInAt: DateTime.tryParse(user.lastSignInAt ?? ''),
     );
   }

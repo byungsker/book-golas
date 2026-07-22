@@ -69,7 +69,8 @@ export default function WaitlistAdminPage() {
   }, []);
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, [load]);
 
   const filtered = useMemo(() => {
@@ -95,16 +96,13 @@ export default function WaitlistAdminPage() {
     };
   }, [entries]);
 
-  const pagedEntries = useMemo(() => {
-    const start = page * PAGE_SIZE;
-    return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, page]);
-
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages - 1);
 
-  useEffect(() => {
-    if (page >= totalPages) setPage(0);
-  }, [page, totalPages]);
+  const pagedEntries = useMemo(() => {
+    const start = safePage * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, safePage]);
 
   async function handleDelete(id: string, email: string) {
     if (!confirm(`${email} 을(를) 명단에서 삭제할까요?`)) return;
@@ -279,26 +277,26 @@ export default function WaitlistAdminPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {page * PAGE_SIZE + 1}–
-                {Math.min((page + 1) * PAGE_SIZE, filtered.length)} / {filtered.length}
+                {safePage * PAGE_SIZE + 1}–
+                {Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} / {filtered.length}
               </span>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
+                  disabled={safePage === 0}
                 >
                   이전
                 </Button>
                 <span className="px-2 py-1.5 text-muted-foreground">
-                  {page + 1} / {totalPages}
+                  {safePage + 1} / {totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
+                  disabled={safePage >= totalPages - 1}
                 >
                   다음
                 </Button>

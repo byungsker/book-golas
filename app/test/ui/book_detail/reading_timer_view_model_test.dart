@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('ReadingTimerViewModel', () {
     late ReadingTimerViewModel viewModel;
 
