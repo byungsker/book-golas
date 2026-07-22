@@ -9,7 +9,7 @@ class ReadingTimerService {
   factory ReadingTimerService() => _instance;
   ReadingTimerService._internal();
 
-  final SupabaseClient _supabase = Supabase.instance.client;
+  SupabaseClient get _supabase => Supabase.instance.client;
   static const String _tableName = 'reading_sessions';
 
   static const String _keyBookId = 'timer_book_id';

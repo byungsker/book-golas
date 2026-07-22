@@ -49,6 +49,22 @@ interface TemplateRow {
 let cachedAccessToken: string | null = null;
 let tokenExpiry: number = 0;
 
+async function hashSecret(secret: string): Promise<Uint8Array> {
+  return new Uint8Array(
+    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret)),
+  );
+}
+
+function timingSafeEqual(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.length !== right.length) return false;
+
+  let difference = 0;
+  for (let index = 0; index < left.length; index++) {
+    difference |= left[index] ^ right[index];
+  }
+  return difference === 0;
+}
+
 async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
 
@@ -376,6 +392,20 @@ serve(async (req) => {
           "Access-Control-Allow-Headers":
             "authorization, x-client-info, apikey, content-type",
         },
+      });
+    }
+
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const bearerToken = req.headers.get("Authorization")
+      ?.replace(/^Bearer\s+/i, "") ?? "";
+    const isServiceRole = serviceRoleKey.length > 0 && timingSafeEqual(
+      await hashSecret(bearerToken),
+      await hashSecret(serviceRoleKey),
+    );
+    if (!isServiceRole) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
       });
     }
 

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
@@ -17,23 +18,20 @@ export async function createServerSupabaseClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch {
-            // Server Component에서는 쿠키 설정 불가
-          }
+          } catch {}
         },
       },
     }
   );
 }
 
-// 관리자 이메일 화이트리스트
-const ADMIN_EMAILS = [
-  "admin@bookgolas.com",
-  "byungsker@naver.com",
-  "extreme0728@gmail.com",
-];
+export async function requireAdminUser() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-export function isAdminEmail(email: string | undefined): boolean {
-  if (!email) return false;
-  return ADMIN_EMAILS.includes(email);
+  if (error || !user || !isAdminEmail(user.email)) return null;
+  return user;
 }

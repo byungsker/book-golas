@@ -20,6 +20,24 @@ serve(async (req: Request) => {
   try {
     validateConfig();
 
+    const authHeader = req.headers.get("Authorization");
+    const authClient = createClient(
+      config.supabase.url,
+      config.supabase.anonKey,
+      { global: { headers: { Authorization: authHeader ?? "" } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const { userId } = await req.json();
     if (!userId) {
       return new Response(
@@ -27,13 +45,23 @@ serve(async (req: Request) => {
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
+      );
+    }
+
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "userId does not match authenticated user" }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
       );
     }
 
     const supabase = createClient(
       config.supabase.url,
-      config.supabase.serviceRoleKey
+      config.supabase.serviceRoleKey,
     );
 
     console.log(`[reading-insights] Processing insights for user: ${userId}`);
@@ -42,11 +70,13 @@ serve(async (req: Request) => {
     const insightService = new InsightService(supabase);
 
     const patterns = await patternCollector.collect(userId);
-    console.log(`[reading-insights] Patterns collected: ${JSON.stringify({
-      books: patterns.completionRates.totalStarted,
-      completed: patterns.completionRates.completed,
-      highlights: patterns.highlightStats.totalCount,
-    })}`);
+    console.log(`[reading-insights] Patterns collected: ${
+      JSON.stringify({
+        books: patterns.completionRates.totalStarted,
+        completed: patterns.completionRates.completed,
+        highlights: patterns.highlightStats.totalCount,
+      })
+    }`);
 
     const insights = await insightService.generate(userId, patterns);
     console.log(`[reading-insights] Generated ${insights.length} insights`);
@@ -61,8 +91,9 @@ serve(async (req: Request) => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error";
     console.error("[reading-insights] Error:", errorMessage);
 
     const isRateLimitError = errorMessage.includes("Rate limit exceeded");
@@ -73,7 +104,7 @@ serve(async (req: Request) => {
       {
         status,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
   }
 });

@@ -32,6 +32,8 @@ const PUSH_TYPES = [
   { value: "test", label: "Test" },
 ];
 
+const PAGE_SIZE = 20;
+
 export default function PushLogsPage() {
   const [logs, setLogs] = useState<PushLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,6 @@ export default function PushLogsPage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [emailMap, setEmailMap] = useState<Record<string, string>>({});
-  const pageSize = 20;
 
   const loadEmails = useCallback(async () => {
     try {
@@ -61,18 +62,14 @@ export default function PushLogsPage() {
     loadEmails();
   }, [loadEmails]);
 
-  useEffect(() => {
-    fetchLogs();
-  }, [typeFilter, page]);
-
-  async function fetchLogs() {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       let query = supabase
         .from("push_logs")
         .select("*")
         .order("sent_at", { ascending: false })
-        .range(page * pageSize, (page + 1) * pageSize - 1);
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       if (typeFilter !== "all") {
         query = query.eq("push_type", typeFilter);
@@ -83,13 +80,18 @@ export default function PushLogsPage() {
       if (error) throw error;
 
       setLogs(data || []);
-      setHasMore((data?.length || 0) === pageSize);
+      setHasMore((data?.length || 0) === PAGE_SIZE);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, typeFilter]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => void fetchLogs(), 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchLogs]);
 
   function formatDate(dateStr: string) {
     const date = new Date(dateStr);

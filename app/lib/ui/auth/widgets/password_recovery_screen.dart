@@ -4,7 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
-import 'package:book_golas/main.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';

@@ -27,6 +27,22 @@ interface ServiceAccount {
   token_uri: string;
 }
 
+async function hashSecret(secret: string): Promise<Uint8Array> {
+  return new Uint8Array(
+    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret)),
+  );
+}
+
+function timingSafeEqual(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.length !== right.length) return false;
+
+  let difference = 0;
+  for (let index = 0; index < left.length; index++) {
+    difference |= left[index] ^ right[index];
+  }
+  return difference === 0;
+}
+
 // OAuth 2.0 액세스 토큰 캐시
 let cachedAccessToken: string | null = null;
 let tokenExpiry: number = 0;
@@ -57,7 +73,7 @@ async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
     binaryDer,
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   // JWT 페이로드
@@ -102,9 +118,10 @@ async function sendFCMMessage(
   fcmToken: string,
   title: string,
   body: string,
-  data?: Record<string, string>
+  data?: Record<string, string>,
 ): Promise<any> {
-  const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+  const fcmUrl =
+    `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
 
   const message = {
     message: {
@@ -171,7 +188,7 @@ serve(async (req) => {
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -185,12 +202,46 @@ serve(async (req) => {
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // 요청 본문 파싱
     const { userId, token, title, body, data }: FCMRequest = await req.json();
+
+    const authHeader = req.headers.get("Authorization");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, "") ?? "";
+    const isServiceRole = serviceRoleKey.length > 0 && timingSafeEqual(
+      await hashSecret(bearerToken),
+      await hashSecret(serviceRoleKey),
+    );
+
+    if (!isServiceRole) {
+      const authClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        { global: { headers: { Authorization: authHeader ?? "" } } },
+      );
+      const {
+        data: { user },
+        error: userError,
+      } = await authClient.auth.getUser();
+
+      if (userError || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (!userId || userId !== user.id || token) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
 
     // Supabase 클라이언트 생성
     const supabaseClient = createClient(
@@ -201,7 +252,7 @@ serve(async (req) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     let tokens: string[] = [];
@@ -223,7 +274,7 @@ serve(async (req) => {
           {
             status: 500,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -236,7 +287,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -259,9 +310,9 @@ serve(async (req) => {
           fcmToken,
           title,
           body,
-          data
+          data,
         )
-      )
+      ),
     );
 
     // 결과 집계
@@ -304,11 +355,11 @@ serve(async (req) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
@@ -317,11 +368,3 @@ serve(async (req) => {
     });
   }
 });
-
-
-
-
-
-
-
-

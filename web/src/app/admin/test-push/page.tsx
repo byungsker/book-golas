@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import type { PushTemplate } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ interface UserWithToken {
   device_type: string;
 }
 
-// 템플릿별 필요한 변수 정의
 const TEMPLATE_VARIABLES: Record<string, string[]> = {
   inactive: ["days", "bookTitle"],
   deadline: ["bookTitle", "days"],
@@ -33,13 +33,11 @@ export default function TestPushPage() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Form state
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("custom");
   const [customTitle, setCustomTitle] = useState("테스트 푸시 알림");
   const [customBody, setCustomBody] = useState("이것은 테스트 메시지입니다.");
 
-  // 템플릿 변수 값
   const [variables, setVariables] = useState<Record<string, string>>({
     days: "3",
     bookTitle: "클린 코드",
@@ -53,7 +51,6 @@ export default function TestPushPage() {
   async function fetchData() {
     setLoading(true);
 
-    // Fetch templates
     const { data: templatesData, error: templatesError } = await supabase
       .from("push_templates")
       .select("*")
@@ -66,7 +63,6 @@ export default function TestPushPage() {
       setTemplates(templatesData);
     }
 
-    // Fetch ALL users with FCM tokens via API route (bypasses RLS)
     try {
       const response = await fetch("/api/admin/fcm-tokens");
       const data = await response.json();
@@ -83,7 +79,6 @@ export default function TestPushPage() {
     setLoading(false);
   }
 
-  // 변수 치환 함수
   function replaceVariables(text: string): string {
     let result = text;
     for (const [key, value] of Object.entries(variables)) {
@@ -111,7 +106,6 @@ export default function TestPushPage() {
         title = customTitle;
         body = customBody;
       } else if (selectedTemplateData) {
-        // 템플릿의 변수를 치환
         title = selectedTemplateData.title;
         body = replaceVariables(selectedTemplateData.body_template);
       } else {
@@ -119,22 +113,16 @@ export default function TestPushPage() {
         body = customBody;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-test-push`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            userId: selectedUser,
-            title,
-            body,
-            pushType: selectedTemplate === "custom" ? "test" : selectedTemplate,
-          }),
-        }
-      );
+      const response = await fetch("/api/admin/send-test-push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedUser,
+          title,
+          body,
+          pushType: selectedTemplate === "custom" ? "test" : selectedTemplate,
+        }),
+      });
 
       const data = await response.json();
 
@@ -162,7 +150,6 @@ export default function TestPushPage() {
   const selectedTemplateData = templates.find((t) => t.type === selectedTemplate);
   const requiredVariables = selectedTemplate !== "custom" ? TEMPLATE_VARIABLES[selectedTemplate] || [] : [];
 
-  // 미리보기용 본문 (변수 치환 적용)
   const previewBody =
     selectedTemplate === "custom"
       ? customBody
@@ -178,14 +165,12 @@ export default function TestPushPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* 발송 설정 */}
         <Card>
           <CardHeader>
             <CardTitle>발송 설정</CardTitle>
             <CardDescription>테스트 푸시를 보낼 대상과 내용을 설정하세요.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* 사용자 선택 */}
             <div className="space-y-2">
               <Label htmlFor="user">대상 사용자</Label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
@@ -205,7 +190,6 @@ export default function TestPushPage() {
               </p>
             </div>
 
-            {/* 템플릿 선택 */}
             <div className="space-y-2">
               <Label htmlFor="template">메시지 템플릿</Label>
               <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
@@ -223,7 +207,6 @@ export default function TestPushPage() {
               </Select>
             </div>
 
-            {/* 커스텀 메시지 입력 */}
             {selectedTemplate === "custom" && (
               <>
                 <div className="space-y-2">
@@ -247,7 +230,6 @@ export default function TestPushPage() {
               </>
             )}
 
-            {/* 템플릿 변수 입력 */}
             {selectedTemplate !== "custom" && requiredVariables.length > 0 && (
               <div className="space-y-3 p-3 bg-muted rounded-lg">
                 <Label className="text-sm font-medium">템플릿 변수</Label>
@@ -272,12 +254,10 @@ export default function TestPushPage() {
               </div>
             )}
 
-            {/* 발송 버튼 */}
             <Button onClick={handleSendTest} disabled={sending || !selectedUser} className="w-full">
               {sending ? "발송 중..." : "테스트 발송"}
             </Button>
 
-            {/* 결과 메시지 */}
             {result && (
               <div
                 className={`p-3 rounded-md ${
@@ -290,7 +270,6 @@ export default function TestPushPage() {
           </CardContent>
         </Card>
 
-        {/* 미리보기 */}
         <Card>
           <CardHeader>
             <CardTitle>미리보기</CardTitle>
@@ -299,7 +278,13 @@ export default function TestPushPage() {
           <CardContent>
             <div className="bg-gray-900 text-white p-4 rounded-xl shadow-lg max-w-sm">
               <div className="flex items-start gap-3">
-                <img src="/logo-bookgolas.png" alt="북골라스" className="w-10 h-10 rounded-lg" />
+                <Image
+                  src="/logo-bookgolas.png"
+                  alt="북골라스"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-lg"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">북골라스</span>
@@ -345,7 +330,6 @@ export default function TestPushPage() {
         </Card>
       </div>
 
-      {/* 사용자 목록 */}
       <Card>
         <CardHeader>
           <CardTitle>FCM 토큰 보유 사용자</CardTitle>

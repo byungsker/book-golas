@@ -32,7 +32,6 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
   bool _isSaving = false;
   bool _hasChanges = false;
   bool _isGeneratingAI = false;
-  bool _hasDraft = false;
   bool _isShowingExitSheet = false;
 
   final List<String> _undoStack = [];
@@ -63,9 +62,6 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (draft != null && draft.isNotEmpty && draft != widget.book.longReview) {
       if (!mounted) return;
       _reviewController.text = draft;
-      setState(() {
-        _hasDraft = true;
-      });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           CustomSnackbar.show(

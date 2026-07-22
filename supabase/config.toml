@@ -368,6 +368,45 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+[functions.recall-search]
+verify_jwt = false
+
+[functions.generate-embedding]
+verify_jwt = false
+
+[functions.extract-keywords]
+verify_jwt = false
+
+[functions.generate-book-review]
+verify_jwt = false
+
+[functions.structure-notes]
+verify_jwt = false
+
+[functions.reading-insights]
+verify_jwt = false
+
+[functions.recommend-next-books]
+verify_jwt = false
+
+[functions.export-reading-data]
+verify_jwt = false
+
+[functions.send-fcm-push]
+verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = false
+
+[functions.send-test-push]
+verify_jwt = false
+
+[functions.send-batch-nudge]
+verify_jwt = false
+
+[functions.log-push-click]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

@@ -6,6 +6,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { WaitlistModal } from "@/components/waitlist-modal";
 
+const FEATURED_BOOK_COUNT = 3;
+
 function useReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -20,9 +22,8 @@ function useReveal(threshold = 0.15) {
     );
     obs.observe(el);
     return () => obs.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return { ref, visible };
+  }, [threshold]);
+  return [ref, visible] as const;
 }
 
 function LiveDot() {
@@ -149,7 +150,7 @@ function PhoneMockup() {
       } else {
         clearInterval(start);
         setTimeout(() => {
-          setCount((c) => Math.min(c + 1, books.length));
+          setCount((c) => Math.min(c + 1, FEATURED_BOOK_COUNT));
           setTyped("");
           setTyping(false);
           setTimeout(() => setCount(2), 4800);
@@ -157,8 +158,7 @@ function PhoneMockup() {
       }
     }, 80);
     return () => clearInterval(start);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  }, [count, typingText]);
 
   return (
     <div className="relative flex items-center justify-center select-none">
@@ -1259,11 +1259,11 @@ function GooglePlayDisabled({ label }: { label: string }) {
 export default function Page() {
   const locale = useLocale();
   const t = useTranslations();
-  const feat = useReveal();
-  const detail = useReveal();
-  const steps = useReveal();
-  const cta = useReveal();
-  const shots = useReveal();
+  const [featRef, featVisible] = useReveal();
+  const [detailRef, detailVisible] = useReveal();
+  const [stepsRef, stepsVisible] = useReveal();
+  const [ctaRef, ctaVisible] = useReveal();
+  const [shotsRef, shotsVisible] = useReveal();
   const [hero, setHero] = useState(false);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
   const [waitlistSource, setWaitlistSource] = useState<string>("nav");
@@ -1456,12 +1456,12 @@ export default function Page() {
       </div>
 
       <section id="features" className="py-24 px-6 md:px-12">
-        <div ref={feat.ref} className="max-w-6xl mx-auto">
+        <div ref={featRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: feat.visible ? 1 : 0,
-              transform: feat.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: featVisible ? 1 : 0,
+              transform: featVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1498,7 +1498,7 @@ export default function Page() {
                 title={f.title}
                 desc={f.desc}
                 accent={f.accent}
-                visible={feat.visible}
+                visible={featVisible}
                 delay={i * 80}
               />
             ))}
@@ -1507,12 +1507,12 @@ export default function Page() {
       </section>
 
       <section className="py-20 px-6 md:px-12 overflow-hidden">
-        <div ref={shots.ref} className="max-w-6xl mx-auto">
+        <div ref={shotsRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: shots.visible ? 1 : 0,
-              transform: shots.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: shotsVisible ? 1 : 0,
+              transform: shotsVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1539,8 +1539,8 @@ export default function Page() {
           <div
             className="flex items-end justify-center gap-6 md:gap-10"
             style={{
-              opacity: shots.visible ? 1 : 0,
-              transform: shots.visible ? "translateY(0)" : "translateY(32px)",
+              opacity: shotsVisible ? 1 : 0,
+              transform: shotsVisible ? "translateY(0)" : "translateY(32px)",
               transition: "opacity .6s ease .1s, transform .6s ease .1s",
             }}
           >
@@ -1606,12 +1606,12 @@ export default function Page() {
       </div>
 
       <section className="py-20 px-6 md:px-12">
-        <div ref={detail.ref} className="max-w-6xl mx-auto">
+        <div ref={detailRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: detail.visible ? 1 : 0,
-              transform: detail.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: detailVisible ? 1 : 0,
+              transform: detailVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1645,8 +1645,8 @@ export default function Page() {
                 key={i}
                 className="glass rounded-2xl p-7"
                 style={{
-                  opacity: detail.visible ? 1 : 0,
-                  transform: detail.visible ? "translateY(0)" : "translateY(24px)",
+                  opacity: detailVisible ? 1 : 0,
+                  transform: detailVisible ? "translateY(0)" : "translateY(24px)",
                   transition: `opacity .5s ease ${i * 80}ms, transform .5s ease ${i * 80}ms`,
                 }}
               >
@@ -1719,12 +1719,12 @@ export default function Page() {
             </p>
           </div>
 
-          <div ref={steps.ref} className="flex flex-col gap-6">
+          <div ref={stepsRef} className="flex flex-col gap-6">
             <Step
               num={1}
               title={t("howItWorks.s1Title")}
               desc={t("howItWorks.s1Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={0}
             />
             <div
@@ -1739,7 +1739,7 @@ export default function Page() {
               num={2}
               title={t("howItWorks.s2Title")}
               desc={t("howItWorks.s2Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={120}
             />
             <div
@@ -1754,7 +1754,7 @@ export default function Page() {
               num={3}
               title={t("howItWorks.s3Title")}
               desc={t("howItWorks.s3Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={240}
             />
           </div>
@@ -1763,11 +1763,11 @@ export default function Page() {
 
       <section id="download" className="py-24 px-6 md:px-12">
         <div
-          ref={cta.ref}
+          ref={ctaRef}
           className="max-w-3xl mx-auto text-center"
           style={{
-            opacity: cta.visible ? 1 : 0,
-            transform: cta.visible ? "translateY(0)" : "translateY(24px)",
+            opacity: ctaVisible ? 1 : 0,
+            transform: ctaVisible ? "translateY(0)" : "translateY(24px)",
             transition: "opacity .6s ease, transform .6s ease",
           }}
         >
