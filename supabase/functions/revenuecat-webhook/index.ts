@@ -87,11 +87,16 @@ serve(async (req: Request) => {
   }
 
   try {
+    if (!REVENUECAT_WEBHOOK_AUTH_KEY) {
+      console.error("RevenueCat webhook authentication is not configured");
+      return new Response(
+        JSON.stringify({ error: "Webhook authentication is unavailable" }),
+        { status: 503, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const authHeader = req.headers.get("authorization");
-    if (
-      REVENUECAT_WEBHOOK_AUTH_KEY &&
-      authHeader !== `Bearer ${REVENUECAT_WEBHOOK_AUTH_KEY}`
-    ) {
+    if (authHeader !== `Bearer ${REVENUECAT_WEBHOOK_AUTH_KEY}`) {
       console.error("Unauthorized webhook request");
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
