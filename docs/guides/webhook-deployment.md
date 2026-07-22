@@ -17,9 +17,11 @@
 | Development | `reoiqefoymdsqzpbouxi` | `https://reoiqefoymdsqzpbouxi.supabase.co/functions/v1/revenuecat-webhook` |
 | Production | `enyxrgxixrnoazzgqyyd` | `https://enyxrgxixrnoazzgqyyd.supabase.co/functions/v1/revenuecat-webhook` |
 
-각 Supabase 프로젝트에는 서로 다른 `REVENUECAT_WEBHOOK_AUTH_KEY`를 저장합니다.
-RevenueCat Webhook의 Authorization header는 `Bearer <해당 환경 키>` 형식으로
-일치해야 합니다. 키를 저장소, 문서, 로그에 남기지 않습니다.
+GitHub에는 `REVENUECAT_WEBHOOK_AUTH_KEY_DEV`와
+`REVENUECAT_WEBHOOK_AUTH_KEY_PROD`를 서로 다른 값으로 저장합니다. 배포 workflow가
+대상 Supabase 프로젝트의 `REVENUECAT_WEBHOOK_AUTH_KEY`로 주입합니다. RevenueCat
+Webhook의 Authorization header는 `Bearer <해당 환경 키>` 형식으로 일치해야
+합니다. 키를 저장소, 문서, 로그에 남기지 않습니다.
 
 ## RevenueCat 설정
 

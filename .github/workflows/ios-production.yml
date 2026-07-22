@@ -38,6 +38,14 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Configure RevenueCat Webhook Secret
+        run: |
+          test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
+          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REVENUECAT_WEBHOOK_AUTH_KEY: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
+
       - name: Apply Migrations
         run: |
           echo "Applying migrations to Production database..."
@@ -47,7 +55,6 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Deploy Edge Functions (Production)
-        if: always()
         run: |
           echo "Deploying Edge Functions to Production..."
           for fn in supabase/functions/*/; do

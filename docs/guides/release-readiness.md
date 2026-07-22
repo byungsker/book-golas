@@ -2,13 +2,13 @@
 
 ## 자동 검증
 
-- [ ] Flutter localization 생성 성공
-- [ ] Flutter analyze 성공
-- [ ] Flutter 전체 테스트 성공
-- [ ] Web lint 성공
-- [ ] Web production build 성공
-- [ ] Edge Function type check 성공
-- [ ] TestFlight 업로드 성공
+- [x] Flutter localization 생성 성공
+- [x] Flutter analyze 성공
+- [x] Flutter 전체 테스트 성공
+- [x] Web lint 성공
+- [x] Web production build 성공
+- [x] Edge Function type check 성공
+- [x] TestFlight 업로드 성공
 - [ ] Production App Store Connect 업로드 성공
 
 ## GitHub Actions 비밀값
@@ -22,6 +22,8 @@
 - [x] App Store Connect API key 3종
 - [x] Production·Development Supabase URL/key/project ref
 - [x] RevenueCat public key
+- [x] `REVENUECAT_WEBHOOK_AUTH_KEY_DEV`
+- [x] `REVENUECAT_WEBHOOK_AUTH_KEY_PROD`
 
 `PROVISIONING_PROFILE_WIDGET_BASE64`가 없으면 운영 IPA의 Widget Extension을 수동
 서명할 수 없어 Production workflow가 실패합니다.
@@ -36,7 +38,8 @@
 - [ ] RevenueCat 이메일 인증
 - [ ] RevenueCat IAP key 검증 완료
 - [ ] RevenueCat App Store Connect API key 등록·검증 완료
-- [ ] RevenueCat Development·Production webhook 구성
+- [x] RevenueCat Development·Production webhook 구성
+- [x] App Store Connect Production·Sandbox 서버 알림 URL 구성
 - [ ] Sandbox 구매·복원·갱신·취소·만료 검증
 - [ ] 심사용 계정 로그인 및 Pro 권한 검증
 
