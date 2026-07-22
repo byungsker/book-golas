@@ -395,6 +395,18 @@ verify_jwt = false
 [functions.send-fcm-push]
 verify_jwt = false
 
+[functions.delete-user]
+verify_jwt = false
+
+[functions.send-test-push]
+verify_jwt = false
+
+[functions.send-batch-nudge]
+verify_jwt = false
+
+[functions.log-push-click]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

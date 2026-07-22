@@ -16,7 +16,7 @@ COMMENT ON COLUMN public.users.ai_recall_reset_at IS 'Next reset date for AI Rec
 CREATE TABLE IF NOT EXISTS public.ai_recall_usage (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  recall_id uuid REFERENCES public.recall_history(id) ON DELETE SET NULL,
+  recall_id uuid REFERENCES public.recall_search_history(id) ON DELETE SET NULL,
   used_at timestamptz DEFAULT now(),
   subscription_status text NOT NULL,
   created_at timestamptz DEFAULT now()

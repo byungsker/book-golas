@@ -20,10 +20,10 @@ class AuthService {
   UserModel? get currentUser => _currentUser;
 
   AuthService()
-      : _googleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile'],
-          serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
-        ) {
+    : _googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+      ) {
     _init();
   }
 
@@ -39,22 +39,12 @@ class AuthService {
     String? name,
   }) async {
     try {
-      final AuthResponse response = await _supabase.auth.signUp(
+      await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {'name': name},
         emailRedirectTo: 'bookgolas://login-callback',
       );
-      final userId = response.user?.id;
-      if (userId != null) {
-        await _supabase.from('users').insert({
-          'id': userId,
-          'email': email,
-          'nickname': name,
-          'revenuecat_user_id': userId,
-          'created_at': DateTime.now().toUtc().toIso8601String(),
-        });
-      }
       return null;
     } on AuthException catch (error) {
       return error.message;
@@ -74,10 +64,7 @@ class AuthService {
     required String password,
   }) async {
     try {
-      await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      await _supabase.auth.signInWithPassword(email: email, password: password);
       return null;
     } on AuthException catch (error) {
       return error.message;
@@ -168,13 +155,15 @@ class AuthService {
         final givenName = credential.givenName;
         final familyName = credential.familyName;
         if (givenName != null || familyName != null) {
-          final fullName = [familyName, givenName]
-              .where((n) => n != null && n.isNotEmpty)
-              .join(' ');
+          final fullName = [
+            familyName,
+            givenName,
+          ].where((n) => n != null && n.isNotEmpty).join(' ');
           if (fullName.isNotEmpty) {
             await _supabase
                 .from('users')
-                .update({'nickname': fullName}).eq('id', response.user!.id);
+                .update({'nickname': fullName})
+                .eq('id', response.user!.id);
           }
         }
       }
@@ -195,8 +184,10 @@ class AuthService {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 
   String _sha256ofString(String input) {
@@ -258,9 +249,7 @@ class AuthService {
 
   Future<String?> updatePassword(String newPassword) async {
     try {
-      await _supabase.auth.updateUser(
-        UserAttributes(password: newPassword),
-      );
+      await _supabase.auth.updateUser(UserAttributes(password: newPassword));
       return null;
     } on AuthException catch (e) {
       debugPrint('비밀번호 변경 오류: ${e.message}');
@@ -283,10 +272,7 @@ class AuthService {
 
   Future<String?> resendVerificationEmail(String email) async {
     try {
-      await _supabase.auth.resend(
-        type: OtpType.signup,
-        email: email,
-      );
+      await _supabase.auth.resend(type: OtpType.signup, email: email);
       return null;
     } on AuthException catch (error) {
       return error.message;
@@ -299,8 +285,11 @@ class AuthService {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
 
-    final data =
-        await _supabase.from('users').select().eq('id', userId).maybeSingle();
+    final data = await _supabase
+        .from('users')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
 
     if (data == null) {
       final email = _supabase.auth.currentUser?.email ?? '';
@@ -313,8 +302,11 @@ class AuthService {
         'revenuecat_user_id': userId,
       });
 
-      final newData =
-          await _supabase.from('users').select().eq('id', userId).single();
+      final newData = await _supabase
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .single();
       _currentUser = UserModel.fromJson(newData);
     } else {
       _currentUser = UserModel.fromJson(data);
@@ -328,7 +320,8 @@ class AuthService {
     if (userId == null) return;
     await _supabase
         .from('users')
-        .update({'nickname': nickname}).eq('id', userId);
+        .update({'nickname': nickname})
+        .eq('id', userId);
     await fetchCurrentUser();
   }
 
@@ -341,11 +334,9 @@ class AuthService {
     final filePath = '$userId/avatar.png';
     debugPrint('🖼️ [Avatar] Uploading to: $filePath');
 
-    await _supabase.storage.from('avatars').upload(
-          filePath,
-          file,
-          fileOptions: const FileOptions(upsert: true),
-        );
+    await _supabase.storage
+        .from('avatars')
+        .upload(filePath, file, fileOptions: const FileOptions(upsert: true));
     debugPrint('🖼️ [Avatar] Upload complete');
 
     final baseUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
@@ -354,7 +345,8 @@ class AuthService {
 
     await _supabase
         .from('users')
-        .update({'avatar_url': urlWithBust}).eq('id', userId);
+        .update({'avatar_url': urlWithBust})
+        .eq('id', userId);
     debugPrint('🖼️ [Avatar] Updated users table');
 
     await _supabase.auth.updateUser(
