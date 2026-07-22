@@ -79,6 +79,24 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.bookgolas.app",
+      team_id: "7PFH55UQ86",
+      provisioning_name: "Bookgolas App Store",
+      ignore_profiles_with_different_name: true,
+      readonly: true
+    )
+
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.bookgolas.app.BookgolasWidget",
+      team_id: "7PFH55UQ86",
+      provisioning_name: "Bookgolas Widget App Store",
+      ignore_profiles_with_different_name: true,
+      readonly: true
+    )
+
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "Runner.xcodeproj",
