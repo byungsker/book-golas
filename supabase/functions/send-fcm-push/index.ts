@@ -27,6 +27,22 @@ interface ServiceAccount {
   token_uri: string;
 }
 
+async function hashSecret(secret: string): Promise<Uint8Array> {
+  return new Uint8Array(
+    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret)),
+  );
+}
+
+function timingSafeEqual(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.length !== right.length) return false;
+
+  let difference = 0;
+  for (let index = 0; index < left.length; index++) {
+    difference |= left[index] ^ right[index];
+  }
+  return difference === 0;
+}
+
 // OAuth 2.0 액세스 토큰 캐시
 let cachedAccessToken: string | null = null;
 let tokenExpiry: number = 0;
@@ -196,8 +212,10 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const bearerToken = authHeader?.replace(/^Bearer\s+/i, "") ?? "";
-    const isServiceRole = serviceRoleKey.length > 0 &&
-      bearerToken === serviceRoleKey;
+    const isServiceRole = serviceRoleKey.length > 0 && timingSafeEqual(
+      await hashSecret(bearerToken),
+      await hashSecret(serviceRoleKey),
+    );
 
     if (!isServiceRole) {
       const authClient = createClient(

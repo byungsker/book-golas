@@ -189,7 +189,10 @@ Deno.serve(async (req: Request) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     }
 
@@ -198,7 +201,13 @@ Deno.serve(async (req: Request) => {
     if (!userId || !email) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: userId, email" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
       );
     }
 
@@ -207,7 +216,13 @@ Deno.serve(async (req: Request) => {
     ) {
       return new Response(
         JSON.stringify({ error: "Request does not match authenticated user" }),
-        { status: 403, headers: { "Content-Type": "application/json" } },
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
       );
     }
 

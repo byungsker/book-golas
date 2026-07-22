@@ -87,7 +87,13 @@ serve(async (req: Request) => {
     if (!userId || !bookId || !contentType || !contentText) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
       );
     }
 

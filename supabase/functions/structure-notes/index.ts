@@ -45,8 +45,9 @@ serve(async (req: Request) => {
     } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
+      console.error("Authentication failed:", userError);
       return new Response(
-        JSON.stringify({ error: "Unauthorized", details: userError?.message }),
+        JSON.stringify({ error: "Unauthorized" }),
         {
           status: 401,
           headers: { "Content-Type": "application/json" },
@@ -56,7 +57,7 @@ serve(async (req: Request) => {
 
     const { bookId }: StructureRequest = await req.json();
 
-    if (!bookId) {
+    if (typeof bookId !== "string" || bookId.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: "Missing required field: bookId" }),
         { status: 400, headers: { "Content-Type": "application/json" } },

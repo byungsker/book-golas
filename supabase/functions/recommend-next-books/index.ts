@@ -100,16 +100,17 @@ serve(async (req: Request) => {
       },
     };
 
-    try {
-      await supabase.from("book_recommendations").insert({
+    const { error: saveError } = await supabase
+      .from("book_recommendations")
+      .insert({
         user_id: userId,
         recommendations: response.recommendations,
         profile_summary: response.profile,
       });
-    } catch (error) {
+    if (saveError) {
       console.error(
         "[recommend-next-books] Failed to save recommendations:",
-        error,
+        saveError,
       );
     }
 
