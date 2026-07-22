@@ -20,23 +20,53 @@ serve(async (req: Request) => {
   try {
     validateConfig();
 
-    const { userId, locale = 'ko' } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    const authClient = createClient(
+      config.supabase.url,
+      config.supabase.anonKey,
+      { global: { headers: { Authorization: authHeader ?? "" } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const { userId, locale = "ko" } = await req.json();
     if (!userId) {
       return new Response(
         JSON.stringify({ error: "userId is required" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
+      );
+    }
+
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "userId does not match authenticated user" }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
       );
     }
 
     const supabase = createClient(
       config.supabase.url,
-      config.supabase.serviceRoleKey
+      config.supabase.serviceRoleKey,
     );
 
-    console.log(`[recommend-next-books] Collecting profile for user: ${userId}`);
+    console.log(
+      `[recommend-next-books] Collecting profile for user: ${userId}`,
+    );
     const profileCollector = new ProfileCollector(supabase);
     const profile = await profileCollector.collect(userId);
 
@@ -51,11 +81,13 @@ serve(async (req: Request) => {
         {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
       );
     }
 
-    console.log(`[recommend-next-books] Generating recommendations (locale: ${locale})...`);
+    console.log(
+      `[recommend-next-books] Generating recommendations (locale: ${locale})...`,
+    );
     const recommendationService = new RecommendationService(locale);
     const recommendations = await recommendationService.generate(profile);
 
@@ -68,38 +100,34 @@ serve(async (req: Request) => {
       },
     };
 
-    await saveRecommendations(supabase, userId, response);
+    try {
+      await supabase.from("book_recommendations").insert({
+        user_id: userId,
+        recommendations: response.recommendations,
+        profile_summary: response.profile,
+      });
+    } catch (error) {
+      console.error(
+        "[recommend-next-books] Failed to save recommendations:",
+        error,
+      );
+    }
 
     return new Response(JSON.stringify(response), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error";
     console.error("[recommend-next-books] Error:", errorMessage);
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
   }
 });
-
-async function saveRecommendations(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-  response: RecommendationResponse
-): Promise<void> {
-  try {
-    await supabase.from("book_recommendations").insert({
-      user_id: userId,
-      recommendations: response.recommendations,
-      profile_summary: response.profile,
-    });
-  } catch (error) {
-    console.error("[recommend-next-books] Failed to save recommendations:", error);
-  }
-}

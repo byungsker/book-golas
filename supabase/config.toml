@@ -368,15 +368,31 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
-# Per-function overrides.
-# verify_jwt=false is required for functions that accept user JWTs signed with
-# the project's asymmetric (ES256) signing key. The platform-level verify_jwt
-# gate does not accept these tokens, so each function below performs its own
-# auth.getUser() check in-code instead.
 [functions.recall-search]
 verify_jwt = false
 
 [functions.generate-embedding]
+verify_jwt = false
+
+[functions.extract-keywords]
+verify_jwt = false
+
+[functions.generate-book-review]
+verify_jwt = false
+
+[functions.structure-notes]
+verify_jwt = false
+
+[functions.reading-insights]
+verify_jwt = false
+
+[functions.recommend-next-books]
+verify_jwt = false
+
+[functions.export-reading-data]
+verify_jwt = false
+
+[functions.send-fcm-push]
 verify_jwt = false
 
 [analytics]

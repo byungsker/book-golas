@@ -41,7 +41,9 @@ function formatDate(dateStr: string | null): string {
   if (!dateStr) return "";
   try {
     const date = new Date(dateStr);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    return `${date.getFullYear()}-${
+      String(date.getMonth() + 1).padStart(2, "0")
+    }-${String(date.getDate()).padStart(2, "0")}`;
   } catch {
     return "";
   }
@@ -94,14 +96,15 @@ function generateCsv(books: BookData[]): string {
   ]);
 
   const bom = "\uFEFF";
-  return bom + [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+  return bom +
+    [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 }
 
 async function sendEmailWithResend(
   email: string,
   csvContent: string,
   year: number,
-  bookCount: number
+  bookCount: number,
 ): Promise<void> {
   const base64Csv = btoa(unescape(encodeURIComponent(csvContent)));
 
@@ -168,8 +171,26 @@ Deno.serve(async (req: Request) => {
     if (!RESEND_API_KEY) {
       return new Response(
         JSON.stringify({ error: "RESEND_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader ?? "" } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const { userId, email, year }: ExportRequest = await req.json();
@@ -177,7 +198,16 @@ Deno.serve(async (req: Request) => {
     if (!userId || !email) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: userId, email" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (
+      userId !== user.id || email.toLowerCase() !== user.email?.toLowerCase()
+    ) {
+      return new Response(
+        JSON.stringify({ error: "Request does not match authenticated user" }),
+        { status: 403, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -191,7 +221,7 @@ Deno.serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const startOfYear = new Date(targetYear, 0, 1).toISOString();
@@ -215,7 +245,7 @@ Deno.serve(async (req: Request) => {
         start_date,
         updated_at,
         total_pages
-      `
+      `,
       )
       .eq("user_id", userId)
       .is("deleted_at", null)
@@ -243,19 +273,26 @@ Deno.serve(async (req: Request) => {
             acc[memo.book_id] = (acc[memo.book_id] || 0) + 1;
             return acc;
           },
-          {}
+          {},
         );
       }
     }
 
-    const booksWithMemoCount: BookData[] = (books || []).map((book: BookData) => ({
+    const booksWithMemoCount: BookData[] = (books || []).map((
+      book: BookData,
+    ) => ({
       ...book,
       memoCount: memoCounts[book.id] || 0,
     }));
 
     const csvContent = generateCsv(booksWithMemoCount);
 
-    await sendEmailWithResend(email, csvContent, targetYear, booksWithMemoCount.length);
+    await sendEmailWithResend(
+      email,
+      csvContent,
+      targetYear,
+      booksWithMemoCount.length,
+    );
 
     return new Response(
       JSON.stringify({
@@ -269,7 +306,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Error:", error);
@@ -281,7 +318,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   }
 });

@@ -51,19 +51,15 @@ serve(async (req: Request) => {
     if (!OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Platform-level verify_jwt is disabled (config.toml) because the project
-    // uses asymmetric (ES256) JWTs which the platform gate does not accept.
-    // Validate the caller's JWT here instead so the service role upsert below
-    // cannot be abused to write rows for arbitrary users.
     const authHeader = req.headers.get("Authorization");
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } }
+      { global: { headers: { Authorization: authHeader ?? "" } } },
     );
     const {
       data: { user },
@@ -91,7 +87,7 @@ serve(async (req: Request) => {
     if (!userId || !bookId || !contentType || !contentText) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -104,7 +100,7 @@ serve(async (req: Request) => {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
-        }
+        },
       );
     }
 
@@ -116,7 +112,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const embedding = await generateEmbedding(contentText);
@@ -137,7 +133,7 @@ serve(async (req: Request) => {
         },
         {
           onConflict: "content_type,source_id",
-        }
+        },
       )
       .select("id")
       .single();
@@ -154,11 +150,11 @@ serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
