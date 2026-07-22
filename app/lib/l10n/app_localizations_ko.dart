@@ -2201,6 +2201,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionUpgradeTitle => 'Pro로 업그레이드';
 
   @override
+  String get subscriptionPopular => '인기';
+
+  @override
   String get subscriptionMonthly => '월간 구독';
 
   @override

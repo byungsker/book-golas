@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
+
 import 'package:book_golas/l10n/app_localizations.dart';
-import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 
 /// Subscription management screen.
 ///
@@ -131,6 +133,12 @@ class SubscriptionScreen extends StatelessWidget {
     SubscriptionViewModel viewModel,
     AppLocalizations l10n,
   ) {
+    final currentOffering = viewModel.offerings?.current;
+    final monthlyPrice = currentOffering?.monthly?.storeProduct.priceString ??
+        l10n.subscriptionMonthlyPrice;
+    final yearlyPrice = currentOffering?.annual?.storeProduct.priceString ??
+        l10n.subscriptionYearlyPrice;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -144,26 +152,31 @@ class SubscriptionScreen extends StatelessWidget {
         const SizedBox(height: 12),
         _PricingButton(
           title: l10n.subscriptionMonthly,
-          price: l10n.subscriptionMonthlyPrice,
+          price: monthlyPrice,
           period: l10n.subscriptionPerMonth,
+          popularLabel: l10n.subscriptionPopular,
           isPopular: true,
           onTap: () async {
             final success = await viewModel.showPaywall(context);
             if (!success && context.mounted) {
-              CustomSnackbar.show(context, message: l10n.subscriptionUnavailable, type: BLabSnackbarType.info);
+              CustomSnackbar.show(context,
+                  message: l10n.subscriptionUnavailable,
+                  type: BLabSnackbarType.info);
             }
           },
         ),
         const SizedBox(height: 10),
         _PricingButton(
           title: l10n.subscriptionYearly,
-          price: l10n.subscriptionYearlyPrice,
+          price: yearlyPrice,
           period: l10n.subscriptionPerYear,
           savings: l10n.subscriptionYearlySavings,
           onTap: () async {
             final success = await viewModel.showPaywall(context);
             if (!success && context.mounted) {
-              CustomSnackbar.show(context, message: l10n.subscriptionUnavailable, type: BLabSnackbarType.info);
+              CustomSnackbar.show(context,
+                  message: l10n.subscriptionUnavailable,
+                  type: BLabSnackbarType.info);
             }
           },
         ),
@@ -236,14 +249,13 @@ class SubscriptionScreen extends StatelessWidget {
           onTap: () async {
             final success = await viewModel.restorePurchases();
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    success
-                        ? l10n.subscriptionRestoreSuccess
-                        : l10n.subscriptionRestoreFailed,
-                  ),
-                ),
+              CustomSnackbar.show(
+                context,
+                message: success
+                    ? l10n.subscriptionRestoreSuccess
+                    : l10n.subscriptionRestoreFailed,
+                type:
+                    success ? BLabSnackbarType.success : BLabSnackbarType.error,
               );
             }
           },
@@ -264,6 +276,7 @@ class _PricingButton extends StatelessWidget {
   final String title;
   final String price;
   final String period;
+  final String? popularLabel;
   final String? savings;
   final bool isPopular;
   final VoidCallback onTap;
@@ -272,6 +285,7 @@ class _PricingButton extends StatelessWidget {
     required this.title,
     required this.price,
     required this.period,
+    this.popularLabel,
     this.savings,
     this.isPopular = false,
     required this.onTap,
@@ -296,35 +310,44 @@ class _PricingButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                if (isPopular)
-                  Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(4),
+            Expanded(
+              child: Row(
+                children: [
+                  if (isPopular && popularLabel != null)
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        popularLabel!,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
                     ),
+                  Flexible(
                     child: Text(
-                      'POPULAR',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,

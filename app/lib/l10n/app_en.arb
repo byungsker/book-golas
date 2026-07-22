@@ -962,6 +962,9 @@
            "subscriptionUpgradeTitle": "Upgrade to Pro",
            "@subscriptionUpgradeTitle": {"description": "Upgrade to Pro title"},
 
+           "subscriptionPopular": "POPULAR",
+           "@subscriptionPopular": {"description": "Popular subscription badge"},
+
            "subscriptionMonthly": "Monthly",
            "@subscriptionMonthly": {"description": "Monthly subscription"},
 
