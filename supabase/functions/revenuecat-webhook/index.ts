@@ -118,6 +118,13 @@ serve(async (req: Request) => {
       );
     }
 
+    if (event.type === "TEST") {
+      return new Response(
+        JSON.stringify({ success: true, event_type: event.type }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",

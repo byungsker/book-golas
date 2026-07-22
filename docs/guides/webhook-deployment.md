@@ -56,6 +56,7 @@ where revenuecat_user_id is not null;
 검증 기준:
 
 - RevenueCat 테스트 전송이 HTTP 200을 반환합니다.
+- 인증된 RevenueCat `TEST` 이벤트는 사용자 데이터를 변경하지 않고 HTTP 200을 반환합니다.
 - 동일 이벤트 재전송이 중복 데이터나 잘못된 상태 전이를 만들지 않습니다.
 - `monthly`는 `pro_monthly`, `yearly`는 `pro_yearly`로 반영됩니다.
 - 만료·환불은 `free`, 취소·결제 문제는 만료일 유지로 반영됩니다.
