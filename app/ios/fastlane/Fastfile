@@ -88,6 +88,16 @@ platform :ios do
       profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "7PFH55UQ86",
+      bundle_identifier: "com.bookgolas.app.BookgolasWidget",
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Widget App Store",
+      targets: ["BookgolasWidgetExtension"]
+    )
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "prod",
@@ -95,7 +105,8 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-          "com.bookgolas.app" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
+          "com.bookgolas.app" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store",
+          "com.bookgolas.app.BookgolasWidget" => ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Widget App Store"
         }
       },
       output_directory: "./build",
