@@ -35,10 +35,11 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 - [ ] 유료 앱 계약·한국 세금·미국 세금·은행 정보 활성화
 - [ ] 앱 버전, 개인정보, 연령 등급, 카테고리, 지원 URL 완료
 - [x] iPhone 필수 사이즈 스크린샷 완료
+- [x] 월간·연간 기준 가격과 전 지역 판매 설정 확인
 - [ ] 월간·연간 구독 메타데이터와 심사 스크린샷 완료
 - [ ] 앱 버전에 두 구독 연결
 - [x] RevenueCat 이메일 인증
-- [ ] RevenueCat IAP key 검증 완료
+- [x] RevenueCat IAP key 검증 완료
 - [ ] RevenueCat App Store Connect API key 등록·검증 완료
 - [x] RevenueCat Development·Production webhook 구성
 - [x] RevenueCat Development webhook 테스트 성공
