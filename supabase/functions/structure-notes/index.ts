@@ -28,20 +28,15 @@ serve(async (req: Request) => {
     if (!OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
     const authHeader = req.headers.get("Authorization");
-    console.log("🔑 Auth header present:", !!authHeader);
-    console.log("🔑 Auth header (first 30):", authHeader?.substring(0, 30));
-    console.log("🌐 SUPABASE_URL:", Deno.env.get("SUPABASE_URL"));
-    console.log("🔐 SUPABASE_ANON_KEY present:", !!Deno.env.get("SUPABASE_ANON_KEY"));
-    
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } }
+      { global: { headers: { Authorization: authHeader ?? "" } } },
     );
 
     const {
@@ -49,22 +44,23 @@ serve(async (req: Request) => {
       error: userError,
     } = await supabaseClient.auth.getUser();
 
-    console.log("👤 User from getUser():", user?.id);
-    console.log("❌ User error:", userError?.message);
-
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized", details: userError?.message }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
+      console.error("Authentication failed:", userError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     const { bookId }: StructureRequest = await req.json();
 
-    if (!bookId) {
+    if (typeof bookId !== "string" || bookId.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: "Missing required field: bookId" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -76,7 +72,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const { data: contents, error: fetchError } = await serviceClient
@@ -104,7 +100,7 @@ serve(async (req: Request) => {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
-        }
+        },
       );
     }
 
@@ -125,7 +121,7 @@ serve(async (req: Request) => {
         },
         {
           onConflict: "user_id,book_id",
-        }
+        },
       );
 
     if (upsertError) {
@@ -150,7 +146,7 @@ serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   }
 });
