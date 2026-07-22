@@ -2493,6 +2493,9 @@
         "subscriptionUpgradeTitle": "Pro로 업그레이드",
         "@subscriptionUpgradeTitle": {"description": "Upgrade to Pro title"},
 
+        "subscriptionPopular": "인기",
+        "@subscriptionPopular": {"description": "Popular subscription badge"},
+
         "subscriptionMonthly": "월간 구독",
         "@subscriptionMonthly": {"description": "Monthly subscription"},
 

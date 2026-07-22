@@ -4144,6 +4144,12 @@ abstract class AppLocalizations {
   /// **'Pro로 업그레이드'**
   String get subscriptionUpgradeTitle;
 
+  /// Popular subscription badge
+  ///
+  /// In ko, this message translates to:
+  /// **'인기'**
+  String get subscriptionPopular;
+
   /// Monthly subscription
   ///
   /// In ko, this message translates to:

@@ -2271,6 +2271,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionUpgradeTitle => 'Upgrade to Pro';
 
   @override
+  String get subscriptionPopular => 'POPULAR';
+
+  @override
   String get subscriptionMonthly => 'Monthly';
 
   @override
