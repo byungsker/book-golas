@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import type { PushAnnouncement } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,8 @@ export default function AnnouncementsPage() {
   }, []);
 
   useEffect(() => {
-    loadAnnouncements();
+    const timer = window.setTimeout(() => void loadAnnouncements(), 0);
+    return () => window.clearTimeout(timer);
   }, [loadAnnouncements]);
 
   async function handleSend() {
@@ -193,7 +195,13 @@ export default function AnnouncementsPage() {
           <CardContent>
             <div className="bg-gray-900 text-white p-4 rounded-xl shadow-lg max-w-sm">
               <div className="flex items-start gap-3">
-                <img src="/logo-bookgolas.png" alt="북골라스" className="w-10 h-10 rounded-lg" />
+                <Image
+                  src="/logo-bookgolas.png"
+                  alt="북골라스"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-lg"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">북골라스</span>

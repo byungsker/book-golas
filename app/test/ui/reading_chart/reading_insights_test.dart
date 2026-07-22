@@ -4,12 +4,28 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:book_golas/data/services/reading_insights_service.dart';
 import 'package:book_golas/domain/models/reading_insight.dart';
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
 
-// Mock classes
 class MockReadingInsightsService extends Mock
     implements ReadingInsightsService {}
+
+class LocalizedTestApp extends StatelessWidget {
+  final Widget home;
+
+  const LocalizedTestApp({required this.home, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      locale: const Locale('ko'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: home,
+    );
+  }
+}
 
 void main() {
   group('ReadingInsightsViewModel', () {
@@ -18,7 +34,6 @@ void main() {
 
     setUp(() {
       mockInsightsService = MockReadingInsightsService();
-      // Mock the getLatestInsight to return null by default
       when(() => mockInsightsService.getLatestInsight('test-user-id'))
           .thenAnswer((_) async => null);
       when(() => mockInsightsService.canGenerateToday('test-user-id'))
@@ -85,7 +100,6 @@ void main() {
 
       await viewModel.loadInsight();
 
-      // getLatestInsight is called in _initialize and loadInsight, so expect >= 1 calls
       verify(() => mockInsightsService.getLatestInsight('test-user-id'))
           .called(greaterThanOrEqualTo(1));
     });
@@ -120,7 +134,6 @@ void main() {
         notifyCount++;
       });
 
-      // Trigger a state change by calling loadInsight
       when(() => mockInsightsService.getLatestInsight('test-user-id'))
           .thenAnswer((_) async => null);
 
@@ -175,7 +188,7 @@ void main() {
   group('AiInsightCard Widget', () {
     testWidgets('should show loading state', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: true,
@@ -196,7 +209,7 @@ void main() {
     testWidgets('should show disabled state when bookCount < 3',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -220,7 +233,7 @@ void main() {
       var retryPressed = false;
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -250,7 +263,7 @@ void main() {
     testWidgets('should show empty state when no insights',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -282,7 +295,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -324,7 +337,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -349,7 +362,7 @@ void main() {
       var generatePressed = false;
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -374,7 +387,7 @@ void main() {
     testWidgets('should show rate limit message when canGenerate is false',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -405,7 +418,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -436,7 +449,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -467,7 +480,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -487,7 +500,7 @@ void main() {
     testWidgets('should display AI header with icon',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -519,7 +532,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -540,7 +553,7 @@ void main() {
     testWidgets('should display error message when error is provided',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -560,7 +573,7 @@ void main() {
     testWidgets('should not show retry button when onRetry is null',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -582,7 +595,7 @@ void main() {
     testWidgets('should display book count correctly when bookCount >= 3',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,
@@ -596,7 +609,6 @@ void main() {
         ),
       );
 
-      // When bookCount >= 3 and canGenerate is false, show rate limit message
       expect(find.text('오늘 이미 분석했어요. 내일 다시 시도해주세요.'), findsOneWidget);
     });
 
@@ -604,7 +616,7 @@ void main() {
         'should display book count in disabled state when bookCount < 3',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        LocalizedTestApp(
           home: Scaffold(
             body: AiInsightCard(
               isLoading: false,

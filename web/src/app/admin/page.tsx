@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase, PushLog } from "@/lib/supabase";
@@ -189,12 +190,12 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-foreground">최근 발송 로그</CardTitle>
-            <a
+            <Link
               href="/admin/push-logs"
               className="text-sm text-blue-400 hover:underline"
             >
               더보기 →
-            </a>
+            </Link>
           </CardHeader>
           <CardContent>
             {recentLogs.length === 0 ? (

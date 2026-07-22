@@ -1238,17 +1238,17 @@
            "chartAiInsightClearMemoryMessage": "Previous analysis will be deleted",
            "chartAiInsightClearMemoryCancel": "Cancel",
            "chartAiInsightClearMemoryConfirm": "Clear",
-           "chartAiInsightAnalyzing": "Analyzing...",
+  "chartAiInsightAnalyzing": "Analyzing your reading patterns...",
            "chartAiInsightUnknownError": "Unknown error occurred",
            "chartAiInsightRetry": "Retry",
-           "chartAiInsightMinBooksRequired": "More books needed",
-           "chartAiInsightMinBooksMessage": "Complete at least {count} books for AI analysis",
+  "chartAiInsightMinBooksRequired": "Read more books to unlock AI insights",
+  "chartAiInsightMinBooksMessage": "Books completed: {count}",
            "@chartAiInsightMinBooksMessage": {"placeholders": {"count": {"type": "int"}}},
-           "chartAiInsightMinBooksHint": "Keep reading to unlock insights",
+  "chartAiInsightMinBooksHint": "At least 3 books; 5 or more recommended",
            "chartAiInsightSampleLabel": "Sample",
-           "chartAiInsightEmptyState": "No insights yet",
-           "chartAiInsightGenerateButton": "Generate Insight",
-           "chartAiInsightAlreadyAnalyzed": "Already analyzed",
+  "chartAiInsightEmptyState": "Tap the button below to generate insights",
+  "chartAiInsightGenerateButton": "Analyze",
+  "chartAiInsightAlreadyAnalyzed": "You've already analyzed today. Try again tomorrow.",
            "chartAnnualGoalTitle": "{year} Reading Goal",
            "@chartAnnualGoalTitle": {"placeholders": {"year": {"type": "int"}}},
            "chartAnnualGoalAchieved": "{count} books completed!",
@@ -1533,6 +1533,51 @@
 
            "myPageVersion": "Version",
            "@myPageVersion": {"description": "Version in my page"},
+
+           "myPageDeleteAccountButton": "Delete Account",
+           "@myPageDeleteAccountButton": {"description": "Delete account button text"},
+
+           "myPageDeleteAccountConfirm": "Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.",
+           "@myPageDeleteAccountConfirm": {"description": "Delete account confirmation message"},
+
+           "myPageDeleteAccountFailed": "Failed to delete your account. Please try again.",
+           "@myPageDeleteAccountFailed": {"description": "Account deletion failed message"},
+
+           "myPageDeleteAccountSuccess": "Your account was deleted successfully.",
+           "@myPageDeleteAccountSuccess": {"description": "Account deleted successfully message"},
+
+           "myPageDeleteAccountTitle": "Delete Account",
+           "@myPageDeleteAccountTitle": {"description": "Delete account dialog title"},
+
+           "myPageEnterNickname": "Enter a nickname",
+           "@myPageEnterNickname": {"description": "Enter nickname hint"},
+
+           "myPageErrorOccurred": "An error occurred: {error}",
+           "@myPageErrorOccurred": {"description": "Error occurred message", "placeholders": {"error": {"type": "String"}}},
+
+           "myPageLanguageEnglish": "English",
+           "@myPageLanguageEnglish": {"description": "English language option"},
+
+           "myPageLanguageKorean": "Korean",
+           "@myPageLanguageKorean": {"description": "Korean language option"},
+
+           "myPageNoNickname": "No nickname",
+           "@myPageNoNickname": {"description": "No nickname message"},
+
+           "myPageNoNotifications": "Notifications are off",
+           "@myPageNoNotifications": {"description": "No notifications message"},
+
+           "myPageProfileImageChangeFailed": "Failed to change profile image: {error}",
+           "@myPageProfileImageChangeFailed": {"description": "Profile image change failed message", "placeholders": {"error": {"type": "String"}}},
+
+           "myPageProfileImageChanged": "Profile image updated",
+           "@myPageProfileImageChanged": {"description": "Profile image changed message"},
+
+           "myPageTestNotification": "Test notification (in 30 seconds)",
+           "@myPageTestNotification": {"description": "Test notification button"},
+
+           "myPageTestNotificationScheduled": "A test notification will be sent in 30 seconds.",
+           "@myPageTestNotificationScheduled": {"description": "Test notification scheduled message"},
 
            "bookDetailPlannedStart": "Planned Start",
            "@bookDetailPlannedStart": {"description": "Planned start date label in book detail"},

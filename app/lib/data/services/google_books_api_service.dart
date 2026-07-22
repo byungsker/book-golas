@@ -87,8 +87,6 @@ class GoogleBooksApiService {
               .join(', ') ??
           'Unknown Author';
       final publisher = volumeInfo['publisher'] as String? ?? '';
-      final publishedDate = volumeInfo['publishedDate'] as String? ?? '';
-      final description = volumeInfo['description'] as String? ?? '';
       final pageCount = volumeInfo['pageCount'] as int? ?? 0;
 
       final imageLinks = volumeInfo['imageLinks'] as Map<String, dynamic>?;

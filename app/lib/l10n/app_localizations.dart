@@ -5377,7 +5377,7 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightAnalyzing.
   ///
   /// In ko, this message translates to:
-  /// **'분석 중...'**
+  /// **'독서 패턴을 분석하고 있어요...'**
   String get chartAiInsightAnalyzing;
 
   /// No description provided for @chartAiInsightUnknownError.
@@ -5395,19 +5395,19 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightMinBooksRequired.
   ///
   /// In ko, this message translates to:
-  /// **'더 많은 책이 필요합니다'**
+  /// **'AI 인사이트를 받으려면 책을 더 읽어보세요'**
   String get chartAiInsightMinBooksRequired;
 
   /// No description provided for @chartAiInsightMinBooksMessage.
   ///
   /// In ko, this message translates to:
-  /// **'AI 분석을 위해 최소 {count}권을 완독해주세요'**
+  /// **'현재 완독한 책: {count}권'**
   String chartAiInsightMinBooksMessage(int count);
 
   /// No description provided for @chartAiInsightMinBooksHint.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트를 잠금 해제하려면 계속 읽어주세요'**
+  /// **'최소 3권, 권장 5권 이상'**
   String get chartAiInsightMinBooksHint;
 
   /// No description provided for @chartAiInsightSampleLabel.
@@ -5419,19 +5419,19 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightEmptyState.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트 없음'**
+  /// **'아래 버튼을 눌러 인사이트를 생성해보세요'**
   String get chartAiInsightEmptyState;
 
   /// No description provided for @chartAiInsightGenerateButton.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트 생성'**
+  /// **'분석하기'**
   String get chartAiInsightGenerateButton;
 
   /// No description provided for @chartAiInsightAlreadyAnalyzed.
   ///
   /// In ko, this message translates to:
-  /// **'이미 분석됨'**
+  /// **'오늘 이미 분석했어요. 내일 다시 시도해주세요.'**
   String get chartAiInsightAlreadyAnalyzed;
 
   /// No description provided for @chartAnnualGoalTitle.

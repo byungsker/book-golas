@@ -2863,7 +2863,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightClearMemoryConfirm => '삭제';
 
   @override
-  String get chartAiInsightAnalyzing => '분석 중...';
+  String get chartAiInsightAnalyzing => '독서 패턴을 분석하고 있어요...';
 
   @override
   String get chartAiInsightUnknownError => '알 수 없는 오류 발생';
@@ -2872,27 +2872,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightRetry => '다시 시도';
 
   @override
-  String get chartAiInsightMinBooksRequired => '더 많은 책이 필요합니다';
+  String get chartAiInsightMinBooksRequired => 'AI 인사이트를 받으려면 책을 더 읽어보세요';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
-    return 'AI 분석을 위해 최소 $count권을 완독해주세요';
+    return '현재 완독한 책: $count권';
   }
 
   @override
-  String get chartAiInsightMinBooksHint => '인사이트를 잠금 해제하려면 계속 읽어주세요';
+  String get chartAiInsightMinBooksHint => '최소 3권, 권장 5권 이상';
 
   @override
   String get chartAiInsightSampleLabel => '샘플';
 
   @override
-  String get chartAiInsightEmptyState => '인사이트 없음';
+  String get chartAiInsightEmptyState => '아래 버튼을 눌러 인사이트를 생성해보세요';
 
   @override
-  String get chartAiInsightGenerateButton => '인사이트 생성';
+  String get chartAiInsightGenerateButton => '분석하기';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed => '이미 분석됨';
+  String get chartAiInsightAlreadyAnalyzed => '오늘 이미 분석했어요. 내일 다시 시도해주세요.';
 
   @override
   String chartAnnualGoalTitle(int year) {

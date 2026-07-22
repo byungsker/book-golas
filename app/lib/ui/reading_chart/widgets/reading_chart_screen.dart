@@ -260,7 +260,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 ? ColorScheme.dark(
                     primary: BLabColors.primary,
                     onPrimary: Colors.white,
-                    primaryContainer: BLabColors.primary.withValues(alpha: 0.35),
+                    primaryContainer:
+                        BLabColors.primary.withValues(alpha: 0.35),
                     onPrimaryContainer: Colors.white,
                     surface: BLabColors.surfaceDark,
                     onSurface: Colors.white,
@@ -269,7 +270,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 : const ColorScheme.light(
                     primary: BLabColors.primary,
                     onPrimary: Colors.white,
-                    primaryContainer: const Color(0xFFDDE3FF),
+                    primaryContainer: Color(0xFFDDE3FF),
                     onPrimaryContainer: BLabColors.primary,
                     surface: Colors.white,
                     onSurface: Colors.black,
@@ -277,13 +278,11 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                   ),
             datePickerTheme: DatePickerThemeData(
               rangeSelectionBackgroundColor: rangeColor,
-              headerBackgroundColor: isDark
-                  ? BLabColors.surfaceDark
-                  : BLabColors.primary,
+              headerBackgroundColor:
+                  isDark ? BLabColors.surfaceDark : BLabColors.primary,
               headerForegroundColor: Colors.white,
-              rangePickerBackgroundColor: isDark
-                  ? BLabColors.scaffoldDark
-                  : BLabColors.scaffoldLight,
+              rangePickerBackgroundColor:
+                  isDark ? BLabColors.scaffoldDark : BLabColors.scaffoldLight,
             ),
           ),
           child: child!,
@@ -522,7 +521,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       children: [
         _buildOverviewTab(isDark, vm, stats, streak),
         _buildAnalysisTab(isDark, vm, currentYear, stats, streak),
-        _buildActivityTab(isDark, vm, aggregated, dailyAggregated, streak, currentYear),
+        _buildActivityTab(
+            isDark, vm, aggregated, dailyAggregated, streak, currentYear),
       ],
     );
   }
@@ -624,7 +624,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   Container(
                     key: _sectionKeys[1],
                     child: CompletionRateCard(
@@ -638,7 +637,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   Container(
                     key: _sectionKeys[2],
                     child: HighlightStatsCard(
@@ -649,7 +647,6 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   Container(
                     key: _sectionKeys[3],
                     child: GenreAnalysisCard(
@@ -702,8 +699,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                               isDark,
                             ),
                             _buildStatCard(
-                              AppLocalizations.of(context)
-                                  .chartConsecutiveDays,
+                              AppLocalizations.of(context).chartConsecutiveDays,
                               '$streak${AppLocalizations.of(context).unitDay}',
                               Icons.local_fire_department_rounded,
                               BLabColors.destructive,
@@ -773,15 +769,15 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: dailyAggregated.length > 10 ? 10 : dailyAggregated.length,
+              itemCount:
+                  dailyAggregated.length > 10 ? 10 : dailyAggregated.length,
               itemBuilder: (context, index) {
                 final reversedIndex = dailyAggregated.length - 1 - index;
                 final item = dailyAggregated[reversedIndex];
                 final date = item['date'] as DateTime;
                 final dailyPage = item['daily_page'] as int;
                 final cumulativePage = item['cumulative_page'] as int;
-                final readingSeconds =
-                    vm.dailyReadingSeconds[date] ?? 0;
+                final readingSeconds = vm.dailyReadingSeconds[date] ?? 0;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(16),
@@ -1124,7 +1120,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                     showTitles: true,
                     reservedSize: 50,
                     getTitlesWidget: (value, meta) {
-                      if (value.isNaN || value.isInfinite) return const SizedBox.shrink();
+                      if (value.isNaN || value.isInfinite)
+                        return const SizedBox.shrink();
                       return Text(
                         value.toInt().toString(),
                         style: TextStyle(
@@ -1224,7 +1221,8 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                 titlesData: const FlTitlesData(show: false),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                maxY: (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
+                maxY:
+                    (maxCumulative > 0 ? maxCumulative.toDouble() : 1.0) * 1.1,
                 minY: 0,
                 minX: 0,
                 maxX: (aggregated.length - 1).toDouble(),
