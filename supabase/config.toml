@@ -407,6 +407,9 @@ verify_jwt = false
 [functions.log-push-click]
 verify_jwt = false
 
+[functions.revenuecat-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

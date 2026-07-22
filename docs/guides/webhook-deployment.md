@@ -23,6 +23,10 @@ GitHub에는 `REVENUECAT_WEBHOOK_AUTH_KEY_DEV`와
 Webhook의 Authorization header는 `Bearer <해당 환경 키>` 형식으로 일치해야
 합니다. 키를 저장소, 문서, 로그에 남기지 않습니다.
 
+`revenuecat-webhook`은 Supabase gateway JWT 검증을 비활성화하고 함수 내부에서
+전용 webhook key를 검증합니다. RevenueCat Authorization 값을 Supabase JWT로
+해석하면 함수 실행 전 401이 발생하므로 `verify_jwt = false`를 유지해야 합니다.
+
 ## RevenueCat 설정
 
 1. Integrations → Webhooks → Add new configuration을 엽니다.
