@@ -36,7 +36,7 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 - [ ] 앱 버전, 개인정보, 연령 등급, 카테고리, 지원 URL 완료
 - [x] iPhone 필수 사이즈 스크린샷 완료
 - [x] 월간·연간 기준 가격과 전 지역 판매 설정 확인
-- [ ] 월간·연간 구독 메타데이터와 심사 스크린샷 완료
+- [x] 월간·연간 구독 메타데이터와 심사 스크린샷 완료
 - [ ] 앱 버전에 두 구독 연결
 - [x] RevenueCat 이메일 인증
 - [x] RevenueCat IAP key 검증 완료
