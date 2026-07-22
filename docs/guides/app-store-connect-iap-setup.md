@@ -70,7 +70,7 @@ RevenueCat의 Integrations → Webhooks에 환경별 구성을 추가합니다.
 - [x] App Store Connect 로그인 및 계약 상태 확인
 - [ ] 유료 앱 계약·세금·은행 정보 활성화
 - [x] 월간 $2.99·연간 $19.99 기준 가격과 전 지역 판매 설정 확인
-- [ ] `monthly`, `yearly` 메타데이터와 심사 스크린샷 완료
+- [x] `monthly`, `yearly` 메타데이터와 심사 스크린샷 완료
 - [ ] 두 상품을 제출할 앱 버전에 연결
 - [x] RevenueCat IAP Key 검증 완료
 - [ ] RevenueCat App Store Connect API Key 검증 완료
