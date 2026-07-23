@@ -58,6 +58,11 @@ RevenueCat의 Integrations → Webhooks에 환경별 구성을 추가합니다.
 
 ## Sandbox 필수 시나리오
 
+실제 `monthly`, `yearly` 상품은 `com.bookgolas.app`에 연결되어 있으므로
+프로덕션 번들의 TestFlight 빌드에서 검증해야 합니다. 프로덕션 빌드와 Supabase
+배포는 `main` CI에서만 수행하고, App Review 제출은 아래 시나리오가 모두 통과한
+뒤에 진행합니다.
+
 1. 무료 계정으로 paywall을 열어 월간·연간 가격을 확인합니다.
 2. 월간 구독 구매 후 Pro 기능과 entitlement가 즉시 활성화되는지 확인합니다.
 3. 앱 재실행·로그아웃·재로그인 후 권한이 유지되는지 확인합니다.
