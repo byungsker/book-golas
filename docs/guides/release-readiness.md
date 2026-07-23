@@ -40,7 +40,7 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 - [ ] 앱 버전에 두 구독 연결
 - [x] RevenueCat 이메일 인증
 - [x] RevenueCat IAP key 검증 완료
-- [ ] RevenueCat App Store Connect API key 등록·검증 완료
+- [x] RevenueCat App Store Connect API key 등록·검증 완료
 - [x] RevenueCat Development·Production webhook 구성
 - [x] RevenueCat Development webhook 테스트 성공
 - [ ] RevenueCat Production webhook 테스트 성공

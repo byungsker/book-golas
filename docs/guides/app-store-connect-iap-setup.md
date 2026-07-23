@@ -73,7 +73,7 @@ RevenueCat의 Integrations → Webhooks에 환경별 구성을 추가합니다.
 - [x] `monthly`, `yearly` 메타데이터와 심사 스크린샷 완료
 - [ ] 두 상품을 제출할 앱 버전에 연결
 - [x] RevenueCat IAP Key 검증 완료
-- [ ] RevenueCat App Store Connect API Key 검증 완료
+- [x] RevenueCat App Store Connect API Key 검증 완료
 - [x] Entitlement `byungskerslab/북골라스 Pro` 연결 확인
 - [x] Default offering의 두 패키지 확인
 - [x] Development·Production webhook 구성
