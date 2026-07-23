@@ -53,9 +53,11 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 1. `feature/* → daily/YYYY-MM-DD` PR을 merge commit으로 합칩니다.
 2. `daily/YYYY-MM-DD → dev` PR을 merge commit으로 합칩니다.
 3. TestFlight와 개발 Supabase 배포가 성공할 때까지 수정합니다.
-4. Sandbox 테스트가 통과하면 `dev → main` PR을 merge commit으로 합칩니다.
-5. Production environment를 승인하고 운영 배포를 확인합니다.
-6. App Store Connect에서 빌드·구독을 선택하고 심사에 제출합니다.
-7. 승인 후 수동 출시 또는 예약 출시를 실행합니다.
+4. Apple 유료 앱 계약·세금·은행 정보와 외부 자격증명을 활성화합니다.
+5. `dev → main` PR을 merge commit으로 합치고 Production environment를 승인합니다.
+6. 운영 Supabase 배포와 `com.bookgolas.app` TestFlight 업로드를 확인합니다.
+7. 프로덕션 TestFlight 빌드에서 Sandbox 구매·복원·갱신·취소·만료를 검증합니다.
+8. App Store Connect에서 빌드·구독을 선택하고 심사에 제출합니다.
+9. 승인 후 수동 출시 또는 예약 출시를 실행합니다.
 
 최종 확인일: 2026-07-23
