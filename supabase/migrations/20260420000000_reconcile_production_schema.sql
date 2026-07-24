@@ -589,7 +589,7 @@ CREATE TABLE IF NOT EXISTS public.ai_recall_usage (
 
 DO $$
 BEGIN
-  IF to_regclass('public.recall_history') IS NOT NULL
+  IF to_regclass('public.recall_search_history') IS NOT NULL
     AND NOT EXISTS (
       SELECT 1
       FROM pg_constraint
@@ -600,7 +600,7 @@ BEGIN
     ALTER TABLE public.ai_recall_usage
       ADD CONSTRAINT ai_recall_usage_recall_id_fkey
       FOREIGN KEY (recall_id)
-      REFERENCES public.recall_history(id)
+      REFERENCES public.recall_search_history(id)
       ON DELETE SET NULL;
   END IF;
 END
