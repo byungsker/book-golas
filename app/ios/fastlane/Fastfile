@@ -155,6 +155,7 @@ platform :ios do
       api_key: api_key,
       skip_metadata: true,
       skip_screenshots: true,
+      skip_app_version_update: true,
       precheck_include_in_app_purchases: false,
       submit_for_review: false,
       automatic_release: false
