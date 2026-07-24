@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:book_golas/config/feature_flags.dart';
+import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
@@ -51,12 +53,14 @@ class _MyPageContent extends StatefulWidget {
 
 class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
+  late Future<bool> _privacyOptionsRequired;
   bool _isUploadingAvatar = false;
 
   @override
   void initState() {
     super.initState();
     _nicknameController = TextEditingController();
+    _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
@@ -1133,28 +1137,30 @@ class _MyPageContentState extends State<_MyPageContent> {
                   : Colors.black.withValues(alpha: 0.1),
             ),
           ],
-          Consumer<SubscriptionViewModel>(
-            builder: (context, subscriptionVm, child) {
-              return BLabButton(
-                text: subscriptionVm.isProUser
-                    ? AppLocalizations.of(context).myPageSubscriptionManage
-                    : AppLocalizations.of(context).myPageSubscriptionUpgrade,
-                icon: subscriptionVm.isProUser ? Icons.star : Icons.star_border,
-                variant: BLabButtonVariant.secondary,
-                isFullWidth: true,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SubscriptionScreen(
-                        onClose: () => Navigator.pop(context),
+          if (FeatureFlags.paidSubscriptionsEnabled)
+            Consumer<SubscriptionViewModel>(
+              builder: (context, subscriptionVm, child) {
+                return BLabButton(
+                  text: subscriptionVm.isProUser
+                      ? AppLocalizations.of(context).myPageSubscriptionManage
+                      : AppLocalizations.of(context).myPageSubscriptionUpgrade,
+                  icon:
+                      subscriptionVm.isProUser ? Icons.star : Icons.star_border,
+                  variant: BLabButtonVariant.secondary,
+                  isFullWidth: true,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SubscriptionScreen(
+                          onClose: () => Navigator.pop(context),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+                    );
+                  },
+                );
+              },
+            ),
         ],
       ),
     );
@@ -1279,6 +1285,29 @@ class _MyPageContentState extends State<_MyPageContent> {
                     htmlContent: LegalContent.privacyPolicy(locale, isDark),
                   ),
                 ),
+              );
+            },
+          ),
+          FutureBuilder<bool>(
+            future: _privacyOptionsRequired,
+            builder: (context, snapshot) {
+              if (snapshot.data != true) return const SizedBox.shrink();
+
+              return Column(
+                children: [
+                  Divider(
+                    height: 24,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.1),
+                  ),
+                  _buildInfoRow(
+                    context: context,
+                    icon: Icons.ads_click,
+                    title: AppLocalizations.of(context).myPageAdPrivacyOptions,
+                    onTap: () => AdService().showPrivacyOptions(),
+                  ),
+                ],
               );
             },
           ),

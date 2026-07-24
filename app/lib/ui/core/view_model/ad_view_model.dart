@@ -6,6 +6,7 @@ import 'package:book_golas/utils/subscription_utils.dart';
 
 class AdViewModel extends ChangeNotifier {
   final SubscriptionService _subscriptionService;
+  final bool Function() _isSuperAdmin;
   final AdService _adService = AdService();
 
   bool _shouldShowAds = false;
@@ -16,13 +17,20 @@ class AdViewModel extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   AdService get adService => _adService;
 
-  AdViewModel(this._subscriptionService);
+  AdViewModel(
+    this._subscriptionService, {
+    bool Function()? isSuperAdmin,
+  }) : _isSuperAdmin = isSuperAdmin ?? SubscriptionUtils.isSuperAdmin;
 
   Future<void> initialize() async {
     if (_isInitialized || _isDisposed) return;
 
     await _adService.initialize();
-    await refreshAdVisibility();
+    if (_adService.isInitialized) {
+      await refreshAdVisibility();
+    } else {
+      _shouldShowAds = false;
+    }
 
     _isInitialized = true;
     if (!_isDisposed) {
@@ -34,8 +42,14 @@ class AdViewModel extends ChangeNotifier {
     if (_isDisposed) return;
 
     try {
-      if (SubscriptionUtils.isSuperAdmin()) {
+      if (_isSuperAdmin()) {
         _shouldShowAds = false;
+        if (!_isDisposed) notifyListeners();
+        return;
+      }
+
+      if (!_subscriptionService.isEnabled) {
+        _shouldShowAds = true;
         if (!_isDisposed) notifyListeners();
         return;
       }

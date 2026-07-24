@@ -3074,6 +3074,9 @@
      "myPagePrivacyPolicy": "개인정보처리방침",
      "@myPagePrivacyPolicy": {"description": "Privacy policy in my page"},
 
+     "myPageAdPrivacyOptions": "광고 개인정보 설정",
+     "@myPageAdPrivacyOptions": {"description": "Advertising consent privacy options in my page"},
+
          "myPageVersion": "버전",
          "@myPageVersion": {"description": "Version in my page"},
 

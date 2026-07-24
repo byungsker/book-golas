@@ -6533,6 +6533,12 @@ abstract class AppLocalizations {
   /// **'개인정보처리방침'**
   String get myPagePrivacyPolicy;
 
+  /// Advertising consent privacy options in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 개인정보 설정'**
+  String get myPageAdPrivacyOptions;
+
   /// Version in my page
   ///
   /// In ko, this message translates to:

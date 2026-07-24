@@ -34,23 +34,7 @@ AI analyzes your reading habits and gives you a clear picture of your preference
 
 Check your current book and reading progress right from your home screen, without opening the app.
 
-### Subscription
-
-Bookgolas is free to get started.
-
-Free plan:
-- Track up to 3 books at a time
-- 10 AI Recall searches per month
-
-Pro subscription:
-- Unlimited book tracking
-- Unlimited AI Recall
-- Full reading insights
-
-Pro Monthly: US$2.99/month
-Pro Annual: US$19.99/year (save 44%)
-
-Payment is charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage subscriptions and turn off auto-renewal in your Account Settings after purchase.
+Bookgolas is currently free to use and may display ads.
 
 Privacy Policy: https://bookgolas.app/privacy
 Terms of Use: https://bookgolas.app/terms

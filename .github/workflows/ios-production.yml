@@ -196,11 +196,13 @@ jobs:
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
+        env:
+          PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_PROD || 'false' }}
         run: |
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
-          flutter build ios --flavor prod -t lib/main_prod.dart --release --no-codesign --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
+          flutter build ios --flavor prod -t lib/main_prod.dart --release --no-codesign --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER --dart-define=PAID_SUBSCRIPTIONS_ENABLED=$PAID_SUBSCRIPTIONS_ENABLED
 
       - name: Build and Upload to App Store
         env:

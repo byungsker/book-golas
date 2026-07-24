@@ -285,7 +285,6 @@ Future<void> pickImageAndExtractText(
   ImageSource source,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
-
   final parentContext = context;
 
   try {
@@ -306,7 +305,7 @@ Future<void> pickImageAndExtractText(
     }
 
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
-    final isPro = await SubscriptionUtils.isProUser();
+    final isPro = await SubscriptionUtils.hasUnlimitedAccess();
     final remaining =
         isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
 
@@ -339,8 +338,7 @@ Future<void> pickImageAndExtractText(
               Text(
                 AppLocalizations.of(bottomSheetContext)
                     .extractTextFreeRemaining(
-                        remaining,
-                        SubscriptionConstants.maxOcrPerDayFree),
+                        remaining, SubscriptionConstants.maxOcrPerDayFree),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -373,7 +371,9 @@ Future<void> pickImageAndExtractText(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
+                    onTap: () =>
+                        Navigator.of(bottomSheetContext, rootNavigator: true)
+                            .pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -397,7 +397,9 @@ Future<void> pickImageAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
+                    onTap: () =>
+                        Navigator.of(bottomSheetContext, rootNavigator: true)
+                            .pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -430,7 +432,6 @@ Future<void> pickImageAndExtractText(
       onComplete(fullImageBytes, '', null);
       return;
     }
-
 
     String? extractedText;
     int? extractedPageNumber;
@@ -569,7 +570,7 @@ Future<void> reExtractTextFromImage(
   }
 
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  final isPro = await SubscriptionUtils.isProUser();
+  final isPro = await SubscriptionUtils.hasUnlimitedAccess();
   final remaining = isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
 
   final shouldProceed = await showModalBottomSheet<bool>(
@@ -618,8 +619,7 @@ Future<void> reExtractTextFromImage(
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(bottomSheetContext).extractTextFreeRemaining(
-                  remaining,
-                  SubscriptionConstants.maxOcrPerDayFree),
+                  remaining, SubscriptionConstants.maxOcrPerDayFree),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -652,7 +652,9 @@ Future<void> reExtractTextFromImage(
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
+                  onTap: () =>
+                      Navigator.of(bottomSheetContext, rootNavigator: true)
+                          .pop(false),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -675,7 +677,9 @@ Future<void> reExtractTextFromImage(
               const SizedBox(width: 12),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
+                  onTap: () =>
+                      Navigator.of(bottomSheetContext, rootNavigator: true)
+                          .pop(true),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -840,7 +844,6 @@ Future<void> scanDocumentAndExtractText(
   BuildContext context,
   Function(Uint8List imageBytes, String ocrText, int? pageNumber) onComplete,
 ) async {
-
   final parentContext = context;
 
   try {
@@ -862,7 +865,7 @@ Future<void> scanDocumentAndExtractText(
     }
 
     final isDark = Theme.of(parentContext).brightness == Brightness.dark;
-    final isPro = await SubscriptionUtils.isProUser();
+    final isPro = await SubscriptionUtils.hasUnlimitedAccess();
     final remaining =
         isPro ? -1 : await SubscriptionUtils.getRemainingOcrUses();
 
@@ -895,8 +898,7 @@ Future<void> scanDocumentAndExtractText(
               Text(
                 AppLocalizations.of(bottomSheetContext)
                     .extractTextFreeRemaining(
-                        remaining,
-                        SubscriptionConstants.maxOcrPerDayFree),
+                        remaining, SubscriptionConstants.maxOcrPerDayFree),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -929,7 +931,9 @@ Future<void> scanDocumentAndExtractText(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(false),
+                    onTap: () =>
+                        Navigator.of(bottomSheetContext, rootNavigator: true)
+                            .pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -953,7 +957,9 @@ Future<void> scanDocumentAndExtractText(
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.of(bottomSheetContext, rootNavigator: true).pop(true),
+                    onTap: () =>
+                        Navigator.of(bottomSheetContext, rootNavigator: true)
+                            .pop(true),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
@@ -986,7 +992,6 @@ Future<void> scanDocumentAndExtractText(
       onComplete(scannedBytes, '', null);
       return;
     }
-
 
     showDialog(
       context: parentContext,
