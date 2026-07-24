@@ -3583,6 +3583,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPagePrivacyPolicy => 'Privacy Policy';
 
   @override
+  String get myPageAdPrivacyOptions => 'Ad Privacy Options';
+
+  @override
   String get myPageVersion => 'Version';
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -15,13 +16,68 @@ class AdService {
 
   Future<void> initialize() async {
     if (_isInitialized) return;
+
     try {
+      final canRequestAds = await _requestConsent();
+      if (!canRequestAds) {
+        debugPrint('AdMob initialization skipped: consent is not ready');
+        return;
+      }
+
       await MobileAds.instance.initialize();
       _isInitialized = true;
       debugPrint('✅ AdMob 초기화 완료');
     } catch (e) {
       debugPrint('❌ AdMob 초기화 실패: $e');
     }
+  }
+
+  Future<bool> _requestConsent() async {
+    final completer = Completer<void>();
+
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      ConsentRequestParameters(),
+      () {
+        ConsentForm.loadAndShowConsentFormIfRequired((formError) {
+          if (formError != null) {
+            debugPrint('AdMob consent form failed: ${formError.message}');
+          }
+          if (!completer.isCompleted) completer.complete();
+        });
+      },
+      (formError) {
+        debugPrint('AdMob consent update failed: ${formError.message}');
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+
+    await completer.future;
+    return ConsentInformation.instance.canRequestAds();
+  }
+
+  Future<bool> isPrivacyOptionsRequired() async {
+    try {
+      final status = await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
+      return status == PrivacyOptionsRequirementStatus.required;
+    } catch (e) {
+      debugPrint('Failed to read AdMob privacy options status: $e');
+      return false;
+    }
+  }
+
+  Future<bool> showPrivacyOptions() async {
+    final completer = Completer<bool>();
+
+    ConsentForm.showPrivacyOptionsForm((formError) {
+      if (formError != null) {
+        debugPrint(
+            'Failed to show AdMob privacy options: ${formError.message}');
+      }
+      completer.complete(formError == null);
+    });
+
+    return completer.future;
   }
 
   String get bannerAdUnitId {

@@ -6,10 +6,10 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/user_model.dart';
 
 class AuthService {
@@ -198,11 +198,7 @@ class AuthService {
 
   Future<String?> signOut() async {
     try {
-      try {
-        await Purchases.logOut();
-      } catch (e) {
-        debugPrint('RevenueCat logOut failed: $e');
-      }
+      await SubscriptionService().signOut();
       await _supabase.auth.signOut();
       await _googleSignIn.signOut();
       _currentUser = null;

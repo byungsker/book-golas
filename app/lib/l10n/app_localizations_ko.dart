@@ -3493,6 +3493,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPagePrivacyPolicy => '개인정보처리방침';
 
   @override
+  String get myPageAdPrivacyOptions => '광고 개인정보 설정';
+
+  @override
   String get myPageVersion => '버전';
 
   @override

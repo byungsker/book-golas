@@ -1534,6 +1534,9 @@
            "myPagePrivacyPolicy": "Privacy Policy",
            "@myPagePrivacyPolicy": {"description": "Privacy policy in my page"},
 
+           "myPageAdPrivacyOptions": "Ad Privacy Options",
+           "@myPageAdPrivacyOptions": {"description": "Advertising consent privacy options in my page"},
+
            "myPageVersion": "Version",
            "@myPageVersion": {"description": "Version in my page"},
 

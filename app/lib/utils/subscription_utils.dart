@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/config/feature_flags.dart';
+
 /// Constants for subscription tiers and limits
 class SubscriptionConstants {
   /// Maximum number of concurrent books for free users
@@ -36,6 +38,7 @@ class SubscriptionUtils {
   ///
   /// Returns true if user is super admin or has active Pro subscription
   static Future<bool> isProUser() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return false;
     if (isSuperAdmin()) return true;
 
     try {
@@ -61,6 +64,7 @@ class SubscriptionUtils {
   ///
   /// Returns: 'free', 'pro_monthly', 'pro_yearly', or null if not found
   static Future<String?> getSubscriptionStatus() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 'free';
     if (isSuperAdmin()) return 'pro_yearly';
 
     try {
@@ -86,15 +90,14 @@ class SubscriptionUtils {
   ///
   /// Returns [true] if user can add more books, [false] if limit reached
   static Future<bool> canAddMoreConcurrentBooks(int currentActiveCount) async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     return currentActiveCount < SubscriptionConstants.maxConcurrentBooksFree;
   }
 
   /// Gets the maximum number of concurrent books allowed for the current user
   static int getMaxConcurrentBooks() {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999; // Unlimited
     return SubscriptionConstants.maxConcurrentBooksFree;
   }
@@ -106,9 +109,7 @@ class SubscriptionUtils {
   ///
   /// Returns [true] if user can use AI Recall, [false] if limit reached
   static Future<bool> canUseAiRecall() async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -131,6 +132,7 @@ class SubscriptionUtils {
 
   /// Gets the remaining AI Recall uses for the current month
   static Future<int> getRemainingAiRecallUses() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999; // Unlimited
 
     try {
@@ -161,6 +163,7 @@ class SubscriptionUtils {
   ///
   /// Should be called after each AI Recall usage
   static Future<void> incrementAiRecallUsage() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return;
     if (isSuperAdmin()) return;
 
     try {
@@ -175,9 +178,7 @@ class SubscriptionUtils {
   }
 
   static Future<bool> canUseOcr() async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -195,6 +196,7 @@ class SubscriptionUtils {
   }
 
   static Future<int> getRemainingOcrUses() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999;
 
     try {
@@ -213,6 +215,7 @@ class SubscriptionUtils {
   }
 
   static Future<void> incrementOcrUsage() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return;
     if (isSuperAdmin()) return;
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -231,6 +234,12 @@ class SubscriptionUtils {
 
   static bool _isResetDue(DateTime? resetAt) {
     return resetAt == null || !resetAt.isAfter(DateTime.now().toUtc());
+  }
+
+  static Future<bool> hasUnlimitedAccess() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return true;
+    if (isSuperAdmin()) return true;
+    return isProUser();
   }
 
   static Future<bool> _hasRevenueCatProEntitlement() async {

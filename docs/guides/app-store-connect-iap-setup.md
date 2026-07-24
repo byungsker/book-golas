@@ -1,5 +1,7 @@
 # App Store Connect · RevenueCat 구독 출시 가이드
 
+> 현재 무료 출시 빌드에서는 유료 구독이 비활성화되어 있습니다. 다시 활성화할 때는 먼저 [`revenuecat-reactivation.md`](./revenuecat-reactivation.md)를 따라 계약, 상품, 테스트와 빌드 플래그를 확인하세요.
+
 ## 기준 구성
 
 Bookgolas의 현재 앱 코드는 월간·연간 자동 갱신 구독만 지원합니다.
