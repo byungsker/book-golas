@@ -90,8 +90,8 @@ class LegalContent {
 <li>서비스에 게재된 독서 기록 및 콘텐츠의 정확성, 신뢰성에 대해서는 이용자 본인에게 책임이 있습니다.</li>
 </ul>
 
-<h2>제6조 (유료 서비스)</h2>
-<p>서비스의 일부 기능은 유료로 제공될 수 있으며, 유료 서비스의 이용 요금 및 결제 방법은 해당 서비스 내에 별도로 안내됩니다. 구독 및 결제는 Apple App Store의 정책을 따릅니다.</p>
+<h2>제6조 (광고)</h2>
+<p>서비스는 무료 기능 제공을 위해 광고를 표시할 수 있습니다. 광고 제공 과정에서의 정보 처리는 개인정보처리방침에 따릅니다.</p>
 
 <h2>제7조 (기타)</h2>
 <ul>
@@ -143,8 +143,8 @@ class LegalContent {
 <li>Users are responsible for the accuracy and reliability of their reading records and content.</li>
 </ul>
 
-<h2>6. Paid Services</h2>
-<p>Some features may be offered as paid services. Pricing and payment methods are described within the Service. Subscriptions and payments are processed through the Apple App Store and are subject to its policies.</p>
+<h2>6. Advertising</h2>
+<p>The Service may display ads to support free access. Information processed for advertising is described in the Privacy Policy.</p>
 
 <h2>7. General</h2>
 <ul>
@@ -172,7 +172,7 @@ class LegalContent {
 <ul>
 <li><strong>필수 정보:</strong> 이메일 주소, 비밀번호(암호화 저장)</li>
 <li><strong>선택 정보:</strong> 닉네임, 프로필 사진</li>
-<li><strong>자동 수집:</strong> 서비스 이용 기록, 기기 정보(OS 버전, 기기 모델)</li>
+<li><strong>자동 수집:</strong> 서비스 이용 기록, 기기 정보(OS 버전, 기기 모델), 광고 식별자 및 광고 상호작용 정보</li>
 <li><strong>소셜 로그인 시:</strong> 소셜 계정에서 제공하는 이메일, 이름, 프로필 사진</li>
 </ul>
 
@@ -183,6 +183,7 @@ class LegalContent {
 <li>독서 기록 저장 및 동기화</li>
 <li>AI 기반 독서 분석 및 추천 서비스 제공</li>
 <li>알림 서비스 제공(독서 리마인더, 목표 알림 등)</li>
+<li>광고 제공 및 광고 성과 측정</li>
 <li>서비스 개선 및 새로운 기능 개발</li>
 <li>고객 지원 및 문의 응답</li>
 </ul>
@@ -190,8 +191,7 @@ class LegalContent {
 <h2>제3조 (보관 기간)</h2>
 <ul>
 <li>회원 탈퇴 시 개인정보는 즉시 파기됩니다.</li>
-<li>단, 관계 법령에 의해 보존이 필요한 경우 해당 기간 동안 보관합니다.</li>
-<li>전자상거래 등에서의 소비자보호에 관한 법률에 따라 계약 또는 청약 철회에 관한 기록은 5년간 보관합니다.</li>
+<li>관계 법령에 의해 보존이 필요한 경우 해당 기간 동안 보관합니다.</li>
 </ul>
 
 <h2>제4조 (제3자 제공)</h2>
@@ -204,7 +204,7 @@ class LegalContent {
 <ul>
 <li><strong>Supabase:</strong> 데이터 저장 및 인증 (AWS 클라우드)</li>
 <li><strong>Firebase:</strong> 푸시 알림 서비스</li>
-<li><strong>Apple App Store:</strong> 구독 결제 처리</li>
+<li><strong>Google AdMob:</strong> 광고 제공 및 광고 성과 측정</li>
 </ul>
 
 <h2>제5조 (이용자의 권리)</h2>
@@ -242,7 +242,7 @@ class LegalContent {
 <ul>
 <li><strong>Required:</strong> Email address, password (stored encrypted)</li>
 <li><strong>Optional:</strong> Nickname, profile photo</li>
-<li><strong>Automatically collected:</strong> Service usage logs, device information (OS version, device model)</li>
+<li><strong>Automatically collected:</strong> Service usage logs, device information (OS version, device model), advertising identifiers, and ad interaction information</li>
 <li><strong>Social login:</strong> Email, name, and profile photo provided by the social account</li>
 </ul>
 
@@ -253,6 +253,7 @@ class LegalContent {
 <li>Reading record storage and synchronization</li>
 <li>AI-based reading analysis and recommendation services</li>
 <li>Notification services (reading reminders, goal alerts, etc.)</li>
+<li>Ad delivery and advertising performance measurement</li>
 <li>Service improvement and new feature development</li>
 <li>Customer support and inquiry response</li>
 </ul>
@@ -260,8 +261,7 @@ class LegalContent {
 <h2>3. Retention Period</h2>
 <ul>
 <li>Personal information is deleted immediately upon account deletion.</li>
-<li>However, if retention is required by law, data is kept for the legally mandated period.</li>
-<li>Records related to contracts or subscription cancellations are retained for 5 years in accordance with consumer protection laws.</li>
+<li>Information is retained for the period required by applicable law when legal retention obligations apply.</li>
 </ul>
 
 <h2>4. Disclosure to Third Parties</h2>
@@ -274,7 +274,7 @@ class LegalContent {
 <ul>
 <li><strong>Supabase:</strong> Data storage and authentication (AWS Cloud)</li>
 <li><strong>Firebase:</strong> Push notification service</li>
-<li><strong>Apple App Store:</strong> Subscription payment processing</li>
+<li><strong>Google AdMob:</strong> Ad delivery and performance measurement</li>
 </ul>
 
 <h2>5. User Rights</h2>

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -56,6 +56,7 @@ import 'ui/core/widgets/ad_banner_widget.dart';
 
 import 'ui/core/widgets/search_mode_dropdown.dart';
 import 'ui/recall/widgets/global_recall_search_sheet.dart';
+
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -63,7 +64,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
   debugPrint('📨 백그라운드 메시지 수신: ${message.notification?.title}');
 }
@@ -322,8 +324,7 @@ class MyApp extends StatelessWidget {
               SubscriptionViewModel(context.read<SubscriptionService>()),
         ),
         ChangeNotifierProvider<AdViewModel>(
-          create: (context) =>
-              AdViewModel(context.read<SubscriptionService>()),
+          create: (context) => AdViewModel(context.read<SubscriptionService>()),
         ),
         ChangeNotifierProvider(create: (_) => ReadingTimerViewModel()..init()),
       ],
@@ -442,39 +443,27 @@ class _MainScreenState extends State<MainScreen>
 
       DeepLinkService.init(context, navigatorKey: navigatorKey);
 
-      // RevenueCat 초기화 (인증 후)
-      try {
-        debugPrint('💳 RevenueCat 초기화 시작 (인증 후)');
+      final subscriptionService = context.read<SubscriptionService>();
+      final subscriptionViewModel = context.read<SubscriptionViewModel>();
+      final adViewModel = context.read<AdViewModel>();
+      final notificationSettingsService =
+          context.read<NotificationSettingsService>();
+
+      if (FeatureFlags.paidSubscriptionsEnabled) {
         final userId = Supabase.instance.client.auth.currentUser?.id;
-        final rcKey = AppConfig.revenueCatPublicKey;
-        if (userId != null && rcKey.isNotEmpty) {
-          await Purchases.setLogLevel(LogLevel.info);
-          await Purchases.configure(
-            PurchasesConfiguration(rcKey)..appUserID = userId,
+        if (userId != null) {
+          final initialized = await subscriptionService.initialize(
+            userId: userId,
+            publicKey: AppConfig.revenueCatPublicKey,
+            onCustomerInfoUpdated: subscriptionViewModel.loadSubscriptionStatus,
           );
-          debugPrint('✅ RevenueCat 초기화 완료 (userId: $userId)');
-          await context.read<SubscriptionService>().initialize(userId);
-
-          Purchases.addCustomerInfoUpdateListener((customerInfo) {
-            if (context.mounted) {
-              context.read<SubscriptionViewModel>().loadSubscriptionStatus();
-            }
-          });
-
-          if (context.mounted) {
-            await context.read<SubscriptionViewModel>().loadAll();
+          if (initialized) {
+            await subscriptionViewModel.loadAll();
           }
-        } else if (rcKey.isEmpty) {
-          debugPrint('⚠️ RevenueCat 초기화 스킵: API 키 미설정');
-        } else {
-          debugPrint('⚠️ RevenueCat 초기화 스킵: 사용자 미인증');
         }
-      } catch (e) {
-        debugPrint('❌ RevenueCat 초기화 실패: $e');
       }
 
-      // AdMob 초기화 (인증 후)
-      context.read<AdViewModel>().initialize();
+      await adViewModel.initialize();
 
       await FCMService().initialize();
       debugPrint('FCM 서비스 초기화 완료');
@@ -567,8 +556,7 @@ class _MainScreenState extends State<MainScreen>
       // 로그인된 사용자의 토큰을 Supabase에 저장
       FCMService().saveTokenToSupabase();
 
-      final notifService = context.read<NotificationSettingsService>();
-      final loadedSettings = await notifService.loadSettings();
+      final loadedSettings = await notificationSettingsService.loadSettings();
       if (loadedSettings != null && loadedSettings.notificationEnabled) {
         if (loadedSettings.dailyReminderEnabled) {
           FCMService().scheduleDailyReminder(
