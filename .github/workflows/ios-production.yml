@@ -49,11 +49,13 @@ jobs:
       - name: Reconcile legacy production migration history
         run: |
           echo "Reconciling legacy waitlist migration versions..."
-          if ! supabase migration repair --status reverted 20260419123544 20260419130941; then
-            if supabase migration list | grep -Eq '20260419123544|20260419130941'; then
-              echo "::error::Legacy production migration versions remain in the remote history."
-              exit 1
-            fi
+          supabase migration repair --status reverted 20260419123544 20260419130941 || \
+            echo "::warning::Migration repair returned a non-zero status; verifying the remote history."
+          migration_status="$(supabase migration list)"
+          echo "$migration_status"
+          if echo "$migration_status" | grep -Eq '20260419123544|20260419130941'; then
+            echo "::error::Legacy production migration versions remain in the remote history."
+            exit 1
           fi
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
