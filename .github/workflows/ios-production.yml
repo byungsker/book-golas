@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
+    paths-ignore:
+      - 'web/**'
+      - 'docs/**'
+      - '**/*.md'
+      - '.gitignore'
+      - '.editorconfig'
   workflow_dispatch:
 
 jobs:
@@ -31,11 +38,46 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Configure RevenueCat Webhook Secret
+        run: |
+          test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
+          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REVENUECAT_WEBHOOK_AUTH_KEY: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
+
+      - name: Reconcile legacy production migration history
+        run: |
+          echo "Reconciling legacy waitlist migration versions..."
+          supabase migration repair --status reverted 20260419123544 20260419130941 || \
+            echo "::warning::Migration repair returned a non-zero status; verifying the remote history."
+          migration_status="$(supabase migration list)"
+          echo "$migration_status"
+          if echo "$migration_status" | grep -Eq '20260419123544|20260419130941'; then
+            echo "::error::Legacy production migration versions remain in the remote history."
+            exit 1
+          fi
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Apply Migrations
         run: |
           echo "Applying migrations to Production database..."
           echo "::warning::Production database migration in progress!"
-          supabase db push
+          supabase db push --include-all
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy Edge Functions (Production)
+        run: |
+          echo "Deploying Edge Functions to Production..."
+          for fn in supabase/functions/*/; do
+            fn_name=$(basename "$fn")
+            [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
+            echo "  Deploying: $fn_name"
+            supabase functions deploy "$fn_name"
+          done
+          echo "✅ All Edge Functions deployed"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
@@ -48,11 +90,59 @@ jobs:
 
   build-and-deploy:
     needs: migrate-database
-    runs-on: self-hosted
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          XCODE_26_PATH=""
+          XCODE_26_WITH_IOS_SDK_PATH=""
+
+          echo "Available Xcode installations:"
+          for candidate in /Applications/Xcode*.app; do
+            [ -d "$candidate" ] || continue
+            version=$("$candidate/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | sed -n '1p' || true)
+            sdks=$(DEVELOPER_DIR="$candidate/Contents/Developer" "$candidate/Contents/Developer/usr/bin/xcodebuild" -showsdks 2>/dev/null || true)
+            echo "- $candidate: $version"
+            echo "$sdks" | grep -E 'iphoneos|iOS SDK' || true
+
+            if echo "$version" | grep -q '^Xcode 26'; then
+              [ -z "$XCODE_26_PATH" ] && XCODE_26_PATH="$candidate"
+              if echo "$sdks" | grep -q 'iphoneos26'; then
+                XCODE_26_WITH_IOS_SDK_PATH="$candidate"
+                break
+              fi
+            fi
+          done
+
+          if [ -z "$XCODE_26_PATH" ]; then
+            echo "::error::Xcode 26+ is required for App Store Connect uploads. Install/select Xcode 26+ on the runner."
+            xcodebuild -version || true
+            exit 1
+          fi
+
+          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
+            echo "iOS 26 SDK is missing from the first Xcode 26 candidates. Attempting to install the iOS platform..."
+            DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -downloadPlatform iOS || true
+            if DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -showsdks | grep -q 'iphoneos26'; then
+              XCODE_26_WITH_IOS_SDK_PATH="$XCODE_26_PATH"
+            fi
+          fi
+
+          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
+            echo "::error::Xcode 26+ was found, but no installation has the iOS 26 SDK required for device builds."
+            exit 1
+          fi
+
+          echo "DEVELOPER_DIR=$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer" >> "$GITHUB_ENV"
+          sudo xcode-select -s "$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer"
+          xcodebuild -version
+          sudo xcodebuild -runFirstLaunch || true
+          xcodebuild -downloadPlatform iOS || true
+          xcodebuild -showsdks | grep iphoneos
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -61,14 +151,17 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
+      - name: Setup Ruby (Homebrew)
+        run: |
+          echo "/opt/homebrew/opt/ruby/bin" >> $GITHUB_PATH
+          export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+          ruby -v
+          gem list bundler
 
       - name: Install Ruby dependencies
         run: |
           cd app/ios
+          bundle config set --local path vendor/bundle
           bundle install
 
       - name: Flutter pub get
@@ -77,6 +170,9 @@ jobs:
           flutter pub get
 
       - name: Install CocoaPods
+        env:
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
           bundle exec pod install --repo-update
@@ -91,20 +187,16 @@ jobs:
           echo "REVENUECAT_PUBLIC_KEY=${{ secrets.REVENUECAT_PUBLIC_KEY }}" >> .env
           echo "ENVIRONMENT=production" >> .env
 
-      - name: Install Certificate and Provisioning Profile
-        id: install-cert
+      - name: Install Certificate
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ github.run_id }}
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
-          PROVISIONING_PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode > $CERTIFICATE_PATH
-          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode > $PROVISIONING_PROFILE_PATH
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
@@ -114,40 +206,25 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH login.keychain-db
 
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-
-          PROFILE_PLIST=$(/usr/bin/security cms -D -i $PROVISIONING_PROFILE_PATH)
-          PROFILE_UUID=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
-          PROFILE_NAME=$(echo "$PROFILE_PLIST" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
-
-          cp $PROVISIONING_PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
-
-          echo "PROVISIONING_PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_OUTPUT
-          echo "PROVISIONING_PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_OUTPUT
-
-          echo "Installed provisioning profile:"
-          echo "   UUID: $PROFILE_UUID"
-          echo "   Name: $PROFILE_NAME"
-          echo ""
-          echo "Installed profiles:"
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
-          echo ""
           echo "Keychain certificates:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
+        env:
+          PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_PROD || 'false' }}
         run: |
           cd app
-          # Build number starts from 200 (run_number + 192)
-          BUILD_NUMBER=$(( ${{ github.run_number }} + 192 ))
-          flutter build ios --flavor prod -t lib/main_prod.dart --release --no-codesign --build-number=$BUILD_NUMBER
+          BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
+          BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
+          flutter build ios --flavor prod -t lib/main_prod.dart --release --no-codesign --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER --dart-define=PAID_SUBSCRIPTIONS_ENABLED=$PAID_SUBSCRIPTIONS_ENABLED
 
       - name: Build and Upload to App Store
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
           bundle exec fastlane release

@@ -5,15 +5,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/repositories/reading_progress_repository.dart';
+import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/widget_data_service.dart';
 
 enum AllTabFilter { all, reading, planned, completed, paused }
 
 class BookListViewModel extends BaseViewModel {
+  final ReadingProgressRepository _readingProgressRepository;
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
   StreamSubscription<AuthState>? _authSubscription;
 
   List<Book> _books = [];
+  Map<String, int> _todayPagesReadByBook = {};
   int _selectedTabIndex = 0;
   bool _showAllCurrentBooks = false;
   bool _isInitialized = false;
@@ -23,6 +27,12 @@ class BookListViewModel extends BaseViewModel {
   int get selectedTabIndex => _selectedTabIndex;
   bool get showAllCurrentBooks => _showAllCurrentBooks;
   AllTabFilter get allTabFilter => _allTabFilter;
+
+  int todayPagesReadFor(Book book) {
+    final id = book.id;
+    if (id == null) return 0;
+    return _todayPagesReadByBook[id] ?? 0;
+  }
 
   @override
   bool get isLoading => !_isInitialized || super.isLoading;
@@ -39,7 +49,9 @@ class BookListViewModel extends BaseViewModel {
           (book.currentPage >= book.totalPages && book.totalPages > 0))
       .toList();
 
-  BookListViewModel();
+  BookListViewModel({ReadingProgressRepository? readingProgressRepository})
+      : _readingProgressRepository = readingProgressRepository ??
+            ReadingProgressRepositoryImpl(ReadingProgressService());
 
   void initialize() {
     if (_isInitialized) return;
@@ -69,6 +81,11 @@ class BookListViewModel extends BaseViewModel {
 
   void cycleToNextTab() {
     _selectedTabIndex = (_selectedTabIndex + 1) % 5;
+    notifyListeners();
+  }
+
+  void jumpToTab(int index) {
+    _selectedTabIndex = index.clamp(0, 4);
     notifyListeners();
   }
 
@@ -112,6 +129,8 @@ class BookListViewModel extends BaseViewModel {
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      _todayPagesReadByBook =
+          await _readingProgressRepository.getTodayPagesReadByBook();
       _syncWidgetData();
       setLoading(false);
       notifyListeners();
@@ -128,11 +147,13 @@ class BookListViewModel extends BaseViewModel {
         .eq('user_id', userId)
         .order('created_at', ascending: false)
         .listen(
-          (rows) {
+          (rows) async {
             _books = rows
                 .where((e) => e['deleted_at'] == null)
                 .map((e) => Book.fromJson(e))
                 .toList();
+            _todayPagesReadByBook =
+                await _readingProgressRepository.getTodayPagesReadByBook();
             _syncWidgetData();
             notifyListeners();
           },
@@ -174,6 +195,8 @@ class BookListViewModel extends BaseViewModel {
           .order('created_at', ascending: false);
 
       _books = (response as List).map((e) => Book.fromJson(e)).toList();
+      _todayPagesReadByBook =
+          await _readingProgressRepository.getTodayPagesReadByBook();
       _syncWidgetData();
       debugPrint('[BookListViewModel] refresh done: ${_books.length} books');
       notifyListeners();

@@ -79,9 +79,9 @@ class SubscriptionViewModel extends BaseViewModel {
     setLoading(true);
     clearError();
     try {
-      await _subscriptionService.restorePurchases();
+      final restored = await _subscriptionService.restorePurchases();
       await loadSubscriptionStatus();
-      return true;
+      return restored;
     } catch (e) {
       setError('복원에 실패했습니다: $e');
       return false;

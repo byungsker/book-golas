@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Support",
@@ -81,14 +82,14 @@ export default function SupportPage() {
           </h2>
           <ul className="list-disc pl-6 mb-4 text-gray-300">
             <li>
-              <a href="/privacy" className="text-blue-400 hover:underline">
+              <Link href="/privacy" className="text-blue-400 hover:underline">
                 개인정보 처리방침
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/terms" className="text-blue-400 hover:underline">
+              <Link href="/terms" className="text-blue-400 hover:underline">
                 서비스 이용약관
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

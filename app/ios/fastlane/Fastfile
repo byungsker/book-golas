@@ -1,5 +1,20 @@
 default_platform(:ios)
 
+def flutter_version_xcargs
+  config_path = File.expand_path("../Flutter/Generated.xcconfig", __dir__)
+  UI.user_error!("Missing Flutter generated build configuration") unless File.exist?(config_path)
+
+  config = File.read(config_path)
+  build_name = config[/^FLUTTER_BUILD_NAME=(.+)$/, 1]&.strip
+  build_number = config[/^FLUTTER_BUILD_NUMBER=(.+)$/, 1]&.strip
+
+  UI.user_error!("Invalid Flutter build name") unless build_name&.match?(/\A\d+\.\d+\.\d+\z/)
+  UI.user_error!("Invalid Flutter build number") unless build_number&.match?(/\A\d+\z/)
+
+  "FLUTTER_BUILD_NAME=#{build_name} FLUTTER_BUILD_NUMBER=#{build_number} " \
+    "MARKETING_VERSION=#{build_name} CURRENT_PROJECT_VERSION=#{build_number}"
+end
+
 platform :ios do
   desc "Build and upload to TestFlight (DEV)"
   lane :beta do
@@ -30,13 +45,15 @@ platform :ios do
     )
 
     archive_path = "./build/Runner.xcarchive"
+    version_xcargs = flutter_version_xcargs
 
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "dev",
       configuration: "Release-dev",
       skip_package_ipa: true,
-      archive_path: archive_path
+      archive_path: archive_path,
+      xcargs: version_xcargs
     )
 
     plist_path = "#{archive_path}/Products/Applications/Runner.app/Frameworks/App.framework/Info.plist"
@@ -79,6 +96,24 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.bookgolas.app",
+      team_id: "7PFH55UQ86",
+      provisioning_name: "Bookgolas App Store",
+      ignore_profiles_with_different_name: true,
+      readonly: true
+    )
+
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.bookgolas.app.BookgolasWidget",
+      team_id: "7PFH55UQ86",
+      provisioning_name: "Bookgolas Widget App Store",
+      ignore_profiles_with_different_name: true,
+      readonly: true
+    )
+
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "Runner.xcodeproj",
@@ -88,14 +123,28 @@ platform :ios do
       profile_name: ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Runner.xcodeproj",
+      team_id: "7PFH55UQ86",
+      bundle_identifier: "com.bookgolas.app.BookgolasWidget",
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Widget App Store",
+      targets: ["BookgolasWidgetExtension"]
+    )
+
+    version_xcargs = flutter_version_xcargs
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "prod",
       configuration: "Release-prod",
       export_method: "app-store",
+      xcargs: version_xcargs,
       export_options: {
         provisioningProfiles: {
-          "com.bookgolas.app" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store"
+          "com.bookgolas.app" => ENV["PROVISIONING_PROFILE_NAME"] || "Bookgolas App Store",
+          "com.bookgolas.app.BookgolasWidget" => ENV["WIDGET_PROFILE_NAME"] || "Bookgolas Widget App Store"
         }
       },
       output_directory: "./build",

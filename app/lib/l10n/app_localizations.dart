@@ -2193,6 +2193,12 @@ abstract class AppLocalizations {
   /// **'업데이트'**
   String get pageUpdateButton;
 
+  /// Did not read button after timer - cancels timer session
+  ///
+  /// In ko, this message translates to:
+  /// **'안읽었어요'**
+  String get timerDidNotRead;
+
   /// Document scan option
   ///
   /// In ko, this message translates to:
@@ -4009,7 +4015,7 @@ abstract class AppLocalizations {
   /// AI Recall monthly usage
   ///
   /// In ko, this message translates to:
-  /// **'AI Recall 월 30회 사용'**
+  /// **'AI Recall 무제한'**
   String get paywallBenefit2;
 
   /// Reading insights and statistics
@@ -4027,7 +4033,7 @@ abstract class AppLocalizations {
   /// Monthly price
   ///
   /// In ko, this message translates to:
-  /// **'₩3,900'**
+  /// **'US\$2.99'**
   String get paywallMonthlyPrice;
 
   /// Per month label
@@ -4045,7 +4051,7 @@ abstract class AppLocalizations {
   /// Yearly price
   ///
   /// In ko, this message translates to:
-  /// **'₩29,900'**
+  /// **'US\$19.99'**
   String get paywallYearlyPrice;
 
   /// Per year label
@@ -4057,7 +4063,7 @@ abstract class AppLocalizations {
   /// Yearly savings message
   ///
   /// In ko, this message translates to:
-  /// **'연간 구독 시 36% 절약'**
+  /// **'연간 구독 시 44% 절약'**
   String get paywallYearlySavings;
 
   /// Restore purchases button
@@ -4138,6 +4144,12 @@ abstract class AppLocalizations {
   /// **'Pro로 업그레이드'**
   String get subscriptionUpgradeTitle;
 
+  /// Popular subscription badge
+  ///
+  /// In ko, this message translates to:
+  /// **'인기'**
+  String get subscriptionPopular;
+
   /// Monthly subscription
   ///
   /// In ko, this message translates to:
@@ -4147,7 +4159,7 @@ abstract class AppLocalizations {
   /// Monthly price
   ///
   /// In ko, this message translates to:
-  /// **'₩3,900'**
+  /// **'US\$2.99'**
   String get subscriptionMonthlyPrice;
 
   /// Per month label
@@ -4165,7 +4177,7 @@ abstract class AppLocalizations {
   /// Yearly price
   ///
   /// In ko, this message translates to:
-  /// **'₩29,900'**
+  /// **'US\$19.99'**
   String get subscriptionYearlyPrice;
 
   /// Per year label
@@ -4177,7 +4189,7 @@ abstract class AppLocalizations {
   /// Yearly savings
   ///
   /// In ko, this message translates to:
-  /// **'36% 절약'**
+  /// **'44% 절약'**
   String get subscriptionYearlySavings;
 
   /// Pro benefits title
@@ -4195,7 +4207,7 @@ abstract class AppLocalizations {
   /// AI Recall monthly usage
   ///
   /// In ko, this message translates to:
-  /// **'AI Recall 월 30회 사용'**
+  /// **'AI Recall 무제한'**
   String get subscriptionBenefit2;
 
   /// Reading insights
@@ -5371,7 +5383,7 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightAnalyzing.
   ///
   /// In ko, this message translates to:
-  /// **'분석 중...'**
+  /// **'독서 패턴을 분석하고 있어요...'**
   String get chartAiInsightAnalyzing;
 
   /// No description provided for @chartAiInsightUnknownError.
@@ -5389,19 +5401,19 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightMinBooksRequired.
   ///
   /// In ko, this message translates to:
-  /// **'더 많은 책이 필요합니다'**
+  /// **'AI 인사이트를 받으려면 책을 더 읽어보세요'**
   String get chartAiInsightMinBooksRequired;
 
   /// No description provided for @chartAiInsightMinBooksMessage.
   ///
   /// In ko, this message translates to:
-  /// **'AI 분석을 위해 최소 {count}권을 완독해주세요'**
+  /// **'현재 완독한 책: {count}권'**
   String chartAiInsightMinBooksMessage(int count);
 
   /// No description provided for @chartAiInsightMinBooksHint.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트를 잠금 해제하려면 계속 읽어주세요'**
+  /// **'최소 3권, 권장 5권 이상'**
   String get chartAiInsightMinBooksHint;
 
   /// No description provided for @chartAiInsightSampleLabel.
@@ -5413,19 +5425,19 @@ abstract class AppLocalizations {
   /// No description provided for @chartAiInsightEmptyState.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트 없음'**
+  /// **'아래 버튼을 눌러 인사이트를 생성해보세요'**
   String get chartAiInsightEmptyState;
 
   /// No description provided for @chartAiInsightGenerateButton.
   ///
   /// In ko, this message translates to:
-  /// **'인사이트 생성'**
+  /// **'분석하기'**
   String get chartAiInsightGenerateButton;
 
   /// No description provided for @chartAiInsightAlreadyAnalyzed.
   ///
   /// In ko, this message translates to:
-  /// **'이미 분석됨'**
+  /// **'오늘 이미 분석했어요. 내일 다시 시도해주세요.'**
   String get chartAiInsightAlreadyAnalyzed;
 
   /// No description provided for @chartAnnualGoalTitle.
@@ -5865,6 +5877,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'오늘 목표'**
   String get chartTodayGoal;
+
+  /// Label for overall reading progress bar on book list card
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 진행'**
+  String get bookListCardOverallProgress;
 
   /// No description provided for @chartDailyPages.
   ///
@@ -6347,6 +6365,12 @@ abstract class AppLocalizations {
   /// **'페이지'**
   String get bookInfoPageCount;
 
+  /// Price label in book info sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'가격'**
+  String get bookInfoPrice;
+
   /// No description provided for @bookInfoGenre.
   ///
   /// In ko, this message translates to:
@@ -6497,6 +6521,24 @@ abstract class AppLocalizations {
   /// **'약관 및 정책'**
   String get myPageTermsAndPolicy;
 
+  /// Terms of service in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get myPageTermsOfService;
+
+  /// Privacy policy in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보처리방침'**
+  String get myPagePrivacyPolicy;
+
+  /// Advertising consent privacy options in my page
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 개인정보 설정'**
+  String get myPageAdPrivacyOptions;
+
   /// Version in my page
   ///
   /// In ko, this message translates to:
@@ -6580,6 +6622,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'구독 서비스를 현재 이용할 수 없습니다.'**
   String get subscriptionUnavailable;
+
+  /// Snackbar message when the reading limit blocks book registration and the paywall cannot be presented
+  ///
+  /// In ko, this message translates to:
+  /// **'무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다.\n구독 화면을 열 수 없어 Pro 업그레이드를 진행하지 못했습니다. 잠시 후 다시 시도하거나 기존 책을 완독/중단해 주세요.'**
+  String get subscriptionUnavailableDuringBookLimit;
 
   /// Error when new password is same as old
   ///
@@ -6665,6 +6713,66 @@ abstract class AppLocalizations {
   /// **'다시 도전'**
   String get shareStatusWillRetry;
 
+  /// Brand name shown in shared cards
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스'**
+  String get shareBrandName;
+
+  /// Title shown on the reading stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 독서 기록'**
+  String get shareReadingRecordTitle;
+
+  /// Label for the goal completion rate on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 달성률'**
+  String get shareGoalAchievement;
+
+  /// Label for the top genres row on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'많이 읽은 장르'**
+  String get shareMostReadGenres;
+
+  /// Label for completed books stat on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'완독한 책'**
+  String get shareCompletedBooksLabel;
+
+  /// Label for the records stat on shared cards
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get shareRecordsLabel;
+
+  /// Label for the photos stat on the stats share card
+  ///
+  /// In ko, this message translates to:
+  /// **'사진'**
+  String get sharePhotosLabel;
+
+  /// Short stat text for the reading start date on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 시작'**
+  String shareStartedOn(Object date);
+
+  /// Short stat text for how many days it took to complete a book on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 완독'**
+  String shareCompletedInDays(int days);
+
+  /// Short stat text for the number of highlights or records on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{count} 기록'**
+  String shareHighlightCount(int count);
+
   /// Continue with Google button
   ///
   /// In ko, this message translates to:
@@ -6682,6 +6790,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'◀ 밀어서 페이지 업데이트 ▶'**
   String get pageSwipeHint;
+
+  /// Error message when webview fails to load a page
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지를 불러올 수 없습니다'**
+  String get webviewLoadError;
+
+  /// Start reading button in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get bottomBarStartReading;
+
+  /// Record button in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get bottomBarRecord;
+
+  /// Start timer menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'타이머 시작'**
+  String get bottomBarTimerStart;
+
+  /// Update page menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 업데이트'**
+  String get bottomBarPageUpdate;
+
+  /// Add record menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 추가'**
+  String get bottomBarAddRecord;
+
+  /// AI record search menu item in floating action bar
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 기록 검색'**
+  String get bottomBarAiRecordSearch;
+
+  /// Start now button for planned books
+  ///
+  /// In ko, this message translates to:
+  /// **'바로 시작'**
+  String get bookDetailStartNow;
+
+  /// Subtitle for start now button
+  ///
+  /// In ko, this message translates to:
+  /// **'독서를 지금 바로 시작합니다'**
+  String get bookDetailStartNowSubtitle;
+
+  /// Title for start reading dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시작'**
+  String get bookDetailStartReadingTitle;
+
+  /// Subtitle for start reading dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 완독일을 설정하세요'**
+  String get bookDetailStartReadingSubtitle;
 }
 
 class _AppLocalizationsDelegate

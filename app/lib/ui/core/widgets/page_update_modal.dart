@@ -1,40 +1,39 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/app_colors.dart';
 
-/// 페이지 업데이트 모달
-///
-/// 플로팅 타이머와 독서 상세 화면에서 공통으로 사용하는 페이지 업데이트 모달
+class PageUpdateResult {
+  final int? page;
+  final bool didNotRead;
+
+  const PageUpdateResult({this.page, this.didNotRead = false});
+
+  static const cancelled = PageUpdateResult();
+  static const notRead = PageUpdateResult(didNotRead: true);
+}
+
 class PageUpdateModal {
   static const Color _darkBg = Color(0xFF1C1C1E);
 
-  /// 페이지 업데이트 모달 표시
-  ///
-  /// [context] - BuildContext
-  /// [currentPage] - 현재 페이지 (optional, 유효성 검사용)
-  /// [totalPages] - 총 페이지 (optional, 유효성 검사용)
-  /// [readingDuration] - 독서 시간 (optional, 표시용)
-  /// [onUpdate] - 업데이트 완료 콜백 (새 페이지 번호 전달)
-  /// [onSkip] - 나중에 하기 콜백 (optional)
-  static Future<void> show({
+  static Future<PageUpdateResult> show({
     required BuildContext context,
     int? currentPage,
     int? totalPages,
     Duration? readingDuration,
-    required Future<void> Function(int newPage) onUpdate,
-    VoidCallback? onSkip,
+    bool isTimerFlow = false,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController pageController = TextEditingController();
     final l10n = AppLocalizations.of(context);
 
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<PageUpdateResult>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       isDismissible: false,
+      enableDrag: false,
       useRootNavigator: true,
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
@@ -58,12 +57,13 @@ class PageUpdateModal {
             currentPage: currentPage,
             totalPages: totalPages,
             readingDuration: readingDuration,
-            onUpdate: onUpdate,
-            onSkip: onSkip,
+            isTimerFlow: isTimerFlow,
           ),
         ),
       ),
     );
+
+    return result ?? PageUpdateResult.cancelled;
   }
 }
 
@@ -74,8 +74,7 @@ class _PageUpdateModalContent extends StatefulWidget {
   final int? currentPage;
   final int? totalPages;
   final Duration? readingDuration;
-  final Future<void> Function(int newPage) onUpdate;
-  final VoidCallback? onSkip;
+  final bool isTimerFlow;
 
   const _PageUpdateModalContent({
     required this.isDark,
@@ -84,8 +83,7 @@ class _PageUpdateModalContent extends StatefulWidget {
     this.currentPage,
     this.totalPages,
     this.readingDuration,
-    required this.onUpdate,
-    this.onSkip,
+    this.isTimerFlow = false,
   });
 
   @override
@@ -94,8 +92,28 @@ class _PageUpdateModalContent extends StatefulWidget {
 }
 
 class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
-  bool _isLoading = false;
   String? _errorText;
+  late FixedExtentScrollController _wheelController;
+  int _selectedPage = 0;
+  bool _updatingFromWheel = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final start = (widget.currentPage ?? 0) + 1;
+    _selectedPage = start;
+    _wheelController = FixedExtentScrollController(initialItem: 0);
+  }
+
+  @override
+  void dispose() {
+    _wheelController.dispose();
+    super.dispose();
+  }
+
+  int get _minPage => (widget.currentPage ?? 0) + 1;
+  int get _maxPage => widget.totalPages ?? 9999;
+  int get _itemCount => (_maxPage - _minPage + 1).clamp(1, 9999);
 
   String _formatReadingComplete(Duration duration) {
     final hours = duration.inHours;
@@ -124,31 +142,90 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
     return null;
   }
 
-  Future<void> _handleUpdate() async {
+  void _handleUpdate() {
     final pageText = widget.pageController.text.trim();
     final page = int.tryParse(pageText);
 
     if (page == null || page <= 0) return;
 
-    // Validate
     final error = _validatePage(pageText);
     if (error != null) {
       setState(() => _errorText = error);
       return;
     }
 
-    setState(() => _isLoading = true);
+    Navigator.of(context, rootNavigator: true)
+        .pop(PageUpdateResult(page: page));
+  }
 
-    try {
-      await widget.onUpdate(page);
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    }
+  Widget _buildDialPicker() {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        color: widget.isDark ? BLabColors.subtleDark : Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Container(
+              width: 100,
+              height: 90,
+              decoration: BoxDecoration(
+                color: BLabColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          RotatedBox(
+            quarterTurns: 3,
+            child: ListWheelScrollView.useDelegate(
+              controller: _wheelController,
+              itemExtent: 90,
+              perspective: 0.005,
+              diameterRatio: 1.5,
+              physics: const FixedExtentScrollPhysics(),
+              onSelectedItemChanged: (index) {
+                HapticFeedback.selectionClick();
+                final value = _minPage + index;
+                _updatingFromWheel = true;
+                setState(() {
+                  _selectedPage = value;
+                  widget.pageController.text = value.toString();
+                  _errorText = _validatePage(value.toString());
+                });
+                _updatingFromWheel = false;
+              },
+              childDelegate: ListWheelChildBuilderDelegate(
+                childCount: _itemCount,
+                builder: (context, index) {
+                  final value = _minPage + index;
+                  final isSelected = value == _selectedPage;
+                  return RotatedBox(
+                    quarterTurns: 1,
+                    child: Center(
+                      child: Text(
+                        '$value',
+                        style: TextStyle(
+                          fontSize: isSelected ? 42 : 18,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w400,
+                          color: isSelected
+                              ? BLabColors.primary
+                              : (widget.isDark
+                                  ? Colors.grey[500]
+                                  : Colors.grey[400]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -158,7 +235,6 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Drag handle
         Container(
           width: 40,
           height: 4,
@@ -168,8 +244,6 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Reading complete badge (if duration provided)
         if (widget.readingDuration != null) ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -188,8 +262,6 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
           ),
           const SizedBox(height: 24),
         ],
-
-        // Title
         Text(
           widget.l10n.pageUpdateDialogTitle,
           style: TextStyle(
@@ -199,8 +271,6 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
           ),
         ),
         const SizedBox(height: 8),
-
-        // Subtitle with current/total page info
         if (hasPageInfo)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -213,6 +283,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                   color: BLabColors.primary,
                 ),
               ),
+              const SizedBox(width: 6),
               Text(
                 widget.l10n.totalPageLabel(widget.totalPages!),
                 style: TextStyle(
@@ -231,19 +302,29 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
               color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
-        const SizedBox(height: 24),
-
-        // Page input
+        if (hasPageInfo) ...[
+          const SizedBox(height: 20),
+          _buildDialPicker(),
+        ],
+        const SizedBox(height: 16),
         TextField(
           controller: widget.pageController,
           keyboardType: TextInputType.number,
-          autofocus: true,
+          autofocus: !hasPageInfo,
           textAlign: TextAlign.center,
           onChanged: (value) {
             setState(() {
               _errorText = _validatePage(value);
             });
+            if (!_updatingFromWheel) {
+              final parsed = int.tryParse(value);
+              if (parsed != null && parsed >= _minPage && parsed <= _maxPage) {
+                _selectedPage = parsed;
+                _wheelController.jumpToItem(parsed - _minPage);
+              }
+            }
           },
+          onSubmitted: (_) => _handleUpdate(),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -255,6 +336,12 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                 : widget.l10n.pageInputHint,
             hintStyle: TextStyle(
               color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+            suffixText: 'p',
+            suffixStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: widget.isDark ? Colors.grey[500] : Colors.grey[500],
             ),
             errorText: _errorText,
             border: OutlineInputBorder(
@@ -274,73 +361,55 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
             ),
           ),
         ),
         const SizedBox(height: 24),
-
-        // Update button
         SizedBox(
           width: double.infinity,
           child: GestureDetector(
-            onTap: _isLoading ? null : _handleUpdate,
+            onTap: _handleUpdate,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: _isLoading
-                    ? BLabColors.primary.withValues(alpha: 0.5)
-                    : BLabColors.primary,
+                color: BLabColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: _isLoading
-                  ? const Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  : Text(
-                      widget.l10n.pageUpdateButton,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+              child: Text(
+                widget.l10n.pageUpdateButton,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ),
         const SizedBox(height: 8),
-
-        // Skip/Cancel button
         SizedBox(
           width: double.infinity,
           child: GestureDetector(
             onTap: () {
-              Navigator.pop(context);
-              widget.onSkip?.call();
+              if (widget.isTimerFlow) {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(PageUpdateResult.notRead);
+              } else {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(PageUpdateResult.cancelled);
+              }
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Text(
-                widget.onSkip != null
-                    ? widget.l10n.pageUpdateLater
+                widget.isTimerFlow
+                    ? widget.l10n.timerDidNotRead
                     : widget.l10n.commonCancel,
                 textAlign: TextAlign.center,
                 style: TextStyle(

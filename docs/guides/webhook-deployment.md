@@ -1,221 +1,67 @@
-# RevenueCat Webhook Edge Function 배포 가이드
+# RevenueCat Webhook 배포 가이드
 
-## 📋 개요
+`revenuecat-webhook`은 RevenueCat 구독 이벤트를 Supabase의 사용자 구독 상태와
+`subscription_events`에 반영합니다.
 
-RevenueCat webhook을 수신하여 Supabase DB를 동기화하는 Edge Function을 배포하는 방법입니다.
+## 배포 원칙
 
----
+- 개발 배포는 `daily → dev` 머지 후 TestFlight CI가 수행합니다.
+- 운영 배포는 `dev → main` 머지 후 Production CI가 수행합니다.
+- 운영 프로젝트에 로컬 CLI로 직접 배포하거나 secret을 변경하지 않습니다.
+- GitHub Production environment 승인 후에만 운영 마이그레이션과 함수 배포가 진행됩니다.
 
-## 🔧 사전 준비
+## 환경별 설정
 
-### 1. Supabase CLI 설치 확인
+| 환경 | Project ref | Webhook URL |
+| --- | --- | --- |
+| Development | `reoiqefoymdsqzpbouxi` | `https://reoiqefoymdsqzpbouxi.supabase.co/functions/v1/revenuecat-webhook` |
+| Production | `enyxrgxixrnoazzgqyyd` | `https://enyxrgxixrnoazzgqyyd.supabase.co/functions/v1/revenuecat-webhook` |
 
-```bash
-supabase --version
-```
+GitHub에는 `REVENUECAT_WEBHOOK_AUTH_KEY_DEV`와
+`REVENUECAT_WEBHOOK_AUTH_KEY_PROD`를 서로 다른 값으로 저장합니다. 배포 workflow가
+대상 Supabase 프로젝트의 `REVENUECAT_WEBHOOK_AUTH_KEY`로 주입합니다. RevenueCat
+Webhook의 Authorization header는 `Bearer <해당 환경 키>` 형식으로 일치해야
+합니다. 키를 저장소, 문서, 로그에 남기지 않습니다.
 
-설치되지 않았다면:
-```bash
-brew install supabase/tap/supabase
-```
+`revenuecat-webhook`은 Supabase gateway JWT 검증을 비활성화하고 함수 내부에서
+전용 webhook key를 검증합니다. RevenueCat Authorization 값을 Supabase JWT로
+해석하면 함수 실행 전 401이 발생하므로 `verify_jwt = false`를 유지해야 합니다.
 
-### 2. Supabase 프로젝트 연결
+## RevenueCat 설정
 
-```bash
-cd /path/to/book-golas
-supabase link --project-ref reoiqefoymdsqzpbouxi
-```
+1. Integrations → Webhooks → Add new configuration을 엽니다.
+2. Development와 Production 구성을 각각 만듭니다.
+3. 환경별 URL과 Authorization header를 입력합니다.
+4. 모든 구독·구매 이벤트를 전송하도록 설정합니다.
+5. 테스트 이벤트를 보내 HTTP 200을 확인합니다.
 
----
+현재 이벤트 처리 대상은 최초 구매, 갱신, 재활성화, 상품 변경, 취소, 결제 문제,
+만료, 환불입니다.
 
-## 🚀 배포 단계
+## 검증
 
-### Step 1: Edge Function 배포
-
-```bash
-cd /path/to/book-golas
-supabase functions deploy revenuecat-webhook
-```
-
-**예상 출력:**
-```
-Deploying revenuecat-webhook (project ref: reoiqefoymdsqzpbouxi)
-Bundled revenuecat-webhook size: 5.2 KB
-Deployed revenuecat-webhook to https://reoiqefoymdsqzpbouxi.supabase.co/functions/v1/revenuecat-webhook
-```
-
-### Step 2: Webhook URL 복사
-
-배포 완료 후 출력되는 URL을 복사합니다:
-```
-https://reoiqefoymdsqzpbouxi.supabase.co/functions/v1/revenuecat-webhook
-```
-
-### Step 3: RevenueCat Webhook 인증 키 생성
-
-1. RevenueCat 대시보드 접속: https://app.revenuecat.com
-2. 프로젝트 선택
-3. **Settings** → **Integrations** → **Webhooks** 클릭
-4. **Add Webhook** 버튼 클릭
-5. **Authorization Header** 섹션에서 키 생성 (자동 생성됨)
-6. 생성된 키 복사 (예: `sk_abc123...`)
-
-### Step 4: Supabase Secret 설정
-
-```bash
-supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY=sk_abc123...
-```
-
-**주의**: `sk_abc123...` 부분을 실제 생성된 키로 교체하세요.
-
-### Step 5: RevenueCat Webhook URL 설정
-
-1. RevenueCat 대시보드에서 Webhook 설정 계속
-2. **Webhook URL** 입력:
-   ```
-   https://reoiqefoymdsqzpbouxi.supabase.co/functions/v1/revenuecat-webhook
-   ```
-3. **Authorization Header** 입력:
-   ```
-   Bearer sk_abc123...
-   ```
-4. **Events to send** 선택:
-   - ✅ Initial Purchase
-   - ✅ Renewal
-   - ✅ Cancellation
-   - ✅ Expiration
-   - ✅ Refund
-   - ✅ Billing Issue
-5. **Save** 버튼 클릭
-
----
-
-## ✅ 배포 검증
-
-### 1. Function 로그 확인
-
-```bash
-supabase functions logs revenuecat-webhook
-```
-
-### 2. Test Webhook 전송
-
-RevenueCat 대시보드에서:
-1. **Webhooks** 설정 페이지
-2. 방금 생성한 Webhook 선택
-3. **Send Test Event** 버튼 클릭
-4. Event Type: `INITIAL_PURCHASE` 선택
-5. **Send** 클릭
-
-### 3. Supabase DB 확인
+개발 환경에서 먼저 다음을 확인합니다.
 
 ```sql
--- subscription_events 테이블 확인
-SELECT * FROM subscription_events ORDER BY created_at DESC LIMIT 10;
+select event_type, product_id, transaction_id, created_at
+from subscription_events
+order by created_at desc
+limit 20;
 
--- users 테이블 구독 상태 확인
-SELECT id, email, subscription_status, subscription_expires_at 
-FROM users 
-WHERE revenuecat_user_id IS NOT NULL;
+select id, subscription_status, subscription_expires_at, revenuecat_user_id
+from users
+where revenuecat_user_id is not null;
 ```
 
----
+검증 기준:
 
-## 🔄 재배포
+- RevenueCat 테스트 전송이 HTTP 200을 반환합니다.
+- 인증된 RevenueCat `TEST` 이벤트는 사용자 데이터를 변경하지 않고 HTTP 200을 반환합니다.
+- 동일 이벤트 재전송이 중복 데이터나 잘못된 상태 전이를 만들지 않습니다.
+- `monthly`는 `pro_monthly`, `yearly`는 `pro_yearly`로 반영됩니다.
+- 만료·환불은 `free`, 취소·결제 문제는 만료일 유지로 반영됩니다.
+- 인증 실패는 401, 알 수 없는 사용자는 404로 기록됩니다.
 
-코드 수정 후 재배포:
+운영은 main CI 배포 완료 후 별도 테스트 이벤트로 같은 항목을 확인합니다.
 
-```bash
-cd /path/to/book-golas
-supabase functions deploy revenuecat-webhook
-```
-
-Secret은 재설정 불필요 (이미 저장됨).
-
----
-
-## 🚨 문제 해결
-
-### "Function not found" 에러
-
-**원인**: 프로젝트 연결이 안 되어 있음
-
-**해결**:
-```bash
-supabase link --project-ref reoiqefoymdsqzpbouxi
-```
-
-### "Unauthorized" 에러 (401)
-
-**원인**: Authorization 헤더가 잘못됨
-
-**해결**:
-1. RevenueCat에서 Authorization Header 재확인
-2. Supabase Secret 재설정:
-   ```bash
-   supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY=<new-key>
-   ```
-
-### "User not found" 에러 (404)
-
-**원인**: `revenuecat_user_id`가 DB에 없음
-
-**해결**:
-1. 앱에서 RevenueCat 초기화 시 user ID 전달 확인
-2. DB에서 user 확인:
-   ```sql
-   SELECT id, email, revenuecat_user_id FROM users WHERE id = '<user-id>';
-   ```
-3. 필요 시 수동 업데이트:
-   ```sql
-   UPDATE users SET revenuecat_user_id = '<revenuecat-id>' WHERE id = '<user-id>';
-   ```
-
-### Webhook이 호출되지 않음
-
-**원인**: RevenueCat Webhook URL이 잘못됨
-
-**해결**:
-1. RevenueCat 대시보드에서 Webhook URL 재확인
-2. URL 형식: `https://<project-ref>.supabase.co/functions/v1/revenuecat-webhook`
-3. HTTPS 필수 (HTTP 불가)
-
----
-
-## 📊 모니터링
-
-### Function 로그 실시간 확인
-
-```bash
-supabase functions logs revenuecat-webhook --follow
-```
-
-### Webhook 이벤트 통계
-
-```sql
--- 이벤트 타입별 통계
-SELECT event_type, COUNT(*) as count
-FROM subscription_events
-GROUP BY event_type
-ORDER BY count DESC;
-
--- 최근 24시간 이벤트
-SELECT event_type, user_id, created_at
-FROM subscription_events
-WHERE created_at > NOW() - INTERVAL '24 hours'
-ORDER BY created_at DESC;
-```
-
----
-
-## 📚 참고 자료
-
-- [Supabase Edge Functions 문서](https://supabase.com/docs/guides/functions)
-- [RevenueCat Webhooks 문서](https://www.revenuecat.com/docs/webhooks)
-- [RevenueCat Event Types](https://www.revenuecat.com/docs/webhooks/event-types)
-
----
-
-**작성일**: 2026-01-28  
-**작성자**: Atlas (Orchestrator Agent)  
-**버전**: 1.0
+최종 확인일: 2026-07-23

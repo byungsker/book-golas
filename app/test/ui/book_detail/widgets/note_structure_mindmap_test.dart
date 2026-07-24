@@ -65,6 +65,8 @@ void main() {
       );
 
       expect(find.text('Test Cluster'), findsOneWidget);
+      await tester.tap(find.text('Test Cluster'));
+      await tester.pumpAndSettle();
       expect(find.text('This is a test summary'), findsOneWidget);
     });
 
@@ -103,7 +105,13 @@ void main() {
         ),
       );
 
+      await tester.tap(find.byIcon(Icons.format_quote_rounded));
+      await tester.pumpAndSettle();
       expect(find.text('Test highlight content'), findsOneWidget);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_note_rounded));
+      await tester.pumpAndSettle();
       expect(find.text('Test note content'), findsOneWidget);
     });
 
@@ -138,8 +146,10 @@ void main() {
         ),
       );
 
-      expect(find.text('${longContent.substring(0, 30)}...'), findsOneWidget);
-      expect(find.text(longContent), findsNothing);
+      expect(find.text('${longContent.substring(0, 30)}...'), findsNothing);
+      await tester.tap(find.byIcon(Icons.format_quote_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text(longContent), findsOneWidget);
     });
 
     testWidgets('has InteractiveViewer for zoom/pan',

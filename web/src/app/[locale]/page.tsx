@@ -4,6 +4,9 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import { WaitlistModal } from "@/components/waitlist-modal";
+
+const FEATURED_BOOK_COUNT = 3;
 
 function useReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -19,9 +22,8 @@ function useReveal(threshold = 0.15) {
     );
     obs.observe(el);
     return () => obs.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return { ref, visible };
+  }, [threshold]);
+  return [ref, visible] as const;
 }
 
 function LiveDot() {
@@ -97,38 +99,41 @@ function PhoneMockup() {
   const books = [
     {
       id: 1,
-      title: t("book1Title"),
-      author: t("book1Author"),
-      progress: parseInt(t("book1Progress")),
-      total: parseInt(t("book1Total")),
-      percent: 70,
-      color: "#5B7FFF",
-      coverColor: "rgba(91,127,255,0.1)",
-      dday: 14,
+      title: "리팩터링 2판",
+      author: "마틴 파울러",
+      progress: 0,
+      total: 550,
+      todayPercent: 0,
+      overallPercent: 0,
+      dday: "D-7",
+      ddayType: "future" as const,
+      cover: "/book-covers/book-1.jpg",
       active: true,
     },
     {
       id: 2,
-      title: t("book2Title"),
-      author: t("book2Author"),
-      progress: parseInt(t("book2Progress")),
-      total: parseInt(t("book2Total")),
-      percent: 30,
-      color: "#10B981",
-      coverColor: "rgba(16,185,129,0.1)",
-      dday: 30,
+      title: "미니멀리즘 프로그래머",
+      author: "데이비드 토머스",
+      progress: 14,
+      total: 192,
+      todayPercent: 7,
+      overallPercent: 7,
+      dday: "D+23",
+      ddayType: "past" as const,
+      cover: "/book-covers/book-2.jpg",
       active: false,
     },
     {
       id: 3,
-      title: t("book3Title"),
-      author: t("book3Author"),
-      progress: 0,
-      total: parseInt(t("book3Total")),
-      percent: 0,
-      color: "#F59E0B",
-      coverColor: "rgba(245,158,11,0.1)",
-      dday: 45,
+      title: "히사이시 조의 음악일기",
+      author: "히사이시 조",
+      progress: 128,
+      total: 288,
+      todayPercent: 44,
+      overallPercent: 44,
+      dday: "D+21",
+      ddayType: "past" as const,
+      cover: "/book-covers/book-3.jpg",
       active: false,
     },
   ];
@@ -145,7 +150,7 @@ function PhoneMockup() {
       } else {
         clearInterval(start);
         setTimeout(() => {
-          setCount((c) => Math.min(c + 1, books.length));
+          setCount((c) => Math.min(c + 1, FEATURED_BOOK_COUNT));
           setTyped("");
           setTyping(false);
           setTimeout(() => setCount(2), 4800);
@@ -153,8 +158,7 @@ function PhoneMockup() {
       }
     }, 80);
     return () => clearInterval(start);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  }, [count, typingText]);
 
   return (
     <div className="relative flex items-center justify-center select-none">
@@ -211,50 +215,24 @@ function PhoneMockup() {
             </div>
           </div>
 
-          <div
-            className="rounded-2xl px-3 py-2 mb-2"
-            style={{
-              background: "linear-gradient(135deg, rgba(91,127,255,0.35), rgba(91,127,255,0.15))",
-              border: "0.5px solid rgba(91,127,255,0.4)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(245,158,11,0.15)" }}
-              >
-                <span style={{ fontSize: 10 }}>⭐</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>
-                  Pro로 업그레이드
-                </div>
-                <div style={{ fontSize: 7.5, color: "rgba(255,255,255,0.5)" }}>
-                  AI 기록 검색, 무제한 독서 목표
-                </div>
-              </div>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>✕</span>
-            </div>
-          </div>
-
           <div className="flex items-center gap-1 mb-2 px-0.5">
             <span
               className="px-2.5 py-1 rounded-full"
               style={{ fontSize: 8.5, fontWeight: 600, background: "#fff", color: "#000" }}
             >
-              독서 중
+              {t("tabReading")}
             </span>
             <span
               className="px-2.5 py-1 rounded-full"
               style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
             >
-              읽을 예정
+              {t("tabToRead")}
             </span>
             <span
               className="px-2.5 py-1 rounded-full"
               style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}
             >
-              완독
+              {t("tabDone")}
             </span>
             <span
               className="px-2.5 py-1 rounded-full"
@@ -265,120 +243,210 @@ function PhoneMockup() {
           </div>
 
           <div className="flex flex-col gap-2 flex-1 overflow-hidden">
-            {books.slice(0, count).map((book, i) => (
-              <div
-                key={book.id}
-                className="rounded-xl px-3 py-2.5"
-                style={{
-                  background: book.active
-                    ? "rgba(91,127,255,0.07)"
-                    : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${book.active ? "rgba(91,127,255,0.2)" : "rgba(255,255,255,0.07)"}`,
-                  animation:
-                    i >= 2 ? "book-item 0.4s ease-out both" : "none",
-                }}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="w-10 h-14 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: book.coverColor, border: `1px solid ${book.color}20` }}
-                  >
-                    <span style={{ fontSize: 16 }}>📖</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
+            {books.slice(0, count).map((book, i) => {
+              const ddayBg = book.ddayType === "future" ? "rgba(91,127,255,0.2)" : "rgba(255,107,107,0.2)";
+              const ddayFg = book.ddayType === "future" ? "#6B8AFF" : "#FF6B6B";
+              const ddayBorder = book.ddayType === "future" ? "rgba(91,127,255,0.35)" : "rgba(255,107,107,0.35)";
+              return (
+                <div
+                  key={book.id}
+                  className="rounded-xl px-3 py-2.5"
+                  style={{
+                    background: "rgba(255,255,255,0.035)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    animation: i >= 2 ? "book-item 0.4s ease-out both" : "none",
+                  }}
+                >
+                  <div className="flex items-center gap-2.5">
                     <div
-                      className="font-medium truncate"
+                      className="relative rounded-md flex-shrink-0 overflow-hidden"
                       style={{
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.9)",
-                        fontFamily: "var(--font-display)",
+                        width: 36,
+                        height: 48,
+                        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 2px 6px rgba(0,0,0,0.3)",
                       }}
                     >
-                      {book.title}
+                      <Image
+                        src={book.cover}
+                        alt={book.title}
+                        fill
+                        sizes="36px"
+                        style={{ objectFit: "cover" }}
+                      />
                     </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span
-                        className="px-1.5 py-px rounded-full font-medium"
-                        style={{
-                          fontSize: 7.5,
-                          background: `${book.color}20`,
-                          color: book.color,
-                          border: `1px solid ${book.color}30`,
-                        }}
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="font-semibold truncate"
+                        style={{ fontSize: 10.5, color: "rgba(255,255,255,0.92)", fontFamily: "var(--font-display)" }}
                       >
-                        D-{book.dday}
-                      </span>
-                      <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.35)" }}>
-                        {book.progress}/{book.total} {t("pagesRead")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <div className="flex-1">
-                        <ProgressBar percent={book.percent} color={book.color} />
+                        {book.title}
                       </div>
-                      <span style={{ fontSize: 8, color: "rgba(255,255,255,0.45)" }}>
-                        {book.percent}%
-                      </span>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span
+                          className="rounded-md font-semibold"
+                          style={{
+                            fontSize: 7.5,
+                            background: ddayBg,
+                            color: ddayFg,
+                            border: `1px solid ${ddayBorder}`,
+                            padding: "1px 5px",
+                          }}
+                        >
+                          {book.dday}
+                        </span>
+                        <span style={{ fontSize: 8, color: "rgba(255,255,255,0.42)" }}>
+                          {book.progress}/{book.total} {t("pagesRead")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <span style={{ fontSize: 6.5, color: "rgba(255,255,255,0.38)", minWidth: 26 }}>
+                          {t("todayGoalLabel")}
+                        </span>
+                        <div className="flex-1">
+                          <ProgressBar percent={book.todayPercent} color="#10B981" />
+                        </div>
+                        <span style={{ fontSize: 7, color: "#10B981", minWidth: 18, textAlign: "right" }}>
+                          {book.todayPercent}%
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span style={{ fontSize: 6.5, color: "rgba(255,255,255,0.38)", minWidth: 26 }}>
+                          {t("overallLabel")}
+                        </span>
+                        <div className="flex-1">
+                          <ProgressBar percent={book.overallPercent} color="#5B7FFF" />
+                        </div>
+                        <span style={{ fontSize: 7, color: "#5B7FFF", minWidth: 18, textAlign: "right" }}>
+                          {book.overallPercent}%
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    <div className="flex-shrink-0 self-start mt-1" style={{ color: "rgba(255,255,255,0.22)" }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {typing && (
               <div
                 className="rounded-xl px-3 py-2.5"
                 style={{
-                  background: "rgba(91,127,255,0.05)",
+                  background: "rgba(91,127,255,0.06)",
                   border: "1px solid rgba(91,127,255,0.22)",
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{
-                      border: "1.5px solid rgba(91,127,255,0.35)",
+                      background: "rgba(91,127,255,0.25)",
+                      border: "1px solid rgba(91,127,255,0.4)",
                     }}
-                  />
+                  >
+                    <span style={{ fontSize: 9 }}>✨</span>
+                  </div>
                   <span
-                    className="flex-1 text-xs"
-                    style={{ color: "rgba(255,255,255,0.65)" }}
+                    className="flex-1"
+                    style={{ fontSize: 10.5, color: "rgba(255,255,255,0.72)", fontFamily: "var(--font-display)" }}
                   >
                     {typed}
                     <span className="animate-pulse">|</span>
                   </span>
                 </div>
-                <div style={{ fontSize: 8.5, color: "rgba(107,138,255,0.6)" }}>
+                <div style={{ fontSize: 8, color: "rgba(107,138,255,0.6)" }}>
                   {t("typingBy")}
                 </div>
               </div>
             )}
           </div>
 
-          <div
-            className="mt-3 rounded-xl flex items-center justify-center gap-1.5 py-2.5"
-            style={{
-              background: "rgba(91,127,255,0.12)",
-              border: "1px solid rgba(91,127,255,0.22)",
-            }}
-          >
-            <span
-              className="text-lg leading-none"
-              style={{ color: "#6B8AFF" }}
+          <div className="mt-3 relative" style={{ height: 40 }}>
+            <div
+              className="absolute inset-x-0 top-0 bottom-0 rounded-full flex items-center justify-around px-3"
+              style={{
+                background: "rgba(24,26,44,0.92)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
+                backdropFilter: "blur(20px)",
+                marginRight: 36,
+              }}
             >
-              +
-            </span>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "#6B8AFF" }}
+              {[
+                { label: "홈", active: true, icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                )},
+                { label: "서재", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                    <path d="M18 13l-6-6-2 2 6 6"/>
+                    <path d="M2 2l7.586 7.586"/>
+                    <circle cx="11" cy="11" r="2"/>
+                  </svg>
+                )},
+                { label: "상태", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+                  </svg>
+                )},
+                { label: "캘린더", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                )},
+                { label: "MY", icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                )},
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center justify-center"
+                  style={{
+                    color: item.active ? "white" : "rgba(255,255,255,0.42)",
+                    gap: 1,
+                    background: item.active ? "rgba(255,255,255,0.07)" : "transparent",
+                    borderRadius: 9999,
+                    width: 32,
+                    height: 32,
+                  }}
+                >
+                  {item.icon}
+                  <span style={{ fontSize: 6.5, fontWeight: item.active ? 600 : 400 }}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div
+              className="absolute right-0 top-0 rounded-full flex items-center justify-center"
+              style={{
+                width: 40,
+                height: 40,
+                background: "rgba(24,26,44,0.92)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
+                backdropFilter: "blur(20px)",
+                color: "rgba(255,255,255,0.85)",
+              }}
             >
-              {t("addSession")}
-            </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -398,10 +466,42 @@ function PhoneMockup() {
 
 function ReadingListPhone() {
   const books = [
-    { title: "클린 코드", author: "로버트 C. 마틴", percent: 70, color: "#5B7FFF", coverColor: "rgba(91,127,255,0.1)", pages: "234/334", dday: 14 },
-    { title: "사피엔스", author: "유발 하라리", percent: 30, color: "#10B981", coverColor: "rgba(16,185,129,0.1)", pages: "132/443", dday: 30 },
-    { title: "원씽", author: "게리 켈러", percent: 0, color: "#F59E0B", coverColor: "rgba(245,158,11,0.1)", pages: "0/256", dday: 45 },
-    { title: "어린 왕자", author: "생텍쥐페리", percent: 100, color: "#34d399", coverColor: "rgba(52,211,153,0.1)", pages: "96/96", dday: 0 },
+    {
+      title: "리팩터링 2판",
+      dday: "D-7",
+      ddayType: "future" as const,
+      todayPercent: 0,
+      overallPercent: 0,
+      pages: "0/550",
+      cover: "/book-covers/book-1.jpg",
+    },
+    {
+      title: "미니멀리즘 프로그래머",
+      dday: "D+23",
+      ddayType: "past" as const,
+      todayPercent: 7,
+      overallPercent: 7,
+      pages: "14/192",
+      cover: "/book-covers/book-2.jpg",
+    },
+    {
+      title: "히사이시 조의 음악일기",
+      dday: "D+21",
+      ddayType: "past" as const,
+      todayPercent: 44,
+      overallPercent: 44,
+      pages: "128/288",
+      cover: "/book-covers/book-3.jpg",
+    },
+    {
+      title: "시대예보: 경량문명의 탄생",
+      dday: "시작 전",
+      ddayType: "neutral" as const,
+      todayPercent: 0,
+      overallPercent: 0,
+      pages: "0/312",
+      cover: null as string | null,
+    },
   ];
   return (
     <div
@@ -432,76 +532,136 @@ function ReadingListPhone() {
             <span style={{ fontSize: 8, color: "#34d399" }}>진행 중</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 mb-3">
-          <div
-            className="w-6 h-6 rounded-lg flex items-center justify-center text-xs"
-            style={{ background: "rgba(91,127,255,0.18)", border: "1px solid rgba(91,127,255,0.25)" }}
-          >
-            📚
-          </div>
-          <div className="text-white font-semibold" style={{ fontSize: 12, fontFamily: "var(--font-display)" }}>
-            나의 독서 목표
+        <div className="mb-3">
+          <div className="text-white font-bold" style={{ fontSize: 14, fontFamily: "var(--font-display)" }}>
+            독서 목록
           </div>
         </div>
+        <div className="flex items-center gap-1 mb-2.5 px-0.5">
+          <span
+            className="px-2 py-0.5 rounded-full"
+            style={{ fontSize: 7.5, fontWeight: 600, background: "#fff", color: "#000" }}
+          >
+            독서 중
+          </span>
+          <span
+            className="px-2 py-0.5 rounded-full"
+            style={{ fontSize: 7.5, fontWeight: 500, color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
+            읽을 예정
+          </span>
+          <span
+            className="px-2 py-0.5 rounded-full"
+            style={{ fontSize: 7.5, fontWeight: 500, color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
+            완독
+          </span>
+        </div>
         <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
-          {books.map((book, i) => (
-            <div
-              key={i}
-              className="rounded-xl px-2.5 py-2"
-              style={{
-                background: book.percent === 100 ? "rgba(16,185,129,0.07)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${book.percent === 100 ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.07)"}`,
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-11 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{ background: book.coverColor, border: `1px solid ${book.color}20` }}
-                >
-                  <span style={{ fontSize: 12 }}>📖</span>
-                </div>
-                <div className="flex-1 min-w-0">
+          {books.map((book, i) => {
+            const ddayBg = book.ddayType === "future"
+              ? "rgba(91,127,255,0.2)"
+              : book.ddayType === "past"
+                ? "rgba(255,107,107,0.2)"
+                : "rgba(255,255,255,0.08)";
+            const ddayFg = book.ddayType === "future"
+              ? "#6B8AFF"
+              : book.ddayType === "past"
+                ? "#FF6B6B"
+                : "rgba(255,255,255,0.55)";
+            const ddayBorder = book.ddayType === "future"
+              ? "rgba(91,127,255,0.35)"
+              : book.ddayType === "past"
+                ? "rgba(255,107,107,0.35)"
+                : "rgba(255,255,255,0.15)";
+            return (
+              <div
+                key={i}
+                className="rounded-xl px-2.5 py-2"
+                style={{
+                  background: "rgba(255,255,255,0.035)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div className="flex items-center gap-2">
                   <div
-                    className="font-medium truncate"
-                    style={{ fontSize: 9.5, color: "rgba(255,255,255,0.88)", fontFamily: "var(--font-display)" }}
+                    className="relative rounded-md flex-shrink-0 overflow-hidden"
+                    style={{
+                      width: 32,
+                      height: 44,
+                      background: book.cover ? "transparent" : "linear-gradient(135deg,#2a2d3f,#1a1d2e)",
+                      boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 2px 5px rgba(0,0,0,0.3)",
+                    }}
                   >
-                    {book.title}
-                  </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {book.dday > 0 ? (
-                      <span
-                        className="px-1 py-px rounded-full"
-                        style={{ fontSize: 6.5, background: `${book.color}20`, color: book.color, border: `1px solid ${book.color}30` }}
-                      >
-                        D-{book.dday}
-                      </span>
+                    {book.cover ? (
+                      <Image
+                        src={book.cover}
+                        alt={book.title}
+                        fill
+                        sizes="32px"
+                        style={{ objectFit: "cover" }}
+                      />
                     ) : (
-                      <span
-                        className="px-1 py-px rounded-full"
-                        style={{ fontSize: 6.5, background: "rgba(52,211,153,0.2)", color: "#34d399" }}
+                      <div
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}
                       >
-                        완독
-                      </span>
+                        📘
+                      </div>
                     )}
-                    <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.3)" }}>
-                      {book.pages} 페이지
-                    </span>
                   </div>
-                  <div className="flex items-center gap-1 mt-1">
-                    <div className="flex-1">
-                      <ProgressBar percent={book.percent} color={book.color} />
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="font-semibold truncate"
+                      style={{ fontSize: 9.5, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-display)" }}
+                    >
+                      {book.title}
                     </div>
-                    <span style={{ fontSize: 7, color: "rgba(255,255,255,0.4)" }}>{book.percent}%</span>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span
+                        className="rounded-md font-semibold"
+                        style={{
+                          fontSize: 6.5,
+                          background: ddayBg,
+                          color: ddayFg,
+                          border: `1px solid ${ddayBorder}`,
+                          padding: "1px 4px",
+                        }}
+                      >
+                        {book.dday}
+                      </span>
+                      <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.38)" }}>
+                        {book.pages} 페이지
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span style={{ fontSize: 6, color: "rgba(255,255,255,0.38)", minWidth: 22 }}>오늘</span>
+                      <div className="flex-1">
+                        <ProgressBar percent={book.todayPercent} color="#10B981" />
+                      </div>
+                      <span style={{ fontSize: 6.5, color: "#10B981", minWidth: 16, textAlign: "right" }}>
+                        {book.todayPercent}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span style={{ fontSize: 6, color: "rgba(255,255,255,0.38)", minWidth: 22 }}>전체</span>
+                      <div className="flex-1">
+                        <ProgressBar percent={book.overallPercent} color="#5B7FFF" />
+                      </div>
+                      <span style={{ fontSize: 6.5, color: "#5B7FFF", minWidth: 16, textAlign: "right" }}>
+                        {book.overallPercent}%
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-shrink-0" style={{ color: "rgba(255,255,255,0.15)" }}>
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                    <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <div className="flex-shrink-0 self-start mt-1" style={{ color: "rgba(255,255,255,0.18)" }}>
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                      <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       <div
@@ -554,7 +714,7 @@ function ReadingLogPhone() {
             <path d="M9 3L5 7l4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div className="text-white font-bold" style={{ fontSize: 15, fontFamily: "var(--font-display)" }}>
-            2월
+            2026년 4월
           </div>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ opacity: 0.4 }}>
             <path d="M5 3l4 4-4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -591,54 +751,106 @@ function ReadingLogPhone() {
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((level, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-md flex items-center justify-center"
-                style={{
-                  background: level === 0
-                    ? "rgba(255,255,255,0.03)"
-                    : level === 1
-                      ? "rgba(91,127,255,0.15)"
-                      : level === 2
-                        ? "rgba(91,127,255,0.3)"
-                        : "rgba(91,127,255,0.5)",
-                }}
-              >
-                <span style={{ fontSize: 7, color: level > 0 ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)" }}>
-                  {i + 1}
-                </span>
-              </div>
-            ))}
+            {calendarDays.map((level, i) => {
+              const isHighlight = i === 9 || i === 16 || i === 20;
+              const highlightCover = i === 9
+                ? "linear-gradient(135deg,#c6dfe7 0%,#6e96a4 100%)"
+                : i === 16
+                  ? "linear-gradient(135deg,#d5d9e3 0%,#9aa0ae 100%)"
+                  : "linear-gradient(135deg,#b8342d 0%,#7a2820 100%)";
+              if (isHighlight) {
+                return (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-md relative overflow-hidden"
+                    style={{
+                      background: highlightCover,
+                      boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 2px 4px rgba(0,0,0,0.3)",
+                    }}
+                  >
+                    <span
+                      className="absolute -top-0.5 -right-0.5 rounded-full flex items-center justify-center"
+                      style={{
+                        width: 10, height: 10,
+                        background: "#5B7FFF",
+                        color: "#fff",
+                        fontSize: 6,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {i === 9 ? 2 : 1}
+                    </span>
+                    <span
+                      className="absolute bottom-0.5 left-1/2 -translate-x-1/2"
+                      style={{ fontSize: 6, color: "rgba(255,255,255,0.95)", fontWeight: 700 }}
+                    >
+                      {i + 1}
+                    </span>
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={i}
+                  className="aspect-square rounded-md flex items-center justify-center"
+                  style={{
+                    background: level === 0
+                      ? "rgba(255,255,255,0.03)"
+                      : level === 1
+                        ? "rgba(16,185,129,0.18)"
+                        : level === 2
+                          ? "rgba(16,185,129,0.38)"
+                          : "rgba(16,185,129,0.62)",
+                  }}
+                >
+                  <span style={{ fontSize: 7, color: level > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)" }}>
+                    {i + 1}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         <div className="mb-2.5">
-          <div className="font-semibold text-white mb-2" style={{ fontSize: 11, fontFamily: "var(--font-display)" }}>
-            오늘 독서
+          <div className="flex items-center justify-between mb-2">
+            <div className="font-semibold text-white" style={{ fontSize: 11, fontFamily: "var(--font-display)" }}>
+              오늘 독서
+            </div>
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>4월 10일</span>
           </div>
           <div
             className="rounded-xl px-3 py-2.5"
-            style={{ background: "rgba(91,127,255,0.07)", border: "1px solid rgba(91,127,255,0.18)" }}
+            style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.18)" }}
           >
             <div className="flex items-center gap-2">
               <div
-                className="w-8 h-11 rounded-md flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(91,127,255,0.1)", border: "1px solid rgba(91,127,255,0.2)" }}
+                className="relative rounded-md flex-shrink-0 overflow-hidden"
+                style={{
+                  width: 32,
+                  height: 44,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1), 0 2px 5px rgba(0,0,0,0.3)",
+                }}
               >
-                <span style={{ fontSize: 12 }}>📖</span>
+                <Image
+                  src="/book-covers/book-3.jpg"
+                  alt="히사이시 조의 음악일기"
+                  fill
+                  sizes="32px"
+                  style={{ objectFit: "cover" }}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-white font-medium truncate" style={{ fontSize: 10, fontFamily: "var(--font-display)" }}>
-                    클린 코드
+                    히사이시 조의 음악일기
                   </span>
-                  <span style={{ fontSize: 8, color: "#6B8AFF" }}>+15p</span>
+                  <span style={{ fontSize: 8, color: "#34d399", fontWeight: 600 }}>+18p</span>
                 </div>
-                <ProgressBar percent={70} color="#5B7FFF" />
-                <div className="mt-0.5 flex justify-between" style={{ fontSize: 7.5, color: "rgba(255,255,255,0.3)" }}>
-                  <span>234 / 334</span>
-                  <span>완독까지 100p</span>
+                <ProgressBar percent={44} color="#5B7FFF" />
+                <div className="mt-0.5 flex justify-between" style={{ fontSize: 7.5, color: "rgba(255,255,255,0.4)" }}>
+                  <span>128 / 288</span>
+                  <span>완독까지 160p</span>
                 </div>
               </div>
             </div>
@@ -647,10 +859,13 @@ function ReadingLogPhone() {
 
         <div
           className="rounded-xl p-2.5"
-          style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)" }}
+          style={{ background: "rgba(91,127,255,0.08)", border: "1px solid rgba(91,127,255,0.2)" }}
         >
-          <div style={{ fontSize: 9, color: "rgba(245,158,11,0.8)", lineHeight: 1.5 }}>
-            오늘 목표까지 12분 더 읽으면 달성! 화이팅 🎯
+          <div className="flex items-center gap-1.5">
+            <span style={{ fontSize: 11 }}>✨</span>
+            <div style={{ fontSize: 9, color: "rgba(180,200,255,0.95)", lineHeight: 1.4 }}>
+              이 달에 2권 기록 · 하이라이트 0 · 메모 1 · 사진 1
+            </div>
           </div>
         </div>
       </div>
@@ -663,10 +878,23 @@ function ReadingLogPhone() {
 }
 
 function StatsPhone() {
-  const months = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
-  const counts = [2, 3, 1, 4, 2, 3];
-  const maxCount = Math.max(...counts);
   const tabs = ["개요", "분석", "활동"];
+  const heatmapLevels = [
+    0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,2,0,0,0,0,0,0,0,
+    0,0,0,0,0,3,1,0,0,0,0,0,0,
+    0,0,0,0,0,4,0,0,0,0,0,0,0,
+    0,0,0,0,0,4,0,1,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,
+  ];
+  const heatmapBg = (l: number) =>
+    l === 0 ? "rgba(255,255,255,0.04)"
+      : l === 1 ? "rgba(16,185,129,0.25)"
+        : l === 2 ? "rgba(16,185,129,0.45)"
+          : l === 3 ? "rgba(16,185,129,0.65)"
+            : "rgba(52,211,153,0.95)";
 
   return (
     <div
@@ -692,7 +920,7 @@ function StatsPhone() {
           style={{ fontSize: 9, color: "rgba(255,255,255,0.38)" }}
         >
           <span>9:41</span>
-          <span>통계</span>
+          <span>나의 독서 상태</span>
         </div>
 
         <div className="flex gap-1 mb-3">
@@ -702,10 +930,10 @@ function StatsPhone() {
               className="flex-1 text-center py-1.5 rounded-lg"
               style={{
                 fontSize: 9,
-                fontWeight: i === 0 ? 600 : 400,
-                color: i === 0 ? "white" : "rgba(255,255,255,0.35)",
-                background: i === 0 ? "rgba(91,127,255,0.2)" : "transparent",
-                border: i === 0 ? "1px solid rgba(91,127,255,0.3)" : "1px solid transparent",
+                fontWeight: i === 2 ? 600 : 400,
+                color: i === 2 ? "white" : "rgba(255,255,255,0.35)",
+                background: i === 2 ? "rgba(91,127,255,0.2)" : "transparent",
+                border: i === 2 ? "1px solid rgba(91,127,255,0.3)" : "1px solid transparent",
               }}
             >
               {tab}
@@ -714,80 +942,101 @@ function StatsPhone() {
         </div>
 
         <div
-          className="rounded-xl p-2.5 mb-3"
-          style={{ background: "rgba(91,127,255,0.07)", border: "1px solid rgba(91,127,255,0.15)" }}
+          className="rounded-xl p-2.5 mb-2.5"
+          style={{ background: "rgba(255,107,107,0.06)", border: "1px solid rgba(255,107,107,0.15)" }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <div className="text-white font-semibold" style={{ fontSize: 10, fontFamily: "var(--font-display)" }}>
-                2026년 목표
-              </div>
-              <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)" }}>
-                24권 중 3권 완독
-              </div>
-            </div>
+          <div className="flex items-center gap-1.5 mb-1.5">
             <div
-              className="font-bold"
-              style={{ fontSize: 16, color: "#5B7FFF", fontFamily: "var(--font-display)" }}
+              className="w-5 h-5 rounded-md flex items-center justify-center"
+              style={{ background: "rgba(255,107,107,0.2)" }}
             >
-              12.5%
+              <span style={{ fontSize: 10 }}>🔥</span>
+            </div>
+            <div className="text-white font-semibold" style={{ fontSize: 9.5, fontFamily: "var(--font-display)" }}>
+              2026년 독서 활동
             </div>
           </div>
-          <div className="relative w-full rounded-full overflow-hidden" style={{ height: 6, background: "rgba(255,255,255,0.08)" }}>
-            <div style={{ width: "12.5%", height: "100%", background: "linear-gradient(90deg, #5B7FFF, #6B8AFF)", borderRadius: 3 }} />
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col items-center flex-1">
+              <div className="font-bold" style={{ fontSize: 14, color: "white", fontFamily: "var(--font-display)" }}>5일</div>
+              <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.4)" }}>읽은 날</div>
+            </div>
+            <div className="w-px h-7" style={{ background: "rgba(255,255,255,0.08)" }} />
+            <div className="flex flex-col items-center flex-1">
+              <div className="font-bold" style={{ fontSize: 14, color: "white", fontFamily: "var(--font-display)" }}>672</div>
+              <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.4)" }}>총 페이지</div>
+            </div>
+            <div className="w-px h-7" style={{ background: "rgba(255,255,255,0.08)" }} />
+            <div className="flex flex-col items-center flex-1">
+              <div className="font-bold" style={{ fontSize: 14, color: "white", fontFamily: "var(--font-display)" }}>134.4p</div>
+              <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.4)" }}>일 평균</div>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 mb-3">
+        <div
+          className="rounded-xl p-2 mb-2.5"
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span style={{ fontSize: 7, color: "rgba(255,255,255,0.35)" }}>일 월 화 수 목 금 토</span>
+          </div>
+          <div className="grid grid-cols-13 gap-px" style={{ gridTemplateColumns: "repeat(13, minmax(0, 1fr))" }}>
+            {heatmapLevels.map((level, i) => (
+              <div
+                key={i}
+                className="rounded-sm aspect-square"
+                style={{ background: heatmapBg(level) }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between mt-1" style={{ fontSize: 6, color: "rgba(255,255,255,0.3)" }}>
+            <span>1월</span><span>3월</span><span>5월</span><span>7월</span><span>9월</span><span>11월</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1 mb-2">
           {[
-            { icon: "📚", label: "총 페이지", value: "1,234p", color: "#5B7FFF" },
-            { icon: "📅", label: "일평균 페이지", value: "45.2p", color: "#10B981" },
-            { icon: "🔥", label: "연속 독서", value: "7일", color: "#F59E0B" },
-            { icon: "🏁", label: "완독률", value: "67%", color: "#FF6B6B" },
+            { label: "총 페이지", value: "470p", color: "#5B7FFF" },
+            { label: "일 평균", value: "94p", color: "#10B981" },
+            { label: "최대 일일", value: "142p", color: "#F59E0B" },
           ].map((stat, i) => (
             <div
               key={i}
-              className="rounded-xl p-2"
+              className="rounded-lg p-1.5 text-center"
               style={{
-                background: `${stat.color}09`,
-                border: `1px solid ${stat.color}20`,
+                background: `${stat.color}10`,
+                border: `1px solid ${stat.color}25`,
               }}
             >
-              <div className="flex items-center gap-1 mb-1">
-                <span style={{ fontSize: 10 }}>{stat.icon}</span>
-                <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.35)" }}>{stat.label}</span>
-              </div>
-              <div className="font-bold" style={{ fontSize: 14, color: stat.color, fontFamily: "var(--font-display)" }}>
+              <div className="font-bold" style={{ fontSize: 11, color: stat.color, fontFamily: "var(--font-display)" }}>
                 {stat.value}
               </div>
+              <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.42)" }}>{stat.label}</div>
             </div>
           ))}
         </div>
 
-        <div
-          className="rounded-xl p-2.5"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
-          <div className="text-white font-semibold mb-2" style={{ fontSize: 9, fontFamily: "var(--font-display)" }}>
-            월별 완독
-          </div>
-          <div className="flex items-end gap-1.5 h-16">
-            {counts.map((count, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className="w-full rounded-sm"
-                  style={{
-                    height: `${(count / maxCount) * 48}px`,
-                    background: i === counts.length - 1
-                      ? "linear-gradient(180deg, #6B8AFF, #5B7FFF)"
-                      : "rgba(91,127,255,0.25)",
-                    minHeight: 4,
-                  }}
-                />
-                <span style={{ fontSize: 6.5, color: "rgba(255,255,255,0.3)" }}>{months[i]}</span>
+        <div className="grid grid-cols-3 gap-1">
+          {[
+            { label: "연속 일수", value: "0일", color: "#FF6B6B" },
+            { label: "최소 일일", value: "10p", color: "#14b8a6" },
+            { label: "오늘 목표", value: "0%", color: "#10B981" },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className="rounded-lg p-1.5 text-center"
+              style={{
+                background: `${stat.color}10`,
+                border: `1px solid ${stat.color}25`,
+              }}
+            >
+              <div className="font-bold" style={{ fontSize: 11, color: stat.color, fontFamily: "var(--font-display)" }}>
+                {stat.value}
               </div>
-            ))}
-          </div>
+              <div style={{ fontSize: 6.5, color: "rgba(255,255,255,0.42)" }}>{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
       <div
@@ -892,6 +1141,74 @@ function Step({
   );
 }
 
+function AppStoreWaitlistButton({
+  size = "default",
+  label,
+  subtitle,
+  ctaLabel,
+  onClick,
+}: {
+  size?: "default" | "lg";
+  label: string;
+  subtitle: string;
+  ctaLabel: string;
+  onClick: () => void;
+}) {
+  const Icon = (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+    </svg>
+  );
+
+  return (
+    <div className="relative">
+      {size === "lg" ? (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white btn-primary cursor-pointer"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {Icon}
+          {ctaLabel}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all hover:scale-105 hover:-translate-y-0.5 cursor-pointer"
+          style={{
+            background: "rgba(28,31,50,0.85)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+        >
+          {Icon}
+          <div className="text-left">
+            <div className="text-white/45 text-[9px]">{subtitle}</div>
+            <div
+              className="text-white font-semibold text-sm"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {ctaLabel}
+            </div>
+          </div>
+        </button>
+      )}
+      <span
+        className="absolute -top-2 -right-2 text-[9px] font-bold px-2 py-0.5 rounded-full"
+        style={{
+          background: "rgba(255,150,50,0.9)",
+          color: "white",
+          fontFamily: "var(--font-display)",
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function GooglePlayDisabled({ label }: { label: string }) {
   return (
     <div className="relative">
@@ -942,12 +1259,19 @@ function GooglePlayDisabled({ label }: { label: string }) {
 export default function Page() {
   const locale = useLocale();
   const t = useTranslations();
-  const feat = useReveal();
-  const detail = useReveal();
-  const steps = useReveal();
-  const cta = useReveal();
-  const shots = useReveal();
+  const [featRef, featVisible] = useReveal();
+  const [detailRef, detailVisible] = useReveal();
+  const [stepsRef, stepsVisible] = useReveal();
+  const [ctaRef, ctaVisible] = useReveal();
+  const [shotsRef, shotsVisible] = useReveal();
   const [hero, setHero] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [waitlistSource, setWaitlistSource] = useState<string>("nav");
+
+  const openWaitlist = (source: string) => {
+    setWaitlistSource(source);
+    setWaitlistOpen(true);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setHero(true), 80);
@@ -990,12 +1314,13 @@ export default function Page() {
         </div>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <a
-            href="#download"
-            className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full font-medium text-sm text-white btn-primary"
+          <button
+            type="button"
+            onClick={() => openWaitlist("nav")}
+            className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-full font-medium text-sm text-white btn-primary cursor-pointer"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            {t("nav.download")}
+            {t("nav.waitlist")}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
                 d="M3 7h8M7 3l4 4-4 4"
@@ -1005,7 +1330,7 @@ export default function Page() {
                 strokeLinejoin="round"
               />
             </svg>
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -1095,30 +1420,13 @@ export default function Page() {
               className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
               style={trans(320)}
             >
-              <a
-                href="#"
-                className="flex items-center gap-3 px-5 py-3 rounded-2xl transition-all hover:scale-105 hover:-translate-y-0.5"
-                style={{
-                  background: "rgba(28,31,50,0.85)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-white/45 text-[9px]">
-                    {t("hero.appStoreSubtitle")}
-                  </div>
-                  <div
-                    className="text-white font-semibold text-sm"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {t("hero.appStore")}
-                  </div>
-                </div>
-              </a>
+              <AppStoreWaitlistButton
+                size="default"
+                label={t("hero.iosComingSoon")}
+                subtitle={t("hero.appStoreSubtitle")}
+                ctaLabel={t("hero.appStore")}
+                onClick={() => openWaitlist("hero")}
+              />
 
               <GooglePlayDisabled label={t("hero.androidComingSoon")} />
             </div>
@@ -1148,12 +1456,12 @@ export default function Page() {
       </div>
 
       <section id="features" className="py-24 px-6 md:px-12">
-        <div ref={feat.ref} className="max-w-6xl mx-auto">
+        <div ref={featRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: feat.visible ? 1 : 0,
-              transform: feat.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: featVisible ? 1 : 0,
+              transform: featVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1190,7 +1498,7 @@ export default function Page() {
                 title={f.title}
                 desc={f.desc}
                 accent={f.accent}
-                visible={feat.visible}
+                visible={featVisible}
                 delay={i * 80}
               />
             ))}
@@ -1199,12 +1507,12 @@ export default function Page() {
       </section>
 
       <section className="py-20 px-6 md:px-12 overflow-hidden">
-        <div ref={shots.ref} className="max-w-6xl mx-auto">
+        <div ref={shotsRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: shots.visible ? 1 : 0,
-              transform: shots.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: shotsVisible ? 1 : 0,
+              transform: shotsVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1231,8 +1539,8 @@ export default function Page() {
           <div
             className="flex items-end justify-center gap-6 md:gap-10"
             style={{
-              opacity: shots.visible ? 1 : 0,
-              transform: shots.visible ? "translateY(0)" : "translateY(32px)",
+              opacity: shotsVisible ? 1 : 0,
+              transform: shotsVisible ? "translateY(0)" : "translateY(32px)",
               transition: "opacity .6s ease .1s, transform .6s ease .1s",
             }}
           >
@@ -1298,12 +1606,12 @@ export default function Page() {
       </div>
 
       <section className="py-20 px-6 md:px-12">
-        <div ref={detail.ref} className="max-w-6xl mx-auto">
+        <div ref={detailRef} className="max-w-6xl mx-auto">
           <div
             className="text-center mb-14"
             style={{
-              opacity: detail.visible ? 1 : 0,
-              transform: detail.visible ? "translateY(0)" : "translateY(20px)",
+              opacity: detailVisible ? 1 : 0,
+              transform: detailVisible ? "translateY(0)" : "translateY(20px)",
               transition: "opacity .5s ease, transform .5s ease",
             }}
           >
@@ -1337,8 +1645,8 @@ export default function Page() {
                 key={i}
                 className="glass rounded-2xl p-7"
                 style={{
-                  opacity: detail.visible ? 1 : 0,
-                  transform: detail.visible ? "translateY(0)" : "translateY(24px)",
+                  opacity: detailVisible ? 1 : 0,
+                  transform: detailVisible ? "translateY(0)" : "translateY(24px)",
                   transition: `opacity .5s ease ${i * 80}ms, transform .5s ease ${i * 80}ms`,
                 }}
               >
@@ -1411,12 +1719,12 @@ export default function Page() {
             </p>
           </div>
 
-          <div ref={steps.ref} className="flex flex-col gap-6">
+          <div ref={stepsRef} className="flex flex-col gap-6">
             <Step
               num={1}
               title={t("howItWorks.s1Title")}
               desc={t("howItWorks.s1Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={0}
             />
             <div
@@ -1431,7 +1739,7 @@ export default function Page() {
               num={2}
               title={t("howItWorks.s2Title")}
               desc={t("howItWorks.s2Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={120}
             />
             <div
@@ -1446,7 +1754,7 @@ export default function Page() {
               num={3}
               title={t("howItWorks.s3Title")}
               desc={t("howItWorks.s3Desc")}
-              visible={steps.visible}
+              visible={stepsVisible}
               delay={240}
             />
           </div>
@@ -1455,11 +1763,11 @@ export default function Page() {
 
       <section id="download" className="py-24 px-6 md:px-12">
         <div
-          ref={cta.ref}
+          ref={ctaRef}
           className="max-w-3xl mx-auto text-center"
           style={{
-            opacity: cta.visible ? 1 : 0,
-            transform: cta.visible ? "translateY(0)" : "translateY(24px)",
+            opacity: ctaVisible ? 1 : 0,
+            transform: ctaVisible ? "translateY(0)" : "translateY(24px)",
             transition: "opacity .6s ease, transform .6s ease",
           }}
         >
@@ -1496,20 +1804,15 @@ export default function Page() {
             {t("cta.sub")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#"
-              className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white btn-primary"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-              </svg>
-              App Store
-            </a>
-            <div className="flex justify-center">
-              <GooglePlayDisabled label={t("hero.androidComingSoon")} />
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <AppStoreWaitlistButton
+              size="lg"
+              label={t("hero.iosComingSoon")}
+              subtitle={t("hero.appStoreSubtitle")}
+              ctaLabel={t("hero.appStore")}
+              onClick={() => openWaitlist("cta")}
+            />
+            <GooglePlayDisabled label={t("hero.androidComingSoon")} />
           </div>
         </div>
       </section>
@@ -1608,6 +1911,13 @@ export default function Page() {
           </div>
         </div>
       </footer>
+
+      <WaitlistModal
+        open={waitlistOpen}
+        onOpenChange={setWaitlistOpen}
+        source={waitlistSource}
+        locale={locale}
+      />
     </div>
   );
 }

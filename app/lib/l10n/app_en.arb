@@ -548,6 +548,7 @@
        "pageUpdateNewPageLabel": "New Page Number",
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
+       "timerDidNotRead": "I didn't read",
        "imageSourceDocumentScan": "Document Scan",
        "imageSourceDocumentScanDesc": "Auto-detects documents and corrects distortion",
        "imageSourceAutoCorrection": "Flatten & Auto Correct",
@@ -892,7 +893,7 @@
            "paywallBenefit1": "Unlimited concurrent reading",
            "@paywallBenefit1": {"description": "Unlimited concurrent reading"},
 
-           "paywallBenefit2": "AI Recall 30 times per month",
+           "paywallBenefit2": "Unlimited AI Recall",
            "@paywallBenefit2": {"description": "AI Recall monthly usage"},
 
            "paywallBenefit3": "Reading insights & statistics",
@@ -901,7 +902,7 @@
            "paywallMonthly": "Monthly",
            "@paywallMonthly": {"description": "Monthly subscription"},
 
-           "paywallMonthlyPrice": "$3.90",
+           "paywallMonthlyPrice": "US$2.99",
            "@paywallMonthlyPrice": {"description": "Monthly price"},
 
            "paywallPerMonth": "/mo",
@@ -910,13 +911,13 @@
            "paywallYearly": "Yearly",
            "@paywallYearly": {"description": "Yearly subscription"},
 
-           "paywallYearlyPrice": "$29.90",
+           "paywallYearlyPrice": "US$19.99",
            "@paywallYearlyPrice": {"description": "Yearly price"},
 
            "paywallPerYear": "/yr",
            "@paywallPerYear": {"description": "Per year label"},
 
-           "paywallYearlySavings": "Save 36% with yearly",
+           "paywallYearlySavings": "Save 44% with yearly",
            "@paywallYearlySavings": {"description": "Yearly savings message"},
 
            "paywallRestore": "Restore purchases",
@@ -961,10 +962,13 @@
            "subscriptionUpgradeTitle": "Upgrade to Pro",
            "@subscriptionUpgradeTitle": {"description": "Upgrade to Pro title"},
 
+           "subscriptionPopular": "POPULAR",
+           "@subscriptionPopular": {"description": "Popular subscription badge"},
+
            "subscriptionMonthly": "Monthly",
            "@subscriptionMonthly": {"description": "Monthly subscription"},
 
-           "subscriptionMonthlyPrice": "$3.90",
+           "subscriptionMonthlyPrice": "US$2.99",
            "@subscriptionMonthlyPrice": {"description": "Monthly price"},
 
            "subscriptionPerMonth": "/mo",
@@ -973,13 +977,13 @@
            "subscriptionYearly": "Yearly",
            "@subscriptionYearly": {"description": "Yearly subscription"},
 
-           "subscriptionYearlyPrice": "$29.90",
+           "subscriptionYearlyPrice": "US$19.99",
            "@subscriptionYearlyPrice": {"description": "Yearly price"},
 
            "subscriptionPerYear": "/yr",
            "@subscriptionPerYear": {"description": "Per year label"},
 
-           "subscriptionYearlySavings": "Save 36%",
+           "subscriptionYearlySavings": "Save 44%",
            "@subscriptionYearlySavings": {"description": "Yearly savings"},
 
            "subscriptionBenefitsTitle": "Pro Benefits",
@@ -988,7 +992,7 @@
            "subscriptionBenefit1": "Unlimited concurrent reading",
            "@subscriptionBenefit1": {"description": "Unlimited concurrent reading"},
 
-           "subscriptionBenefit2": "AI Recall 30 times per month",
+           "subscriptionBenefit2": "Unlimited AI Recall",
            "@subscriptionBenefit2": {"description": "AI Recall monthly usage"},
 
            "subscriptionBenefit3": "Reading insights & statistics",
@@ -1237,17 +1241,17 @@
            "chartAiInsightClearMemoryMessage": "Previous analysis will be deleted",
            "chartAiInsightClearMemoryCancel": "Cancel",
            "chartAiInsightClearMemoryConfirm": "Clear",
-           "chartAiInsightAnalyzing": "Analyzing...",
+  "chartAiInsightAnalyzing": "Analyzing your reading patterns...",
            "chartAiInsightUnknownError": "Unknown error occurred",
            "chartAiInsightRetry": "Retry",
-           "chartAiInsightMinBooksRequired": "More books needed",
-           "chartAiInsightMinBooksMessage": "Complete at least {count} books for AI analysis",
+  "chartAiInsightMinBooksRequired": "Read more books to unlock AI insights",
+  "chartAiInsightMinBooksMessage": "Books completed: {count}",
            "@chartAiInsightMinBooksMessage": {"placeholders": {"count": {"type": "int"}}},
-           "chartAiInsightMinBooksHint": "Keep reading to unlock insights",
+  "chartAiInsightMinBooksHint": "At least 3 books; 5 or more recommended",
            "chartAiInsightSampleLabel": "Sample",
-           "chartAiInsightEmptyState": "No insights yet",
-           "chartAiInsightGenerateButton": "Generate Insight",
-           "chartAiInsightAlreadyAnalyzed": "Already analyzed",
+  "chartAiInsightEmptyState": "Tap the button below to generate insights",
+  "chartAiInsightGenerateButton": "Analyze",
+  "chartAiInsightAlreadyAnalyzed": "You've already analyzed today. Try again tomorrow.",
            "chartAnnualGoalTitle": "{year} Reading Goal",
            "@chartAnnualGoalTitle": {"placeholders": {"year": {"type": "int"}}},
            "chartAnnualGoalAchieved": "{count} books completed!",
@@ -1331,6 +1335,10 @@
            "chartConsecutiveDays": "Consecutive Days",
            "chartMinDaily": "Min Daily",
            "chartTodayGoal": "Today's Goal",
+           "bookListCardOverallProgress": "Progress",
+           "@bookListCardOverallProgress": {
+               "description": "Label for overall reading progress bar on book list card"
+           },
            "chartDailyPages": "Daily Pages",
            "chartCumulativePages": "Cumulative Pages",
            "chartDailyReadPages": "Daily Read Pages",
@@ -1436,7 +1444,10 @@
               "bookInfoPublisher": "Publisher",
               "bookInfoIsbn": "ISBN",
               "bookInfoPageCount": "Pages",
-              "bookInfoGenre": "Genre",
+              "bookInfoPrice": "Price",
+  "@bookInfoPrice": {"description": "Price label in book info sheet"},
+  
+  "bookInfoGenre": "Genre",
               "bookInfoViewInBookstore": "View in Bookstore",
 
            "myPageAccountSection": "Account",
@@ -1517,8 +1528,62 @@
            "myPageTermsAndPolicy": "Terms & Policy",
            "@myPageTermsAndPolicy": {"description": "Terms and policy in my page"},
 
+           "myPageTermsOfService": "Terms of Service",
+           "@myPageTermsOfService": {"description": "Terms of service in my page"},
+
+           "myPagePrivacyPolicy": "Privacy Policy",
+           "@myPagePrivacyPolicy": {"description": "Privacy policy in my page"},
+
+           "myPageAdPrivacyOptions": "Ad Privacy Options",
+           "@myPageAdPrivacyOptions": {"description": "Advertising consent privacy options in my page"},
+
            "myPageVersion": "Version",
            "@myPageVersion": {"description": "Version in my page"},
+
+           "myPageDeleteAccountButton": "Delete Account",
+           "@myPageDeleteAccountButton": {"description": "Delete account button text"},
+
+           "myPageDeleteAccountConfirm": "Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.",
+           "@myPageDeleteAccountConfirm": {"description": "Delete account confirmation message"},
+
+           "myPageDeleteAccountFailed": "Failed to delete your account. Please try again.",
+           "@myPageDeleteAccountFailed": {"description": "Account deletion failed message"},
+
+           "myPageDeleteAccountSuccess": "Your account was deleted successfully.",
+           "@myPageDeleteAccountSuccess": {"description": "Account deleted successfully message"},
+
+           "myPageDeleteAccountTitle": "Delete Account",
+           "@myPageDeleteAccountTitle": {"description": "Delete account dialog title"},
+
+           "myPageEnterNickname": "Enter a nickname",
+           "@myPageEnterNickname": {"description": "Enter nickname hint"},
+
+           "myPageErrorOccurred": "An error occurred: {error}",
+           "@myPageErrorOccurred": {"description": "Error occurred message", "placeholders": {"error": {"type": "String"}}},
+
+           "myPageLanguageEnglish": "English",
+           "@myPageLanguageEnglish": {"description": "English language option"},
+
+           "myPageLanguageKorean": "Korean",
+           "@myPageLanguageKorean": {"description": "Korean language option"},
+
+           "myPageNoNickname": "No nickname",
+           "@myPageNoNickname": {"description": "No nickname message"},
+
+           "myPageNoNotifications": "Notifications are off",
+           "@myPageNoNotifications": {"description": "No notifications message"},
+
+           "myPageProfileImageChangeFailed": "Failed to change profile image: {error}",
+           "@myPageProfileImageChangeFailed": {"description": "Profile image change failed message", "placeholders": {"error": {"type": "String"}}},
+
+           "myPageProfileImageChanged": "Profile image updated",
+           "@myPageProfileImageChanged": {"description": "Profile image changed message"},
+
+           "myPageTestNotification": "Test notification (in 30 seconds)",
+           "@myPageTestNotification": {"description": "Test notification button"},
+
+           "myPageTestNotificationScheduled": "A test notification will be sent in 30 seconds.",
+           "@myPageTestNotificationScheduled": {"description": "Test notification scheduled message"},
 
            "bookDetailPlannedStart": "Planned Start",
            "@bookDetailPlannedStart": {"description": "Planned start date label in book detail"},
@@ -1573,6 +1638,8 @@
 
            "subscriptionUnavailable": "Subscription service is currently unavailable.",
            "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},
+           "subscriptionUnavailableDuringBookLimit": "Free users can read up to 3 books simultaneously.\nWe couldn't open the subscription screen, so Pro upgrade is unavailable right now. Please try again later, or finish/pause an existing book first.",
+           "@subscriptionUnavailableDuringBookLimit": {"description": "Snackbar message when the reading limit blocks book registration and the paywall cannot be presented"},
 
            "myPagePasswordSameAsOld": "New password must be different from the current password",
            "@myPagePasswordSameAsOld": {"description": "Error when new password is same as old"},
@@ -1613,15 +1680,78 @@
            "shareStatusPlanned": "To Read",
            "@shareStatusPlanned": {"description": "Planned status label on share card"},
 
-           "shareStatusWillRetry": "Re-reading",
-           "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
+            "shareStatusWillRetry": "Re-reading",
+            "@shareStatusWillRetry": {"description": "Will retry status label on share card"},
 
-           "loginSocialGoogle": "Continue with Google",
-           "@loginSocialGoogle": {"description": "Continue with Google button"},
+            "shareBrandName": "Bookgolas",
+            "@shareBrandName": {"description": "Brand name shown in shared cards"},
+
+            "shareReadingRecordTitle": "My Reading Record",
+            "@shareReadingRecordTitle": {"description": "Title shown on the reading stats share card"},
+
+            "shareGoalAchievement": "Goal achievement",
+            "@shareGoalAchievement": {"description": "Label for the goal completion rate on the stats share card"},
+
+            "shareMostReadGenres": "Top genres",
+            "@shareMostReadGenres": {"description": "Label for the top genres row on the stats share card"},
+
+            "shareCompletedBooksLabel": "Books finished",
+            "@shareCompletedBooksLabel": {"description": "Label for completed books stat on the stats share card"},
+
+            "shareRecordsLabel": "Records",
+            "@shareRecordsLabel": {"description": "Label for the records stat on shared cards"},
+
+            "sharePhotosLabel": "Photos",
+            "@sharePhotosLabel": {"description": "Label for the photos stat on the stats share card"},
+
+            "shareStartedOn": "Started {date}",
+            "@shareStartedOn": {"description": "Short stat text for the reading start date on the book share card","placeholders": {"date": {}}},
+
+            "shareCompletedInDays": "Finished in {days} days",
+            "@shareCompletedInDays": {"description": "Short stat text for how many days it took to complete a book on the book share card","placeholders": {"days": {"type": "int"}}},
+
+            "shareHighlightCount": "{count} records",
+            "@shareHighlightCount": {"description": "Short stat text for the number of highlights or records on the book share card","placeholders": {"count": {"type": "int"}}},
+
+            "loginSocialGoogle": "Continue with Google",
+            "@loginSocialGoogle": {"description": "Continue with Google button"},
 
            "loginSocialApple": "Continue with Apple",
            "@loginSocialApple": {"description": "Continue with Apple button"},
 
            "pageSwipeHint": "◀ Swipe to update page ▶",
-           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"}
+           "@pageSwipeHint": {"description": "Hint text for swipe to update page gesture"},
+
+            "webviewLoadError": "Unable to load page",
+            "@webviewLoadError": {"description": "Error message when webview fails to load a page"},
+
+            "bottomBarStartReading": "Start Reading",
+            "@bottomBarStartReading": {"description": "Start reading button in floating action bar"},
+
+            "bottomBarRecord": "Record",
+            "@bottomBarRecord": {"description": "Record button in floating action bar"},
+
+            "bottomBarTimerStart": "Start Timer",
+            "@bottomBarTimerStart": {"description": "Start timer menu item in floating action bar"},
+
+            "bottomBarPageUpdate": "Update Page",
+            "@bottomBarPageUpdate": {"description": "Update page menu item in floating action bar"},
+
+            "bottomBarAddRecord": "Add Record",
+            "@bottomBarAddRecord": {"description": "Add record menu item in floating action bar"},
+
+            "bottomBarAiRecordSearch": "AI Record Search",
+            "@bottomBarAiRecordSearch": {"description": "AI record search menu item in floating action bar"},
+
+            "bookDetailStartNow": "Start Now",
+            "@bookDetailStartNow": {"description": "Start now button for planned books"},
+
+            "bookDetailStartNowSubtitle": "Start reading right now",
+            "@bookDetailStartNowSubtitle": {"description": "Subtitle for start now button"},
+
+            "bookDetailStartReadingTitle": "Start Reading",
+            "@bookDetailStartReadingTitle": {"description": "Title for start reading dialog"},
+
+            "bookDetailStartReadingSubtitle": "Set your target completion date",
+            "@bookDetailStartReadingSubtitle": {"description": "Subtitle for start reading dialog"}
 }

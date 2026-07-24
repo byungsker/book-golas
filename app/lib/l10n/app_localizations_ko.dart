@@ -1131,6 +1131,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get pageUpdateButton => '업데이트';
 
   @override
+  String get timerDidNotRead => '안읽었어요';
+
+  @override
   String get imageSourceDocumentScan => '문서 스캔';
 
   @override
@@ -2129,7 +2132,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallBenefit1 => '동시 읽기 무제한';
 
   @override
-  String get paywallBenefit2 => 'AI Recall 월 30회 사용';
+  String get paywallBenefit2 => 'AI Recall 무제한';
 
   @override
   String get paywallBenefit3 => '독서 인사이트 및 통계';
@@ -2138,7 +2141,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallMonthly => '월간 구독';
 
   @override
-  String get paywallMonthlyPrice => '₩3,900';
+  String get paywallMonthlyPrice => 'US\$2.99';
 
   @override
   String get paywallPerMonth => '/월';
@@ -2147,13 +2150,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get paywallYearly => '연간 구독';
 
   @override
-  String get paywallYearlyPrice => '₩29,900';
+  String get paywallYearlyPrice => 'US\$19.99';
 
   @override
   String get paywallPerYear => '/년';
 
   @override
-  String get paywallYearlySavings => '연간 구독 시 36% 절약';
+  String get paywallYearlySavings => '연간 구독 시 44% 절약';
 
   @override
   String get paywallRestore => '이전 구매 복원';
@@ -2198,10 +2201,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionUpgradeTitle => 'Pro로 업그레이드';
 
   @override
+  String get subscriptionPopular => '인기';
+
+  @override
   String get subscriptionMonthly => '월간 구독';
 
   @override
-  String get subscriptionMonthlyPrice => '₩3,900';
+  String get subscriptionMonthlyPrice => 'US\$2.99';
 
   @override
   String get subscriptionPerMonth => '/월';
@@ -2210,13 +2216,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionYearly => '연간 구독';
 
   @override
-  String get subscriptionYearlyPrice => '₩29,900';
+  String get subscriptionYearlyPrice => 'US\$19.99';
 
   @override
   String get subscriptionPerYear => '/년';
 
   @override
-  String get subscriptionYearlySavings => '36% 절약';
+  String get subscriptionYearlySavings => '44% 절약';
 
   @override
   String get subscriptionBenefitsTitle => 'Pro 혜택';
@@ -2225,7 +2231,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionBenefit1 => '동시 읽기 무제한';
 
   @override
-  String get subscriptionBenefit2 => 'AI Recall 월 30회 사용';
+  String get subscriptionBenefit2 => 'AI Recall 무제한';
 
   @override
   String get subscriptionBenefit3 => '독서 인사이트 및 통계';
@@ -2860,7 +2866,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightClearMemoryConfirm => '삭제';
 
   @override
-  String get chartAiInsightAnalyzing => '분석 중...';
+  String get chartAiInsightAnalyzing => '독서 패턴을 분석하고 있어요...';
 
   @override
   String get chartAiInsightUnknownError => '알 수 없는 오류 발생';
@@ -2869,27 +2875,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartAiInsightRetry => '다시 시도';
 
   @override
-  String get chartAiInsightMinBooksRequired => '더 많은 책이 필요합니다';
+  String get chartAiInsightMinBooksRequired => 'AI 인사이트를 받으려면 책을 더 읽어보세요';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
-    return 'AI 분석을 위해 최소 $count권을 완독해주세요';
+    return '현재 완독한 책: $count권';
   }
 
   @override
-  String get chartAiInsightMinBooksHint => '인사이트를 잠금 해제하려면 계속 읽어주세요';
+  String get chartAiInsightMinBooksHint => '최소 3권, 권장 5권 이상';
 
   @override
   String get chartAiInsightSampleLabel => '샘플';
 
   @override
-  String get chartAiInsightEmptyState => '인사이트 없음';
+  String get chartAiInsightEmptyState => '아래 버튼을 눌러 인사이트를 생성해보세요';
 
   @override
-  String get chartAiInsightGenerateButton => '인사이트 생성';
+  String get chartAiInsightGenerateButton => '분석하기';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed => '이미 분석됨';
+  String get chartAiInsightAlreadyAnalyzed => '오늘 이미 분석했어요. 내일 다시 시도해주세요.';
 
   @override
   String chartAnnualGoalTitle(int year) {
@@ -3129,6 +3135,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chartTodayGoal => '오늘 목표';
+
+  @override
+  String get bookListCardOverallProgress => '전체 진행';
 
   @override
   String get chartDailyPages => '일일 페이지';
@@ -3396,6 +3405,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookInfoPageCount => '페이지';
 
   @override
+  String get bookInfoPrice => '가격';
+
+  @override
   String get bookInfoGenre => '장르';
 
   @override
@@ -3475,6 +3487,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageTermsAndPolicy => '약관 및 정책';
 
   @override
+  String get myPageTermsOfService => '이용약관';
+
+  @override
+  String get myPagePrivacyPolicy => '개인정보처리방침';
+
+  @override
+  String get myPageAdPrivacyOptions => '광고 개인정보 설정';
+
+  @override
   String get myPageVersion => '버전';
 
   @override
@@ -3521,6 +3542,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 
   @override
+  String get subscriptionUnavailableDuringBookLimit =>
+      '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다.\n구독 화면을 열 수 없어 Pro 업그레이드를 진행하지 못했습니다. 잠시 후 다시 시도하거나 기존 책을 완독/중단해 주세요.';
+
+  @override
   String get myPagePasswordSameAsOld => '새 비밀번호는 기존 비밀번호와 달라야 합니다';
 
   @override
@@ -3564,6 +3589,42 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shareStatusWillRetry => '다시 도전';
 
   @override
+  String get shareBrandName => '북골라스';
+
+  @override
+  String get shareReadingRecordTitle => '나의 독서 기록';
+
+  @override
+  String get shareGoalAchievement => '목표 달성률';
+
+  @override
+  String get shareMostReadGenres => '많이 읽은 장르';
+
+  @override
+  String get shareCompletedBooksLabel => '완독한 책';
+
+  @override
+  String get shareRecordsLabel => '기록';
+
+  @override
+  String get sharePhotosLabel => '사진';
+
+  @override
+  String shareStartedOn(Object date) {
+    return '$date 시작';
+  }
+
+  @override
+  String shareCompletedInDays(int days) {
+    return '$days일 완독';
+  }
+
+  @override
+  String shareHighlightCount(int count) {
+    return '$count 기록';
+  }
+
+  @override
   String get loginSocialGoogle => 'Google로 계속하기';
 
   @override
@@ -3571,4 +3632,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pageSwipeHint => '◀ 밀어서 페이지 업데이트 ▶';
+
+  @override
+  String get webviewLoadError => '페이지를 불러올 수 없습니다';
+
+  @override
+  String get bottomBarStartReading => '독서 시작';
+
+  @override
+  String get bottomBarRecord => '기록';
+
+  @override
+  String get bottomBarTimerStart => '타이머 시작';
+
+  @override
+  String get bottomBarPageUpdate => '페이지 업데이트';
+
+  @override
+  String get bottomBarAddRecord => '기록 추가';
+
+  @override
+  String get bottomBarAiRecordSearch => 'AI 기록 검색';
+
+  @override
+  String get bookDetailStartNow => '바로 시작';
+
+  @override
+  String get bookDetailStartNowSubtitle => '독서를 지금 바로 시작합니다';
+
+  @override
+  String get bookDetailStartReadingTitle => '독서 시작';
+
+  @override
+  String get bookDetailStartReadingSubtitle => '목표 완독일을 설정하세요';
 }

@@ -2,18 +2,84 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:book_golas/config/app_config.dart';
+
+import 'package:book_golas/config/feature_flags.dart';
 
 /// Service for managing in-app subscriptions via RevenueCat.
 ///
 /// Provides methods for checking subscription status, presenting paywall,
 /// and managing customer center interactions.
 class SubscriptionService {
-  static const String _proEntitlementId = "byungsker's lab Pro";
+  static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
+  final bool _isEnabled;
+
+  SubscriptionService({bool? isEnabled})
+      : _isEnabled = isEnabled ?? FeatureFlags.paidSubscriptionsEnabled;
+
+  bool get isEnabled => _isEnabled;
+
+  Future<bool> initialize({
+    required String userId,
+    required String publicKey,
+    VoidCallback? onCustomerInfoUpdated,
+  }) async {
+    if (!_isEnabled || publicKey.isEmpty) return false;
+
+    try {
+      await Purchases.setLogLevel(LogLevel.info);
+      await Purchases.configure(
+        PurchasesConfiguration(publicKey)..appUserID = userId,
+      );
+      await Purchases.logIn(userId);
+      if (onCustomerInfoUpdated != null) {
+        Purchases.addCustomerInfoUpdateListener(
+          (_) => onCustomerInfoUpdated(),
+        );
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Failed to initialize RevenueCat: $e');
+      return false;
+    }
+  }
+
+  Future<bool> ensureConfigured() async {
+    try {
+      if (await Purchases.isConfigured) return true;
+
+      final rcKey = AppConfig.revenueCatPublicKey.trim();
+      if (rcKey.isEmpty) {
+        debugPrint('⚠️ RevenueCat unavailable: API key is not configured');
+        return false;
+      }
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        debugPrint('⚠️ RevenueCat unavailable: user is not authenticated');
+        return false;
+      }
+
+      await Purchases.setLogLevel(LogLevel.info);
+      await Purchases.configure(
+        PurchasesConfiguration(rcKey)..appUserID = userId,
+      );
+      debugPrint('✅ RevenueCat configured lazily');
+      return true;
+    } catch (e) {
+      debugPrint('❌ RevenueCat configuration failed: $e');
+      return false;
+    }
+  }
 
   /// Gets the current customer info from RevenueCat.
   ///
   /// Returns [CustomerInfo] if successful, null on failure.
   Future<CustomerInfo?> getCustomerInfo() async {
+    if (!_isEnabled) return null;
+
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
@@ -27,6 +93,8 @@ class SubscriptionService {
   ///
   /// Returns true if user has active Pro subscription, false otherwise.
   Future<bool> isPro() async {
+    if (!_isEnabled) return false;
+
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       return _hasProEntitlement(customerInfo);
@@ -40,6 +108,8 @@ class SubscriptionService {
   ///
   /// Returns [Offerings] if successful, null on failure.
   Future<Offerings?> getOfferings() async {
+    if (!_isEnabled) return null;
+
     try {
       final offerings = await Purchases.getOfferings();
       return offerings;
@@ -54,7 +124,11 @@ class SubscriptionService {
   /// Checks offerings availability before presenting.
   /// Returns true if paywall was shown, false if configuration is unavailable.
   Future<bool> showPaywall(BuildContext context) async {
+    if (!_isEnabled) return false;
+
     try {
+      if (!await ensureConfigured()) return false;
+
       final offerings = await Purchases.getOfferings();
       if (offerings.current == null ||
           offerings.current!.availablePackages.isEmpty) {
@@ -81,6 +155,8 @@ class SubscriptionService {
   ///
   /// Allows users to manage their subscriptions.
   Future<void> showCustomerCenter(BuildContext context) async {
+    if (!_isEnabled) return;
+
     try {
       await RevenueCatUI.presentCustomerCenter();
     } catch (e) {
@@ -91,33 +167,41 @@ class SubscriptionService {
   /// Restores previous purchases for the current user.
   ///
   /// Useful when user reinstalls app or switches devices.
-  Future<void> restorePurchases() async {
+  Future<bool> restorePurchases() async {
+    if (!_isEnabled) return false;
+
     try {
-      await Purchases.restorePurchases();
+      final customerInfo = await Purchases.restorePurchases();
       debugPrint('Purchases restored successfully');
+      return _hasProEntitlement(customerInfo);
     } catch (e) {
       debugPrint('Failed to restore purchases: $e');
+      return false;
     }
   }
 
-  /// Logs in the user to RevenueCat (call after Supabase auth)
-  Future<void> initialize(String userId) async {
+  Future<void> signOut() async {
+    if (!_isEnabled) return;
+
     try {
-      await Purchases.logIn(userId);
-      debugPrint('RevenueCat logged in: $userId');
+      await Purchases.logOut();
     } catch (e) {
-      debugPrint('Failed to initialize RevenueCat for user: $e');
+      debugPrint('RevenueCat logOut failed: $e');
     }
   }
 
   /// Returns simplified subscription status: 'free' or 'pro'
   Future<String> getSubscriptionStatus() async {
+    if (!_isEnabled) return 'free';
+
     final proStatus = await isPro();
     return proStatus ? 'pro' : 'free';
   }
 
   /// Purchases the monthly subscription
   Future<bool> purchaseMonthly() async {
+    if (!_isEnabled) return false;
+
     try {
       final offerings = await Purchases.getOfferings();
       final monthlyPackage = offerings.current?.availablePackages.firstWhere(
@@ -125,7 +209,7 @@ class SubscriptionService {
         orElse: () => offerings.current!.monthly!,
       );
       if (monthlyPackage == null) return false;
-      await Purchases.purchasePackage(monthlyPackage);
+      await Purchases.purchase(PurchaseParams.package(monthlyPackage));
       return true;
     } catch (e) {
       debugPrint('Failed to purchase monthly: $e');
@@ -135,6 +219,8 @@ class SubscriptionService {
 
   /// Purchases the yearly subscription
   Future<bool> purchaseYearly() async {
+    if (!_isEnabled) return false;
+
     try {
       final offerings = await Purchases.getOfferings();
       final yearlyPackage = offerings.current?.availablePackages.firstWhere(
@@ -142,7 +228,7 @@ class SubscriptionService {
         orElse: () => offerings.current!.annual!,
       );
       if (yearlyPackage == null) return false;
-      await Purchases.purchasePackage(yearlyPackage);
+      await Purchases.purchase(PurchaseParams.package(yearlyPackage));
       return true;
     } catch (e) {
       debugPrint('Failed to purchase yearly: $e');

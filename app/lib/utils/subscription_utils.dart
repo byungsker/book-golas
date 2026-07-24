@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:book_golas/config/feature_flags.dart';
 
 /// Constants for subscription tiers and limits
 class SubscriptionConstants {
@@ -19,6 +22,7 @@ class SubscriptionConstants {
 /// Utility class for checking subscription status and limits
 class SubscriptionUtils {
   static final SupabaseClient _supabase = Supabase.instance.client;
+  static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
 
   /// Checks if the current user is a super admin
   ///
@@ -34,11 +38,14 @@ class SubscriptionUtils {
   ///
   /// Returns true if user is super admin or has active Pro subscription
   static Future<bool> isProUser() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return false;
     if (isSuperAdmin()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return false;
+
+      if (await _hasRevenueCatProEntitlement()) return true;
 
       final response = await _supabase
           .from('users')
@@ -47,9 +54,7 @@ class SubscriptionUtils {
           .single();
 
       final status = response['subscription_status'] as String?;
-      return status == 'pro_monthly' ||
-          status == 'pro_yearly' ||
-          status == 'pro_lifetime';
+      return status == 'pro_monthly' || status == 'pro_yearly';
     } catch (e) {
       return false;
     }
@@ -57,9 +62,10 @@ class SubscriptionUtils {
 
   /// Gets the current subscription status
   ///
-  /// Returns: 'free', 'pro_monthly', 'pro_yearly', 'pro_lifetime', or null if not found
+  /// Returns: 'free', 'pro_monthly', 'pro_yearly', or null if not found
   static Future<String?> getSubscriptionStatus() async {
-    if (isSuperAdmin()) return 'pro_lifetime';
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 'free';
+    if (isSuperAdmin()) return 'pro_yearly';
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -84,15 +90,14 @@ class SubscriptionUtils {
   ///
   /// Returns [true] if user can add more books, [false] if limit reached
   static Future<bool> canAddMoreConcurrentBooks(int currentActiveCount) async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     return currentActiveCount < SubscriptionConstants.maxConcurrentBooksFree;
   }
 
   /// Gets the maximum number of concurrent books allowed for the current user
   static int getMaxConcurrentBooks() {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999; // Unlimited
     return SubscriptionConstants.maxConcurrentBooksFree;
   }
@@ -104,9 +109,7 @@ class SubscriptionUtils {
   ///
   /// Returns [true] if user can use AI Recall, [false] if limit reached
   static Future<bool> canUseAiRecall() async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -114,11 +117,13 @@ class SubscriptionUtils {
 
       final response = await _supabase
           .from('users')
-          .select('ai_recall_usage_count')
+          .select('ai_recall_usage_count, ai_recall_reset_at')
           .eq('id', userId)
           .single();
 
       final usageCount = response['ai_recall_usage_count'] as int? ?? 0;
+      final resetAt = _parseResetAt(response['ai_recall_reset_at']);
+      if (_isResetDue(resetAt)) return true;
       return usageCount < SubscriptionConstants.maxAiRecallPerMonthFree;
     } catch (e) {
       return true; // If error, allow (fail open for better UX)
@@ -127,6 +132,7 @@ class SubscriptionUtils {
 
   /// Gets the remaining AI Recall uses for the current month
   static Future<int> getRemainingAiRecallUses() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999; // Unlimited
 
     try {
@@ -135,12 +141,19 @@ class SubscriptionUtils {
 
       final response = await _supabase
           .from('users')
-          .select('ai_recall_usage_count')
+          .select('ai_recall_usage_count, ai_recall_reset_at')
           .eq('id', userId)
           .single();
 
       final usageCount = response['ai_recall_usage_count'] as int? ?? 0;
-      return SubscriptionConstants.maxAiRecallPerMonthFree - usageCount;
+      final resetAt = _parseResetAt(response['ai_recall_reset_at']);
+      if (_isResetDue(resetAt)) {
+        return SubscriptionConstants.maxAiRecallPerMonthFree;
+      }
+      return (SubscriptionConstants.maxAiRecallPerMonthFree - usageCount).clamp(
+        0,
+        SubscriptionConstants.maxAiRecallPerMonthFree,
+      );
     } catch (e) {
       return SubscriptionConstants.maxAiRecallPerMonthFree;
     }
@@ -150,6 +163,7 @@ class SubscriptionUtils {
   ///
   /// Should be called after each AI Recall usage
   static Future<void> incrementAiRecallUsage() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return;
     if (isSuperAdmin()) return;
 
     try {
@@ -164,9 +178,7 @@ class SubscriptionUtils {
   }
 
   static Future<bool> canUseOcr() async {
-    if (isSuperAdmin()) return true;
-    final isPro = await isProUser();
-    if (isPro) return true;
+    if (await hasUnlimitedAccess()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -184,6 +196,7 @@ class SubscriptionUtils {
   }
 
   static Future<int> getRemainingOcrUses() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
     if (isSuperAdmin()) return 999;
 
     try {
@@ -202,6 +215,7 @@ class SubscriptionUtils {
   }
 
   static Future<void> incrementOcrUsage() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return;
     if (isSuperAdmin()) return;
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -210,6 +224,30 @@ class SubscriptionUtils {
           .rpc('increment_ocr_daily_usage', params: {'p_user_id': userId});
     } catch (e) {
       debugPrint('Failed to increment OCR usage: $e');
+    }
+  }
+
+  static DateTime? _parseResetAt(Object? value) {
+    if (value is! String || value.isEmpty) return null;
+    return DateTime.tryParse(value);
+  }
+
+  static bool _isResetDue(DateTime? resetAt) {
+    return resetAt == null || !resetAt.isAfter(DateTime.now().toUtc());
+  }
+
+  static Future<bool> hasUnlimitedAccess() async {
+    if (!FeatureFlags.paidSubscriptionsEnabled) return true;
+    if (isSuperAdmin()) return true;
+    return isProUser();
+  }
+
+  static Future<bool> _hasRevenueCatProEntitlement() async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo.entitlements.active.containsKey(_proEntitlementId);
+    } catch (e) {
+      return false;
     }
   }
 }

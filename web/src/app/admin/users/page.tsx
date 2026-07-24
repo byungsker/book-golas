@@ -35,7 +35,6 @@ const SUBSCRIPTION_LABELS: Record<string, { label: string; variant: "default" | 
   free: { label: "Free", variant: "outline" },
   pro_monthly: { label: "Pro (Monthly)", variant: "default" },
   pro_yearly: { label: "Pro (Yearly)", variant: "default" },
-  pro_lifetime: { label: "Pro (Lifetime)", variant: "default" },
 };
 
 export default function UsersPage() {

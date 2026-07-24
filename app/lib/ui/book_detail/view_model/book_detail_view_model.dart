@@ -16,7 +16,6 @@ class BookDetailViewModel extends BaseViewModel {
   int _todayPagesRead = 0;
   bool _isTodayGoalAchievedLocked = false;
   int? _lockedTodayGoalPage;
-  int? _effectiveDailyTarget;
   bool _shouldShowPaywall = false;
 
   Book get currentBook => _currentBook;
@@ -53,30 +52,38 @@ class BookDetailViewModel extends BaseViewModel {
     return _currentBook.currentPage >= todayGoalPage;
   }
 
-  /// 실효 일일 목표: stored > 0이면 stored, 아니면 fallback 계산
-  /// 한 번 고정되면 페이지 업데이트 시 재계산되지 않음
-  int get _resolvedDailyTarget {
-    if (_effectiveDailyTarget != null) return _effectiveDailyTarget!;
-    final stored = _currentBook.dailyTargetPages ?? 0;
-    if (stored > 0) {
-      _effectiveDailyTarget = stored;
-      return _effectiveDailyTarget!;
-    }
-    final days = daysLeft;
-    final pages = pagesLeft;
-    if (days > 0) {
-      _effectiveDailyTarget = (pages / days).ceil();
-    } else {
-      _effectiveDailyTarget = pages > 0 ? pages : 0;
-    }
-    return _effectiveDailyTarget!;
-  }
+  int get _resolvedDailyTarget => _calculateCatchUpDailyTarget(
+        currentPage: _todayStartPage,
+        totalPages: _currentBook.totalPages,
+        targetDate: _currentBook.targetDate,
+      );
 
   int get daysLeft {
-    final now = DateTime.now();
-    final target = _currentBook.targetDate;
-    final days = target.difference(now).inDays;
+    final today = _dateOnly(DateTime.now());
+    final target = _dateOnly(_currentBook.targetDate);
+    final days = target.difference(today).inDays;
     return days >= 0 ? days + 1 : days;
+  }
+
+  int get _storedDailyTarget => _currentBook.dailyTargetPages ?? 0;
+
+  static DateTime _dateOnly(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  static int _calculateCatchUpDailyTarget({
+    required int currentPage,
+    required int totalPages,
+    required DateTime targetDate,
+  }) {
+    final pagesRemaining = totalPages - currentPage;
+    if (pagesRemaining <= 0) return 0;
+
+    final today = _dateOnly(DateTime.now());
+    final target = _dateOnly(targetDate);
+    final daysRemaining = target.difference(today).inDays + 1;
+    if (daysRemaining <= 0) return pagesRemaining;
+
+    return (pagesRemaining / daysRemaining).ceil();
   }
 
   double get progressPercentage {
@@ -114,8 +121,7 @@ class BookDetailViewModel extends BaseViewModel {
   Future<void> loadDailyAchievements() async {
     try {
       final achievements = <String, bool>{};
-      _effectiveDailyTarget ??= _resolvedDailyTarget;
-      final dailyTarget = _effectiveDailyTarget!;
+      final historyDailyTarget = _storedDailyTarget;
 
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) {
@@ -123,8 +129,7 @@ class BookDetailViewModel extends BaseViewModel {
         return;
       }
 
-      debugPrint(
-          '📊 [loadDailyAchievements] bookId=${_currentBook.id}, dailyTarget=$dailyTarget');
+      debugPrint('📊 [loadDailyAchievements] bookId=${_currentBook.id}');
 
       final response = await Supabase.instance.client
           .from('reading_progress_history')
@@ -138,7 +143,8 @@ class BookDetailViewModel extends BaseViewModel {
 
       final dailyPages = <String, int>{};
       for (final record in response) {
-        final createdAt = DateTime.parse(record['created_at'] as String).toLocal();
+        final createdAt =
+            DateTime.parse(record['created_at'] as String).toLocal();
         final dateKey =
             '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
         final pagesRead =
@@ -148,13 +154,6 @@ class BookDetailViewModel extends BaseViewModel {
 
       debugPrint('📊 [loadDailyAchievements] 날짜별 페이지: $dailyPages');
 
-      // dailyTarget이 0이면 (설정 없음 + fallback도  0) 달성 불가로 처리
-      if (dailyTarget > 0) {
-        for (final entry in dailyPages.entries) {
-          achievements[entry.key] = entry.value >= dailyTarget;
-        }
-      }
-
       final now = DateTime.now();
       final todayKey =
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -162,11 +161,21 @@ class BookDetailViewModel extends BaseViewModel {
 
       // 오늘 시작 페이지 계산 (현재 페이지 - 오늘 읽은 페이지)
       _todayStartPage = _currentBook.currentPage - _todayPagesRead;
+      final todayDailyTarget = _resolvedDailyTarget;
+
+      final historicalTarget =
+          historyDailyTarget > 0 ? historyDailyTarget : todayDailyTarget;
+      if (historicalTarget > 0) {
+        for (final entry in dailyPages.entries) {
+          achievements[entry.key] = entry.value >= historicalTarget;
+        }
+      }
 
       // 이미 locked 상태이면 오늘 달성 보장 (재호출 시에도 유지)
       if (_isTodayGoalAchievedLocked) {
         achievements[todayKey] = true;
-      } else if (dailyTarget > 0 && _currentBook.currentPage >= todayGoalPage) {
+      } else if (todayDailyTarget > 0 &&
+          _currentBook.currentPage >= todayGoalPage) {
         _isTodayGoalAchievedLocked = true;
         _lockedTodayGoalPage = todayGoalPage;
         achievements[todayKey] = true;
@@ -189,7 +198,7 @@ class BookDetailViewModel extends BaseViewModel {
     }
   }
 
-  Future<bool> updateCurrentPage(int newPage) async {
+  Future<bool> updateCurrentPage(int newPage, {int? readingTime}) async {
     try {
       final previousPage = _currentBook.currentPage;
       debugPrint(
@@ -201,6 +210,7 @@ class BookDetailViewModel extends BaseViewModel {
         _currentBook.id!,
         newPage,
         previousPage: previousPage,
+        readingTime: readingTime,
       );
 
       if (updatedBook != null) {
@@ -213,7 +223,7 @@ class BookDetailViewModel extends BaseViewModel {
           _todayPagesRead += pagesRead;
 
           // 오늘 달성 여부 로컬 업데이트 (DB 쿼리 대신 즉시 반영)
-          final dailyTarget = _effectiveDailyTarget ?? _resolvedDailyTarget;
+          final dailyTarget = _resolvedDailyTarget;
           if (dailyTarget > 0) {
             final now = DateTime.now();
             final todayKey =
@@ -345,6 +355,31 @@ class BookDetailViewModel extends BaseViewModel {
       return false;
     } catch (e) {
       setError('독서 재개에 실패했습니다: $e');
+      return false;
+    }
+  }
+
+  Future<bool> startPlannedReading(DateTime targetDate) async {
+    try {
+      final updatedBook = await _bookService.resumeReading(
+        _currentBook.id!,
+        newTargetDate: targetDate,
+        incrementAttempt: false,
+      );
+
+      if (updatedBook != null) {
+        _currentBook = updatedBook;
+        _attemptCount = updatedBook.attemptCount;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } on ConcurrentReadingLimitException {
+      _shouldShowPaywall = true;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      setError('독서 시작에 실패했습니다: $e');
       return false;
     }
   }

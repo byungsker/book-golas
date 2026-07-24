@@ -5,7 +5,6 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 import 'circular_progress_painter.dart';
-import 'page_swipe_updater.dart';
 
 class DashboardProgressWidget extends StatelessWidget {
   final double animatedProgress;
@@ -16,7 +15,6 @@ class DashboardProgressWidget extends StatelessWidget {
   final int? dailyTargetPages;
   final bool isTodayGoalAchieved;
   final VoidCallback onDailyTargetTap;
-  final Future<void> Function(int newPage)? onPageUpdate;
 
   const DashboardProgressWidget({
     super.key,
@@ -28,7 +26,6 @@ class DashboardProgressWidget extends StatelessWidget {
     required this.dailyTargetPages,
     this.isTodayGoalAchieved = false,
     required this.onDailyTargetTap,
-    this.onPageUpdate,
   });
 
   @override
@@ -53,15 +50,7 @@ class DashboardProgressWidget extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: onPageUpdate != null
-                ? PageSwipeUpdater(
-                    currentPage: currentPage,
-                    totalPages: totalPages,
-                    onPageUpdate: onPageUpdate!,
-                    child:
-                        _buildProgressColumn(context, isDark, progressPercent),
-                  )
-                : _buildProgressColumn(context, isDark, progressPercent),
+            child: _buildProgressColumn(context, isDark, progressPercent),
           ),
           Container(
             width: 1,
@@ -102,7 +91,10 @@ class DashboardProgressWidget extends StatelessWidget {
   }
 
   Widget _buildProgressColumn(
-      BuildContext context, bool isDark, String progressPercent) {
+    BuildContext context,
+    bool isDark,
+    String progressPercent,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -151,23 +143,13 @@ class DashboardProgressWidget extends StatelessWidget {
             color: isDark ? Colors.grey[300] : Colors.grey[700],
           ),
         ),
-        if (onPageUpdate != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            AppLocalizations.of(context).pageSwipeHint,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-          ),
-        ],
       ],
     );
   }
 
   Widget _buildDailyTargetButton(BuildContext context, bool isDark) {
-    final dailyTarget = dailyTargetPages ??
+    final dailyTarget =
+        dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
     if (dailyTarget <= 0) return const SizedBox.shrink();
 
@@ -187,14 +169,17 @@ class DashboardProgressWidget extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    AppLocalizations.of(context)
-                        .todayGoalWithPages(dailyTarget),
+                    AppLocalizations.of(
+                      context,
+                    ).todayGoalWithPages(dailyTarget),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: BLabColors.success,
                     ),
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
                   ),
                 ),
                 const SizedBox(width: 6),

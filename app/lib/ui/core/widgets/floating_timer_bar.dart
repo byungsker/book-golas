@@ -290,40 +290,44 @@ class _FloatingTimerBarState extends State<FloatingTimerBar>
       Duration duration, bool isInBookDetailScreen) async {
     final l10n = AppLocalizations.of(context);
 
-    // Fetch book info to get currentPage and totalPages
     final bookService = BookService();
     final book = await bookService.getBookById(bookId);
 
     if (book == null || !mounted) return;
 
-    await PageUpdateModal.show(
+    final result = await PageUpdateModal.show(
       context: context,
       currentPage: book.currentPage,
       totalPages: book.totalPages,
       readingDuration: duration,
-      onUpdate: (newPage) async {
-        await bookService.updateCurrentPage(bookId, newPage);
+      isTimerFlow: true,
+    );
+
+    if (!mounted) return;
+
+    if (result.page != null) {
+      await bookService.updateCurrentPage(
+        bookId,
+        result.page!,
+        readingTime: duration.inSeconds,
+      );
+
+      if (mounted) {
+        if (!isInBookDetailScreen) {
+          await _navigateToBookDetail(bookId);
+        }
 
         if (mounted) {
-          if (!isInBookDetailScreen) {
-            await _navigateToBookDetail(bookId);
-          }
-
-          if (mounted) {
-            CustomSnackbar.show(
-              context,
-              message: l10n.pageUpdateSuccess(newPage),
-              type: BLabSnackbarType.success,
-              rootOverlay: true,
-              bottomOffset: 100,
-            );
-          }
+          CustomSnackbar.show(
+            context,
+            message: l10n.pageUpdateSuccess(result.page!),
+            type: BLabSnackbarType.success,
+            rootOverlay: true,
+            bottomOffset: 100,
+          );
         }
-      },
-      onSkip: () {
-        // Do nothing on skip - just close the dialog
-      },
-    );
+      }
+    }
   }
 
   @override

@@ -6,6 +6,7 @@ export const config = {
   },
   supabase: {
     url: Deno.env.get("SUPABASE_URL") || "",
+    anonKey: Deno.env.get("SUPABASE_ANON_KEY") || "",
     serviceRoleKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
   },
   rag: {
@@ -22,7 +23,11 @@ export function validateConfig(): void {
   if (!config.openai.apiKey) {
     throw new Error("OPENAI_API_KEY not configured");
   }
-  if (!config.supabase.url || !config.supabase.serviceRoleKey) {
+  if (
+    !config.supabase.url ||
+    !config.supabase.anonKey ||
+    !config.supabase.serviceRoleKey
+  ) {
     throw new Error("Supabase credentials not configured");
   }
 }

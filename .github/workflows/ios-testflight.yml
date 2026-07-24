@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - dev
+    # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
+    paths-ignore:
+      - 'web/**'
+      - 'docs/**'
+      - '**/*.md'
+      - '.gitignore'
+      - '.editorconfig'
   workflow_dispatch:
 
 jobs:
@@ -26,10 +33,40 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Configure RevenueCat Webhook Secret
+        id: revenuecat-secret
+        run: |
+          test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
+          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REVENUECAT_WEBHOOK_AUTH_KEY: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_DEV }}
+
+      - name: Repair migration history (orphan remote migrations)
+        run: |
+          echo "Marking orphan remote migrations as reverted (idempotent)..."
+          supabase migration repair --status reverted 20260419123526 20260419130933 || true
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Apply Migrations
         run: |
           echo "Applying migrations to Dev database..."
           supabase db push --include-all
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy Edge Functions (Dev)
+        if: ${{ !cancelled() && steps.revenuecat-secret.outcome == 'success' }}
+        run: |
+          echo "Deploying Edge Functions to Dev..."
+          for fn in supabase/functions/*/; do
+            fn_name=$(basename "$fn")
+            [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
+            echo "  Deploying: $fn_name"
+            supabase functions deploy "$fn_name"
+          done
+          echo "✅ All Edge Functions deployed"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
@@ -41,12 +78,60 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
   build-and-deploy:
-    # needs: migrate-database  # Temporarily disabled due to migration history mismatch
-    runs-on: self-hosted
+    needs: migrate-database
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          XCODE_26_PATH=""
+          XCODE_26_WITH_IOS_SDK_PATH=""
+
+          echo "Available Xcode installations:"
+          for candidate in /Applications/Xcode*.app; do
+            [ -d "$candidate" ] || continue
+            version=$("$candidate/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | sed -n '1p' || true)
+            sdks=$(DEVELOPER_DIR="$candidate/Contents/Developer" "$candidate/Contents/Developer/usr/bin/xcodebuild" -showsdks 2>/dev/null || true)
+            echo "- $candidate: $version"
+            echo "$sdks" | grep -E 'iphoneos|iOS SDK' || true
+
+            if echo "$version" | grep -q '^Xcode 26'; then
+              [ -z "$XCODE_26_PATH" ] && XCODE_26_PATH="$candidate"
+              if echo "$sdks" | grep -q 'iphoneos26'; then
+                XCODE_26_WITH_IOS_SDK_PATH="$candidate"
+                break
+              fi
+            fi
+          done
+
+          if [ -z "$XCODE_26_PATH" ]; then
+            echo "::error::Xcode 26+ is required for App Store Connect/TestFlight uploads. Install/select Xcode 26+ on the runner."
+            xcodebuild -version || true
+            exit 1
+          fi
+
+          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
+            echo "iOS 26 SDK is missing from the first Xcode 26 candidates. Attempting to install the iOS platform..."
+            DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -downloadPlatform iOS || true
+            if DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -showsdks | grep -q 'iphoneos26'; then
+              XCODE_26_WITH_IOS_SDK_PATH="$XCODE_26_PATH"
+            fi
+          fi
+
+          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
+            echo "::error::Xcode 26+ was found, but no installation has the iOS 26 SDK required for device builds."
+            exit 1
+          fi
+
+          echo "DEVELOPER_DIR=$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer" >> "$GITHUB_ENV"
+          sudo xcode-select -s "$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer"
+          xcodebuild -version
+          sudo xcodebuild -runFirstLaunch || true
+          xcodebuild -downloadPlatform iOS || true
+          xcodebuild -showsdks | grep iphoneos
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -55,14 +140,17 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
+      - name: Setup Ruby (Homebrew)
+        run: |
+          echo "/opt/homebrew/opt/ruby/bin" >> $GITHUB_PATH
+          export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+          ruby -v
+          gem list bundler
 
       - name: Install Ruby dependencies
         run: |
           cd app/ios
+          bundle config set --local path vendor/bundle
           bundle install
 
       - name: Flutter pub get
@@ -71,6 +159,9 @@ jobs:
           flutter pub get
 
       - name: Install CocoaPods
+        env:
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
           bundle exec pod install --repo-update
@@ -139,11 +230,13 @@ jobs:
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
+        env:
+          PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
         run: |
           cd app
-          # Build number starts from 200 (run_number + 135)
-          BUILD_NUMBER=$(( ${{ github.run_number }} + 135 ))
-          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-number=$BUILD_NUMBER
+          BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
+          BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
+          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER --dart-define=PAID_SUBSCRIPTIONS_ENABLED=$PAID_SUBSCRIPTIONS_ENABLED
 
       - name: Build and Upload to TestFlight
         env:
@@ -152,6 +245,8 @@ jobs:
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
           PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
           WIDGET_PROFILE_NAME: ${{ steps.install-cert.outputs.WIDGET_PROFILE_NAME }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
           bundle exec fastlane beta

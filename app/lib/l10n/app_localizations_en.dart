@@ -827,21 +827,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarLoadError => 'Failed to load data';
 
   @override
-  String get myPageDeleteAccountTitle => '계정 삭제';
+  String get myPageDeleteAccountTitle => 'Delete Account';
 
   @override
   String get myPageDeleteAccountConfirm =>
-      '정말로 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.';
+      'Are you sure you want to delete your account?\n\nThis action cannot be undone, and all data will be permanently deleted.';
 
   @override
-  String get myPageDeleteAccountSuccess => '계정이 성공적으로 삭제되었습니다.';
+  String get myPageDeleteAccountSuccess =>
+      'Your account was deleted successfully.';
 
   @override
-  String get myPageDeleteAccountFailed => '계정 삭제에 실패했습니다. 다시 시도해주세요.';
+  String get myPageDeleteAccountFailed =>
+      'Failed to delete your account. Please try again.';
 
   @override
   String myPageErrorOccurred(String error) {
-    return '오류가 발생했습니다: $error';
+    return 'An error occurred: $error';
   }
 
   @override
@@ -854,7 +856,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageDailyReadingNotification => 'Daily Reading Goal Reminder';
 
   @override
-  String get myPageNoNotifications => '알림을 받지 않습니다';
+  String get myPageNoNotifications => 'Notifications are off';
 
   @override
   String get myPageNotificationsEnabled => 'Notifications enabled';
@@ -867,33 +869,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to change notification settings';
 
   @override
-  String get myPageTestNotification => '테스트 알림 (30초 후)';
+  String get myPageTestNotification => 'Test notification (in 30 seconds)';
 
   @override
-  String get myPageTestNotificationScheduled => '30초 후에 테스트 알림이 발송됩니다!';
+  String get myPageTestNotificationScheduled =>
+      'A test notification will be sent in 30 seconds.';
 
   @override
-  String get myPageNoNickname => '닉네임 없음';
+  String get myPageNoNickname => 'No nickname';
 
   @override
-  String get myPageEnterNickname => '닉네임을 입력하세요';
+  String get myPageEnterNickname => 'Enter a nickname';
 
   @override
-  String get myPageProfileImageChanged => '프로필 이미지가 변경되었습니다';
+  String get myPageProfileImageChanged => 'Profile image updated';
 
   @override
   String myPageProfileImageChangeFailed(String error) {
-    return '프로필 이미지 변경 실패: $error';
+    return 'Failed to change profile image: $error';
   }
 
   @override
-  String get myPageLanguageKorean => '한국어';
+  String get myPageLanguageKorean => 'Korean';
 
   @override
   String get myPageLanguageEnglish => 'English';
 
   @override
-  String get myPageDeleteAccountButton => '계정 삭제';
+  String get myPageDeleteAccountButton => 'Delete Account';
 
   @override
   String myPageNotificationTimeChanged(String time) {
@@ -1174,6 +1177,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageUpdateButton => 'Update';
+
+  @override
+  String get timerDidNotRead => 'I didn\'t read';
 
   @override
   String get imageSourceDocumentScan => 'Document Scan';
@@ -2195,7 +2201,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallBenefit1 => 'Unlimited concurrent reading';
 
   @override
-  String get paywallBenefit2 => 'AI Recall 30 times per month';
+  String get paywallBenefit2 => 'Unlimited AI Recall';
 
   @override
   String get paywallBenefit3 => 'Reading insights & statistics';
@@ -2204,7 +2210,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallMonthly => 'Monthly';
 
   @override
-  String get paywallMonthlyPrice => '\$3.90';
+  String get paywallMonthlyPrice => 'US\$2.99';
 
   @override
   String get paywallPerMonth => '/mo';
@@ -2213,13 +2219,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallYearly => 'Yearly';
 
   @override
-  String get paywallYearlyPrice => '\$29.90';
+  String get paywallYearlyPrice => 'US\$19.99';
 
   @override
   String get paywallPerYear => '/yr';
 
   @override
-  String get paywallYearlySavings => 'Save 36% with yearly';
+  String get paywallYearlySavings => 'Save 44% with yearly';
 
   @override
   String get paywallRestore => 'Restore purchases';
@@ -2265,10 +2271,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionUpgradeTitle => 'Upgrade to Pro';
 
   @override
+  String get subscriptionPopular => 'POPULAR';
+
+  @override
   String get subscriptionMonthly => 'Monthly';
 
   @override
-  String get subscriptionMonthlyPrice => '\$3.90';
+  String get subscriptionMonthlyPrice => 'US\$2.99';
 
   @override
   String get subscriptionPerMonth => '/mo';
@@ -2277,13 +2286,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionYearly => 'Yearly';
 
   @override
-  String get subscriptionYearlyPrice => '\$29.90';
+  String get subscriptionYearlyPrice => 'US\$19.99';
 
   @override
   String get subscriptionPerYear => '/yr';
 
   @override
-  String get subscriptionYearlySavings => 'Save 36%';
+  String get subscriptionYearlySavings => 'Save 44%';
 
   @override
   String get subscriptionBenefitsTitle => 'Pro Benefits';
@@ -2292,7 +2301,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionBenefit1 => 'Unlimited concurrent reading';
 
   @override
-  String get subscriptionBenefit2 => 'AI Recall 30 times per month';
+  String get subscriptionBenefit2 => 'Unlimited AI Recall';
 
   @override
   String get subscriptionBenefit3 => 'Reading insights & statistics';
@@ -2934,7 +2943,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightClearMemoryConfirm => 'Clear';
 
   @override
-  String get chartAiInsightAnalyzing => 'Analyzing...';
+  String get chartAiInsightAnalyzing => 'Analyzing your reading patterns...';
 
   @override
   String get chartAiInsightUnknownError => 'Unknown error occurred';
@@ -2943,27 +2952,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartAiInsightRetry => 'Retry';
 
   @override
-  String get chartAiInsightMinBooksRequired => 'More books needed';
+  String get chartAiInsightMinBooksRequired =>
+      'Read more books to unlock AI insights';
 
   @override
   String chartAiInsightMinBooksMessage(int count) {
-    return 'Complete at least $count books for AI analysis';
+    return 'Books completed: $count';
   }
 
   @override
-  String get chartAiInsightMinBooksHint => 'Keep reading to unlock insights';
+  String get chartAiInsightMinBooksHint =>
+      'At least 3 books; 5 or more recommended';
 
   @override
   String get chartAiInsightSampleLabel => 'Sample';
 
   @override
-  String get chartAiInsightEmptyState => 'No insights yet';
+  String get chartAiInsightEmptyState =>
+      'Tap the button below to generate insights';
 
   @override
-  String get chartAiInsightGenerateButton => 'Generate Insight';
+  String get chartAiInsightGenerateButton => 'Analyze';
 
   @override
-  String get chartAiInsightAlreadyAnalyzed => 'Already analyzed';
+  String get chartAiInsightAlreadyAnalyzed =>
+      'You\'ve already analyzed today. Try again tomorrow.';
 
   @override
   String chartAnnualGoalTitle(int year) {
@@ -3205,6 +3218,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartTodayGoal => 'Today\'s Goal';
+
+  @override
+  String get bookListCardOverallProgress => 'Progress';
 
   @override
   String get chartDailyPages => 'Daily Pages';
@@ -3478,6 +3494,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookInfoPageCount => 'Pages';
 
   @override
+  String get bookInfoPrice => 'Price';
+
+  @override
   String get bookInfoGenre => 'Genre';
 
   @override
@@ -3558,6 +3577,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageTermsAndPolicy => 'Terms & Policy';
 
   @override
+  String get myPageTermsOfService => 'Terms of Service';
+
+  @override
+  String get myPagePrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get myPageAdPrivacyOptions => 'Ad Privacy Options';
+
+  @override
   String get myPageVersion => 'Version';
 
   @override
@@ -3606,6 +3634,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Subscription service is currently unavailable.';
 
   @override
+  String get subscriptionUnavailableDuringBookLimit =>
+      'Free users can read up to 3 books simultaneously.\nWe couldn\'t open the subscription screen, so Pro upgrade is unavailable right now. Please try again later, or finish/pause an existing book first.';
+
+  @override
   String get myPagePasswordSameAsOld =>
       'New password must be different from the current password';
 
@@ -3650,6 +3682,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareStatusWillRetry => 'Re-reading';
 
   @override
+  String get shareBrandName => 'Bookgolas';
+
+  @override
+  String get shareReadingRecordTitle => 'My Reading Record';
+
+  @override
+  String get shareGoalAchievement => 'Goal achievement';
+
+  @override
+  String get shareMostReadGenres => 'Top genres';
+
+  @override
+  String get shareCompletedBooksLabel => 'Books finished';
+
+  @override
+  String get shareRecordsLabel => 'Records';
+
+  @override
+  String get sharePhotosLabel => 'Photos';
+
+  @override
+  String shareStartedOn(Object date) {
+    return 'Started $date';
+  }
+
+  @override
+  String shareCompletedInDays(int days) {
+    return 'Finished in $days days';
+  }
+
+  @override
+  String shareHighlightCount(int count) {
+    return '$count records';
+  }
+
+  @override
   String get loginSocialGoogle => 'Continue with Google';
 
   @override
@@ -3657,4 +3725,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageSwipeHint => '◀ Swipe to update page ▶';
+
+  @override
+  String get webviewLoadError => 'Unable to load page';
+
+  @override
+  String get bottomBarStartReading => 'Start Reading';
+
+  @override
+  String get bottomBarRecord => 'Record';
+
+  @override
+  String get bottomBarTimerStart => 'Start Timer';
+
+  @override
+  String get bottomBarPageUpdate => 'Update Page';
+
+  @override
+  String get bottomBarAddRecord => 'Add Record';
+
+  @override
+  String get bottomBarAiRecordSearch => 'AI Record Search';
+
+  @override
+  String get bookDetailStartNow => 'Start Now';
+
+  @override
+  String get bookDetailStartNowSubtitle => 'Start reading right now';
+
+  @override
+  String get bookDetailStartReadingTitle => 'Start Reading';
+
+  @override
+  String get bookDetailStartReadingSubtitle =>
+      'Set your target completion date';
 }

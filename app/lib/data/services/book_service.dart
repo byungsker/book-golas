@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
+import 'package:book_golas/data/services/book_limit_calculator.dart';
 import 'package:book_golas/data/services/widget_data_service.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
@@ -43,11 +44,15 @@ class BookService {
   }
 
   Future<Book?> addBook(Book book) async {
-    // Check concurrent reading limit for free users
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
-      throw ConcurrentReadingLimitException(
-        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
-      );
+    if (book.status == BookStatus.reading.value) {
+      final currentReadingCount =
+          BookLimitCalculator.countConcurrentReadingBooks(_books);
+      if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+          currentReadingCount)) {
+        throw ConcurrentReadingLimitException(
+          '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다. 기존 책을 완독/중단하거나 Pro로 업그레이드하세요.',
+        );
+      }
     }
 
     try {
@@ -69,11 +74,15 @@ class BookService {
   }
 
   Future<Book?> addBookWithUserId(Map<String, dynamic> bookData) async {
-    // Check concurrent reading limit for free users
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(_books.length)) {
-      throw ConcurrentReadingLimitException(
-        '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
-      );
+    if (bookData['status'] == BookStatus.reading.value) {
+      final currentReadingCount =
+          BookLimitCalculator.countConcurrentReadingBooks(_books);
+      if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+          currentReadingCount)) {
+        throw ConcurrentReadingLimitException(
+          '무료 사용자는 동시에 3권까지 독서 중으로 등록할 수 있습니다. 기존 책을 완독/중단하거나 Pro로 업그레이드하세요.',
+        );
+      }
     }
 
     try {
@@ -97,6 +106,7 @@ class BookService {
     String? isbn,
     String? genre,
     String? aladinUrl,
+    int? price,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -106,6 +116,7 @@ class BookService {
       if (isbn != null) updateData['isbn'] = isbn;
       if (genre != null) updateData['genre'] = genre;
       if (aladinUrl != null) updateData['aladin_url'] = aladinUrl;
+      if (price != null) updateData['price'] = price;
 
       if (updateData.length <= 1) return null;
 
@@ -161,6 +172,7 @@ class BookService {
     String bookId,
     int currentPage, {
     int? previousPage,
+    int? readingTime,
   }) async {
     try {
       int prevPage = previousPage ?? 0;
@@ -225,6 +237,8 @@ class BookService {
               'book_id': bookId,
               'page': currentPage,
               'previous_page': prevPage,
+              if (readingTime != null && readingTime > 0)
+                'reading_time': readingTime,
             });
             debugPrint('📖 [BookService] 히스토리 기록 성공: $prevPage → $currentPage');
           }
@@ -345,8 +359,12 @@ class BookService {
     DateTime? newTargetDate,
     bool incrementAttempt = true,
   }) async {
-    final currentReadingCount = _books.where((b) => b.status == BookStatus.reading.value && b.id != bookId).length;
-    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(currentReadingCount)) {
+    final currentReadingCount = BookLimitCalculator.countConcurrentReadingBooks(
+      _books,
+      excludeBookId: bookId,
+    );
+    if (!await SubscriptionUtils.canAddMoreConcurrentBooks(
+        currentReadingCount)) {
       throw ConcurrentReadingLimitException(
         '동시 읽기 제한에 도달했습니다. Pro 업그레이드로 무제한 이용하세요.',
       );
@@ -559,6 +577,27 @@ class BookService {
     } catch (e) {
       debugPrint('완독 책 개수 조회 실패: $e');
       return 0;
+    }
+  }
+
+  Future<void> recordReadingTime({
+    required String bookId,
+    required int currentPage,
+    required int readingTimeSeconds,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return;
+
+      await _supabase.from('reading_progress_history').insert({
+        'book_id': bookId,
+        'user_id': userId,
+        'page': currentPage,
+        'previous_page': currentPage,
+        'reading_time': readingTimeSeconds,
+      });
+    } catch (e) {
+      debugPrint('타이머 기록 저장 실패 (나중에하기): $e');
     }
   }
 }

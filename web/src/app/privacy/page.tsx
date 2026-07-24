@@ -95,7 +95,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong className="text-gray-200">이메일</strong>:
-              support@bookgolas.com
+              support@bookgolas.app
             </li>
           </ul>
 
@@ -109,7 +109,7 @@ export default function PrivacyPage() {
           <ul className="list-disc pl-6 mb-4 text-gray-300">
             <li>
               <strong className="text-gray-200">이메일</strong>:
-              support@bookgolas.com
+              support@bookgolas.app
             </li>
           </ul>
         </div>

@@ -51,8 +51,28 @@ serve(async (req: Request) => {
     if (!OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader ?? "" } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
 
     const {
@@ -67,7 +87,26 @@ serve(async (req: Request) => {
     if (!userId || !bookId || !contentType || !contentText) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
+      );
+    }
+
+    if (userId !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "userId does not match authenticated user" }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
       );
     }
 
@@ -79,7 +118,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const embedding = await generateEmbedding(contentText);
@@ -100,7 +139,7 @@ serve(async (req: Request) => {
         },
         {
           onConflict: "content_type,source_id",
-        }
+        },
       )
       .select("id")
       .single();
@@ -117,11 +156,11 @@ serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",

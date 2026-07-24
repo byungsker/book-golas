@@ -5,15 +5,18 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/pressable_wrapper.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/book_list/widgets/book_list_progress_calculator.dart';
 
 class BookListCard extends StatelessWidget {
   final Book book;
   final VoidCallback onTap;
+  final int todayPagesRead;
 
   const BookListCard({
     super.key,
     required this.book,
     required this.onTap,
+    this.todayPagesRead = 0,
   });
 
   @override
@@ -24,7 +27,10 @@ class BookListCard extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(
-        book.targetDate.year, book.targetDate.month, book.targetDate.day);
+      book.targetDate.year,
+      book.targetDate.month,
+      book.targetDate.day,
+    );
     final daysLeft = target.difference(today).inDays;
     final pageProgress = book.totalPages > 0
         ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
@@ -59,7 +65,12 @@ class BookListCard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildBookInfo(
-                      isDark, daysLeft, pageProgress, isCompleted, l10n),
+                    isDark,
+                    daysLeft,
+                    pageProgress,
+                    isCompleted,
+                    l10n,
+                  ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -86,16 +97,19 @@ class BookListCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
-        child: BookImageWidget(
-          imageUrl: book.imageUrl,
-          iconSize: 30,
-        ),
+        child: BookImageWidget(imageUrl: book.imageUrl, iconSize: 30),
       ),
     );
   }
 
-  Widget _buildBookInfo(bool isDark, int daysLeft, double pageProgress,
-      bool isCompleted, AppLocalizations l10n) {
+  Widget _buildBookInfo(
+    bool isDark,
+    int daysLeft,
+    double pageProgress,
+    bool isCompleted,
+    AppLocalizations l10n,
+  ) {
+    final isReading = book.status == BookStatus.reading.value && !isCompleted;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,13 +126,106 @@ class BookListCard extends StatelessWidget {
         const SizedBox(height: 6),
         _buildDdayAndPages(isDark, daysLeft, isCompleted, l10n),
         const SizedBox(height: 8),
-        _buildProgressBar(isDark, pageProgress, isCompleted),
+        if (isReading)
+          _buildDualProgressBars(isDark, pageProgress, l10n)
+        else
+          _buildProgressBar(isDark, pageProgress, isCompleted),
+      ],
+    );
+  }
+
+  Widget _buildDualProgressBars(
+    bool isDark,
+    double pageProgress,
+    AppLocalizations l10n,
+  ) {
+    final todayGoalProgress = calculateTodayGoalProgress(
+      book: book,
+      todayPagesRead: todayPagesRead,
+    );
+    final scheduleProgress = todayGoalProgress.progress;
+    final schedulePercent = todayGoalProgress.percentLabel;
+    final overallPercent = (pageProgress * 100).toStringAsFixed(0);
+
+    return Column(
+      children: [
+        _buildLabeledProgressRow(
+          label: l10n.chartTodayGoal,
+          percent: schedulePercent,
+          progress: scheduleProgress,
+          color: BLabColors.success,
+          isDark: isDark,
+        ),
+        const SizedBox(height: 6),
+        _buildLabeledProgressRow(
+          label: l10n.bookListCardOverallProgress,
+          percent: '$overallPercent%',
+          progress: pageProgress,
+          color: BLabColors.primary,
+          isDark: isDark,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabeledProgressRow({
+    required String label,
+    required String percent,
+    required double progress,
+    required Color color,
+    required bool isDark,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 62,
+          child: Text(
+            label,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 5,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        SizedBox(
+          width: 32,
+          child: Text(
+            percent,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildDdayAndPages(
-      bool isDark, int daysLeft, bool isCompleted, AppLocalizations l10n) {
+    bool isDark,
+    int daysLeft,
+    bool isCompleted,
+    AppLocalizations l10n,
+  ) {
     return Row(
       children: [
         Container(

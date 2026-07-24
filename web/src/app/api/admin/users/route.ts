@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminUser } from "@/lib/supabase-server";
 
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,6 +19,10 @@ function getAdminClient() {
 }
 
 export async function GET() {
+  if (!(await requireAdminUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const supabaseAdmin = getAdminClient();
   if (!supabaseAdmin) {
     return NextResponse.json(
@@ -40,6 +45,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  if (!(await requireAdminUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const supabaseAdmin = getAdminClient();
   if (!supabaseAdmin) {
     return NextResponse.json(

@@ -73,6 +73,7 @@ void main() {
           'review': 'Great book!',
           'review_link': 'https://blog.example.com/review',
           'aladin_url': 'https://aladin.co.kr/book/123',
+          'price': 18000,
         };
 
         final book = Book.fromJson(json);
@@ -95,6 +96,7 @@ void main() {
         expect(book.review, 'Great book!');
         expect(book.reviewLink, 'https://blog.example.com/review');
         expect(book.aladinUrl, 'https://aladin.co.kr/book/123');
+        expect(book.price, 18000);
       });
 
       test('should parse longReview field from JSON', () {
@@ -136,6 +138,7 @@ void main() {
           status: 'reading',
           rating: 4,
           review: 'Good read',
+          price: 22000,
         );
 
         final json = book.toJson();
@@ -150,6 +153,7 @@ void main() {
         expect(json['status'], 'reading');
         expect(json['rating'], 4);
         expect(json['review'], 'Good read');
+        expect(json['price'], 22000);
       });
 
       test('should include longReview when present', () {
@@ -182,6 +186,7 @@ void main() {
         expect(json.containsKey('genre'), false);
         expect(json.containsKey('publisher'), false);
         expect(json.containsKey('isbn'), false);
+        expect(json.containsKey('price'), false);
       });
 
       test('should be reversible with fromJson', () {

@@ -5,17 +5,6 @@
 - Email: reviewer@bookgolas.app
 - Password: ReviewBookgolas2026!
 
-## Testing Pro Features / Pro 기능 테스트
-
-심사용 계정은 Pro 구독이 활성화되어 있습니다. 로그인 후 모든 Pro 기능을 바로 테스트할 수 있습니다.
-
-The demo account has an active Pro subscription. After signing in, all Pro features are immediately available for testing.
-
-### Pro features include:
-- Unlimited book tracking (무제한 독서 기록)
-- Unlimited AI Recall searches (AI Recall 무제한 검색)
-- Full reading insights (독서 인사이트 전체 이용)
-
 ## Basic App Flow / 앱 기본 사용 흐름
 
 ### 1. Sign In / 로그인
@@ -52,10 +41,8 @@ AI Recall과 도서 검색 기능은 인터넷 연결이 필요합니다. 독서
 
 AI Recall and book search require an internet connection. Reading logs and notes can be created offline and will sync when connectivity is restored.
 
-## Subscription Information / 구독 정보
+## Monetization / 수익화
 
-- Free: Up to 3 concurrent books, 10 AI Recall searches/month
-- Pro Monthly: US$2.99/month
-- Pro Annual: US$19.99/year (44% savings)
+현재 버전은 인앱 구매나 구독을 제공하지 않으며 AdMob 광고가 표시될 수 있습니다.
 
-Subscriptions are managed through StoreKit 2. Auto-renewable subscription with standard Apple billing.
+This version does not offer in-app purchases or subscriptions and may display AdMob ads.
