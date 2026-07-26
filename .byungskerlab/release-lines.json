@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "delivery_units": {
+    "governance": {
+      "active_versions": [
+        "1.0.0"
+      ],
+      "evidence_refs": [
+        ".byungskerlab/branch-policy.json"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "mobile": {
+      "active_versions": [
+        "1.0.2"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md",
+        "app/pubspec.yaml"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "web": {
+      "active_versions": [],
+      "evidence_refs": [],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "backend": {
+      "active_versions": [],
+      "evidence_refs": [],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    }
+  }
+}
