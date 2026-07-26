@@ -18,8 +18,7 @@
         "1.0.2"
       ],
       "evidence_refs": [
-        "docs/product-roadmap.md",
-        "app/pubspec.yaml"
+        "docs/product-roadmap.md"
       ],
       "promotion_sources": {
         "release": {},

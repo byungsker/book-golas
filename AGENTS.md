@@ -150,10 +150,10 @@ UI (lib/ui/) → ViewModel → Repository → Service
   `.byungskerlab/release-lines.json`과 전역 Target Delivery Contract를
   따른다.
 - 기계 검증 가능한 활성 버전 원본은 `release-lines.json`이며, 현재
-  승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`와
-  `app/pubspec.yaml`이다. 웹 또는 독립 backend는 승인된 다음 버전이
-  아직 없으므로 버전 원본과 active version을 먼저 갱신하기 전에는
-  브랜치나 PR을 만들 수 없다.
+  승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
+  현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
+  웹 또는 독립 backend는 승인된 다음 버전이 아직 없으므로 버전 원본과
+  active version을 먼저 갱신하기 전에는 브랜치나 PR을 만들 수 없다.
 - active version을 여는 정책 변경은 byungsker 검토가 필요한
   `chore/governance/1.0.0/<scope>` PR로만 수행한다.
 - `daily/*`는 사용하지 않는다.
