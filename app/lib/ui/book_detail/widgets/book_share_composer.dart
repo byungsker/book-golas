@@ -113,7 +113,9 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
 
       if (!_hasManualEdits) {
         _replaceNoteText(_selectedNotesText);
-      } else if (!wasSelected) {
+      } else if (wasSelected) {
+        _replaceNoteText(_removeSelectedNote(_noteController.text, note.text));
+      } else {
         final selectedText = note.text.trim();
         final currentText = _noteController.text.trimRight();
         final paragraphs = currentText
@@ -129,6 +131,24 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
         }
       }
     });
+  }
+
+  String _removeSelectedNote(String currentText, String selectedText) {
+    final target = selectedText.trim();
+    if (target.isEmpty) return currentText.trim();
+
+    var removed = false;
+    final paragraphs = currentText
+        .split(RegExp(r'\n\s*\n'))
+        .map((text) => text.trim())
+        .where((text) {
+      if (!removed && text == target) {
+        removed = true;
+        return false;
+      }
+      return text.isNotEmpty;
+    });
+    return paragraphs.join('\n\n');
   }
 
   void _submit() {
@@ -186,7 +206,7 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
               Expanded(
                 child: Text(
                   l10n.shareComposerTitle,
-                  style: BLabTypography.title.copyWith(
+                  style: AppTypography.bookShareTitle.copyWith(
                     color: textColor,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -205,12 +225,14 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
             widget.book.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: BLabTypography.caption.copyWith(color: secondaryColor),
+            style: AppTypography.bookShareCaption.copyWith(
+              color: secondaryColor,
+            ),
           ),
           const SizedBox(height: 18),
           Text(
             l10n.shareComposerNotesTitle,
-            style: BLabTypography.label.copyWith(
+            style: AppTypography.bookShareLabel.copyWith(
               color: textColor,
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -227,7 +249,7 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                   Expanded(
                     child: Text(
                       l10n.shareComposerNoNotes,
-                      style: BLabTypography.caption
+                      style: AppTypography.bookShareCaption
                           .copyWith(color: secondaryColor),
                     ),
                   ),
@@ -252,7 +274,9 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
           const SizedBox(height: 6),
           Text(
             l10n.shareComposerPreviewLimit,
-            style: BLabTypography.caption.copyWith(color: secondaryColor),
+            style: AppTypography.bookShareCaption.copyWith(
+              color: secondaryColor,
+            ),
           ),
           const SizedBox(height: 16),
           BLabButton(
@@ -323,7 +347,7 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                         note.text,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: BLabTypography.label.copyWith(
+                        style: AppTypography.bookShareLabel.copyWith(
                           color: textColor,
                           fontSize: 14,
                           height: 1.4,
@@ -333,7 +357,7 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                         const SizedBox(height: 6),
                         Text(
                           l10n.shareComposerPage(note.pageNumber!),
-                          style: BLabTypography.caption.copyWith(
+                          style: AppTypography.bookShareCaption.copyWith(
                             color: secondaryColor,
                           ),
                         ),

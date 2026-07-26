@@ -11,16 +11,15 @@ void main() {
     testWidgets('renders localized english share content', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
+      final today = _dateOnly(DateTime.now());
+      final targetDate = today.subtract(const Duration(days: 3));
       final book = Book(
         id: 'book-1',
         title: 'Atomic Habits',
         author: 'James Clear',
-        startDate: DateTime(2026, 3, 1),
-        targetDate: DateTime(2026, 3, 31),
+        startDate: targetDate.subtract(const Duration(days: 30)),
+        targetDate: targetDate,
         currentPage: 120,
         totalPages: 240,
         status: BookStatus.reading.value,
@@ -40,11 +39,16 @@ void main() {
       expect(find.text('Reading'), findsOneWidget);
       expect(find.text('50'), findsOneWidget);
       expect(find.text('%'), findsOneWidget);
-      expect(find.text('Due 2026.03.31'), findsOneWidget);
+      expect(find.text('Due ${_formatDate(targetDate)}'), findsOneWidget);
       expect(find.text('Notes from this book'), findsOneWidget);
       expect(find.text('120p left'), findsOneWidget);
-      expect(find.textContaining('days overdue'), findsOneWidget);
-      expect(find.text('Started 03.01'), findsOneWidget);
+      expect(find.text('3 days overdue'), findsOneWidget);
+      expect(
+        find.text(
+          'Started ${_formatShortDate(targetDate.subtract(const Duration(days: 30)))}',
+        ),
+        findsOneWidget,
+      );
       expect(find.text('7 records'), findsOneWidget);
       expect(
         find.text('Small habits compound into remarkable results.'),
@@ -60,10 +64,7 @@ void main() {
     testWidgets('renders localized korean completion content', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
       final book = Book(
         id: 'book-2',
         title: '아주 작은 습관의 힘',
@@ -99,10 +100,7 @@ void main() {
     testWidgets('pluralizes singular english share metadata', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
       final book = Book(
         id: 'book-singular',
         title: 'Deep Work',
@@ -127,10 +125,7 @@ void main() {
     testWidgets('omits the note panel when a reading share has no note', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
       final book = Book(
         id: 'book-no-note',
         title: 'Deep Work',
@@ -157,10 +152,7 @@ void main() {
     testWidgets('honors an explicit empty note instead of restoring a review', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
       final book = Book(
         id: 'book-empty-note',
         title: 'Essentialism',
@@ -189,10 +181,7 @@ void main() {
     testWidgets('renders localized planned and retry metadata', (
       WidgetTester tester,
     ) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(500, 900);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _configureViewport(tester);
       final plannedBook = Book(
         id: 'planned-book',
         title: 'The Creative Act',
@@ -230,7 +219,53 @@ void main() {
       );
       expect(find.text('Attempt 2'), findsOneWidget);
     });
+
+    testWidgets('wraps long Korean titles and constrains long metadata', (
+      WidgetTester tester,
+    ) async {
+      _configureViewport(tester);
+      final book = Book(
+        id: 'book-long-content',
+        title: '생각대로말할수없어답답했던개발자를위한생각의정리문서작성법',
+        author: '아주 긴 이름을 가진 저자',
+        startDate: DateTime(2026, 7, 1),
+        targetDate: DateTime(2026, 8, 1),
+        plannedStartDate: DateTime(2026, 7, 28),
+        totalPages: 420,
+        genre: '소프트웨어개발과조직문화그리고생산성을아우르는매우긴분류명',
+        status: BookStatus.planned.value,
+      );
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          locale: const Locale('ko'),
+          child: BookShareCard(book: book),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('생각대로말할수없어'), findsOneWidget);
+    });
   });
+}
+
+void _configureViewport(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = const Size(500, 900);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  addTearDown(tester.view.resetPhysicalSize);
+}
+
+DateTime _dateOnly(DateTime date) {
+  return DateTime(date.year, date.month, date.day);
+}
+
+String _formatDate(DateTime date) {
+  return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+}
+
+String _formatShortDate(DateTime date) {
+  return '${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
 }
 
 Widget _buildTestApp({required Locale locale, required Widget child}) {

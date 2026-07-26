@@ -75,13 +75,13 @@
 
 최신 실기기 비율 렌더 증거:
 
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-restored-2026-07-26.png`
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-dark-editorial-final.png`
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-dark-editorial-thumbnail.png`
+- [복원된 최종 카드](assets/book-share-card-restored-2026-07-26.png)
+- [다크 에디토리얼 최종안](assets/book-share-card-dark-editorial-final.png)
+- [다크 에디토리얼 썸네일](assets/book-share-card-dark-editorial-thumbnail.png)
 
 이전 기준선 렌더:
 
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-editorial-ko.png`
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-editorial-en.png`
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-card-native-share.png`
-- `/Users/byungskersmacbook/.codex/visualizations/2026/07/25/019f96b9-0294-7082-9991-ec571545f852/book-share-native-share-sheet.png`
+- [한국어 에디토리얼 기준선](assets/book-share-card-editorial-ko.png)
+- [영어 에디토리얼 기준선](assets/book-share-card-editorial-en.png)
+- [네이티브 공유 카드 기준선](assets/book-share-card-native-share.png)
+- [네이티브 공유 시트 기준선](assets/book-share-native-share-sheet.png)

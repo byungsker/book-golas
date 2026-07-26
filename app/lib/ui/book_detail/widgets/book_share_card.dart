@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -39,6 +40,7 @@ class BookShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final noteBody = _resolvedNoteText;
 
     return SizedBox(
       width: cardWidth,
@@ -62,13 +64,13 @@ class BookShareCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: _buildTitleAndAuthor(),
             ),
-            if (_hasNoteText) ...[
+            if (noteBody != null) ...[
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: _horizontalInset,
                 ),
-                child: _buildNote(l10n),
+                child: _buildNote(l10n, noteBody),
               ),
             ],
             if (book.status == BookStatus.reading.value) ...[
@@ -182,7 +184,7 @@ class BookShareCard extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             config.label,
-            style: BLabTypography.caption.copyWith(
+            style: AppTypography.bookShareCaption.copyWith(
               color: config.color,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -210,7 +212,7 @@ class BookShareCard extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: BLabTypography.title.copyWith(
+          style: AppTypography.bookShareTitle.copyWith(
             color: _ink,
             fontSize: 18,
             height: 1.25,
@@ -225,7 +227,7 @@ class BookShareCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: BLabTypography.label.copyWith(
+            style: AppTypography.bookShareLabel.copyWith(
               color: _inkMuted,
               fontSize: 13,
               height: 1.3,
@@ -236,7 +238,7 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNote(AppLocalizations l10n) {
+  Widget _buildNote(AppLocalizations l10n, String noteBody) {
     return SizedBox(
       height: 154,
       child: DecoratedBox(
@@ -267,7 +269,7 @@ class BookShareCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.shareNoteHeading,
-                      style: BLabTypography.caption.copyWith(
+                      style: AppTypography.bookShareCaption.copyWith(
                         color: _inkSoft,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -277,10 +279,10 @@ class BookShareCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Expanded(
                       child: Text(
-                        _resolvedNoteText!,
+                        noteBody,
                         maxLines: 5,
                         overflow: TextOverflow.ellipsis,
-                        style: BLabTypography.label.copyWith(
+                        style: AppTypography.bookShareLabel.copyWith(
                           color: _inkMuted,
                           fontSize: 13.5,
                           height: 1.45,
@@ -331,7 +333,7 @@ class BookShareCard extends StatelessWidget {
                 children: [
                   Text(
                     '$percent',
-                    style: BLabTypography.title.copyWith(
+                    style: AppTypography.bookShareTitle.copyWith(
                       color: _ink,
                       fontSize: 36,
                       height: 1,
@@ -341,7 +343,7 @@ class BookShareCard extends StatelessWidget {
                   ),
                   Text(
                     '%',
-                    style: BLabTypography.title.copyWith(
+                    style: AppTypography.bookShareTitle.copyWith(
                       color: _inkMuted,
                       fontSize: 18,
                       height: 1,
@@ -365,7 +367,7 @@ class BookShareCard extends StatelessWidget {
                           : l10n.sharePages(book.currentPage),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: BLabTypography.caption.copyWith(
+                      style: AppTypography.bookShareCaption.copyWith(
                         color: _inkSoft,
                         fontSize: 12,
                       ),
@@ -378,7 +380,7 @@ class BookShareCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,
-                      style: BLabTypography.caption.copyWith(
+                      style: AppTypography.bookShareCaption.copyWith(
                         color: daysUntilDeadline >= 0
                             ? _inkMuted
                             : BLabColors.errorLight,
@@ -397,7 +399,7 @@ class BookShareCard extends StatelessWidget {
                       l10n.shareRemainingPages(remainingPages),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: BLabTypography.caption.copyWith(
+                      style: AppTypography.bookShareCaption.copyWith(
                         color: _inkMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -413,7 +415,7 @@ class BookShareCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,
-                      style: BLabTypography.caption.copyWith(
+                      style: AppTypography.bookShareCaption.copyWith(
                         color: daysUntilDeadline >= 0
                             ? _inkMuted
                             : BLabColors.errorLight,
@@ -470,33 +472,38 @@ class BookShareCard extends StatelessWidget {
         final isLast = entry.key == stats.length - 1;
         final stat = entry.value;
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(stat.icon, style: const TextStyle(fontSize: 13)),
-            const SizedBox(width: 4),
-            Text(
-              stat.value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: BLabTypography.label.copyWith(
-                color: _inkMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (!isLast) ...[
-              const SizedBox(width: 8),
-              Text(
-                '·',
-                style: BLabTypography.label.copyWith(
-                  color: _inkSoft,
-                  fontSize: 12,
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(stat.icon, style: const TextStyle(fontSize: 13)),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  stat.value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bookShareLabel.copyWith(
+                    color: _inkMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              if (!isLast) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '·',
+                  style: AppTypography.bookShareLabel.copyWith(
+                    color: _inkSoft,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
             ],
-          ],
+          ),
         );
       }).toList(),
     );
@@ -517,7 +524,7 @@ class BookShareCard extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           l10n.shareBrandName,
-          style: BLabTypography.label.copyWith(
+          style: AppTypography.bookShareLabel.copyWith(
             color: _inkMuted,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -527,7 +534,7 @@ class BookShareCard extends StatelessWidget {
         const Spacer(),
         Text(
           _formatLongDate(DateTime.now()),
-          style: BLabTypography.caption.copyWith(
+          style: AppTypography.bookShareCaption.copyWith(
             color: _inkSoft,
             fontSize: 11,
           ),
@@ -535,8 +542,6 @@ class BookShareCard extends StatelessWidget {
       ],
     );
   }
-
-  bool get _hasNoteText => _resolvedNoteText != null;
 
   String? get _resolvedNoteText {
     final value = noteText?.trim();
@@ -557,13 +562,16 @@ class BookShareCard extends StatelessWidget {
   String _keepKoreanWordsTogether(String value) {
     return value.replaceAllMapped(
       RegExp(r'[가-힣]{2,}'),
-      (match) => match.group(0)!.split('').join('\u2060'),
+      (match) {
+        final word = match.group(0)!;
+        return word.length <= 6 ? word.split('').join('\u2060') : word;
+      },
     );
   }
 
   List<_StatItem> _buildStats(AppLocalizations l10n) {
-    switch (book.status) {
-      case 'reading':
+    switch (BookStatus.fromString(book.status)) {
+      case BookStatus.reading:
         return [
           _StatItem(
             icon: '📅',
@@ -574,7 +582,7 @@ class BookShareCard extends StatelessWidget {
             value: l10n.shareHighlightCount(highlightCount),
           ),
         ];
-      case 'completed':
+      case BookStatus.completed:
         final readDays = book.updatedAt != null
             ? book.updatedAt!.difference(book.startDate).inDays + 1
             : DateTime.now().difference(book.startDate).inDays + 1;
@@ -592,7 +600,7 @@ class BookShareCard extends StatelessWidget {
             value: l10n.shareHighlightCount(highlightCount),
           ),
         ];
-      case 'planned':
+      case BookStatus.planned:
         return [
           _StatItem(
             icon: '📅',
@@ -606,7 +614,7 @@ class BookShareCard extends StatelessWidget {
             value: book.totalPages > 0 ? l10n.sharePages(book.totalPages) : '-',
           ),
         ];
-      case 'will_retry':
+      case BookStatus.willRetry:
         return [
           _StatItem(
             icon: '🔁',
@@ -618,55 +626,34 @@ class BookShareCard extends StatelessWidget {
             value: book.totalPages > 0 ? l10n.sharePages(book.totalPages) : '-',
           ),
         ];
-      default:
-        return [
-          _StatItem(
-            icon: '📖',
-            value: l10n.sharePages(book.currentPage),
-          ),
-          _StatItem(
-            icon: '📄',
-            value: l10n.sharePages(book.totalPages),
-          ),
-          _StatItem(
-            icon: '💡',
-            value: l10n.shareHighlightCount(highlightCount),
-          ),
-        ];
     }
   }
 
   _StatusConfig _statusConfig(AppLocalizations l10n) {
-    switch (book.status) {
-      case 'reading':
+    switch (BookStatus.fromString(book.status)) {
+      case BookStatus.reading:
         return _StatusConfig(
           label: l10n.shareStatusReading,
           icon: CupertinoIcons.book,
           color: _accent,
         );
-      case 'completed':
+      case BookStatus.completed:
         return _StatusConfig(
           label: l10n.shareStatusCompleted,
           icon: CupertinoIcons.checkmark_circle_fill,
           color: BLabColors.success,
         );
-      case 'planned':
+      case BookStatus.planned:
         return _StatusConfig(
           label: l10n.shareStatusPlanned,
           icon: CupertinoIcons.bookmark_fill,
           color: BLabColors.warning,
         );
-      case 'will_retry':
+      case BookStatus.willRetry:
         return _StatusConfig(
           label: l10n.shareStatusWillRetry,
           icon: CupertinoIcons.arrow_2_circlepath,
           color: BLabColors.purple,
-        );
-      default:
-        return _StatusConfig(
-          label: l10n.shareStatusReading,
-          icon: CupertinoIcons.book,
-          color: _accent,
         );
     }
   }

@@ -9,10 +9,7 @@ void main() {
   testWidgets('merges selected notes and returns editable share text', (
     WidgetTester tester,
   ) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(500, 900);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    addTearDown(tester.view.resetPhysicalSize);
+    _configureViewport(tester);
     BookShareComposerResult? result;
     final book = Book(
       id: 'book-1',
@@ -67,30 +64,39 @@ void main() {
       '첫 번째 기록\n\n두 번째 기록\n\n세 번째 기록',
     );
 
-    await tester.enterText(find.byType(TextField).last, '직접 다듬은 문장');
+    await tester.enterText(
+      find.byType(TextField).last,
+      '첫 번째 기록\n\n두 번째 기록\n\n세 번째 기록\n\n직접 다듬은 문장',
+    );
     await tester.tap(find.text('세 번째 기록'));
     await tester.pump();
     textField = tester.widget<TextField>(find.byType(TextField).last);
-    expect(textField.controller!.text, '직접 다듬은 문장');
+    expect(
+      textField.controller!.text,
+      '첫 번째 기록\n\n두 번째 기록\n\n직접 다듬은 문장',
+    );
 
     await tester.tap(find.text('세 번째 기록'));
     await tester.pump();
     textField = tester.widget<TextField>(find.byType(TextField).last);
-    expect(textField.controller!.text, '직접 다듬은 문장\n\n세 번째 기록');
+    expect(
+      textField.controller!.text,
+      '첫 번째 기록\n\n두 번째 기록\n\n직접 다듬은 문장\n\n세 번째 기록',
+    );
 
     await tester.tap(find.text('공유 이미지 만들기'));
     await tester.pumpAndSettle();
 
-    expect(result?.noteText, '직접 다듬은 문장\n\n세 번째 기록');
+    expect(
+      result?.noteText,
+      '첫 번째 기록\n\n두 번째 기록\n\n직접 다듬은 문장\n\n세 번째 기록',
+    );
   });
 
   testWidgets('keeps a large note list usable with large text', (
     WidgetTester tester,
   ) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(500, 900);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    addTearDown(tester.view.resetPhysicalSize);
+    _configureViewport(tester);
     final book = Book(
       id: 'book-large',
       title: 'Atomic Habits',
@@ -148,10 +154,7 @@ void main() {
   testWidgets('marks an intentionally empty note as a deliberate omission', (
     WidgetTester tester,
   ) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(500, 900);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    addTearDown(tester.view.resetPhysicalSize);
+    _configureViewport(tester);
     BookShareComposerResult? result;
     final book = Book(
       id: 'book-clear',
@@ -198,4 +201,11 @@ void main() {
     expect(result?.noteText, isNull);
     expect(result?.useBookReviewFallback, isFalse);
   });
+}
+
+void _configureViewport(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = const Size(500, 900);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  addTearDown(tester.view.resetPhysicalSize);
 }
