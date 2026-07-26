@@ -5,7 +5,8 @@ on:
     branches:
       - main
       - dev
-      - 'daily/**'
+      - 'version/**'
+      - 'release/**'
     paths:
       - 'supabase/migrations/**'
       - 'supabase/functions/**'

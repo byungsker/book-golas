@@ -5,7 +5,8 @@ on:
     branches:
       - main
       - dev
-      - 'daily/**'
+      - 'version/**'
+      - 'release/**'
 
 concurrency:
   group: quality-${{ github.event.pull_request.number }}
