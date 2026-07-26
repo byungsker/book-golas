@@ -206,10 +206,12 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
               Expanded(
                 child: Text(
                   l10n.shareComposerTitle,
-                  style: AppTypography.bookShareTitle.copyWith(
+                  style: AppTypography.headline6.copyWith(
                     color: textColor,
                     fontSize: 20,
+                    height: 1.35,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
                   ),
                 ),
               ),
@@ -225,16 +227,18 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
             widget.book.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.bookShareCaption.copyWith(
+            style: AppTypography.labelMedium.copyWith(
               color: secondaryColor,
+              height: 1.45,
             ),
           ),
           const SizedBox(height: 18),
           Text(
             l10n.shareComposerNotesTitle,
-            style: AppTypography.bookShareLabel.copyWith(
+            style: AppTypography.labelMedium.copyWith(
               color: textColor,
               fontSize: 15,
+              height: 1.4,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -249,8 +253,10 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                   Expanded(
                     child: Text(
                       l10n.shareComposerNoNotes,
-                      style: AppTypography.bookShareCaption
-                          .copyWith(color: secondaryColor),
+                      style: AppTypography.labelMedium.copyWith(
+                        color: secondaryColor,
+                        height: 1.45,
+                      ),
                     ),
                   ),
                 ],
@@ -274,8 +280,9 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
           const SizedBox(height: 6),
           Text(
             l10n.shareComposerPreviewLimit,
-            style: AppTypography.bookShareCaption.copyWith(
+            style: AppTypography.labelMedium.copyWith(
               color: secondaryColor,
+              height: 1.45,
             ),
           ),
           const SizedBox(height: 16),
@@ -347,7 +354,7 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                         note.text,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bookShareLabel.copyWith(
+                        style: AppTypography.labelMedium.copyWith(
                           color: textColor,
                           fontSize: 14,
                           height: 1.4,
@@ -357,8 +364,9 @@ class _BookShareComposerSheetState extends State<_BookShareComposerSheet> {
                         const SizedBox(height: 6),
                         Text(
                           l10n.shareComposerPage(note.pageNumber!),
-                          style: AppTypography.bookShareCaption.copyWith(
+                          style: AppTypography.labelMedium.copyWith(
                             color: secondaryColor,
+                            height: 1.45,
                           ),
                         ),
                       ],

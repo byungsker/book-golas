@@ -184,9 +184,10 @@ class BookShareCard extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             config.label,
-            style: AppTypography.bookShareCaption.copyWith(
+            style: AppTypography.labelMedium.copyWith(
               color: config.color,
               fontSize: 12,
+              height: 1.45,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.25,
             ),
@@ -212,7 +213,7 @@ class BookShareCard extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.bookShareTitle.copyWith(
+          style: AppTypography.headline6.copyWith(
             color: _ink,
             fontSize: 18,
             height: 1.25,
@@ -227,7 +228,7 @@ class BookShareCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.bookShareLabel.copyWith(
+            style: AppTypography.labelMedium.copyWith(
               color: _inkMuted,
               fontSize: 13,
               height: 1.3,
@@ -269,9 +270,10 @@ class BookShareCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.shareNoteHeading,
-                      style: AppTypography.bookShareCaption.copyWith(
+                      style: AppTypography.labelMedium.copyWith(
                         color: _inkSoft,
                         fontSize: 11,
+                        height: 1.45,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.6,
                       ),
@@ -282,7 +284,7 @@ class BookShareCard extends StatelessWidget {
                         noteBody,
                         maxLines: 5,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bookShareLabel.copyWith(
+                        style: AppTypography.labelMedium.copyWith(
                           color: _inkMuted,
                           fontSize: 13.5,
                           height: 1.45,
@@ -333,7 +335,7 @@ class BookShareCard extends StatelessWidget {
                 children: [
                   Text(
                     '$percent',
-                    style: AppTypography.bookShareTitle.copyWith(
+                    style: AppTypography.headline6.copyWith(
                       color: _ink,
                       fontSize: 36,
                       height: 1,
@@ -343,7 +345,7 @@ class BookShareCard extends StatelessWidget {
                   ),
                   Text(
                     '%',
-                    style: AppTypography.bookShareTitle.copyWith(
+                    style: AppTypography.headline6.copyWith(
                       color: _inkMuted,
                       fontSize: 18,
                       height: 1,
@@ -367,9 +369,10 @@ class BookShareCard extends StatelessWidget {
                           : l10n.sharePages(book.currentPage),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bookShareCaption.copyWith(
+                      style: AppTypography.labelMedium.copyWith(
                         color: _inkSoft,
                         fontSize: 12,
+                        height: 1.45,
                       ),
                     ),
                   ),
@@ -380,11 +383,12 @@ class BookShareCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,
-                      style: AppTypography.bookShareCaption.copyWith(
+                      style: AppTypography.labelMedium.copyWith(
                         color: daysUntilDeadline >= 0
                             ? _inkMuted
                             : BLabColors.errorLight,
                         fontSize: 12,
+                        height: 1.45,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -399,9 +403,10 @@ class BookShareCard extends StatelessWidget {
                       l10n.shareRemainingPages(remainingPages),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bookShareCaption.copyWith(
+                      style: AppTypography.labelMedium.copyWith(
                         color: _inkMuted,
                         fontSize: 12,
+                        height: 1.45,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -415,11 +420,12 @@ class BookShareCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,
-                      style: AppTypography.bookShareCaption.copyWith(
+                      style: AppTypography.labelMedium.copyWith(
                         color: daysUntilDeadline >= 0
                             ? _inkMuted
                             : BLabColors.errorLight,
                         fontSize: 12,
+                        height: 1.45,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -484,9 +490,10 @@ class BookShareCard extends StatelessWidget {
                   stat.value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bookShareLabel.copyWith(
+                  style: AppTypography.labelMedium.copyWith(
                     color: _inkMuted,
                     fontSize: 12,
+                    height: 1.4,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -495,9 +502,10 @@ class BookShareCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   '·',
-                  style: AppTypography.bookShareLabel.copyWith(
+                  style: AppTypography.labelMedium.copyWith(
                     color: _inkSoft,
                     fontSize: 12,
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -524,9 +532,10 @@ class BookShareCard extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           l10n.shareBrandName,
-          style: AppTypography.bookShareLabel.copyWith(
+          style: AppTypography.labelMedium.copyWith(
             color: _inkMuted,
             fontSize: 13,
+            height: 1.4,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.3,
           ),
@@ -534,9 +543,10 @@ class BookShareCard extends StatelessWidget {
         const Spacer(),
         Text(
           _formatLongDate(DateTime.now()),
-          style: AppTypography.bookShareCaption.copyWith(
+          style: AppTypography.labelMedium.copyWith(
             color: _inkSoft,
             fontSize: 11,
+            height: 1.45,
           ),
         ),
       ],
