@@ -1707,11 +1707,62 @@
             "shareStartedOn": "Started {date}",
             "@shareStartedOn": {"description": "Short stat text for the reading start date on the book share card","placeholders": {"date": {}}},
 
-            "shareCompletedInDays": "Finished in {days} days",
+            "shareCompletedInDays": "{days, plural, =1 {Finished in 1 day} other {Finished in {days} days}}",
             "@shareCompletedInDays": {"description": "Short stat text for how many days it took to complete a book on the book share card","placeholders": {"days": {"type": "int"}}},
 
-            "shareHighlightCount": "{count} records",
+            "shareHighlightCount": "{count, plural, =0 {No records} =1 {1 record} other {{count} records}}",
             "@shareHighlightCount": {"description": "Short stat text for the number of highlights or records on the book share card","placeholders": {"count": {"type": "int"}}},
+
+            "shareDeadline": "Due {date}",
+            "@shareDeadline": {"description": "Deadline text shown on an in-progress book share card","placeholders": {"date": {}}},
+
+            "sharePlannedStart": "Starts {date}",
+            "@sharePlannedStart": {"description": "Planned start date shown on the book share card","placeholders": {"date": {}}},
+
+            "shareRetryCount": "Attempt {count}",
+            "@shareRetryCount": {"description": "Retry attempt count shown on the book share card","placeholders": {"count": {"type": "int"}}},
+
+            "shareCurrentPages": "{current} / {total}p",
+            "@shareCurrentPages": {"description": "Current and total pages shown on the book share card","placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+
+            "sharePages": "{pages}p",
+            "@sharePages": {"description": "Page count shown on the book share card","placeholders": {"pages": {"type": "int"}}},
+
+            "shareNoteHeading": "Notes from this book",
+            "@shareNoteHeading": {"description": "Heading for the selected note content on the book share card"},
+
+            "shareRemainingPages": "{pages}p left",
+            "@shareRemainingPages": {"description": "Remaining page count shown on an in-progress book share card","placeholders": {"pages": {"type": "int"}}},
+
+            "shareDaysLeft": "{days, plural, =0 {Due today} =1 {1 day left} other {{days} days left}}",
+            "@shareDaysLeft": {"description": "Days remaining until the reading deadline","placeholders": {"days": {"type": "int"}}},
+
+            "shareDaysOverdue": "{days, plural, =1 {1 day overdue} other {{days} days overdue}}",
+            "@shareDaysOverdue": {"description": "Days elapsed after the reading deadline","placeholders": {"days": {"type": "int"}}},
+
+            "shareComposerTitle": "Customize share card",
+            "@shareComposerTitle": {"description": "Title for the book share composition sheet"},
+
+            "shareComposerNotesTitle": "Choose from my notes",
+            "@shareComposerNotesTitle": {"description": "Section title for selecting notes in the book share composition sheet"},
+
+            "shareComposerNoNotes": "No saved notes yet. You can write one directly.",
+            "@shareComposerNoNotes": {"description": "Empty state when no notes are available for the share card"},
+
+            "shareComposerNoteLabel": "Note to share",
+            "@shareComposerNoteLabel": {"description": "Label for the editable note text used on the share card"},
+
+            "shareComposerNoteHint": "Write directly or edit your selected notes",
+            "@shareComposerNoteHint": {"description": "Hint for the editable note text used on the share card"},
+
+            "shareComposerPreviewLimit": "Up to the first 5 lines appear on the shared image.",
+            "@shareComposerPreviewLimit": {"description": "Preview guidance for the note line limit on the share card"},
+
+            "shareComposerCreateButton": "Create share image",
+            "@shareComposerCreateButton": {"description": "Button to generate the book share image"},
+
+            "shareComposerPage": "p. {page}",
+            "@shareComposerPage": {"description": "Page label for a note in the book share composition sheet","placeholders": {"page": {"type": "int"}}},
 
             "loginSocialGoogle": "Continue with Google",
             "@loginSocialGoogle": {"description": "Continue with Google button"},
