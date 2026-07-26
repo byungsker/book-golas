@@ -50,34 +50,15 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Detect web changes
-        id: web-changes
-        working-directory: .
-        run: |
-          if git diff --quiet \
-            "${{ github.event.pull_request.base.sha }}" \
-            "${{ github.event.pull_request.head.sha }}" \
-            -- web; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
       - uses: actions/setup-node@v4
-        if: steps.web-changes.outputs.changed == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - if: steps.web-changes.outputs.changed == 'true'
-        run: npm ci
-      - if: steps.web-changes.outputs.changed == 'true'
-        run: npm audit --audit-level=high
-      - if: steps.web-changes.outputs.changed == 'true'
-        run: npm run lint
-      - if: steps.web-changes.outputs.changed == 'true'
-        run: npm run build
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run lint
+      - run: npm run build
 
   edge-functions:
     name: Edge Function Type Check
