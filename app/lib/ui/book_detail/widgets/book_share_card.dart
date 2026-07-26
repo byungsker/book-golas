@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 import 'package:book_golas/domain/models/book.dart';
@@ -10,22 +11,29 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 class BookShareCard extends StatelessWidget {
   final Book book;
   final int highlightCount;
+  final String? noteText;
+  final bool useBookReviewFallback;
 
-  static const double cardWidth = 400.0;
-  static const double cardHeight = 620.0;
+  static const double cardWidth = 400;
+  static const double cardHeight = 780;
+  static const double _coverWidth = 144;
+  static const double _coverHeight = 205;
+  static const double _horizontalInset = 28;
 
-  static const Color _bgTop = Color(0xFF1A1D24);
-  static const Color _bgBottom = Color(0xFF0D0F13);
-  static const Color _surfaceColor = Color(0xFF1E2128);
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFFB0B4C0);
-  static const Color _textTertiary = Color(0xFF6B7280);
-  static const Color _dividerColor = Color(0xFF2A2D35);
+  static const Color _backgroundTop = BLabColors.elevatedDark;
+  static const Color _backgroundBottom = BLabColors.scaffoldDark;
+  static const Color _surface = BLabColors.surfaceDark;
+  static const Color _ink = BLabColors.textPrimaryDark;
+  static const Color _inkMuted = BLabColors.textSecondaryDark;
+  static const Color _inkSoft = BLabColors.textTertiaryDark;
+  static const Color _accent = BLabColors.primary;
 
   const BookShareCard({
     super.key,
     required this.book,
     this.highlightCount = 0,
+    this.noteText,
+    this.useBookReviewFallback = true,
   });
 
   @override
@@ -35,43 +43,65 @@ class BookShareCard extends StatelessWidget {
     return SizedBox(
       width: cardWidth,
       height: cardHeight,
-      child: Container(
+      child: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_bgTop, _bgBottom],
+            colors: [_backgroundTop, _backgroundBottom],
           ),
         ),
         child: Column(
           children: [
             const SizedBox(height: 28),
-            _buildCoverWithGlow(),
+            _buildCover(l10n),
             const SizedBox(height: 18),
             _buildStatusBadge(l10n),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: _buildTitleAuthor(),
+              child: _buildTitleAndAuthor(),
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: _buildMainContent(l10n),
-            ),
+            if (_hasNoteText) ...[
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _horizontalInset,
+                ),
+                child: _buildNote(l10n),
+              ),
+            ],
+            if (book.status == BookStatus.reading.value) ...[
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _horizontalInset,
+                ),
+                child: _buildReadingProgress(l10n),
+              ),
+            ],
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: _buildMiniStats(l10n),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _horizontalInset,
+              ),
+              child: _buildMetadata(l10n),
+            ),
+            const SizedBox(height: 14),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: _horizontalInset),
+              child: SizedBox(
+                height: 1,
+                child: ColoredBox(
+                  color: BLabColors.subtleDark,
+                ),
+              ),
             ),
             const SizedBox(height: 14),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Container(height: 1, color: _dividerColor),
-            ),
-            const SizedBox(height: 14),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _horizontalInset,
+              ),
               child: _buildFooter(l10n),
             ),
             const SizedBox(height: 20),
@@ -81,19 +111,20 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCoverWithGlow() {
-    final config = _statusConfig(null);
+  Widget _buildCover(AppLocalizations l10n) {
+    final config = _statusConfig(l10n);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: config.color.withValues(alpha: 0.15),
+            color: config.color.withValues(alpha: 0.18),
             blurRadius: 32,
             spreadRadius: 4,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: _backgroundBottom.withValues(alpha: 0.8),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -101,12 +132,15 @@ class BookShareCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
-        child: book.imageUrl != null
+        child: book.imageUrl?.trim().isNotEmpty == true
             ? CachedNetworkImage(
-                imageUrl: book.imageUrl!,
-                width: 140,
-                height: 200,
+                imageUrl: book.imageUrl!.trim(),
+                width: _coverWidth,
+                height: _coverHeight,
                 fit: BoxFit.cover,
+                fadeInDuration: Duration.zero,
+                fadeOutDuration: Duration.zero,
+                placeholder: (_, __) => _buildCoverPlaceholder(),
                 errorWidget: (_, __, ___) => _buildCoverPlaceholder(),
               )
             : _buildCoverPlaceholder(),
@@ -115,42 +149,44 @@ class BookShareCard extends StatelessWidget {
   }
 
   Widget _buildCoverPlaceholder() {
-    return Container(
-      width: 140,
-      height: 200,
-      color: _surfaceColor,
-      child: const Icon(
-        CupertinoIcons.book_fill,
-        color: Color(0xFF4A4D55),
-        size: 40,
+    return const ColoredBox(
+      color: BLabColors.subtleDark,
+      child: SizedBox(
+        width: _coverWidth,
+        height: _coverHeight,
+        child: Icon(
+          CupertinoIcons.book_fill,
+          color: BLabColors.textTertiaryDark,
+          size: 40,
+        ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(AppLocalizations? l10n) {
+  Widget _buildStatusBadge(AppLocalizations l10n) {
     final config = _statusConfig(l10n);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: config.color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        color: config.color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: config.color.withValues(alpha: 0.35),
-          width: 1,
+          color: config.color.withValues(alpha: 0.42),
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(config.icon, size: 12, color: config.color),
-          const SizedBox(width: 5),
+          Icon(config.icon, size: 13, color: config.color),
+          const SizedBox(width: 6),
           Text(
             config.label,
-            style: TextStyle(
+            style: BLabTypography.caption.copyWith(
               color: config.color,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
+              letterSpacing: 0.25,
             ),
           ),
         ],
@@ -158,221 +194,305 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleAuthor() {
+  Widget _buildTitleAndAuthor() {
     final subtitleParts = <String>[];
-    if (book.author != null) subtitleParts.add(book.author!);
-    if (book.genre != null) subtitleParts.add(book.genre!);
+    if (book.author?.trim().isNotEmpty == true) {
+      subtitleParts.add(book.author!.trim());
+    }
+    if (book.genre?.trim().isNotEmpty == true) {
+      subtitleParts.add(book.genre!.trim());
+    }
 
     return Column(
       children: [
         Text(
-          book.title,
-          style: const TextStyle(
-            color: _textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            height: 1.3,
-          ),
+          _keepKoreanWordsTogether(book.title),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
+          style: BLabTypography.title.copyWith(
+            color: _ink,
+            fontSize: 18,
+            height: 1.25,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.25,
+          ),
         ),
         if (subtitleParts.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(
             subtitleParts.join(' · '),
-            style: const TextStyle(color: _textSecondary, fontSize: 13),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: BLabTypography.label.copyWith(
+              color: _inkMuted,
+              fontSize: 13,
+              height: 1.3,
+            ),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildMainContent(AppLocalizations? l10n) {
-    switch (book.status) {
-      case 'reading':
-        return _buildReadingProgress();
-      case 'completed':
-        return _buildCompletedContent();
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildReadingProgress() {
-    if (book.totalPages <= 0) return const SizedBox.shrink();
-
-    final progress = (book.currentPage / book.totalPages).clamp(0.0, 1.0);
-    final percent = (progress * 100).toStringAsFixed(0);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        color: _surfaceColor,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+  Widget _buildNote(AppLocalizations l10n) {
+    return SizedBox(
+      height: 154,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: _surface.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: _accent.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 18, 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                percent,
-                style: const TextStyle(
-                  color: _textPrimary,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w800,
-                  height: 1.0,
+              Container(
+                width: 3,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: _accent,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const Text(
-                '%',
-                style: TextStyle(
-                  color: _textSecondary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.shareNoteHeading,
+                      style: BLabTypography.caption.copyWith(
+                        color: _inkSoft,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: Text(
+                        _resolvedNoteText!,
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: BLabTypography.label.copyWith(
+                          color: _inkMuted,
+                          fontSize: 13.5,
+                          height: 1.45,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildGradientProgressBar(progress),
-          const SizedBox(height: 8),
-          Text(
-            '${book.currentPage} / ${book.totalPages}p',
-            style: const TextStyle(color: _textTertiary, fontSize: 12),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildGradientProgressBar(double progress) {
+  Widget _buildReadingProgress(AppLocalizations l10n) {
+    final progress = book.totalPages > 0
+        ? (book.currentPage / book.totalPages).clamp(0.0, 1.0)
+        : 0.0;
+    final percent = (progress * 100).round();
+    final remainingPages = math.max(book.totalPages - book.currentPage, 0);
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final deadlineDate = DateTime(
+      book.targetDate.year,
+      book.targetDate.month,
+      book.targetDate.day,
+    );
+    final daysUntilDeadline = deadlineDate.difference(todayDate).inDays;
+
     return SizedBox(
-      height: 8,
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: _dividerColor,
-              borderRadius: BorderRadius.circular(4),
-            ),
+      height: 146,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: _surface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 14, 24, 14),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$percent',
+                    style: BLabTypography.title.copyWith(
+                      color: _ink,
+                      fontSize: 36,
+                      height: 1,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                  Text(
+                    '%',
+                    style: BLabTypography.title.copyWith(
+                      color: _inkMuted,
+                      fontSize: 18,
+                      height: 1,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildProgressBar(progress),
+              const SizedBox(height: 9),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      book.totalPages > 0
+                          ? l10n.shareCurrentPages(
+                              book.currentPage,
+                              book.totalPages,
+                            )
+                          : l10n.sharePages(book.currentPage),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: BLabTypography.caption.copyWith(
+                        color: _inkSoft,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      l10n.shareDeadline(_formatLongDate(book.targetDate)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: BLabTypography.caption.copyWith(
+                        color: daysUntilDeadline >= 0
+                            ? _inkMuted
+                            : BLabColors.errorLight,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.shareRemainingPages(remainingPages),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: BLabTypography.caption.copyWith(
+                        color: _inkMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      daysUntilDeadline >= 0
+                          ? l10n.shareDaysLeft(daysUntilDeadline)
+                          : l10n.shareDaysOverdue(-daysUntilDeadline),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: BLabTypography.caption.copyWith(
+                        color: daysUntilDeadline >= 0
+                            ? _inkMuted
+                            : BLabColors.errorLight,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          FractionallySizedBox(
-            widthFactor: progress,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                gradient: const LinearGradient(
-                  colors: [BLabColors.primary, Color(0xFF818CF8)],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressBar(double progress) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: SizedBox(
+        height: 8,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: ColoredBox(color: BLabColors.subtleDark),
+            ),
+            FractionallySizedBox(
+              widthFactor: progress,
+              child: const SizedBox.expand(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [BLabColors.primary, BLabColors.primaryLight],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompletedContent() {
-    final review = book.review ?? book.longReview;
-    return Column(
-      children: [
-        if (book.rating != null) ...[
-          _buildLargeStarRating(book.rating!),
-          const SizedBox(height: 12),
-        ],
-        if (review != null && review.trim().isNotEmpty)
-          _buildReviewSnippet(review.trim()),
-      ],
-    );
-  }
-
-  Widget _buildLargeStarRating(int rating) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(5, (i) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Icon(
-            i < rating ? CupertinoIcons.star_fill : CupertinoIcons.star,
-            size: 22,
-            color: i < rating ? BLabColors.gold : _textTertiary,
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildReviewSnippet(String review) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: _surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: BLabColors.primary.withValues(alpha: 0.15),
+          ],
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 3,
-            height: 32,
-            decoration: BoxDecoration(
-              color: BLabColors.primary,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              review,
-              style: const TextStyle(
-                color: _textSecondary,
-                fontSize: 13,
-                height: 1.5,
-                fontStyle: FontStyle.italic,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildMiniStats(AppLocalizations? l10n) {
+  Widget _buildMetadata(AppLocalizations l10n) {
     final stats = _buildStats(l10n);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 4,
       children: stats.asMap().entries.map((entry) {
         final isLast = entry.key == stats.length - 1;
+        final stat = entry.value;
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(entry.value.icon, style: const TextStyle(fontSize: 13)),
-            const SizedBox(width: 3),
+            Text(stat.icon, style: const TextStyle(fontSize: 13)),
+            const SizedBox(width: 4),
             Text(
-              entry.value.value,
-              style: const TextStyle(
-                color: _textSecondary,
+              stat.value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: BLabTypography.label.copyWith(
+                color: _inkMuted,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
             if (!isLast) ...[
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 '·',
-                style: TextStyle(color: _textTertiary, fontSize: 12),
+                style: BLabTypography.label.copyWith(
+                  color: _inkSoft,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(width: 8),
             ],
@@ -382,55 +502,76 @@ class BookShareCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(AppLocalizations? l10n) {
+  Widget _buildFooter(AppLocalizations l10n) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: Image.asset(
-                'assets/images/logo-bookgolas.png',
-                width: 22,
-                height: 22,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 7),
-            Text(
-              l10n?.shareBrandName ?? '북골라스',
-              style: const TextStyle(
-                color: _textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
+        ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Image.asset(
+            'assets/images/logo-bookgolas.png',
+            width: 22,
+            height: 22,
+            fit: BoxFit.cover,
+          ),
         ),
+        const SizedBox(width: 7),
         Text(
-          DateFormat('yyyy.MM.dd').format(DateTime.now()),
-          style: const TextStyle(color: _textTertiary, fontSize: 11),
+          l10n.shareBrandName,
+          style: BLabTypography.label.copyWith(
+            color: _inkMuted,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          _formatLongDate(DateTime.now()),
+          style: BLabTypography.caption.copyWith(
+            color: _inkSoft,
+            fontSize: 11,
+          ),
         ),
       ],
     );
   }
 
-  List<_StatItem> _buildStats(AppLocalizations? l10n) {
+  bool get _hasNoteText => _resolvedNoteText != null;
+
+  String? get _resolvedNoteText {
+    final value = noteText?.trim();
+    if (value != null && value.isNotEmpty) return value;
+    if (!useBookReviewFallback) return null;
+    final review = book.review ?? book.longReview;
+    return review?.trim().isNotEmpty == true ? review!.trim() : null;
+  }
+
+  String _formatLongDate(DateTime date) {
+    return DateFormat('yyyy.MM.dd').format(date);
+  }
+
+  String _formatShortDate(DateTime date) {
+    return DateFormat('MM.dd').format(date);
+  }
+
+  String _keepKoreanWordsTogether(String value) {
+    return value.replaceAllMapped(
+      RegExp(r'[가-힣]{2,}'),
+      (match) => match.group(0)!.split('').join('\u2060'),
+    );
+  }
+
+  List<_StatItem> _buildStats(AppLocalizations l10n) {
     switch (book.status) {
       case 'reading':
         return [
           _StatItem(
             icon: '📅',
-            value: l10n?.shareStartedOn(
-                    DateFormat('MM.dd').format(book.startDate)) ??
-                '${DateFormat('MM.dd').format(book.startDate)} 시작',
+            value: l10n.shareStartedOn(_formatShortDate(book.startDate)),
           ),
           _StatItem(
             icon: '💡',
-            value: l10n?.shareHighlightCount(highlightCount) ??
-                '$highlightCount 기록',
+            value: l10n.shareHighlightCount(highlightCount),
           ),
         ];
       case 'completed':
@@ -440,81 +581,92 @@ class BookShareCard extends StatelessWidget {
         return [
           _StatItem(
             icon: '📅',
-            value: l10n?.shareCompletedInDays(readDays) ?? '$readDays일 완독',
+            value: l10n.shareCompletedInDays(readDays),
           ),
           _StatItem(
             icon: '📄',
-            value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
+            value: book.totalPages > 0 ? l10n.sharePages(book.totalPages) : '-',
           ),
           _StatItem(
             icon: '💡',
-            value: l10n?.shareHighlightCount(highlightCount) ??
-                '$highlightCount 기록',
+            value: l10n.shareHighlightCount(highlightCount),
           ),
         ];
       case 'planned':
         return [
           _StatItem(
             icon: '📅',
-            value: DateFormat(
-              'MM.dd',
-            ).format(book.plannedStartDate ?? book.startDate),
+            value: l10n.sharePlannedStart(
+              _formatShortDate(book.plannedStartDate ?? book.startDate),
+            ),
           ),
           _StatItem(icon: '🏷️', value: book.genre ?? '-'),
           _StatItem(
             icon: '📄',
-            value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
+            value: book.totalPages > 0 ? l10n.sharePages(book.totalPages) : '-',
           ),
         ];
       case 'will_retry':
         return [
-          _StatItem(icon: '🔁', value: '${book.attemptCount}번째 도전'),
+          _StatItem(
+            icon: '🔁',
+            value: l10n.shareRetryCount(book.attemptCount),
+          ),
           _StatItem(icon: '🏷️', value: book.genre ?? '-'),
           _StatItem(
             icon: '📄',
-            value: book.totalPages > 0 ? '${book.totalPages}p' : '-',
+            value: book.totalPages > 0 ? l10n.sharePages(book.totalPages) : '-',
           ),
         ];
       default:
         return [
-          _StatItem(icon: '📖', value: '${book.currentPage}p'),
-          _StatItem(icon: '📄', value: '${book.totalPages}p'),
-          _StatItem(icon: '💡', value: '$highlightCount 기록'),
+          _StatItem(
+            icon: '📖',
+            value: l10n.sharePages(book.currentPage),
+          ),
+          _StatItem(
+            icon: '📄',
+            value: l10n.sharePages(book.totalPages),
+          ),
+          _StatItem(
+            icon: '💡',
+            value: l10n.shareHighlightCount(highlightCount),
+          ),
         ];
     }
   }
 
-  _StatusConfig _statusConfig(AppLocalizations? l10n) {
+  _StatusConfig _statusConfig(AppLocalizations l10n) {
     switch (book.status) {
       case 'reading':
         return _StatusConfig(
-          label: l10n?.shareStatusReading ?? '독서 중',
+          label: l10n.shareStatusReading,
           icon: CupertinoIcons.book,
-          color: BLabColors.primary,
+          color: _accent,
         );
       case 'completed':
         return _StatusConfig(
-          label: l10n?.shareStatusCompleted ?? '완독',
+          label: l10n.shareStatusCompleted,
           icon: CupertinoIcons.checkmark_circle_fill,
           color: BLabColors.success,
         );
       case 'planned':
         return _StatusConfig(
-          label: l10n?.shareStatusPlanned ?? '읽을 예정',
+          label: l10n.shareStatusPlanned,
           icon: CupertinoIcons.bookmark_fill,
           color: BLabColors.warning,
         );
       case 'will_retry':
         return _StatusConfig(
-          label: l10n?.shareStatusWillRetry ?? '다시 도전',
+          label: l10n.shareStatusWillRetry,
           icon: CupertinoIcons.arrow_2_circlepath,
           color: BLabColors.purple,
         );
       default:
         return _StatusConfig(
-          label: l10n?.shareStatusReading ?? '독서 중',
+          label: l10n.shareStatusReading,
           icon: CupertinoIcons.book,
-          color: BLabColors.primary,
+          color: _accent,
         );
     }
   }
@@ -524,6 +676,7 @@ class _StatusConfig {
   final String label;
   final IconData icon;
   final Color color;
+
   const _StatusConfig({
     required this.label,
     required this.icon,
@@ -534,5 +687,9 @@ class _StatusConfig {
 class _StatItem {
   final String icon;
   final String value;
-  const _StatItem({required this.icon, required this.value});
+
+  const _StatItem({
+    required this.icon,
+    required this.value,
+  });
 }

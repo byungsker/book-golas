@@ -3625,6 +3625,75 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String shareDeadline(Object date) {
+    return '마감 $date';
+  }
+
+  @override
+  String sharePlannedStart(Object date) {
+    return '$date 시작 예정';
+  }
+
+  @override
+  String shareRetryCount(int count) {
+    return '$count번째 도전';
+  }
+
+  @override
+  String shareCurrentPages(int current, int total) {
+    return '$current / $total쪽';
+  }
+
+  @override
+  String sharePages(int pages) {
+    return '$pages쪽';
+  }
+
+  @override
+  String get shareNoteHeading => '이 책에서 남긴 기록';
+
+  @override
+  String shareRemainingPages(int pages) {
+    return '$pages쪽 남음';
+  }
+
+  @override
+  String shareDaysLeft(int days) {
+    return '$days일 남음';
+  }
+
+  @override
+  String shareDaysOverdue(int days) {
+    return '$days일 지남';
+  }
+
+  @override
+  String get shareComposerTitle => '공유 카드 꾸미기';
+
+  @override
+  String get shareComposerNotesTitle => '내 기록에서 선택';
+
+  @override
+  String get shareComposerNoNotes => '저장된 기록이 없어 직접 입력할 수 있어요.';
+
+  @override
+  String get shareComposerNoteLabel => '공유할 노트';
+
+  @override
+  String get shareComposerNoteHint => '직접 입력하거나 기록을 편집해보세요';
+
+  @override
+  String get shareComposerPreviewLimit => '공유 이미지에는 앞의 5줄까지 보여요.';
+
+  @override
+  String get shareComposerCreateButton => '공유 이미지 만들기';
+
+  @override
+  String shareComposerPage(int page) {
+    return '$page쪽';
+  }
+
+  @override
   String get loginSocialGoogle => 'Google로 계속하기';
 
   @override
