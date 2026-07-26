@@ -6773,6 +6773,108 @@ abstract class AppLocalizations {
   /// **'{count} 기록'**
   String shareHighlightCount(int count);
 
+  /// Deadline text shown on an in-progress book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'마감 {date}'**
+  String shareDeadline(Object date);
+
+  /// Planned start date shown on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 시작 예정'**
+  String sharePlannedStart(Object date);
+
+  /// Retry attempt count shown on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번째 도전'**
+  String shareRetryCount(int count);
+
+  /// Current and total pages shown on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{current} / {total}쪽'**
+  String shareCurrentPages(int current, int total);
+
+  /// Page count shown on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{pages}쪽'**
+  String sharePages(int pages);
+
+  /// Heading for the selected note content on the book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'이 책에서 남긴 기록'**
+  String get shareNoteHeading;
+
+  /// Remaining page count shown on an in-progress book share card
+  ///
+  /// In ko, this message translates to:
+  /// **'{pages}쪽 남음'**
+  String shareRemainingPages(int pages);
+
+  /// Days remaining until the reading deadline
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 남음'**
+  String shareDaysLeft(int days);
+
+  /// Days elapsed after the reading deadline
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 지남'**
+  String shareDaysOverdue(int days);
+
+  /// Title for the book share composition sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 카드 꾸미기'**
+  String get shareComposerTitle;
+
+  /// Section title for selecting notes in the book share composition sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'내 기록에서 선택'**
+  String get shareComposerNotesTitle;
+
+  /// Empty state when no notes are available for the share card
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 기록이 없어 직접 입력할 수 있어요.'**
+  String get shareComposerNoNotes;
+
+  /// Label for the editable note text used on the share card
+  ///
+  /// In ko, this message translates to:
+  /// **'공유할 노트'**
+  String get shareComposerNoteLabel;
+
+  /// Hint for the editable note text used on the share card
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 입력하거나 기록을 편집해보세요'**
+  String get shareComposerNoteHint;
+
+  /// Preview guidance for the note line limit on the share card
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 이미지에는 앞의 5줄까지 보여요.'**
+  String get shareComposerPreviewLimit;
+
+  /// Button to generate the book share image
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 이미지 만들기'**
+  String get shareComposerCreateButton;
+
+  /// Page label for a note in the book share composition sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'{page}쪽'**
+  String shareComposerPage(int page);
+
   /// Continue with Google button
   ///
   /// In ko, this message translates to:

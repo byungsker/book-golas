@@ -3709,12 +3709,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shareCompletedInDays(int days) {
-    return 'Finished in $days days';
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Finished in $days days',
+      one: 'Finished in 1 day',
+    );
+    return '$_temp0';
   }
 
   @override
   String shareHighlightCount(int count) {
-    return '$count records';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+      zero: 'No records',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shareDeadline(Object date) {
+    return 'Due $date';
+  }
+
+  @override
+  String sharePlannedStart(Object date) {
+    return 'Starts $date';
+  }
+
+  @override
+  String shareRetryCount(int count) {
+    return 'Attempt $count';
+  }
+
+  @override
+  String shareCurrentPages(int current, int total) {
+    return '$current / ${total}p';
+  }
+
+  @override
+  String sharePages(int pages) {
+    return '${pages}p';
+  }
+
+  @override
+  String get shareNoteHeading => 'Notes from this book';
+
+  @override
+  String shareRemainingPages(int pages) {
+    return '${pages}p left';
+  }
+
+  @override
+  String shareDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left',
+      one: '1 day left',
+      zero: 'Due today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shareDaysOverdue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days overdue',
+      one: '1 day overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareComposerTitle => 'Customize share card';
+
+  @override
+  String get shareComposerNotesTitle => 'Choose from my notes';
+
+  @override
+  String get shareComposerNoNotes =>
+      'No saved notes yet. You can write one directly.';
+
+  @override
+  String get shareComposerNoteLabel => 'Note to share';
+
+  @override
+  String get shareComposerNoteHint =>
+      'Write directly or edit your selected notes';
+
+  @override
+  String get shareComposerPreviewLimit =>
+      'Up to the first 5 lines appear on the shared image.';
+
+  @override
+  String get shareComposerCreateButton => 'Create share image';
+
+  @override
+  String shareComposerPage(int page) {
+    return 'p. $page';
   }
 
   @override

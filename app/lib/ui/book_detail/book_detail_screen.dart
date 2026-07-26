@@ -52,6 +52,7 @@ import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.da
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
 import 'package:book_golas/data/services/book_share_service.dart';
+import 'widgets/book_share_composer.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -305,16 +306,54 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         color: isDark ? Colors.white : Colors.black,
                         size: 22,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         final memorableVm =
                             context.read<MemorablePageViewModel>();
-                        final highlightCount =
-                            memorableVm.cachedImages?.length ?? 0;
-                        BookShareService.shareBookCard(
+                        final images = memorableVm.cachedImages ??
+                            await memorableVm.fetchBookImages();
+                        if (!context.mounted) return;
+                        final highlightCount = images.length;
+                        final notes = images
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                              final image = entry.value;
+                              final text = (image['extracted_text'] ?? '')
+                                  .toString()
+                                  .trim();
+                              if (text.isEmpty) return null;
+                              return BookShareNote(
+                                id: image['id']?.toString() ??
+                                    'note-${entry.key}',
+                                text: text,
+                                pageNumber: image['page_number'] as int?,
+                              );
+                            })
+                            .whereType<BookShareNote>()
+                            .toList();
+                        final result = await showBookShareComposer(
+                          context: context,
+                          book: book,
+                          notes: notes,
+                        );
+                        if (!context.mounted || result == null) return;
+                        final didOpenShareSheet =
+                            await BookShareService.shareBookCard(
                           context: context,
                           book: book,
                           highlightCount: highlightCount,
+                          noteText: result.noteText,
+                          useBookReviewFallback: result.useBookReviewFallback,
                         );
+                        if (!didOpenShareSheet && context.mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message:
+                                AppLocalizations.of(context).shareBookCardError,
+                            type: BLabSnackbarType.error,
+                            bottomOffset: 32,
+                          );
+                        }
                       },
                     ),
                   ],

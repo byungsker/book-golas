@@ -3208,6 +3208,57 @@
          "shareHighlightCount": "{count} 기록",
          "@shareHighlightCount": {"description": "Short stat text for the number of highlights or records on the book share card","placeholders": {"count": {"type": "int"}}},
 
+         "shareDeadline": "마감 {date}",
+         "@shareDeadline": {"description": "Deadline text shown on an in-progress book share card","placeholders": {"date": {}}},
+
+         "sharePlannedStart": "{date} 시작 예정",
+         "@sharePlannedStart": {"description": "Planned start date shown on the book share card","placeholders": {"date": {}}},
+
+         "shareRetryCount": "{count}번째 도전",
+         "@shareRetryCount": {"description": "Retry attempt count shown on the book share card","placeholders": {"count": {"type": "int"}}},
+
+         "shareCurrentPages": "{current} / {total}쪽",
+         "@shareCurrentPages": {"description": "Current and total pages shown on the book share card","placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+
+         "sharePages": "{pages}쪽",
+         "@sharePages": {"description": "Page count shown on the book share card","placeholders": {"pages": {"type": "int"}}},
+
+         "shareNoteHeading": "이 책에서 남긴 기록",
+         "@shareNoteHeading": {"description": "Heading for the selected note content on the book share card"},
+
+         "shareRemainingPages": "{pages}쪽 남음",
+         "@shareRemainingPages": {"description": "Remaining page count shown on an in-progress book share card","placeholders": {"pages": {"type": "int"}}},
+
+         "shareDaysLeft": "{days}일 남음",
+         "@shareDaysLeft": {"description": "Days remaining until the reading deadline","placeholders": {"days": {"type": "int"}}},
+
+         "shareDaysOverdue": "{days}일 지남",
+         "@shareDaysOverdue": {"description": "Days elapsed after the reading deadline","placeholders": {"days": {"type": "int"}}},
+
+         "shareComposerTitle": "공유 카드 꾸미기",
+         "@shareComposerTitle": {"description": "Title for the book share composition sheet"},
+
+         "shareComposerNotesTitle": "내 기록에서 선택",
+         "@shareComposerNotesTitle": {"description": "Section title for selecting notes in the book share composition sheet"},
+
+         "shareComposerNoNotes": "저장된 기록이 없어 직접 입력할 수 있어요.",
+         "@shareComposerNoNotes": {"description": "Empty state when no notes are available for the share card"},
+
+         "shareComposerNoteLabel": "공유할 노트",
+         "@shareComposerNoteLabel": {"description": "Label for the editable note text used on the share card"},
+
+         "shareComposerNoteHint": "직접 입력하거나 기록을 편집해보세요",
+         "@shareComposerNoteHint": {"description": "Hint for the editable note text used on the share card"},
+
+         "shareComposerPreviewLimit": "공유 이미지에는 앞의 5줄까지 보여요.",
+         "@shareComposerPreviewLimit": {"description": "Preview guidance for the note line limit on the share card"},
+
+         "shareComposerCreateButton": "공유 이미지 만들기",
+         "@shareComposerCreateButton": {"description": "Button to generate the book share image"},
+
+         "shareComposerPage": "{page}쪽",
+         "@shareComposerPage": {"description": "Page label for a note in the book share composition sheet","placeholders": {"page": {"type": "int"}}},
+
          "loginSocialGoogle": "Google로 계속하기",
          "@loginSocialGoogle": {"description": "Continue with Google button"},
 
