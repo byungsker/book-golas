@@ -15,6 +15,13 @@ export interface DailyReminderActivity {
   created_at: string | null;
 }
 
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+const READING_ACTIVITY_LOOKBACK_DAYS = 90;
+
+function toDateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
 export function selectDailyReminderBook(
   books: DailyReminderBook[],
   activities: DailyReminderActivity[] = [],
@@ -60,12 +67,30 @@ export function buildDailyReminderDedupeKey({
   return `daily:${kstDate}:${userId}:${tokenHash}`;
 }
 
+export function buildGoalAlarmDedupeKey({
+  kstDate,
+  userId,
+  bookId,
+  tokenHash,
+}: {
+  kstDate: string;
+  userId: string;
+  bookId: string;
+  tokenHash: string;
+}): string {
+  return `goal:${kstDate}:${userId}:${bookId}:${tokenHash}`;
+}
+
+export function getReadingActivityCutoff(now: Date): string {
+  return new Date(
+    now.getTime() - READING_ACTIVITY_LOOKBACK_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
+}
+
 export function getActivityKstDateString(createdAt: string): string | null {
   const date = new Date(createdAt);
   if (!Number.isFinite(date.getTime())) return null;
-  return new Date(date.getTime() + 9 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
+  return toDateKey(new Date(date.getTime() + KST_OFFSET_MS));
 }
 
 export function calculateReadingStreak(
@@ -83,18 +108,18 @@ export function calculateReadingStreak(
   );
   if (activityDates.size === 0) return 0;
 
-  const today = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const today = new Date(now.getTime() + KST_OFFSET_MS);
   today.setUTCHours(0, 0, 0, 0);
-  const todayString = today.toISOString().slice(0, 10);
+  const todayString = toDateKey(today);
   const cursor = new Date(today);
 
   if (!activityDates.has(todayString)) {
     cursor.setUTCDate(cursor.getUTCDate() - 1);
-    if (!activityDates.has(cursor.toISOString().slice(0, 10))) return 0;
+    if (!activityDates.has(toDateKey(cursor))) return 0;
   }
 
   let streak = 0;
-  while (activityDates.has(cursor.toISOString().slice(0, 10))) {
+  while (activityDates.has(toDateKey(cursor))) {
     streak++;
     cursor.setUTCDate(cursor.getUTCDate() - 1);
   }

@@ -26,15 +26,17 @@ class FCMService {
   String? get fcmToken => _fcmToken;
 
   Map<String, dynamic>? _pendingTapPayload;
+  bool _hasPendingTap = false;
   void Function(Map<String, dynamic>? payload)? _onNotificationTap;
 
   set onNotificationTap(
     void Function(Map<String, dynamic>? payload)? handler,
   ) {
     _onNotificationTap = handler;
-    if (handler != null && _pendingTapPayload != null) {
+    if (handler != null && _hasPendingTap) {
       final payload = _pendingTapPayload;
       _pendingTapPayload = null;
+      _hasPendingTap = false;
       handler(payload);
     }
   }
@@ -129,6 +131,7 @@ class FCMService {
       _onNotificationTap!(payload);
     } else {
       _pendingTapPayload = payload;
+      _hasPendingTap = true;
     }
   }
 

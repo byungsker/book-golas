@@ -5,10 +5,12 @@ import { create, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 import {
   buildDailyReminderDedupeKey,
   buildDailyReminderVariables,
+  buildGoalAlarmDedupeKey,
   calculateReadingStreak,
   DailyReminderActivity,
   DailyReminderBook,
   getActivityKstDateString,
+  getReadingActivityCutoff,
   selectDailyReminderBook,
 } from "./daily-reminder.ts";
 import {
@@ -504,6 +506,7 @@ serve(async (req) => {
         .from("reading_progress_history")
         .select("user_id, book_id, created_at")
         .in("user_id", userIds)
+        .gte("created_at", getReadingActivityCutoff(now))
         .order("created_at", { ascending: false });
 
       const userActivitiesMap = new Map<string, DailyReminderActivity[]>();
@@ -764,9 +767,12 @@ serve(async (req) => {
               bookTitle: fallbackBook.title,
               destination: "reading",
             },
-            `goal:${kstDate}:${user.user_id}:${fallbackBook.id}:${
-              stableTokenHash(user.token)
-            }`,
+            buildGoalAlarmDedupeKey({
+              kstDate,
+              userId: user.user_id,
+              bookId: fallbackBook.id,
+              tokenHash: stableTokenHash(user.token),
+            }),
           );
         },
       );
@@ -877,6 +883,7 @@ async function processEventNudges(
     .from("reading_progress_history")
     .select("user_id, book_id, created_at")
     .in("user_id", userIds)
+    .gte("created_at", getReadingActivityCutoff(now))
     .order("created_at", { ascending: false });
 
   const userActivitiesMap = new Map<string, DailyReminderActivity[]>();

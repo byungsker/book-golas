@@ -3,8 +3,10 @@ import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   buildDailyReminderDedupeKey,
   buildDailyReminderVariables,
+  buildGoalAlarmDedupeKey,
   calculateReadingStreak,
   getActivityKstDateString,
+  getReadingActivityCutoff,
   selectDailyReminderBook,
 } from "./daily-reminder.ts";
 
@@ -100,6 +102,25 @@ Deno.test("buildDailyReminderDedupeKey is stable per user, date, and token", () 
       tokenHash: "token-hash",
     }),
     "daily:2026-07-26:user-1:token-hash",
+  );
+});
+
+Deno.test("buildGoalAlarmDedupeKey includes the book and token", () => {
+  assertEquals(
+    buildGoalAlarmDedupeKey({
+      kstDate: "2026-07-26",
+      userId: "user-1",
+      bookId: "book-1",
+      tokenHash: "token-hash",
+    }),
+    "goal:2026-07-26:user-1:book-1:token-hash",
+  );
+});
+
+Deno.test("getReadingActivityCutoff bounds history to 90 days", () => {
+  assertEquals(
+    getReadingActivityCutoff(new Date("2026-07-27T00:00:00.000Z")),
+    "2026-04-28T00:00:00.000Z",
   );
 });
 
