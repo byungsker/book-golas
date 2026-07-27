@@ -1,70 +1,50 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 class AppConfig {
-  static String get aladinApiKey => dotenv.env['ALADIN_TTB_KEY'] ?? '';
+  static const String _supabaseUrlOverride = String.fromEnvironment(
+    'SUPABASE_URL_OVERRIDE',
+  );
+  static const String environment = String.fromEnvironment(
+    'ENVIRONMENT',
+    defaultValue: 'development',
+  );
+  static const String _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String _supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+  );
+  static const String googleBooksApiKey = String.fromEnvironment(
+    'GOOGLE_BOOKS_API_KEY',
+  );
+  static const String revenueCatPublicKey = String.fromEnvironment(
+    'REVENUECAT_PUBLIC_KEY',
+  );
+  static const String googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
+  static const String naverClientId = '';
+  static const String naverClientSecret = '';
 
-  static String get environment => dotenv.env['ENVIRONMENT'] ?? 'development';
-
-  static String get aladinBaseUrl =>
-      'http://www.aladin.co.kr/ttb/api/ItemSearch.aspx';
-
-  // Supabase 설정 (환경별 분기)
   static String get supabaseUrl {
-    if (isProduction) {
-      return dotenv.env['SUPABASE_URL_PROD'] ??
-          dotenv.env['SUPABASE_URL'] ??
-          'https://enyxrgxixrnoazzgqyyd.supabase.co';
+    if (_supabaseUrlOverride.isNotEmpty) {
+      return _supabaseUrlOverride;
     }
-    return dotenv.env['SUPABASE_URL_DEV'] ??
-        dotenv.env['SUPABASE_URL'] ??
-        'https://reoiqefoymdsqzpbouxi.supabase.co';
+    if (_supabaseUrl.isNotEmpty) {
+      return _supabaseUrl;
+    }
+    return isProduction
+        ? 'https://enyxrgxixrnoazzgqyyd.supabase.co'
+        : 'https://reoiqefoymdsqzpbouxi.supabase.co';
   }
 
-  static String get supabaseAnonKey {
-    if (isProduction) {
-      return dotenv.env['SUPABASE_ANON_KEY_PROD'] ??
-          dotenv.env['SUPABASE_ANON_KEY'] ??
-          '';
-    }
-    return dotenv.env['SUPABASE_ANON_KEY_DEV'] ??
-        dotenv.env['SUPABASE_ANON_KEY'] ??
-        '';
-  }
-
-  // Google Books API 설정
-  static String get googleBooksApiKey =>
-      dotenv.env['GOOGLE_BOOKS_API_KEY'] ?? '';
-
-  // Google Cloud Vision API 설정
-  static String get googleCloudVisionApiKey =>
-      dotenv.env['GOOGLE_CLOUD_VISION_API_KEY'] ?? '';
-
-  // Naver Books API 설정
-  static String get naverClientId => dotenv.env['NAVER_CLIENT_ID'] ?? '';
-  static String get naverClientSecret =>
-      dotenv.env['NAVER_CLIENT_SECRET'] ?? '';
-
-  // RevenueCat 설정
-  static String get revenueCatPublicKey =>
-      dotenv.env['REVENUECAT_PUBLIC_KEY'] ?? '';
-
+  static String get supabaseAnonKey => _supabaseAnonKey;
   static const int maxSearchResults = 10;
   static const String apiVersion = '20131101';
 
   static bool get isProduction => environment == 'production';
   static bool get isDevelopment => environment == 'development';
 
-  static void validateApiKeys() {
-    if (aladinApiKey.isEmpty) {
-      throw Exception(
-          'ALADIN_TTB_KEY is required but not found in environment variables');
-    }
+  static void validateRuntimeConfig() {
     if (supabaseAnonKey.isEmpty) {
       throw Exception(
           'SUPABASE_ANON_KEY is required but not properly configured');
     }
   }
-
-  static bool get hasGoogleCloudVisionApiKey =>
-      googleCloudVisionApiKey.isNotEmpty;
 }
