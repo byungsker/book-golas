@@ -3,8 +3,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { create, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 import {
+  buildDailyReminderDedupeKey,
   buildDailyReminderVariables,
+  calculateReadingStreak,
+  DailyReminderActivity,
   DailyReminderBook,
+  getActivityKstDateString,
   selectDailyReminderBook,
 } from "./daily-reminder.ts";
 import {
@@ -18,6 +22,7 @@ import {
   selectDeadlineReminderBooks,
   shouldSendDeadlineReminder,
 } from "./deadline-reminder.ts";
+import { buildEventNudgeDedupeKey, isEventNudgeWindow } from "./event-nudge.ts";
 
 const FIREBASE_SERVICE_ACCOUNT = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
@@ -145,8 +150,20 @@ async function sendFCMMessage(
         },
       },
       apns: {
+        headers: {
+          "apns-collapse-id": `${data?.type || "reading"}:${
+            data?.bookId || "general"
+          }`.slice(
+            0,
+            64,
+          ),
+        },
         payload: {
-          aps: { sound: "default", badge: 1 },
+          aps: {
+            sound: "default",
+            badge: 1,
+            "thread-id": "reading-reminders",
+          },
         },
       },
     },
@@ -483,12 +500,29 @@ serve(async (req) => {
         });
       }
 
+      const { data: readingActivities } = await supabaseClient
+        .from("reading_progress_history")
+        .select("user_id, book_id, created_at")
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false });
+
+      const userActivitiesMap = new Map<string, DailyReminderActivity[]>();
+      if (readingActivities) {
+        readingActivities.forEach((activity: DailyReminderActivity) => {
+          const list = userActivitiesMap.get(activity.user_id) || [];
+          list.push(activity);
+          userActivitiesMap.set(activity.user_id, list);
+        });
+      }
+
+      const kstDate = getKstDateString(now);
       const dailyResults = await runInBatches(
         dailyReminderUsers,
         FCM_BATCH_SIZE,
         async (user: any) => {
           const book = selectDailyReminderBook(
             userBooksMap.get(user.user_id) || [],
+            userActivitiesMap.get(user.user_id) || [],
           );
           if (!book) {
             totalSkipped++;
@@ -512,7 +546,13 @@ serve(async (req) => {
               bookId: book.id,
               bookTitle: book.title,
               percent: variables.percent,
+              destination: "reading",
             },
+            buildDailyReminderDedupeKey({
+              kstDate,
+              userId: user.user_id,
+              tokenHash: stableTokenHash(user.token),
+            }),
           );
         },
       );
@@ -719,7 +759,14 @@ serve(async (req) => {
             variables,
             templates,
             supabaseClient,
-            { bookId: fallbackBook.id, bookTitle: fallbackBook.title },
+            {
+              bookId: fallbackBook.id,
+              bookTitle: fallbackBook.title,
+              destination: "reading",
+            },
+            `goal:${kstDate}:${user.user_id}:${fallbackBook.id}:${
+              stableTokenHash(user.token)
+            }`,
           );
         },
       );
@@ -732,20 +779,8 @@ serve(async (req) => {
       );
     }
 
-    // ── Phase 2: event nudge (batch SQL) ──
-    let eligibleNudges = null;
-    try {
-      const rpcResult = await supabaseClient.rpc(
-        "get_eligible_event_nudges",
-        {},
-      );
-      eligibleNudges = rpcResult.data;
-    } catch {
-      eligibleNudges = null;
-    }
-
-    if (!eligibleNudges) {
-      const nudgeResult = await processEventNudgesFallback(
+    if (isEventNudgeWindow(kstHour, kstMinute)) {
+      const nudgeResult = await processEventNudges(
         supabaseClient,
         accessToken,
         serviceAccount.project_id,
@@ -755,48 +790,6 @@ serve(async (req) => {
       totalSent += nudgeResult.sent;
       totalFailed += nudgeResult.failed;
       totalSkipped += nudgeResult.skipped;
-    } else {
-      const eventResults = await runInBatches(
-        eligibleNudges,
-        FCM_BATCH_SIZE,
-        async (nudge: any) => {
-          const { data: tokenData } = await supabaseClient
-            .from("fcm_tokens")
-            .select("token, locale")
-            .eq("user_id", nudge.user_id)
-            .eq("notification_enabled", true)
-            .eq("event_nudge_enabled", true);
-
-          if (!tokenData || tokenData.length === 0) {
-            totalSkipped++;
-            return { sent: 0, failed: 0 };
-          }
-
-          const targets: PushTarget[] = tokenData.map((t: any) => ({
-            userId: nudge.user_id,
-            token: t.token,
-            locale: t.locale || "ko",
-          }));
-
-          return sendToTargets(
-            accessToken,
-            serviceAccount.project_id,
-            targets,
-            nudge.nudge_type,
-            nudge.variables || {},
-            templates,
-            supabaseClient,
-            {
-              bookId: nudge.book_id || "",
-              bookTitle: nudge.variables?.bookTitle || "",
-            },
-          );
-        },
-      );
-      eventResults.results.forEach((r) => {
-        totalSent += r.sent;
-        totalFailed += r.failed;
-      });
     }
 
     return new Response(
@@ -829,7 +822,7 @@ serve(async (req) => {
   }
 });
 
-async function processEventNudgesFallback(
+async function processEventNudges(
   supabaseClient: any,
   accessToken: string,
   projectId: string,
@@ -844,7 +837,8 @@ async function processEventNudgesFallback(
     .from("fcm_tokens")
     .select("user_id, token, locale")
     .eq("notification_enabled", true)
-    .eq("event_nudge_enabled", true);
+    .eq("event_nudge_enabled", true)
+    .eq("daily_reminder_enabled", false);
 
   if (!nudgeUsers || nudgeUsers.length === 0) return { sent, failed, skipped };
 
@@ -861,33 +855,13 @@ async function processEventNudgesFallback(
 
   const userIds = [...userTokensMap.keys()];
 
-  const todayStr = now.toISOString().split("T")[0];
-  const { data: todayLogs } = await supabaseClient
-    .from("push_logs")
-    .select("user_id, push_type")
-    .in("user_id", userIds)
-    .in("push_type", [
-      "inactive",
-      "deadline",
-      "progress",
-      "streak",
-      "achievement",
-    ])
-    .gte("created_at", `${todayStr}T00:00:00`);
-
-  const sentToday = new Set<string>();
-  if (todayLogs) {
-    todayLogs.forEach((log: any) => {
-      sentToday.add(`${log.user_id}:${log.push_type}`);
-    });
-  }
-
   const { data: books } = await supabaseClient
     .from("books")
     .select(
       "user_id, id, title, current_page, total_pages, target_date, updated_at, status",
     )
     .in("user_id", userIds)
+    .eq("status", "reading")
     .order("updated_at", { ascending: false });
 
   if (!books || books.length === 0) return { sent, failed, skipped };
@@ -899,19 +873,42 @@ async function processEventNudgesFallback(
     userBooksMap.set(b.user_id, list);
   });
 
+  const { data: readingActivities } = await supabaseClient
+    .from("reading_progress_history")
+    .select("user_id, book_id, created_at")
+    .in("user_id", userIds)
+    .order("created_at", { ascending: false });
+
+  const userActivitiesMap = new Map<string, DailyReminderActivity[]>();
+  if (readingActivities) {
+    readingActivities.forEach((activity: DailyReminderActivity) => {
+      const list = userActivitiesMap.get(activity.user_id) || [];
+      list.push(activity);
+      userActivitiesMap.set(activity.user_id, list);
+    });
+  }
+
+  const kstDate = getKstDateString(now);
   const userEntries = [...userTokensMap.entries()];
   const fallbackResults = await runInBatches(
     userEntries,
     FCM_BATCH_SIZE,
     async ([userId, targets]: [string, PushTarget[]]) => {
-      const userBooks = userBooksMap.get(userId);
-      if (!userBooks || userBooks.length === 0) {
+      const userBooks = userBooksMap.get(userId) || [];
+      const userActivities = userActivitiesMap.get(userId) || [];
+      const currentBook = selectDailyReminderBook(userBooks, userActivities);
+      if (!currentBook) {
         return { sent: 0, failed: 0, skipped: 1 };
       }
 
-      const currentBook = userBooks[0];
-      const lastReadingDate = currentBook.updated_at
-        ? new Date(currentBook.updated_at)
+      const currentBookActivities = userActivities.filter(
+        (activity) => activity.book_id === currentBook.id,
+      );
+      const latestActivity = currentBookActivities.find(
+        (activity) => activity.created_at !== null,
+      );
+      const lastReadingDate = latestActivity?.created_at
+        ? new Date(latestActivity.created_at)
         : null;
       const daysSinceLastReading = lastReadingDate
         ? Math.floor(
@@ -919,9 +916,9 @@ async function processEventNudgesFallback(
         )
         : null;
 
-      const progress = currentBook.total_pages > 0
-        ? currentBook.current_page / currentBook.total_pages
-        : 0;
+      const totalPages = currentBook.total_pages ?? 0;
+      const currentPage = currentBook.current_page ?? 0;
+      const progress = totalPages > 0 ? currentPage / totalPages : 0;
       const targetDate = currentBook.target_date
         ? new Date(currentBook.target_date)
         : null;
@@ -931,20 +928,14 @@ async function processEventNudgesFallback(
         )
         : null;
 
-      const sevenDaysAgo = new Date(now);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const readingDates = new Set<string>();
-      userBooks.forEach((book: any) => {
-        if (book.updated_at) {
-          const date = new Date(book.updated_at);
-          if (date >= sevenDaysAgo) {
-            readingDates.add(
-              `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
-            );
-          }
-        }
-      });
-      const streak = readingDates.size;
+      const hasReadToday = userActivities.some((activity) =>
+        activity.created_at &&
+        getActivityKstDateString(activity.created_at) === kstDate
+      );
+      if (hasReadToday) {
+        return { sent: 0, failed: 0, skipped: 1 };
+      }
+      const streak = calculateReadingStreak(userActivities, now);
 
       let nudgeType = "";
       let variables: Record<string, string> = {};
@@ -975,24 +966,47 @@ async function processEventNudgesFallback(
         };
       } else if (streak > 0 && streak < 7) {
         nudgeType = "streak";
-        variables = { days: String(streak) };
+        variables = {
+          days: String(streak),
+          bookTitle: currentBook.title,
+        };
       } else {
         return { sent: 0, failed: 0, skipped: 1 };
       }
 
-      if (sentToday.has(`${userId}:${nudgeType}`)) {
-        return { sent: 0, failed: 0, skipped: 1 };
-      }
-
-      const result = await sendToTargets(
-        accessToken,
-        projectId,
-        targets,
-        nudgeType,
-        variables,
-        templates,
-        supabaseClient,
-        { bookId: currentBook.id, bookTitle: currentBook.title },
+      const uniqueTargets = [
+        ...new Map(targets.map((target) => [target.token, target])).values(),
+      ];
+      const targetResults = await runInBatches(
+        uniqueTargets,
+        FCM_BATCH_SIZE,
+        (target) =>
+          sendToTargets(
+            accessToken,
+            projectId,
+            [target],
+            nudgeType,
+            variables,
+            templates,
+            supabaseClient,
+            {
+              bookId: currentBook.id,
+              bookTitle: currentBook.title,
+              destination: "reading",
+            },
+            buildEventNudgeDedupeKey({
+              kstDate,
+              userId,
+              tokenHash: stableTokenHash(target.token),
+            }),
+          ),
+      );
+      const result = targetResults.results.reduce(
+        (summary, targetResult) => ({
+          sent: summary.sent + targetResult.sent,
+          failed: summary.failed + targetResult.failed,
+        }),
+        { sent: 0, failed: targetResults.errors.length },
       );
       return { sent: result.sent, failed: result.failed, skipped: 0 };
     },

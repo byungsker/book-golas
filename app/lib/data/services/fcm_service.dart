@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -24,7 +25,19 @@ class FCMService {
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
 
-  void Function(Map<String, dynamic>? payload)? onNotificationTap;
+  Map<String, dynamic>? _pendingTapPayload;
+  void Function(Map<String, dynamic>? payload)? _onNotificationTap;
+
+  set onNotificationTap(
+    void Function(Map<String, dynamic>? payload)? handler,
+  ) {
+    _onNotificationTap = handler;
+    if (handler != null && _pendingTapPayload != null) {
+      final payload = _pendingTapPayload;
+      _pendingTapPayload = null;
+      handler(payload);
+    }
+  }
 
   Future<void> initialize() async {
     tz.initializeTimeZones();
@@ -43,6 +56,14 @@ class FCMService {
     });
 
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _dispatchNotificationTap(message.data);
+    });
+
+    final initialMessage = await _firebaseMessaging.getInitialMessage();
+    if (initialMessage != null) {
+      _dispatchNotificationTap(initialMessage.data);
+    }
   }
 
   Future<void> _initializeLocalNotifications() async {
@@ -84,13 +105,8 @@ class FCMService {
       _showLocalNotification(
         title: message.notification!.title ?? '',
         body: message.notification!.body ?? '',
-        payload: message.data.toString(),
+        payload: jsonEncode(message.data),
       );
-    }
-
-    if (message.data.isNotEmpty) {
-      debugPrint('🔗 딥링크 데이터 처리: ${message.data}');
-      onNotificationTap?.call(message.data);
     }
   }
 
@@ -105,25 +121,23 @@ class FCMService {
         debugPrint('페이로드 파싱 실패: $e');
       }
     }
-    onNotificationTap?.call(payload);
+    _dispatchNotificationTap(payload);
+  }
+
+  void _dispatchNotificationTap(Map<String, dynamic>? payload) {
+    if (_onNotificationTap != null) {
+      _onNotificationTap!(payload);
+    } else {
+      _pendingTapPayload = payload;
+    }
   }
 
   Map<String, dynamic> _parsePayloadString(String payloadStr) {
-    final cleanStr = payloadStr.substring(1, payloadStr.length - 1);
-    final map = <String, dynamic>{};
-
-    final regex = RegExp(r'(\w+):\s*([^,}]+)');
-    final matches = regex.allMatches(cleanStr);
-
-    for (final match in matches) {
-      final key = match.group(1)?.trim();
-      final value = match.group(2)?.trim();
-      if (key != null && value != null) {
-        map[key] = value;
-      }
+    final decoded = jsonDecode(payloadStr);
+    if (decoded is! Map<String, dynamic>) {
+      return {};
     }
-
-    return map;
+    return decoded;
   }
 
   Future<void> _showLocalNotification({
@@ -159,40 +173,8 @@ class FCMService {
     required int hour,
     required int minute,
   }) async {
-    final scheduledTime = _nextInstanceOfTime(hour, minute);
-    debugPrint('📅 일일 리마인더 스케줄링: $hour시 $minute분');
-
-    await _localNotifications.zonedSchedule(
-      _dailyReminderNotifId,
-      '오늘의 독서 목표',
-      '오늘도 힘차게 독서를 시작해보아요!\n목표 페이지 수를 설정해주세요!',
-      scheduledTime,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_reminder',
-          'Daily Reading Reminder',
-          channelDescription: '매일 독서 목표 알림',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-
-    debugPrint('✅ 일일 리마인더 스케줄링 완료');
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('daily_reminder_hour', hour);
-    await prefs.setInt('daily_reminder_minute', minute);
-    await prefs.setBool('daily_reminder_enabled', true);
+    debugPrint('Server-managed daily reminder selected: $hour:$minute');
+    await _localNotifications.cancel(_dailyReminderNotifId);
   }
 
   Future<void> cancelDailyReminder() async {
@@ -206,40 +188,8 @@ class FCMService {
     required int hour,
     required int minute,
   }) async {
-    final scheduledTime = _nextInstanceOfTime(hour, minute);
-    debugPrint('📅 목표 알람 스케줄링: $hour시 $minute분');
-
-    await _localNotifications.zonedSchedule(
-      _goalAlarmNotifId,
-      '오늘 독서는 어땠나요?',
-      '현황을 업데이트해주세요!',
-      scheduledTime,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'goal_alarm',
-          'Goal Alarm',
-          channelDescription: '독서 목표 달성 알림',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-
-    debugPrint('✅ 목표 알람 스케줄링 완료');
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('goal_alarm_hour', hour);
-    await prefs.setInt('goal_alarm_minute', minute);
-    await prefs.setBool('goal_alarm_enabled', true);
+    debugPrint('Server-managed goal reminder selected: $hour:$minute');
+    await _localNotifications.cancel(_goalAlarmNotifId);
   }
 
   Future<void> cancelGoalAlarm() async {
@@ -249,22 +199,9 @@ class FCMService {
     await prefs.setBool('goal_alarm_enabled', false);
   }
 
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
-    return scheduledDate;
+  Future<void> cancelLegacyScheduledReminders() async {
+    await _localNotifications.cancel(_dailyReminderNotifId);
+    await _localNotifications.cancel(_goalAlarmNotifId);
   }
 
   Future<void> scheduleTestNotification({int seconds = 30}) async {
@@ -407,6 +344,13 @@ class FCMService {
       return false;
     }
   }
+}
+
+String? extractNotificationBookId(Map<String, dynamic>? payload) {
+  final value = payload?['bookId'];
+  if (value is! String) return null;
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }
 
 Map<String, dynamic> buildFcmTokenInsertPayload({
