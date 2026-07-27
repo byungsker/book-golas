@@ -1,5 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import { getBookImagePath } from "../_shared/book-image-storage.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -12,16 +14,6 @@ function jsonResponse(body: Record<string, unknown>, status: number): Response {
     status,
     headers: { "Content-Type": "application/json", ...corsHeaders },
   });
-}
-
-function getBookImagePath(imageUrl: string): string | null {
-  const marker = "/storage/v1/object/public/book-images/";
-  const markerIndex = imageUrl.indexOf(marker);
-  if (markerIndex < 0) return null;
-
-  return decodeURIComponent(
-    imageUrl.slice(markerIndex + marker.length).split("?")[0],
-  );
 }
 
 Deno.serve(async (req: Request) => {
