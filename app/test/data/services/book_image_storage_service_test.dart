@@ -41,6 +41,16 @@ void main() {
       );
     });
 
+    test('rejects malformed percent encoding', () {
+      expect(
+        BookImageStorageService.storagePathFromValue(
+          'https://example.supabase.co/storage/v1/object/public/book-images/'
+          'user/book/image%GG.jpg',
+        ),
+        isNull,
+      );
+    });
+
     test('returns null for empty values', () {
       expect(BookImageStorageService.storagePathFromValue(null), isNull);
       expect(BookImageStorageService.storagePathFromValue('  '), isNull);

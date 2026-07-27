@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookImageStorageService {
   BookImageStorageService({SupabaseClient? client})
-    : _client = client ?? Supabase.instance.client;
+      : _client = client ?? Supabase.instance.client;
 
   static const bucketName = 'book-images';
   static const signedUrlExpiresInSeconds = 3600;
@@ -28,15 +28,39 @@ class BookImageStorageService {
     ];
 
     for (final marker in markers) {
-      final markerIndex = uri.path.indexOf(marker);
+      final markerIndex = trimmed.indexOf(marker);
       if (markerIndex >= 0) {
-        return Uri.decodeComponent(
-          uri.path.substring(markerIndex + marker.length),
-        );
+        final encodedPath =
+            trimmed.substring(markerIndex + marker.length).split('?').first;
+        if (_hasMalformedPercentEncoding(encodedPath)) return null;
+        try {
+          return Uri.decodeComponent(encodedPath);
+        } on FormatException {
+          return null;
+        }
       }
     }
 
     return null;
+  }
+
+  static bool _hasMalformedPercentEncoding(String value) {
+    for (var index = 0; index < value.length; index++) {
+      if (value.codeUnitAt(index) != 37) continue;
+      if (index + 2 >= value.length ||
+          !_isHexDigit(value.codeUnitAt(index + 1)) ||
+          !_isHexDigit(value.codeUnitAt(index + 2))) {
+        return true;
+      }
+      index += 2;
+    }
+    return false;
+  }
+
+  static bool _isHexDigit(int codeUnit) {
+    return (codeUnit >= 48 && codeUnit <= 57) ||
+        (codeUnit >= 65 && codeUnit <= 70) ||
+        (codeUnit >= 97 && codeUnit <= 102);
   }
 
   static bool isOwnedPath(String? value, String userId) {
@@ -59,9 +83,7 @@ class BookImageStorageService {
 
     final storagePath =
         '$userId/$bookId/${DateTime.now().microsecondsSinceEpoch}.jpg';
-    await _client.storage
-        .from(bucketName)
-        .uploadBinary(
+    await _client.storage.from(bucketName).uploadBinary(
           storagePath,
           imageBytes,
           fileOptions: const FileOptions(
@@ -96,9 +118,7 @@ class BookImageStorageService {
         .toList();
     for (var index = 0; index < paths.length; index += 100) {
       final end = index + 100 < paths.length ? index + 100 : paths.length;
-      await _client.storage
-          .from(bucketName)
-          .remove(paths.sublist(index, end));
+      await _client.storage.from(bucketName).remove(paths.sublist(index, end));
     }
   }
 }

@@ -1,9 +1,12 @@
-import 'dart:typed_data';
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/book_image_storage_service.dart';
+import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MemorablePageViewModel extends BaseViewModel {
   static const _storagePathKey = '_storage_path';
@@ -36,10 +39,10 @@ class MemorablePageViewModel extends BaseViewModel {
     required String bookId,
     SupabaseClient? client,
     BookImageStorageService? bookImageStorageService,
-  }) : _bookId = bookId,
-       _supabase = client ?? Supabase.instance.client,
-       _bookImageStorageService =
-           bookImageStorageService ?? BookImageStorageService(client: client);
+  })  : _bookId = bookId,
+        _supabase = client ?? Supabase.instance.client,
+        _bookImageStorageService =
+            bookImageStorageService ?? BookImageStorageService(client: client);
 
   void updateBookId(String bookId) {
     _bookId = bookId;
@@ -204,9 +207,11 @@ class MemorablePageViewModel extends BaseViewModel {
   }
 
   Future<bool> uploadAndSaveMemorablePage({
-    required Uint8List imageBytes,
-    required int pageNumber,
-    String? extractedText,
+    Uint8List? imageBytes,
+    required String extractedText,
+    int? pageNumber,
+    List<HighlightData>? highlights,
+    String caption = '',
   }) async {
     setLoading(true);
 
@@ -217,23 +222,49 @@ class MemorablePageViewModel extends BaseViewModel {
         return false;
       }
 
-      final storagePath = await _bookImageStorageService.upload(
-        imageBytes: imageBytes,
-        userId: userId,
-        bookId: _bookId,
-      );
+      String? storagePath;
+      if (imageBytes != null) {
+        storagePath = await _bookImageStorageService.upload(
+          imageBytes: imageBytes,
+          userId: userId,
+          bookId: _bookId,
+        );
+      }
 
       try {
-        await _supabase.from('book_images').insert({
+        final insertData = <String, dynamic>{
           'book_id': _bookId,
           'user_id': userId,
           'image_url': storagePath,
+          'caption': caption,
           'page_number': pageNumber,
-          'extracted_text': extractedText ?? '',
+          'extracted_text': extractedText.isEmpty ? null : extractedText,
           'created_at': DateTime.now().toIso8601String(),
-        });
+        };
+        if (highlights != null && highlights.isNotEmpty) {
+          insertData['highlights'] = HighlightData.toJsonList(highlights);
+        }
+        final insertResult = await _supabase
+            .from('book_images')
+            .insert(insertData)
+            .select('id')
+            .single();
+
+        if (extractedText.isNotEmpty) {
+          unawaited(
+            RecallService().generateEmbeddingForPhotoOcr(
+              userId: userId,
+              bookId: _bookId,
+              photoId: insertResult['id'] as String,
+              ocrText: extractedText,
+              pageNumber: pageNumber,
+            ),
+          );
+        }
       } catch (_) {
-        await _bookImageStorageService.remove(storagePath);
+        if (storagePath != null) {
+          await _bookImageStorageService.remove(storagePath);
+        }
         rethrow;
       }
 
@@ -256,14 +287,18 @@ class MemorablePageViewModel extends BaseViewModel {
       final image = await _findImage(imageId);
       if (image == null) return false;
 
-      await _bookImageStorageService.remove(
-        image[_storagePathKey] as String? ?? image['image_url'] as String?,
-      );
+      final storedValue =
+          image[_storagePathKey] as String? ?? image['image_url'] as String?;
       await _supabase
           .from('book_images')
           .delete()
           .eq('id', imageId)
           .eq('user_id', userId);
+      try {
+        await _bookImageStorageService.remove(storedValue);
+      } catch (_) {
+        debugPrint('Book image storage cleanup failed after record deletion');
+      }
 
       await fetchBookImages();
       return true;
@@ -292,18 +327,22 @@ class MemorablePageViewModel extends BaseViewModel {
           .toList();
       if (ids.length != imagesToDelete.length) return false;
 
-      await _bookImageStorageService.removeMany(
-        imagesToDelete.map(
-          (image) =>
-              image[_storagePathKey] as String? ??
-              image['image_url'] as String?,
-        ),
+      final storedValues = imagesToDelete.map(
+        (image) =>
+            image[_storagePathKey] as String? ?? image['image_url'] as String?,
       );
       await _supabase
           .from('book_images')
           .delete()
           .inFilter('id', ids)
           .eq('user_id', userId);
+      try {
+        await _bookImageStorageService.removeMany(storedValues);
+      } catch (_) {
+        debugPrint(
+          'Book image storage cleanup failed after bulk record deletion',
+        );
+      }
 
       _selectedImageIds.clear();
       _isSelectionMode = false;
@@ -388,8 +427,7 @@ class MemorablePageViewModel extends BaseViewModel {
       }
       final existingImage = await _findImage(imageId);
       if (existingImage == null) return null;
-      final existingStoragePath =
-          existingImage[_storagePathKey] as String? ??
+      final existingStoragePath = existingImage[_storagePathKey] as String? ??
           existingImage['image_url'] as String?;
 
       newStoragePath = await _bookImageStorageService.upload(

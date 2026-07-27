@@ -17,10 +17,14 @@ export function getBookImagePath(storedValue: string): string | null {
   if (!marker) return null;
 
   const markerIndex = value.indexOf(marker);
-  const path = decodeURIComponent(
-    value.slice(markerIndex + marker.length).split("?")[0],
-  );
-  return path || null;
+  try {
+    const path = decodeURIComponent(
+      value.slice(markerIndex + marker.length).split("?")[0],
+    );
+    return path || null;
+  } catch {
+    return null;
+  }
 }
 
 export function isOwnedBookImagePath(

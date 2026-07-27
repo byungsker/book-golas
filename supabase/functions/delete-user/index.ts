@@ -3,7 +3,10 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { getBookImagePath } from "../_shared/book-image-storage.ts";
+import {
+  getBookImagePath,
+  isOwnedBookImagePath,
+} from "../_shared/book-image-storage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -114,11 +117,25 @@ Deno.serve(async (req: Request) => {
     const referencedBookImagePaths = (bookImages ?? [])
       .map((row) => row.image_url)
       .filter((url): url is string => typeof url === "string")
+      .filter((url) => isOwnedBookImagePath(url, user.id))
       .map(getBookImagePath)
       .filter((path): path is string => path !== null);
+    const { data: legacyOwnership, error: legacyOwnershipError } =
+      await adminClient
+        .from("book_image_legacy_ownership")
+        .select("object_name")
+        .eq("user_id", user.id);
+    if (legacyOwnershipError) throw legacyOwnershipError;
+    const legacyBookImagePaths = (legacyOwnership ?? [])
+      .map((row) => row.object_name)
+      .filter((path): path is string => typeof path === "string");
     const ownedBookImagePaths = await listBookImagePaths(adminClient, user.id);
     const bookImagePaths = [
-      ...new Set([...referencedBookImagePaths, ...ownedBookImagePaths]),
+      ...new Set([
+        ...referencedBookImagePaths,
+        ...legacyBookImagePaths,
+        ...ownedBookImagePaths,
+      ]),
     ];
 
     if (bookImagePaths.length > 0) {

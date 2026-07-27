@@ -41,6 +41,16 @@ Deno.test("rejects URLs from another bucket", () => {
   );
 });
 
+Deno.test("rejects malformed percent encoding", () => {
+  assertEquals(
+    getBookImagePath(
+      "https://example.supabase.co/storage/v1/object/public/book-images/" +
+        "user/book/image%GG.jpg",
+    ),
+    null,
+  );
+});
+
 Deno.test("verifies ownership by exact first path segment", () => {
   assertEquals(isOwnedBookImagePath("user-a/book/image.jpg", "user-a"), true);
   assertEquals(isOwnedBookImagePath("user-ab/book/image.jpg", "user-a"), false);
