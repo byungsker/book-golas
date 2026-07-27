@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/book_image_storage_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
@@ -1000,23 +1001,27 @@ class _BookDetailContentState extends State<_BookDetailContent>
       List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
     final bookVm = context.read<BookDetailViewModel>();
+    final storageService = BookImageStorageService();
+    String? storagePath;
+    var recordCreated = false;
 
     try {
-      String? publicUrl;
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      final bookId = bookVm.currentBook.id;
+      if (userId == null || bookId == null) return false;
+
       if (imageBytes != null) {
-        final fileName =
-            'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final storage = Supabase.instance.client.storage;
-        await storage.from('book-images').uploadBinary(fileName, imageBytes,
-            fileOptions: const FileOptions(upsert: true));
-        publicUrl = storage.from('book-images').getPublicUrl(fileName);
+        storagePath = await storageService.upload(
+          imageBytes: imageBytes,
+          userId: userId,
+          bookId: bookId,
+        );
       }
 
-      final userId = Supabase.instance.client.auth.currentUser?.id;
       final insertData = {
-        'book_id': bookVm.currentBook.id,
+        'book_id': bookId,
         'user_id': userId,
-        'image_url': publicUrl,
+        'image_url': storagePath,
         'caption': '',
         'extracted_text': extractedText.isEmpty ? null : extractedText,
         'page_number': pageNumber,
@@ -1030,14 +1035,15 @@ class _BookDetailContentState extends State<_BookDetailContent>
           .insert(insertData)
           .select('id')
           .single();
+      recordCreated = true;
 
       await memorableVm.fetchBookImages();
       memorableVm.clearPendingImage();
 
-      if (extractedText.isNotEmpty && userId != null) {
+      if (extractedText.isNotEmpty) {
         RecallService().generateEmbeddingForPhotoOcr(
           userId: userId,
-          bookId: bookVm.currentBook.id!,
+          bookId: bookId,
           photoId: insertResult['id'] as String,
           ocrText: extractedText,
           pageNumber: pageNumber,
@@ -1053,9 +1059,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
             type: BLabSnackbarType.success);
       }
       return true;
-    } catch (e, stackTrace) {
-      debugPrint('🔴 업로드 실패: $e');
-      debugPrint('🔴 스택 트레이스: $stackTrace');
+    } catch (e) {
+      if (!recordCreated && storagePath != null) {
+        try {
+          await storageService.remove(storagePath);
+        } catch (_) {}
+      }
+      debugPrint('Memorable page upload failed');
       if (mounted) {
         final errorMessage = e.toString();
         final isNetworkError = errorMessage.contains('SocketException') ||

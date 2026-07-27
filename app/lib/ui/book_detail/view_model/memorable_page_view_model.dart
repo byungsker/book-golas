@@ -1,11 +1,16 @@
 import 'dart:typed_data';
 
+import 'package:book_golas/data/services/book_image_storage_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MemorablePageViewModel extends BaseViewModel {
+  static const _storagePathKey = '_storage_path';
+
   String _bookId;
+  final SupabaseClient _supabase;
+  final BookImageStorageService _bookImageStorageService;
 
   List<Map<String, dynamic>>? _cachedImages;
   bool _isSelectionMode = false;
@@ -27,7 +32,14 @@ class MemorablePageViewModel extends BaseViewModel {
   int? get pendingPageNumber => _pendingPageNumber;
   Map<String, String> get editedTexts => _editedTexts;
 
-  MemorablePageViewModel({required String bookId}) : _bookId = bookId;
+  MemorablePageViewModel({
+    required String bookId,
+    SupabaseClient? client,
+    BookImageStorageService? bookImageStorageService,
+  }) : _bookId = bookId,
+       _supabase = client ?? Supabase.instance.client,
+       _bookImageStorageService =
+           bookImageStorageService ?? BookImageStorageService(client: client);
 
   void updateBookId(String bookId) {
     _bookId = bookId;
@@ -35,19 +47,43 @@ class MemorablePageViewModel extends BaseViewModel {
 
   Future<List<Map<String, dynamic>>> fetchBookImages() async {
     try {
-      final response = await Supabase.instance.client
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final response = await _supabase
           .from('book_images')
           .select()
           .eq('book_id', _bookId)
+          .eq('user_id', userId)
           .order('page_number', ascending: false);
 
-      final images = (response as List).cast<Map<String, dynamic>>();
+      final rawImages = (response as List).cast<Map<String, dynamic>>();
+      final images = await Future.wait(rawImages.map(_resolveImageUrl));
       _cachedImages = images;
       notifyListeners();
       return images;
     } catch (e) {
       setError('이미지를 불러오는데 실패했습니다: $e');
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> _resolveImageUrl(
+    Map<String, dynamic> image,
+  ) async {
+    final storedValue = image['image_url'] as String?;
+    final storagePath = BookImageStorageService.storagePathFromValue(
+      storedValue,
+    );
+    if (storagePath == null) return image;
+
+    try {
+      final signedUrl = await _bookImageStorageService.createSignedUrl(
+        storagePath,
+      );
+      return {...image, _storagePathKey: storagePath, 'image_url': signedUrl};
+    } catch (_) {
+      return {...image, _storagePathKey: storagePath, 'image_url': null};
     }
   }
 
@@ -58,11 +94,13 @@ class MemorablePageViewModel extends BaseViewModel {
     switch (_sortMode) {
       case 'page_asc':
         sorted.sort(
-            (a, b) => (a['page_number'] ?? 0).compareTo(b['page_number'] ?? 0));
+          (a, b) => (a['page_number'] ?? 0).compareTo(b['page_number'] ?? 0),
+        );
         break;
       case 'page_desc':
         sorted.sort(
-            (a, b) => (b['page_number'] ?? 0).compareTo(a['page_number'] ?? 0));
+          (a, b) => (b['page_number'] ?? 0).compareTo(a['page_number'] ?? 0),
+        );
         break;
       case 'date_desc':
         sorted.sort((a, b) {
@@ -173,30 +211,31 @@ class MemorablePageViewModel extends BaseViewModel {
     setLoading(true);
 
     try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
+      final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         setError('로그인이 필요합니다');
         return false;
       }
 
-      final fileName =
-          '$userId/$_bookId/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storagePath = await Supabase.instance.client.storage
-          .from('book-images')
-          .uploadBinary(fileName, imageBytes);
+      final storagePath = await _bookImageStorageService.upload(
+        imageBytes: imageBytes,
+        userId: userId,
+        bookId: _bookId,
+      );
 
-      final imageUrl = Supabase.instance.client.storage
-          .from('book-images')
-          .getPublicUrl(storagePath);
-
-      await Supabase.instance.client.from('book_images').insert({
-        'book_id': _bookId,
-        'user_id': userId,
-        'image_url': imageUrl,
-        'page_number': pageNumber,
-        'extracted_text': extractedText ?? '',
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        await _supabase.from('book_images').insert({
+          'book_id': _bookId,
+          'user_id': userId,
+          'image_url': storagePath,
+          'page_number': pageNumber,
+          'extracted_text': extractedText ?? '',
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } catch (_) {
+        await _bookImageStorageService.remove(storagePath);
+        rethrow;
+      }
 
       await fetchBookImages();
       clearPendingImage();
@@ -211,10 +250,20 @@ class MemorablePageViewModel extends BaseViewModel {
 
   Future<bool> deleteBookImage(String imageId) async {
     try {
-      await Supabase.instance.client
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+
+      final image = await _findImage(imageId);
+      if (image == null) return false;
+
+      await _bookImageStorageService.remove(
+        image[_storagePathKey] as String? ?? image['image_url'] as String?,
+      );
+      await _supabase
           .from('book_images')
           .delete()
-          .eq('id', imageId);
+          .eq('id', imageId)
+          .eq('user_id', userId);
 
       await fetchBookImages();
       return true;
@@ -235,12 +284,26 @@ class MemorablePageViewModel extends BaseViewModel {
 
       if (imagesToDelete == null || imagesToDelete.isEmpty) return false;
 
-      for (final img in imagesToDelete) {
-        await Supabase.instance.client
-            .from('book_images')
-            .delete()
-            .eq('id', img['id']);
-      }
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+      final ids = imagesToDelete
+          .map((image) => image['id']?.toString())
+          .whereType<String>()
+          .toList();
+      if (ids.length != imagesToDelete.length) return false;
+
+      await _bookImageStorageService.removeMany(
+        imagesToDelete.map(
+          (image) =>
+              image[_storagePathKey] as String? ??
+              image['image_url'] as String?,
+        ),
+      );
+      await _supabase
+          .from('book_images')
+          .delete()
+          .inFilter('id', ids)
+          .eq('user_id', userId);
 
       _selectedImageIds.clear();
       _isSelectionMode = false;
@@ -256,9 +319,14 @@ class MemorablePageViewModel extends BaseViewModel {
 
   Future<bool> updateExtractedText(String imageId, String newText) async {
     try {
-      await Supabase.instance.client
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+
+      await _supabase
           .from('book_images')
-          .update({'extracted_text': newText}).eq('id', imageId);
+          .update({'extracted_text': newText})
+          .eq('id', imageId)
+          .eq('user_id', userId);
 
       _editedTexts.remove(imageId);
       await fetchBookImages();
@@ -276,6 +344,9 @@ class MemorablePageViewModel extends BaseViewModel {
     List<HighlightData>? highlights,
   }) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+
       final updateData = <String, dynamic>{
         'extracted_text': extractedText,
         'page_number': pageNumber,
@@ -285,10 +356,11 @@ class MemorablePageViewModel extends BaseViewModel {
         updateData['highlights'] = HighlightData.toJsonList(highlights);
       }
 
-      await Supabase.instance.client
+      await _supabase
           .from('book_images')
           .update(updateData)
-          .eq('id', imageId);
+          .eq('id', imageId)
+          .eq('user_id', userId);
 
       _editedTexts.remove(imageId);
       _cachedImages = null;
@@ -306,30 +378,81 @@ class MemorablePageViewModel extends BaseViewModel {
     required String extractedText,
     int? pageNumber,
   }) async {
+    String? newStoragePath;
+    var recordPointsToNewImage = false;
     try {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$_bookId.jpg';
-      final storagePath = 'book_images/$fileName';
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        setError('로그인이 필요합니다');
+        return null;
+      }
+      final existingImage = await _findImage(imageId);
+      if (existingImage == null) return null;
+      final existingStoragePath =
+          existingImage[_storagePathKey] as String? ??
+          existingImage['image_url'] as String?;
 
-      await Supabase.instance.client.storage
-          .from('book-images')
-          .uploadBinary(storagePath, imageBytes);
+      newStoragePath = await _bookImageStorageService.upload(
+        imageBytes: imageBytes,
+        userId: userId,
+        bookId: _bookId,
+      );
 
-      final imageUrl = Supabase.instance.client.storage
-          .from('book-images')
-          .getPublicUrl(storagePath);
+      await _supabase
+          .from('book_images')
+          .update({
+            'image_url': newStoragePath,
+            'extracted_text': extractedText,
+            'page_number': pageNumber,
+          })
+          .eq('id', imageId)
+          .eq('user_id', userId);
+      recordPointsToNewImage = true;
 
-      await Supabase.instance.client.from('book_images').update({
-        'image_url': imageUrl,
-        'extracted_text': extractedText,
-        'page_number': pageNumber,
-      }).eq('id', imageId);
+      try {
+        await _bookImageStorageService.remove(existingStoragePath);
+      } catch (_) {
+        await _supabase
+            .from('book_images')
+            .update({'image_url': existingStoragePath})
+            .eq('id', imageId)
+            .eq('user_id', userId);
+        recordPointsToNewImage = false;
+        await _bookImageStorageService.remove(newStoragePath);
+        newStoragePath = null;
+        rethrow;
+      }
 
       await fetchBookImages();
-      return imageUrl;
+      return _bookImageStorageService.createSignedUrl(newStoragePath);
     } catch (e) {
+      if (newStoragePath != null && !recordPointsToNewImage) {
+        try {
+          await _bookImageStorageService.remove(newStoragePath);
+        } catch (_) {}
+      }
       setError('이미지 교체에 실패했습니다: $e');
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>?> _findImage(String imageId) async {
+    final cached = _cachedImages?.where(
+      (image) => image['id']?.toString() == imageId,
+    );
+    if (cached != null && cached.isNotEmpty) return cached.first;
+
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return null;
+    final response = await _supabase
+        .from('book_images')
+        .select()
+        .eq('id', imageId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (response == null) return null;
+
+    return _resolveImageUrl(response);
   }
 
   void onImagesLoaded(List<Map<String, dynamic>> images) {

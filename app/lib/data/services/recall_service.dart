@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/book_image_storage_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
@@ -11,6 +12,8 @@ class RecallService {
   RecallService._internal();
 
   final SupabaseClient _supabase = Supabase.instance.client;
+  final BookImageStorageService _bookImageStorageService =
+      BookImageStorageService();
 
   Future<void> generateEmbeddingForHighlight({
     required String userId,
@@ -226,13 +229,19 @@ class RecallService {
 
   Future<String?> getImageUrlBySourceId(String sourceId) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
+
       final response = await _supabase
           .from('book_images')
           .select('image_url')
           .eq('id', sourceId)
+          .eq('user_id', userId)
           .maybeSingle();
 
-      return response?['image_url'] as String?;
+      return _bookImageStorageService.createSignedUrl(
+        response?['image_url'] as String?,
+      );
     } catch (e) {
       debugPrint('🔴 Failed to get image URL: $e');
       return null;

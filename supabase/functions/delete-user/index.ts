@@ -1,4 +1,9 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2";
+
+import { getBookImagePath } from "../_shared/book-image-storage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,14 +19,54 @@ function jsonResponse(body: Record<string, unknown>, status: number): Response {
   });
 }
 
-function getBookImagePath(imageUrl: string): string | null {
-  const marker = "/storage/v1/object/public/book-images/";
-  const markerIndex = imageUrl.indexOf(marker);
-  if (markerIndex < 0) return null;
+async function listBookImagePaths(
+  client: SupabaseClient,
+  userId: string,
+): Promise<string[]> {
+  const directories = [userId];
+  const files: string[] = [];
 
-  return decodeURIComponent(
-    imageUrl.slice(markerIndex + marker.length).split("?")[0],
-  );
+  while (directories.length > 0) {
+    const directory = directories.pop()!;
+    let offset = 0;
+
+    while (true) {
+      const { data, error } = await client.storage
+        .from("book-images")
+        .list(directory, {
+          limit: 100,
+          offset,
+          sortBy: { column: "name", order: "asc" },
+        });
+      if (error) throw error;
+
+      for (const entry of data ?? []) {
+        const path = `${directory}/${entry.name}`;
+        if (entry.id == null) {
+          directories.push(path);
+        } else {
+          files.push(path);
+        }
+      }
+
+      if ((data?.length ?? 0) < 100) break;
+      offset += data!.length;
+    }
+  }
+
+  return files;
+}
+
+async function removeBookImagePaths(
+  client: SupabaseClient,
+  paths: string[],
+): Promise<void> {
+  for (let index = 0; index < paths.length; index += 100) {
+    const { error } = await client.storage
+      .from("book-images")
+      .remove(paths.slice(index, index + 100));
+    if (error) throw error;
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -52,7 +97,6 @@ Deno.serve(async (req: Request) => {
     } = await authClient.auth.getUser();
 
     if (userError || !user) {
-      console.error("Account deletion authentication failed:", userError);
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
@@ -67,17 +111,18 @@ Deno.serve(async (req: Request) => {
 
     if (imageQueryError) throw imageQueryError;
 
-    const bookImagePaths = (bookImages ?? [])
+    const referencedBookImagePaths = (bookImages ?? [])
       .map((row) => row.image_url)
       .filter((url): url is string => typeof url === "string")
       .map(getBookImagePath)
       .filter((path): path is string => path !== null);
+    const ownedBookImagePaths = await listBookImagePaths(adminClient, user.id);
+    const bookImagePaths = [
+      ...new Set([...referencedBookImagePaths, ...ownedBookImagePaths]),
+    ];
 
     if (bookImagePaths.length > 0) {
-      const { error: bookImageStorageError } = await adminClient.storage
-        .from("book-images")
-        .remove(bookImagePaths);
-      if (bookImageStorageError) throw bookImageStorageError;
+      await removeBookImagePaths(adminClient, bookImagePaths);
     }
 
     const { error: avatarStorageError } = await adminClient.storage
@@ -127,8 +172,8 @@ Deno.serve(async (req: Request) => {
     if (authDeleteError) throw authDeleteError;
 
     return jsonResponse({ success: true }, 200);
-  } catch (error: unknown) {
-    console.error("Account deletion failed:", error);
+  } catch {
+    console.error("Account deletion failed");
     return jsonResponse({ error: "Failed to delete account" }, 500);
   }
 });
