@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -116,23 +115,9 @@ class AppBootstrap extends StatelessWidget {
     try {
       debugPrint('🚀 초기화 시작');
 
-      // .env 파일 로드
-      debugPrint('📄 .env 파일 로드 시작');
-      try {
-        await dotenv.load(fileName: ".env");
-        debugPrint('✅ .env 파일 로드 완료');
-      } catch (e) {
-        debugPrint('⚠️ .env 파일 로드 실패: $e');
-        // .env 파일이 없어도 계속 진행 (환경변수로 대체 가능)
-      }
-
-      debugPrint('🔑 API 키 검증 시작');
-      try {
-        AppConfig.validateApiKeys();
-        debugPrint('✅ API 키 검증 완료');
-      } catch (e) {
-        debugPrint('⚠️ API 키 검증 실패: $e');
-      }
+      debugPrint('🔑 런타임 설정 검증 시작');
+      AppConfig.validateRuntimeConfig();
+      debugPrint('✅ 런타임 설정 검증 완료');
 
       // Firebase 초기화 (이미 초기화되어 있으면 스킵)
       debugPrint('🔥 Firebase 초기화 시작');
@@ -157,8 +142,10 @@ class AppBootstrap extends StatelessWidget {
       await Supabase.initialize(
         url: AppConfig.supabaseUrl,
         anonKey: AppConfig.supabaseAnonKey,
-        realtimeClientOptions: const RealtimeClientOptions(
-          logLevel: RealtimeLogLevel.info,
+        realtimeClientOptions: RealtimeClientOptions(
+          logLevel: AppConfig.isProduction
+              ? RealtimeLogLevel.error
+              : RealtimeLogLevel.info,
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');

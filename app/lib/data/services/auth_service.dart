@@ -4,11 +4,11 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/config/app_config.dart';
 import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/user_model.dart';
 
@@ -20,10 +20,12 @@ class AuthService {
   UserModel? get currentUser => _currentUser;
 
   AuthService()
-    : _googleSignIn = GoogleSignIn(
-        scopes: ['email', 'profile'],
-        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
-      ) {
+      : _googleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile'],
+          serverClientId: AppConfig.googleServerClientId.isEmpty
+              ? null
+              : AppConfig.googleServerClientId,
+        ) {
     _init();
   }
 
@@ -162,8 +164,7 @@ class AuthService {
           if (fullName.isNotEmpty) {
             await _supabase
                 .from('users')
-                .update({'nickname': fullName})
-                .eq('id', response.user!.id);
+                .update({'nickname': fullName}).eq('id', response.user!.id);
           }
         }
       }
@@ -281,11 +282,8 @@ class AuthService {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
 
-    final data = await _supabase
-        .from('users')
-        .select()
-        .eq('id', userId)
-        .maybeSingle();
+    final data =
+        await _supabase.from('users').select().eq('id', userId).maybeSingle();
 
     if (data == null) {
       final email = _supabase.auth.currentUser?.email ?? '';
@@ -298,11 +296,8 @@ class AuthService {
         'revenuecat_user_id': userId,
       });
 
-      final newData = await _supabase
-          .from('users')
-          .select()
-          .eq('id', userId)
-          .single();
+      final newData =
+          await _supabase.from('users').select().eq('id', userId).single();
       _currentUser = UserModel.fromJson(newData);
     } else {
       _currentUser = UserModel.fromJson(data);
@@ -316,8 +311,7 @@ class AuthService {
     if (userId == null) return;
     await _supabase
         .from('users')
-        .update({'nickname': nickname})
-        .eq('id', userId);
+        .update({'nickname': nickname}).eq('id', userId);
     await fetchCurrentUser();
   }
 
@@ -328,7 +322,7 @@ class AuthService {
     }
 
     final filePath = '$userId/avatar.png';
-    debugPrint('🖼️ [Avatar] Uploading to: $filePath');
+    debugPrint('🖼️ [Avatar] Upload started');
 
     await _supabase.storage
         .from('avatars')
@@ -337,12 +331,10 @@ class AuthService {
 
     final baseUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
     final urlWithBust = '$baseUrl?ts=${DateTime.now().millisecondsSinceEpoch}';
-    debugPrint('🖼️ [Avatar] URL: $urlWithBust');
 
     await _supabase
         .from('users')
-        .update({'avatar_url': urlWithBust})
-        .eq('id', userId);
+        .update({'avatar_url': urlWithBust}).eq('id', userId);
     debugPrint('🖼️ [Avatar] Updated users table');
 
     await _supabase.auth.updateUser(
@@ -354,8 +346,13 @@ class AuthService {
   }
 
   Future<UserModel?> getCurrentUser() async {
-    final user = await _supabase.auth.getUser();
-    _currentUser = UserModel.fromUser(user.user!);
+    final response = await _supabase.auth.getUser();
+    final user = response.user;
+    if (user == null) {
+      _currentUser = null;
+      return null;
+    }
+    _currentUser = UserModel.fromUser(user);
     return _currentUser;
   }
 

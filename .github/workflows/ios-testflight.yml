@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+      - 'version/mobile/**'
+      - 'release/mobile/**'
     # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
     paths-ignore:
       - 'web/**'
@@ -25,7 +27,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.109.1
 
       - name: Link to Dev Project
         run: |
@@ -33,14 +35,21 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: Configure RevenueCat Webhook Secret
+      - name: Configure Edge Function Secrets
         id: revenuecat-secret
         run: |
           test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
-          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+          test -n "$ALADIN_TTB_KEY"
+          test -n "$GOOGLE_CLOUD_VISION_API_KEY"
+          supabase secrets set \
+            REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY" \
+            ALADIN_TTB_KEY="$ALADIN_TTB_KEY" \
+            GOOGLE_CLOUD_VISION_API_KEY="$GOOGLE_CLOUD_VISION_API_KEY"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           REVENUECAT_WEBHOOK_AUTH_KEY: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_DEV }}
+          ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
 
       - name: Repair migration history (orphan remote migrations)
         run: |
@@ -166,16 +175,6 @@ jobs:
           cd app/ios
           bundle exec pod install --repo-update
 
-      - name: Create .env file
-        run: |
-          cd app
-          echo "ALADIN_TTB_KEY=${{ secrets.ALADIN_TTB_KEY }}" >> .env
-          echo "SUPABASE_URL_DEV=${{ secrets.SUPABASE_URL_DEV }}" >> .env
-          echo "SUPABASE_ANON_KEY_DEV=${{ secrets.SUPABASE_ANON_KEY_DEV }}" >> .env
-          echo "GOOGLE_CLOUD_VISION_API_KEY=${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}" >> .env
-          echo "REVENUECAT_PUBLIC_KEY=${{ secrets.REVENUECAT_PUBLIC_KEY }}" >> .env
-          echo "ENVIRONMENT=development" >> .env
-
       - name: Install Certificate and Provisioning Profiles
         id: install-cert
         env:
@@ -232,11 +231,27 @@ jobs:
       - name: Build Flutter iOS
         env:
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL_DEV }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_DEV }}
+          REVENUECAT_PUBLIC_KEY: ${{ secrets.REVENUECAT_PUBLIC_KEY }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
-          flutter build ios --flavor dev -t lib/main_dev.dart --release --no-codesign --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER --dart-define=PAID_SUBSCRIPTIONS_ENABLED=$PAID_SUBSCRIPTIONS_ENABLED
+          flutter build ios \
+            --flavor dev \
+            -t lib/main_dev.dart \
+            --release \
+            --no-codesign \
+            --build-name="$BUILD_NAME" \
+            --build-number="$BUILD_NUMBER" \
+            --dart-define=PAID_SUBSCRIPTIONS_ENABLED="$PAID_SUBSCRIPTIONS_ENABLED" \
+            --dart-define=ENVIRONMENT=development \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=REVENUECAT_PUBLIC_KEY="$REVENUECAT_PUBLIC_KEY" \
+            --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
 
       - name: Build and Upload to TestFlight
         env:
