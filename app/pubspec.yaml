@@ -3,7 +3,7 @@ description: "독서 목표를 설정하고 독서 진행 상황을 추적하는
 
 publish_to: "none"
 
-version: 1.0.1+1
+version: 1.0.2+15002
 
 environment:
   sdk: ^3.5.3
@@ -17,7 +17,6 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   http: ^1.1.0
-  flutter_dotenv: ^5.1.0
   supabase_flutter: ^2.5.6
   provider: ^6.1.2
   image_picker: ^1.1.2
@@ -96,7 +95,6 @@ flutter:
 
   assets:
     - assets/images/
-    - .env
 
 dependency_overrides:
   # Fix iOS build error: Color.withValues not in Flutter 3.16.
