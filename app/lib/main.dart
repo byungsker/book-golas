@@ -453,6 +453,7 @@ class _MainScreenState extends State<MainScreen>
       await adViewModel.initialize();
 
       await FCMService().initialize();
+      await FCMService().cancelLegacyScheduledReminders();
       debugPrint('FCM 서비스 초기화 완료');
 
       // 알림 터치 시 책 상세 페이지로 이동 (딥링크 지원)
@@ -469,7 +470,7 @@ class _MainScreenState extends State<MainScreen>
           }
 
           Book? book;
-          final String? bookId = payload?['bookId'];
+          final bookId = extractNotificationBookId(payload);
 
           // 1. bookId가 있으면 해당 책 조회
           if (bookId != null) {
@@ -531,7 +532,10 @@ class _MainScreenState extends State<MainScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookDetailScreen(book: targetBook),
+                builder: (context) => BookDetailScreen(
+                  book: targetBook,
+                  initialTabIndex: 0,
+                ),
               ),
             );
           }
