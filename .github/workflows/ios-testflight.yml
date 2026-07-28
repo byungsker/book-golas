@@ -253,7 +253,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app
+          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app.dev
           TESTFLIGHT_MARKETING_VERSION: ${{ steps.build-metadata.outputs.marketing-version }}
           TESTFLIGHT_BUILD_NUMBER: ${{ steps.build-metadata.outputs.build-number }}
         run: |
@@ -296,7 +296,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app
+          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app.dev
           TESTFLIGHT_MARKETING_VERSION: ${{ inputs.marketing_version }}
           TESTFLIGHT_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
