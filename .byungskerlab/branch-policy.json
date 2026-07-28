@@ -43,6 +43,7 @@
         ".github/workflows/daily-nudge.yml",
         ".github/workflows/ios-production.yml",
         ".github/workflows/ios-testflight.yml",
+        ".github/workflows/schema-check.yml",
         "README.md",
         "app/**",
         "docs/**",
