@@ -3,7 +3,7 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { collectBookImageCleanupPaths } from "../_shared/book-image-storage.ts";
+import { removeAllOwnedBookImagePaths } from "../_shared/book-image-storage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -66,17 +66,21 @@ Deno.serve(async (req: Request) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: ownershipRows, error: ownershipQueryError } =
-      await adminClient.rpc(
-        "list_owned_book_image_paths_for_deletion",
-        { target_user_id: user.id },
-      );
-    if (ownershipQueryError) throw ownershipQueryError;
-    const bookImagePaths = collectBookImageCleanupPaths(ownershipRows ?? []);
-
-    if (bookImagePaths.length > 0) {
-      await removeBookImagePaths(adminClient, bookImagePaths);
-    }
+    await removeAllOwnedBookImagePaths({
+      fetchPage: async (afterObjectName, pageSize) => {
+        const { data, error } = await adminClient.rpc(
+          "list_owned_book_image_paths_for_deletion",
+          {
+            target_user_id: user.id,
+            after_object_name: afterObjectName,
+            requested_page_size: pageSize,
+          },
+        );
+        if (error) throw error;
+        return data ?? [];
+      },
+      removePage: (paths) => removeBookImagePaths(adminClient, paths),
+    });
 
     const { error: avatarStorageError } = await adminClient.storage
       .from("avatars")

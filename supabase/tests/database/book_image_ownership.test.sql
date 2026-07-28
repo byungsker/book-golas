@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(15);
+SELECT plan(19);
 
 INSERT INTO auth.users (
   instance_id,
@@ -309,6 +309,92 @@ SELECT results_eq(
   $$,
   ARRAY[0::bigint],
   'account cleanup excludes another account legacy object'
+);
+
+INSERT INTO storage.objects (id, bucket_id, name, owner_id)
+SELECT
+  gen_random_uuid(),
+  'book-images',
+  'bulk/' || LPAD(series_number::text, 4, '0') || '.jpg',
+  '11111111-1111-1111-1111-111111111111'
+FROM generate_series(1, 1001) AS series_number;
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111',
+      NULL,
+      500
+    )
+  $$,
+  ARRAY[500::bigint],
+  'cleanup returns the first bounded ownership page'
+);
+
+SELECT results_eq(
+  $$
+    WITH first_page AS (
+      SELECT object_name
+      FROM public.list_owned_book_image_paths_for_deletion(
+        '11111111-1111-1111-1111-111111111111',
+        NULL,
+        500
+      )
+    )
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111',
+      (SELECT MAX(object_name) FROM first_page),
+      500
+    )
+  $$,
+  ARRAY[500::bigint],
+  'cleanup returns the second bounded ownership page'
+);
+
+SELECT results_eq(
+  $$
+    WITH first_page AS (
+      SELECT object_name
+      FROM public.list_owned_book_image_paths_for_deletion(
+        '11111111-1111-1111-1111-111111111111',
+        NULL,
+        500
+      )
+    ),
+    second_page AS (
+      SELECT object_name
+      FROM public.list_owned_book_image_paths_for_deletion(
+        '11111111-1111-1111-1111-111111111111',
+        (SELECT MAX(object_name) FROM first_page),
+        500
+      )
+    )
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111',
+      (SELECT MAX(object_name) FROM second_page),
+      500
+    )
+  $$,
+  ARRAY[3::bigint],
+  'cleanup returns the final ownership page beyond one thousand objects'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111',
+      NULL,
+      500
+    )
+    WHERE object_name =
+      '11111111-1111-1111-1111-111111111111/foreign-owner.jpg'
+  $$,
+  ARRAY[0::bigint],
+  'paged cleanup still excludes a foreign-owned prefixed object'
 );
 
 SELECT * FROM finish();

@@ -108,7 +108,9 @@ ON FUNCTION public.backfill_book_image_legacy_ownership()
 FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.list_owned_book_image_paths_for_deletion(
-  target_user_id uuid
+  target_user_id uuid,
+  after_object_name text DEFAULT NULL,
+  requested_page_size integer DEFAULT 500
 )
 RETURNS TABLE (object_name text)
 LANGUAGE sql
@@ -120,14 +122,20 @@ AS $$
   FROM storage.objects
   WHERE storage.objects.bucket_id = 'book-images'
     AND storage.objects.owner_id = target_user_id::text
+    AND (
+      after_object_name IS NULL
+      OR storage.objects.name > after_object_name
+    )
+  ORDER BY storage.objects.name
+  LIMIT LEAST(GREATEST(requested_page_size, 1), 500)
 $$;
 
 REVOKE ALL
-ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid)
+ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid, text, integer)
 FROM PUBLIC, anon, authenticated;
 
 GRANT EXECUTE
-ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid)
+ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid, text, integer)
 TO service_role;
 
 ALTER TABLE public.book_image_legacy_ownership ENABLE ROW LEVEL SECURITY;
