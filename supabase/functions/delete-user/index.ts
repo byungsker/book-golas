@@ -3,7 +3,7 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { collectOwnedBookImagePaths } from "../_shared/book-image-storage.ts";
+import { collectBookImageCleanupPaths } from "../_shared/book-image-storage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,44 +17,6 @@ function jsonResponse(body: Record<string, unknown>, status: number): Response {
     status,
     headers: { "Content-Type": "application/json", ...corsHeaders },
   });
-}
-
-async function listBookImagePaths(
-  client: SupabaseClient,
-  userId: string,
-): Promise<string[]> {
-  const directories = [userId];
-  const files: string[] = [];
-
-  while (directories.length > 0) {
-    const directory = directories.pop()!;
-    let offset = 0;
-
-    while (true) {
-      const { data, error } = await client.storage
-        .from("book-images")
-        .list(directory, {
-          limit: 100,
-          offset,
-          sortBy: { column: "name", order: "asc" },
-        });
-      if (error) throw error;
-
-      for (const entry of data ?? []) {
-        const path = `${directory}/${entry.name}`;
-        if (entry.id == null) {
-          directories.push(path);
-        } else {
-          files.push(path);
-        }
-      }
-
-      if ((data?.length ?? 0) < 100) break;
-      offset += data!.length;
-    }
-  }
-
-  return files;
 }
 
 async function removeBookImagePaths(
@@ -104,32 +66,13 @@ Deno.serve(async (req: Request) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: bookImages, error: imageQueryError } = await adminClient
-      .from("book_images")
-      .select("image_url")
-      .eq("user_id", user.id);
-
-    if (imageQueryError) throw imageQueryError;
-
-    const referencedBookImageValues = (bookImages ?? [])
-      .map((row) => row.image_url)
-      .filter((url): url is string => typeof url === "string");
-    const { data: legacyOwnership, error: legacyOwnershipError } =
-      await adminClient
-        .from("book_image_legacy_ownership")
-        .select("object_name")
-        .eq("user_id", user.id);
-    if (legacyOwnershipError) throw legacyOwnershipError;
-    const legacyBookImagePaths = (legacyOwnership ?? [])
-      .map((row) => row.object_name)
-      .filter((path): path is string => typeof path === "string");
-    const ownedBookImagePaths = await listBookImagePaths(adminClient, user.id);
-    const bookImagePaths = collectOwnedBookImagePaths({
-      userId: user.id,
-      referencedValues: referencedBookImageValues,
-      legacyPaths: legacyBookImagePaths,
-      listedPaths: ownedBookImagePaths,
-    });
+    const { data: ownershipRows, error: ownershipQueryError } =
+      await adminClient.rpc(
+        "list_owned_book_image_paths_for_deletion",
+        { target_user_id: user.id },
+      );
+    if (ownershipQueryError) throw ownershipQueryError;
+    const bookImagePaths = collectBookImageCleanupPaths(ownershipRows ?? []);
 
     if (bookImagePaths.length > 0) {
       await removeBookImagePaths(adminClient, bookImagePaths);

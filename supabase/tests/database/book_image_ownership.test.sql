@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(10);
+SELECT plan(15);
 
 INSERT INTO auth.users (
   instance_id,
@@ -244,6 +244,71 @@ SELECT throws_ok(
   '42501',
   'permission denied for table book_image_legacy_ownership',
   'authenticated user cannot mutate trusted legacy ownership'
+);
+
+SELECT throws_ok(
+  $$
+    SELECT *
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111'
+    )
+  $$,
+  '42501',
+  'permission denied for function list_owned_book_image_paths_for_deletion',
+  'authenticated users cannot enumerate account cleanup targets'
+);
+
+RESET ROLE;
+
+SELECT results_eq(
+  $$
+    SELECT object_name
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111'
+    )
+    ORDER BY object_name
+  $$,
+  ARRAY[
+    '11111111-1111-1111-1111-111111111111/owned.jpg',
+    'legacy/owner-a.jpg'
+  ]::text[],
+  'cleanup targets come only from current storage ownership'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111'
+    )
+  $$,
+  ARRAY[2::bigint],
+  'account cleanup selects all objects owned by the account'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111'
+    )
+    WHERE object_name =
+        '11111111-1111-1111-1111-111111111111/foreign-owner.jpg'
+  $$,
+  ARRAY[0::bigint],
+  'account cleanup excludes a foreign-owned object under the user prefix'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.list_owned_book_image_paths_for_deletion(
+      '11111111-1111-1111-1111-111111111111'
+    )
+    WHERE object_name = 'legacy/owner-b.jpg'
+  $$,
+  ARRAY[0::bigint],
+  'account cleanup excludes another account legacy object'
 );
 
 SELECT * FROM finish();

@@ -107,6 +107,29 @@ REVOKE ALL
 ON FUNCTION public.backfill_book_image_legacy_ownership()
 FROM PUBLIC, anon, authenticated;
 
+CREATE OR REPLACE FUNCTION public.list_owned_book_image_paths_for_deletion(
+  target_user_id uuid
+)
+RETURNS TABLE (object_name text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT storage.objects.name
+  FROM storage.objects
+  WHERE storage.objects.bucket_id = 'book-images'
+    AND storage.objects.owner_id = target_user_id::text
+$$;
+
+REVOKE ALL
+ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid)
+FROM PUBLIC, anon, authenticated;
+
+GRANT EXECUTE
+ON FUNCTION public.list_owned_book_image_paths_for_deletion(uuid)
+TO service_role;
+
 ALTER TABLE public.book_image_legacy_ownership ENABLE ROW LEVEL SECURITY;
 
 REVOKE ALL ON public.book_image_legacy_ownership FROM anon, authenticated;
