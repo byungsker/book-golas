@@ -1635,6 +1635,18 @@
 
            "bookDetailSaveError": "An error occurred while saving.\nPlease try again.",
            "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
+           "bookDetailLoginRequired": "Please sign in to continue.",
+           "@bookDetailLoginRequired": {"description": "Authentication required message for memorable page actions"},
+           "bookDetailImageLoadFailed": "We couldn't load your memorable pages.\nPlease try again.",
+           "@bookDetailImageLoadFailed": {"description": "Memorable page image load failure message"},
+           "bookDetailImageUploadFailed": "We couldn't upload this memorable page.\nPlease try again.",
+           "@bookDetailImageUploadFailed": {"description": "Memorable page image upload failure message"},
+           "bookDetailImageDeleteFailed": "We couldn't delete this memorable page.\nPlease try again.",
+           "@bookDetailImageDeleteFailed": {"description": "Memorable page image deletion failure message"},
+           "bookDetailTextSaveFailed": "We couldn't save the extracted text.\nPlease try again.",
+           "@bookDetailTextSaveFailed": {"description": "Memorable page extracted text save failure message"},
+           "bookDetailImageReplaceFailed": "We couldn't replace this image.\nPlease try again.",
+           "@bookDetailImageReplaceFailed": {"description": "Memorable page image replacement failure message"},
 
            "subscriptionUnavailable": "Subscription service is currently unavailable.",
            "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},

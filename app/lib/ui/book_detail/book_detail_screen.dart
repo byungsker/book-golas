@@ -6,9 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:book_golas/data/services/book_image_storage_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
@@ -1000,94 +998,62 @@ class _BookDetailContentState extends State<_BookDetailContent>
       int? pageNumber,
       List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
-    final bookVm = context.read<BookDetailViewModel>();
+    final saved = await memorableVm.uploadAndSaveMemorablePage(
+      imageBytes: imageBytes,
+      extractedText: extractedText,
+      pageNumber: pageNumber,
+      highlights: highlights,
+    );
+    if (!mounted) return saved;
 
-    String? storagePath;
-    var recordInserted = false;
-    try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      final bookId = bookVm.currentBook.id;
-      if (userId == null || bookId == null) return false;
-
-      if (imageBytes != null) {
-        storagePath = await BookImageStorageService().upload(
-          imageBytes: imageBytes,
-          userId: userId,
-          bookId: bookId,
-        );
-      }
-
-      final insertData = {
-        'book_id': bookId,
-        'user_id': userId,
-        'image_url': storagePath,
-        'caption': '',
-        'extracted_text': extractedText.isEmpty ? null : extractedText,
-        'page_number': pageNumber,
-        'created_at': DateTime.now().toIso8601String(),
-      };
-      if (highlights != null && highlights.isNotEmpty) {
-        insertData['highlights'] = HighlightData.toJsonList(highlights);
-      }
-      final insertResult = await Supabase.instance.client
-          .from('book_images')
-          .insert(insertData)
-          .select('id')
-          .single();
-      recordInserted = true;
-
-      await memorableVm.fetchBookImages();
-      memorableVm.clearPendingImage();
-
-      if (extractedText.isNotEmpty) {
-        RecallService().generateEmbeddingForPhotoOcr(
-          userId: userId,
-          bookId: bookId,
-          photoId: insertResult['id'] as String,
-          ocrText: extractedText,
-          pageNumber: pageNumber,
-        );
-      }
-
-      if (mounted) {
-        _tabController?.animateTo(0);
-        _scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-        CustomSnackbar.show(context,
-            message: AppLocalizations.of(context).bookDetailSaved,
-            type: BLabSnackbarType.success);
-      }
+    if (saved) {
+      _tabController?.animateTo(0);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      CustomSnackbar.show(
+        context,
+        message: AppLocalizations.of(context).bookDetailSaved,
+        type: BLabSnackbarType.success,
+      );
       return true;
-    } catch (e, stackTrace) {
-      if (!recordInserted && storagePath != null) {
-        try {
-          await BookImageStorageService().remove(storagePath);
-        } catch (_) {}
-      }
-      debugPrint('🔴 업로드 실패: $e');
-      debugPrint('🔴 스택 트레이스: $stackTrace');
-      if (mounted) {
-        final errorMessage = e.toString();
-        final isNetworkError = errorMessage.contains('SocketException') ||
-            errorMessage.contains('Connection') ||
-            errorMessage.contains('timeout');
-        showCupertinoDialog(
-          context: context,
-          builder: (dialogContext) => CupertinoAlertDialog(
-            title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
-            content: Text(isNetworkError
-                ? AppLocalizations.of(context).bookDetailNetworkError
-                : AppLocalizations.of(context).bookDetailSaveError),
-            actions: [
-              CupertinoDialogAction(
-                  child: Text(AppLocalizations.of(context).commonConfirm),
-                  onPressed: () => Navigator.pop(dialogContext))
-            ],
-          ),
-        );
-      }
-      return false;
     }
+
+    final failure = memorableVm.failure;
+    debugPrint('Memorable page upload failed: ${failure?.name ?? 'unknown'}');
+    showCupertinoDialog(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
+        content: Text(_localizedMemorablePageFailure(failure)),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(AppLocalizations.of(context).commonConfirm),
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
+  String _localizedMemorablePageFailure(MemorablePageFailure? failure) {
+    final localizations = AppLocalizations.of(context);
+    return switch (failure) {
+      MemorablePageFailure.authenticationRequired =>
+        localizations.bookDetailLoginRequired,
+      MemorablePageFailure.network => localizations.bookDetailNetworkError,
+      MemorablePageFailure.load => localizations.bookDetailImageLoadFailed,
+      MemorablePageFailure.upload => localizations.bookDetailImageUploadFailed,
+      MemorablePageFailure.delete => localizations.bookDetailImageDeleteFailed,
+      MemorablePageFailure.textSave => localizations.bookDetailTextSaveFailed,
+      MemorablePageFailure.save => localizations.bookDetailSaveError,
+      MemorablePageFailure.replace =>
+        localizations.bookDetailImageReplaceFailed,
+      null => localizations.bookDetailSaveError,
+    };
   }
 
   Future<void> _showImageSourceActionSheet(
@@ -1177,7 +1143,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onReplaceImage: (
           {required String imageId,
           required String currentText,
-          required void Function(String? newImageUrl) onReplaced}) async {
+          required void Function(bool success, String? newImageUrl)
+              onReplaced}) async {
         final source = await showImageReplaceOptionsSheet(context: context);
         if (source != null && mounted) {
           final picker = ImagePicker();
@@ -1185,17 +1152,26 @@ class _BookDetailContentState extends State<_BookDetailContent>
           if (pickedFile == null) return;
           final imageBytes = await pickedFile.readAsBytes();
           if (!mounted) return;
-          final newUrl = await memorableVm.replaceImage(
+          final replaced = await memorableVm.replaceImage(
               imageId: imageId,
               imageBytes: imageBytes,
               extractedText: currentText,
               pageNumber: null);
-          if (newUrl != null && mounted) {
+          String? newUrl;
+          if (replaced) {
+            for (final image in memorableVm.cachedImages ?? const []) {
+              if (image['id']?.toString() == imageId) {
+                newUrl = image['image_url'] as String?;
+                break;
+              }
+            }
+          }
+          if (replaced && mounted) {
             CustomSnackbar.show(context,
                 message: AppLocalizations.of(context).bookDetailImageReplaced,
                 type: BLabSnackbarType.success);
           }
-          onReplaced(newUrl);
+          onReplaced(replaced, newUrl);
         }
       },
       onSave: (

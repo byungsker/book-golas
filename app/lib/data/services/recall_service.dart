@@ -229,10 +229,14 @@ class RecallService {
 
   Future<String?> getImageUrlBySourceId(String sourceId) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
+
       final response = await _supabase
           .from('book_images')
           .select('image_url')
           .eq('id', sourceId)
+          .eq('user_id', userId)
           .maybeSingle();
 
       return _bookImageStorageService.createSignedUrl(

@@ -1,6 +1,9 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2";
 
-import { getBookImagePath } from "../_shared/book-image-storage.ts";
+import { removeAllOwnedBookImagePaths } from "../_shared/book-image-storage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +17,18 @@ function jsonResponse(body: Record<string, unknown>, status: number): Response {
     status,
     headers: { "Content-Type": "application/json", ...corsHeaders },
   });
+}
+
+async function removeBookImagePaths(
+  client: SupabaseClient,
+  paths: string[],
+): Promise<void> {
+  for (let index = 0; index < paths.length; index += 100) {
+    const { error } = await client.storage
+      .from("book-images")
+      .remove(paths.slice(index, index + 100));
+    if (error) throw error;
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -44,7 +59,6 @@ Deno.serve(async (req: Request) => {
     } = await authClient.auth.getUser();
 
     if (userError || !user) {
-      console.error("Account deletion authentication failed:", userError);
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
@@ -52,25 +66,21 @@ Deno.serve(async (req: Request) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: bookImages, error: imageQueryError } = await adminClient
-      .from("book_images")
-      .select("image_url")
-      .eq("user_id", user.id);
-
-    if (imageQueryError) throw imageQueryError;
-
-    const bookImagePaths = (bookImages ?? [])
-      .map((row) => row.image_url)
-      .filter((url): url is string => typeof url === "string")
-      .map(getBookImagePath)
-      .filter((path): path is string => path !== null);
-
-    if (bookImagePaths.length > 0) {
-      const { error: bookImageStorageError } = await adminClient.storage
-        .from("book-images")
-        .remove(bookImagePaths);
-      if (bookImageStorageError) throw bookImageStorageError;
-    }
+    await removeAllOwnedBookImagePaths({
+      fetchPage: async (afterObjectName, pageSize) => {
+        const { data, error } = await adminClient.rpc(
+          "list_owned_book_image_paths_for_deletion",
+          {
+            target_user_id: user.id,
+            after_object_name: afterObjectName,
+            requested_page_size: pageSize,
+          },
+        );
+        if (error) throw error;
+        return data ?? [];
+      },
+      removePage: (paths) => removeBookImagePaths(adminClient, paths),
+    });
 
     const { error: avatarStorageError } = await adminClient.storage
       .from("avatars")
@@ -119,8 +129,8 @@ Deno.serve(async (req: Request) => {
     if (authDeleteError) throw authDeleteError;
 
     return jsonResponse({ success: true }, 200);
-  } catch (error: unknown) {
-    console.error("Account deletion failed:", error);
+  } catch {
+    console.error("Account deletion failed");
     return jsonResponse({ error: "Failed to delete account" }, 500);
   }
 });
