@@ -73,6 +73,18 @@ class TestFlightBuildVerifierTest < Minitest::Test
     end
   end
 
+  def test_testflight_workflow_targets_dev_app
+    repository_root = File.expand_path("../../../..", __dir__)
+    workflow = File.read(
+      File.join(repository_root, ".github/workflows/ios-testflight.yml")
+    )
+    identifiers = workflow.scan(
+      /TESTFLIGHT_APP_IDENTIFIER:\s+(\S+)/
+    ).flatten
+
+    assert_equal %w[com.bookgolas.app.dev com.bookgolas.app.dev], identifiers
+  end
+
   private
 
   def build_with(state)
