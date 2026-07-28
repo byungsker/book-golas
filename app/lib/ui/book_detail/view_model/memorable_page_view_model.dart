@@ -261,11 +261,15 @@ class MemorablePageViewModel extends BaseViewModel {
             ),
           );
         }
-      } catch (_) {
+      } catch (error, stackTrace) {
         if (storagePath != null) {
-          await _bookImageStorageService.remove(storagePath);
+          try {
+            await _bookImageStorageService.remove(storagePath);
+          } catch (_) {
+            debugPrint('Book image rollback cleanup failed');
+          }
         }
-        rethrow;
+        Error.throwWithStackTrace(error, stackTrace);
       }
 
       await fetchBookImages();
@@ -462,7 +466,7 @@ class MemorablePageViewModel extends BaseViewModel {
       }
 
       await fetchBookImages();
-      return _bookImageStorageService.createSignedUrl(newStoragePath);
+      return await _bookImageStorageService.createSignedUrl(newStoragePath);
     } catch (e) {
       if (newStoragePath != null && !recordPointsToNewImage) {
         try {

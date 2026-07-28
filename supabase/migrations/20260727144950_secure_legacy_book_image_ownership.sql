@@ -69,7 +69,13 @@ unambiguous_legacy_objects AS (
     object_name,
     MIN(user_id::text)::uuid AS user_id
   FROM legacy_candidates
-  WHERE SPLIT_PART(object_name, '/', 1) = 'book_images'
+  WHERE NULLIF(BTRIM(object_name), '') IS NOT NULL
+    AND (
+      POSITION('/' IN object_name) = 0
+      OR SPLIT_PART(object_name, '/', 1) !~*
+        '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      OR SPLIT_PART(object_name, '/', 1) = user_id::text
+    )
   GROUP BY object_name
   HAVING COUNT(DISTINCT user_id) = 1
 )
