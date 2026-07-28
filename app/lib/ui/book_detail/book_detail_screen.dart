@@ -1021,18 +1021,13 @@ class _BookDetailContentState extends State<_BookDetailContent>
       return true;
     }
 
-    final errorMessage = memorableVm.errorMessage ?? '';
-    debugPrint('Memorable page upload failed: $errorMessage');
-    final isNetworkError = errorMessage.contains('SocketException') ||
-        errorMessage.contains('Connection') ||
-        errorMessage.contains('timeout');
+    final failure = memorableVm.failure;
+    debugPrint('Memorable page upload failed: ${failure?.name ?? 'unknown'}');
     showCupertinoDialog(
       context: context,
       builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
-        content: Text(isNetworkError
-            ? AppLocalizations.of(context).bookDetailNetworkError
-            : AppLocalizations.of(context).bookDetailSaveError),
+        content: Text(_localizedMemorablePageFailure(failure)),
         actions: [
           CupertinoDialogAction(
             child: Text(AppLocalizations.of(context).commonConfirm),
@@ -1042,6 +1037,23 @@ class _BookDetailContentState extends State<_BookDetailContent>
       ),
     );
     return false;
+  }
+
+  String _localizedMemorablePageFailure(MemorablePageFailure? failure) {
+    final localizations = AppLocalizations.of(context);
+    return switch (failure) {
+      MemorablePageFailure.authenticationRequired =>
+        localizations.bookDetailLoginRequired,
+      MemorablePageFailure.network => localizations.bookDetailNetworkError,
+      MemorablePageFailure.load => localizations.bookDetailImageLoadFailed,
+      MemorablePageFailure.upload => localizations.bookDetailImageUploadFailed,
+      MemorablePageFailure.delete => localizations.bookDetailImageDeleteFailed,
+      MemorablePageFailure.textSave => localizations.bookDetailTextSaveFailed,
+      MemorablePageFailure.save => localizations.bookDetailSaveError,
+      MemorablePageFailure.replace =>
+        localizations.bookDetailImageReplaceFailed,
+      null => localizations.bookDetailSaveError,
+    };
   }
 
   Future<void> _showImageSourceActionSheet(

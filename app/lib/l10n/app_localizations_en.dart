@@ -3630,6 +3630,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'An error occurred while saving.\nPlease try again.';
 
   @override
+  String get bookDetailLoginRequired => 'Please sign in to continue.';
+
+  @override
+  String get bookDetailImageLoadFailed =>
+      'We couldn\'t load your memorable pages.\nPlease try again.';
+
+  @override
+  String get bookDetailImageUploadFailed =>
+      'We couldn\'t upload this memorable page.\nPlease try again.';
+
+  @override
+  String get bookDetailImageDeleteFailed =>
+      'We couldn\'t delete this memorable page.\nPlease try again.';
+
+  @override
+  String get bookDetailTextSaveFailed =>
+      'We couldn\'t save the extracted text.\nPlease try again.';
+
+  @override
+  String get bookDetailImageReplaceFailed =>
+      'We couldn\'t replace this image.\nPlease try again.';
+
+  @override
   String get subscriptionUnavailable =>
       'Subscription service is currently unavailable.';
 

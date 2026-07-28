@@ -113,5 +113,8 @@ void main() {
       'update:new.jpg',
       'remove-new:new.jpg',
     ]);
+    expect(viewModel.failure, MemorablePageFailure.replace);
+    expect(viewModel.errorMessage, MemorablePageFailure.replace.name);
+    expect(viewModel.errorMessage, isNot(contains('Image record')));
   });
 }

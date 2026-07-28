@@ -3539,6 +3539,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailSaveError => '저장 중 오류가 발생했습니다.\n다시 시도해주세요.';
 
   @override
+  String get bookDetailLoginRequired => '계속하려면 로그인해주세요.';
+
+  @override
+  String get bookDetailImageLoadFailed => '기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageUploadFailed =>
+      '기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageDeleteFailed =>
+      '기억에 남는 페이지를 삭제하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailTextSaveFailed => '추출한 텍스트를 저장하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageReplaceFailed => '이미지를 교체하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 
   @override

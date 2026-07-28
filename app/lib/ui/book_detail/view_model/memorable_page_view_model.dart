@@ -8,6 +8,17 @@ import 'package:book_golas/data/services/recall_service.dart';
 import 'package:book_golas/domain/models/highlight_data.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 
+enum MemorablePageFailure {
+  authenticationRequired,
+  network,
+  load,
+  upload,
+  delete,
+  textSave,
+  save,
+  replace,
+}
+
 class MemorablePageViewModel extends BaseViewModel {
   static const _storagePathKey = '_storage_path';
 
@@ -25,6 +36,7 @@ class MemorablePageViewModel extends BaseViewModel {
   int? _pendingPageNumber;
 
   final Map<String, String> _editedTexts = {};
+  MemorablePageFailure? _failure;
 
   List<Map<String, dynamic>>? get cachedImages => _cachedImages;
   bool get isSelectionMode => _isSelectionMode;
@@ -34,6 +46,7 @@ class MemorablePageViewModel extends BaseViewModel {
   String get pendingExtractedText => _pendingExtractedText;
   int? get pendingPageNumber => _pendingPageNumber;
   Map<String, String> get editedTexts => _editedTexts;
+  MemorablePageFailure? get failure => _failure;
 
   MemorablePageViewModel({
     required String bookId,
@@ -66,7 +79,7 @@ class MemorablePageViewModel extends BaseViewModel {
       notifyListeners();
       return images;
     } catch (e) {
-      setError('이미지를 불러오는데 실패했습니다: $e');
+      _setFailure(MemorablePageFailure.load, e);
       return [];
     }
   }
@@ -225,7 +238,7 @@ class MemorablePageViewModel extends BaseViewModel {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
-        setError('로그인이 필요합니다');
+        _setFailure(MemorablePageFailure.authenticationRequired);
         return false;
       }
 
@@ -283,7 +296,7 @@ class MemorablePageViewModel extends BaseViewModel {
       clearPendingImage();
       return true;
     } catch (e) {
-      setError('이미지 업로드에 실패했습니다: $e');
+      _setFailure(_classifyFailure(e, MemorablePageFailure.upload), e);
       return false;
     } finally {
       setLoading(false);
@@ -314,7 +327,7 @@ class MemorablePageViewModel extends BaseViewModel {
       await fetchBookImages();
       return true;
     } catch (e) {
-      setError('이미지 삭제에 실패했습니다: $e');
+      _setFailure(MemorablePageFailure.delete, e);
       return false;
     }
   }
@@ -360,7 +373,7 @@ class MemorablePageViewModel extends BaseViewModel {
       await fetchBookImages();
       return true;
     } catch (e) {
-      setError('이미지 삭제에 실패했습니다: $e');
+      _setFailure(MemorablePageFailure.delete, e);
       return false;
     } finally {
       setLoading(false);
@@ -382,7 +395,7 @@ class MemorablePageViewModel extends BaseViewModel {
       await fetchBookImages();
       return true;
     } catch (e) {
-      setError('텍스트 저장에 실패했습니다: $e');
+      _setFailure(MemorablePageFailure.textSave, e);
       return false;
     }
   }
@@ -417,7 +430,7 @@ class MemorablePageViewModel extends BaseViewModel {
       await fetchBookImages();
       return true;
     } catch (e) {
-      setError('저장에 실패했습니다: $e');
+      _setFailure(MemorablePageFailure.save, e);
       return false;
     }
   }
@@ -430,7 +443,7 @@ class MemorablePageViewModel extends BaseViewModel {
   }) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) {
-      setError('로그인이 필요합니다');
+      _setFailure(MemorablePageFailure.authenticationRequired);
       return false;
     }
     final existingImage = await _findImage(imageId);
@@ -497,9 +510,32 @@ class MemorablePageViewModel extends BaseViewModel {
           await removeNew(newStoragePath);
         } catch (_) {}
       }
-      setError('이미지 교체에 실패했습니다: $e');
+      _setFailure(_classifyFailure(e, MemorablePageFailure.replace), e);
       return false;
     }
+  }
+
+  MemorablePageFailure _classifyFailure(
+    Object error,
+    MemorablePageFailure fallback,
+  ) {
+    final message = error.toString().toLowerCase();
+    if (message.contains('socketexception') ||
+        message.contains('connection') ||
+        message.contains('timeout')) {
+      return MemorablePageFailure.network;
+    }
+    return fallback;
+  }
+
+  void _setFailure(MemorablePageFailure failure, [Object? error]) {
+    _failure = failure;
+    if (error != null) {
+      debugPrint(
+        'Memorable page operation failed: ${error.runtimeType}',
+      );
+    }
+    setError(failure.name);
   }
 
   Future<Map<String, dynamic>?> _findImage(String imageId) async {

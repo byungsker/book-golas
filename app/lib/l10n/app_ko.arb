@@ -3130,6 +3130,18 @@
 
          "bookDetailSaveError": "저장 중 오류가 발생했습니다.\n다시 시도해주세요.",
          "@bookDetailSaveError": {"description": "Generic save error message in upload dialog"},
+         "bookDetailLoginRequired": "계속하려면 로그인해주세요.",
+         "@bookDetailLoginRequired": {"description": "Authentication required message for memorable page actions"},
+         "bookDetailImageLoadFailed": "기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.",
+         "@bookDetailImageLoadFailed": {"description": "Memorable page image load failure message"},
+         "bookDetailImageUploadFailed": "기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.",
+         "@bookDetailImageUploadFailed": {"description": "Memorable page image upload failure message"},
+         "bookDetailImageDeleteFailed": "기억에 남는 페이지를 삭제하지 못했습니다.\n다시 시도해주세요.",
+         "@bookDetailImageDeleteFailed": {"description": "Memorable page image deletion failure message"},
+         "bookDetailTextSaveFailed": "추출한 텍스트를 저장하지 못했습니다.\n다시 시도해주세요.",
+         "@bookDetailTextSaveFailed": {"description": "Memorable page extracted text save failure message"},
+         "bookDetailImageReplaceFailed": "이미지를 교체하지 못했습니다.\n다시 시도해주세요.",
+         "@bookDetailImageReplaceFailed": {"description": "Memorable page image replacement failure message"},
 
          "subscriptionUnavailable": "구독 서비스를 현재 이용할 수 없습니다.",
          "@subscriptionUnavailable": {"description": "Snackbar message when paywall cannot be presented"},

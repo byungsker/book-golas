@@ -6617,6 +6617,42 @@ abstract class AppLocalizations {
   /// **'저장 중 오류가 발생했습니다.\n다시 시도해주세요.'**
   String get bookDetailSaveError;
 
+  /// Authentication required message for memorable page actions
+  ///
+  /// In ko, this message translates to:
+  /// **'계속하려면 로그인해주세요.'**
+  String get bookDetailLoginRequired;
+
+  /// Memorable page image load failure message
+  ///
+  /// In ko, this message translates to:
+  /// **'기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.'**
+  String get bookDetailImageLoadFailed;
+
+  /// Memorable page image upload failure message
+  ///
+  /// In ko, this message translates to:
+  /// **'기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.'**
+  String get bookDetailImageUploadFailed;
+
+  /// Memorable page image deletion failure message
+  ///
+  /// In ko, this message translates to:
+  /// **'기억에 남는 페이지를 삭제하지 못했습니다.\n다시 시도해주세요.'**
+  String get bookDetailImageDeleteFailed;
+
+  /// Memorable page extracted text save failure message
+  ///
+  /// In ko, this message translates to:
+  /// **'추출한 텍스트를 저장하지 못했습니다.\n다시 시도해주세요.'**
+  String get bookDetailTextSaveFailed;
+
+  /// Memorable page image replacement failure message
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지를 교체하지 못했습니다.\n다시 시도해주세요.'**
+  String get bookDetailImageReplaceFailed;
+
   /// Snackbar message when paywall cannot be presented
   ///
   /// In ko, this message translates to:
