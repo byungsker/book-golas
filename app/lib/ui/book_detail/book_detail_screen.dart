@@ -1131,7 +1131,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onReplaceImage: (
           {required String imageId,
           required String currentText,
-          required void Function(String? newImageUrl) onReplaced}) async {
+          required void Function(bool success, String? newImageUrl)
+              onReplaced}) async {
         final source = await showImageReplaceOptionsSheet(context: context);
         if (source != null && mounted) {
           final picker = ImagePicker();
@@ -1139,17 +1140,26 @@ class _BookDetailContentState extends State<_BookDetailContent>
           if (pickedFile == null) return;
           final imageBytes = await pickedFile.readAsBytes();
           if (!mounted) return;
-          final newUrl = await memorableVm.replaceImage(
+          final replaced = await memorableVm.replaceImage(
               imageId: imageId,
               imageBytes: imageBytes,
               extractedText: currentText,
               pageNumber: null);
-          if (newUrl != null && mounted) {
+          String? newUrl;
+          if (replaced) {
+            for (final image in memorableVm.cachedImages ?? const []) {
+              if (image['id']?.toString() == imageId) {
+                newUrl = image['image_url'] as String?;
+                break;
+              }
+            }
+          }
+          if (replaced && mounted) {
             CustomSnackbar.show(context,
                 message: AppLocalizations.of(context).bookDetailImageReplaced,
                 type: BLabSnackbarType.success);
           }
-          onReplaced(newUrl);
+          onReplaced(replaced, newUrl);
         }
       },
       onSave: (

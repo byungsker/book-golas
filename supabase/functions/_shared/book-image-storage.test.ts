@@ -1,6 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 
 import {
+  collectOwnedBookImagePaths,
   getBookImagePath,
   isOwnedBookImagePath,
 } from "./book-image-storage.ts";
@@ -54,4 +55,24 @@ Deno.test("rejects malformed percent encoding", () => {
 Deno.test("verifies ownership by exact first path segment", () => {
   assertEquals(isOwnedBookImagePath("user-a/book/image.jpg", "user-a"), true);
   assertEquals(isOwnedBookImagePath("user-ab/book/image.jpg", "user-a"), false);
+});
+
+Deno.test("collects only verified references with trusted cleanup sources", () => {
+  assertEquals(
+    collectOwnedBookImagePaths({
+      userId: "user-a",
+      referencedValues: [
+        "user-a/book/image.jpg",
+        "user-ab/book/foreign.jpg",
+        "https://example.com/foreign.jpg",
+      ],
+      legacyPaths: ["legacy/user-a.jpg"],
+      listedPaths: ["user-a/book/image.jpg", "user-a/book/orphan.jpg"],
+    }),
+    [
+      "user-a/book/image.jpg",
+      "legacy/user-a.jpg",
+      "user-a/book/orphan.jpg",
+    ],
+  );
 });

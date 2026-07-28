@@ -78,7 +78,7 @@ class MemorablePageViewModel extends BaseViewModel {
     final storagePath = BookImageStorageService.storagePathFromValue(
       storedValue,
     );
-    if (storagePath == null) return image;
+    if (storagePath == null) return {...image, 'image_url': null};
 
     try {
       final signedUrl = await _bookImageStorageService.createSignedUrl(
@@ -88,6 +88,13 @@ class MemorablePageViewModel extends BaseViewModel {
     } catch (_) {
       return {...image, _storagePathKey: storagePath, 'image_url': null};
     }
+  }
+
+  @visibleForTesting
+  Future<Map<String, dynamic>> resolveImageUrlForTesting(
+    Map<String, dynamic> image,
+  ) {
+    return _resolveImageUrl(image);
   }
 
   List<Map<String, dynamic>> getSortedImages() {
@@ -415,66 +422,83 @@ class MemorablePageViewModel extends BaseViewModel {
     }
   }
 
-  Future<String?> replaceImage({
+  Future<bool> replaceImage({
     required String imageId,
     required Uint8List imageBytes,
     required String extractedText,
     int? pageNumber,
   }) async {
-    String? newStoragePath;
-    var recordPointsToNewImage = false;
-    try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        setError('로그인이 필요합니다');
-        return null;
-      }
-      final existingImage = await _findImage(imageId);
-      if (existingImage == null) return null;
-      final existingStoragePath = existingImage[_storagePathKey] as String? ??
-          existingImage['image_url'] as String?;
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      setError('로그인이 필요합니다');
+      return false;
+    }
+    final existingImage = await _findImage(imageId);
+    if (existingImage == null) return false;
+    final existingStoragePath = existingImage[_storagePathKey] as String? ??
+        existingImage['image_url'] as String?;
 
-      newStoragePath = await _bookImageStorageService.upload(
+    return replaceStoredImage(
+      existingStoragePath: existingStoragePath,
+      upload: () => _bookImageStorageService.upload(
         imageBytes: imageBytes,
         userId: userId,
         bookId: _bookId,
-      );
-
-      await _supabase
-          .from('book_images')
-          .update({
-            'image_url': newStoragePath,
-            'extracted_text': extractedText,
-            'page_number': pageNumber,
-          })
-          .eq('id', imageId)
-          .eq('user_id', userId);
-      recordPointsToNewImage = true;
-
-      try {
-        await _bookImageStorageService.remove(existingStoragePath);
-      } catch (_) {
-        await _supabase
+      ),
+      updateRecord: (newStoragePath) async {
+        final updatedImage = await _supabase
             .from('book_images')
-            .update({'image_url': existingStoragePath})
+            .update({
+              'image_url': newStoragePath,
+              'extracted_text': extractedText,
+              'page_number': pageNumber,
+            })
             .eq('id', imageId)
-            .eq('user_id', userId);
-        recordPointsToNewImage = false;
-        await _bookImageStorageService.remove(newStoragePath);
-        newStoragePath = null;
-        rethrow;
-      }
+            .eq('user_id', userId)
+            .select('id')
+            .maybeSingle();
+        return updatedImage != null;
+      },
+      removeOld: _bookImageStorageService.remove,
+      removeNew: _bookImageStorageService.remove,
+      refresh: () async {
+        await fetchBookImages();
+      },
+    );
+  }
 
-      await fetchBookImages();
-      return await _bookImageStorageService.createSignedUrl(newStoragePath);
+  @visibleForTesting
+  Future<bool> replaceStoredImage({
+    required String? existingStoragePath,
+    required Future<String> Function() upload,
+    required Future<bool> Function(String newStoragePath) updateRecord,
+    required Future<void> Function(String? storagePath) removeOld,
+    required Future<void> Function(String storagePath) removeNew,
+    required Future<void> Function() refresh,
+  }) async {
+    String? newStoragePath;
+    var recordPointsToNewImage = false;
+    try {
+      newStoragePath = await upload();
+      if (!await updateRecord(newStoragePath)) {
+        throw StateError('Image record was not updated');
+      }
+      recordPointsToNewImage = true;
+      try {
+        await removeOld(existingStoragePath);
+      } catch (_) {}
+      try {
+        await refresh();
+      } catch (_) {}
+      return true;
     } catch (e) {
       if (newStoragePath != null && !recordPointsToNewImage) {
         try {
-          await _bookImageStorageService.remove(newStoragePath);
+          await removeNew(newStoragePath);
         } catch (_) {}
       }
       setError('이미지 교체에 실패했습니다: $e');
-      return null;
+      return false;
     }
   }
 

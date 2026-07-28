@@ -34,3 +34,27 @@ export function isOwnedBookImagePath(
   const path = getBookImagePath(storedValue);
   return path?.split("/")[0] === userId;
 }
+
+export function collectOwnedBookImagePaths({
+  userId,
+  referencedValues,
+  legacyPaths,
+  listedPaths,
+}: {
+  userId: string;
+  referencedValues: string[];
+  legacyPaths: string[];
+  listedPaths: string[];
+}): string[] {
+  const referencedPaths = referencedValues
+    .filter((value) => isOwnedBookImagePath(value, userId))
+    .map(getBookImagePath)
+    .filter((path): path is string => path !== null);
+  return [
+    ...new Set([
+      ...referencedPaths,
+      ...legacyPaths,
+      ...listedPaths,
+    ]),
+  ];
+}

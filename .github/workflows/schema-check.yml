@@ -8,8 +8,10 @@ on:
       - 'version/**'
       - 'release/**'
     paths:
+      - '.github/workflows/schema-check.yml'
       - 'supabase/migrations/**'
       - 'supabase/functions/**'
+      - 'supabase/tests/**'
 
 jobs:
   check-migrations:
@@ -184,8 +186,14 @@ jobs:
           
           echo "✅ SQL validation complete - no dangerous operations detected"
 
-      - name: Apply all migrations locally
+      - name: Start local database
         run: supabase db start
+
+      - name: Apply all migrations locally
+        run: supabase db reset --local --no-seed
+
+      - name: Test local database policies
+        run: supabase test db
 
       - name: Lint local schema
         run: supabase db lint --local --level error

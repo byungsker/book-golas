@@ -57,35 +57,55 @@ CREATE TABLE public.book_image_legacy_ownership (
 CREATE INDEX IF NOT EXISTS book_images_user_id_idx
 ON public.book_images (user_id);
 
-WITH legacy_candidates AS (
-  SELECT
-    user_id,
-    public.book_image_storage_path(image_url) AS object_name
-  FROM public.book_images
-  WHERE image_url IS NOT NULL
-),
-unambiguous_legacy_objects AS (
-  SELECT
-    object_name,
-    MIN(user_id::text)::uuid AS user_id
-  FROM legacy_candidates
-  WHERE NULLIF(BTRIM(object_name), '') IS NOT NULL
-    AND (
-      POSITION('/' IN object_name) = 0
-      OR SPLIT_PART(object_name, '/', 1) !~*
-        '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-      OR SPLIT_PART(object_name, '/', 1) = user_id::text
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON public.book_images
+TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.backfill_book_image_legacy_ownership()
+RETURNS bigint
+LANGUAGE sql
+VOLATILE
+SET search_path = ''
+AS $$
+  WITH normalized_claims AS (
+    SELECT
+      user_id,
+      public.book_image_storage_path(image_url) AS object_name
+    FROM public.book_images
+    WHERE image_url IS NOT NULL
+      AND user_id IS NOT NULL
+  ),
+  trusted_legacy_objects AS (
+    SELECT DISTINCT
+      normalized_claims.object_name,
+      normalized_claims.user_id
+    FROM normalized_claims
+    INNER JOIN storage.objects
+      ON storage.objects.bucket_id = 'book-images'
+      AND storage.objects.name = normalized_claims.object_name
+      AND storage.objects.owner_id = normalized_claims.user_id::text
+    WHERE NULLIF(BTRIM(normalized_claims.object_name), '') IS NOT NULL
+  ),
+  inserted_ownership AS (
+    INSERT INTO public.book_image_legacy_ownership (
+      bucket_id,
+      object_name,
+      user_id
     )
-  GROUP BY object_name
-  HAVING COUNT(DISTINCT user_id) = 1
-)
-INSERT INTO public.book_image_legacy_ownership (
-  bucket_id,
-  object_name,
-  user_id
-)
-SELECT 'book-images', object_name, user_id
-FROM unambiguous_legacy_objects;
+    SELECT 'book-images', object_name, user_id
+    FROM trusted_legacy_objects
+    ON CONFLICT (bucket_id, object_name) DO NOTHING
+    RETURNING 1
+  )
+  SELECT COUNT(*)::bigint
+  FROM inserted_ownership
+$$;
+
+SELECT public.backfill_book_image_legacy_ownership();
+
+REVOKE ALL
+ON FUNCTION public.backfill_book_image_legacy_ownership()
+FROM PUBLIC, anon, authenticated;
 
 ALTER TABLE public.book_image_legacy_ownership ENABLE ROW LEVEL SECURITY;
 
@@ -156,7 +176,10 @@ TO authenticated
 USING (
   bucket_id = 'book-images'
   AND (
-    (storage.foldername(name))[1] = auth.uid()::text
+    (
+      (storage.foldername(name))[1] = auth.uid()::text
+      AND storage.objects.owner_id = auth.uid()::text
+    )
     OR EXISTS (
       SELECT 1
       FROM public.book_image_legacy_ownership
@@ -174,7 +197,10 @@ TO authenticated
 USING (
   bucket_id = 'book-images'
   AND (
-    (storage.foldername(name))[1] = auth.uid()::text
+    (
+      (storage.foldername(name))[1] = auth.uid()::text
+      AND storage.objects.owner_id = auth.uid()::text
+    )
     OR EXISTS (
       SELECT 1
       FROM public.book_image_legacy_ownership
