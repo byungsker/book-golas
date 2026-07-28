@@ -11,6 +11,23 @@
 - [x] TestFlight 업로드 성공
 - [ ] Production App Store Connect 업로드 성공
 
+### App Store Connect 빌드 처리 확인
+
+`iOS TestFlight Deploy`와 `iOS Production Deploy`는 업로드한 버전과 빌드
+번호가 App Store Connect에서 `VALID` 상태가 될 때까지 확인합니다.
+`FAILED`, `INVALID`, 알 수 없는 상태 또는 30분 초과는 워크플로 실패로
+처리합니다.
+
+이미 업로드한 빌드는 GitHub Actions의 `iOS TestFlight Deploy`에서
+`Run workflow`를 열고 다음 값을 입력해 재업로드 없이 확인할 수 있습니다.
+
+- `operation`: `verify`
+- `marketing_version`: 확인할 앱 버전
+- `build_number`: 확인할 빌드 번호
+
+이 검증 작업은 데이터베이스 마이그레이션, Flutter 빌드, TestFlight
+업로드를 실행하지 않습니다.
+
 ## 코드 서명과 GitHub Actions 비밀값
 
 앱과 위젯은 서로 다른 provisioning profile이 필요합니다.
@@ -50,14 +67,13 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 
 ## 브랜치와 배포
 
-1. `feature/* → daily/YYYY-MM-DD` PR을 merge commit으로 합칩니다.
-2. `daily/YYYY-MM-DD → dev` PR을 merge commit으로 합칩니다.
-3. TestFlight와 개발 Supabase 배포가 성공할 때까지 수정합니다.
-4. Apple 유료 앱 계약·세금·은행 정보와 외부 자격증명을 활성화합니다.
-5. `dev → main` PR을 merge commit으로 합치고 Production environment를 승인합니다.
-6. 운영 Supabase 배포와 `com.bookgolas.app` TestFlight 업로드를 확인합니다.
-7. 프로덕션 TestFlight 빌드에서 Sandbox 구매·복원·갱신·취소·만료를 검증합니다.
-8. App Store Connect에서 빌드·구독을 선택하고 심사에 제출합니다.
-9. 승인 후 수동 출시 또는 예약 출시를 실행합니다.
+1. 승인된 모바일 작업 브랜치를 `version/mobile/1.0.2`에 merge commit으로 합칩니다.
+2. TestFlight, 개발 Supabase 배포와 App Store Connect `VALID` 확인이 성공할 때까지 수정합니다.
+3. Apple 유료 앱 계약·세금·은행 정보와 외부 자격증명을 활성화합니다.
+4. 승인된 release source와 SHA를 등록하고 production 승격 PR을 엽니다.
+5. Production environment 승인 후 운영 Supabase 배포와 App Store Connect `VALID` 확인을 완료합니다.
+6. 프로덕션 TestFlight 빌드에서 Sandbox 구매·복원·갱신·취소·만료를 검증합니다.
+7. App Store Connect에서 빌드·구독을 선택하고 심사에 제출합니다.
+8. 승인 후 수동 출시 또는 예약 출시를 실행합니다.
 
-최종 확인일: 2026-07-23
+최종 확인일: 2026-07-28
