@@ -70,59 +70,42 @@ jobs:
 
   build-and-deploy:
     needs: migrate-database
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode 26
+      - name: Validate Xcode 26 toolchain
         run: |
-          XCODE_26_PATH=""
-          XCODE_26_WITH_IOS_SDK_PATH=""
+          DEVELOPER_PATH="/Applications/Xcode.app/Contents/Developer"
+          echo "DEVELOPER_DIR=$DEVELOPER_PATH" >> "$GITHUB_ENV"
+          sudo xcode-select -s "$DEVELOPER_PATH"
 
-          echo "Available Xcode installations:"
-          for candidate in /Applications/Xcode*.app; do
-            [ -d "$candidate" ] || continue
-            version=$("$candidate/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | sed -n '1p' || true)
-            sdks=$(DEVELOPER_DIR="$candidate/Contents/Developer" "$candidate/Contents/Developer/usr/bin/xcodebuild" -showsdks 2>/dev/null || true)
-            echo "- $candidate: $version"
-            echo "$sdks" | grep -E 'iphoneos|iOS SDK' || true
+          XCODE_VERSION=$(xcodebuild -version | sed -n '1p')
+          if ! echo "$XCODE_VERSION" | grep -q '^Xcode 26'; then
+            echo "::error::Xcode 26+ is required for App Store Connect uploads. Found: $XCODE_VERSION"
+            exit 1
+          fi
 
-            if echo "$version" | grep -q '^Xcode 26'; then
-              [ -z "$XCODE_26_PATH" ] && XCODE_26_PATH="$candidate"
-              if echo "$sdks" | grep -q 'iphoneos26'; then
-                XCODE_26_WITH_IOS_SDK_PATH="$candidate"
-                break
-              fi
+          IOS_SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
+          IOS_SDK_VERSION=$(xcrun --sdk iphoneos --show-sdk-version)
+          if ! echo "$IOS_SDK_VERSION" | grep -q '^26\.'; then
+            echo "::error::The iOS 26 device SDK is required. Found: $IOS_SDK_VERSION"
+            exit 1
+          fi
+
+          for header in \
+            "$IOS_SDK_PATH/usr/include/sys/_types/_ssize_t.h" \
+            "$IOS_SDK_PATH/usr/include/_modules/_darwin_c_stdio.h"; do
+            if [ ! -f "$header" ]; then
+              echo "::error::The selected iOS device SDK is incomplete: $header is missing."
+              exit 1
             fi
           done
 
-          if [ -z "$XCODE_26_PATH" ]; then
-            echo "::error::Xcode 26+ is required for App Store Connect uploads. Install/select Xcode 26+ on the runner."
-            xcodebuild -version || true
-            exit 1
-          fi
-
-          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
-            echo "iOS 26 SDK is missing from the first Xcode 26 candidates. Attempting to install the iOS platform..."
-            DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -downloadPlatform iOS || true
-            if DEVELOPER_DIR="$XCODE_26_PATH/Contents/Developer" xcodebuild -showsdks | grep -q 'iphoneos26'; then
-              XCODE_26_WITH_IOS_SDK_PATH="$XCODE_26_PATH"
-            fi
-          fi
-
-          if [ -z "$XCODE_26_WITH_IOS_SDK_PATH" ]; then
-            echo "::error::Xcode 26+ was found, but no installation has the iOS 26 SDK required for device builds."
-            exit 1
-          fi
-
-          echo "DEVELOPER_DIR=$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer" >> "$GITHUB_ENV"
-          sudo xcode-select -s "$XCODE_26_WITH_IOS_SDK_PATH/Contents/Developer"
           xcodebuild -version
-          sudo xcodebuild -runFirstLaunch || true
-          xcodebuild -downloadPlatform iOS || true
-          xcodebuild -showsdks | grep iphoneos
+          echo "iOS device SDK: $IOS_SDK_VERSION ($IOS_SDK_PATH)"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
