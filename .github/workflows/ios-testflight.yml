@@ -15,10 +15,30 @@ on:
       - '.gitignore'
       - '.editorconfig'
   workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Deploy a new build or verify an existing TestFlight build'
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - verify
+      marketing_version:
+        description: 'Marketing version used by verify'
+        required: true
+        default: '1.0.2'
+        type: string
+      build_number:
+        description: 'Build number used by verify'
+        required: true
+        default: '29501'
+        type: string
 
 jobs:
   migrate-database:
     name: Apply Database Migrations (Dev)
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
     runs-on: self-hosted
 
     steps:
@@ -59,6 +79,7 @@ jobs:
 
   build-and-deploy:
     needs: migrate-database
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
     runs-on: macos-26
 
     steps:
@@ -115,6 +136,9 @@ jobs:
           cd app/ios
           bundle config set --local path vendor/bundle
           bundle install
+
+      - name: Test App Store Connect build verification
+        run: ruby app/ios/fastlane/test/testflight_build_verifier_test.rb
 
       - name: Flutter pub get
         run: |
@@ -183,6 +207,7 @@ jobs:
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
+        id: build-metadata
         env:
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_DEV }}
@@ -193,6 +218,8 @@ jobs:
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
+          echo "marketing-version=$BUILD_NAME" >> "$GITHUB_OUTPUT"
+          echo "build-number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           flutter build ios \
             --flavor dev \
             -t lib/main_dev.dart \
@@ -220,7 +247,58 @@ jobs:
           cd app/ios
           bundle exec fastlane beta
 
+      - name: Verify TestFlight build processing
+        timeout-minutes: 35
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app
+          TESTFLIGHT_MARKETING_VERSION: ${{ steps.build-metadata.outputs.marketing-version }}
+          TESTFLIGHT_BUILD_NUMBER: ${{ steps.build-metadata.outputs.build-number }}
+        run: |
+          cd app/ios
+          bundle exec ruby fastlane/scripts/verify_testflight_build.rb
+
       - name: Clean up keychain
         if: always()
         run: |
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+
+  verify-existing-build:
+    name: Verify Existing TestFlight Build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'verify' }}
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby (Homebrew)
+        run: |
+          echo "/opt/homebrew/opt/ruby/bin" >> "$GITHUB_PATH"
+          export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+          ruby -v
+          gem list bundler
+
+      - name: Install Ruby dependencies
+        run: |
+          cd app/ios
+          bundle config set --local path vendor/bundle
+          bundle install
+
+      - name: Test App Store Connect build verification
+        run: ruby app/ios/fastlane/test/testflight_build_verifier_test.rb
+
+      - name: Verify TestFlight build processing
+        timeout-minutes: 35
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app
+          TESTFLIGHT_MARKETING_VERSION: ${{ inputs.marketing_version }}
+          TESTFLIGHT_BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          cd app/ios
+          bundle exec ruby fastlane/scripts/verify_testflight_build.rb

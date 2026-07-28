@@ -127,6 +127,9 @@ jobs:
           bundle config set --local path vendor/bundle
           bundle install
 
+      - name: Test App Store Connect build verification
+        run: ruby app/ios/fastlane/test/testflight_build_verifier_test.rb
+
       - name: Flutter pub get
         run: |
           cd app
@@ -163,6 +166,7 @@ jobs:
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
       - name: Build Flutter iOS
+        id: build-metadata
         env:
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_PROD || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROD }}
@@ -173,6 +177,8 @@ jobs:
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
+          echo "marketing-version=$BUILD_NAME" >> "$GITHUB_OUTPUT"
+          echo "build-number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
           flutter build ios \
             --flavor prod \
             -t lib/main_prod.dart \
@@ -197,6 +203,19 @@ jobs:
         run: |
           cd app/ios
           bundle exec fastlane release
+
+      - name: Verify App Store Connect build processing
+        timeout-minutes: 35
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          TESTFLIGHT_APP_IDENTIFIER: com.bookgolas.app
+          TESTFLIGHT_MARKETING_VERSION: ${{ steps.build-metadata.outputs.marketing-version }}
+          TESTFLIGHT_BUILD_NUMBER: ${{ steps.build-metadata.outputs.build-number }}
+        run: |
+          cd app/ios
+          bundle exec ruby fastlane/scripts/verify_testflight_build.rb
 
       - name: Clean up keychain
         if: always()
