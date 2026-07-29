@@ -17,13 +17,14 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: 'Deploy a new build or verify an existing TestFlight build'
+        description: 'Deploy, verify TestFlight, or report production App Store downloads'
         required: true
         default: deploy
         type: choice
         options:
           - deploy
           - verify
+          - report-downloads
       marketing_version:
         description: 'Marketing version used by verify'
         required: true
@@ -302,3 +303,31 @@ jobs:
         run: |
           cd app/ios
           bundle exec ruby fastlane/scripts/verify_testflight_build.rb
+
+  report-app-store-downloads:
+    name: Report Production App Store Downloads
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'report-downloads' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: app/ios
+
+      - name: Test App Store download reporter
+        run: ruby app/ios/fastlane/test/app_store_download_reporter_test.rb
+
+      - name: Report App Store downloads
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          cd app/ios
+          bundle exec ruby fastlane/scripts/report_app_store_downloads.rb --create-if-missing
