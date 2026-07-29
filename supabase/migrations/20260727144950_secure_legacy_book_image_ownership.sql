@@ -84,6 +84,8 @@ AS $$
       ON storage.objects.bucket_id = 'book-images'
       AND storage.objects.name = normalized_claims.object_name
       AND storage.objects.owner_id = normalized_claims.user_id::text
+    INNER JOIN auth.users
+      ON auth.users.id = normalized_claims.user_id
     WHERE NULLIF(BTRIM(normalized_claims.object_name), '') IS NOT NULL
   ),
   inserted_ownership AS (
