@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "allowed_actor_prefixes": [
+    "codex"
+  ],
+  "delivery_units": {
+    "governance": {
+      "profile": "package-or-local",
+      "mode": "continuous",
+      "active_versions": [
+        "1.0.0"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "dev",
+      "work_bases": [
+        "dev",
+        "main"
+      ],
+      "allowed_paths": [
+        ".byungskerlab/branch-policy.json",
+        ".byungskerlab/release-lines.json",
+        ".github/CODEOWNERS",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        ".github/scripts/validate_target_version_pr.py",
+        ".github/workflows/target-version-gate.yml",
+        ".github/workflows/quality.yml",
+        ".github/workflows/schema-check.yml",
+        "AGENTS.md",
+        "docs/product-roadmap.md"
+      ]
+    },
+    "mobile": {
+      "profile": "mobile-store",
+      "mode": "version-line",
+      "active_versions": [
+        "1.0.2"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "allowed_paths": [
+        ".byungskerlab/release.yaml",
+        ".env.example",
+        ".github/workflows/daily-nudge.yml",
+        ".github/workflows/ios-production.yml",
+        ".github/workflows/ios-testflight.yml",
+        ".github/workflows/schema-check.yml",
+        "README.md",
+        "app/**",
+        "docs/**",
+        "supabase/**"
+      ],
+      "sync_bases": [
+        "dev",
+        "version/mobile/1.0.2"
+      ]
+    },
+    "web": {
+      "profile": "web-release-train",
+      "mode": "version-line",
+      "active_versions": [],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "allowed_paths": [
+        "docs/**",
+        "web/**"
+      ]
+    },
+    "backend": {
+      "profile": "backend-service",
+      "mode": "continuous",
+      "active_versions": [],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "allowed_paths": [
+        ".github/workflows/deploy-edge-functions.yml",
+        "docs/**",
+        "supabase/**"
+      ]
+    }
+  }
+}
