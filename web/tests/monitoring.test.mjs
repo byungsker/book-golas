@@ -39,3 +39,43 @@ test("next action prioritizes an unavailable active-user metric", () => {
 
   assert.equal(action.title, "활성 사용자 집계를 먼저 연결하세요");
 });
+
+test("next action does not treat an unavailable book metric as zero", () => {
+  const action = getNextAction({
+    generated_at: "2026-07-29T04:00:00.000Z",
+    period_days: 7,
+    source_status: "partial",
+    unavailable_metrics: ["books_created_7d"],
+    users: { total: 50, new_7d: 12, active_7d: 35 },
+    books: { total: 80, created_7d: null, users_with_books: 42 },
+    reading: {
+      total_records: 140,
+      records_7d: 20,
+      users_with_records: 31,
+    },
+    recall: { total: 36, created_7d: 8, users_with_recall: 18 },
+    push: { sent_7d: 45, clicked_7d: 9 },
+  });
+
+  assert.equal(action.title, "핵심 행동 지표 연결을 확인하세요");
+});
+
+test("next action does not compare an unavailable reading metric", () => {
+  const action = getNextAction({
+    generated_at: "2026-07-29T04:00:00.000Z",
+    period_days: 7,
+    source_status: "partial",
+    unavailable_metrics: ["reading_records_7d"],
+    users: { total: 50, new_7d: 12, active_7d: 35 },
+    books: { total: 80, created_7d: 18, users_with_books: 42 },
+    reading: {
+      total_records: 140,
+      records_7d: null,
+      users_with_records: 31,
+    },
+    recall: { total: 36, created_7d: 8, users_with_recall: 18 },
+    push: { sent_7d: 45, clicked_7d: 9 },
+  });
+
+  assert.equal(action.title, "핵심 행동 지표 연결을 확인하세요");
+});
