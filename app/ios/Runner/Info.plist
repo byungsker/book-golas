@@ -106,7 +106,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.continue-reading</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>이어서 읽기</string>
+				<string>QUICK_ACTION_CONTINUE_READING</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeBookmark</string>
 			</dict>
@@ -114,7 +114,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.scan-page</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>페이지 스캔</string>
+				<string>QUICK_ACTION_SCAN_PAGE</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeCapturePhoto</string>
 			</dict>
@@ -122,7 +122,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.add-book</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>책 추가</string>
+				<string>QUICK_ACTION_ADD_BOOK</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeAdd</string>
 			</dict>
