@@ -63,7 +63,18 @@ export function getNextAction(metrics: AdminMonitoringMetrics): {
     };
   }
 
-  if ((metrics.books.created_7d ?? 0) === 0) {
+  if (
+    metrics.books.created_7d === null ||
+    metrics.reading.records_7d === null
+  ) {
+    return {
+      title: "핵심 행동 지표 연결을 확인하세요",
+      description:
+        "최근 7일 책 등록 또는 독서 기록 수치를 불러오지 못했습니다. 데이터 연결 상태를 먼저 확인하세요.",
+    };
+  }
+
+  if (metrics.books.created_7d === 0) {
     return {
       title: "책 등록 진입 흐름을 점검하세요",
       description:
@@ -71,7 +82,7 @@ export function getNextAction(metrics: AdminMonitoringMetrics): {
     };
   }
 
-  if ((metrics.reading.records_7d ?? 0) < (metrics.books.created_7d ?? 0)) {
+  if (metrics.reading.records_7d < metrics.books.created_7d) {
     return {
       title: "첫 독서 기록 전환을 개선하세요",
       description:
