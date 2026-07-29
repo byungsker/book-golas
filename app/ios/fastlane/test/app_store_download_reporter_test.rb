@@ -101,8 +101,7 @@ class AppStoreDownloadReporterTest < Minitest::Test
 
   def test_runner_creates_snapshot_when_no_request_exists
     client = FakeApiClient.new(
-      "/v1/apps?" => [{ "id" => "app-id" }],
-      "/v1/apps/app-id/analyticsReportRequests" => []
+      "/v1/apps/6757021809/analyticsReportRequests" => []
     )
 
     result = AppStoreDownloadReporter::Runner.new(
@@ -126,8 +125,7 @@ class AppStoreDownloadReporterTest < Minitest::Test
       2026-07-24\tBookgolas\t6757021809\tRedownload\t1
     TSV
     client = FakeApiClient.new(
-      "/v1/apps?" => [{ "id" => "app-id" }],
-      "/v1/apps/app-id/analyticsReportRequests" => [
+      "/v1/apps/6757021809/analyticsReportRequests" => [
         {
           "id" => "request-id",
           "attributes" => {

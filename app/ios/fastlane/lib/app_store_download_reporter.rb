@@ -231,13 +231,12 @@ module AppStoreDownloadReporter
     end
 
     def call
-      app = find_app
-      report_request = find_report_request(app.fetch("id"))
+      report_request = find_report_request(APP_APPLE_ID)
 
       if report_request.nil?
         return pending("missing_report_request") unless @create_if_missing
 
-        created = create_report_request(app.fetch("id"))
+        created = create_report_request(APP_APPLE_ID)
         return pending("report_request_created", request_id: created.fetch("id"))
       end
 
@@ -276,15 +275,6 @@ module AppStoreDownloadReporter
     end
 
     private
-
-    def find_app
-      apps = @api_client.get_all(
-        "/v1/apps?filter[bundleId]=#{URI.encode_www_form_component(APP_BUNDLE_ID)}&limit=2"
-      )
-      raise "App Store Connect app not found for #{APP_BUNDLE_ID}" unless apps.length == 1
-
-      apps.fetch(0)
-    end
 
     def find_report_request(app_id)
       requests = @api_client.get_all(
