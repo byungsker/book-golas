@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:monitoring": "node --test tests/monitoring.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -38,6 +39,7 @@
     "typescript": "^5"
   },
   "overrides": {
+    "minimatch": "10.2.6",
     "postcss": "8.5.22"
   }
 }
