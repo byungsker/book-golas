@@ -410,6 +410,9 @@ verify_jwt = false
 [functions.revenuecat-webhook]
 verify_jwt = false
 
+[functions.control-plane-metrics]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
