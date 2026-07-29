@@ -39,7 +39,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "postcss": "8.5.22",
-    "minimatch": "10.2.5"
+    "minimatch": "10.2.6",
+    "postcss": "8.5.22"
   }
 }
