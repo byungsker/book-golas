@@ -26,8 +26,12 @@
       }
     },
     "web": {
-      "active_versions": [],
-      "evidence_refs": [],
+      "active_versions": [
+        "1.0.0"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
       "promotion_sources": {
         "release": {},
         "hotfix": {}

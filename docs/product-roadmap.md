@@ -1,6 +1,6 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-07-25
+Last updated: 2026-07-29
 
 ## Priority order
 
@@ -9,6 +9,9 @@ Bookgolas follows this release order:
 1. Ship the next patch release: **1.0.2**.
 2. Prepare and validate the Android / Google Play release.
 3. Publish the Android release to Google Play after the test and policy gates pass.
+
+The independently delivered web admin has an approved parallel release train:
+**web 1.0.0**. It does not change the mobile 1.0.2 binary scope.
 
 ## P0 — 1.0.2 patch release
 
@@ -52,6 +55,27 @@ unverified.
   complete and byungsker gives explicit publication authority.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
+
+## Parallel track — web 1.0.0 data-informed admin
+
+- Replace direct browser-side operational queries with an authenticated
+  server-side aggregate metrics boundary.
+- Present the reading growth path from users through book registration,
+  reading records, AI Recall, and seven-day active use.
+- Keep push operations separate from growth interpretation while exposing
+  delivery health and click outcomes as supporting evidence.
+- Show metric definitions, data freshness, partial-data states, and
+  low-sample warnings without exposing user content or identifiers.
+- Preserve loading, empty, stale, authorization, and upstream-error states.
+
+Exit gate:
+
+- The admin can identify the current activation stage and the largest observed
+  drop without accessing row-level customer data.
+- Missing acquisition, retention, or monetization sources remain explicitly
+  unavailable rather than appearing as zero.
+- Admin and non-admin authorization checks, lint, build, and browser smoke
+  checks pass on the approved web release line.
 
 ## Current evidence and unknowns
 
