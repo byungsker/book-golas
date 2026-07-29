@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(19);
+SELECT plan(20);
 
 INSERT INTO auth.users (
   instance_id,
@@ -96,6 +96,12 @@ VALUES
     'book-images',
     '11111111-1111-1111-1111-111111111111/foreign-owner.jpg',
     '22222222-2222-2222-2222-222222222222'
+  ),
+  (
+    'cccccccc-5555-5555-5555-555555555555',
+    'book-images',
+    'legacy/orphan-owner.jpg',
+    '33333333-3333-3333-3333-333333333333'
   );
 
 INSERT INTO public.book_images (book_id, image_url, user_id)
@@ -114,6 +120,11 @@ VALUES
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'legacy/owner-b.jpg',
     '22222222-2222-2222-2222-222222222222'
+  ),
+  (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'legacy/orphan-owner.jpg',
+    '33333333-3333-3333-3333-333333333333'
   );
 
 SELECT public.backfill_book_image_legacy_ownership();
@@ -149,6 +160,16 @@ SELECT results_eq(
   $$,
   ARRAY[0::bigint],
   'mutable metadata cannot claim another storage owner object'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.book_image_legacy_ownership
+    WHERE object_name = 'legacy/orphan-owner.jpg'
+  $$,
+  ARRAY[0::bigint],
+  'orphaned storage ownership is quarantined instead of backfilled'
 );
 
 SET LOCAL ROLE authenticated;
