@@ -321,7 +321,9 @@ jobs:
           working-directory: app/ios
 
       - name: Test App Store download reporter
-        run: ruby app/ios/fastlane/test/app_store_download_reporter_test.rb
+        run: |
+          cd app/ios
+          bundle exec ruby fastlane/test/app_store_download_reporter_test.rb
 
       - name: Report App Store downloads
         env:
