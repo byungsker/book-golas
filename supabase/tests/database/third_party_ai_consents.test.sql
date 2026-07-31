@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(16);
+SELECT plan(18);
 
 INSERT INTO auth.users (
   instance_id,
@@ -216,9 +216,32 @@ SELECT throws_ok(
     SET disclosure_snapshot = '{}'::jsonb
     WHERE provider = 'open_ai'
   $$,
+  '42501',
+  'permission denied for table third_party_ai_consent_events',
+  'service role lacks permission to update consent history'
+);
+
+SELECT throws_ok(
+  $$
+    DELETE FROM public.third_party_ai_consent_events
+    WHERE provider = 'open_ai'
+  $$,
+  '42501',
+  'permission denied for table third_party_ai_consent_events',
+  'service role lacks permission to delete consent history'
+);
+
+RESET ROLE;
+
+SELECT throws_ok(
+  $$
+    UPDATE public.third_party_ai_consent_events
+    SET disclosure_snapshot = '{}'::jsonb
+    WHERE provider = 'open_ai'
+  $$,
   '55000',
   'Third-party AI consent events are append-only',
-  'service role cannot update consent history'
+  'table owner cannot update consent history'
 );
 
 SELECT throws_ok(
@@ -228,7 +251,7 @@ SELECT throws_ok(
   $$,
   '55000',
   'Third-party AI consent events are append-only',
-  'service role cannot delete consent history'
+  'table owner cannot delete consent history'
 );
 
 SELECT * FROM finish();
