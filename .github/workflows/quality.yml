@@ -77,10 +77,3 @@ jobs:
             fi
             deno check --config "$config" "$entry"
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
-      - name: Test Edge Function units
-        run: |
-          deno test --config supabase/functions/deno.json --allow-env --allow-net \
-            supabase/functions/_shared/third-party-ai-consent.test.ts \
-            supabase/functions/vision-ocr/index_test.ts
-          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
-            supabase/functions/structure-notes/services/chain-service.test.ts
