@@ -94,8 +94,6 @@ void main() {
 
       final homeFinder = find.byKey(const ValueKey('bottom-nav-item-0'));
       final selectedFinder = find.byKey(const ValueKey('bottom-nav-item-4'));
-      final homeNode = tester.getSemantics(homeFinder);
-      final selectedNode = tester.getSemantics(selectedFinder);
       final homeSemantics = tester.widget<Semantics>(homeFinder);
       final selectedSemantics = tester.widget<Semantics>(selectedFinder);
       expect(homeSemantics.properties.selected, isFalse);
