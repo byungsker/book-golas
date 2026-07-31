@@ -1,5 +1,3 @@
-import 'dart:ui' show Tristate;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -98,8 +96,10 @@ void main() {
       final selectedFinder = find.byKey(const ValueKey('bottom-nav-item-4'));
       final homeNode = tester.getSemantics(homeFinder);
       final selectedNode = tester.getSemantics(selectedFinder);
-      expect(homeNode.flagsCollection.isSelected, Tristate.isFalse);
-      expect(selectedNode.flagsCollection.isSelected, Tristate.isTrue);
+      final homeSemantics = tester.widget<Semantics>(homeFinder);
+      final selectedSemantics = tester.widget<Semantics>(selectedFinder);
+      expect(homeSemantics.properties.selected, isFalse);
+      expect(selectedSemantics.properties.selected, isTrue);
       tester.semantics.tap(find.semantics.byLabel(testCase.labels.first));
       await tester.pump();
       expect(selectedIndex, 0);
