@@ -286,6 +286,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
       provider: ThirdPartyAiProvider.openAi,
     );
     if (!consent) return;
+    if (!mounted) return;
 
     setState(() {
       _isGeneratingAI = true;

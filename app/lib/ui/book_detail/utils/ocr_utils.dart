@@ -169,6 +169,7 @@ Future<void> extractTextFromLocalImage(
     provider: ThirdPartyAiProvider.googleCloudVision,
   );
   if (!consent) return;
+  if (!context.mounted) return;
 
   bool isLoadingDialogShown = false;
   final parentContext = context;
@@ -448,6 +449,10 @@ Future<void> pickImageAndExtractText(
       provider: ThirdPartyAiProvider.googleCloudVision,
     );
     if (!consent) {
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+    if (!parentContext.mounted) {
       onComplete(fullImageBytes, '', null);
       return;
     }
@@ -735,6 +740,7 @@ Future<void> reExtractTextFromImage(
     provider: ThirdPartyAiProvider.googleCloudVision,
   );
   if (!consent) return;
+  if (!context.mounted) return;
 
   try {
     showDialog(
@@ -1025,6 +1031,10 @@ Future<void> scanDocumentAndExtractText(
       provider: ThirdPartyAiProvider.googleCloudVision,
     );
     if (!consent) {
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+    if (!parentContext.mounted) {
       onComplete(scannedBytes, '', null);
       return;
     }

@@ -744,6 +744,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
       provider: ThirdPartyAiProvider.openAi,
     );
     if (consent) {
+      if (!mounted) return;
       await viewModel.generateInsight();
     }
   }

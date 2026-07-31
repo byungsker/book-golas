@@ -151,9 +151,9 @@ class ThirdPartyAiConsentService {
   );
 
   Future<bool> hasConsent(ThirdPartyAiProvider provider) async {
-    final userId = _userIdProvider();
-    if (userId == null) return false;
     try {
+      final userId = _userIdProvider();
+      if (userId == null) return false;
       final record = await _store.read(userId, provider);
       return record?.granted == true && record?.policyVersion == policyVersion;
     } catch (_) {
@@ -176,9 +176,9 @@ class ThirdPartyAiConsentService {
     ThirdPartyAiProvider provider, {
     required ThirdPartyAiDisclosure disclosure,
   }) async {
-    final userId = _userIdProvider();
-    if (userId == null) return false;
     try {
+      final userId = _userIdProvider();
+      if (userId == null) return false;
       await _store.grant(
         userId,
         provider,
@@ -192,9 +192,9 @@ class ThirdPartyAiConsentService {
   }
 
   Future<bool> withdraw(ThirdPartyAiProvider provider) async {
-    final userId = _userIdProvider();
-    if (userId == null) return false;
     try {
+      final userId = _userIdProvider();
+      if (userId == null) return false;
       await _store.withdraw(userId, provider);
       final record = await _store.read(userId, provider);
       return record?.granted == false;

@@ -30,7 +30,10 @@ class _MindmapScreenState extends State<MindmapScreen> {
   void initState() {
     super.initState();
     if (widget.noteStructureVm.structure == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadStructure());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _loadStructure();
+      });
     }
   }
 

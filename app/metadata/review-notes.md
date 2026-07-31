@@ -29,8 +29,8 @@ The first request for AI Recall, personalized recommendations, or another OpenAI
 OCR을 처음 사용하면 미국 Google Cloud Vision으로 이전되는 책 페이지 이미지와 이전 세부사항을 별도로 안내하고 동의를 받습니다.
 The first use of OCR separately discloses the transfer details for sending a book-page image to Google Cloud Vision in the United States and requests consent.
 
-사용자는 마이페이지의 `제3자 AI 데이터 전송` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 동의 영수증은 계정 단위로 서버에 기록되며 철회 즉시 모든 기기의 이후 전송이 서버에서 차단됩니다.
-Users can independently withdraw Google Cloud Vision or OpenAI consent under `Third-party AI data sharing` in My Page. The receipt is stored server-side for the account, and withdrawal blocks future transfers from every device at the server boundary.
+사용자는 마이페이지의 `AI 데이터 공유` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 동의 영수증은 계정 단위로 서버에 기록되며 철회 성공이 확인된 뒤 모든 기기에서 시작하는 새 전송이 차단됩니다. 이미 시작된 요청은 완료될 수 있습니다.
+Users can independently withdraw Google Cloud Vision or OpenAI consent under `AI data sharing` in My Page. The receipt is stored server-side for the account. New transfers started on any device after withdrawal is confirmed are blocked; a request already underway may finish.
 
 ### 5. Reading Goals / 독서 목표
 목표 탭에서 연간/월간 독서 목표를 설정하고 달성률을 확인하세요.
