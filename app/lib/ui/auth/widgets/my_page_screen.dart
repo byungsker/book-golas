@@ -523,13 +523,16 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  user.nickname ??
-                      AppLocalizations.of(context).myPageNoNickname,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
+                Flexible(
+                  child: Text(
+                    user.nickname ??
+                        AppLocalizations.of(context).myPageNoNickname,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),

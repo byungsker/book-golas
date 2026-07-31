@@ -48,6 +48,12 @@
   
   "navCalendar": "캘린더",
   "@navCalendar": {"description": "Calendar navigation"},
+
+  "navSearch": "검색",
+  "@navSearch": {"description": "Search button in the bottom navigation"},
+
+  "navSearchHint": "탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.",
+  "@navSearchHint": {"description": "Accessibility hint for the bottom navigation search button"},
   
   "booksCount": "{count}권",
   "@booksCount": {

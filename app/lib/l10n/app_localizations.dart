@@ -194,6 +194,18 @@ abstract class AppLocalizations {
   /// **'캘린더'**
   String get navCalendar;
 
+  /// Search button in the bottom navigation
+  ///
+  /// In ko, this message translates to:
+  /// **'검색'**
+  String get navSearch;
+
+  /// Accessibility hint for the bottom navigation search button
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.'**
+  String get navSearchHint;
+
   /// Book count with unit
   ///
   /// In ko, this message translates to:

@@ -18,6 +18,10 @@
   "navLibrary": "Library",
   "navStats": "Stats",
   "navCalendar": "Calendar",
+  "navSearch": "Search",
+  "@navSearch": {"description": "Search button in the bottom navigation"},
+  "navSearchHint": "Tap to search. Touch and hold to choose a search mode.",
+  "@navSearchHint": {"description": "Accessibility hint for the bottom navigation search button"},
   
   "booksCount": "{count, plural, =1{1 book} other{{count} books}}",
   "daysCount": "{count, plural, =1{1 day} other{{count} days}}",

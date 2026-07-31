@@ -93,7 +93,7 @@ class BLabButton extends StatelessWidget {
                     Icon(icon, color: textColor, size: 20),
                     const SizedBox(width: 8),
                   ],
-                  if (isFullWidth) Flexible(child: label) else label,
+                  Flexible(child: label),
                 ],
               ),
         ),

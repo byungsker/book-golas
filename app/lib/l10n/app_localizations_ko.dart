@@ -57,6 +57,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navCalendar => '캘린더';
 
   @override
+  String get navSearch => '검색';
+
+  @override
+  String get navSearchHint => '탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.';
+
+  @override
   String booksCount(int count) {
     return '$count권';
   }

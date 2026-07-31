@@ -237,7 +237,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       context,
       buttonPosition: homeTabPosition,
       buttonWidth: _tabWidth - 8, // padding 고려
-      buttonHeight: 54,
+      buttonHeight: renderBox.size.height - 8,
       alignment: Alignment.bottomLeft,
       items: [
         FloatingContextDropdownItem(
@@ -343,6 +343,18 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     final inactiveForegroundColor = isDark
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.5);
+    final scaledLabelFontSize = MediaQuery.textScalerOf(context).scale(10);
+    var labelLineCount = 1;
+    if (scaledLabelFontSize > 18) {
+      labelLineCount = 4;
+    } else if (scaledLabelFontSize > 16) {
+      labelLineCount = 3;
+    } else if (scaledLabelFontSize > 13) {
+      labelLineCount = 2;
+    }
+    final responsiveHeight =
+        8 + 24 + 2 + (scaledLabelFontSize * 1.5 * labelLineCount);
+    final tabBarHeight = responsiveHeight > 62 ? responsiveHeight : 62.0;
 
     return GestureDetector(
       onLongPressStart: _onLongPressStart,
@@ -354,7 +366,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            height: 62,
+            height: tabBarHeight,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             decoration: BoxDecoration(
               color: glassColor,
@@ -369,7 +381,12 @@ class _BLabBottomBarState extends State<BLabBottomBar>
                 return Stack(
                   children: [
                     // 물방울 인디케이터 (렌즈 효과)
-                    _buildDropletIndicator(isDark, constraints.maxWidth, 0),
+                    _buildDropletIndicator(
+                      isDark,
+                      constraints.maxWidth,
+                      0,
+                      tabBarHeight - 8,
+                    ),
                     // 탭 아이템들
                     Row(
                       children: List.generate(_tabIcons.length, (index) {
@@ -399,6 +416,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     bool isDark,
     double maxWidth,
     double chevronWidth,
+    double height,
   ) {
     final indicatorColor = isDark
         ? Colors.white.withValues(alpha: 0.22)
@@ -425,7 +443,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           child: Center(
             child: Container(
               width: tabWidth - 8,
-              height: 54,
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 // 물방울 렌즈 효과: 그라디언트로 굴절 시뮬레이션
@@ -481,36 +499,41 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     Color inactiveForegroundColor,
   ) {
     final isSelected = widget.selectedIndex == index;
+    void selectTab() {
+      HapticFeedback.selectionClick();
+      widget.onTabSelected(index);
+    }
 
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        widget.onTabSelected(index);
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _slideAnimation,
-        builder: (context, child) {
-          // 현재 위치 (드래그 중이면 드래그 위치 사용)
-          final currentPosition =
-              _isDragging ? _dragPosition : _slideAnimation.value;
+    return Semantics(
+      key: ValueKey('bottom-nav-item-$index'),
+      button: true,
+      selected: isSelected,
+      label: label,
+      onTap: selectTab,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: selectTab,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedBuilder(
+            animation: _slideAnimation,
+            builder: (context, child) {
+              final currentPosition =
+                  _isDragging ? _dragPosition : _slideAnimation.value;
+              final distance = (currentPosition - index).abs();
+              final overlap = (1.0 - distance).clamp(0.0, 1.0);
 
-          // 물방울과의 거리 계산 (0~1 범위로 정규화)
-          final distance = (currentPosition - index).abs();
-
-          // 물방울이 이 탭과 겹치는 정도 (0: 완전히 겹침, 1: 전혀 안겹침)
-          final overlap = (1.0 - distance).clamp(0.0, 1.0);
-
-          return _buildTabContent(
-            index,
-            tab,
-            label,
-            foregroundColor,
-            inactiveForegroundColor,
-            isSelected || overlap > 0.5,
-          );
-        },
-        child: null,
+              return _buildTabContent(
+                index,
+                tab,
+                label,
+                foregroundColor,
+                inactiveForegroundColor,
+                isSelected || overlap > 0.5,
+              );
+            },
+            child: null,
+          ),
+        ),
       ),
     );
   }
@@ -525,8 +548,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     bool isHighlighted,
   ) {
     final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
-    final textScale =
-        MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3).toDouble();
+    final scaledLabelFontSize = MediaQuery.textScalerOf(context).scale(10);
+    final displayLabel =
+        scaledLabelFontSize > 13 ? label.split('').join('\u200B') : label;
 
     return Center(
       child: Column(
@@ -539,11 +563,10 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           ),
           const SizedBox(height: 2),
           Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            displayLabel,
+            key: ValueKey('bottom-nav-label-$index'),
+            maxLines: 4,
             textAlign: TextAlign.center,
-            textScaler: TextScaler.linear(textScale),
             style: TextStyle(
               color: iconColor,
               fontSize: 10,
@@ -571,42 +594,56 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         : Colors.black.withValues(alpha: 0.7);
 
     const buttonSize = 62.0;
+    final l10n = AppLocalizations.of(context);
 
-    return GestureDetector(
-      key: _searchButtonKey,
-      onTap: () {
-        HapticFeedback.selectionClick();
-        // 검색 버튼의 화면 위치 계산
-        final RenderBox? renderBox =
-            _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          final position = renderBox.localToGlobal(Offset.zero);
-          widget.onSearchTap(position, buttonSize);
-        }
-      },
-      onLongPressStart: (details) {
-        HapticFeedback.mediumImpact();
-        _showSearchMenu();
-      },
-      onLongPressMoveUpdate: (details) {
-        _searchMenuController?.updateDragPosition(details.globalPosition);
-      },
-      onLongPressEnd: (details) {
-        _searchMenuController?.completeDragSelection();
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              color: glassColor,
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: borderColor, width: 0.5),
+    void openSearch() {
+      HapticFeedback.selectionClick();
+      final renderBox =
+          _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final position = renderBox.localToGlobal(Offset.zero);
+        widget.onSearchTap(position, buttonSize);
+      }
+    }
+
+    void openSearchMenu() {
+      HapticFeedback.mediumImpact();
+      _showSearchMenu();
+    }
+
+    return Semantics(
+      key: const ValueKey('bottom-nav-search'),
+      button: true,
+      label: l10n.navSearch,
+      hint: l10n.navSearchHint,
+      onTap: openSearch,
+      onLongPress: openSearchMenu,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          key: _searchButtonKey,
+          onTap: openSearch,
+          onLongPressStart: (_) => openSearchMenu(),
+          onLongPressMoveUpdate: (details) {
+            _searchMenuController?.updateDragPosition(details.globalPosition);
+          },
+          onLongPressEnd: (_) {
+            _searchMenuController?.completeDragSelection();
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                width: 62,
+                height: 62,
+                decoration: BoxDecoration(
+                  color: glassColor,
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: borderColor, width: 0.5),
+                ),
+                child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
+              ),
             ),
-            child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
           ),
         ),
       ),

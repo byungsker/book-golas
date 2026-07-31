@@ -57,6 +57,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
+  String get navSearch => 'Search';
+
+  @override
+  String get navSearchHint =>
+      'Tap to search. Touch and hold to choose a search mode.';
+
+  @override
   String booksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
