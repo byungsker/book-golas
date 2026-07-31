@@ -62,6 +62,9 @@ const disclosure = ThirdPartyAiDisclosure(
   locale: 'ko-KR',
   title: 'title',
   description: 'description',
+  featureContext: 'feature',
+  featureData: 'feature data',
+  additionalBehavior: 'additional behavior',
   dataDescription: 'data',
   optionalNotice: 'optional',
 );
@@ -97,8 +100,11 @@ void main() {
       isTrue,
     );
     var snapshot = await service.loadSnapshot();
-    expect(snapshot.googleCloudVision, isTrue);
-    expect(snapshot.openAi, isFalse);
+    expect(
+      snapshot.googleCloudVision,
+      ThirdPartyAiConsentState.allowed,
+    );
+    expect(snapshot.openAi, ThirdPartyAiConsentState.notAllowed);
 
     await service.grant(
       ThirdPartyAiProvider.openAi,
@@ -107,8 +113,11 @@ void main() {
     await service.withdraw(ThirdPartyAiProvider.googleCloudVision);
     snapshot = await service.loadSnapshot();
 
-    expect(snapshot.googleCloudVision, isFalse);
-    expect(snapshot.openAi, isTrue);
+    expect(
+      snapshot.googleCloudVision,
+      ThirdPartyAiConsentState.notAllowed,
+    );
+    expect(snapshot.openAi, ThirdPartyAiConsentState.allowed);
   });
 
   test('one account cannot read another account consent', () async {
@@ -173,6 +182,19 @@ void main() {
     expect(
       await service.hasConsent(ThirdPartyAiProvider.openAi),
       isFalse,
+    );
+    expect(
+      await service.loadState(ThirdPartyAiProvider.openAi),
+      ThirdPartyAiConsentState.unavailable,
+    );
+    final unavailableSnapshot = await service.loadSnapshot();
+    expect(
+      unavailableSnapshot.googleCloudVision,
+      ThirdPartyAiConsentState.unavailable,
+    );
+    expect(
+      unavailableSnapshot.openAi,
+      ThirdPartyAiConsentState.unavailable,
     );
 
     store.failReads = false;

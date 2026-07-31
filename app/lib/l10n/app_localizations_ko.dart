@@ -3771,7 +3771,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiGoogleConsentDescription =>
-      '북골라스는 선택한 책 페이지 이미지의 문자를 추출하기 위해 해당 이미지를 미국의 Google Cloud Vision으로 이전합니다.';
+      '문자를 추출하기 위해 선택한 페이지 이미지를 미국의 Google Cloud Vision으로 안전하게 전송합니다.';
 
   @override
   String get thirdPartyAiGoogleDataDescription =>
@@ -3782,7 +3782,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiConsentDescription =>
-      '북골라스는 AI 검색·요약·인사이트·추천·글쓰기 지원과 의미 기반 검색용 임베딩을 위해 독서 데이터를 OpenAI로 국외 이전합니다.';
+      '북골라스는 선택한 AI 기능에 미국의 OpenAI를 사용합니다. 동의한 뒤 아래에 안내된 데이터만 전송합니다.';
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
@@ -3801,10 +3801,125 @@ class AppLocalizationsKo extends AppLocalizations {
       '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.';
 
   @override
-  String get thirdPartyAiNotNow => '나중에';
+  String get thirdPartyAiDecline => '동의하지 않음';
 
   @override
-  String get thirdPartyAiAllow => '허용';
+  String get thirdPartyAiAgreeGoogle => 'Google OCR 국외 이전에 동의';
+
+  @override
+  String get thirdPartyAiAgreeOpenAi => 'OpenAI 국외 이전에 동의';
+
+  @override
+  String get thirdPartyAiNothingSent => '동의하기 전에는 아무 데이터도 전송하지 않습니다.';
+
+  @override
+  String get thirdPartyAiSectionAction => '지금 하려는 일';
+
+  @override
+  String get thirdPartyAiSectionData => '이번 기능에 필요한 데이터';
+
+  @override
+  String get thirdPartyAiSectionRecipient => '전송 대상';
+
+  @override
+  String get thirdPartyAiRecipientGoogle => 'Google Cloud Vision · 미국';
+
+  @override
+  String get thirdPartyAiRecipientOpenAi => 'OpenAI OpCo, LLC · 미국';
+
+  @override
+  String get thirdPartyAiAdditionalGoogle => '이 선택은 Google OCR을 사용할 때마다 적용됩니다.';
+
+  @override
+  String get thirdPartyAiAdditionalOpenAi =>
+      '동의하면 상세 안내에 포함된 OpenAI 추천과 의미 검색 임베딩도 사용할 수 있습니다.';
+
+  @override
+  String get thirdPartyAiContextGoogleOcr => '이 페이지 이미지에서 문자 추출';
+
+  @override
+  String get thirdPartyAiDataGoogleOcr => '이 페이지 이미지와 한국어·영어 언어 힌트';
+
+  @override
+  String get thirdPartyAiContextRecall => 'AI로 내 독서 기록 검색';
+
+  @override
+  String get thirdPartyAiDataRecall => '입력한 질문과 관련 책 정보·메모·하이라이트·OCR 텍스트';
+
+  @override
+  String get thirdPartyAiContextReviewDraft => '독서 기록을 바탕으로 리뷰 초안 작성';
+
+  @override
+  String get thirdPartyAiDataReviewDraft => '책 정보·진행률·평점·리뷰·메모·하이라이트';
+
+  @override
+  String get thirdPartyAiContextReadingInsights => '독서 활동에서 인사이트 생성';
+
+  @override
+  String get thirdPartyAiDataReadingInsights => '독서 날짜·진행률·속도·목표·시도·활동 통계';
+
+  @override
+  String get thirdPartyAiContextMindMap => '이 책의 기록을 마인드맵으로 정리';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredTitle => '마인드맵에 AI 이용 동의가 필요해요';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredDescription =>
+      '독서 기록은 그대로 보관됩니다. 마인드맵으로 정리하고 싶을 때만 국외 이전 내용을 확인하고 동의해 주세요.';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredAction => '동의 내용 다시 보기';
+
+  @override
+  String get thirdPartyAiDataMindMap => '책 제목·메모·하이라이트·OCR 텍스트';
+
+  @override
+  String get thirdPartyAiContextRecommendations => '독서 활동을 바탕으로 책 추천';
+
+  @override
+  String get thirdPartyAiDataRecommendations => '책 정보·독서 상태와 진행률·평점·참여 통계';
+
+  @override
+  String get thirdPartyAiDataManageOpenAi =>
+      '기능에 따라 입력한 질문, 책 정보, 독서 상태·날짜·진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표·시도·활동 통계를 사용합니다.';
+
+  @override
+  String get thirdPartyAiContextManageGoogle => 'Google OCR 데이터 공유 관리';
+
+  @override
+  String get thirdPartyAiContextManageOpenAi => 'OpenAI 데이터 공유 관리';
+
+  @override
+  String get thirdPartyAiShowDetails => '국외 이전 상세보기';
+
+  @override
+  String get thirdPartyAiHideDetails => '국외 이전 상세 접기';
+
+  @override
+  String get thirdPartyAiSaving => '선택을 저장하고 있어요…';
+
+  @override
+  String get thirdPartyAiSaveFailed =>
+      '선택을 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
+
+  @override
+  String get thirdPartyAiRetry => '다시 시도';
+
+  @override
+  String get thirdPartyAiClose => '닫기';
+
+  @override
+  String get thirdPartyAiStatusUnavailable => '현재 공유 상태를 확인하지 못했습니다.';
+
+  @override
+  String get thirdPartyAiGooglePrivacyLink => 'Google Cloud 개인정보 안내 열기';
+
+  @override
+  String get thirdPartyAiOpenAiSubprocessorsLink => 'OpenAI 하위처리자 목록 열기';
+
+  @override
+  String get thirdPartyAiOpenAiPrivacyContact => 'OpenAI 개인정보 문의 이메일';
 
   @override
   String get thirdPartyAiSettingsTitle => 'AI 데이터 공유';
@@ -3823,6 +3938,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiSettingSubtitle => '요청한 AI 결과에 필요한 독서 데이터';
+
+  @override
+  String get thirdPartyAiStateAllowed => '동의함';
+
+  @override
+  String get thirdPartyAiStateNotAllowed => '동의 안 함';
+
+  @override
+  String get thirdPartyAiStateUnavailable => '상태 확인 불가';
+
+  @override
+  String get thirdPartyAiViewDetails => '상세보기';
+
+  @override
+  String get thirdPartyAiRetryStatus => '상태 다시 확인';
 
   @override
   String get thirdPartyAiConsentWithdrawn => '이 업체로의 향후 전송을 중단했습니다.';

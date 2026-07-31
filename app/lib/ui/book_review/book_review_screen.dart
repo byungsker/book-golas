@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -283,7 +282,7 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
     if (!mounted) return;
     final consent = await requestThirdPartyAiConsent(
       context: context,
-      provider: ThirdPartyAiProvider.openAi,
+      feature: ThirdPartyAiFeature.reviewDraft,
     );
     if (!consent) return;
     if (!mounted) return;

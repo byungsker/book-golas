@@ -5,7 +5,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/subscription_service.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -84,7 +83,7 @@ class _GlobalRecallSearchSheetContentState
     FocusScope.of(context).unfocus();
     final consent = await requestThirdPartyAiConsent(
       context: context,
-      provider: ThirdPartyAiProvider.openAi,
+      feature: ThirdPartyAiFeature.recall,
     );
     if (!consent || !mounted) return;
     await context.read<GlobalRecallViewModel>().search(query.trim());

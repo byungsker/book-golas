@@ -57,6 +57,7 @@ class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
   late Future<bool> _privacyOptionsRequired;
   late Future<ThirdPartyAiConsentSnapshot> _thirdPartyAiConsent;
+  final Set<ThirdPartyAiProvider> _updatingThirdPartyAiConsent = {};
   bool _isUploadingAvatar = false;
 
   @override
@@ -1384,19 +1385,13 @@ class _MyPageContentState extends State<_MyPageContent> {
               final consent = snapshot.data!;
               return Column(
                 children: [
-                  _buildSettingRow(
+                  _buildThirdPartyAiConsentRow(
                     context: context,
+                    provider: ThirdPartyAiProvider.googleCloudVision,
                     icon: Icons.document_scanner_outlined,
                     title: l10n.thirdPartyAiGoogleSettingTitle,
                     subtitle: l10n.thirdPartyAiGoogleSettingSubtitle,
-                    trailing: Switch(
-                      value: consent.googleCloudVision,
-                      activeTrackColor: BLabColors.primary,
-                      onChanged: (value) => _changeThirdPartyAiConsent(
-                        ThirdPartyAiProvider.googleCloudVision,
-                        value,
-                      ),
-                    ),
+                    state: consent.googleCloudVision,
                   ),
                   Divider(
                     height: 32,
@@ -1404,19 +1399,13 @@ class _MyPageContentState extends State<_MyPageContent> {
                         ? Colors.white.withValues(alpha: 0.1)
                         : Colors.black.withValues(alpha: 0.1),
                   ),
-                  _buildSettingRow(
+                  _buildThirdPartyAiConsentRow(
                     context: context,
+                    provider: ThirdPartyAiProvider.openAi,
                     icon: Icons.auto_awesome_outlined,
                     title: l10n.thirdPartyAiOpenAiSettingTitle,
                     subtitle: l10n.thirdPartyAiOpenAiSettingSubtitle,
-                    trailing: Switch(
-                      value: consent.openAi,
-                      activeTrackColor: BLabColors.primary,
-                      onChanged: (value) => _changeThirdPartyAiConsent(
-                        ThirdPartyAiProvider.openAi,
-                        value,
-                      ),
-                    ),
+                    state: consent.openAi,
                   ),
                 ],
               );
@@ -1427,14 +1416,167 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
+  Widget _buildThirdPartyAiConsentRow({
+    required BuildContext context,
+    required ThirdPartyAiProvider provider,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required ThirdPartyAiConsentState state,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final isBusy = _updatingThirdPartyAiConsent.contains(provider);
+    final stateLabel = switch (state) {
+      ThirdPartyAiConsentState.allowed => l10n.thirdPartyAiStateAllowed,
+      ThirdPartyAiConsentState.notAllowed => l10n.thirdPartyAiStateNotAllowed,
+      ThirdPartyAiConsentState.unavailable => l10n.thirdPartyAiStateUnavailable,
+    };
+    final stateColor = switch (state) {
+      ThirdPartyAiConsentState.allowed => BLabColors.success,
+      ThirdPartyAiConsentState.notAllowed => BLabColors.textSecondary(context),
+      ThirdPartyAiConsentState.unavailable => BLabColors.error,
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 22, color: BLabColors.textSecondary(context)),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.titleSmall.copyWith(
+                  color: BLabColors.textPrimary(context),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: AppTypography.bodySmall.copyWith(
+                  color: BLabColors.textSecondary(context),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Semantics(
+                liveRegion: true,
+                label: stateLabel,
+                child: Text(
+                  stateLabel,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: stateColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  _buildConsentTextAction(
+                    context: context,
+                    label: l10n.thirdPartyAiViewDetails,
+                    onTap: () => showThirdPartyAiConsentDetails(
+                      context: context,
+                      provider: provider,
+                    ),
+                  ),
+                  if (state == ThirdPartyAiConsentState.unavailable)
+                    _buildConsentTextAction(
+                      context: context,
+                      label: l10n.thirdPartyAiRetryStatus,
+                      onTap: _reloadThirdPartyAiConsent,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        if (isBusy)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          Semantics(
+            label: '$title, $stateLabel',
+            toggled: state == ThirdPartyAiConsentState.allowed,
+            enabled: state != ThirdPartyAiConsentState.unavailable,
+            onTap: state == ThirdPartyAiConsentState.unavailable
+                ? null
+                : () => _changeThirdPartyAiConsent(
+                      provider,
+                      state != ThirdPartyAiConsentState.allowed,
+                    ),
+            child: ExcludeSemantics(
+              child: Switch(
+                value: state == ThirdPartyAiConsentState.allowed,
+                activeTrackColor: BLabColors.primary,
+                onChanged: state == ThirdPartyAiConsentState.unavailable
+                    ? null
+                    : (value) => _changeThirdPartyAiConsent(provider, value),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildConsentTextAction({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: AppTypography.labelLarge.copyWith(
+                color: BLabColors.textPrimary(context),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _reloadThirdPartyAiConsent() {
+    setState(() {
+      _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
+    });
+  }
+
   Future<void> _changeThirdPartyAiConsent(
     ThirdPartyAiProvider provider,
     bool enabled,
   ) async {
+    setState(() {
+      _updatingThirdPartyAiConsent.add(provider);
+    });
     if (enabled) {
       await requestThirdPartyAiConsent(
         context: context,
-        provider: provider,
+        feature: provider == ThirdPartyAiProvider.googleCloudVision
+            ? ThirdPartyAiFeature.manageGoogleOcr
+            : ThirdPartyAiFeature.manageOpenAi,
       );
     } else {
       final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
@@ -1452,6 +1594,7 @@ class _MyPageContentState extends State<_MyPageContent> {
 
     if (!mounted) return;
     setState(() {
+      _updatingThirdPartyAiConsent.remove(provider);
       _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
     });
   }

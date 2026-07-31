@@ -16,7 +16,6 @@ import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
@@ -487,7 +486,7 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                   onPressed: () async {
                     final granted = await requestThirdPartyAiConsent(
                       context: context,
-                      provider: ThirdPartyAiProvider.openAi,
+                      feature: ThirdPartyAiFeature.recommendations,
                     );
                     if (!granted || !mounted) return;
                     final locale = Localizations.localeOf(context);

@@ -9,7 +9,6 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/book_detail/utils/document_scan_utils.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
@@ -166,7 +165,7 @@ Future<void> extractTextFromLocalImage(
   if (!context.mounted) return;
   final consent = await requestThirdPartyAiConsent(
     context: context,
-    provider: ThirdPartyAiProvider.googleCloudVision,
+    feature: ThirdPartyAiFeature.googleOcr,
   );
   if (!consent) return;
   if (!context.mounted) return;
@@ -446,7 +445,7 @@ Future<void> pickImageAndExtractText(
     if (!parentContext.mounted) return;
     final consent = await requestThirdPartyAiConsent(
       context: parentContext,
-      provider: ThirdPartyAiProvider.googleCloudVision,
+      feature: ThirdPartyAiFeature.googleOcr,
     );
     if (!consent) {
       onComplete(fullImageBytes, '', null);
@@ -737,7 +736,7 @@ Future<void> reExtractTextFromImage(
   if (!context.mounted) return;
   final consent = await requestThirdPartyAiConsent(
     context: context,
-    provider: ThirdPartyAiProvider.googleCloudVision,
+    feature: ThirdPartyAiFeature.googleOcr,
   );
   if (!consent) return;
   if (!context.mounted) return;
@@ -1028,7 +1027,7 @@ Future<void> scanDocumentAndExtractText(
     if (!parentContext.mounted) return;
     final consent = await requestThirdPartyAiConsent(
       context: parentContext,
-      provider: ThirdPartyAiProvider.googleCloudVision,
+      feature: ThirdPartyAiFeature.googleOcr,
     );
     if (!consent) {
       onComplete(scannedBytes, '', null);

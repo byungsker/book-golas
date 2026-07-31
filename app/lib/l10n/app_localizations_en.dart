@@ -3897,7 +3897,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiGoogleConsentDescription =>
-      'Bookgolas transfers the book page image you choose to Google Cloud Vision in the United States to extract text.';
+      'To extract text, the page image you choose is sent securely to Google Cloud Vision in the United States.';
 
   @override
   String get thirdPartyAiGoogleDataDescription =>
@@ -3908,7 +3908,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiConsentDescription =>
-      'Bookgolas transfers reading data overseas to OpenAI for AI search, summaries, insights, recommendations, writing assistance, and semantic-search embeddings.';
+      'Bookgolas uses OpenAI in the United States for the AI feature you choose. Only the data described below is sent after you agree.';
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
@@ -3927,10 +3927,143 @@ class AppLocalizationsEn extends AppLocalizations {
       'You may refuse this optional overseas transfer. If you refuse, OpenAI search, summaries, insights, recommendations, writing assistance, and semantic search are unavailable, but other reading-management features remain available. You can grant or withdraw consent at any time in My Page. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.';
 
   @override
-  String get thirdPartyAiNotNow => 'Not now';
+  String get thirdPartyAiDecline => 'Don\'t allow';
 
   @override
-  String get thirdPartyAiAllow => 'Allow';
+  String get thirdPartyAiAgreeGoogle => 'Agree to Google OCR transfer';
+
+  @override
+  String get thirdPartyAiAgreeOpenAi => 'Agree to OpenAI transfer';
+
+  @override
+  String get thirdPartyAiNothingSent => 'Nothing is sent until you agree.';
+
+  @override
+  String get thirdPartyAiSectionAction => 'What you\'re doing';
+
+  @override
+  String get thirdPartyAiSectionData => 'Data for this action';
+
+  @override
+  String get thirdPartyAiSectionRecipient => 'Sent to';
+
+  @override
+  String get thirdPartyAiRecipientGoogle =>
+      'Google Cloud Vision · United States';
+
+  @override
+  String get thirdPartyAiRecipientOpenAi => 'OpenAI OpCo, LLC · United States';
+
+  @override
+  String get thirdPartyAiAdditionalGoogle =>
+      'This choice applies whenever you use Google OCR.';
+
+  @override
+  String get thirdPartyAiAdditionalOpenAi =>
+      'This choice also enables OpenAI recommendations and semantic-search embeddings described in the details.';
+
+  @override
+  String get thirdPartyAiContextGoogleOcr =>
+      'Extract text from this page image';
+
+  @override
+  String get thirdPartyAiDataGoogleOcr =>
+      'This page image and Korean/English language hints';
+
+  @override
+  String get thirdPartyAiContextRecall => 'Search your reading records with AI';
+
+  @override
+  String get thirdPartyAiDataRecall =>
+      'Your question and relevant book details, notes, highlights, and OCR text';
+
+  @override
+  String get thirdPartyAiContextReviewDraft =>
+      'Draft a review from your reading record';
+
+  @override
+  String get thirdPartyAiDataReviewDraft =>
+      'Book details, progress, rating, review, notes, and highlights';
+
+  @override
+  String get thirdPartyAiContextReadingInsights =>
+      'Generate insights from your reading activity';
+
+  @override
+  String get thirdPartyAiDataReadingInsights =>
+      'Reading dates, progress, pace, goals, attempts, and activity statistics';
+
+  @override
+  String get thirdPartyAiContextMindMap =>
+      'Organize this book\'s notes into a mind map';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredTitle =>
+      'AI permission is needed for the mind map';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredDescription =>
+      'Your reading records are still here. Agree to the overseas transfer only when you want Bookgolas to organize them into a mind map.';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredAction => 'Review permission';
+
+  @override
+  String get thirdPartyAiDataMindMap =>
+      'Book title, notes, highlights, and OCR text';
+
+  @override
+  String get thirdPartyAiContextRecommendations =>
+      'Recommend books from your reading activity';
+
+  @override
+  String get thirdPartyAiDataRecommendations =>
+      'Book details, reading status and progress, ratings, and engagement statistics';
+
+  @override
+  String get thirdPartyAiDataManageOpenAi =>
+      'Data varies by feature: your questions; book details; reading status, dates, and progress; ratings and reviews; notes, highlights, and OCR text; reading pace, goals, attempts, and activity statistics';
+
+  @override
+  String get thirdPartyAiContextManageGoogle =>
+      'Manage Google OCR data sharing';
+
+  @override
+  String get thirdPartyAiContextManageOpenAi => 'Manage OpenAI data sharing';
+
+  @override
+  String get thirdPartyAiShowDetails => 'View full transfer details';
+
+  @override
+  String get thirdPartyAiHideDetails => 'Hide transfer details';
+
+  @override
+  String get thirdPartyAiSaving => 'Saving your choice…';
+
+  @override
+  String get thirdPartyAiSaveFailed =>
+      'We couldn\'t save your choice. Check your connection and try again.';
+
+  @override
+  String get thirdPartyAiRetry => 'Try again';
+
+  @override
+  String get thirdPartyAiClose => 'Close';
+
+  @override
+  String get thirdPartyAiStatusUnavailable =>
+      'We couldn\'t check your current sharing status.';
+
+  @override
+  String get thirdPartyAiGooglePrivacyLink =>
+      'Open Google Cloud privacy information';
+
+  @override
+  String get thirdPartyAiOpenAiSubprocessorsLink =>
+      'Open OpenAI\'s subprocessor list';
+
+  @override
+  String get thirdPartyAiOpenAiPrivacyContact => 'Email OpenAI privacy';
 
   @override
   String get thirdPartyAiSettingsTitle => 'AI data sharing';
@@ -3952,6 +4085,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get thirdPartyAiOpenAiSettingSubtitle =>
       'Reading data needed for requested AI results';
+
+  @override
+  String get thirdPartyAiStateAllowed => 'Allowed';
+
+  @override
+  String get thirdPartyAiStateNotAllowed => 'Not allowed';
+
+  @override
+  String get thirdPartyAiStateUnavailable => 'Status unavailable';
+
+  @override
+  String get thirdPartyAiViewDetails => 'View details';
+
+  @override
+  String get thirdPartyAiRetryStatus => 'Retry status';
 
   @override
   String get thirdPartyAiConsentWithdrawn =>

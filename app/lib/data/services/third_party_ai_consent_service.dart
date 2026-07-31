@@ -16,6 +16,9 @@ class ThirdPartyAiDisclosure {
   final String locale;
   final String title;
   final String description;
+  final String featureContext;
+  final String featureData;
+  final String additionalBehavior;
   final String dataDescription;
   final String optionalNotice;
 
@@ -23,6 +26,9 @@ class ThirdPartyAiDisclosure {
     required this.locale,
     required this.title,
     required this.description,
+    required this.featureContext,
+    required this.featureData,
+    required this.additionalBehavior,
     required this.dataDescription,
     required this.optionalNotice,
   });
@@ -30,9 +36,18 @@ class ThirdPartyAiDisclosure {
   Map<String, dynamic> toJson() => {
         'title': title,
         'description': description,
+        'feature_context': featureContext,
+        'feature_data': featureData,
+        'additional_behavior': additionalBehavior,
         'data_description': dataDescription,
         'optional_notice': optionalNotice,
       };
+}
+
+enum ThirdPartyAiConsentState {
+  allowed,
+  notAllowed,
+  unavailable,
 }
 
 class ThirdPartyAiConsentRecord {
@@ -123,8 +138,8 @@ class SupabaseThirdPartyAiConsentStore implements ThirdPartyAiConsentStore {
 }
 
 class ThirdPartyAiConsentSnapshot {
-  final bool googleCloudVision;
-  final bool openAi;
+  final ThirdPartyAiConsentState googleCloudVision;
+  final ThirdPartyAiConsentState openAi;
 
   const ThirdPartyAiConsentSnapshot({
     required this.googleCloudVision,
@@ -151,20 +166,29 @@ class ThirdPartyAiConsentService {
   );
 
   Future<bool> hasConsent(ThirdPartyAiProvider provider) async {
+    return await loadState(provider) == ThirdPartyAiConsentState.allowed;
+  }
+
+  Future<ThirdPartyAiConsentState> loadState(
+    ThirdPartyAiProvider provider,
+  ) async {
     try {
       final userId = _userIdProvider();
-      if (userId == null) return false;
+      if (userId == null) return ThirdPartyAiConsentState.notAllowed;
       final record = await _store.read(userId, provider);
-      return record?.granted == true && record?.policyVersion == policyVersion;
+      if (record?.granted == true && record?.policyVersion == policyVersion) {
+        return ThirdPartyAiConsentState.allowed;
+      }
+      return ThirdPartyAiConsentState.notAllowed;
     } catch (_) {
-      return false;
+      return ThirdPartyAiConsentState.unavailable;
     }
   }
 
   Future<ThirdPartyAiConsentSnapshot> loadSnapshot() async {
     final results = await Future.wait([
-      hasConsent(ThirdPartyAiProvider.googleCloudVision),
-      hasConsent(ThirdPartyAiProvider.openAi),
+      loadState(ThirdPartyAiProvider.googleCloudVision),
+      loadState(ThirdPartyAiProvider.openAi),
     ]);
     return ThirdPartyAiConsentSnapshot(
       googleCloudVision: results[0],

@@ -7022,7 +7022,7 @@ abstract class AppLocalizations {
   /// Purpose of Google Cloud Vision data sharing
   ///
   /// In ko, this message translates to:
-  /// **'북골라스는 선택한 책 페이지 이미지의 문자를 추출하기 위해 해당 이미지를 미국의 Google Cloud Vision으로 이전합니다.'**
+  /// **'문자를 추출하기 위해 선택한 페이지 이미지를 미국의 Google Cloud Vision으로 안전하게 전송합니다.'**
   String get thirdPartyAiGoogleConsentDescription;
 
   /// Data, recipient, and purpose for Google Cloud Vision sharing
@@ -7040,7 +7040,7 @@ abstract class AppLocalizations {
   /// Purpose of OpenAI data sharing
   ///
   /// In ko, this message translates to:
-  /// **'북골라스는 AI 검색·요약·인사이트·추천·글쓰기 지원과 의미 기반 검색용 임베딩을 위해 독서 데이터를 OpenAI로 국외 이전합니다.'**
+  /// **'북골라스는 선택한 AI 기능에 미국의 OpenAI를 사용합니다. 동의한 뒤 아래에 안내된 데이터만 전송합니다.'**
   String get thirdPartyAiOpenAiConsentDescription;
 
   /// Data, recipient, and purpose for OpenAI sharing
@@ -7067,17 +7067,239 @@ abstract class AppLocalizations {
   /// **'선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.'**
   String get thirdPartyAiOpenAiOptionalNotice;
 
-  /// Decline third-party AI data sharing button
+  /// Decline optional overseas transfer button
   ///
   /// In ko, this message translates to:
-  /// **'나중에'**
-  String get thirdPartyAiNotNow;
+  /// **'동의하지 않음'**
+  String get thirdPartyAiDecline;
 
-  /// Grant third-party AI data sharing button
+  /// Agree to Google OCR overseas transfer button
   ///
   /// In ko, this message translates to:
-  /// **'허용'**
-  String get thirdPartyAiAllow;
+  /// **'Google OCR 국외 이전에 동의'**
+  String get thirdPartyAiAgreeGoogle;
+
+  /// Agree to OpenAI overseas transfer button
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 국외 이전에 동의'**
+  String get thirdPartyAiAgreeOpenAi;
+
+  /// Assurance shown before optional overseas transfer
+  ///
+  /// In ko, this message translates to:
+  /// **'동의하기 전에는 아무 데이터도 전송하지 않습니다.'**
+  String get thirdPartyAiNothingSent;
+
+  /// Consent summary current action label
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 하려는 일'**
+  String get thirdPartyAiSectionAction;
+
+  /// Consent summary current data label
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 기능에 필요한 데이터'**
+  String get thirdPartyAiSectionData;
+
+  /// Consent summary recipient label
+  ///
+  /// In ko, this message translates to:
+  /// **'전송 대상'**
+  String get thirdPartyAiSectionRecipient;
+
+  /// Google OCR recipient summary
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision · 미국'**
+  String get thirdPartyAiRecipientGoogle;
+
+  /// OpenAI recipient summary
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI OpCo, LLC · 미국'**
+  String get thirdPartyAiRecipientOpenAi;
+
+  /// Provider-wide effect of Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 선택은 Google OCR을 사용할 때마다 적용됩니다.'**
+  String get thirdPartyAiAdditionalGoogle;
+
+  /// Provider-wide effect of OpenAI consent
+  ///
+  /// In ko, this message translates to:
+  /// **'동의하면 상세 안내에 포함된 OpenAI 추천과 의미 검색 임베딩도 사용할 수 있습니다.'**
+  String get thirdPartyAiAdditionalOpenAi;
+
+  /// Current action for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 페이지 이미지에서 문자 추출'**
+  String get thirdPartyAiContextGoogleOcr;
+
+  /// Current data for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 페이지 이미지와 한국어·영어 언어 힌트'**
+  String get thirdPartyAiDataGoogleOcr;
+
+  /// Current action for AI recall consent
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 내 독서 기록 검색'**
+  String get thirdPartyAiContextRecall;
+
+  /// Current data for AI recall consent
+  ///
+  /// In ko, this message translates to:
+  /// **'입력한 질문과 관련 책 정보·메모·하이라이트·OCR 텍스트'**
+  String get thirdPartyAiDataRecall;
+
+  /// Current action for AI review draft consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록을 바탕으로 리뷰 초안 작성'**
+  String get thirdPartyAiContextReviewDraft;
+
+  /// Current data for AI review draft consent
+  ///
+  /// In ko, this message translates to:
+  /// **'책 정보·진행률·평점·리뷰·메모·하이라이트'**
+  String get thirdPartyAiDataReviewDraft;
+
+  /// Current action for AI reading insights consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 활동에서 인사이트 생성'**
+  String get thirdPartyAiContextReadingInsights;
+
+  /// Current data for AI reading insights consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 날짜·진행률·속도·목표·시도·활동 통계'**
+  String get thirdPartyAiDataReadingInsights;
+
+  /// Current action for AI mind map consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 책의 기록을 마인드맵으로 정리'**
+  String get thirdPartyAiContextMindMap;
+
+  /// Mind map state title when AI consent was declined
+  ///
+  /// In ko, this message translates to:
+  /// **'마인드맵에 AI 이용 동의가 필요해요'**
+  String get thirdPartyAiMindMapConsentRequiredTitle;
+
+  /// Mind map state description when AI consent was declined
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록은 그대로 보관됩니다. 마인드맵으로 정리하고 싶을 때만 국외 이전 내용을 확인하고 동의해 주세요.'**
+  String get thirdPartyAiMindMapConsentRequiredDescription;
+
+  /// Action to reopen AI consent from the mind map
+  ///
+  /// In ko, this message translates to:
+  /// **'동의 내용 다시 보기'**
+  String get thirdPartyAiMindMapConsentRequiredAction;
+
+  /// Current data for AI mind map consent
+  ///
+  /// In ko, this message translates to:
+  /// **'책 제목·메모·하이라이트·OCR 텍스트'**
+  String get thirdPartyAiDataMindMap;
+
+  /// Current action for AI recommendations consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 활동을 바탕으로 책 추천'**
+  String get thirdPartyAiContextRecommendations;
+
+  /// Current data for AI recommendations consent
+  ///
+  /// In ko, this message translates to:
+  /// **'책 정보·독서 상태와 진행률·평점·참여 통계'**
+  String get thirdPartyAiDataRecommendations;
+
+  /// Full provider-wide data summary in OpenAI consent settings
+  ///
+  /// In ko, this message translates to:
+  /// **'기능에 따라 입력한 질문, 책 정보, 독서 상태·날짜·진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표·시도·활동 통계를 사용합니다.'**
+  String get thirdPartyAiDataManageOpenAi;
+
+  /// Settings context for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'Google OCR 데이터 공유 관리'**
+  String get thirdPartyAiContextManageGoogle;
+
+  /// Settings context for OpenAI consent
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 데이터 공유 관리'**
+  String get thirdPartyAiContextManageOpenAi;
+
+  /// Expand overseas transfer details
+  ///
+  /// In ko, this message translates to:
+  /// **'국외 이전 상세보기'**
+  String get thirdPartyAiShowDetails;
+
+  /// Collapse overseas transfer details
+  ///
+  /// In ko, this message translates to:
+  /// **'국외 이전 상세 접기'**
+  String get thirdPartyAiHideDetails;
+
+  /// Consent saving status
+  ///
+  /// In ko, this message translates to:
+  /// **'선택을 저장하고 있어요…'**
+  String get thirdPartyAiSaving;
+
+  /// Consent persistence error
+  ///
+  /// In ko, this message translates to:
+  /// **'선택을 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'**
+  String get thirdPartyAiSaveFailed;
+
+  /// Retry consent operation
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get thirdPartyAiRetry;
+
+  /// Close consent details
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get thirdPartyAiClose;
+
+  /// Consent status lookup error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 공유 상태를 확인하지 못했습니다.'**
+  String get thirdPartyAiStatusUnavailable;
+
+  /// Google Cloud privacy external link
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud 개인정보 안내 열기'**
+  String get thirdPartyAiGooglePrivacyLink;
+
+  /// OpenAI subprocessors external link
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 하위처리자 목록 열기'**
+  String get thirdPartyAiOpenAiSubprocessorsLink;
+
+  /// OpenAI privacy email link
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 개인정보 문의 이메일'**
+  String get thirdPartyAiOpenAiPrivacyContact;
 
   /// Title of AI data sharing settings section
   ///
@@ -7114,6 +7336,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'요청한 AI 결과에 필요한 독서 데이터'**
   String get thirdPartyAiOpenAiSettingSubtitle;
+
+  /// Consent state allowed
+  ///
+  /// In ko, this message translates to:
+  /// **'동의함'**
+  String get thirdPartyAiStateAllowed;
+
+  /// Consent state not allowed
+  ///
+  /// In ko, this message translates to:
+  /// **'동의 안 함'**
+  String get thirdPartyAiStateNotAllowed;
+
+  /// Consent state unavailable
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 확인 불가'**
+  String get thirdPartyAiStateUnavailable;
+
+  /// Open provider consent details
+  ///
+  /// In ko, this message translates to:
+  /// **'상세보기'**
+  String get thirdPartyAiViewDetails;
+
+  /// Retry consent status lookup
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 다시 확인'**
+  String get thirdPartyAiRetryStatus;
 
   /// Confirmation after withdrawing third-party AI sharing consent
   ///

@@ -3322,7 +3322,7 @@
          "thirdPartyAiGoogleConsentTitle": "Google Cloud Vision OCR을 허용할까요?",
          "@thirdPartyAiGoogleConsentTitle": {"description": "Title of the Google Cloud Vision data sharing consent sheet"},
 
-         "thirdPartyAiGoogleConsentDescription": "북골라스는 선택한 책 페이지 이미지의 문자를 추출하기 위해 해당 이미지를 미국의 Google Cloud Vision으로 이전합니다.",
+         "thirdPartyAiGoogleConsentDescription": "문자를 추출하기 위해 선택한 페이지 이미지를 미국의 Google Cloud Vision으로 안전하게 전송합니다.",
          "@thirdPartyAiGoogleConsentDescription": {"description": "Purpose of Google Cloud Vision data sharing"},
 
          "thirdPartyAiGoogleDataDescription": "이전 항목: 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트\n이전 국가: 미국\n이전 시점·방법: OCR을 실행할 때마다 미국 리전 엔드포인트로 TLS 암호화 전송\n제공받는 자: Google LLC(1600 Amphitheatre Parkway, Mountain View, CA 94043, USA)\n연락처: Google Cloud 개인정보 보호 문의 양식(cloud.google.com/privacy)\n목적: 이미지 문자 추출\n보유·이용 기간: 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있음(공개된 정확한 기간 없음)",
@@ -3331,7 +3331,7 @@
          "thirdPartyAiOpenAiConsentTitle": "OpenAI 기반 기능을 허용할까요?",
          "@thirdPartyAiOpenAiConsentTitle": {"description": "Title of the OpenAI data sharing consent sheet"},
 
-         "thirdPartyAiOpenAiConsentDescription": "북골라스는 AI 검색·요약·인사이트·추천·글쓰기 지원과 의미 기반 검색용 임베딩을 위해 독서 데이터를 OpenAI로 국외 이전합니다.",
+         "thirdPartyAiOpenAiConsentDescription": "북골라스는 선택한 AI 기능에 미국의 OpenAI를 사용합니다. 동의한 뒤 아래에 안내된 데이터만 전송합니다.",
          "@thirdPartyAiOpenAiConsentDescription": {"description": "Purpose of OpenAI data sharing"},
 
          "thirdPartyAiOpenAiDataDescription": "필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 위 AI 기능과 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음",
@@ -3346,11 +3346,98 @@
          "thirdPartyAiOpenAiOptionalNotice": "선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.",
          "@thirdPartyAiOpenAiOptionalNotice": {"description": "OpenAI overseas transfer refusal and withdrawal notice"},
 
-         "thirdPartyAiNotNow": "나중에",
-         "@thirdPartyAiNotNow": {"description": "Decline third-party AI data sharing button"},
+         "thirdPartyAiDecline": "동의하지 않음",
+         "@thirdPartyAiDecline": {"description": "Decline optional overseas transfer button"},
 
-         "thirdPartyAiAllow": "허용",
-         "@thirdPartyAiAllow": {"description": "Grant third-party AI data sharing button"},
+         "thirdPartyAiAgreeGoogle": "Google OCR 국외 이전에 동의",
+         "@thirdPartyAiAgreeGoogle": {"description": "Agree to Google OCR overseas transfer button"},
+
+         "thirdPartyAiAgreeOpenAi": "OpenAI 국외 이전에 동의",
+         "@thirdPartyAiAgreeOpenAi": {"description": "Agree to OpenAI overseas transfer button"},
+
+         "thirdPartyAiNothingSent": "동의하기 전에는 아무 데이터도 전송하지 않습니다.",
+         "@thirdPartyAiNothingSent": {"description": "Assurance shown before optional overseas transfer"},
+
+         "thirdPartyAiSectionAction": "지금 하려는 일",
+         "@thirdPartyAiSectionAction": {"description": "Consent summary current action label"},
+         "thirdPartyAiSectionData": "이번 기능에 필요한 데이터",
+         "@thirdPartyAiSectionData": {"description": "Consent summary current data label"},
+         "thirdPartyAiSectionRecipient": "전송 대상",
+         "@thirdPartyAiSectionRecipient": {"description": "Consent summary recipient label"},
+         "thirdPartyAiRecipientGoogle": "Google Cloud Vision · 미국",
+         "@thirdPartyAiRecipientGoogle": {"description": "Google OCR recipient summary"},
+         "thirdPartyAiRecipientOpenAi": "OpenAI OpCo, LLC · 미국",
+         "@thirdPartyAiRecipientOpenAi": {"description": "OpenAI recipient summary"},
+
+         "thirdPartyAiAdditionalGoogle": "이 선택은 Google OCR을 사용할 때마다 적용됩니다.",
+         "@thirdPartyAiAdditionalGoogle": {"description": "Provider-wide effect of Google OCR consent"},
+
+         "thirdPartyAiAdditionalOpenAi": "동의하면 상세 안내에 포함된 OpenAI 추천과 의미 검색 임베딩도 사용할 수 있습니다.",
+         "@thirdPartyAiAdditionalOpenAi": {"description": "Provider-wide effect of OpenAI consent"},
+
+         "thirdPartyAiContextGoogleOcr": "이 페이지 이미지에서 문자 추출",
+         "@thirdPartyAiContextGoogleOcr": {"description": "Current action for Google OCR consent"},
+         "thirdPartyAiDataGoogleOcr": "이 페이지 이미지와 한국어·영어 언어 힌트",
+         "@thirdPartyAiDataGoogleOcr": {"description": "Current data for Google OCR consent"},
+
+         "thirdPartyAiContextRecall": "AI로 내 독서 기록 검색",
+         "@thirdPartyAiContextRecall": {"description": "Current action for AI recall consent"},
+         "thirdPartyAiDataRecall": "입력한 질문과 관련 책 정보·메모·하이라이트·OCR 텍스트",
+         "@thirdPartyAiDataRecall": {"description": "Current data for AI recall consent"},
+
+         "thirdPartyAiContextReviewDraft": "독서 기록을 바탕으로 리뷰 초안 작성",
+         "@thirdPartyAiContextReviewDraft": {"description": "Current action for AI review draft consent"},
+         "thirdPartyAiDataReviewDraft": "책 정보·진행률·평점·리뷰·메모·하이라이트",
+         "@thirdPartyAiDataReviewDraft": {"description": "Current data for AI review draft consent"},
+
+         "thirdPartyAiContextReadingInsights": "독서 활동에서 인사이트 생성",
+         "@thirdPartyAiContextReadingInsights": {"description": "Current action for AI reading insights consent"},
+         "thirdPartyAiDataReadingInsights": "독서 날짜·진행률·속도·목표·시도·활동 통계",
+         "@thirdPartyAiDataReadingInsights": {"description": "Current data for AI reading insights consent"},
+
+         "thirdPartyAiContextMindMap": "이 책의 기록을 마인드맵으로 정리",
+         "@thirdPartyAiContextMindMap": {"description": "Current action for AI mind map consent"},
+         "thirdPartyAiMindMapConsentRequiredTitle": "마인드맵에 AI 이용 동의가 필요해요",
+         "@thirdPartyAiMindMapConsentRequiredTitle": {"description": "Mind map state title when AI consent was declined"},
+         "thirdPartyAiMindMapConsentRequiredDescription": "독서 기록은 그대로 보관됩니다. 마인드맵으로 정리하고 싶을 때만 국외 이전 내용을 확인하고 동의해 주세요.",
+         "@thirdPartyAiMindMapConsentRequiredDescription": {"description": "Mind map state description when AI consent was declined"},
+         "thirdPartyAiMindMapConsentRequiredAction": "동의 내용 다시 보기",
+         "@thirdPartyAiMindMapConsentRequiredAction": {"description": "Action to reopen AI consent from the mind map"},
+         "thirdPartyAiDataMindMap": "책 제목·메모·하이라이트·OCR 텍스트",
+         "@thirdPartyAiDataMindMap": {"description": "Current data for AI mind map consent"},
+
+         "thirdPartyAiContextRecommendations": "독서 활동을 바탕으로 책 추천",
+         "@thirdPartyAiContextRecommendations": {"description": "Current action for AI recommendations consent"},
+         "thirdPartyAiDataRecommendations": "책 정보·독서 상태와 진행률·평점·참여 통계",
+         "@thirdPartyAiDataRecommendations": {"description": "Current data for AI recommendations consent"},
+         "thirdPartyAiDataManageOpenAi": "기능에 따라 입력한 질문, 책 정보, 독서 상태·날짜·진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표·시도·활동 통계를 사용합니다.",
+         "@thirdPartyAiDataManageOpenAi": {"description": "Full provider-wide data summary in OpenAI consent settings"},
+
+         "thirdPartyAiContextManageGoogle": "Google OCR 데이터 공유 관리",
+         "@thirdPartyAiContextManageGoogle": {"description": "Settings context for Google OCR consent"},
+         "thirdPartyAiContextManageOpenAi": "OpenAI 데이터 공유 관리",
+         "@thirdPartyAiContextManageOpenAi": {"description": "Settings context for OpenAI consent"},
+
+         "thirdPartyAiShowDetails": "국외 이전 상세보기",
+         "@thirdPartyAiShowDetails": {"description": "Expand overseas transfer details"},
+         "thirdPartyAiHideDetails": "국외 이전 상세 접기",
+         "@thirdPartyAiHideDetails": {"description": "Collapse overseas transfer details"},
+         "thirdPartyAiSaving": "선택을 저장하고 있어요…",
+         "@thirdPartyAiSaving": {"description": "Consent saving status"},
+         "thirdPartyAiSaveFailed": "선택을 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
+         "@thirdPartyAiSaveFailed": {"description": "Consent persistence error"},
+         "thirdPartyAiRetry": "다시 시도",
+         "@thirdPartyAiRetry": {"description": "Retry consent operation"},
+         "thirdPartyAiClose": "닫기",
+         "@thirdPartyAiClose": {"description": "Close consent details"},
+         "thirdPartyAiStatusUnavailable": "현재 공유 상태를 확인하지 못했습니다.",
+         "@thirdPartyAiStatusUnavailable": {"description": "Consent status lookup error"},
+         "thirdPartyAiGooglePrivacyLink": "Google Cloud 개인정보 안내 열기",
+         "@thirdPartyAiGooglePrivacyLink": {"description": "Google Cloud privacy external link"},
+         "thirdPartyAiOpenAiSubprocessorsLink": "OpenAI 하위처리자 목록 열기",
+         "@thirdPartyAiOpenAiSubprocessorsLink": {"description": "OpenAI subprocessors external link"},
+         "thirdPartyAiOpenAiPrivacyContact": "OpenAI 개인정보 문의 이메일",
+         "@thirdPartyAiOpenAiPrivacyContact": {"description": "OpenAI privacy email link"},
 
          "thirdPartyAiSettingsTitle": "AI 데이터 공유",
          "@thirdPartyAiSettingsTitle": {"description": "Title of AI data sharing settings section"},
@@ -3369,6 +3456,17 @@
 
          "thirdPartyAiOpenAiSettingSubtitle": "요청한 AI 결과에 필요한 독서 데이터",
          "@thirdPartyAiOpenAiSettingSubtitle": {"description": "OpenAI consent setting subtitle"},
+
+         "thirdPartyAiStateAllowed": "동의함",
+         "@thirdPartyAiStateAllowed": {"description": "Consent state allowed"},
+         "thirdPartyAiStateNotAllowed": "동의 안 함",
+         "@thirdPartyAiStateNotAllowed": {"description": "Consent state not allowed"},
+         "thirdPartyAiStateUnavailable": "상태 확인 불가",
+         "@thirdPartyAiStateUnavailable": {"description": "Consent state unavailable"},
+         "thirdPartyAiViewDetails": "상세보기",
+         "@thirdPartyAiViewDetails": {"description": "Open provider consent details"},
+         "thirdPartyAiRetryStatus": "상태 다시 확인",
+         "@thirdPartyAiRetryStatus": {"description": "Retry consent status lookup"},
 
          "thirdPartyAiConsentWithdrawn": "이 업체로의 향후 전송을 중단했습니다.",
          "@thirdPartyAiConsentWithdrawn": {"description": "Confirmation after withdrawing third-party AI sharing consent"},

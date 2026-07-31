@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/reading_goal_service.dart';
 import 'package:book_golas/data/services/reading_progress_service.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
@@ -741,7 +740,7 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
   ) async {
     final consent = await requestThirdPartyAiConsent(
       context: context,
-      provider: ThirdPartyAiProvider.openAi,
+      feature: ThirdPartyAiFeature.readingInsights,
     );
     if (consent) {
       if (!mounted) return;

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/subscription_service.dart';
-import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
@@ -95,7 +94,7 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     FocusScope.of(context).unfocus();
     final consent = await requestThirdPartyAiConsent(
       context: context,
-      provider: ThirdPartyAiProvider.openAi,
+      feature: ThirdPartyAiFeature.recall,
     );
     if (!consent || !mounted) return;
     await context.read<RecallViewModel>().search(widget.bookId, query.trim());
