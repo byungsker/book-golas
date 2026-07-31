@@ -7,6 +7,7 @@ import {
   type ContentItem,
   formatProviderContents,
   prepareProviderContents,
+  remapResolvedConnections,
 } from "./chain-service.ts";
 
 const contents: ContentItem[] = [
@@ -34,4 +35,34 @@ Deno.test("mind-map provider prompt replaces persistent identifiers", () => {
   assertStringIncludes(prompt, "테스트 독서 기록");
   assertFalse(prompt.includes("61ea30fd-4970-4d56-93f2-58abf7810462"));
   assertFalse(prompt.includes("4ffd9fe4-5807-4af4-8dc5-577722cbe0d0"));
+});
+
+Deno.test("mind-map connections keep only resolved stored endpoints", () => {
+  const storedIdByProviderId = new Map([
+    ["record-1", "stored-1"],
+    ["record-2", "stored-2"],
+  ]);
+  const result = remapResolvedConnections([
+    {
+      fromNodeId: "record-1",
+      toNodeId: "record-2",
+      reason: "valid",
+    },
+    {
+      fromNodeId: "record-1",
+      toNodeId: "record-404",
+      reason: "invalid target",
+    },
+    {
+      fromNodeId: "record-404",
+      toNodeId: "record-2",
+      reason: "invalid source",
+    },
+  ], storedIdByProviderId);
+
+  assertEquals(result, [{
+    fromNodeId: "stored-1",
+    toNodeId: "stored-2",
+    reason: "valid",
+  }]);
 });

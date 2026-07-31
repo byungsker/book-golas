@@ -52,6 +52,18 @@ export function formatProviderContents(contents: ContentItem[]): string {
     .join("\n\n---\n\n");
 }
 
+export function remapResolvedConnections(
+  connections: Connection[],
+  storedIdByProviderId: ReadonlyMap<string, string>,
+): Connection[] {
+  return connections.flatMap((connection) => {
+    const fromNodeId = storedIdByProviderId.get(connection.fromNodeId);
+    const toNodeId = storedIdByProviderId.get(connection.toNodeId);
+    if (!fromNodeId || !toNodeId) return [];
+    return [{ ...connection, fromNodeId, toNodeId }];
+  });
+}
+
 export class ChainService {
   private llm: ChatOpenAI;
 
@@ -107,14 +119,9 @@ export class ChainService {
         id: storedIdByProviderId.get(node.id) ?? node.id,
       })),
     }));
-    const connections = this.buildConnections(connectionResult).map(
-      (connection) => ({
-        ...connection,
-        fromNodeId: storedIdByProviderId.get(connection.fromNodeId) ??
-          connection.fromNodeId,
-        toNodeId: storedIdByProviderId.get(connection.toNodeId) ??
-          connection.toNodeId,
-      }),
+    const connections = remapResolvedConnections(
+      this.buildConnections(connectionResult),
+      storedIdByProviderId,
     );
 
     return {
