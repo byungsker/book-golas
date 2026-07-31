@@ -41,9 +41,17 @@ CREATE INDEX third_party_ai_consent_events_user_provider_created_idx
 CREATE OR REPLACE FUNCTION public.prevent_third_party_ai_consent_event_mutation()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
+  IF TG_OP = 'DELETE' AND NOT EXISTS (
+    SELECT 1
+    FROM auth.users
+    WHERE id = OLD.user_id
+  ) THEN
+    RETURN OLD;
+  END IF;
   RAISE EXCEPTION 'Third-party AI consent events are append-only'
     USING ERRCODE = '55000';
 END;

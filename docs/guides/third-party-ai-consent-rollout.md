@@ -3,7 +3,7 @@
 ## Contract
 
 - `public.third_party_ai_consents` is the authoritative current account-level receipt.
-- `public.third_party_ai_consent_events` preserves server-timestamped grant and withdrawal evidence, and a database trigger rejects update or deletion attempts from every role.
+- `public.third_party_ai_consent_events` preserves server-timestamped grant and withdrawal evidence. A database trigger rejects direct update or deletion attempts from every role while permitting the foreign-key cascade after the parent account is deleted.
 - Google Cloud Vision and OpenAI use independent provider rows.
 - A receipt is valid only when `granted = true` and `policy_version = 2`.
 - The receipt and event history store server time, disclosure locale, policy version, and the displayed disclosure snapshot.
@@ -30,6 +30,7 @@ Existing clients have no server receipt. After step 2 they receive `403 third_pa
 - Change the required policy version in a test and confirm the old receipt is denied.
 - Simulate a committed grant with a lost response and confirm the client distinguishes confirmed, denied, and unknown outcomes.
 - Attempt to update and delete consent history with an elevated role and confirm the append-only trigger rejects both operations.
+- Delete a test account and confirm its current consent receipt and event history are removed through the verified account-deletion cascade.
 - Confirm cached recommendations render without a new provider call.
 - Confirm a recommendation without consent shows the recovery card and does not open a consent sheet until the user taps its action.
 

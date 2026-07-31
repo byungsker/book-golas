@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(18);
+SELECT plan(21);
 
 INSERT INTO auth.users (
   instance_id,
@@ -252,6 +252,34 @@ SELECT throws_ok(
   '55000',
   'Third-party AI consent events are append-only',
   'table owner cannot delete consent history'
+);
+
+SELECT lives_ok(
+  $$
+    DELETE FROM auth.users
+    WHERE id = '33333333-3333-3333-3333-333333333333'
+  $$,
+  'account deletion can cascade through consent history'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.third_party_ai_consents
+    WHERE user_id = '33333333-3333-3333-3333-333333333333'
+  $$,
+  ARRAY[0::bigint],
+  'account deletion removes the current consent receipt'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.third_party_ai_consent_events
+    WHERE user_id = '33333333-3333-3333-3333-333333333333'
+  $$,
+  ARRAY[0::bigint],
+  'account deletion removes consent history through the verified cascade'
 );
 
 SELECT * FROM finish();
