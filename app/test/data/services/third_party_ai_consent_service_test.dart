@@ -14,6 +14,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
   final Map<String, ThirdPartyAiConsentRecord> records = {};
   bool failReads = false;
   bool failWrites = false;
+  bool commitThenThrow = false;
 
   String _key(String userId, ThirdPartyAiProvider provider) =>
       '$userId:${provider.databaseValue}';
@@ -39,6 +40,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
       granted: true,
       policyVersion: policyVersion,
     );
+    if (commitThenThrow) throw StateError('response lost');
     return true;
   }
 
@@ -116,7 +118,7 @@ void main() {
         ThirdPartyAiProvider.googleCloudVision,
         disclosure: disclosure,
       ),
-      isTrue,
+      ThirdPartyAiConsentGrantResult.confirmed,
     );
     var snapshot = await service.loadSnapshot();
     expect(
@@ -223,7 +225,7 @@ void main() {
         ThirdPartyAiProvider.openAi,
         disclosure: disclosure,
       ),
-      isFalse,
+      ThirdPartyAiConsentGrantResult.denied,
     );
 
     store.failWrites = false;
@@ -252,11 +254,36 @@ void main() {
         ThirdPartyAiProvider.openAi,
         disclosure: disclosure,
       ),
-      isTrue,
+      ThirdPartyAiConsentGrantResult.confirmed,
     );
     expect(
       await service.loadState(ThirdPartyAiProvider.openAi),
       ThirdPartyAiConsentState.unavailable,
+    );
+  });
+
+  test('commit with lost response is confirmed or reported unknown', () async {
+    final store = FakeConsentStore()..commitThenThrow = true;
+    final service = ThirdPartyAiConsentService.withStore(
+      store,
+      () => 'user-a',
+    );
+
+    expect(
+      await service.grant(
+        ThirdPartyAiProvider.openAi,
+        disclosure: disclosure,
+      ),
+      ThirdPartyAiConsentGrantResult.confirmed,
+    );
+
+    store.failReads = true;
+    expect(
+      await service.grant(
+        ThirdPartyAiProvider.googleCloudVision,
+        disclosure: disclosure,
+      ),
+      ThirdPartyAiConsentGrantResult.unknown,
     );
   });
 

@@ -7259,6 +7259,30 @@ abstract class AppLocalizations {
   /// **'선택을 저장하고 있어요…'**
   String get thirdPartyAiSaving;
 
+  /// Consent status lookup progress
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 상태를 확인하고 있어요…'**
+  String get thirdPartyAiCheckingStatus;
+
+  /// Unknown consent grant result
+  ///
+  /// In ko, this message translates to:
+  /// **'선택이 저장됐는지 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 상태를 다시 확인하거나, 공유를 중지한 뒤 닫아 주세요.'**
+  String get thirdPartyAiGrantStatusUnknown;
+
+  /// Withdraw an uncertain grant before closing
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 중지 후 닫기'**
+  String get thirdPartyAiStopSharingAndClose;
+
+  /// Consent withdrawal progress
+  ///
+  /// In ko, this message translates to:
+  /// **'공유를 중지하고 있어요…'**
+  String get thirdPartyAiStoppingSharing;
+
   /// Consent persistence error
   ///
   /// In ko, this message translates to:

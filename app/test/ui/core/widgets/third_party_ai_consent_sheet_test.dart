@@ -12,13 +12,16 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
   final Map<ThirdPartyAiProvider, ThirdPartyAiConsentRecord> records = {};
   bool failReads = false;
   bool failWrites = false;
+  bool commitThenThrow = false;
   Completer<void>? grantGate;
+  Completer<void>? readGate;
 
   @override
   Future<ThirdPartyAiConsentRecord?> read(
     String userId,
     ThirdPartyAiProvider provider,
   ) async {
+    await readGate?.future;
     if (failReads) throw StateError('read failed');
     return records[provider];
   }
@@ -36,6 +39,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
       granted: true,
       policyVersion: policyVersion,
     );
+    if (commitThenThrow) throw StateError('response lost');
     return true;
   }
 
@@ -44,7 +48,14 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
     String userId,
     ThirdPartyAiProvider provider,
   ) async {
-    records.remove(provider);
+    if (failWrites) throw StateError('write failed');
+    final previous = records[provider];
+    if (previous != null) {
+      records[provider] = ThirdPartyAiConsentRecord(
+        granted: false,
+        policyVersion: previous.policyVersion,
+      );
+    }
   }
 }
 
@@ -127,6 +138,10 @@ void main() {
   testWidgets(
       'agreement stays open while saving and resumes after verification',
       (tester) async {
+    tester.view.physicalSize = const Size(390, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     bool? result;
     final store = FakeConsentStore()..grantGate = Completer<void>();
     final service = ThirdPartyAiConsentService.withStore(
@@ -137,6 +152,7 @@ void main() {
     await tester.pumpWidget(
       buildTestApp(
         locale: const Locale('ko'),
+        textScaler: const TextScaler.linear(2),
         child: Builder(
           builder: (context) => TextButton(
             onPressed: () async {
@@ -160,6 +176,7 @@ void main() {
     expect(find.text('선택을 저장하고 있어요…'), findsOneWidget);
     expect(find.text('Google Cloud Vision OCR을 허용할까요?'), findsOneWidget);
     expect(result, isNull);
+    expect(tester.takeException(), isNull);
 
     await tester.tapAt(const Offset(5, 5));
     await tester.pump();
@@ -181,6 +198,10 @@ void main() {
 
   testWidgets('failed agreement remains visible and supports retry',
       (tester) async {
+    tester.view.physicalSize = const Size(390, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     bool? result;
     final store = FakeConsentStore()..failWrites = true;
     final service = ThirdPartyAiConsentService.withStore(
@@ -190,6 +211,7 @@ void main() {
 
     await tester.pumpWidget(
       buildTestApp(
+        textScaler: const TextScaler.linear(2),
         child: Builder(
           builder: (context) => TextButton(
             onPressed: () async {
@@ -213,6 +235,7 @@ void main() {
     expect(find.textContaining("couldn't save your choice"), findsOneWidget);
     expect(find.text('Try again'), findsOneWidget);
     expect(result, isNull);
+    expect(tester.takeException(), isNull);
 
     store.failWrites = false;
     await tester.tap(find.text('Try again'));
@@ -301,6 +324,10 @@ void main() {
   });
 
   testWidgets('status lookup error is distinct from refusal', (tester) async {
+    tester.view.physicalSize = const Size(390, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final store = FakeConsentStore()..failReads = true;
     final service = ThirdPartyAiConsentService.withStore(
       store,
@@ -309,6 +336,7 @@ void main() {
 
     await tester.pumpWidget(
       buildTestApp(
+        textScaler: const TextScaler.linear(2),
         child: Builder(
           builder: (context) => TextButton(
             onPressed: () => requestThirdPartyAiConsent(
@@ -336,11 +364,69 @@ void main() {
     expect(find.text('Retry status').hitTestable(), findsOneWidget);
 
     store.failReads = false;
+    store.readGate = Completer<void>();
     await tester.tap(find.text('Retry status'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Checking sharing status…'), findsOneWidget);
+    expect(find.text('Saving your choice…'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    store.readGate!.complete();
     await tester.pumpAndSettle();
 
     expect(find.text('Nothing is sent until you agree.'), findsOneWidget);
     expect(find.text("Don't allow").hitTestable(), findsOneWidget);
     expect(find.text('Agree to OpenAI transfer').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('unknown grant requires status recovery or confirmed withdrawal',
+      (tester) async {
+    bool? result;
+    final store = FakeConsentStore();
+    final service = ThirdPartyAiConsentService.withStore(
+      store,
+      () => 'user-a',
+    );
+
+    await tester.pumpWidget(
+      buildTestApp(
+        child: Builder(
+          builder: (context) => TextButton(
+            onPressed: () async {
+              result = await requestThirdPartyAiConsent(
+                context: context,
+                feature: ThirdPartyAiFeature.recall,
+                consentService: service,
+              );
+            },
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    store
+      ..commitThenThrow = true
+      ..failReads = true;
+
+    await tester.tap(find.text('Agree to OpenAI transfer'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("couldn't confirm whether"), findsOneWidget);
+    expect(find.text("Don't allow"), findsNothing);
+    expect(find.text('Agree to OpenAI transfer'), findsNothing);
+    expect(find.text('Stop sharing and close').hitTestable(), findsOneWidget);
+    expect(find.text('Retry status').hitTestable(), findsOneWidget);
+    expect(result, isNull);
+
+    store.failReads = false;
+    await tester.tap(find.text('Stop sharing and close'));
+    await tester.pumpAndSettle();
+
+    expect(result, isFalse);
+    expect(store.records[ThirdPartyAiProvider.openAi]?.granted, isFalse);
   });
 }

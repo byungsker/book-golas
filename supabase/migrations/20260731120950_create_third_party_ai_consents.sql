@@ -38,6 +38,25 @@ CREATE INDEX third_party_ai_consent_events_user_provider_created_idx
     created_at DESC
   );
 
+CREATE OR REPLACE FUNCTION public.prevent_third_party_ai_consent_event_mutation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = ''
+AS $$
+BEGIN
+  RAISE EXCEPTION 'Third-party AI consent events are append-only'
+    USING ERRCODE = '55000';
+END;
+$$;
+
+CREATE TRIGGER prevent_third_party_ai_consent_event_mutation
+BEFORE UPDATE OR DELETE ON public.third_party_ai_consent_events
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_third_party_ai_consent_event_mutation();
+
+REVOKE ALL ON FUNCTION public.prevent_third_party_ai_consent_event_mutation()
+FROM PUBLIC;
+
 ALTER TABLE public.third_party_ai_consents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.third_party_ai_consent_events ENABLE ROW LEVEL SECURITY;
 
@@ -67,6 +86,7 @@ SET search_path = ''
 AS $$
 DECLARE
   v_user_id UUID := auth.uid();
+  v_policy_version INTEGER := p_policy_version;
   v_locale TEXT := p_disclosure_locale;
   v_snapshot JSONB := p_disclosure_snapshot;
   v_now TIMESTAMPTZ := clock_timestamp();
@@ -86,8 +106,8 @@ BEGIN
       RAISE EXCEPTION 'Disclosure evidence is required';
     END IF;
   ELSE
-    SELECT disclosure_locale, disclosure_snapshot
-      INTO v_locale, v_snapshot
+    SELECT policy_version, disclosure_locale, disclosure_snapshot
+      INTO v_policy_version, v_locale, v_snapshot
       FROM public.third_party_ai_consents
       WHERE user_id = v_user_id AND provider = p_provider;
     IF NOT FOUND THEN
@@ -106,7 +126,7 @@ BEGIN
   ) VALUES (
     v_user_id,
     p_provider,
-    p_policy_version,
+    v_policy_version,
     v_locale,
     v_snapshot,
     p_granted,
@@ -126,7 +146,7 @@ BEGIN
   ) VALUES (
     v_user_id,
     p_provider,
-    p_policy_version,
+    v_policy_version,
     v_locale,
     v_snapshot,
     p_granted,

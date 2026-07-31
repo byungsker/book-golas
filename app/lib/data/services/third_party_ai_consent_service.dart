@@ -52,6 +52,12 @@ enum ThirdPartyAiConsentState {
   unavailable,
 }
 
+enum ThirdPartyAiConsentGrantResult {
+  confirmed,
+  denied,
+  unknown,
+}
+
 class ThirdPartyAiConsentRecord {
   final bool granted;
   final int policyVersion;
@@ -203,21 +209,32 @@ class ThirdPartyAiConsentService {
     );
   }
 
-  Future<bool> grant(
+  Future<ThirdPartyAiConsentGrantResult> grant(
     ThirdPartyAiProvider provider, {
     required ThirdPartyAiDisclosure disclosure,
   }) async {
+    final userId = _userIdProvider();
+    if (userId == null) return ThirdPartyAiConsentGrantResult.denied;
     try {
-      final userId = _userIdProvider();
-      if (userId == null) return false;
-      return await _store.grant(
+      final recorded = await _store.grant(
         userId,
         provider,
         policyVersion,
         disclosure,
       );
+      return recorded
+          ? ThirdPartyAiConsentGrantResult.confirmed
+          : ThirdPartyAiConsentGrantResult.denied;
     } catch (_) {
-      return false;
+      try {
+        final record = await _store.read(userId, provider);
+        if (record?.granted == true && record?.policyVersion == policyVersion) {
+          return ThirdPartyAiConsentGrantResult.confirmed;
+        }
+        return ThirdPartyAiConsentGrantResult.denied;
+      } catch (_) {
+        return ThirdPartyAiConsentGrantResult.unknown;
+      }
     }
   }
 

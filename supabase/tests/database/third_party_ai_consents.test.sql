@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(13);
+SELECT plan(16);
 
 INSERT INTO auth.users (
   instance_id,
@@ -179,7 +179,7 @@ SELECT results_eq(
 SELECT ok(
   public.record_third_party_ai_consent(
     'open_ai',
-    2,
+    99,
     false
   ),
   'withdrawal is recorded by the server-owned function'
@@ -193,6 +193,42 @@ SELECT results_eq(
   $$,
   ARRAY[false],
   'current receipt is denied after withdrawal'
+);
+
+SELECT results_eq(
+  $$
+    SELECT policy_version
+    FROM public.third_party_ai_consent_events
+    WHERE provider = 'open_ai'
+    ORDER BY created_at DESC
+    LIMIT 1
+  $$,
+  ARRAY[2],
+  'withdrawal retains the policy version of the accepted disclosure'
+);
+
+RESET ROLE;
+SET LOCAL ROLE service_role;
+
+SELECT throws_ok(
+  $$
+    UPDATE public.third_party_ai_consent_events
+    SET disclosure_snapshot = '{}'::jsonb
+    WHERE provider = 'open_ai'
+  $$,
+  '55000',
+  'Third-party AI consent events are append-only',
+  'service role cannot update consent history'
+);
+
+SELECT throws_ok(
+  $$
+    DELETE FROM public.third_party_ai_consent_events
+    WHERE provider = 'open_ai'
+  $$,
+  '55000',
+  'Third-party AI consent events are append-only',
+  'service role cannot delete consent history'
 );
 
 SELECT * FROM finish();

@@ -4041,6 +4041,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thirdPartyAiSaving => 'Saving your choice…';
 
   @override
+  String get thirdPartyAiCheckingStatus => 'Checking sharing status…';
+
+  @override
+  String get thirdPartyAiGrantStatusUnknown =>
+      'We couldn\'t confirm whether your choice was saved. Nothing is sent in this attempt. Check the status again, or stop sharing before you close.';
+
+  @override
+  String get thirdPartyAiStopSharingAndClose => 'Stop sharing and close';
+
+  @override
+  String get thirdPartyAiStoppingSharing => 'Stopping sharing…';
+
+  @override
   String get thirdPartyAiSaveFailed =>
       'We couldn\'t save your choice. Check your connection and try again.';
 

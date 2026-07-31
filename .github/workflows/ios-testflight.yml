@@ -1,6 +1,12 @@
 name: iOS TestFlight Deploy
 
 on:
+  pull_request:
+    branches:
+      - 'version/mobile/**'
+    paths:
+      - '.github/workflows/ios-testflight.yml'
+      - 'supabase/functions/**'
   push:
     branches:
       - dev
@@ -35,9 +41,35 @@ on:
         type: string
 
 jobs:
+  edge-function-tests:
+    name: Test Mobile Edge Functions
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --config supabase/functions/deno.json --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
+
   migrate-database:
     name: Apply Database Migrations (Dev)
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
     runs-on: self-hosted
 
     steps:
@@ -78,12 +110,16 @@ jobs:
 
   deploy-edge-functions:
     needs: migrate-database
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -97,9 +133,11 @@ jobs:
 
       - name: Test third-party AI provider boundaries
         run: |
-          deno test --allow-env --allow-net \
+          deno test --config supabase/functions/deno.json --allow-env --allow-net \
             supabase/functions/_shared/third-party-ai-consent.test.ts \
             supabase/functions/vision-ocr/index_test.ts
+          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
 
       - name: Deploy consent-gated Edge Functions to Dev
         env:
@@ -121,7 +159,7 @@ jobs:
 
   build-and-deploy:
     needs: deploy-edge-functions
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
     runs-on: macos-26
 
     steps:

@@ -3,13 +3,14 @@
 ## Contract
 
 - `public.third_party_ai_consents` is the authoritative current account-level receipt.
-- `public.third_party_ai_consent_events` preserves append-only, server-timestamped grant and withdrawal evidence.
+- `public.third_party_ai_consent_events` preserves server-timestamped grant and withdrawal evidence, and a database trigger rejects update or deletion attempts from every role.
 - Google Cloud Vision and OpenAI use independent provider rows.
 - A receipt is valid only when `granted = true` and `policy_version = 2`.
 - The receipt and event history store server time, disclosure locale, policy version, and the displayed disclosure snapshot.
 - Authenticated clients can read their own records but can mutate consent only through the server-owned recording function.
 - Withdrawal is account-wide. Every provider-calling Edge Function checks the current receipt immediately before external transfer.
 - Missing rows, stale versions, query errors, and withdrawn rows fail closed with `403 third_party_ai_consent_required`.
+- If a grant request loses its response after the server may have committed it, the client treats the result as unknown, sends no data in that attempt, and permits only status recheck or confirmed withdrawal before closing the uncertain choice.
 
 ## Promotion order
 
@@ -27,6 +28,8 @@ Existing clients have no server receipt. After step 2 they receive `403 third_pa
 - Grant on one device and confirm another device sees the same account receipt.
 - Withdraw on the second device and confirm both devices receive `403` without an upstream provider call.
 - Change the required policy version in a test and confirm the old receipt is denied.
+- Simulate a committed grant with a lost response and confirm the client distinguishes confirmed, denied, and unknown outcomes.
+- Attempt to update and delete consent history with an elevated role and confirm the append-only trigger rejects both operations.
 - Confirm cached recommendations render without a new provider call.
 - Confirm a recommendation without consent shows the recovery card and does not open a consent sheet until the user taps its action.
 

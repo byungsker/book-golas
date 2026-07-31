@@ -10,6 +10,17 @@ import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
+Future<bool> runMindMapRegenerationAfterConsent({
+  required Future<bool> consent,
+  required bool Function() isMounted,
+  required Future<void> Function() regenerate,
+}) async {
+  final allowed = await consent;
+  if (!allowed || !isMounted()) return false;
+  await regenerate();
+  return true;
+}
+
 class MindmapScreen extends StatefulWidget {
   final String bookId;
   final String bookTitle;
@@ -312,26 +323,27 @@ class _MindmapScreenState extends State<MindmapScreen> {
   }
 
   Future<void> _regenerate(NoteStructureViewModel vm) async {
-    final consent = await requestThirdPartyAiConsent(
-      context: context,
-      feature: ThirdPartyAiFeature.mindMap,
+    final regenerated = await runMindMapRegenerationAfterConsent(
+      consent: requestThirdPartyAiConsent(
+        context: context,
+        feature: ThirdPartyAiFeature.mindMap,
+      ),
+      isMounted: () => mounted,
+      regenerate: () => vm.regenerateStructure(widget.bookId),
     );
-    if (!consent) return;
-    await vm.regenerateStructure(widget.bookId);
-    if (mounted) {
-      if (vm.errorMessage != null) {
-        CustomSnackbar.show(
-          context,
-          message: '구조화 실패',
-          type: BLabSnackbarType.error,
-        );
-      } else {
-        CustomSnackbar.show(
-          context,
-          message: '마인드맵이 갱신되었습니다',
-          type: BLabSnackbarType.success,
-        );
-      }
+    if (!regenerated || !mounted) return;
+    if (vm.errorMessage != null) {
+      CustomSnackbar.show(
+        context,
+        message: '구조화 실패',
+        type: BLabSnackbarType.error,
+      );
+    } else {
+      CustomSnackbar.show(
+        context,
+        message: '마인드맵이 갱신되었습니다',
+        type: BLabSnackbarType.success,
+      );
     }
   }
 }

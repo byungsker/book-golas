@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -47,13 +48,14 @@ void main() {
   testWidgets('primary recovery action exposes button semantics',
       (tester) async {
     final semantics = tester.ensureSemantics();
+    var activationCount = 0;
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: BLabButton(
             text: 'Review permission',
-            onPressed: () {},
+            onPressed: () => activationCount += 1,
             child: Text(
               'Review permission',
               style: AppTypography.buttonMedium.copyWith(
@@ -68,6 +70,29 @@ void main() {
     final node = tester.getSemantics(find.byType(BLabButton));
     expect(node.flagsCollection.isButton, isTrue);
     expect(node.label, 'Review permission');
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    tester.semantics.tap(find.semantics.byLabel('Review permission'));
+    await tester.pump();
+    expect(activationCount, 1);
+    semantics.dispose();
+  });
+
+  testWidgets('disabled button omits semantic tap action', (tester) async {
+    final semantics = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: BLabButton(
+            text: 'Unavailable',
+          ),
+        ),
+      ),
+    );
+
+    final node = tester.getSemantics(find.byType(BLabButton));
+    expect(node.flagsCollection.isButton, isTrue);
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
     semantics.dispose();
   });
 

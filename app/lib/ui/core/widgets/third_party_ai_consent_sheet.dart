@@ -157,7 +157,9 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
   late bool _detailsExpanded = widget.detailsOnly;
   late bool _statusUnavailable = widget.statusUnavailable;
   bool _isSaving = false;
+  bool _isCheckingStatus = false;
   bool _saveFailed = false;
+  bool _grantStatusUnknown = false;
 
   Future<void> _grant() async {
     if (_isSaving) return;
@@ -165,13 +167,21 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
       _isSaving = true;
       _saveFailed = false;
     });
-    final granted = await widget.consentService.grant(
+    final result = await widget.consentService.grant(
       widget.feature.provider,
       disclosure: widget.disclosure,
     );
     if (!mounted) return;
-    if (granted) {
+    if (result == ThirdPartyAiConsentGrantResult.confirmed) {
       Navigator.pop(context, true);
+      return;
+    }
+    if (result == ThirdPartyAiConsentGrantResult.unknown) {
+      setState(() {
+        _isSaving = false;
+        _statusUnavailable = true;
+        _grantStatusUnknown = true;
+      });
       return;
     }
     setState(() {
@@ -182,7 +192,11 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
 
   Future<void> _retryStatus() async {
     if (_isSaving) return;
-    setState(() => _isSaving = true);
+    setState(() {
+      _isSaving = true;
+      _isCheckingStatus = true;
+      _saveFailed = false;
+    });
     final state =
         await widget.consentService.loadState(widget.feature.provider);
     if (!mounted) return;
@@ -192,7 +206,31 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
     }
     setState(() {
       _isSaving = false;
+      _isCheckingStatus = false;
       _statusUnavailable = state == ThirdPartyAiConsentState.unavailable;
+      if (state == ThirdPartyAiConsentState.notAllowed) {
+        _grantStatusUnknown = false;
+      }
+    });
+  }
+
+  Future<void> _withdrawUnknownGrant() async {
+    if (_isSaving) return;
+    setState(() {
+      _isSaving = true;
+      _isCheckingStatus = false;
+      _saveFailed = false;
+    });
+    final withdrawn =
+        await widget.consentService.withdraw(widget.feature.provider);
+    if (!mounted) return;
+    if (withdrawn) {
+      Navigator.pop(context, false);
+      return;
+    }
+    setState(() {
+      _isSaving = false;
+      _saveFailed = true;
     });
   }
 
@@ -299,7 +337,9 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
                         if (_statusUnavailable) ...[
                           const SizedBox(height: 10),
                           _StatusMessage(
-                            message: l10n.thirdPartyAiStatusUnavailable,
+                            message: _grantStatusUnknown
+                                ? l10n.thirdPartyAiGrantStatusUnknown
+                                : l10n.thirdPartyAiStatusUnavailable,
                             isError: true,
                           ),
                         ],
@@ -386,12 +426,18 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
             children: [
               if (_isSaving)
                 _StatusMessage(
-                  message: l10n.thirdPartyAiSaving,
+                  message: _isCheckingStatus
+                      ? l10n.thirdPartyAiCheckingStatus
+                      : _grantStatusUnknown
+                          ? l10n.thirdPartyAiStoppingSharing
+                          : l10n.thirdPartyAiSaving,
                   showProgress: true,
                 ),
               if (_saveFailed)
                 _StatusMessage(
-                  message: l10n.thirdPartyAiSaveFailed,
+                  message: _grantStatusUnknown
+                      ? l10n.thirdPartyAiConsentWithdrawFailed
+                      : l10n.thirdPartyAiSaveFailed,
                   isError: true,
                 ),
               if (_isSaving || _saveFailed) const SizedBox(height: 12),
@@ -403,10 +449,15 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
                 )
               else if (_statusUnavailable) ...[
                 _ActionButton(
-                  text: l10n.thirdPartyAiClose,
+                  text: _grantStatusUnknown
+                      ? l10n.thirdPartyAiStopSharingAndClose
+                      : l10n.thirdPartyAiClose,
                   variant: BLabButtonVariant.secondary,
-                  onPressed:
-                      _isSaving ? null : () => Navigator.pop(context, false),
+                  onPressed: _isSaving
+                      ? null
+                      : _grantStatusUnknown
+                          ? _withdrawUnknownGrant
+                          : () => Navigator.pop(context, false),
                 ),
                 const SizedBox(height: 10),
                 _ActionButton(
