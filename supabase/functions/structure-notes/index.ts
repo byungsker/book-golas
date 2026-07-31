@@ -2,6 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
 import { ChainService } from "./services/chain-service.ts";
 import type { NoteStructure } from "./types.ts";
+import {
+  hasThirdPartyAiConsent,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const MIN_CONTENT_COUNT = 5;
@@ -102,6 +106,12 @@ serve(async (req: Request) => {
           },
         },
       );
+    }
+
+    if (!(await hasThirdPartyAiConsent(supabaseClient, user.id, "open_ai"))) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
     }
 
     const chainService = new ChainService(OPENAI_API_KEY);

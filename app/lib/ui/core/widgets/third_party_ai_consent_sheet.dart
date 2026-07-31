@@ -8,10 +8,35 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 Future<bool> requestThirdPartyAiConsent({
   required BuildContext context,
   required ThirdPartyAiProvider provider,
+  ThirdPartyAiConsentService? consentService,
 }) async {
-  final service = ThirdPartyAiConsentService();
+  final service = consentService ?? ThirdPartyAiConsentService();
   if (await service.hasConsent(provider)) return true;
   if (!context.mounted) return false;
+  final l10n = AppLocalizations.of(context);
+  final disclosure = ThirdPartyAiDisclosure(
+    locale: Localizations.localeOf(context).toLanguageTag(),
+    title: switch (provider) {
+      ThirdPartyAiProvider.googleCloudVision =>
+        l10n.thirdPartyAiGoogleConsentTitle,
+      ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiConsentTitle,
+    },
+    description: switch (provider) {
+      ThirdPartyAiProvider.googleCloudVision =>
+        l10n.thirdPartyAiGoogleConsentDescription,
+      ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiConsentDescription,
+    },
+    dataDescription: switch (provider) {
+      ThirdPartyAiProvider.googleCloudVision =>
+        l10n.thirdPartyAiGoogleDataDescription,
+      ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiDataDescription,
+    },
+    optionalNotice: switch (provider) {
+      ThirdPartyAiProvider.googleCloudVision =>
+        l10n.thirdPartyAiGoogleOptionalNotice,
+      ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiOptionalNotice,
+    },
+  );
 
   final granted = await showModalBottomSheet<bool>(
     context: context,
@@ -21,8 +46,7 @@ Future<bool> requestThirdPartyAiConsent({
   );
 
   if (granted != true) return false;
-  await service.grant(provider);
-  return true;
+  return await service.grant(provider, disclosure: disclosure);
 }
 
 class _ThirdPartyAiConsentSheet extends StatelessWidget {
@@ -48,6 +72,11 @@ class _ThirdPartyAiConsentSheet extends StatelessWidget {
       ThirdPartyAiProvider.googleCloudVision =>
         l10n.thirdPartyAiGoogleDataDescription,
       ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiDataDescription,
+    };
+    final optionalNotice = switch (provider) {
+      ThirdPartyAiProvider.googleCloudVision =>
+        l10n.thirdPartyAiGoogleOptionalNotice,
+      ThirdPartyAiProvider.openAi => l10n.thirdPartyAiOpenAiOptionalNotice,
     };
     final useStackedActions = MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
@@ -114,7 +143,7 @@ class _ThirdPartyAiConsentSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                l10n.thirdPartyAiOptionalNotice,
+                optionalNotice,
                 style: TextStyle(
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 13,

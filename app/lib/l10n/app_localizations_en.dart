@@ -986,6 +986,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get readingStartAiRecommendationConsentTitle =>
+      'Get personalized recommendations';
+
+  @override
+  String get readingStartAiRecommendationConsentDescription =>
+      'Review OpenAI data sharing before Bookgolas analyzes your reading history. Nothing is sent until you allow it.';
+
+  @override
+  String get readingStartAiRecommendationConsentAction => 'Review data sharing';
+
+  @override
   String get readingStartSearchHint => 'Enter book title.';
 
   @override
@@ -3886,26 +3897,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiGoogleConsentDescription =>
-      'Bookgolas uses Google Cloud Vision to extract text from the book page image you choose.';
+      'Bookgolas transfers the book page image you choose to Google Cloud Vision in the United States to extract text.';
 
   @override
   String get thirdPartyAiGoogleDataDescription =>
-      'Shared: the selected or cropped book page image\nRecipient: Google Cloud Vision\nPurpose: text extraction only';
+      'Items: selected, captured, or cropped book page image and Korean/English language hints\nCountry: United States\nTiming and method: each time you run OCR, through an encrypted TLS API connection\nRecipient: Google Cloud Korea LLC (contracting entity) and Google LLC (US processing)\nContact: googlekrsupport@google.com\nPurpose: image text extraction\nRetention/use: the image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations';
 
   @override
   String get thirdPartyAiOpenAiConsentTitle => 'Allow OpenAI-powered features?';
 
   @override
   String get thirdPartyAiOpenAiConsentDescription =>
-      'Bookgolas uses OpenAI to provide AI search, summaries, insights, recommendations, and writing assistance.';
+      'Bookgolas transfers reading data overseas to OpenAI for AI search, summaries, insights, recommendations, writing assistance, and semantic-search embeddings.';
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
-      'Shared as needed for the feature: book titles, reading records, notes, highlights, OCR text, ratings, reviews, and your question\nRecipient: OpenAI\nPurpose: generate the AI result you request';
+      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nCountries: United States and OpenAI\'s disclosed API processing locations, including South Korea, Japan, Singapore, Australia, Brazil, Canada, France, Germany, India, Indonesia, Ireland, Italy, Malaysia, Mexico, Netherlands, Norway, Poland, Philippines, South Africa, Spain, Sweden, Switzerland, United Arab Emirates, United Kingdom, and Finland\nTiming and method: through an encrypted API when you request an AI feature or recommendation; after consent, embeddings are also generated automatically when a note, highlight, or OCR record is saved\nRecipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA, and its disclosed subprocessors\nContact: privacy@openai.com\nPurpose: the features and embeddings described above\nRetention/use: API input/output is not used for model training by default; abuse-monitoring logs may be retained up to 30 days and longer when reasonably necessary to protect services or third parties or when legally required';
 
   @override
   String get thirdPartyAiOptionalNotice =>
       'This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time; withdrawal blocks future sharing.';
+
+  @override
+  String get thirdPartyAiGoogleOptionalNotice =>
+      'You may refuse this optional overseas transfer. If you refuse, Google OCR is unavailable, but you can enter text manually and use other reading-management features. You can grant or withdraw consent at any time in My Page; withdrawal blocks future transfers.';
+
+  @override
+  String get thirdPartyAiOpenAiOptionalNotice =>
+      'You may refuse this optional overseas transfer. If you refuse, OpenAI search, summaries, insights, recommendations, writing assistance, and semantic search are unavailable, but other reading-management features remain available. You can grant or withdraw consent at any time in My Page; withdrawal blocks future transfers.';
 
   @override
   String get thirdPartyAiNotNow => 'Not now';

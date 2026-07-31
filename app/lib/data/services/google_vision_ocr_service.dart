@@ -8,12 +8,26 @@ import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
-      GoogleVisionOcrService._internal();
+      GoogleVisionOcrService._internal(
+    ThirdPartyAiConsentService(),
+    () => Supabase.instance.client,
+  );
   factory GoogleVisionOcrService() => _instance;
-  GoogleVisionOcrService._internal();
+  GoogleVisionOcrService._internal(
+    this._consentService,
+    this._supabaseProvider,
+  );
+
+  GoogleVisionOcrService.withDependencies(
+    this._consentService,
+    SupabaseClient supabaseClient,
+  ) : _supabaseProvider = (() => supabaseClient);
 
   static const int _maxImageBytes = 8 * 1024 * 1024;
-  SupabaseClient get _supabase => Supabase.instance.client;
+  final ThirdPartyAiConsentService _consentService;
+  final SupabaseClient Function() _supabaseProvider;
+
+  SupabaseClient get _supabase => _supabaseProvider();
 
   Future<String?> extractTextFromImageUrl(String imageUrl) async {
     try {
@@ -39,7 +53,7 @@ class GoogleVisionOcrService {
     }
 
     try {
-      final consent = await ThirdPartyAiConsentService()
+      final consent = await _consentService
           .hasConsent(ThirdPartyAiProvider.googleCloudVision);
       if (!consent) {
         debugPrint('OCR request blocked because consent is missing');

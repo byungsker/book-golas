@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import {
+  hasThirdPartyAiConsent,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
+
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
 interface EmbeddingRequest {
@@ -110,7 +115,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const supabaseClient = createClient(
+    const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       {
@@ -121,11 +126,17 @@ serve(async (req: Request) => {
       },
     );
 
+    if (!(await hasThirdPartyAiConsent(authClient, user.id, "open_ai"))) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+
     const embedding = await generateEmbedding(contentText);
 
     const embeddingString = `[${embedding.join(",")}]`;
 
-    const { data, error } = await supabaseClient
+    const { data, error } = await serviceClient
       .from("reading_content_embeddings")
       .upsert(
         {

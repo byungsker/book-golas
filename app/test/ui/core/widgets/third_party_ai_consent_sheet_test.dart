@@ -1,22 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
+class FakeConsentStore implements ThirdPartyAiConsentStore {
+  final Map<ThirdPartyAiProvider, ThirdPartyAiConsentRecord> records = {};
+
+  @override
+  Future<ThirdPartyAiConsentRecord?> read(
+    String userId,
+    ThirdPartyAiProvider provider,
+  ) async =>
+      records[provider];
+
+  @override
+  Future<void> grant(
+    String userId,
+    ThirdPartyAiProvider provider,
+    int policyVersion,
+    ThirdPartyAiDisclosure disclosure,
+  ) async {
+    records[provider] = ThirdPartyAiConsentRecord(
+      granted: true,
+      policyVersion: policyVersion,
+    );
+  }
+
+  @override
+  Future<void> withdraw(
+    String userId,
+    ThirdPartyAiProvider provider,
+  ) async {
+    records.remove(provider);
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
 
   testWidgets('OpenAI sheet discloses recipient and keeps decline optional',
       (tester) async {
     bool? result;
+    final service = ThirdPartyAiConsentService.withStore(
+      FakeConsentStore(),
+      () => 'user-a',
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -34,6 +65,7 @@ void main() {
               result = await requestThirdPartyAiConsent(
                 context: context,
                 provider: ThirdPartyAiProvider.openAi,
+                consentService: service,
               );
             },
             child: const Text('Open'),
@@ -46,15 +78,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Recipient: OpenAI'), findsOneWidget);
-    expect(find.textContaining('This is optional'), findsOneWidget);
+    expect(find.textContaining('You may refuse'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Not now'));
     await tester.tap(find.text('Not now'));
     await tester.pumpAndSettle();
 
     expect(result, isFalse);
     expect(
-      await ThirdPartyAiConsentService()
-          .hasConsent(ThirdPartyAiProvider.openAi),
+      await service.hasConsent(ThirdPartyAiProvider.openAi),
       isFalse,
     );
   });
@@ -62,6 +94,10 @@ void main() {
   testWidgets('Google Cloud Vision consent is granted only after Allow',
       (tester) async {
     bool? result;
+    final service = ThirdPartyAiConsentService.withStore(
+      FakeConsentStore(),
+      () => 'user-a',
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -79,6 +115,7 @@ void main() {
               result = await requestThirdPartyAiConsent(
                 context: context,
                 provider: ThirdPartyAiProvider.googleCloudVision,
+                consentService: service,
               );
             },
             child: const Text('열기'),
@@ -91,13 +128,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Google Cloud Vision'), findsWidgets);
+    await tester.ensureVisible(find.text('허용'));
     await tester.tap(find.text('허용'));
     await tester.pumpAndSettle();
 
     expect(result, isTrue);
     expect(
-      await ThirdPartyAiConsentService()
-          .hasConsent(ThirdPartyAiProvider.googleCloudVision),
+      await service.hasConsent(ThirdPartyAiProvider.googleCloudVision),
       isTrue,
     );
   });
@@ -108,6 +145,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final service = ThirdPartyAiConsentService.withStore(
+      FakeConsentStore(),
+      () => 'user-a',
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -130,6 +171,7 @@ void main() {
             onPressed: () => requestThirdPartyAiConsent(
               context: context,
               provider: ThirdPartyAiProvider.openAi,
+              consentService: service,
             ),
             child: const Text('Open'),
           ),
@@ -148,8 +190,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      await ThirdPartyAiConsentService()
-          .hasConsent(ThirdPartyAiProvider.openAi),
+      await service.hasConsent(ThirdPartyAiProvider.openAi),
       isTrue,
     );
   });

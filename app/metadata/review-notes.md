@@ -23,14 +23,14 @@ From the book detail screen, add notes and highlights.
 AI Recall 탭에서 질문을 입력하면 내 노트와 하이라이트에서 관련 내용을 검색합니다.
 Go to the AI Recall tab and type a question. The AI searches through your notes and highlights for relevant content.
 
-AI Recall을 처음 사용하면 OpenAI로 전송되는 데이터, 수신자와 목적을 설명하는 선택 동의 화면이 표시됩니다. 동의하지 않아도 기본 독서 기록 기능을 계속 사용할 수 있습니다.
-The first use of AI Recall shows an optional consent sheet explaining the data sent to OpenAI, the recipient, and the purpose. Declining does not block basic reading-log features.
+AI Recall 또는 맞춤 추천 등 OpenAI 기능을 처음 요청하면 이전 항목·국가·시점·방법·법적 수령자·연락처·목적·보유기간·거부 효과를 설명하는 선택 동의 화면이 표시됩니다. 동의하지 않아도 기본 독서 기록 기능을 계속 사용할 수 있습니다.
+The first request for AI Recall, personalized recommendations, or another OpenAI feature shows an optional consent sheet covering transferred items, countries, timing, method, legal recipient, contact, purpose, retention, and refusal effect. Declining does not block basic reading-log features.
 
-OCR을 처음 사용하면 Google Cloud Vision으로 전송되는 책 페이지 이미지, 수신자와 목적을 별도로 안내하고 동의를 받습니다.
-The first use of OCR separately discloses and requests consent for sending a book-page image to Google Cloud Vision.
+OCR을 처음 사용하면 미국 Google Cloud Vision으로 이전되는 책 페이지 이미지와 이전 세부사항을 별도로 안내하고 동의를 받습니다.
+The first use of OCR separately discloses the transfer details for sending a book-page image to Google Cloud Vision in the United States and requests consent.
 
-사용자는 마이페이지의 `제3자 AI 데이터 전송` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 철회 즉시 이후 전송이 차단됩니다.
-Users can independently withdraw Google Cloud Vision or OpenAI consent under `Third-party AI data sharing` in My Page. Future transfers stop immediately after withdrawal.
+사용자는 마이페이지의 `제3자 AI 데이터 전송` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 동의 영수증은 계정 단위로 서버에 기록되며 철회 즉시 모든 기기의 이후 전송이 서버에서 차단됩니다.
+Users can independently withdraw Google Cloud Vision or OpenAI consent under `Third-party AI data sharing` in My Page. The receipt is stored server-side for the account, and withdrawal blocks future transfers from every device at the server boundary.
 
 ### 5. Reading Goals / 독서 목표
 목표 탭에서 연간/월간 독서 목표를 설정하고 달성률을 확인하세요.

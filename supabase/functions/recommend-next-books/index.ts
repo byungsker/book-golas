@@ -4,6 +4,10 @@ import { config, validateConfig } from "./config.ts";
 import { ProfileCollector } from "./services/profile-collector.ts";
 import { RecommendationService } from "./services/recommendation-service.ts";
 import type { RecommendationResponse } from "./types.ts";
+import {
+  hasThirdPartyAiConsent,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -88,6 +92,9 @@ serve(async (req: Request) => {
     console.log(
       `[recommend-next-books] Generating recommendations (locale: ${locale})...`,
     );
+    if (!(await hasThirdPartyAiConsent(authClient, user.id, "open_ai"))) {
+      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    }
     const recommendationService = new RecommendationService(locale);
     const recommendations = await recommendationService.generate(profile);
 

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/note_structure_service.dart';
@@ -12,17 +11,46 @@ class MockSupabaseClient extends Mock implements SupabaseClient {}
 
 class MockFunctionsClient extends Mock implements FunctionsClient {}
 
+class GrantedConsentStore implements ThirdPartyAiConsentStore {
+  @override
+  Future<ThirdPartyAiConsentRecord?> read(
+    String userId,
+    ThirdPartyAiProvider provider,
+  ) async =>
+      const ThirdPartyAiConsentRecord(
+        granted: true,
+        policyVersion: ThirdPartyAiConsentService.policyVersion,
+      );
+
+  @override
+  Future<void> grant(
+    String userId,
+    ThirdPartyAiProvider provider,
+    int policyVersion,
+    ThirdPartyAiDisclosure disclosure,
+  ) async {}
+
+  @override
+  Future<void> withdraw(
+    String userId,
+    ThirdPartyAiProvider provider,
+  ) async {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('NoteStructureService', () {
     late MockSupabaseClient mockSupabaseClient;
     late NoteStructureService service;
+    late ThirdPartyAiConsentService consentService;
 
-    setUp(() async {
-      SharedPreferences.setMockInitialValues({});
-      await ThirdPartyAiConsentService().grant(ThirdPartyAiProvider.openAi);
+    setUp(() {
       mockSupabaseClient = MockSupabaseClient();
+      consentService = ThirdPartyAiConsentService.withStore(
+        GrantedConsentStore(),
+        () => 'user-a',
+      );
     });
 
     group('structureNotes', () {
@@ -70,7 +98,10 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((_) async => mockFunctionResponse);
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         final result = await service.structureNotes('book-123');
 
         expect(result, isNotNull);
@@ -90,7 +121,10 @@ void main() {
               body: any(named: 'body'),
             )).thenThrow(Exception('Function invocation failed'));
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         final result = await service.structureNotes('book-123');
 
         expect(result, isNull);
@@ -111,7 +145,10 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((_) async => mockFunctionResponse);
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         final result = await service.structureNotes('book-123');
 
         expect(result, isNull);
@@ -127,7 +164,10 @@ void main() {
               body: any(named: 'body'),
             )).thenThrow(TimeoutException('Timeout'));
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         final result = await service.structureNotes('book-123');
 
         expect(result, isNull);
@@ -153,7 +193,10 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((_) async => mockFunctionResponse);
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         await service.structureNotes('book-456');
 
         verify(() => mockFunctionsClient.invoke(
@@ -184,7 +227,10 @@ void main() {
               body: any(named: 'body'),
             )).thenAnswer((_) async => mockFunctionResponse);
 
-        service = NoteStructureService(supabaseClient: mockSupabaseClient);
+        service = NoteStructureService(
+          supabaseClient: mockSupabaseClient,
+          consentService: consentService,
+        );
         final result = await service.structureNotes('book-empty');
 
         expect(result, isNotNull);

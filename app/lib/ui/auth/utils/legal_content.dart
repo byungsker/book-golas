@@ -193,7 +193,7 @@ class LegalContent {
 <li>회원 탈퇴 처리 시 서비스가 관리하는 계정과 독서 데이터는 삭제됩니다.</li>
 <li>관계 법령에 의해 보존이 필요한 경우 해당 기간 동안 보관합니다.</li>
 <li>Google Cloud Vision 온라인 OCR 요청의 이미지 데이터는 메모리에서 처리되고 디스크에 저장되지 않으며, 요청 시각과 크기 등의 일부 메타데이터는 서비스 개선과 오남용 방지를 위해 일시적으로 기록될 수 있습니다.</li>
-<li>OpenAI API 입력과 출력은 기본적으로 모델 학습에 사용되지 않습니다. 다만 오남용 모니터링 로그에 고객 콘텐츠와 메타데이터가 포함될 수 있고, 기본 설정에서는 최대 30일간 보관될 수 있으며 법적 의무가 있으면 더 오래 보관될 수 있습니다.</li>
+<li>OpenAI API 입력과 출력은 기본적으로 모델 학습에 사용되지 않습니다. 다만 오남용 모니터링 로그에 고객 콘텐츠와 메타데이터가 포함될 수 있고, 기본 설정에서는 최대 30일간 보관될 수 있으며 서비스·제3자 보호에 합리적으로 필요하거나 법적 의무가 있으면 더 오래 보관될 수 있습니다.</li>
 </ul>
 
 <h2>제4조 (외부 처리 및 제3자 제공)</h2>
@@ -205,6 +205,13 @@ class LegalContent {
 <li><strong>Google Cloud Vision:</strong> 이용자가 선택하거나 자른 책 페이지 이미지의 텍스트 추출</li>
 <li><strong>OpenAI:</strong> 이용자가 요청한 AI 검색, 요약, 인사이트, 추천 및 글쓰기 지원을 위해 필요한 책 제목, 독서 기록, 메모, 하이라이트, OCR 텍스트, 평점, 리뷰와 질문 처리</li>
 </ul>
+<h3>제4조의2 (선택 동의에 따른 국외 이전)</h3>
+<p>개인정보 보호법 제28조의8 제1항 제1호의 별도 동의를 근거로 아래 정보를 국외 이전합니다. 각 이전은 선택 사항이며 이용자는 동의하지 않을 수 있습니다.</p>
+<ul>
+<li><strong>Google Cloud Vision:</strong> 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트를 OCR 실행 시마다 TLS로 암호화하여 미국으로 전송합니다. 제공받는 자는 Google Cloud Korea LLC(계약 주체)와 Google LLC(미국 처리)이며 연락처는 googlekrsupport@google.com입니다. 목적은 이미지 문자 추출입니다. 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있습니다.</li>
+<li><strong>OpenAI:</strong> 기능에 필요한 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계와 질문을 AI 기능·추천 요청 시 TLS로 암호화하여 전송합니다. 동의 후에는 메모·하이라이트·OCR 기록 저장 시 의미 검색용 임베딩 생성을 위해 자동 전송될 수 있습니다. 제공받는 자는 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA, privacy@openai.com)와 공개된 하위처리자입니다. 이전 국가는 미국 및 OpenAI가 공개한 API 처리 국가로서 대한민국, 일본, 싱가포르, 호주, 브라질, 캐나다, 프랑스, 독일, 인도, 인도네시아, 아일랜드, 이탈리아, 말레이시아, 멕시코, 네덜란드, 노르웨이, 폴란드, 필리핀, 남아프리카공화국, 스페인, 스웨덴, 스위스, 아랍에미리트, 영국, 핀란드를 포함합니다. 목적은 AI 검색·요약·인사이트·추천·글쓰기 지원과 의미 검색용 임베딩 제공입니다. 오남용 모니터링 로그는 기본 설정에서 최대 30일, 서비스·제3자 보호에 합리적으로 필요하거나 법적 의무가 있으면 그보다 오래 보관될 수 있습니다.</li>
+</ul>
+<p>Google 이전을 거부하면 OCR을 사용할 수 없지만 직접 입력과 다른 독서 관리 기능은 이용할 수 있습니다. OpenAI 이전을 거부하면 OpenAI 기반 AI 기능과 의미 검색을 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 업체별로 동의하거나 철회할 수 있고, 철회하면 서버에서 해당 계정의 이후 이전을 차단합니다. 고지 내용이나 처리 국가 등 중요 사항이 변경되면 새 고지 버전으로 다시 동의를 받습니다.</p>
 <p>법령의 규정에 따르거나 적법한 절차에 따른 요청이 있는 경우에는 필요한 범위에서 정보가 제공될 수 있습니다.</p>
 
 <h2>제5조 (이용자의 권리)</h2>
@@ -265,7 +272,7 @@ class LegalContent {
 <li>Account and reading data controlled by the Service are deleted when account deletion is processed.</li>
 <li>Information is retained for the period required by applicable law when legal retention obligations apply.</li>
 <li>For online Google Cloud Vision OCR requests, image data is processed in memory and is not persisted to disk. Some request metadata, such as request time and size, may be logged temporarily for service improvement and abuse prevention.</li>
-<li>OpenAI API inputs and outputs are not used for model training by default. Abuse-monitoring logs may include customer content and metadata and, under default settings, may be retained for up to 30 days or longer when legally required.</li>
+<li>OpenAI API inputs and outputs are not used for model training by default. Abuse-monitoring logs may include customer content and metadata and, under default settings, may be retained for up to 30 days or longer when reasonably necessary to protect services or third parties or when legally required.</li>
 </ul>
 
 <h2>4. External Processing and Third-Party Disclosure</h2>
@@ -277,6 +284,13 @@ class LegalContent {
 <li><strong>Google Cloud Vision:</strong> Text extraction from a book page image selected or cropped by the user</li>
 <li><strong>OpenAI:</strong> Processing the book titles, reading records, notes, highlights, OCR text, ratings, reviews, and questions needed to provide user-requested AI search, summaries, insights, recommendations, and writing assistance</li>
 </ul>
+<h3>4.1 Optional Overseas Transfers</h3>
+<p>Bookgolas relies on separate optional consent for the following overseas transfers.</p>
+<ul>
+<li><strong>Google Cloud Vision:</strong> A selected, captured, or cropped book-page image and Korean/English language hints are sent to the United States through an encrypted TLS API connection each time OCR runs. Recipients are Google Cloud Korea LLC (contracting entity) and Google LLC (US processing), contact googlekrsupport@google.com. The purpose is image text extraction. The image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations.</li>
+<li><strong>OpenAI:</strong> As needed, book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and the user's question are transferred through encrypted TLS when an AI feature or recommendation is requested. After consent, embeddings may also be generated automatically when a note, highlight, or OCR record is saved. The recipient is OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA, privacy@openai.com, and its disclosed subprocessors. Processing locations include the United States, South Korea, Japan, Singapore, Australia, Brazil, Canada, France, Germany, India, Indonesia, Ireland, Italy, Malaysia, Mexico, Netherlands, Norway, Poland, Philippines, South Africa, Spain, Sweden, Switzerland, United Arab Emirates, United Kingdom, and Finland. The purposes are AI search, summaries, insights, recommendations, writing assistance, and semantic-search embeddings. Abuse-monitoring logs may be retained for up to 30 days by default and longer when reasonably necessary to protect services or third parties or when legally required.</li>
+</ul>
+<p>Refusing Google transfer disables OCR but manual entry and other reading-management features remain available. Refusing OpenAI transfer disables OpenAI-powered AI features and semantic search but other reading-management features remain available. Consent can be granted or withdrawn separately in My Page; withdrawal blocks future transfers for the account at the server. Material disclosure changes, including processing-location changes, require consent to the new disclosure version.</p>
 <p>Information may also be disclosed to the extent required by law or a valid legal process.</p>
 
 <h2>5. User Rights</h2>

@@ -16,6 +16,8 @@ import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
 import 'package:book_golas/ui/core/widgets/recommendation_action_sheet.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/reading_start/view_model/reading_start_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/priority_selector_widget.dart';
@@ -23,6 +25,8 @@ import 'package:book_golas/ui/reading_start/widgets/schedule_change_modal.dart';
 import 'package:book_golas/ui/reading_start/widgets/schedule_preview_widget.dart';
 import 'package:book_golas/ui/reading_start/widgets/status_selector_widget.dart';
 import 'package:book_golas/ui/core/widgets/korean_date_picker.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 
 class ReadingStartScreen extends StatelessWidget {
@@ -438,6 +442,64 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
             ),
           ],
         ),
+      );
+    }
+
+    if (vm.recommendationConsentRequired) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        children: [
+          BLabCard(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.auto_awesome,
+                  color: BLabColors.primary,
+                  size: 22,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppLocalizations.of(context)
+                      .readingStartAiRecommendationConsentTitle,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AppLocalizations.of(context)
+                      .readingStartAiRecommendationConsentDescription,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                BLabButton(
+                  text: AppLocalizations.of(context)
+                      .readingStartAiRecommendationConsentAction,
+                  isFullWidth: true,
+                  onPressed: () async {
+                    final granted = await requestThirdPartyAiConsent(
+                      context: context,
+                      provider: ThirdPartyAiProvider.openAi,
+                    );
+                    if (!granted || !mounted) return;
+                    final locale = Localizations.localeOf(context);
+                    await vm.refreshRecommendations(locale.languageCode);
+                    if (!mounted) return;
+                    vm.loadRecommendationImagesWithLocale(locale);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       );
     }
 
