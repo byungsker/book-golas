@@ -23,6 +23,15 @@ From the book detail screen, add notes and highlights.
 AI Recall 탭에서 질문을 입력하면 내 노트와 하이라이트에서 관련 내용을 검색합니다.
 Go to the AI Recall tab and type a question. The AI searches through your notes and highlights for relevant content.
 
+AI Recall을 처음 사용하면 OpenAI로 전송되는 데이터, 수신자와 목적을 설명하는 선택 동의 화면이 표시됩니다. 동의하지 않아도 기본 독서 기록 기능을 계속 사용할 수 있습니다.
+The first use of AI Recall shows an optional consent sheet explaining the data sent to OpenAI, the recipient, and the purpose. Declining does not block basic reading-log features.
+
+OCR을 처음 사용하면 Google Cloud Vision으로 전송되는 책 페이지 이미지, 수신자와 목적을 별도로 안내하고 동의를 받습니다.
+The first use of OCR separately discloses and requests consent for sending a book-page image to Google Cloud Vision.
+
+사용자는 마이페이지의 `제3자 AI 데이터 전송` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 철회 즉시 이후 전송이 차단됩니다.
+Users can independently withdraw Google Cloud Vision or OpenAI consent under `Third-party AI data sharing` in My Page. Future transfers stop immediately after withdrawal.
+
 ### 5. Reading Goals / 독서 목표
 목표 탭에서 연간/월간 독서 목표를 설정하고 달성률을 확인하세요.
 Set yearly/monthly reading goals in the Goals tab and track your progress.

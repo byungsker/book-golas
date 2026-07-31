@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/note_structure_models.dart';
 
 class NoteStructureService {
@@ -23,11 +24,17 @@ class NoteStructureService {
   /// Returns null on error or timeout
   Future<NoteStructure?> structureNotes(String bookId) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Note structure request blocked because consent is missing');
+        return null;
+      }
+
       debugPrint('🧠 Structuring notes for book: $bookId');
 
-      final response = await _supabase.functions
-          .invoke('structure-notes', body: {'bookId': bookId})
-          .timeout(const Duration(seconds: 60));
+      final response = await _supabase.functions.invoke('structure-notes',
+          body: {'bookId': bookId}).timeout(const Duration(seconds: 60));
 
       debugPrint('🧠 Structure response status: ${response.status}');
 

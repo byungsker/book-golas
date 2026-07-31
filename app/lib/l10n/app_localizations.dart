@@ -6994,6 +6994,102 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'목표 완독일을 설정하세요'**
   String get bookDetailStartReadingSubtitle;
+
+  /// Title of the Google Cloud Vision data sharing consent sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision OCR을 허용할까요?'**
+  String get thirdPartyAiGoogleConsentTitle;
+
+  /// Purpose of Google Cloud Vision data sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스는 선택한 책 페이지 이미지에서 텍스트를 추출하기 위해 Google Cloud Vision을 사용합니다.'**
+  String get thirdPartyAiGoogleConsentDescription;
+
+  /// Data, recipient, and purpose for Google Cloud Vision sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 정보: 선택하거나 자른 책 페이지 이미지\n제공받는 곳: Google Cloud Vision\n목적: 텍스트 추출'**
+  String get thirdPartyAiGoogleDataDescription;
+
+  /// Title of the OpenAI data sharing consent sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 기반 기능을 허용할까요?'**
+  String get thirdPartyAiOpenAiConsentTitle;
+
+  /// Purpose of OpenAI data sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스는 AI 검색, 요약, 인사이트, 추천, 글쓰기 지원을 제공하기 위해 OpenAI를 사용합니다.'**
+  String get thirdPartyAiOpenAiConsentDescription;
+
+  /// Data, recipient, and purpose for OpenAI sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'기능에 필요한 범위에서 공유: 책 제목, 독서 기록, 메모, 하이라이트, OCR 텍스트, 평점, 리뷰, 입력한 질문\n제공받는 곳: OpenAI\n목적: 요청한 AI 결과 생성'**
+  String get thirdPartyAiOpenAiDataDescription;
+
+  /// Optional use and withdrawal notice for third-party AI sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있으며, 철회하면 이후 전송이 중단됩니다.'**
+  String get thirdPartyAiOptionalNotice;
+
+  /// Decline third-party AI data sharing button
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에'**
+  String get thirdPartyAiNotNow;
+
+  /// Grant third-party AI data sharing button
+  ///
+  /// In ko, this message translates to:
+  /// **'허용'**
+  String get thirdPartyAiAllow;
+
+  /// Title of AI data sharing settings section
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 데이터 공유'**
+  String get thirdPartyAiSettingsTitle;
+
+  /// Description of AI data sharing settings
+  ///
+  /// In ko, this message translates to:
+  /// **'업체별 향후 전송 허용 여부를 관리합니다.'**
+  String get thirdPartyAiSettingsDescription;
+
+  /// Google Cloud Vision consent setting title
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision OCR'**
+  String get thirdPartyAiGoogleSettingTitle;
+
+  /// Google Cloud Vision consent setting subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'텍스트 추출을 위한 선택한 페이지 이미지'**
+  String get thirdPartyAiGoogleSettingSubtitle;
+
+  /// OpenAI consent setting title
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 기능'**
+  String get thirdPartyAiOpenAiSettingTitle;
+
+  /// OpenAI consent setting subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'요청한 AI 결과에 필요한 독서 데이터'**
+  String get thirdPartyAiOpenAiSettingSubtitle;
+
+  /// Confirmation after withdrawing third-party AI sharing consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 업체로의 향후 전송을 중단했습니다.'**
+  String get thirdPartyAiConsentWithdrawn;
 }
 
 class _AppLocalizationsDelegate

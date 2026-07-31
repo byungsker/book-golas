@@ -1,17 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+
 class AIContentService {
   static final AIContentService _instance = AIContentService._internal();
   factory AIContentService() => _instance;
   AIContentService._internal();
 
-  final SupabaseClient _supabase = Supabase.instance.client;
+  SupabaseClient get _supabase => Supabase.instance.client;
 
   Future<String?> generateBookReviewDraft({
     required String bookId,
   }) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('AI review request blocked because consent is missing');
+        return null;
+      }
+
       final currentUser = _supabase.auth.currentUser;
       final session = _supabase.auth.currentSession;
 

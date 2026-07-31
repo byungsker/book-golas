@@ -5,10 +5,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/subscription_service.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/global_recall_view_model.dart';
 import 'package:book_golas/ui/recall/widgets/record_detail_sheet.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
@@ -77,10 +79,15 @@ class _GlobalRecallSearchSheetContentState
     super.dispose();
   }
 
-  void _search(String query) {
+  Future<void> _search(String query) async {
     if (query.trim().isEmpty) return;
     FocusScope.of(context).unfocus();
-    context.read<GlobalRecallViewModel>().search(query.trim());
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      provider: ThirdPartyAiProvider.openAi,
+    );
+    if (!consent || !mounted) return;
+    await context.read<GlobalRecallViewModel>().search(query.trim());
   }
 
   void _copyAnswer(String answer) {
@@ -216,7 +223,8 @@ class _GlobalRecallSearchSheetContentState
                           controller: _controller,
                           focusNode: _focusNode,
                           decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context).recallGlobalSearchHint,
+                            hintText: AppLocalizations.of(context)
+                                .recallGlobalSearchHint,
                             hintStyle: TextStyle(
                               color:
                                   isDark ? Colors.grey[500] : Colors.grey[400],
@@ -226,8 +234,8 @@ class _GlobalRecallSearchSheetContentState
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color:
-                                      BLabColors.primary.withValues(alpha: 0.15),
+                                  color: BLabColors.primary
+                                      .withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -366,9 +374,13 @@ class _GlobalRecallSearchSheetContentState
               ElevatedButton.icon(
                 onPressed: () async {
                   viewModel.clearPaywallState();
-                  final success = await SubscriptionService().showPaywall(context);
+                  final success =
+                      await SubscriptionService().showPaywall(context);
                   if (!success && context.mounted) {
-                    CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                    CustomSnackbar.show(context,
+                        message: AppLocalizations.of(context)
+                            .subscriptionUnavailable,
+                        type: BLabSnackbarType.info);
                   }
                 },
                 icon: const Icon(Icons.star, size: 18),

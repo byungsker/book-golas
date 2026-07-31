@@ -13,6 +13,7 @@ import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
@@ -25,6 +26,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 import 'login_screen.dart';
 import 'terms_webview_screen.dart';
@@ -54,6 +56,7 @@ class _MyPageContent extends StatefulWidget {
 class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
   late Future<bool> _privacyOptionsRequired;
+  late Future<ThirdPartyAiConsentSnapshot> _thirdPartyAiConsent;
   bool _isUploadingAvatar = false;
 
   @override
@@ -61,6 +64,7 @@ class _MyPageContentState extends State<_MyPageContent> {
     super.initState();
     _nicknameController = TextEditingController();
     _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
+    _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
@@ -1338,6 +1342,118 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
+  Widget _buildThirdPartyAiConsentCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final l10n = AppLocalizations.of(context);
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.thirdPartyAiSettingsTitle,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.thirdPartyAiSettingsDescription,
+            style: TextStyle(
+              fontSize: 14,
+              color: textColor.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder<ThirdPartyAiConsentSnapshot>(
+            future: _thirdPartyAiConsent,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+
+              final consent = snapshot.data!;
+              return Column(
+                children: [
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.document_scanner_outlined,
+                    title: l10n.thirdPartyAiGoogleSettingTitle,
+                    subtitle: l10n.thirdPartyAiGoogleSettingSubtitle,
+                    trailing: Switch(
+                      value: consent.googleCloudVision,
+                      activeTrackColor: BLabColors.primary,
+                      onChanged: (value) => _changeThirdPartyAiConsent(
+                        ThirdPartyAiProvider.googleCloudVision,
+                        value,
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 32,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.1),
+                  ),
+                  _buildSettingRow(
+                    context: context,
+                    icon: Icons.auto_awesome_outlined,
+                    title: l10n.thirdPartyAiOpenAiSettingTitle,
+                    subtitle: l10n.thirdPartyAiOpenAiSettingSubtitle,
+                    trailing: Switch(
+                      value: consent.openAi,
+                      activeTrackColor: BLabColors.primary,
+                      onChanged: (value) => _changeThirdPartyAiConsent(
+                        ThirdPartyAiProvider.openAi,
+                        value,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _changeThirdPartyAiConsent(
+    ThirdPartyAiProvider provider,
+    bool enabled,
+  ) async {
+    if (enabled) {
+      await requestThirdPartyAiConsent(
+        context: context,
+        provider: provider,
+      );
+    } else {
+      await ThirdPartyAiConsentService().withdraw(provider);
+      if (mounted) {
+        CustomSnackbar.show(
+          context,
+          message: AppLocalizations.of(context).thirdPartyAiConsentWithdrawn,
+          type: BLabSnackbarType.info,
+          bottomOffset: 32,
+        );
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
+    });
+  }
+
   Widget _buildInfoRow({
     required BuildContext context,
     required IconData icon,
@@ -1498,6 +1614,8 @@ class _MyPageContentState extends State<_MyPageContent> {
               _buildNotificationCard(context),
               const SizedBox(height: 16),
               _buildAccountCard(context),
+              const SizedBox(height: 16),
+              _buildThirdPartyAiConsentCard(context),
               const SizedBox(height: 16),
               _buildInfoCard(context),
               const SizedBox(height: 16),

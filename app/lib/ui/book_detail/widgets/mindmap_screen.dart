@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 class MindmapScreen extends StatefulWidget {
   final String bookId;
@@ -28,8 +30,21 @@ class _MindmapScreenState extends State<MindmapScreen> {
   void initState() {
     super.initState();
     if (widget.noteStructureVm.structure == null) {
-      widget.noteStructureVm.loadStructure(widget.bookId);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadStructure());
     }
+  }
+
+  Future<void> _loadStructure() async {
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      provider: ThirdPartyAiProvider.openAi,
+    );
+    if (!mounted) return;
+    if (!consent) {
+      Navigator.pop(context);
+      return;
+    }
+    await widget.noteStructureVm.loadStructure(widget.bookId);
   }
 
   @override
@@ -237,6 +252,11 @@ class _MindmapScreenState extends State<MindmapScreen> {
   }
 
   Future<void> _regenerate(NoteStructureViewModel vm) async {
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      provider: ThirdPartyAiProvider.openAi,
+    );
+    if (!consent) return;
     await vm.regenerateStructure(widget.bookId);
     if (mounted) {
       if (vm.errorMessage != null) {

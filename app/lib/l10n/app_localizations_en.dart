@@ -3880,4 +3880,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookDetailStartReadingSubtitle =>
       'Set your target completion date';
+
+  @override
+  String get thirdPartyAiGoogleConsentTitle => 'Allow Google Cloud Vision OCR?';
+
+  @override
+  String get thirdPartyAiGoogleConsentDescription =>
+      'Bookgolas uses Google Cloud Vision to extract text from the book page image you choose.';
+
+  @override
+  String get thirdPartyAiGoogleDataDescription =>
+      'Shared: the selected or cropped book page image\nRecipient: Google Cloud Vision\nPurpose: text extraction only';
+
+  @override
+  String get thirdPartyAiOpenAiConsentTitle => 'Allow OpenAI-powered features?';
+
+  @override
+  String get thirdPartyAiOpenAiConsentDescription =>
+      'Bookgolas uses OpenAI to provide AI search, summaries, insights, recommendations, and writing assistance.';
+
+  @override
+  String get thirdPartyAiOpenAiDataDescription =>
+      'Shared as needed for the feature: book titles, reading records, notes, highlights, OCR text, ratings, reviews, and your question\nRecipient: OpenAI\nPurpose: generate the AI result you request';
+
+  @override
+  String get thirdPartyAiOptionalNotice =>
+      'This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time; withdrawal blocks future sharing.';
+
+  @override
+  String get thirdPartyAiNotNow => 'Not now';
+
+  @override
+  String get thirdPartyAiAllow => 'Allow';
+
+  @override
+  String get thirdPartyAiSettingsTitle => 'AI data sharing';
+
+  @override
+  String get thirdPartyAiSettingsDescription =>
+      'Control future sharing with each provider.';
+
+  @override
+  String get thirdPartyAiGoogleSettingTitle => 'Google Cloud Vision OCR';
+
+  @override
+  String get thirdPartyAiGoogleSettingSubtitle =>
+      'Selected page images for text extraction';
+
+  @override
+  String get thirdPartyAiOpenAiSettingTitle => 'OpenAI features';
+
+  @override
+  String get thirdPartyAiOpenAiSettingSubtitle =>
+      'Reading data needed for requested AI results';
+
+  @override
+  String get thirdPartyAiConsentWithdrawn =>
+      'Future sharing with this provider has been turned off.';
 }

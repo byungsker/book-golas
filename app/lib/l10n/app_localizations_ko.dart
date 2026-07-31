@@ -3754,4 +3754,58 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookDetailStartReadingSubtitle => '목표 완독일을 설정하세요';
+
+  @override
+  String get thirdPartyAiGoogleConsentTitle =>
+      'Google Cloud Vision OCR을 허용할까요?';
+
+  @override
+  String get thirdPartyAiGoogleConsentDescription =>
+      '북골라스는 선택한 책 페이지 이미지에서 텍스트를 추출하기 위해 Google Cloud Vision을 사용합니다.';
+
+  @override
+  String get thirdPartyAiGoogleDataDescription =>
+      '공유 정보: 선택하거나 자른 책 페이지 이미지\n제공받는 곳: Google Cloud Vision\n목적: 텍스트 추출';
+
+  @override
+  String get thirdPartyAiOpenAiConsentTitle => 'OpenAI 기반 기능을 허용할까요?';
+
+  @override
+  String get thirdPartyAiOpenAiConsentDescription =>
+      '북골라스는 AI 검색, 요약, 인사이트, 추천, 글쓰기 지원을 제공하기 위해 OpenAI를 사용합니다.';
+
+  @override
+  String get thirdPartyAiOpenAiDataDescription =>
+      '기능에 필요한 범위에서 공유: 책 제목, 독서 기록, 메모, 하이라이트, OCR 텍스트, 평점, 리뷰, 입력한 질문\n제공받는 곳: OpenAI\n목적: 요청한 AI 결과 생성';
+
+  @override
+  String get thirdPartyAiOptionalNotice =>
+      '선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있으며, 철회하면 이후 전송이 중단됩니다.';
+
+  @override
+  String get thirdPartyAiNotNow => '나중에';
+
+  @override
+  String get thirdPartyAiAllow => '허용';
+
+  @override
+  String get thirdPartyAiSettingsTitle => 'AI 데이터 공유';
+
+  @override
+  String get thirdPartyAiSettingsDescription => '업체별 향후 전송 허용 여부를 관리합니다.';
+
+  @override
+  String get thirdPartyAiGoogleSettingTitle => 'Google Cloud Vision OCR';
+
+  @override
+  String get thirdPartyAiGoogleSettingSubtitle => '텍스트 추출을 위한 선택한 페이지 이미지';
+
+  @override
+  String get thirdPartyAiOpenAiSettingTitle => 'OpenAI 기능';
+
+  @override
+  String get thirdPartyAiOpenAiSettingSubtitle => '요청한 AI 결과에 필요한 독서 데이터';
+
+  @override
+  String get thirdPartyAiConsentWithdrawn => '이 업체로의 향후 전송을 중단했습니다.';
 }

@@ -1,19 +1,27 @@
 import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:book_golas/data/services/note_structure_service.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 
 class MockFunctionsClient extends Mock implements FunctionsClient {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('NoteStructureService', () {
     late MockSupabaseClient mockSupabaseClient;
     late NoteStructureService service;
 
-    setUp(() {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await ThirdPartyAiConsentService().grant(ThirdPartyAiProvider.openAi);
       mockSupabaseClient = MockSupabaseClient();
     });
 

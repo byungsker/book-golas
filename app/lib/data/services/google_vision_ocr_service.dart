@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
       GoogleVisionOcrService._internal();
@@ -37,6 +39,13 @@ class GoogleVisionOcrService {
     }
 
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.googleCloudVision);
+      if (!consent) {
+        debugPrint('OCR request blocked because consent is missing');
+        return null;
+      }
+
       final response = await _supabase.functions.invoke(
         'vision-ocr',
         body: {'imageBase64': base64Encode(imageBytes)},

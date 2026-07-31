@@ -7,9 +7,11 @@ import 'package:provider/provider.dart';
 
 import 'package:book_golas/data/services/reading_goal_service.dart';
 import 'package:book_golas/data/services/reading_progress_service.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_tab_bar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.dart';
 import 'package:book_golas/ui/reading_chart/view_model/reading_insights_view_model.dart';
 import 'package:book_golas/ui/reading_chart/widgets/cards/ai_insight_card.dart';
@@ -616,8 +618,9 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
                           error: viewModel.error,
                           canGenerate: viewModel.canGenerate,
                           bookCount: viewModel.bookCount,
-                          onGenerate: viewModel.generateInsight,
-                          onRetry: viewModel.generateInsight,
+                          onGenerate: () =>
+                              _generateInsightWithConsent(viewModel),
+                          onRetry: () => _generateInsightWithConsent(viewModel),
                           onClearMemory: viewModel.clearMemory,
                         );
                       },
@@ -731,6 +734,18 @@ class _ReadingChartScreenState extends State<ReadingChartScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _generateInsightWithConsent(
+    ReadingInsightsViewModel viewModel,
+  ) async {
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      provider: ThirdPartyAiProvider.openAi,
+    );
+    if (consent) {
+      await viewModel.generateInsight();
+    }
   }
 
   Widget _buildActivityTab(

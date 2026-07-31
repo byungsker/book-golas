@@ -6,12 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_golas/data/services/ai_content_service.dart';
 import 'package:book_golas/data/services/book_service.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/confirmation_bottom_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 class BookReviewScreen extends StatefulWidget {
   final Book book;
@@ -277,6 +279,13 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
       if (shouldReplace != true) return;
     }
+
+    if (!mounted) return;
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      provider: ThirdPartyAiProvider.openAi,
+    );
+    if (!consent) return;
 
     setState(() {
       _isGeneratingAI = true;

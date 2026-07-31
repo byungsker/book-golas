@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/reading_insight.dart';
 
 class ReadingInsightsService {
@@ -21,6 +22,14 @@ class ReadingInsightsService {
   /// Edge Function을 호출하여 새로운 인사이트 생성
   Future<List<ReadingInsight>> generateInsight(String userId) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint(
+            'Reading insight request blocked because consent is missing');
+        return [];
+      }
+
       final response = await _supabase.functions.invoke(
         _edgeFunctionName,
         body: {'userId': userId},

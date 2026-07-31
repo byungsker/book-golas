@@ -1816,5 +1816,53 @@
             "@bookDetailStartReadingTitle": {"description": "Title for start reading dialog"},
 
             "bookDetailStartReadingSubtitle": "Set your target completion date",
-            "@bookDetailStartReadingSubtitle": {"description": "Subtitle for start reading dialog"}
+            "@bookDetailStartReadingSubtitle": {"description": "Subtitle for start reading dialog"},
+
+            "thirdPartyAiGoogleConsentTitle": "Allow Google Cloud Vision OCR?",
+            "@thirdPartyAiGoogleConsentTitle": {"description": "Title of the Google Cloud Vision data sharing consent sheet"},
+
+            "thirdPartyAiGoogleConsentDescription": "Bookgolas uses Google Cloud Vision to extract text from the book page image you choose.",
+            "@thirdPartyAiGoogleConsentDescription": {"description": "Purpose of Google Cloud Vision data sharing"},
+
+            "thirdPartyAiGoogleDataDescription": "Shared: the selected or cropped book page image\nRecipient: Google Cloud Vision\nPurpose: text extraction only",
+            "@thirdPartyAiGoogleDataDescription": {"description": "Data, recipient, and purpose for Google Cloud Vision sharing"},
+
+            "thirdPartyAiOpenAiConsentTitle": "Allow OpenAI-powered features?",
+            "@thirdPartyAiOpenAiConsentTitle": {"description": "Title of the OpenAI data sharing consent sheet"},
+
+            "thirdPartyAiOpenAiConsentDescription": "Bookgolas uses OpenAI to provide AI search, summaries, insights, recommendations, and writing assistance.",
+            "@thirdPartyAiOpenAiConsentDescription": {"description": "Purpose of OpenAI data sharing"},
+
+            "thirdPartyAiOpenAiDataDescription": "Shared as needed for the feature: book titles, reading records, notes, highlights, OCR text, ratings, reviews, and your question\nRecipient: OpenAI\nPurpose: generate the AI result you request",
+            "@thirdPartyAiOpenAiDataDescription": {"description": "Data, recipient, and purpose for OpenAI sharing"},
+
+            "thirdPartyAiOptionalNotice": "This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time; withdrawal blocks future sharing.",
+            "@thirdPartyAiOptionalNotice": {"description": "Optional use and withdrawal notice for third-party AI sharing"},
+
+            "thirdPartyAiNotNow": "Not now",
+            "@thirdPartyAiNotNow": {"description": "Decline third-party AI data sharing button"},
+
+            "thirdPartyAiAllow": "Allow",
+            "@thirdPartyAiAllow": {"description": "Grant third-party AI data sharing button"},
+
+            "thirdPartyAiSettingsTitle": "AI data sharing",
+            "@thirdPartyAiSettingsTitle": {"description": "Title of AI data sharing settings section"},
+
+            "thirdPartyAiSettingsDescription": "Control future sharing with each provider.",
+            "@thirdPartyAiSettingsDescription": {"description": "Description of AI data sharing settings"},
+
+            "thirdPartyAiGoogleSettingTitle": "Google Cloud Vision OCR",
+            "@thirdPartyAiGoogleSettingTitle": {"description": "Google Cloud Vision consent setting title"},
+
+            "thirdPartyAiGoogleSettingSubtitle": "Selected page images for text extraction",
+            "@thirdPartyAiGoogleSettingSubtitle": {"description": "Google Cloud Vision consent setting subtitle"},
+
+            "thirdPartyAiOpenAiSettingTitle": "OpenAI features",
+            "@thirdPartyAiOpenAiSettingTitle": {"description": "OpenAI consent setting title"},
+
+            "thirdPartyAiOpenAiSettingSubtitle": "Reading data needed for requested AI results",
+            "@thirdPartyAiOpenAiSettingSubtitle": {"description": "OpenAI consent setting subtitle"},
+
+            "thirdPartyAiConsentWithdrawn": "Future sharing with this provider has been turned off.",
+            "@thirdPartyAiConsentWithdrawn": {"description": "Confirmation after withdrawing third-party AI sharing consent"}
 }
