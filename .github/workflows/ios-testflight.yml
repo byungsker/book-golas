@@ -90,6 +90,17 @@ jobs:
         with:
           version: 2.109.1
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+
       - name: Deploy consent-gated Edge Functions to Dev
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
