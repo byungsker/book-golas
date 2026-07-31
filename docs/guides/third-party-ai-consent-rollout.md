@@ -2,10 +2,12 @@
 
 ## Contract
 
-- `public.third_party_ai_consents` is the authoritative account-level receipt.
+- `public.third_party_ai_consents` is the authoritative current account-level receipt.
+- `public.third_party_ai_consent_events` preserves append-only, server-timestamped grant and withdrawal evidence.
 - Google Cloud Vision and OpenAI use independent provider rows.
 - A receipt is valid only when `granted = true` and `policy_version = 1`.
-- The receipt stores grant time, disclosure locale, and the displayed disclosure snapshot.
+- The receipt and event history store server time, disclosure locale, policy version, and the displayed disclosure snapshot.
+- Authenticated clients can read their own records but can mutate consent only through the server-owned recording function.
 - Withdrawal is account-wide. Every provider-calling Edge Function checks the current receipt immediately before external transfer.
 - Missing rows, stale versions, query errors, and withdrawn rows fail closed with `403 third_party_ai_consent_required`.
 
@@ -14,8 +16,8 @@
 The mobile 1.0.2 workflow promotes the database migration, Edge Functions, and app together. The safe order is:
 
 1. Apply `20260731120950_create_third_party_ai_consents.sql`.
-2. Deploy all provider-calling Edge Functions.
-3. Make the 1.0.2 client available so users can review and record consent.
+2. A required dependent workflow job deploys all eight provider-calling Edge Functions.
+3. Only after that job succeeds, build and make the 1.0.2 client available so users can review and record consent.
 
 Existing clients have no server receipt. After step 2 they receive `403 third_party_ai_consent_required`, no provider transfer occurs, and affected AI features remain unavailable until the user updates to 1.0.2 and grants the relevant consent. This privacy-safe degradation is intentional.
 

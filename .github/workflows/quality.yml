@@ -77,3 +77,8 @@ jobs:
             fi
             deno check --config "$config" "$entry"
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
