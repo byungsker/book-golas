@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ChainService } from "./services/chain-service.ts";
 import type { NoteStructure } from "./types.ts";
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -108,17 +108,19 @@ serve(async (req: Request) => {
       );
     }
 
-    if (!(await hasThirdPartyAiConsent(supabaseClient, user.id, "open_ai"))) {
+    const chainService = new ChainService(OPENAI_API_KEY);
+    const structureOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => chainService.generateStructure({ bookId, contents }),
+    );
+    if (!structureOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
         "Access-Control-Allow-Origin": "*",
       });
     }
-
-    const chainService = new ChainService(OPENAI_API_KEY);
-    const structure: NoteStructure = await chainService.generateStructure({
-      bookId,
-      contents,
-    });
+    const structure: NoteStructure = structureOperation.value;
 
     const { error: upsertError } = await serviceClient
       .from("note_structures")

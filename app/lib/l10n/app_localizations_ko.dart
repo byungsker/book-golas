@@ -3775,7 +3775,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiGoogleDataDescription =>
-      '이전 항목: 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트\n이전 국가: 미국\n이전 시점·방법: OCR을 실행할 때마다 TLS로 암호화된 API 통신\n제공받는 자: Google Cloud Korea LLC(계약 주체), Google LLC(미국 처리)\n연락처: googlekrsupport@google.com\n목적: 이미지 문자 추출\n보유·이용 기간: 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있음';
+      '이전 항목: 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트\n이전 국가: 미국\n이전 시점·방법: OCR을 실행할 때마다 미국 리전 엔드포인트로 TLS 암호화 전송\n제공받는 자: Google LLC(1600 Amphitheatre Parkway, Mountain View, CA 94043, USA)\n연락처: Google Cloud 개인정보 보호 문의 양식(cloud.google.com/privacy)\n목적: 이미지 문자 추출\n보유·이용 기간: 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있음(공개된 정확한 기간 없음)';
 
   @override
   String get thirdPartyAiOpenAiConsentTitle => 'OpenAI 기반 기능을 허용할까요?';
@@ -3786,19 +3786,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
-      '필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n이전 국가: 미국 및 OpenAI가 공개한 API 처리 국가(대한민국, 일본, 싱가포르, 호주, 브라질, 캐나다, 프랑스, 독일, 인도, 인도네시아, 아일랜드, 이탈리아, 말레이시아, 멕시코, 네덜란드, 노르웨이, 폴란드, 필리핀, 남아프리카공화국, 스페인, 스웨덴, 스위스, 아랍에미리트, 영국, 핀란드 포함)\n이전 시점·방법: AI 기능이나 추천을 요청할 때 암호화된 API로 전송하며, 동의 후에는 메모·하이라이트·OCR 기록 저장 시 의미 검색용 임베딩 생성을 위해 자동 전송\n제공받는 자: OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA) 및 공개된 하위처리자\n연락처: privacy@openai.com\n목적: 위 AI 기능과 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않으며, 오남용 모니터링 로그는 최대 30일, 서비스·제3자 보호에 합리적으로 필요하거나 법적 의무가 있으면 그보다 오래 보관될 수 있음';
+      '필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 위 AI 기능과 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음';
 
   @override
   String get thirdPartyAiOptionalNotice =>
-      '선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있으며, 철회하면 이후 전송이 중단됩니다.';
+      '선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있습니다. 철회 성공이 확인된 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.';
 
   @override
   String get thirdPartyAiGoogleOptionalNotice =>
-      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 Google OCR은 사용할 수 없지만 직접 텍스트를 입력하고 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있으며, 철회하면 이후 이전이 중단됩니다.';
+      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 Google OCR은 사용할 수 없지만 직접 텍스트를 입력하고 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 OCR 요청은 전송되지 않습니다.';
 
   @override
   String get thirdPartyAiOpenAiOptionalNotice =>
-      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있으며, 철회하면 이후 이전이 중단됩니다.';
+      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.';
 
   @override
   String get thirdPartyAiNotNow => '나중에';
@@ -3826,4 +3826,8 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get thirdPartyAiConsentWithdrawn => '이 업체로의 향후 전송을 중단했습니다.';
+
+  @override
+  String get thirdPartyAiConsentWithdrawFailed =>
+      '데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
 }

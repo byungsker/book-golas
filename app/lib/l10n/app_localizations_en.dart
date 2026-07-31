@@ -3901,7 +3901,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiGoogleDataDescription =>
-      'Items: selected, captured, or cropped book page image and Korean/English language hints\nCountry: United States\nTiming and method: each time you run OCR, through an encrypted TLS API connection\nRecipient: Google Cloud Korea LLC (contracting entity) and Google LLC (US processing)\nContact: googlekrsupport@google.com\nPurpose: image text extraction\nRetention/use: the image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations';
+      'Items: selected, captured, or cropped book page image and Korean/English language hints\nCountry: United States\nTiming and method: each time you run OCR, sent with TLS encryption to the US regional endpoint\nRecipient: Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA\nContact: Google Cloud privacy contact form (cloud.google.com/privacy)\nPurpose: image text extraction\nRetention/use: the image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations (no exact public duration)';
 
   @override
   String get thirdPartyAiOpenAiConsentTitle => 'Allow OpenAI-powered features?';
@@ -3912,19 +3912,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
-      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nCountries: United States and OpenAI\'s disclosed API processing locations, including South Korea, Japan, Singapore, Australia, Brazil, Canada, France, Germany, India, Indonesia, Ireland, Italy, Malaysia, Mexico, Netherlands, Norway, Poland, Philippines, South Africa, Spain, Sweden, Switzerland, United Arab Emirates, United Kingdom, and Finland\nTiming and method: through an encrypted API when you request an AI feature or recommendation; after consent, embeddings are also generated automatically when a note, highlight, or OCR record is saved\nRecipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA, and its disclosed subprocessors\nContact: privacy@openai.com\nPurpose: the features and embeddings described above\nRetention/use: API input/output is not used for model training by default; abuse-monitoring logs may be retained up to 30 days and longer when reasonably necessary to protect services or third parties or when legally required';
+      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI\'s disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: the features and embeddings described above\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies';
 
   @override
   String get thirdPartyAiOptionalNotice =>
-      'This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time; withdrawal blocks future sharing.';
+      'This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.';
 
   @override
   String get thirdPartyAiGoogleOptionalNotice =>
-      'You may refuse this optional overseas transfer. If you refuse, Google OCR is unavailable, but you can enter text manually and use other reading-management features. You can grant or withdraw consent at any time in My Page; withdrawal blocks future transfers.';
+      'You may refuse this optional overseas transfer. If you refuse, Google OCR is unavailable, but you can enter text manually and use other reading-management features. You can grant or withdraw consent at any time in My Page. New OCR requests started after withdrawal is confirmed will not transmit data.';
 
   @override
   String get thirdPartyAiOpenAiOptionalNotice =>
-      'You may refuse this optional overseas transfer. If you refuse, OpenAI search, summaries, insights, recommendations, writing assistance, and semantic search are unavailable, but other reading-management features remain available. You can grant or withdraw consent at any time in My Page; withdrawal blocks future transfers.';
+      'You may refuse this optional overseas transfer. If you refuse, OpenAI search, summaries, insights, recommendations, writing assistance, and semantic search are unavailable, but other reading-management features remain available. You can grant or withdraw consent at any time in My Page. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.';
 
   @override
   String get thirdPartyAiNotNow => 'Not now';
@@ -3956,4 +3956,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get thirdPartyAiConsentWithdrawn =>
       'Future sharing with this provider has been turned off.';
+
+  @override
+  String get thirdPartyAiConsentWithdrawFailed =>
+      'We couldn\'t turn off data sharing. Check your connection and try again.';
 }

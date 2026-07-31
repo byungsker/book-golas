@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -167,13 +167,18 @@ serve(async (req: Request) => {
 
     const isGlobalSearch = !bookId;
 
-    if (!(await hasThirdPartyAiConsent(supabaseClient, user.id, "open_ai"))) {
+    const embeddingOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => generateEmbedding(query),
+    );
+    if (!embeddingOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
         "Access-Control-Allow-Origin": "*",
       });
     }
-
-    const queryEmbedding = await generateEmbedding(query);
+    const queryEmbedding = embeddingOperation.value;
     const embeddingString = `[${queryEmbedding.join(",")}]`;
 
     const serviceClient = createClient(
@@ -256,7 +261,18 @@ serve(async (req: Request) => {
       })
       .join("\n\n");
 
-    const answer = await generateAnswer(query, context);
+    const answerOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => generateAnswer(query, context),
+    );
+    if (!answerOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+    const answer = answerOperation.value;
 
     const sources: SourceDocument[] = searchResults.map((result: any) => ({
       type: result.content_type,

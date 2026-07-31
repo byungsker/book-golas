@@ -145,7 +145,10 @@ void main() {
       isTrue,
     );
 
-    await deviceB.withdraw(ThirdPartyAiProvider.openAi);
+    expect(
+      await deviceB.withdraw(ThirdPartyAiProvider.openAi),
+      isTrue,
+    );
 
     expect(
       await deviceA.hasConsent(ThirdPartyAiProvider.openAi),
@@ -180,6 +183,22 @@ void main() {
         disclosure: disclosure,
       ),
       isFalse,
+    );
+
+    store.failWrites = false;
+    await service.grant(
+      ThirdPartyAiProvider.openAi,
+      disclosure: disclosure,
+    );
+    store.failWrites = true;
+    expect(
+      await service.withdraw(ThirdPartyAiProvider.openAi),
+      isFalse,
+    );
+    store.failWrites = false;
+    expect(
+      await service.hasConsent(ThirdPartyAiProvider.openAi),
+      isTrue,
     );
   });
 

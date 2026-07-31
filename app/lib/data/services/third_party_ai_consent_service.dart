@@ -94,18 +94,13 @@ class SupabaseThirdPartyAiConsentStore implements ThirdPartyAiConsentStore {
     int policyVersion,
     ThirdPartyAiDisclosure disclosure,
   ) async {
-    final now = DateTime.now().toUtc().toIso8601String();
-    await _clientProvider().from('third_party_ai_consents').upsert({
-      'user_id': userId,
-      'provider': provider.databaseValue,
-      'policy_version': policyVersion,
-      'granted': true,
-      'granted_at': now,
-      'withdrawn_at': null,
-      'updated_at': now,
-      'disclosure_locale': disclosure.locale,
-      'disclosure_snapshot': disclosure.toJson(),
-    }, onConflict: 'user_id,provider');
+    await _clientProvider().rpc('record_third_party_ai_consent', params: {
+      'p_provider': provider.databaseValue,
+      'p_policy_version': policyVersion,
+      'p_granted': true,
+      'p_disclosure_locale': disclosure.locale,
+      'p_disclosure_snapshot': disclosure.toJson(),
+    });
   }
 
   @override
@@ -113,16 +108,17 @@ class SupabaseThirdPartyAiConsentStore implements ThirdPartyAiConsentStore {
     String userId,
     ThirdPartyAiProvider provider,
   ) async {
-    final now = DateTime.now().toUtc().toIso8601String();
-    await _clientProvider()
-        .from('third_party_ai_consents')
-        .update({
-          'granted': false,
-          'withdrawn_at': now,
-          'updated_at': now,
-        })
-        .eq('user_id', userId)
-        .eq('provider', provider.databaseValue);
+    final recorded = await _clientProvider().rpc(
+      'record_third_party_ai_consent',
+      params: {
+        'p_provider': provider.databaseValue,
+        'p_policy_version': ThirdPartyAiConsentService.policyVersion,
+        'p_granted': false,
+      },
+    );
+    if (recorded != true) {
+      throw StateError('Consent withdrawal was not recorded');
+    }
   }
 }
 
@@ -195,11 +191,15 @@ class ThirdPartyAiConsentService {
     }
   }
 
-  Future<void> withdraw(ThirdPartyAiProvider provider) async {
+  Future<bool> withdraw(ThirdPartyAiProvider provider) async {
     final userId = _userIdProvider();
-    if (userId == null) return;
+    if (userId == null) return false;
     try {
       await _store.withdraw(userId, provider);
-    } catch (_) {}
+      final record = await _store.read(userId, provider);
+      return record?.granted == false;
+    } catch (_) {
+      return false;
+    }
   }
 }

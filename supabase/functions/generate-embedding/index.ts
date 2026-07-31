@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -126,13 +126,18 @@ serve(async (req: Request) => {
       },
     );
 
-    if (!(await hasThirdPartyAiConsent(authClient, user.id, "open_ai"))) {
+    const embeddingOperation = await executeThirdPartyAiOperation(
+      authClient,
+      user.id,
+      "open_ai",
+      () => generateEmbedding(contentText),
+    );
+    if (!embeddingOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
         "Access-Control-Allow-Origin": "*",
       });
     }
-
-    const embedding = await generateEmbedding(contentText);
+    const embedding = embeddingOperation.value;
 
     const embeddingString = `[${embedding.join(",")}]`;
 

@@ -1,5 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
+  executeThirdPartyAiOperation,
   hasThirdPartyAiConsent,
   THIRD_PARTY_AI_POLICY_VERSION,
   type ThirdPartyAiConsentClient,
@@ -83,22 +84,74 @@ Deno.test("server consent fails closed when persistence lookup fails", async () 
   assertEquals(granted, false);
 });
 
-const providerEntryPoints = [
-  "../extract-keywords/index.ts",
-  "../generate-book-review/index.ts",
-  "../generate-embedding/index.ts",
-  "../reading-insights/index.ts",
-  "../recall-search/index.ts",
-  "../recommend-next-books/index.ts",
-  "../structure-notes/index.ts",
-  "../vision-ocr/index.ts",
+const openAiProviderBoundaries = [
+  "extract-keywords",
+  "generate-book-review",
+  "generate-embedding",
+  "reading-insights",
+  "recall-search embedding",
+  "recall-search answer",
+  "recommend-next-books",
+  "structure-notes",
 ];
 
-for (const entryPoint of providerEntryPoints) {
-  Deno.test(`${entryPoint} enforces server consent`, async () => {
-    const source = await Deno.readTextFile(
-      new URL(entryPoint, import.meta.url),
+const deniedStates = [
+  { name: "missing", client: clientWith(null) },
+  {
+    name: "withdrawn",
+    client: clientWith({
+      granted: false,
+      policy_version: THIRD_PARTY_AI_POLICY_VERSION,
+    }),
+  },
+  {
+    name: "stale",
+    client: clientWith({ granted: true, policy_version: 0 }),
+  },
+  {
+    name: "lookup error",
+    client: clientWith(null, new Error("unavailable")),
+  },
+];
+
+for (const boundary of openAiProviderBoundaries) {
+  for (const state of deniedStates) {
+    Deno.test(
+      `${boundary} makes zero upstream calls for ${state.name} consent`,
+      async () => {
+        let upstreamCalls = 0;
+        const result = await executeThirdPartyAiOperation(
+          state.client,
+          "user-a",
+          "open_ai",
+          () => {
+            upstreamCalls += 1;
+            return Promise.resolve("upstream-response");
+          },
+        );
+
+        assertEquals(result, { allowed: false });
+        assertEquals(upstreamCalls, 0);
+      },
     );
-    assertEquals(source.includes("hasThirdPartyAiConsent"), true);
-  });
+  }
 }
+
+Deno.test("current consent executes the provider operation once", async () => {
+  let upstreamCalls = 0;
+  const result = await executeThirdPartyAiOperation(
+    clientWith({
+      granted: true,
+      policy_version: THIRD_PARTY_AI_POLICY_VERSION,
+    }),
+    "user-a",
+    "open_ai",
+    () => {
+      upstreamCalls += 1;
+      return Promise.resolve("upstream-response");
+    },
+  );
+
+  assertEquals(result, { allowed: true, value: "upstream-response" });
+  assertEquals(upstreamCalls, 1);
+});

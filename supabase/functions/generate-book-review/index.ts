@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -199,14 +199,20 @@ serve(async (req: Request) => {
       }`,
     );
 
-    if (!(await hasThirdPartyAiConsent(supabaseClient, user.id, "open_ai"))) {
+    const reviewOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () =>
+        generateReviewWithGPT(
+          book as BookData,
+          (memos as MemoContent[]) ?? [],
+        ),
+    );
+    if (!reviewOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse(corsHeaders);
     }
-
-    const reviewDraft = await generateReviewWithGPT(
-      book as BookData,
-      (memos as MemoContent[]) ?? [],
-    );
+    const reviewDraft = reviewOperation.value;
 
     return new Response(
       JSON.stringify({

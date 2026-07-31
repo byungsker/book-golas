@@ -18,6 +18,10 @@ export type ThirdPartyAiConsentClient = {
 
 export const THIRD_PARTY_AI_POLICY_VERSION = 1;
 
+export type ThirdPartyAiOperationResult<T> =
+  | { allowed: true; value: T }
+  | { allowed: false };
+
 export async function hasThirdPartyAiConsent(
   client: unknown,
   userId: string,
@@ -37,6 +41,18 @@ export async function hasThirdPartyAiConsent(
   } catch {
     return false;
   }
+}
+
+export async function executeThirdPartyAiOperation<T>(
+  client: unknown,
+  userId: string,
+  provider: ThirdPartyAiProvider,
+  operation: () => Promise<T>,
+): Promise<ThirdPartyAiOperationResult<T>> {
+  if (!(await hasThirdPartyAiConsent(client, userId, provider))) {
+    return { allowed: false };
+  }
+  return { allowed: true, value: await operation() };
 }
 
 export function thirdPartyAiConsentRequiredResponse(

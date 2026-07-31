@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -155,12 +155,18 @@ serve(async (req: Request) => {
     }
 
     const texts = contents.map((c: { content_text: string }) => c.content_text);
-    if (!(await hasThirdPartyAiConsent(supabaseClient, user.id, "open_ai"))) {
+    const keywordOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => extractKeywordsWithGPT(texts),
+    );
+    if (!keywordOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
         "Access-Control-Allow-Origin": "*",
       });
     }
-    const keywords = await extractKeywordsWithGPT(texts);
+    const keywords = keywordOperation.value;
     const limitedKeywords = keywords.slice(0, limit);
 
     return new Response(JSON.stringify({ keywords: limitedKeywords }), {

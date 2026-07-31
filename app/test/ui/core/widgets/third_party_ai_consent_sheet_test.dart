@@ -77,7 +77,8 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Recipient: OpenAI'), findsOneWidget);
+    expect(find.textContaining('OpenAI OpCo, LLC'), findsOneWidget);
+    expect(find.textContaining('generated automatically'), findsOneWidget);
     expect(find.textContaining('You may refuse'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Not now'));

@@ -1437,12 +1437,14 @@ class _MyPageContentState extends State<_MyPageContent> {
         provider: provider,
       );
     } else {
-      await ThirdPartyAiConsentService().withdraw(provider);
+      final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
       if (mounted) {
         CustomSnackbar.show(
           context,
-          message: AppLocalizations.of(context).thirdPartyAiConsentWithdrawn,
-          type: BLabSnackbarType.info,
+          message: withdrawn
+              ? AppLocalizations.of(context).thirdPartyAiConsentWithdrawn
+              : AppLocalizations.of(context).thirdPartyAiConsentWithdrawFailed,
+          type: withdrawn ? BLabSnackbarType.info : BLabSnackbarType.error,
           bottomOffset: 32,
         );
       }

@@ -5,7 +5,7 @@ import { ProfileCollector } from "./services/profile-collector.ts";
 import { RecommendationService } from "./services/recommendation-service.ts";
 import type { RecommendationResponse } from "./types.ts";
 import {
-  hasThirdPartyAiConsent,
+  executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 
@@ -92,11 +92,17 @@ serve(async (req: Request) => {
     console.log(
       `[recommend-next-books] Generating recommendations (locale: ${locale})...`,
     );
-    if (!(await hasThirdPartyAiConsent(authClient, user.id, "open_ai"))) {
+    const recommendationService = new RecommendationService(locale);
+    const recommendationOperation = await executeThirdPartyAiOperation(
+      authClient,
+      user.id,
+      "open_ai",
+      () => recommendationService.generate(profile),
+    );
+    if (!recommendationOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse(corsHeaders);
     }
-    const recommendationService = new RecommendationService(locale);
-    const recommendations = await recommendationService.generate(profile);
+    const recommendations = recommendationOperation.value;
 
     const response: RecommendationResponse = {
       success: true,
