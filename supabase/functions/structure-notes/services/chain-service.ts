@@ -5,9 +5,9 @@ import {
 } from "../prompts/classification.ts";
 import { summaryPrompt, SummaryResult } from "../prompts/summary.ts";
 import { connectionPrompt, ConnectionResult } from "../prompts/connection.ts";
-import type { NoteStructure, Cluster, Node, Connection } from "../types.ts";
+import type { Cluster, Connection, Node, NoteStructure } from "../types.ts";
 
-interface ContentItem {
+export interface ContentItem {
   id: string;
   content_type: string;
   content_text: string;
@@ -18,6 +18,38 @@ interface ContentItem {
 interface ChainInput {
   bookId: string;
   contents: ContentItem[];
+}
+
+export function prepareProviderContents(contents: ContentItem[]) {
+  const providerContents = contents.map((content, index) => ({
+    ...content,
+    id: `record-${index + 1}`,
+  }));
+  return {
+    providerContents,
+    storedIdByProviderId: new Map(
+      providerContents.map((content, index) => [
+        content.id,
+        contents[index].id,
+      ]),
+    ),
+  };
+}
+
+export function formatProviderContents(contents: ContentItem[]): string {
+  return contents
+    .map((content) => {
+      const typeLabel = content.content_type === "highlight"
+        ? "하이라이트"
+        : content.content_type === "note"
+        ? "메모"
+        : "사진 속 텍스트";
+      const pageInfo = content.page_number
+        ? ` (${content.page_number}페이지)`
+        : "";
+      return `[${content.id}] ${typeLabel}${pageInfo}:\n${content.content_text}`;
+    })
+    .join("\n\n---\n\n");
 }
 
 export class ChainService {
@@ -33,8 +65,11 @@ export class ChainService {
 
   async generateStructure(input: ChainInput): Promise<NoteStructure> {
     const { bookId, contents } = input;
+    const { providerContents, storedIdByProviderId } = prepareProviderContents(
+      contents,
+    );
 
-    const nodes: Node[] = contents.map((c) => ({
+    const nodes: Node[] = providerContents.map((c) => ({
       id: c.id,
       type: c.content_type as "highlight" | "note" | "photo_ocr",
       content: c.content_text,
@@ -42,29 +77,45 @@ export class ChainService {
       sourceId: c.source_id ?? undefined,
     }));
 
-    const contentsFormatted = this.formatContentsForPrompt(contents);
+    const contentsFormatted = formatProviderContents(providerContents);
 
-    const classificationResult = await this.runClassification(contentsFormatted);
+    const classificationResult = await this.runClassification(
+      contentsFormatted,
+    );
 
     const clusteredContents = this.formatClusteredContents(
       classificationResult,
-      contents
+      providerContents,
     );
     const summaryResult = await this.runSummary(clusteredContents);
 
     const summarizedClusters = this.formatSummarizedClusters(
       classificationResult,
       summaryResult,
-      contents
+      providerContents,
     );
     const connectionResult = await this.runConnection(summarizedClusters);
 
     const clusters = this.buildClusters(
       classificationResult,
       summaryResult,
-      nodes
+      nodes,
+    ).map((cluster) => ({
+      ...cluster,
+      nodes: cluster.nodes.map((node) => ({
+        ...node,
+        id: storedIdByProviderId.get(node.id) ?? node.id,
+      })),
+    }));
+    const connections = this.buildConnections(connectionResult).map(
+      (connection) => ({
+        ...connection,
+        fromNodeId: storedIdByProviderId.get(connection.fromNodeId) ??
+          connection.fromNodeId,
+        toNodeId: storedIdByProviderId.get(connection.toNodeId) ??
+          connection.toNodeId,
+      }),
     );
-    const connections = this.buildConnections(connectionResult);
 
     return {
       bookId,
@@ -74,32 +125,19 @@ export class ChainService {
     };
   }
 
-  private formatContentsForPrompt(contents: ContentItem[]): string {
-    return contents
-      .map((c) => {
-        const typeLabel =
-          c.content_type === "highlight"
-            ? "하이라이트"
-            : c.content_type === "note"
-            ? "메모"
-            : "사진 속 텍스트";
-        const pageInfo = c.page_number ? ` (${c.page_number}페이지)` : "";
-        return `[${c.id}] ${typeLabel}${pageInfo}:\n${c.content_text}`;
-      })
-      .join("\n\n---\n\n");
-  }
-
   private async runClassification(
-    contents: string
+    contents: string,
   ): Promise<ClassificationResult> {
     const formattedPrompt = await classificationPrompt.format({ contents });
     const response = await this.llm.invoke(formattedPrompt);
-    return this.parseJsonResponse<ClassificationResult>(response.content as string);
+    return this.parseJsonResponse<ClassificationResult>(
+      response.content as string,
+    );
   }
 
   private formatClusteredContents(
     classification: ClassificationResult,
-    contents: ContentItem[]
+    contents: ContentItem[],
   ): string {
     const contentMap = new Map(contents.map((c) => [c.id, c]));
 
@@ -109,7 +147,9 @@ export class ChainService {
           .map((nodeId) => {
             const content = contentMap.get(nodeId);
             if (!content) return null;
-            return `  - [${nodeId}]: ${content.content_text.substring(0, 200)}...`;
+            return `  - [${nodeId}]: ${
+              content.content_text.substring(0, 200)
+            }...`;
           })
           .filter(Boolean)
           .join("\n");
@@ -128,7 +168,7 @@ export class ChainService {
   private formatSummarizedClusters(
     classification: ClassificationResult,
     summary: SummaryResult,
-    contents: ContentItem[]
+    contents: ContentItem[],
   ): string {
     const contentMap = new Map(contents.map((c) => [c.id, c]));
     const summaryMap = new Map(summary.summaries.map((s) => [s.clusterId, s]));
@@ -140,7 +180,9 @@ export class ChainService {
           .map((nodeId) => {
             const content = contentMap.get(nodeId);
             if (!content) return null;
-            return `  - [${nodeId}]: ${content.content_text.substring(0, 150)}...`;
+            return `  - [${nodeId}]: ${
+              content.content_text.substring(0, 150)
+            }...`;
           })
           .filter(Boolean)
           .join("\n");
@@ -155,9 +197,11 @@ ${clusterContents}`;
   }
 
   private async runConnection(
-    summarizedClusters: string
+    summarizedClusters: string,
   ): Promise<ConnectionResult> {
-    const formattedPrompt = await connectionPrompt.format({ summarizedClusters });
+    const formattedPrompt = await connectionPrompt.format({
+      summarizedClusters,
+    });
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ConnectionResult>(response.content as string);
   }
@@ -165,7 +209,7 @@ ${clusterContents}`;
   private buildClusters(
     classification: ClassificationResult,
     summary: SummaryResult,
-    nodes: Node[]
+    nodes: Node[],
   ): Cluster[] {
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
     const summaryMap = new Map(summary.summaries.map((s) => [s.clusterId, s]));

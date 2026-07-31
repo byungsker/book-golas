@@ -28,7 +28,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
   }
 
   @override
-  Future<void> grant(
+  Future<bool> grant(
     String userId,
     ThirdPartyAiProvider provider,
     int policyVersion,
@@ -39,6 +39,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
       granted: true,
       policyVersion: policyVersion,
     );
+    return true;
   }
 
   @override
@@ -70,6 +71,24 @@ const disclosure = ThirdPartyAiDisclosure(
 );
 
 void main() {
+  test('receipt separates stable provider scope from trigger context', () {
+    expect(ThirdPartyAiConsentService.policyVersion, 2);
+    expect(
+      disclosure.toJson(),
+      {
+        'title': 'title',
+        'description': 'description',
+        'provider_scope': 'additional behavior',
+        'trigger_context': {
+          'feature': 'feature',
+          'data': 'feature data',
+        },
+        'data_description': 'data',
+        'optional_notice': 'optional',
+      },
+    );
+  });
+
   test('consent defaults to denied for every provider', () async {
     final service = ThirdPartyAiConsentService.withStore(
       FakeConsentStore(),
@@ -221,6 +240,23 @@ void main() {
     expect(
       await service.hasConsent(ThirdPartyAiProvider.openAi),
       isTrue,
+    );
+  });
+
+  test('acknowledged grant does not depend on a second receipt read', () async {
+    final store = FakeConsentStore()..failReads = true;
+    final service = ThirdPartyAiConsentService.withStore(store, () => 'user-a');
+
+    expect(
+      await service.grant(
+        ThirdPartyAiProvider.openAi,
+        disclosure: disclosure,
+      ),
+      isTrue,
+    );
+    expect(
+      await service.loadState(ThirdPartyAiProvider.openAi),
+      ThirdPartyAiConsentState.unavailable,
     );
   });
 

@@ -1839,7 +1839,7 @@
             "thirdPartyAiOpenAiConsentDescription": "Bookgolas uses OpenAI in the United States for the AI feature you choose. Only the data described below is sent after you agree.",
             "@thirdPartyAiOpenAiConsentDescription": {"description": "Purpose of OpenAI data sharing"},
 
-            "thirdPartyAiOpenAiDataDescription": "Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI's disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: the features and embeddings described above\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies",
+            "thirdPartyAiOpenAiDataDescription": "Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, reading-record type and page position, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI's disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: recall, review drafting, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies",
             "@thirdPartyAiOpenAiDataDescription": {"description": "Data, recipient, and purpose for OpenAI sharing"},
 
             "thirdPartyAiOptionalNotice": "This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.",
@@ -1877,7 +1877,7 @@
             "thirdPartyAiAdditionalGoogle": "This choice applies whenever you use Google OCR.",
             "@thirdPartyAiAdditionalGoogle": {"description": "Provider-wide effect of Google OCR consent"},
 
-            "thirdPartyAiAdditionalOpenAi": "This choice also enables OpenAI recommendations and semantic-search embeddings described in the details.",
+            "thirdPartyAiAdditionalOpenAi": "This provider-wide choice applies to OpenAI recall, review drafts, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings.",
             "@thirdPartyAiAdditionalOpenAi": {"description": "Provider-wide effect of OpenAI consent"},
 
             "thirdPartyAiContextGoogleOcr": "Extract text from this page image",
@@ -1892,7 +1892,7 @@
 
             "thirdPartyAiContextReviewDraft": "Draft a review from your reading record",
             "@thirdPartyAiContextReviewDraft": {"description": "Current action for AI review draft consent"},
-            "thirdPartyAiDataReviewDraft": "Book details, progress, rating, review, notes, and highlights",
+            "thirdPartyAiDataReviewDraft": "Book title, author, genre, rating, existing review, and up to 15 notes, highlights, or OCR text records with page positions",
             "@thirdPartyAiDataReviewDraft": {"description": "Current data for AI review draft consent"},
 
             "thirdPartyAiContextReadingInsights": "Generate insights from your reading activity",
@@ -1908,7 +1908,7 @@
             "@thirdPartyAiMindMapConsentRequiredDescription": {"description": "Mind map state description when AI consent was declined"},
             "thirdPartyAiMindMapConsentRequiredAction": "Review permission",
             "@thirdPartyAiMindMapConsentRequiredAction": {"description": "Action to reopen AI consent from the mind map"},
-            "thirdPartyAiDataMindMap": "Book title, notes, highlights, and OCR text",
+            "thirdPartyAiDataMindMap": "Reading-record type, page position, and note, highlight, or OCR text; request-local labels replace stored record IDs",
             "@thirdPartyAiDataMindMap": {"description": "Current data for AI mind map consent"},
 
             "thirdPartyAiContextRecommendations": "Recommend books from your reading activity",
@@ -1935,7 +1935,7 @@
             "@thirdPartyAiRetry": {"description": "Retry consent operation"},
             "thirdPartyAiClose": "Close",
             "@thirdPartyAiClose": {"description": "Close consent details"},
-            "thirdPartyAiStatusUnavailable": "We couldn't check your current sharing status.",
+            "thirdPartyAiStatusUnavailable": "We couldn't confirm your current sharing status. This attempt will not send data. Check again before continuing.",
             "@thirdPartyAiStatusUnavailable": {"description": "Consent status lookup error"},
             "thirdPartyAiGooglePrivacyLink": "Open Google Cloud privacy information",
             "@thirdPartyAiGooglePrivacyLink": {"description": "Google Cloud privacy external link"},

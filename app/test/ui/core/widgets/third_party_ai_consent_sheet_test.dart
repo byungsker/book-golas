@@ -24,7 +24,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
   }
 
   @override
-  Future<void> grant(
+  Future<bool> grant(
     String userId,
     ThirdPartyAiProvider provider,
     int policyVersion,
@@ -36,6 +36,7 @@ class FakeConsentStore implements ThirdPartyAiConsentStore {
       granted: true,
       policyVersion: policyVersion,
     );
+    return true;
   }
 
   @override
@@ -325,8 +326,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text("We couldn't check your current sharing status."),
+      find.textContaining("We couldn't confirm your current sharing status"),
       findsOneWidget,
     );
+    expect(find.text('Nothing is sent until you agree.'), findsNothing);
+    expect(find.text("Don't allow"), findsNothing);
+    expect(find.text('Agree to OpenAI transfer'), findsNothing);
+    expect(find.text('Close').hitTestable(), findsOneWidget);
+    expect(find.text('Retry status').hitTestable(), findsOneWidget);
+
+    store.failReads = false;
+    await tester.tap(find.text('Retry status'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nothing is sent until you agree.'), findsOneWidget);
+    expect(find.text("Don't allow").hitTestable(), findsOneWidget);
+    expect(find.text('Agree to OpenAI transfer').hitTestable(), findsOneWidget);
   });
 }

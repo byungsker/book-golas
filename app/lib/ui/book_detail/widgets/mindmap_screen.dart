@@ -166,6 +166,13 @@ class _MindmapScreenState extends State<MindmapScreen> {
             BLabButton(
               text: l10n.thirdPartyAiMindMapConsentRequiredAction,
               onPressed: _loadStructure,
+              child: Text(
+                l10n.thirdPartyAiMindMapConsentRequiredAction,
+                textAlign: TextAlign.center,
+                style: AppTypography.buttonMedium.copyWith(
+                  color: BLabColors.textPrimaryLight,
+                ),
+              ),
             ),
           ],
         ),

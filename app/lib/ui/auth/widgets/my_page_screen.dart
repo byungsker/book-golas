@@ -15,6 +15,7 @@ import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
 import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/auth/view_model/third_party_ai_consent_settings_controller.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
@@ -56,8 +57,7 @@ class _MyPageContent extends StatefulWidget {
 class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
   late Future<bool> _privacyOptionsRequired;
-  late Future<ThirdPartyAiConsentSnapshot> _thirdPartyAiConsent;
-  final Set<ThirdPartyAiProvider> _updatingThirdPartyAiConsent = {};
+  late ThirdPartyAiConsentSettingsController _thirdPartyAiConsentController;
   bool _isUploadingAvatar = false;
 
   @override
@@ -65,7 +65,9 @@ class _MyPageContentState extends State<_MyPageContent> {
     super.initState();
     _nicknameController = TextEditingController();
     _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
-    _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
+    _thirdPartyAiConsentController = ThirdPartyAiConsentSettingsController(
+      ThirdPartyAiConsentService(),
+    )..addListener(_refreshThirdPartyAiConsentCard);
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
@@ -84,8 +86,15 @@ class _MyPageContentState extends State<_MyPageContent> {
 
   @override
   void dispose() {
+    _thirdPartyAiConsentController
+      ..removeListener(_refreshThirdPartyAiConsentCard)
+      ..dispose();
     _nicknameController.dispose();
     super.dispose();
+  }
+
+  void _refreshThirdPartyAiConsentCard() {
+    if (mounted) setState(() {});
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -1370,7 +1379,7 @@ class _MyPageContentState extends State<_MyPageContent> {
           ),
           const SizedBox(height: 20),
           FutureBuilder<ThirdPartyAiConsentSnapshot>(
-            future: _thirdPartyAiConsent,
+            future: _thirdPartyAiConsentController.snapshot,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(
@@ -1425,16 +1434,19 @@ class _MyPageContentState extends State<_MyPageContent> {
     required ThirdPartyAiConsentState state,
   }) {
     final l10n = AppLocalizations.of(context);
-    final isBusy = _updatingThirdPartyAiConsent.contains(provider);
+    final isBusy = _thirdPartyAiConsentController.isUpdating(provider);
     final stateLabel = switch (state) {
       ThirdPartyAiConsentState.allowed => l10n.thirdPartyAiStateAllowed,
       ThirdPartyAiConsentState.notAllowed => l10n.thirdPartyAiStateNotAllowed,
       ThirdPartyAiConsentState.unavailable => l10n.thirdPartyAiStateUnavailable,
     };
     final stateColor = switch (state) {
-      ThirdPartyAiConsentState.allowed => BLabColors.success,
+      ThirdPartyAiConsentState.allowed => BLabColors.textPrimary(context),
       ThirdPartyAiConsentState.notAllowed => BLabColors.textSecondary(context),
-      ThirdPartyAiConsentState.unavailable => BLabColors.error,
+      ThirdPartyAiConsentState.unavailable =>
+        Theme.of(context).brightness == Brightness.dark
+            ? BLabColors.errorLight
+            : BLabColors.danger,
     };
 
     return Row(
@@ -1559,43 +1571,33 @@ class _MyPageContentState extends State<_MyPageContent> {
   }
 
   void _reloadThirdPartyAiConsent() {
-    setState(() {
-      _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
-    });
+    _thirdPartyAiConsentController.reload();
   }
 
   Future<void> _changeThirdPartyAiConsent(
     ThirdPartyAiProvider provider,
     bool enabled,
   ) async {
-    setState(() {
-      _updatingThirdPartyAiConsent.add(provider);
-    });
-    if (enabled) {
-      await requestThirdPartyAiConsent(
-        context: context,
-        feature: provider == ThirdPartyAiProvider.googleCloudVision
-            ? ThirdPartyAiFeature.manageGoogleOcr
-            : ThirdPartyAiFeature.manageOpenAi,
-      );
-    } else {
-      final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
-      if (mounted) {
-        CustomSnackbar.show(
-          context,
-          message: withdrawn
-              ? AppLocalizations.of(context).thirdPartyAiConsentWithdrawn
-              : AppLocalizations.of(context).thirdPartyAiConsentWithdrawFailed,
-          type: withdrawn ? BLabSnackbarType.info : BLabSnackbarType.error,
-          bottomOffset: 32,
+    await _thirdPartyAiConsentController.runMutation(provider, () async {
+      if (enabled) {
+        await requestThirdPartyAiConsent(
+          context: context,
+          feature: provider == ThirdPartyAiProvider.googleCloudVision
+              ? ThirdPartyAiFeature.manageGoogleOcr
+              : ThirdPartyAiFeature.manageOpenAi,
         );
+        return;
       }
-    }
-
-    if (!mounted) return;
-    setState(() {
-      _updatingThirdPartyAiConsent.remove(provider);
-      _thirdPartyAiConsent = ThirdPartyAiConsentService().loadSnapshot();
+      final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
+      if (!mounted) return;
+      CustomSnackbar.show(
+        context,
+        message: withdrawn
+            ? AppLocalizations.of(context).thirdPartyAiConsentWithdrawn
+            : AppLocalizations.of(context).thirdPartyAiConsentWithdrawFailed,
+        type: withdrawn ? BLabSnackbarType.info : BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
     });
   }
 

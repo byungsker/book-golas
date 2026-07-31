@@ -494,6 +494,14 @@ class _ReadingStartContentState extends State<_ReadingStartContent>
                     if (!mounted) return;
                     vm.loadRecommendationImagesWithLocale(locale);
                   },
+                  child: Text(
+                    AppLocalizations.of(context)
+                        .readingStartAiRecommendationConsentAction,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.buttonMedium.copyWith(
+                      color: BLabColors.textPrimaryLight,
+                    ),
+                  ),
                 ),
               ],
             ),

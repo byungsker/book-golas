@@ -96,19 +96,24 @@ class BLabButton extends StatelessWidget {
       ),
     );
 
-    if (onPressed == null) {
-      return Opacity(
-        opacity: 0.5,
-        child: content,
-      );
-    }
+    final interactiveButton = onPressed == null
+        ? Opacity(
+            opacity: 0.5,
+            child: content,
+          )
+        : BLabPressableWrapper(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onPressed!();
+            },
+            child: content,
+          );
 
-    return BLabPressableWrapper(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onPressed!();
-      },
-      child: content,
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: text,
+      child: ExcludeSemantics(child: interactiveButton),
     );
   }
 }

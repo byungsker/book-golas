@@ -5,7 +5,7 @@
 - `public.third_party_ai_consents` is the authoritative current account-level receipt.
 - `public.third_party_ai_consent_events` preserves append-only, server-timestamped grant and withdrawal evidence.
 - Google Cloud Vision and OpenAI use independent provider rows.
-- A receipt is valid only when `granted = true` and `policy_version = 1`.
+- A receipt is valid only when `granted = true` and `policy_version = 2`.
 - The receipt and event history store server time, disclosure locale, policy version, and the displayed disclosure snapshot.
 - Authenticated clients can read their own records but can mutate consent only through the server-owned recording function.
 - Withdrawal is account-wide. Every provider-calling Edge Function checks the current receipt immediately before external transfer.

@@ -36,6 +36,10 @@ function clientWith(
   };
 }
 
+Deno.test("server enforces disclosure policy version 2", () => {
+  assertEquals(THIRD_PARTY_AI_POLICY_VERSION, 2);
+});
+
 Deno.test("server consent defaults to denied when no receipt exists", async () => {
   const granted = await hasThirdPartyAiConsent(
     clientWith(null),

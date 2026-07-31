@@ -155,6 +155,7 @@ class _ThirdPartyAiConsentSheet extends StatefulWidget {
 
 class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
   late bool _detailsExpanded = widget.detailsOnly;
+  late bool _statusUnavailable = widget.statusUnavailable;
   bool _isSaving = false;
   bool _saveFailed = false;
 
@@ -176,6 +177,22 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
     setState(() {
       _isSaving = false;
       _saveFailed = true;
+    });
+  }
+
+  Future<void> _retryStatus() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+    final state =
+        await widget.consentService.loadState(widget.feature.provider);
+    if (!mounted) return;
+    if (state == ThirdPartyAiConsentState.allowed) {
+      Navigator.pop(context, true);
+      return;
+    }
+    setState(() {
+      _isSaving = false;
+      _statusUnavailable = state == ThirdPartyAiConsentState.unavailable;
     });
   }
 
@@ -269,16 +286,17 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _NoticeRow(
-                          icon: Icons.lock_outline_rounded,
-                          text: l10n.thirdPartyAiNothingSent,
-                        ),
+                        if (!_statusUnavailable)
+                          _NoticeRow(
+                            icon: Icons.lock_outline_rounded,
+                            text: l10n.thirdPartyAiNothingSent,
+                          ),
                         const SizedBox(height: 10),
                         _NoticeRow(
                           icon: Icons.info_outline_rounded,
                           text: widget.disclosure.additionalBehavior,
                         ),
-                        if (widget.statusUnavailable) ...[
+                        if (_statusUnavailable) ...[
                           const SizedBox(height: 10),
                           _StatusMessage(
                             message: l10n.thirdPartyAiStatusUnavailable,
@@ -383,7 +401,20 @@ class _ThirdPartyAiConsentSheetState extends State<_ThirdPartyAiConsentSheet> {
                   variant: BLabButtonVariant.secondary,
                   onPressed: () => Navigator.pop(context),
                 )
-              else ...[
+              else if (_statusUnavailable) ...[
+                _ActionButton(
+                  text: l10n.thirdPartyAiClose,
+                  variant: BLabButtonVariant.secondary,
+                  onPressed:
+                      _isSaving ? null : () => Navigator.pop(context, false),
+                ),
+                const SizedBox(height: 10),
+                _ActionButton(
+                  text: l10n.thirdPartyAiRetryStatus,
+                  onPressed: _isSaving ? null : _retryStatus,
+                  textColor: BLabColors.textPrimaryLight,
+                ),
+              ] else ...[
                 _ActionButton(
                   text: l10n.thirdPartyAiDecline,
                   variant: BLabButtonVariant.secondary,
@@ -637,6 +668,9 @@ class _StatusMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final errorColor = Theme.of(context).brightness == Brightness.dark
+        ? BLabColors.errorLight
+        : BLabColors.danger;
     return Semantics(
       liveRegion: true,
       child: Row(
@@ -654,18 +688,14 @@ class _StatusMessage extends StatelessWidget {
                   ? Icons.error_outline_rounded
                   : Icons.info_outline_rounded,
               size: 18,
-              color: isError
-                  ? BLabColors.error
-                  : BLabColors.textSecondary(context),
+              color: isError ? errorColor : BLabColors.textSecondary(context),
             ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: AppTypography.bodySmall.copyWith(
-                color: isError
-                    ? BLabColors.error
-                    : BLabColors.textSecondary(context),
+                color: isError ? errorColor : BLabColors.textSecondary(context),
                 height: 1.4,
               ),
             ),
@@ -691,22 +721,17 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      label: text,
-      child: BLabButton(
-        text: text,
-        variant: variant,
-        isFullWidth: true,
-        onPressed: onPressed,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: AppTypography.buttonMedium.copyWith(
-            color: textColor ?? BLabColors.textPrimary(context),
-            height: 1.25,
-          ),
+    return BLabButton(
+      text: text,
+      variant: variant,
+      isFullWidth: true,
+      onPressed: onPressed,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: AppTypography.buttonMedium.copyWith(
+          color: textColor ?? BLabColors.textPrimary(context),
+          height: 1.25,
         ),
       ),
     );

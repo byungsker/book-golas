@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/pressable_wrapper.dart';
+
+double contrastRatio(Color foreground, Color background) {
+  final first = foreground.computeLuminance();
+  final second = background.computeLuminance();
+  final lighter = first > second ? first : second;
+  final darker = first > second ? second : first;
+  return (lighter + 0.05) / (darker + 0.05);
+}
 
 void main() {
   testWidgets('activates immediately when reduced motion is enabled',
@@ -32,5 +42,47 @@ void main() {
     await tester.tap(find.byKey(const Key('target')));
 
     expect(tapCount, 1);
+  });
+
+  testWidgets('primary recovery action exposes button semantics',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: BLabButton(
+            text: 'Review permission',
+            onPressed: () {},
+            child: Text(
+              'Review permission',
+              style: AppTypography.buttonMedium.copyWith(
+                color: BLabColors.textPrimaryLight,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final node = tester.getSemantics(find.byType(BLabButton));
+    expect(node.flagsCollection.isButton, isTrue);
+    expect(node.label, 'Review permission');
+    semantics.dispose();
+  });
+
+  test('new light-mode text pairs meet normal-text contrast', () {
+    expect(
+      contrastRatio(BLabColors.textPrimaryLight, BLabColors.primary),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      contrastRatio(BLabColors.danger, BLabColors.surfaceLight),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      contrastRatio(BLabColors.textPrimaryLight, BLabColors.surfaceLight),
+      greaterThanOrEqualTo(4.5),
+    );
   });
 }

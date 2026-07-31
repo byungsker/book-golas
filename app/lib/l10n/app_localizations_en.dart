@@ -3912,7 +3912,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiOpenAiDataDescription =>
-      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI\'s disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: the features and embeddings described above\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies';
+      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, reading-record type and page position, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI\'s disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: recall, review drafting, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies';
 
   @override
   String get thirdPartyAiOptionalNotice =>
@@ -3960,7 +3960,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiAdditionalOpenAi =>
-      'This choice also enables OpenAI recommendations and semantic-search embeddings described in the details.';
+      'This provider-wide choice applies to OpenAI recall, review drafts, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings.';
 
   @override
   String get thirdPartyAiContextGoogleOcr =>
@@ -3983,7 +3983,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiDataReviewDraft =>
-      'Book details, progress, rating, review, notes, and highlights';
+      'Book title, author, genre, rating, existing review, and up to 15 notes, highlights, or OCR text records with page positions';
 
   @override
   String get thirdPartyAiContextReadingInsights =>
@@ -4010,7 +4010,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiDataMindMap =>
-      'Book title, notes, highlights, and OCR text';
+      'Reading-record type, page position, and note, highlight, or OCR text; request-local labels replace stored record IDs';
 
   @override
   String get thirdPartyAiContextRecommendations =>
@@ -4052,7 +4052,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyAiStatusUnavailable =>
-      'We couldn\'t check your current sharing status.';
+      'We couldn\'t confirm your current sharing status. This attempt will not send data. Check again before continuing.';
 
   @override
   String get thirdPartyAiGooglePrivacyLink =>

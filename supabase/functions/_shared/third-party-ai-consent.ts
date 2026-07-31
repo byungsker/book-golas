@@ -16,7 +16,7 @@ export type ThirdPartyAiConsentClient = {
   };
 };
 
-export const THIRD_PARTY_AI_POLICY_VERSION = 1;
+export const THIRD_PARTY_AI_POLICY_VERSION = 2;
 
 export type ThirdPartyAiOperationResult<T> =
   | { allowed: true; value: T }

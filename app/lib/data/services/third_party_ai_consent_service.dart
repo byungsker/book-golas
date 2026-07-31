@@ -36,9 +36,11 @@ class ThirdPartyAiDisclosure {
   Map<String, dynamic> toJson() => {
         'title': title,
         'description': description,
-        'feature_context': featureContext,
-        'feature_data': featureData,
-        'additional_behavior': additionalBehavior,
+        'provider_scope': additionalBehavior,
+        'trigger_context': {
+          'feature': featureContext,
+          'data': featureData,
+        },
         'data_description': dataDescription,
         'optional_notice': optionalNotice,
       };
@@ -66,7 +68,7 @@ abstract class ThirdPartyAiConsentStore {
     ThirdPartyAiProvider provider,
   );
 
-  Future<void> grant(
+  Future<bool> grant(
     String userId,
     ThirdPartyAiProvider provider,
     int policyVersion,
@@ -103,19 +105,24 @@ class SupabaseThirdPartyAiConsentStore implements ThirdPartyAiConsentStore {
   }
 
   @override
-  Future<void> grant(
+  Future<bool> grant(
     String userId,
     ThirdPartyAiProvider provider,
     int policyVersion,
     ThirdPartyAiDisclosure disclosure,
   ) async {
-    await _clientProvider().rpc('record_third_party_ai_consent', params: {
+    final recorded =
+        await _clientProvider().rpc('record_third_party_ai_consent', params: {
       'p_provider': provider.databaseValue,
       'p_policy_version': policyVersion,
       'p_granted': true,
       'p_disclosure_locale': disclosure.locale,
       'p_disclosure_snapshot': disclosure.toJson(),
     });
+    if (recorded != true) {
+      throw StateError('Consent grant was not recorded');
+    }
+    return true;
   }
 
   @override
@@ -148,7 +155,7 @@ class ThirdPartyAiConsentSnapshot {
 }
 
 class ThirdPartyAiConsentService {
-  static const int policyVersion = 1;
+  static const int policyVersion = 2;
   static final ThirdPartyAiConsentService _instance =
       ThirdPartyAiConsentService.withStore(
     SupabaseThirdPartyAiConsentStore(() => Supabase.instance.client),
@@ -203,13 +210,12 @@ class ThirdPartyAiConsentService {
     try {
       final userId = _userIdProvider();
       if (userId == null) return false;
-      await _store.grant(
+      return await _store.grant(
         userId,
         provider,
         policyVersion,
         disclosure,
       );
-      return await hasConsent(provider);
     } catch (_) {
       return false;
     }

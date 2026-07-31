@@ -7046,7 +7046,7 @@ abstract class AppLocalizations {
   /// Data, recipient, and purpose for OpenAI sharing
   ///
   /// In ko, this message translates to:
-  /// **'필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 위 AI 기능과 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음'**
+  /// **'필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 독서 기록 유형·페이지 위치, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음'**
   String get thirdPartyAiOpenAiDataDescription;
 
   /// Optional use and withdrawal notice for third-party AI sharing
@@ -7130,7 +7130,7 @@ abstract class AppLocalizations {
   /// Provider-wide effect of OpenAI consent
   ///
   /// In ko, this message translates to:
-  /// **'동의하면 상세 안내에 포함된 OpenAI 추천과 의미 검색 임베딩도 사용할 수 있습니다.'**
+  /// **'이 제공자 단위 선택은 OpenAI 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩에 함께 적용됩니다.'**
   String get thirdPartyAiAdditionalOpenAi;
 
   /// Current action for Google OCR consent
@@ -7166,7 +7166,7 @@ abstract class AppLocalizations {
   /// Current data for AI review draft consent
   ///
   /// In ko, this message translates to:
-  /// **'책 정보·진행률·평점·리뷰·메모·하이라이트'**
+  /// **'책 제목·저자·장르·평점·기존 리뷰와 페이지 위치가 포함된 메모·하이라이트·OCR 텍스트 최대 15개'**
   String get thirdPartyAiDataReviewDraft;
 
   /// Current action for AI reading insights consent
@@ -7208,7 +7208,7 @@ abstract class AppLocalizations {
   /// Current data for AI mind map consent
   ///
   /// In ko, this message translates to:
-  /// **'책 제목·메모·하이라이트·OCR 텍스트'**
+  /// **'독서 기록 유형·페이지 위치와 메모·하이라이트·OCR 텍스트; 저장된 기록 ID 대신 요청 전용 번호 사용'**
   String get thirdPartyAiDataMindMap;
 
   /// Current action for AI recommendations consent
@@ -7280,7 +7280,7 @@ abstract class AppLocalizations {
   /// Consent status lookup error
   ///
   /// In ko, this message translates to:
-  /// **'현재 공유 상태를 확인하지 못했습니다.'**
+  /// **'현재 공유 상태를 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 계속하기 전에 상태를 다시 확인해 주세요.'**
   String get thirdPartyAiStatusUnavailable;
 
   /// Google Cloud privacy external link

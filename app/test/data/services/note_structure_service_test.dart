@@ -23,12 +23,13 @@ class GrantedConsentStore implements ThirdPartyAiConsentStore {
       );
 
   @override
-  Future<void> grant(
+  Future<bool> grant(
     String userId,
     ThirdPartyAiProvider provider,
     int policyVersion,
     ThirdPartyAiDisclosure disclosure,
-  ) async {}
+  ) async =>
+      true;
 
   @override
   Future<void> withdraw(
