@@ -54,6 +54,17 @@ class BLabButton extends StatelessWidget {
         break;
     }
 
+    final label = Text(
+      text,
+      textAlign: TextAlign.center,
+      softWrap: true,
+      style: TextStyle(
+        color: textColor,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
     final content = ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
@@ -82,14 +93,7 @@ class BLabButton extends StatelessWidget {
                     Icon(icon, color: textColor, size: 20),
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    text,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  if (isFullWidth) Flexible(child: label) else label,
                 ],
               ),
         ),

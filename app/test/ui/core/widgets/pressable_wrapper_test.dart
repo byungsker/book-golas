@@ -96,6 +96,41 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('full-width button wraps at 200 percent text size',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 480);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: const TextScaler.linear(2),
+          ),
+          child: child!,
+        ),
+        home: const Scaffold(
+          body: Padding(
+            padding: EdgeInsets.all(24),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: BLabButton(
+                text: 'Test notification in thirty seconds',
+                icon: Icons.notifications_active,
+                isFullWidth: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Test notification in thirty seconds'), findsOneWidget);
+  });
+
   test('new light-mode text pairs meet normal-text contrast', () {
     expect(
       contrastRatio(BLabColors.textPrimaryLight, BLabColors.primary),

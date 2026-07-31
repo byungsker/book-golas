@@ -138,8 +138,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     if (_tabWidth <= 0) return;
 
     // 홈 탭(인덱스 0) 여부 체크
-    final tabIndex =
-        (details.localPosition.dx / _tabWidth).floor().clamp(0, _tabIcons.length - 1);
+    final tabIndex = (details.localPosition.dx / _tabWidth)
+        .floor()
+        .clamp(0, _tabIcons.length - 1);
 
     if (tabIndex == 0 && widget.onHomeSubTabLongPressSelected != null) {
       _isShowingHomeContextMenu = true;
@@ -219,7 +220,8 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     final l10n = AppLocalizations.of(context);
 
     // Pill bar의 위치 계산
-    final renderBox = _pillBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _pillBarKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       _isShowingHomeContextMenu = false;
       return;
@@ -319,7 +321,6 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         _buildSearchButton(isDark),
       ],
     );
-
 
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
@@ -524,6 +525,8 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     bool isHighlighted,
   ) {
     final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
+    final textScale =
+        MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3).toDouble();
 
     return Center(
       child: Column(
@@ -537,6 +540,10 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           const SizedBox(height: 2),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            textScaler: TextScaler.linear(textScale),
             style: TextStyle(
               color: iconColor,
               fontSize: 10,
