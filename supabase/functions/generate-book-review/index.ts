@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
+
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
 interface ReviewRequest {
@@ -29,17 +34,18 @@ const corsHeaders = {
 
 async function generateReviewWithGPT(
   book: BookData,
-  memos: MemoContent[]
+  memos: MemoContent[],
 ): Promise<string> {
-  const memoTexts =
-    memos.length > 0
-      ? memos
-          .map(
-            (m, i) =>
-              `[메모 ${i + 1}${m.page_number ? ` (p.${m.page_number})` : ""}]\n${m.content_text}`
-          )
-          .join("\n\n")
-      : "기록된 메모가 없습니다.";
+  const memoTexts = memos.length > 0
+    ? memos
+      .map(
+        (m, i) =>
+          `[메모 ${i + 1}${
+            m.page_number ? ` (p.${m.page_number})` : ""
+          }]\n${m.content_text}`,
+      )
+      .join("\n\n")
+    : "기록된 메모가 없습니다.";
 
   const bookInfo = [
     `제목: ${book.title}`,
@@ -62,7 +68,8 @@ async function generateReviewWithGPT(
       messages: [
         {
           role: "system",
-          content: `당신은 독서 기록을 바탕으로 진솔하고 개인적인 독후감 초안을 작성하는 도우미입니다.
+          content:
+            `당신은 독서 기록을 바탕으로 진솔하고 개인적인 독후감 초안을 작성하는 도우미입니다.
 
 작성 가이드라인:
 - 사용자의 메모와 기록을 바탕으로 자연스러운 독후감 초안 작성
@@ -95,7 +102,7 @@ ${memoTexts}
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(
-      `OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`
+      `OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`,
     );
   }
 
@@ -115,7 +122,7 @@ serve(async (req: Request) => {
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
       );
     }
 
@@ -123,7 +130,7 @@ serve(async (req: Request) => {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } }
+      { global: { headers: { Authorization: authHeader ?? "" } } },
     );
 
     const {
@@ -146,7 +153,7 @@ serve(async (req: Request) => {
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
       );
     }
 
@@ -158,7 +165,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const { data: book, error: bookError } = await serviceClient
@@ -174,7 +181,7 @@ serve(async (req: Request) => {
         {
           status: 404,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
       );
     }
 
@@ -187,13 +194,25 @@ serve(async (req: Request) => {
       .limit(15);
 
     console.log(
-      `[generate-book-review] Generating review for book: ${book.title}, memos: ${memos?.length ?? 0}`
+      `[generate-book-review] Generating review for book: ${book.title}, memos: ${
+        memos?.length ?? 0
+      }`,
     );
 
-    const reviewDraft = await generateReviewWithGPT(
-      book as BookData,
-      (memos as MemoContent[]) ?? []
+    const reviewOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () =>
+        generateReviewWithGPT(
+          book as BookData,
+          (memos as MemoContent[]) ?? [],
+        ),
     );
+    if (!reviewOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    }
+    const reviewDraft = reviewOperation.value;
 
     return new Response(
       JSON.stringify({
@@ -204,7 +223,7 @@ serve(async (req: Request) => {
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
   } catch (error) {
     console.error("[generate-book-review] Error:", error);
@@ -213,7 +232,7 @@ serve(async (req: Request) => {
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      },
     );
   }
 });

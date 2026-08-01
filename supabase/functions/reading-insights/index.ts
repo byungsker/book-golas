@@ -4,6 +4,10 @@ import { config, validateConfig } from "./config.ts";
 import type { ReadingInsightResponse } from "./types.ts";
 import { PatternCollector } from "./services/pattern-collector.ts";
 import { InsightService } from "./services/insight-service.ts";
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,7 +82,16 @@ serve(async (req: Request) => {
       })
     }`);
 
-    const insights = await insightService.generate(userId, patterns);
+    const insightOperation = await executeThirdPartyAiOperation(
+      authClient,
+      user.id,
+      "open_ai",
+      () => insightService.generate(userId, patterns),
+    );
+    if (!insightOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    }
+    const insights = insightOperation.value;
     console.log(`[reading-insights] Generated ${insights.length} insights`);
 
     const response: ReadingInsightResponse = {

@@ -98,6 +98,17 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     ];
   }
 
+  List<String> _getCompactTabLabels(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      l10n.navHomeCompact,
+      l10n.navLibraryCompact,
+      l10n.navStatsCompact,
+      l10n.navCalendarCompact,
+      'MY',
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -115,12 +126,13 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   void didUpdateWidget(BLabBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
-      _slideAnimation = Tween<double>(
-        begin: _slideAnimation.value,
-        end: widget.selectedIndex.toDouble(),
-      ).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-      );
+      _slideAnimation =
+          Tween<double>(
+            begin: _slideAnimation.value,
+            end: widget.selectedIndex.toDouble(),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller.forward(from: 0);
     }
   }
@@ -138,8 +150,10 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     if (_tabWidth <= 0) return;
 
     // 홈 탭(인덱스 0) 여부 체크
-    final tabIndex =
-        (details.localPosition.dx / _tabWidth).floor().clamp(0, _tabIcons.length - 1);
+    final tabIndex = (details.localPosition.dx / _tabWidth).floor().clamp(
+      0,
+      _tabIcons.length - 1,
+    );
 
     if (tabIndex == 0 && widget.onHomeSubTabLongPressSelected != null) {
       _isShowingHomeContextMenu = true;
@@ -219,7 +233,8 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     final l10n = AppLocalizations.of(context);
 
     // Pill bar의 위치 계산
-    final renderBox = _pillBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _pillBarKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       _isShowingHomeContextMenu = false;
       return;
@@ -235,7 +250,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       context,
       buttonPosition: homeTabPosition,
       buttonWidth: _tabWidth - 8, // padding 고려
-      buttonHeight: 54,
+      buttonHeight: renderBox.size.height - 8,
       alignment: Alignment.bottomLeft,
       items: [
         FloatingContextDropdownItem(
@@ -320,7 +335,6 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       ],
     );
 
-
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 12, bottom: 22),
       child: content,
@@ -342,6 +356,10 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     final inactiveForegroundColor = isDark
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.5);
+    final scaledLabelFontSize = MediaQuery.textScalerOf(context).scale(10);
+    final useCompactLabels = scaledLabelFontSize > 14;
+    final responsiveHeight = 12 + 24 + 2 + (scaledLabelFontSize * 1.5);
+    final tabBarHeight = responsiveHeight > 62 ? responsiveHeight : 62.0;
 
     return GestureDetector(
       onLongPressStart: _onLongPressStart,
@@ -353,7 +371,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            height: 62,
+            height: tabBarHeight,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             decoration: BoxDecoration(
               color: glassColor,
@@ -364,11 +382,17 @@ class _BLabBottomBarState extends State<BLabBottomBar>
               builder: (context, constraints) {
                 _tabWidth = constraints.maxWidth / _tabIcons.length;
                 final labels = _getTabLabels(context);
+                final compactLabels = _getCompactTabLabels(context);
 
                 return Stack(
                   children: [
                     // 물방울 인디케이터 (렌즈 효과)
-                    _buildDropletIndicator(isDark, constraints.maxWidth, 0),
+                    _buildDropletIndicator(
+                      isDark,
+                      constraints.maxWidth,
+                      0,
+                      tabBarHeight - 8,
+                    ),
                     // 탭 아이템들
                     Row(
                       children: List.generate(_tabIcons.length, (index) {
@@ -376,7 +400,11 @@ class _BLabBottomBarState extends State<BLabBottomBar>
                           child: _buildTabItem(
                             index,
                             _tabIcons[index],
+                            useCompactLabels
+                                ? compactLabels[index]
+                                : labels[index],
                             labels[index],
+                            useCompactLabels,
                             foregroundColor,
                             inactiveForegroundColor,
                           ),
@@ -398,6 +426,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     bool isDark,
     double maxWidth,
     double chevronWidth,
+    double height,
   ) {
     final indicatorColor = isDark
         ? Colors.white.withValues(alpha: 0.22)
@@ -412,8 +441,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       animation: _slideAnimation,
       builder: (context, child) {
         // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
-        final currentPosition =
-            _isDragging ? _dragPosition : _slideAnimation.value;
+        final currentPosition = _isDragging
+            ? _dragPosition
+            : _slideAnimation.value;
         final tabWidth = maxWidth / _tabIcons.length;
 
         return Positioned(
@@ -424,7 +454,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           child: Center(
             child: Container(
               width: tabWidth - 8,
-              height: 54,
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 // 물방울 렌즈 효과: 그라디언트로 굴절 시뮬레이션
@@ -475,41 +505,49 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   Widget _buildTabItem(
     int index,
     _TabItemData tab,
-    String label,
+    String displayLabel,
+    String semanticLabel,
+    bool useCompactLabel,
     Color foregroundColor,
     Color inactiveForegroundColor,
   ) {
     final isSelected = widget.selectedIndex == index;
+    void selectTab() {
+      HapticFeedback.selectionClick();
+      widget.onTabSelected(index);
+    }
 
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        widget.onTabSelected(index);
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _slideAnimation,
-        builder: (context, child) {
-          // 현재 위치 (드래그 중이면 드래그 위치 사용)
-          final currentPosition =
-              _isDragging ? _dragPosition : _slideAnimation.value;
+    return Semantics(
+      key: ValueKey('bottom-nav-item-$index'),
+      button: true,
+      selected: isSelected,
+      label: semanticLabel,
+      onTap: selectTab,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: selectTab,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedBuilder(
+            animation: _slideAnimation,
+            builder: (context, child) {
+              final currentPosition = _isDragging
+                  ? _dragPosition
+                  : _slideAnimation.value;
+              final distance = (currentPosition - index).abs();
+              final overlap = (1.0 - distance).clamp(0.0, 1.0);
 
-          // 물방울과의 거리 계산 (0~1 범위로 정규화)
-          final distance = (currentPosition - index).abs();
-
-          // 물방울이 이 탭과 겹치는 정도 (0: 완전히 겹침, 1: 전혀 안겹침)
-          final overlap = (1.0 - distance).clamp(0.0, 1.0);
-
-          return _buildTabContent(
-            index,
-            tab,
-            label,
-            foregroundColor,
-            inactiveForegroundColor,
-            isSelected || overlap > 0.5,
-          );
-        },
-        child: null,
+              return _buildTabContent(
+                index,
+                tab,
+                displayLabel,
+                foregroundColor,
+                inactiveForegroundColor,
+                isSelected || overlap > 0.5,
+              );
+            },
+            child: null,
+          ),
+        ),
       ),
     );
   }
@@ -537,6 +575,11 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           const SizedBox(height: 2),
           Text(
             label,
+            key: ValueKey('bottom-nav-label-$index'),
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: iconColor,
               fontSize: 10,
@@ -564,42 +607,56 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         : Colors.black.withValues(alpha: 0.7);
 
     const buttonSize = 62.0;
+    final l10n = AppLocalizations.of(context);
 
-    return GestureDetector(
-      key: _searchButtonKey,
-      onTap: () {
-        HapticFeedback.selectionClick();
-        // 검색 버튼의 화면 위치 계산
-        final RenderBox? renderBox =
-            _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
-        if (renderBox != null) {
-          final position = renderBox.localToGlobal(Offset.zero);
-          widget.onSearchTap(position, buttonSize);
-        }
-      },
-      onLongPressStart: (details) {
-        HapticFeedback.mediumImpact();
-        _showSearchMenu();
-      },
-      onLongPressMoveUpdate: (details) {
-        _searchMenuController?.updateDragPosition(details.globalPosition);
-      },
-      onLongPressEnd: (details) {
-        _searchMenuController?.completeDragSelection();
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            width: 62,
-            height: 62,
-            decoration: BoxDecoration(
-              color: glassColor,
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: borderColor, width: 0.5),
+    void openSearch() {
+      HapticFeedback.selectionClick();
+      final renderBox =
+          _searchButtonKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final position = renderBox.localToGlobal(Offset.zero);
+        widget.onSearchTap(position, buttonSize);
+      }
+    }
+
+    void openSearchMenu() {
+      HapticFeedback.mediumImpact();
+      _showSearchMenu();
+    }
+
+    return Semantics(
+      key: const ValueKey('bottom-nav-search'),
+      button: true,
+      label: l10n.navSearch,
+      hint: l10n.navSearchHint,
+      onTap: openSearch,
+      onLongPress: openSearchMenu,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          key: _searchButtonKey,
+          onTap: openSearch,
+          onLongPressStart: (_) => openSearchMenu(),
+          onLongPressMoveUpdate: (details) {
+            _searchMenuController?.updateDragPosition(details.globalPosition);
+          },
+          onLongPressEnd: (_) {
+            _searchMenuController?.completeDragSelection();
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                width: 62,
+                height: 62,
+                decoration: BoxDecoration(
+                  color: glassColor,
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: borderColor, width: 0.5),
+                ),
+                child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
+              ),
             ),
-            child: Icon(CupertinoIcons.search, color: iconColor, size: 22),
           ),
         ),
       ),
@@ -612,8 +669,5 @@ class _TabItemData {
   final IconData icon;
   final IconData activeIcon;
 
-  const _TabItemData({
-    required this.icon,
-    required this.activeIcon,
-  });
+  const _TabItemData({required this.icon, required this.activeIcon});
 }

@@ -17,7 +17,8 @@ type RequestBody = {
 
 type HandlerDependencies = {
   apiKey: string;
-  authenticate: (request: Request) => Promise<boolean>;
+  authenticate: (request: Request) => Promise<string | null>;
+  hasConsent: (request: Request, userId: string) => Promise<boolean>;
   fetchUpstream: typeof fetch;
 };
 
@@ -38,8 +39,12 @@ export function createHandler(
     if (!dependencies.apiKey) {
       return jsonResponse({ error: "Service configuration unavailable" }, 503);
     }
-    if (!(await dependencies.authenticate(request))) {
+    const userId = await dependencies.authenticate(request);
+    if (userId == null) {
       return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+    if (!(await dependencies.hasConsent(request, userId))) {
+      return jsonResponse({ error: "third_party_ai_consent_required" }, 403);
     }
 
     const contentLength = Number(request.headers.get("content-length") ?? 0);
@@ -65,7 +70,7 @@ export function createHandler(
 
     try {
       const upstream = await dependencies.fetchUpstream(
-        `https://vision.googleapis.com/v1/images:annotate?key=${dependencies.apiKey}`,
+        `https://us-vision.googleapis.com/v1/images:annotate?key=${dependencies.apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
