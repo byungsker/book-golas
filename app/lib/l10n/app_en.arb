@@ -21,7 +21,7 @@
   "navSearch": "Search",
   "navHomeCompact": "Home",
   "@navHomeCompact": {"description": "Compact Home label for large accessibility text in bottom navigation"},
-  "navLibraryCompact": "Books",
+  "navLibraryCompact": "Lib",
   "@navLibraryCompact": {"description": "Compact Library label for large accessibility text in bottom navigation"},
   "navStatsCompact": "Stats",
   "@navStatsCompact": {"description": "Compact Stats label for large accessibility text in bottom navigation"},

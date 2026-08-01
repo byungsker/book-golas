@@ -126,12 +126,13 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   void didUpdateWidget(BLabBottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedIndex != widget.selectedIndex && !_isDragging) {
-      _slideAnimation = Tween<double>(
-        begin: _slideAnimation.value,
-        end: widget.selectedIndex.toDouble(),
-      ).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-      );
+      _slideAnimation =
+          Tween<double>(
+            begin: _slideAnimation.value,
+            end: widget.selectedIndex.toDouble(),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller.forward(from: 0);
     }
   }
@@ -149,9 +150,10 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     if (_tabWidth <= 0) return;
 
     // 홈 탭(인덱스 0) 여부 체크
-    final tabIndex = (details.localPosition.dx / _tabWidth)
-        .floor()
-        .clamp(0, _tabIcons.length - 1);
+    final tabIndex = (details.localPosition.dx / _tabWidth).floor().clamp(
+      0,
+      _tabIcons.length - 1,
+    );
 
     if (tabIndex == 0 && widget.onHomeSubTabLongPressSelected != null) {
       _isShowingHomeContextMenu = true;
@@ -439,8 +441,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       animation: _slideAnimation,
       builder: (context, child) {
         // 드래그 중이면 드래그 위치, 아니면 애니메이션 값 사용
-        final currentPosition =
-            _isDragging ? _dragPosition : _slideAnimation.value;
+        final currentPosition = _isDragging
+            ? _dragPosition
+            : _slideAnimation.value;
         final tabWidth = maxWidth / _tabIcons.length;
 
         return Positioned(
@@ -527,8 +530,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           child: AnimatedBuilder(
             animation: _slideAnimation,
             builder: (context, child) {
-              final currentPosition =
-                  _isDragging ? _dragPosition : _slideAnimation.value;
+              final currentPosition = _isDragging
+                  ? _dragPosition
+                  : _slideAnimation.value;
               final distance = (currentPosition - index).abs();
               final overlap = (1.0 - distance).clamp(0.0, 1.0);
 
@@ -536,7 +540,6 @@ class _BLabBottomBarState extends State<BLabBottomBar>
                 index,
                 tab,
                 displayLabel,
-                useCompactLabel,
                 foregroundColor,
                 inactiveForegroundColor,
                 isSelected || overlap > 0.5,
@@ -554,7 +557,6 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     int index,
     _TabItemData tab,
     String label,
-    bool useCompactLabel,
     Color foregroundColor,
     Color inactiveForegroundColor,
     bool isHighlighted,
@@ -580,7 +582,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
             textAlign: TextAlign.center,
             style: TextStyle(
               color: iconColor,
-              fontSize: useCompactLabel ? 8 : 10,
+              fontSize: 10,
               fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
@@ -667,8 +669,5 @@ class _TabItemData {
   final IconData icon;
   final IconData activeIcon;
 
-  const _TabItemData({
-    required this.icon,
-    required this.activeIcon,
-  });
+  const _TabItemData({required this.icon, required this.activeIcon});
 }

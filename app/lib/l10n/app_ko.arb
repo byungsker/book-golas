@@ -43,7 +43,7 @@
   "navLibrary": "서재",
   "@navLibrary": {"description": "Library navigation"},
   
-  "navStats": "상태",
+  "navStats": "통계",
   "@navStats": {"description": "Stats navigation"},
   
   "navCalendar": "캘린더",
@@ -54,8 +54,8 @@
   "@navHomeCompact": {"description": "큰 접근성 글자에서 사용하는 홈 하단 탐색 축약 라벨"},
   "navLibraryCompact": "서재",
   "@navLibraryCompact": {"description": "큰 접근성 글자에서 사용하는 서재 하단 탐색 축약 라벨"},
-  "navStatsCompact": "상태",
-  "@navStatsCompact": {"description": "큰 접근성 글자에서 사용하는 상태 하단 탐색 축약 라벨"},
+  "navStatsCompact": "통계",
+  "@navStatsCompact": {"description": "큰 접근성 글자에서 사용하는 통계 하단 탐색 축약 라벨"},
   "navCalendarCompact": "달력",
   "@navCalendarCompact": {"description": "큰 접근성 글자에서 사용하는 캘린더 하단 탐색 축약 라벨"},
   "@navSearch": {"description": "Search button in the bottom navigation"},

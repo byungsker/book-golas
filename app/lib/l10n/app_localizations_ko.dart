@@ -51,7 +51,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navLibrary => '서재';
 
   @override
-  String get navStats => '상태';
+  String get navStats => '통계';
 
   @override
   String get navCalendar => '캘린더';
@@ -66,7 +66,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navLibraryCompact => '서재';
 
   @override
-  String get navStatsCompact => '상태';
+  String get navStatsCompact => '통계';
 
   @override
   String get navCalendarCompact => '달력';
@@ -683,7 +683,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String bookDetailPausedPosition(
-      int currentPage, int totalPages, int percentage) {
+    int currentPage,
+    int totalPages,
+    int percentage,
+  ) {
     return '중단 위치: ${currentPage}p / ${totalPages}p ($percentage%)';
   }
 
@@ -1473,7 +1476,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String readingManagementProgress(
-      int progress, int currentPage, int totalPages) {
+    int progress,
+    int currentPage,
+    int totalPages,
+  ) {
     return '현재 $progress% 진행 중이에요 ($currentPage / $totalPages 페이지)';
   }
 
@@ -3380,7 +3386,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String historyDateTimeFormat(
-      int year, int month, int day, int hour, int minute) {
+    int year,
+    int month,
+    int day,
+    int hour,
+    int minute,
+  ) {
     return '$year년 $month월 $day일 $hour시 $minute분';
   }
 
