@@ -37,10 +37,16 @@ class ScrollableTabBar extends StatefulWidget {
 }
 
 class _ScrollableTabBarState extends State<ScrollableTabBar> {
+  static const _minimumAffordanceWidth = 32.0;
+  static const _affordanceFadeWidth = 8.0;
+
   late ScrollController _scrollController;
   List<double> _tabWidths = const [];
+  List<double> _labelWidths = const [];
   bool _canScrollBackward = false;
   bool _canScrollForward = false;
+  double _leadingAffordanceWidth = 0;
+  double _trailingAffordanceWidth = 0;
   bool _disableAnimations = false;
 
   @override
@@ -120,6 +126,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final tabBarHeight = math.max(widget.height, contentHeight + 24 + 2);
     final totalWidth = tabWidths.fold<double>(0, (sum, width) => sum + width);
     _tabWidths = tabWidths;
+    _labelWidths = metrics.map((metric) => metric.width).toList();
     _scheduleSelectedTabVisibility();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -175,7 +182,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
                 ),
               ),
             ),
-            if (_canScrollBackward)
+            if (_canScrollBackward && _leadingAffordanceWidth > 0)
               Align(
                 alignment: Alignment.centerLeft,
                 child: _buildScrollAffordance(
@@ -183,9 +190,10 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
                   backgroundColor: bgColor,
                   foregroundColor: unselectedColor,
                   isLeading: true,
+                  width: _leadingAffordanceWidth,
                 ),
               ),
-            if (_canScrollForward)
+            if (_canScrollForward && _trailingAffordanceWidth > 0)
               Align(
                 alignment: Alignment.centerRight,
                 child: _buildScrollAffordance(
@@ -193,6 +201,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
                   backgroundColor: bgColor,
                   foregroundColor: unselectedColor,
                   isLeading: false,
+                  width: _trailingAffordanceWidth,
                 ),
               ),
           ],
@@ -206,26 +215,30 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     required Color backgroundColor,
     required Color foregroundColor,
     required bool isLeading,
+    required double width,
   }) {
     return ExcludeSemantics(
       child: IgnorePointer(
         child: Container(
           key: key,
-          width: 72,
+          width: width,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: isLeading ? Alignment.centerLeft : Alignment.centerRight,
               end: isLeading ? Alignment.centerRight : Alignment.centerLeft,
               colors: [backgroundColor, backgroundColor.withValues(alpha: 0)],
-              stops: const [0.42, 1],
+              stops: [
+                ((width - _affordanceFadeWidth) / width).clamp(0.0, 1.0),
+                1,
+              ],
             ),
           ),
           alignment: isLeading ? Alignment.centerLeft : Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Icon(
             isLeading ? Icons.chevron_left : Icons.chevron_right,
             color: foregroundColor,
-            size: 28,
+            size: 24,
           ),
         ),
       ),
@@ -325,15 +338,9 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     }
     final viewportWidth = _scrollController.position.viewportDimension;
     final tabStart = _offsetForIndex(index, _tabWidths);
-    final tabEnd = tabStart + _tabWidths[index];
+    final tabCenter = tabStart + (_tabWidths[index] / 2);
     final currentOffset = _scrollController.offset;
-    var targetOffset = currentOffset;
-    if (tabStart < currentOffset) {
-      targetOffset = tabStart;
-    } else if (tabEnd > currentOffset + viewportWidth) {
-      targetOffset = tabEnd - viewportWidth;
-    }
-    targetOffset = targetOffset.clamp(
+    final targetOffset = (tabCenter - (viewportWidth / 2)).clamp(
       0.0,
       _scrollController.position.maxScrollExtent,
     );
@@ -358,13 +365,61 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final position = _scrollController.position;
     final canScrollBackward = position.pixels > 0.5;
     final canScrollForward = position.pixels < position.maxScrollExtent - 0.5;
+    final leadingWidth = canScrollBackward
+        ? _partialLabelAffordanceWidth(
+            viewportStart: position.pixels,
+            viewportEnd: position.pixels + position.viewportDimension,
+            isLeading: true,
+          )
+        : 0.0;
+    final trailingWidth = canScrollForward
+        ? _partialLabelAffordanceWidth(
+            viewportStart: position.pixels,
+            viewportEnd: position.pixels + position.viewportDimension,
+            isLeading: false,
+          )
+        : 0.0;
     if (canScrollBackward == _canScrollBackward &&
-        canScrollForward == _canScrollForward) {
+        canScrollForward == _canScrollForward &&
+        (leadingWidth - _leadingAffordanceWidth).abs() < 0.5 &&
+        (trailingWidth - _trailingAffordanceWidth).abs() < 0.5) {
       return;
     }
     setState(() {
       _canScrollBackward = canScrollBackward;
       _canScrollForward = canScrollForward;
+      _leadingAffordanceWidth = leadingWidth;
+      _trailingAffordanceWidth = trailingWidth;
     });
+  }
+
+  double _partialLabelAffordanceWidth({
+    required double viewportStart,
+    required double viewportEnd,
+    required bool isLeading,
+  }) {
+    for (var index = 0; index < _tabWidths.length; index += 1) {
+      final tabStart = _offsetForIndex(index, _tabWidths);
+      final labelInset = (_tabWidths[index] - _labelWidths[index]) / 2;
+      final labelStart = tabStart + labelInset;
+      final labelEnd = labelStart + _labelWidths[index];
+      if (isLeading &&
+          labelStart < viewportStart - 0.5 &&
+          labelEnd > viewportStart + 0.5) {
+        return math.max(
+          _minimumAffordanceWidth,
+          (labelEnd - viewportStart) + _affordanceFadeWidth,
+        );
+      }
+      if (!isLeading &&
+          labelStart < viewportEnd - 0.5 &&
+          labelEnd > viewportEnd + 0.5) {
+        return math.max(
+          _minimumAffordanceWidth,
+          (viewportEnd - labelStart) + _affordanceFadeWidth,
+        );
+      }
+    }
+    return 0;
   }
 }

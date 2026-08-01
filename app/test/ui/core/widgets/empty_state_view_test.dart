@@ -48,12 +48,13 @@ void main() {
 }
 
 double _contrastRatio(Color foreground, Color background) {
+  final compositedForeground = Color.alphaBlend(foreground, background);
   final lighter = math.max(
-    foreground.computeLuminance(),
+    compositedForeground.computeLuminance(),
     background.computeLuminance(),
   );
   final darker = math.min(
-    foreground.computeLuminance(),
+    compositedForeground.computeLuminance(),
     background.computeLuminance(),
   );
   return (lighter + 0.05) / (darker + 0.05);

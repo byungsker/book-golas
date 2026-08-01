@@ -5,6 +5,77 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 
 void main() {
+  for (final width in [320.0, 393.0]) {
+    for (final testCase in [
+      const ['Reading', 'To Read', 'Completed', 'Reread', 'All'],
+      const ['독서 중', '읽을 예정', '완독', '다시 읽을 책', '전체'],
+    ]) {
+      testWidgets(
+        'every selected tab avoids visible affordances at $width pixels',
+        (tester) async {
+          final semantics = tester.ensureSemantics();
+          final scrollController = ScrollController();
+          addTearDown(scrollController.dispose);
+          tester.view.physicalSize = Size(width, 640);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+
+          await tester.pumpWidget(
+            MaterialApp(
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: const TextScaler.linear(2)),
+                child: child!,
+              ),
+              home: Scaffold(
+                body: _TabBarHarness(
+                  tabs: testCase,
+                  initialIndex: 0,
+                  scrollController: scrollController,
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          for (var index = 0; index < testCase.length; index += 1) {
+            tester.semantics.tap(find.semantics.byLabel(testCase[index]));
+            await tester.pumpAndSettle();
+
+            final labelRect = tester.getRect(
+              find.byKey(ValueKey('scrollable-tab-label-$index')),
+            );
+            for (final affordanceKey in const [
+              ValueKey('scrollable-tab-bar-leading-affordance'),
+              ValueKey('scrollable-tab-bar-trailing-affordance'),
+            ]) {
+              final affordance = find.byKey(affordanceKey);
+              if (affordance.evaluate().isNotEmpty) {
+                final affordanceRect = tester.getRect(affordance);
+                expect(
+                  labelRect.overlaps(affordanceRect),
+                  isFalse,
+                  reason:
+                      '${testCase[index]} $labelRect must not be covered by '
+                      '$affordanceKey $affordanceRect at offset '
+                      '${scrollController.offset}',
+                );
+              }
+            }
+            final selectedSemantics = tester.widget<Semantics>(
+              find.byKey(ValueKey('scrollable-tab-$index')),
+            );
+            expect(selectedSemantics.properties.selected, isTrue);
+          }
+
+          semantics.dispose();
+        },
+      );
+    }
+  }
+
   for (final testCase in [
     const ['Reading', 'To Read', 'Completed', 'Reread', 'All'],
     const ['독서 중', '읽을 예정', '완독', '다시 읽을 책', '전체'],
