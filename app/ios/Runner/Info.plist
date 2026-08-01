@@ -49,6 +49,8 @@
 		</array>
 		<key>GIDClientID</key>
 		<string>$(GID_CLIENT_ID)</string>
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
