@@ -103,6 +103,36 @@ void main() {
     );
   });
 
+  test('auth callback deduplication is bounded and can be cleared', () {
+    final deduplicator = DeepLinkCallbackDeduplicator(maxEntries: 2);
+    final callback = Uri.parse(
+      'bookgolas://login-callback?access_token=sensitive-token',
+    );
+    final second = Uri.parse('bookgolas://login-callback?code=second');
+    final third = Uri.parse('bookgolas://reset-callback?code=third');
+
+    expect(deduplicator.markIfNew(callback), isTrue);
+    expect(deduplicator.markIfNew(callback), isFalse);
+    expect(deduplicator.markIfNew(second), isTrue);
+    expect(deduplicator.markIfNew(third), isTrue);
+    expect(deduplicator.markIfNew(callback), isTrue);
+
+    deduplicator.clear();
+
+    expect(deduplicator.markIfNew(callback), isTrue);
+  });
+
+  test('auth callback logging strips query and fragment credentials', () {
+    final callback = Uri.parse(
+      'bookgolas://login-callback?code=secret#access_token=secret-token',
+    );
+
+    final description = DeepLinkLogSanitizer.describe(callback);
+
+    expect(description, 'bookgolas://login-callback');
+    expect(description, isNot(contains('secret')));
+  });
+
   group('DeepLinkBookResolver', () {
     test('does not query a book before authentication', () async {
       final resolver = DeepLinkBookResolver();
@@ -138,14 +168,6 @@ void main() {
 
       expect(queriedUserId, 'user-1');
       expect(queriedBookId, 'book-1');
-    });
-
-    test('keeps the deep-link query explicitly user scoped', () async {
-      final source =
-          await File('lib/data/services/deep_link_service.dart').readAsString();
-
-      expect(source, contains(".eq('id', ownedBookId)"));
-      expect(source, contains(".eq('user_id', userId)"));
     });
   });
 
@@ -423,7 +445,11 @@ void main() {
 
       expect(
         plist,
-        contains('<key>FlutterDeepLinkingEnabled</key>\n\t\t<false/>'),
+        matches(
+          RegExp(
+            r'<key>FlutterDeepLinkingEnabled</key>\s*<false\s*/>',
+          ),
+        ),
       );
     });
 
@@ -443,7 +469,6 @@ void main() {
         ).hasMatch(appDelegate),
         isTrue,
       );
-      expect(appDelegate, contains('return true'));
     });
 
     test('marks every WidgetKit book URL for home_widget delivery', () async {

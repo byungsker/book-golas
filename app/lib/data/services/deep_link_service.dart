@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:collection';
+import 'dart:convert';
 
 import 'package:app_links/app_links.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
@@ -98,6 +101,35 @@ class DeepLinkDispatchGuard {
     return navigationReady &&
         currentUserId == userId &&
         currentNavigationGeneration == navigationGeneration;
+  }
+}
+
+class DeepLinkCallbackDeduplicator {
+  final int maxEntries;
+  final LinkedHashSet<String> _handledDigests = LinkedHashSet<String>();
+
+  DeepLinkCallbackDeduplicator({this.maxEntries = 64}) : assert(maxEntries > 0);
+
+  bool markIfNew(Uri uri) {
+    final digest = sha256.convert(utf8.encode(uri.toString())).toString();
+    if (!_handledDigests.add(digest)) return false;
+    if (_handledDigests.length > maxEntries) {
+      _handledDigests.remove(_handledDigests.first);
+    }
+    return true;
+  }
+
+  void clear() {
+    _handledDigests.clear();
+  }
+}
+
+class DeepLinkLogSanitizer {
+  static String describe(Uri uri) {
+    if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
+      return '${uri.scheme}://${uri.host}${uri.path}';
+    }
+    return uri.toString();
   }
 }
 
@@ -219,7 +251,8 @@ class DeepLinkService {
   static StreamSubscription<Uri?>? _widgetClickSubscription;
   static GlobalKey<NavigatorState>? _navigatorKey;
   static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
-  static final Set<String> _handledAuthUrls = {};
+  static final DeepLinkCallbackDeduplicator _authCallbackDeduplicator =
+      DeepLinkCallbackDeduplicator();
   static final DeepLinkIntentCoordinator _intentCoordinator =
       DeepLinkIntentCoordinator();
   static final DeepLinkBookResolver _bookResolver = DeepLinkBookResolver();
@@ -314,7 +347,10 @@ class DeepLinkService {
   }
 
   static Future<void> _handleNativeDeepLink(DeepLinkRequest request) async {
-    debugPrint('📱 네이티브 딥링크 수신: ${request.uri}');
+    debugPrint(
+      '📱 네이티브 딥링크 수신: '
+      '${DeepLinkLogSanitizer.describe(request.uri)}',
+    );
     try {
       await _handleDeepLink(
         request.uri,
@@ -420,19 +456,16 @@ class DeepLinkService {
 
   static Future<void> _handleDeepLink(Uri uri,
       {bool useReplacement = false}) async {
-    debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
     if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
       if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
-        debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시: $uri');
+        debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시');
         return;
       }
-      final urlKey = uri.toString();
-      if (_handledAuthUrls.contains(urlKey)) {
-        debugPrint('🔗 이미 처리된 인증 콜백 — 무시: $uri');
+      if (!_authCallbackDeduplicator.markIfNew(uri)) {
+        debugPrint('🔗 이미 처리된 인증 콜백 — 무시');
         return;
       }
-      _handledAuthUrls.add(urlKey);
-      debugPrint('🔗 Supabase 인증 콜백: $uri');
+      debugPrint('🔗 Supabase 인증 콜백 수신');
       try {
         await Supabase.instance.client.auth.getSessionFromUrl(uri);
         debugPrint('🔗 Supabase 인증 콜백 완료');
@@ -441,6 +474,8 @@ class DeepLinkService {
       }
       return;
     }
+
+    debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
 
     if (parseUri(uri) == null) {
       debugPrint('🔗 유효하지 않은 딥링크: $uri');
@@ -501,86 +536,74 @@ class DeepLinkService {
         break;
 
       case DeepLinkAction.bookDetail:
-        final resolvedId = await _resolveBookId(
-          result.bookId,
-          userId: userId,
-        );
-        if (!canComplete()) return;
-        if (resolvedId == null) return;
-        final book = await _fetchBook(resolvedId, userId: userId);
-        if (!canComplete()) return;
-        if (book == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
-          return;
-        }
-        final detailRoute = MaterialPageRoute<void>(
-          builder: (context) => BookDetailScreen(book: book),
-        );
-        DeepLinkNavigator.open(
+        await _openBookRoute(
           navigator,
-          detailRoute,
-          useReplacement: request.useReplacement,
+          request,
+          bookId: result.bookId,
+          userId: userId,
+          canComplete: canComplete,
+          buildRoute: (book) => MaterialPageRoute<void>(
+            builder: (context) => BookDetailScreen(book: book),
+          ),
         );
         break;
 
       case DeepLinkAction.bookRecord:
-        final resolvedRecordId = await _resolveBookId(
-          result.bookId,
-          userId: userId,
-        );
-        if (!canComplete()) return;
-        if (resolvedRecordId == null) return;
-        final recordBook = await _fetchBook(
-          resolvedRecordId,
-          userId: userId,
-        );
-        if (!canComplete()) return;
-        if (recordBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedRecordId');
-          return;
-        }
-        final recordRoute = MaterialPageRoute<void>(
-          builder: (context) => BookDetailScreen(
-            book: recordBook,
-            initialTabIndex: 1,
-          ),
-        );
-        DeepLinkNavigator.open(
+        await _openBookRoute(
           navigator,
-          recordRoute,
-          useReplacement: request.useReplacement,
+          request,
+          bookId: result.bookId,
+          userId: userId,
+          canComplete: canComplete,
+          buildRoute: (book) => MaterialPageRoute<void>(
+            builder: (context) => BookDetailScreen(
+              book: book,
+              initialTabIndex: 1,
+            ),
+          ),
         );
         break;
 
       case DeepLinkAction.bookScan:
-        final resolvedScanId = await _resolveBookId(
-          result.bookId,
-          userId: userId,
-        );
-        if (!canComplete()) return;
-        if (resolvedScanId == null) return;
-        final scanBook = await _fetchBook(
-          resolvedScanId,
-          userId: userId,
-        );
-        if (!canComplete()) return;
-        if (scanBook == null) {
-          debugPrint('🔗 책을 찾을 수 없음: $resolvedScanId');
-          return;
-        }
-        final scanRoute = MaterialPageRoute<void>(
-          builder: (context) => BookDetailScreen(
-            book: scanBook,
-            autoOpenScan: true,
-          ),
-        );
-        DeepLinkNavigator.open(
+        await _openBookRoute(
           navigator,
-          scanRoute,
-          useReplacement: request.useReplacement,
+          request,
+          bookId: result.bookId,
+          userId: userId,
+          canComplete: canComplete,
+          buildRoute: (book) => MaterialPageRoute<void>(
+            builder: (context) => BookDetailScreen(
+              book: book,
+              autoOpenScan: true,
+            ),
+          ),
         );
         break;
     }
+  }
+
+  static Future<void> _openBookRoute(
+    NavigatorState navigator,
+    DeepLinkRequest request, {
+    required String? bookId,
+    required String userId,
+    required bool Function() canComplete,
+    required Route<void> Function(Book book) buildRoute,
+  }) async {
+    final resolvedId = await _resolveBookId(bookId, userId: userId);
+    if (!canComplete()) return;
+    if (resolvedId == null) return;
+    final book = await _fetchBook(resolvedId, userId: userId);
+    if (!canComplete()) return;
+    if (book == null) {
+      debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
+      return;
+    }
+    DeepLinkNavigator.open(
+      navigator,
+      buildRoute(book),
+      useReplacement: request.useReplacement,
+    );
   }
 
   static Future<void> markNavigationReady() async {
@@ -630,6 +653,7 @@ class DeepLinkService {
     _navigatorKey = null;
     _isInitialized = false;
     _navigationGeneration += 1;
+    _authCallbackDeduplicator.clear();
     _intentCoordinator.reset();
   }
 }
