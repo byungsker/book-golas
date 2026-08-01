@@ -57,6 +57,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
+  String get navSearch => 'Search';
+
+  @override
+  String get navHomeCompact => 'Home';
+
+  @override
+  String get navLibraryCompact => 'Lib';
+
+  @override
+  String get navStatsCompact => 'Stats';
+
+  @override
+  String get navCalendarCompact => 'Cal';
+
+  @override
+  String get navSearchHint =>
+      'Tap to search. Touch and hold to choose a search mode.';
+
+  @override
   String booksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -697,7 +716,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bookDetailPausedPosition(
-      int currentPage, int totalPages, int percentage) {
+    int currentPage,
+    int totalPages,
+    int percentage,
+  ) {
     return 'Paused at: ${currentPage}p / ${totalPages}p ($percentage%)';
   }
 
@@ -984,6 +1006,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String readingStartAIRecommendationDesc(String userName) {
     return 'Books recommended by analyzing $userName\'s reading patterns';
   }
+
+  @override
+  String get readingStartAiRecommendationConsentTitle =>
+      'Get personalized recommendations';
+
+  @override
+  String get readingStartAiRecommendationConsentDescription =>
+      'Review OpenAI data sharing before Bookgolas analyzes your reading history. Nothing is sent until you allow it.';
+
+  @override
+  String get readingStartAiRecommendationConsentAction => 'Review data sharing';
 
   @override
   String get readingStartSearchHint => 'Enter book title.';
@@ -1499,7 +1532,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String readingManagementProgress(
-      int progress, int currentPage, int totalPages) {
+    int progress,
+    int currentPage,
+    int totalPages,
+  ) {
     return 'Currently $progress% in progress ($currentPage / $totalPages pages)';
   }
 
@@ -3437,7 +3473,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyDateTimeFormat(
-      int year, int month, int day, int hour, int minute) {
+    int year,
+    int month,
+    int day,
+    int hour,
+    int minute,
+  ) {
     return '$month/$day/$year $hour:$minute';
   }
 
@@ -3880,4 +3921,234 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookDetailStartReadingSubtitle =>
       'Set your target completion date';
+
+  @override
+  String get thirdPartyAiGoogleConsentTitle => 'Allow Google Cloud Vision OCR?';
+
+  @override
+  String get thirdPartyAiGoogleConsentDescription =>
+      'To extract text, the page image you choose is sent securely to Google Cloud Vision in the United States.';
+
+  @override
+  String get thirdPartyAiGoogleDataDescription =>
+      'Items: selected, captured, or cropped book page image and Korean/English language hints\nCountry: United States\nTiming and method: each time you run OCR, sent with TLS encryption to the US regional endpoint\nRecipient: Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA\nContact: Google Cloud privacy contact form (cloud.google.com/privacy)\nPurpose: image text extraction\nRetention/use: the image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations (no exact public duration)';
+
+  @override
+  String get thirdPartyAiOpenAiConsentTitle => 'Allow OpenAI-powered features?';
+
+  @override
+  String get thirdPartyAiOpenAiConsentDescription =>
+      'Bookgolas uses OpenAI in the United States for the AI feature you choose. Only the data described below is sent after you agree.';
+
+  @override
+  String get thirdPartyAiOpenAiDataDescription =>
+      'Items as needed: book title, author, genre, reading status and dates, page progress, rating, review, reading-record type and page position, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and your question\nPrimary country and recipient: OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA\nConditional processing: when global network routing, infrastructure, security review, or support applies, OpenAI\'s disclosed subprocessors may process data in their disclosed countries (openai.com/policies/sub-processor-list)\nTiming and method: sent with TLS encryption when you run an AI feature. Recommendations are generated automatically when you open the recommendation screen and the cache is missing or expired; after consent, embeddings are generated automatically when a note, highlight, or OCR record is saved\nContact: privacy@openai.com\nPurpose: recall, review drafting, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings\nRetention/use: API input/output is not used for model training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs); prompt-cache application state may be retained up to 24 hours when that feature applies';
+
+  @override
+  String get thirdPartyAiOptionalNotice =>
+      'This is optional. If you decline, you can still use reading management features. You can change or withdraw consent in My Page at any time. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.';
+
+  @override
+  String get thirdPartyAiGoogleOptionalNotice =>
+      'You may refuse this optional overseas transfer. If you refuse, Google OCR is unavailable, but you can enter text manually and use other reading-management features. You can grant or withdraw consent at any time in My Page. New OCR requests started after withdrawal is confirmed will not transmit data.';
+
+  @override
+  String get thirdPartyAiOpenAiOptionalNotice =>
+      'You may refuse this optional overseas transfer. If you refuse, OpenAI search, summaries, insights, recommendations, writing assistance, and semantic search are unavailable, but other reading-management features remain available. You can grant or withdraw consent at any time in My Page. New requests started after withdrawal is confirmed will not transmit data; a request already underway may finish.';
+
+  @override
+  String get thirdPartyAiDecline => 'Don\'t allow';
+
+  @override
+  String get thirdPartyAiAgreeGoogle => 'Agree to Google OCR transfer';
+
+  @override
+  String get thirdPartyAiAgreeOpenAi => 'Agree to OpenAI transfer';
+
+  @override
+  String get thirdPartyAiNothingSent => 'Nothing is sent until you agree.';
+
+  @override
+  String get thirdPartyAiSectionAction => 'What you\'re doing';
+
+  @override
+  String get thirdPartyAiSectionData => 'Data for this action';
+
+  @override
+  String get thirdPartyAiSectionRecipient => 'Sent to';
+
+  @override
+  String get thirdPartyAiRecipientGoogle =>
+      'Google Cloud Vision · United States';
+
+  @override
+  String get thirdPartyAiRecipientOpenAi => 'OpenAI OpCo, LLC · United States';
+
+  @override
+  String get thirdPartyAiAdditionalGoogle =>
+      'This choice applies whenever you use Google OCR.';
+
+  @override
+  String get thirdPartyAiAdditionalOpenAi =>
+      'This provider-wide choice applies to OpenAI recall, review drafts, reading insights, mind maps, recommendations, keyword extraction, writing support, and semantic-search embeddings.';
+
+  @override
+  String get thirdPartyAiContextGoogleOcr =>
+      'Extract text from this page image';
+
+  @override
+  String get thirdPartyAiDataGoogleOcr =>
+      'This page image and Korean/English language hints';
+
+  @override
+  String get thirdPartyAiContextRecall => 'Search your reading records with AI';
+
+  @override
+  String get thirdPartyAiDataRecall =>
+      'Your question and relevant book details, notes, highlights, and OCR text';
+
+  @override
+  String get thirdPartyAiContextReviewDraft =>
+      'Draft a review from your reading record';
+
+  @override
+  String get thirdPartyAiDataReviewDraft =>
+      'Book title, author, genre, rating, existing review, and up to 15 notes, highlights, or OCR text records with page positions';
+
+  @override
+  String get thirdPartyAiContextReadingInsights =>
+      'Generate insights from your reading activity';
+
+  @override
+  String get thirdPartyAiDataReadingInsights =>
+      'Reading dates, progress, pace, goals, attempts, and activity statistics';
+
+  @override
+  String get thirdPartyAiContextMindMap =>
+      'Organize this book\'s notes into a mind map';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredTitle =>
+      'AI permission is needed for the mind map';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredDescription =>
+      'Your reading records are still here. Agree to the overseas transfer only when you want Bookgolas to organize them into a mind map.';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredAction => 'Review permission';
+
+  @override
+  String get thirdPartyAiDataMindMap =>
+      'Reading-record type, page position, and note, highlight, or OCR text; request-local labels replace stored record IDs';
+
+  @override
+  String get thirdPartyAiContextRecommendations =>
+      'Recommend books from your reading activity';
+
+  @override
+  String get thirdPartyAiDataRecommendations =>
+      'Book details, reading status and progress, ratings, and engagement statistics';
+
+  @override
+  String get thirdPartyAiDataManageOpenAi =>
+      'Data varies by feature: your questions; book details; reading status, dates, and progress; ratings and reviews; notes, highlights, and OCR text; reading pace, goals, attempts, and activity statistics';
+
+  @override
+  String get thirdPartyAiContextManageGoogle =>
+      'Manage Google OCR data sharing';
+
+  @override
+  String get thirdPartyAiContextManageOpenAi => 'Manage OpenAI data sharing';
+
+  @override
+  String get thirdPartyAiShowDetails => 'View full transfer details';
+
+  @override
+  String get thirdPartyAiHideDetails => 'Hide transfer details';
+
+  @override
+  String get thirdPartyAiSaving => 'Saving your choice…';
+
+  @override
+  String get thirdPartyAiCheckingStatus => 'Checking sharing status…';
+
+  @override
+  String get thirdPartyAiGrantStatusUnknown =>
+      'We couldn\'t confirm whether your choice was saved. Nothing is sent in this attempt. Check the status again, or stop sharing before you close.';
+
+  @override
+  String get thirdPartyAiStopSharingAndClose => 'Stop sharing and close';
+
+  @override
+  String get thirdPartyAiStoppingSharing => 'Stopping sharing…';
+
+  @override
+  String get thirdPartyAiSaveFailed =>
+      'We couldn\'t save your choice. Check your connection and try again.';
+
+  @override
+  String get thirdPartyAiRetry => 'Try again';
+
+  @override
+  String get thirdPartyAiClose => 'Close';
+
+  @override
+  String get thirdPartyAiStatusUnavailable =>
+      'We couldn\'t confirm your current sharing status. This attempt will not send data. Check again before continuing.';
+
+  @override
+  String get thirdPartyAiGooglePrivacyLink =>
+      'Open Google Cloud privacy information';
+
+  @override
+  String get thirdPartyAiOpenAiSubprocessorsLink =>
+      'Open OpenAI\'s subprocessor list';
+
+  @override
+  String get thirdPartyAiOpenAiPrivacyContact => 'Email OpenAI privacy';
+
+  @override
+  String get thirdPartyAiSettingsTitle => 'AI data sharing';
+
+  @override
+  String get thirdPartyAiSettingsDescription =>
+      'Control future sharing with each provider.';
+
+  @override
+  String get thirdPartyAiGoogleSettingTitle => 'Google Cloud Vision OCR';
+
+  @override
+  String get thirdPartyAiGoogleSettingSubtitle =>
+      'Selected page images for text extraction';
+
+  @override
+  String get thirdPartyAiOpenAiSettingTitle => 'OpenAI features';
+
+  @override
+  String get thirdPartyAiOpenAiSettingSubtitle =>
+      'Reading data needed for requested AI results';
+
+  @override
+  String get thirdPartyAiStateAllowed => 'Allowed';
+
+  @override
+  String get thirdPartyAiStateNotAllowed => 'Not allowed';
+
+  @override
+  String get thirdPartyAiStateUnavailable => 'Status unavailable';
+
+  @override
+  String get thirdPartyAiViewDetails => 'View details';
+
+  @override
+  String get thirdPartyAiRetryStatus => 'Retry status';
+
+  @override
+  String get thirdPartyAiConsentWithdrawn =>
+      'Future sharing with this provider has been turned off.';
+
+  @override
+  String get thirdPartyAiConsentWithdrawFailed =>
+      'We couldn\'t turn off data sharing. Check your connection and try again.';
 }

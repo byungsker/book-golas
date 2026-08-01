@@ -4,14 +4,30 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
-      GoogleVisionOcrService._internal();
+      GoogleVisionOcrService._internal(
+    ThirdPartyAiConsentService(),
+    () => Supabase.instance.client,
+  );
   factory GoogleVisionOcrService() => _instance;
-  GoogleVisionOcrService._internal();
+  GoogleVisionOcrService._internal(
+    this._consentService,
+    this._supabaseProvider,
+  );
+
+  GoogleVisionOcrService.withDependencies(
+    this._consentService,
+    SupabaseClient supabaseClient,
+  ) : _supabaseProvider = (() => supabaseClient);
 
   static const int _maxImageBytes = 8 * 1024 * 1024;
-  SupabaseClient get _supabase => Supabase.instance.client;
+  final ThirdPartyAiConsentService _consentService;
+  final SupabaseClient Function() _supabaseProvider;
+
+  SupabaseClient get _supabase => _supabaseProvider();
 
   Future<String?> extractTextFromImageUrl(String imageUrl) async {
     try {
@@ -37,6 +53,13 @@ class GoogleVisionOcrService {
     }
 
     try {
+      final consent = await _consentService
+          .hasConsent(ThirdPartyAiProvider.googleCloudVision);
+      if (!consent) {
+        debugPrint('OCR request blocked because consent is missing');
+        return null;
+      }
+
       final response = await _supabase.functions.invoke(
         'vision-ocr',
         body: {'imageBase64': base64Encode(imageBytes)},

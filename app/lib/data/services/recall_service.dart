@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/book_image_storage_service.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 import 'package:book_golas/exceptions/subscription_exceptions.dart';
@@ -23,6 +24,13 @@ class RecallService {
     int? pageNumber,
   }) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Embedding request blocked because consent is missing');
+        return;
+      }
+
       await _supabase.functions.invoke(
         'generate-embedding',
         body: {
@@ -48,6 +56,13 @@ class RecallService {
     int? pageNumber,
   }) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Embedding request blocked because consent is missing');
+        return;
+      }
+
       await _supabase.functions.invoke(
         'generate-embedding',
         body: {
@@ -73,6 +88,13 @@ class RecallService {
     int? pageNumber,
   }) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Embedding request blocked because consent is missing');
+        return;
+      }
+
       await _supabase.functions.invoke(
         'generate-embedding',
         body: {
@@ -94,6 +116,13 @@ class RecallService {
     String? bookId,
     required String query,
   }) async {
+    final consent = await ThirdPartyAiConsentService()
+        .hasConsent(ThirdPartyAiProvider.openAi);
+    if (!consent) {
+      debugPrint('Recall request blocked because consent is missing');
+      return null;
+    }
+
     // Check AI Recall usage limit for free users
     if (!await SubscriptionUtils.canUseAiRecall()) {
       final remaining = await SubscriptionUtils.getRemainingAiRecallUses();
@@ -203,6 +232,13 @@ class RecallService {
     int limit = 8,
   }) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Keyword request blocked because consent is missing');
+        return [];
+      }
+
       final response = await _supabase.functions.invoke(
         'extract-keywords',
         body: {

@@ -11,6 +11,7 @@ import 'package:book_golas/ui/core/widgets/extracted_text_modal.dart';
 import 'package:book_golas/data/services/google_vision_ocr_service.dart';
 import 'package:book_golas/ui/book_detail/utils/document_scan_utils.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/home/widgets/pro_upgrade_banner.dart';
 import 'package:book_golas/ui/subscription/widgets/ocr_limit_dialog.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
@@ -160,6 +161,14 @@ Future<void> extractTextFromLocalImage(
     }
     return;
   }
+
+  if (!context.mounted) return;
+  final consent = await requestThirdPartyAiConsent(
+    context: context,
+    feature: ThirdPartyAiFeature.googleOcr,
+  );
+  if (!consent) return;
+  if (!context.mounted) return;
 
   bool isLoadingDialogShown = false;
   final parentContext = context;
@@ -429,6 +438,20 @@ Future<void> pickImageAndExtractText(
     );
 
     if (shouldExtract != true) {
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+
+    if (!parentContext.mounted) return;
+    final consent = await requestThirdPartyAiConsent(
+      context: parentContext,
+      feature: ThirdPartyAiFeature.googleOcr,
+    );
+    if (!consent) {
+      onComplete(fullImageBytes, '', null);
+      return;
+    }
+    if (!parentContext.mounted) {
       onComplete(fullImageBytes, '', null);
       return;
     }
@@ -710,6 +733,14 @@ Future<void> reExtractTextFromImage(
 
   if (shouldProceed != true) return;
 
+  if (!context.mounted) return;
+  final consent = await requestThirdPartyAiConsent(
+    context: context,
+    feature: ThirdPartyAiFeature.googleOcr,
+  );
+  if (!consent) return;
+  if (!context.mounted) return;
+
   try {
     showDialog(
       context: context,
@@ -989,6 +1020,20 @@ Future<void> scanDocumentAndExtractText(
     );
 
     if (shouldExtract != true) {
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+
+    if (!parentContext.mounted) return;
+    final consent = await requestThirdPartyAiConsent(
+      context: parentContext,
+      feature: ThirdPartyAiFeature.googleOcr,
+    );
+    if (!consent) {
+      onComplete(scannedBytes, '', null);
+      return;
+    }
+    if (!parentContext.mounted) {
       onComplete(scannedBytes, '', null);
       return;
     }

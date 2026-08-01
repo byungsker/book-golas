@@ -13,7 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReadingStartViewModel extends BaseViewModel {
   final BookService _bookService;
-  final RecommendationService _recommendationService = RecommendationService();
+  final RecommendationService _recommendationService;
 
   Timer? _debounce;
 
@@ -65,9 +65,13 @@ class ReadingStartViewModel extends BaseViewModel {
   String? get recommendationError => _recommendationError;
   bool get hasRecommendations => _recommendations.isNotEmpty;
   bool get hasCompletedBooks => _hasCompletedBooks;
+  bool get recommendationConsentRequired =>
+      _recommendationError == 'third_party_ai_consent_required';
   bool get shouldShowRecommendations =>
       _hasCompletedBooks &&
-      (_isLoadingRecommendations || _recommendations.isNotEmpty);
+      (_isLoadingRecommendations ||
+          _recommendations.isNotEmpty ||
+          recommendationConsentRequired);
 
   bool get shouldShowPaywall => _shouldShowPaywall;
   String? get paywallReason => _paywallReason;
@@ -84,7 +88,11 @@ class ReadingStartViewModel extends BaseViewModel {
 
   bool get canProceedToSchedule => _selectedBook != null;
 
-  ReadingStartViewModel(this._bookService);
+  ReadingStartViewModel(
+    this._bookService, {
+    RecommendationService? recommendationService,
+  }) : _recommendationService =
+            recommendationService ?? RecommendationService();
 
   /// Load recommendations with locale (called from UI after widget build)
   Future<void> loadRecommendationsWithLocale(String locale) async {
@@ -108,6 +116,7 @@ class ReadingStartViewModel extends BaseViewModel {
       if (cached != null && cached.recommendations.isNotEmpty) {
         _recommendations = cached.recommendations;
         _recommendationStats = cached.stats;
+        _recommendationError = null;
         _isLoadingRecommendations = false;
         notifyListeners();
         return;
@@ -118,6 +127,7 @@ class ReadingStartViewModel extends BaseViewModel {
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
+        _recommendationError = null;
       } else {
         _recommendationError = result.error;
       }
@@ -202,6 +212,7 @@ class ReadingStartViewModel extends BaseViewModel {
       if (result.success) {
         _recommendations = result.recommendations;
         _recommendationStats = result.stats;
+        _recommendationError = null;
       } else {
         _recommendationError = result.error;
       }

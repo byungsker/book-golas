@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+
 class BookRecommendation {
   final String title;
   final String author;
@@ -135,6 +137,17 @@ class RecommendationService {
   Future<RecommendationResult> getRecommendations(
       {String locale = 'ko'}) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Recommendation request blocked because consent is missing');
+        return RecommendationResult(
+          success: false,
+          recommendations: [],
+          error: 'third_party_ai_consent_required',
+        );
+      }
+
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         return RecommendationResult(

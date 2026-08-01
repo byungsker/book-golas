@@ -7,7 +7,6 @@ on:
     # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
     paths-ignore:
       - 'web/**'
-      - 'supabase/functions/**'
       - 'docs/**'
       - '**/*.md'
       - '.gitignore'
@@ -68,8 +67,58 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-  build-and-deploy:
+  deploy-edge-functions:
     needs: migrate-database
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --config supabase/functions/deno.json --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
+
+      - name: Deploy consent-gated Edge Functions to Production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
+        run: |
+          for function_name in \
+            extract-keywords \
+            generate-book-review \
+            generate-embedding \
+            reading-insights \
+            recall-search \
+            recommend-next-books \
+            structure-notes \
+            vision-ocr; do
+            supabase functions deploy "$function_name" \
+              --project-ref "$SUPABASE_PROJECT_REF"
+          done
+
+  build-and-deploy:
+    needs: deploy-edge-functions
     runs-on: macos-26
 
     steps:

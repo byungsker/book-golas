@@ -13,7 +13,9 @@ import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/auth/view_model/third_party_ai_consent_settings_controller.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
@@ -25,6 +27,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 import 'login_screen.dart';
 import 'terms_webview_screen.dart';
@@ -54,6 +57,7 @@ class _MyPageContent extends StatefulWidget {
 class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
   late Future<bool> _privacyOptionsRequired;
+  late ThirdPartyAiConsentSettingsController _thirdPartyAiConsentController;
   bool _isUploadingAvatar = false;
 
   @override
@@ -61,6 +65,9 @@ class _MyPageContentState extends State<_MyPageContent> {
     super.initState();
     _nicknameController = TextEditingController();
     _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
+    _thirdPartyAiConsentController = ThirdPartyAiConsentSettingsController(
+      ThirdPartyAiConsentService(),
+    )..addListener(_refreshThirdPartyAiConsentCard);
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
@@ -79,8 +86,15 @@ class _MyPageContentState extends State<_MyPageContent> {
 
   @override
   void dispose() {
+    _thirdPartyAiConsentController
+      ..removeListener(_refreshThirdPartyAiConsentCard)
+      ..dispose();
     _nicknameController.dispose();
     super.dispose();
+  }
+
+  void _refreshThirdPartyAiConsentCard() {
+    if (mounted) setState(() {});
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -509,13 +523,16 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  user.nickname ??
-                      AppLocalizations.of(context).myPageNoNickname,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
+                Flexible(
+                  child: Text(
+                    user.nickname ??
+                        AppLocalizations.of(context).myPageNoNickname,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1338,6 +1355,255 @@ class _MyPageContentState extends State<_MyPageContent> {
     );
   }
 
+  Widget _buildThirdPartyAiConsentCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final l10n = AppLocalizations.of(context);
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.thirdPartyAiSettingsTitle,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.thirdPartyAiSettingsDescription,
+            style: TextStyle(
+              fontSize: 14,
+              color: textColor.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder<ThirdPartyAiConsentSnapshot>(
+            future: _thirdPartyAiConsentController.snapshot,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+
+              final consent = snapshot.data!;
+              return Column(
+                children: [
+                  _buildThirdPartyAiConsentRow(
+                    context: context,
+                    provider: ThirdPartyAiProvider.googleCloudVision,
+                    icon: Icons.document_scanner_outlined,
+                    title: l10n.thirdPartyAiGoogleSettingTitle,
+                    subtitle: l10n.thirdPartyAiGoogleSettingSubtitle,
+                    state: consent.googleCloudVision,
+                  ),
+                  Divider(
+                    height: 32,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.1),
+                  ),
+                  _buildThirdPartyAiConsentRow(
+                    context: context,
+                    provider: ThirdPartyAiProvider.openAi,
+                    icon: Icons.auto_awesome_outlined,
+                    title: l10n.thirdPartyAiOpenAiSettingTitle,
+                    subtitle: l10n.thirdPartyAiOpenAiSettingSubtitle,
+                    state: consent.openAi,
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThirdPartyAiConsentRow({
+    required BuildContext context,
+    required ThirdPartyAiProvider provider,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required ThirdPartyAiConsentState state,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final isBusy = _thirdPartyAiConsentController.isUpdating(provider);
+    final stateLabel = switch (state) {
+      ThirdPartyAiConsentState.allowed => l10n.thirdPartyAiStateAllowed,
+      ThirdPartyAiConsentState.notAllowed => l10n.thirdPartyAiStateNotAllowed,
+      ThirdPartyAiConsentState.unavailable => l10n.thirdPartyAiStateUnavailable,
+    };
+    final stateColor = switch (state) {
+      ThirdPartyAiConsentState.allowed => BLabColors.textPrimary(context),
+      ThirdPartyAiConsentState.notAllowed => BLabColors.textSecondary(context),
+      ThirdPartyAiConsentState.unavailable =>
+        Theme.of(context).brightness == Brightness.dark
+            ? BLabColors.errorLight
+            : BLabColors.danger,
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 22, color: BLabColors.textSecondary(context)),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.titleSmall.copyWith(
+                  color: BLabColors.textPrimary(context),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: AppTypography.bodySmall.copyWith(
+                  color: BLabColors.textSecondary(context),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Semantics(
+                liveRegion: true,
+                label: stateLabel,
+                child: Text(
+                  stateLabel,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: stateColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  _buildConsentTextAction(
+                    context: context,
+                    label: l10n.thirdPartyAiViewDetails,
+                    onTap: () => showThirdPartyAiConsentDetails(
+                      context: context,
+                      provider: provider,
+                    ),
+                  ),
+                  if (state == ThirdPartyAiConsentState.unavailable)
+                    _buildConsentTextAction(
+                      context: context,
+                      label: l10n.thirdPartyAiRetryStatus,
+                      onTap: _reloadThirdPartyAiConsent,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        if (isBusy)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          Semantics(
+            label: '$title, $stateLabel',
+            toggled: state == ThirdPartyAiConsentState.allowed,
+            enabled: state != ThirdPartyAiConsentState.unavailable,
+            onTap: state == ThirdPartyAiConsentState.unavailable
+                ? null
+                : () => _changeThirdPartyAiConsent(
+                      provider,
+                      state != ThirdPartyAiConsentState.allowed,
+                    ),
+            child: ExcludeSemantics(
+              child: Switch(
+                value: state == ThirdPartyAiConsentState.allowed,
+                activeTrackColor: BLabColors.primary,
+                onChanged: state == ThirdPartyAiConsentState.unavailable
+                    ? null
+                    : (value) => _changeThirdPartyAiConsent(provider, value),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildConsentTextAction({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: AppTypography.labelLarge.copyWith(
+                color: BLabColors.textPrimary(context),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _reloadThirdPartyAiConsent() {
+    _thirdPartyAiConsentController.reload();
+  }
+
+  Future<void> _changeThirdPartyAiConsent(
+    ThirdPartyAiProvider provider,
+    bool enabled,
+  ) async {
+    await _thirdPartyAiConsentController.runMutation(provider, () async {
+      if (enabled) {
+        await requestThirdPartyAiConsent(
+          context: context,
+          feature: provider == ThirdPartyAiProvider.googleCloudVision
+              ? ThirdPartyAiFeature.manageGoogleOcr
+              : ThirdPartyAiFeature.manageOpenAi,
+        );
+        return;
+      }
+      final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
+      if (!mounted) return;
+      CustomSnackbar.show(
+        context,
+        message: withdrawn
+            ? AppLocalizations.of(context).thirdPartyAiConsentWithdrawn
+            : AppLocalizations.of(context).thirdPartyAiConsentWithdrawFailed,
+        type: withdrawn ? BLabSnackbarType.info : BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+    });
+  }
+
   Widget _buildInfoRow({
     required BuildContext context,
     required IconData icon,
@@ -1498,6 +1764,8 @@ class _MyPageContentState extends State<_MyPageContent> {
               _buildNotificationCard(context),
               const SizedBox(height: 16),
               _buildAccountCard(context),
+              const SizedBox(height: 16),
+              _buildThirdPartyAiConsentCard(context),
               const SizedBox(height: 16),
               _buildInfoCard(context),
               const SizedBox(height: 16),
