@@ -26,57 +26,34 @@ class BookListScreen extends StatefulWidget {
 class _BookListScreenState extends State<BookListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late ScrollController _tabScrollController;
+  late final BookListViewModel _viewModel;
   bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _tabScrollController = ScrollController();
-    final vm = context.read<BookListViewModel>();
+    _viewModel = context.read<BookListViewModel>();
     _tabController = TabController(
-        length: 5, vsync: this, initialIndex: vm.selectedTabIndex);
+        length: 5, vsync: this, initialIndex: _viewModel.selectedTabIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        vm.setSelectedTabIndex(_tabController.index);
+        _viewModel.setSelectedTabIndex(_tabController.index);
       }
     });
 
-    vm.addListener(_syncTabController);
+    _viewModel.addListener(_syncTabController);
   }
 
   void _syncTabController() {
-    final vm = context.read<BookListViewModel>();
-    if (_tabController.index != vm.selectedTabIndex) {
-      _tabController.animateTo(vm.selectedTabIndex);
-      _scrollToSelectedTab(vm.selectedTabIndex);
+    if (_tabController.index != _viewModel.selectedTabIndex) {
+      _tabController.animateTo(_viewModel.selectedTabIndex);
     }
-  }
-
-  void _scrollToSelectedTab(int index) {
-    if (!_tabScrollController.hasClients) return;
-
-    const tabWidth = 100.0;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final targetOffset =
-        (index * tabWidth) - (screenWidth / 2) + (tabWidth / 2);
-    final clampedOffset = targetOffset.clamp(
-      0.0,
-      _tabScrollController.position.maxScrollExtent,
-    );
-
-    _tabScrollController.animateTo(
-      clampedOffset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
   }
 
   @override
   void dispose() {
-    context.read<BookListViewModel>().removeListener(_syncTabController);
+    _viewModel.removeListener(_syncTabController);
     _tabController.dispose();
-    _tabScrollController.dispose();
     super.dispose();
   }
 
@@ -118,7 +95,6 @@ class _BookListScreenState extends State<BookListScreen>
     final l10n = AppLocalizations.of(context);
     return ScrollableTabBar(
       controller: _tabController,
-      scrollController: _tabScrollController,
       selectedIndex: vm.selectedTabIndex,
       tabs: [
         l10n.bookListTabReading,
@@ -127,7 +103,6 @@ class _BookListScreenState extends State<BookListScreen>
         l10n.bookListTabReread,
         l10n.bookListTabAll,
       ],
-      onTabSelected: (index) => _scrollToSelectedTab(index),
     );
   }
 
