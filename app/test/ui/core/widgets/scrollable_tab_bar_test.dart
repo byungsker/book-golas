@@ -100,6 +100,14 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('scrollable-tab-bar-trailing-affordance')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('scrollable-tab-bar-leading-affordance')),
+      findsNothing,
+    );
 
     tester.semantics.tap(find.semantics.byLabel('All'));
     await tester.pumpAndSettle();
@@ -109,6 +117,55 @@ void main() {
     );
     expect(selectedSemantics.properties.selected, isTrue);
     expect(scrollController.offset, greaterThan(0));
+    expect(
+      find.byKey(const ValueKey('scrollable-tab-bar-leading-affordance')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('scrollable-tab-bar-trailing-affordance')),
+      findsNothing,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('reduced motion changes tabs without pending animations', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    const tabs = ['Reading', 'To Read', 'Completed', 'Reread', 'All'];
+    final scrollController = ScrollController();
+    addTearDown(scrollController.dispose);
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(disableAnimations: true),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: _TabBarHarness(
+            tabs: tabs,
+            initialIndex: 0,
+            scrollController: scrollController,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    tester.semantics.tap(find.semantics.byLabel('All'));
+    await tester.pump();
+
+    final selectedSemantics = tester.widget<Semantics>(
+      find.byKey(const ValueKey('scrollable-tab-4')),
+    );
+    expect(selectedSemantics.properties.selected, isTrue);
+    expect(scrollController.offset, scrollController.position.maxScrollExtent);
+    expect(tester.binding.transientCallbackCount, 0);
     semantics.dispose();
   });
 }

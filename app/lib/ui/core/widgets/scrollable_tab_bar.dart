@@ -39,21 +39,27 @@ class ScrollableTabBar extends StatefulWidget {
 class _ScrollableTabBarState extends State<ScrollableTabBar> {
   late ScrollController _scrollController;
   List<double> _tabWidths = const [];
+  bool _canScrollBackward = false;
+  bool _canScrollForward = false;
+  bool _disableAnimations = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
+    _scrollController.addListener(_updateScrollAffordances);
   }
 
   @override
   void didUpdateWidget(covariant ScrollableTabBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.scrollController != widget.scrollController) {
+      _scrollController.removeListener(_updateScrollAffordances);
       if (oldWidget.scrollController == null) {
         _scrollController.dispose();
       }
       _scrollController = widget.scrollController ?? ScrollController();
+      _scrollController.addListener(_updateScrollAffordances);
     }
     if (oldWidget.selectedIndex != widget.selectedIndex ||
         oldWidget.tabs != widget.tabs) {
@@ -63,6 +69,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_updateScrollAffordances);
     if (widget.scrollController == null) {
       _scrollController.dispose();
     }
@@ -72,17 +79,17 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    _disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
-    final bgColor =
-        widget.backgroundColor ??
+    final bgColor = widget.backgroundColor ??
         (isDark ? BLabColors.scaffoldDark : Colors.white);
     final indicator =
         widget.indicatorColor ?? (isDark ? Colors.white : Colors.black);
     final selectedColor =
         widget.selectedTextColor ?? (isDark ? Colors.white : Colors.black);
-    final unselectedColor =
-        widget.unselectedTextColor ??
+    final unselectedColor = widget.unselectedTextColor ??
         (isDark ? Colors.grey[400]! : Colors.grey[600]!);
     final selectedStyle = TextStyle(
       fontSize: 14,
@@ -114,51 +121,111 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final totalWidth = tabWidths.fold<double>(0, (sum, width) => sum + width);
     _tabWidths = tabWidths;
     _scheduleSelectedTabVisibility();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _updateScrollAffordances();
+      }
+    });
 
     return Container(
       color: bgColor,
       child: SizedBox(
         height: tabBarHeight,
-        child: SingleChildScrollView(
-          key: const ValueKey('scrollable-tab-bar-scroll-view'),
-          controller: _scrollController,
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: totalWidth,
-            height: tabBarHeight,
-            child: Stack(
-              children: [
-                Row(
-                  children: List.generate(widget.tabs.length, (index) {
-                    return _buildTabItem(
-                      title: widget.tabs[index],
-                      index: index,
-                      width: tabWidths[index],
-                      height: tabBarHeight - 2,
-                      style: widget.selectedIndex == index
-                          ? selectedStyle
-                          : unselectedStyle,
-                    );
-                  }),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              key: const ValueKey('scrollable-tab-bar-scroll-view'),
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: totalWidth,
+                height: tabBarHeight,
+                child: Stack(
+                  children: [
+                    Row(
+                      children: List.generate(widget.tabs.length, (index) {
+                        return _buildTabItem(
+                          title: widget.tabs[index],
+                          index: index,
+                          width: tabWidths[index],
+                          height: tabBarHeight - 2,
+                          style: widget.selectedIndex == index
+                              ? selectedStyle
+                              : unselectedStyle,
+                        );
+                      }),
+                    ),
+                    AnimatedBuilder(
+                      animation: widget.controller.animation!,
+                      builder: (context, child) {
+                        final geometry = _indicatorGeometry(
+                          widget.controller.animation!.value,
+                          tabWidths,
+                        );
+                        return Positioned(
+                          left: geometry.left,
+                          bottom: 0,
+                          width: geometry.width,
+                          height: 2,
+                          child: ColoredBox(color: indicator),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                AnimatedBuilder(
-                  animation: widget.controller.animation!,
-                  builder: (context, child) {
-                    final geometry = _indicatorGeometry(
-                      widget.controller.animation!.value,
-                      tabWidths,
-                    );
-                    return Positioned(
-                      left: geometry.left,
-                      bottom: 0,
-                      width: geometry.width,
-                      height: 2,
-                      child: ColoredBox(color: indicator),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
+            if (_canScrollBackward)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _buildScrollAffordance(
+                  key: const ValueKey('scrollable-tab-bar-leading-affordance'),
+                  backgroundColor: bgColor,
+                  foregroundColor: unselectedColor,
+                  isLeading: true,
+                ),
+              ),
+            if (_canScrollForward)
+              Align(
+                alignment: Alignment.centerRight,
+                child: _buildScrollAffordance(
+                  key: const ValueKey('scrollable-tab-bar-trailing-affordance'),
+                  backgroundColor: bgColor,
+                  foregroundColor: unselectedColor,
+                  isLeading: false,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScrollAffordance({
+    required Key key,
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required bool isLeading,
+  }) {
+    return ExcludeSemantics(
+      child: IgnorePointer(
+        child: Container(
+          key: key,
+          width: 72,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: isLeading ? Alignment.centerLeft : Alignment.centerRight,
+              end: isLeading ? Alignment.centerRight : Alignment.centerLeft,
+              colors: [backgroundColor, backgroundColor.withValues(alpha: 0)],
+              stops: const [0.42, 1],
+            ),
+          ),
+          alignment: isLeading ? Alignment.centerLeft : Alignment.centerRight,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Icon(
+            isLeading ? Icons.chevron_left : Icons.chevron_right,
+            color: foregroundColor,
+            size: 28,
           ),
         ),
       ),
@@ -175,7 +242,12 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final isSelected = widget.selectedIndex == index;
 
     void selectTab() {
-      widget.controller.animateTo(index);
+      widget.controller.animateTo(
+        index,
+        duration: _disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 300),
+      );
       widget.onTabSelected?.call(index);
       _ensureTabVisible(index);
     }
@@ -228,8 +300,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final upperLeft = _offsetForIndex(upperIndex, widths);
     return (
       left: lowerLeft + ((upperLeft - lowerLeft) * progress),
-      width:
-          widths[lowerIndex] +
+      width: widths[lowerIndex] +
           ((widths[upperIndex] - widths[lowerIndex]) * progress),
     );
   }
@@ -269,10 +340,31 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     if ((targetOffset - currentOffset).abs() < 0.5) {
       return;
     }
+    if (_disableAnimations) {
+      _scrollController.jumpTo(targetOffset);
+      return;
+    }
     _scrollController.animateTo(
       targetOffset,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
+  }
+
+  void _updateScrollAffordances() {
+    if (!_scrollController.hasClients || !mounted) {
+      return;
+    }
+    final position = _scrollController.position;
+    final canScrollBackward = position.pixels > 0.5;
+    final canScrollForward = position.pixels < position.maxScrollExtent - 0.5;
+    if (canScrollBackward == _canScrollBackward &&
+        canScrollForward == _canScrollForward) {
+      return;
+    }
+    setState(() {
+      _canScrollBackward = canScrollBackward;
+      _canScrollForward = canScrollForward;
+    });
   }
 }
