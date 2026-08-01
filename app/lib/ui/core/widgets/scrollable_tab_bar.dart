@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -37,7 +38,7 @@ class ScrollableTabBar extends StatefulWidget {
 }
 
 class _ScrollableTabBarState extends State<ScrollableTabBar> {
-  static const _minimumAffordanceWidth = 32.0;
+  static const _affordanceGutterWidth = 32.0;
   static const _affordanceFadeWidth = 8.0;
 
   late ScrollController _scrollController;
@@ -48,6 +49,7 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
   double _leadingAffordanceWidth = 0;
   double _trailingAffordanceWidth = 0;
   bool _disableAnimations = false;
+  bool _didInitialReveal = false;
 
   @override
   void initState() {
@@ -66,9 +68,10 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
       }
       _scrollController = widget.scrollController ?? ScrollController();
       _scrollController.addListener(_updateScrollAffordances);
+      _didInitialReveal = false;
     }
     if (oldWidget.selectedIndex != widget.selectedIndex ||
-        oldWidget.tabs != widget.tabs) {
+        !listEquals(oldWidget.tabs, widget.tabs)) {
       _scheduleSelectedTabVisibility();
     }
   }
@@ -90,21 +93,16 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
     final bgColor = widget.backgroundColor ??
-        (isDark ? BLabColors.scaffoldDark : Colors.white);
-    final indicator =
-        widget.indicatorColor ?? (isDark ? Colors.white : Colors.black);
+        (isDark ? BLabColors.scaffoldDark : BLabColors.surfaceLight);
+    final indicator = widget.indicatorColor ?? BLabColors.textPrimary(context);
     final selectedColor =
-        widget.selectedTextColor ?? (isDark ? Colors.white : Colors.black);
-    final unselectedColor = widget.unselectedTextColor ??
-        (isDark ? Colors.grey[400]! : Colors.grey[600]!);
-    final selectedStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
+        widget.selectedTextColor ?? BLabColors.textPrimary(context);
+    final unselectedColor =
+        widget.unselectedTextColor ?? BLabColors.textTertiary(context);
+    final selectedStyle = AppTypography.labelLarge.copyWith(
       color: selectedColor,
     );
-    final unselectedStyle = TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
+    final unselectedStyle = AppTypography.bodySmall.copyWith(
       color: unselectedColor,
     );
     final metrics = widget.tabs.map((title) {
@@ -127,7 +125,10 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
     final totalWidth = tabWidths.fold<double>(0, (sum, width) => sum + width);
     _tabWidths = tabWidths;
     _labelWidths = metrics.map((metric) => metric.width).toList();
-    _scheduleSelectedTabVisibility();
+    if (!_didInitialReveal) {
+      _didInitialReveal = true;
+      _scheduleSelectedTabVisibility();
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _updateScrollAffordances();
@@ -138,89 +139,131 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
       color: bgColor,
       child: SizedBox(
         height: tabBarHeight,
-        child: Stack(
+        child: Row(
           children: [
-            SingleChildScrollView(
-              key: const ValueKey('scrollable-tab-bar-scroll-view'),
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: totalWidth,
-                height: tabBarHeight,
-                child: Stack(
-                  children: [
-                    Row(
-                      children: List.generate(widget.tabs.length, (index) {
-                        return _buildTabItem(
-                          title: widget.tabs[index],
-                          index: index,
-                          width: tabWidths[index],
-                          height: tabBarHeight - 2,
-                          style: widget.selectedIndex == index
-                              ? selectedStyle
-                              : unselectedStyle,
-                        );
-                      }),
+            _buildScrollGutter(
+              key: const ValueKey('scrollable-tab-bar-leading-affordance'),
+              backgroundColor: bgColor,
+              foregroundColor: unselectedColor,
+              isLeading: true,
+              visible: _canScrollBackward,
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    key: const ValueKey('scrollable-tab-bar-scroll-view'),
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: totalWidth,
+                      height: tabBarHeight,
+                      child: Stack(
+                        children: [
+                          Row(
+                            children: List.generate(widget.tabs.length, (
+                              index,
+                            ) {
+                              return _buildTabItem(
+                                title: widget.tabs[index],
+                                index: index,
+                                width: tabWidths[index],
+                                height: tabBarHeight - 2,
+                                style: widget.selectedIndex == index
+                                    ? selectedStyle
+                                    : unselectedStyle,
+                              );
+                            }),
+                          ),
+                          AnimatedBuilder(
+                            animation: widget.controller.animation!,
+                            builder: (context, child) {
+                              final geometry = _indicatorGeometry(
+                                widget.controller.animation!.value,
+                                tabWidths,
+                              );
+                              return Positioned(
+                                left: geometry.left,
+                                bottom: 0,
+                                width: geometry.width,
+                                height: 2,
+                                child: ColoredBox(color: indicator),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                    AnimatedBuilder(
-                      animation: widget.controller.animation!,
-                      builder: (context, child) {
-                        final geometry = _indicatorGeometry(
-                          widget.controller.animation!.value,
-                          tabWidths,
-                        );
-                        return Positioned(
-                          left: geometry.left,
-                          bottom: 0,
-                          width: geometry.width,
-                          height: 2,
-                          child: ColoredBox(color: indicator),
-                        );
-                      },
+                  ),
+                  if (_leadingAffordanceWidth > 0)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: _buildBoundaryMask(
+                        backgroundColor: bgColor,
+                        isLeading: true,
+                        width: _leadingAffordanceWidth,
+                      ),
                     ),
-                  ],
-                ),
+                  if (_trailingAffordanceWidth > 0)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _buildBoundaryMask(
+                        backgroundColor: bgColor,
+                        isLeading: false,
+                        width: _trailingAffordanceWidth,
+                      ),
+                    ),
+                ],
               ),
             ),
-            if (_canScrollBackward && _leadingAffordanceWidth > 0)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _buildScrollAffordance(
-                  key: const ValueKey('scrollable-tab-bar-leading-affordance'),
-                  backgroundColor: bgColor,
-                  foregroundColor: unselectedColor,
-                  isLeading: true,
-                  width: _leadingAffordanceWidth,
-                ),
-              ),
-            if (_canScrollForward && _trailingAffordanceWidth > 0)
-              Align(
-                alignment: Alignment.centerRight,
-                child: _buildScrollAffordance(
-                  key: const ValueKey('scrollable-tab-bar-trailing-affordance'),
-                  backgroundColor: bgColor,
-                  foregroundColor: unselectedColor,
-                  isLeading: false,
-                  width: _trailingAffordanceWidth,
-                ),
-              ),
+            _buildScrollGutter(
+              key: const ValueKey('scrollable-tab-bar-trailing-affordance'),
+              backgroundColor: bgColor,
+              foregroundColor: unselectedColor,
+              isLeading: false,
+              visible: _canScrollForward,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildScrollAffordance({
+  Widget _buildScrollGutter({
     required Key key,
     required Color backgroundColor,
     required Color foregroundColor,
+    required bool isLeading,
+    required bool visible,
+  }) {
+    if (!visible) {
+      return const SizedBox(width: _affordanceGutterWidth);
+    }
+    return ExcludeSemantics(
+      child: IgnorePointer(
+        child: Container(
+          key: key,
+          width: _affordanceGutterWidth,
+          color: backgroundColor,
+          alignment: Alignment.center,
+          child: Icon(
+            isLeading ? Icons.chevron_left : Icons.chevron_right,
+            color: foregroundColor,
+            size: 24,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBoundaryMask({
+    required Color backgroundColor,
     required bool isLeading,
     required double width,
   }) {
     return ExcludeSemantics(
       child: IgnorePointer(
         child: Container(
-          key: key,
           width: width,
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -232,13 +275,6 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
                 1,
               ],
             ),
-          ),
-          alignment: isLeading ? Alignment.centerLeft : Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(
-            isLeading ? Icons.chevron_left : Icons.chevron_right,
-            color: foregroundColor,
-            size: 24,
           ),
         ),
       ),
@@ -272,23 +308,28 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
       label: title,
       onTap: selectTab,
       child: ExcludeSemantics(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: selectTab,
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  title,
-                  key: ValueKey('scrollable-tab-label-$index'),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.visible,
-                  textAlign: TextAlign.center,
-                  style: style,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            key: ValueKey('scrollable-tab-action-$index'),
+            onTap: selectTab,
+            canRequestFocus: true,
+            focusColor: BLabColors.primary.withValues(alpha: 0.18),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    title,
+                    key: ValueKey('scrollable-tab-label-$index'),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    textAlign: TextAlign.center,
+                    style: style,
+                  ),
                 ),
               ),
             ),
@@ -406,18 +447,12 @@ class _ScrollableTabBarState extends State<ScrollableTabBar> {
       if (isLeading &&
           labelStart < viewportStart - 0.5 &&
           labelEnd > viewportStart + 0.5) {
-        return math.max(
-          _minimumAffordanceWidth,
-          (labelEnd - viewportStart) + _affordanceFadeWidth,
-        );
+        return (labelEnd - viewportStart) + _affordanceFadeWidth;
       }
       if (!isLeading &&
           labelStart < viewportEnd - 0.5 &&
           labelEnd > viewportEnd + 0.5) {
-        return math.max(
-          _minimumAffordanceWidth,
-          (viewportEnd - labelStart) + _affordanceFadeWidth,
-        );
+        return (viewportEnd - labelStart) + _affordanceFadeWidth;
       }
     }
     return 0;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
@@ -68,8 +69,19 @@ void main() {
               find.byKey(ValueKey('scrollable-tab-$index')),
             );
             expect(selectedSemantics.properties.selected, isTrue);
+            expect(
+              find.byKey(
+                const ValueKey('scrollable-tab-bar-leading-affordance'),
+              ),
+              index == 0 ? findsNothing : findsOneWidget,
+            );
+            expect(
+              find.byKey(
+                const ValueKey('scrollable-tab-bar-trailing-affordance'),
+              ),
+              index == testCase.length - 1 ? findsNothing : findsOneWidget,
+            );
           }
-
           semantics.dispose();
         },
       );
@@ -239,17 +251,115 @@ void main() {
     expect(tester.binding.transientCallbackCount, 0);
     semantics.dispose();
   });
+
+  testWidgets('manual tab inspection is preserved after affordance rebuild', (
+    tester,
+  ) async {
+    const tabs = ['Reading', 'To Read', 'Completed', 'Reread', 'All'];
+    final scrollController = ScrollController();
+    addTearDown(scrollController.dispose);
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: _TabBarHarness(
+            tabs: tabs,
+            initialIndex: 2,
+            scrollController: scrollController,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(scrollController.offset, greaterThan(0));
+
+    scrollController.jumpTo(0);
+    await tester.pumpAndSettle();
+
+    expect(scrollController.offset, 0);
+    expect(
+      find.byKey(const ValueKey('scrollable-tab-bar-leading-affordance')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('keyboard focus activates the next tab', (tester) async {
+    const tabs = ['Reading', 'To Read', 'Completed', 'Reread', 'All'];
+    final scrollController = ScrollController();
+    addTearDown(scrollController.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: _TabBarHarness(
+            tabs: tabs,
+            initialIndex: 0,
+            scrollController: scrollController,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+
+    final selectedSemantics = tester.widget<Semantics>(
+      find.byKey(const ValueKey('scrollable-tab-1')),
+    );
+    expect(selectedSemantics.properties.selected, isTrue);
+  });
+
+  testWidgets('controller listener matches production selection wiring', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    const tabs = ['Reading', 'To Read', 'Completed', 'Reread', 'All'];
+    final scrollController = ScrollController();
+    addTearDown(scrollController.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: _TabBarHarness(
+            tabs: tabs,
+            initialIndex: 0,
+            scrollController: scrollController,
+            syncFromController: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    tester.semantics.tap(find.semantics.byLabel('All'));
+    await tester.pumpAndSettle();
+
+    final selectedSemantics = tester.widget<Semantics>(
+      find.byKey(const ValueKey('scrollable-tab-4')),
+    );
+    expect(selectedSemantics.properties.selected, isTrue);
+    semantics.dispose();
+  });
 }
 
 class _TabBarHarness extends StatefulWidget {
   final List<String> tabs;
   final int initialIndex;
   final ScrollController scrollController;
+  final bool syncFromController;
 
   const _TabBarHarness({
     required this.tabs,
     required this.initialIndex,
     required this.scrollController,
+    this.syncFromController = false,
   });
 
   @override
@@ -270,10 +380,21 @@ class _TabBarHarnessState extends State<_TabBarHarness>
       initialIndex: widget.initialIndex,
       vsync: this,
     );
+    if (widget.syncFromController) {
+      _tabController.addListener(_syncSelectedIndexFromController);
+    }
+  }
+
+  void _syncSelectedIndexFromController() {
+    if (_tabController.indexIsChanging || !mounted) return;
+    setState(() {
+      _selectedIndex = _tabController.index;
+    });
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_syncSelectedIndexFromController);
     _tabController.dispose();
     super.dispose();
   }
@@ -285,11 +406,13 @@ class _TabBarHarnessState extends State<_TabBarHarness>
       tabs: widget.tabs,
       selectedIndex: _selectedIndex,
       scrollController: widget.scrollController,
-      onTabSelected: (index) {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
+      onTabSelected: widget.syncFromController
+          ? null
+          : (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
     );
   }
 }

@@ -45,9 +45,14 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _syncTabController() {
-    if (_tabController.index != _viewModel.selectedTabIndex) {
-      _tabController.animateTo(_viewModel.selectedTabIndex);
-    }
+    if (!mounted || _tabController.index == _viewModel.selectedTabIndex) return;
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    _tabController.animateTo(
+      _viewModel.selectedTabIndex,
+      duration:
+          disableAnimations ? Duration.zero : const Duration(milliseconds: 300),
+    );
   }
 
   @override

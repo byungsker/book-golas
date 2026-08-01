@@ -21,7 +21,6 @@ class EmptyStateView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 80),
@@ -40,11 +39,8 @@ class EmptyStateView extends StatelessWidget {
             Text(
               message,
               key: const ValueKey('empty-state-message'),
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark
-                    ? BLabColors.textTertiaryDark
-                    : BLabColors.textTertiaryLight,
+              style: AppTypography.bodyMedium.copyWith(
+                color: BLabColors.textTertiary(context),
               ),
               textAlign: TextAlign.center,
             ),
