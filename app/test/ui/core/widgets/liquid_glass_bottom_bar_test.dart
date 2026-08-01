@@ -12,21 +12,25 @@ void main() {
       locale: const Locale('ko'),
       width: 393.0,
       labels: const ['홈', '서재', '상태', '캘린더', 'MY'],
+      visibleLabels: const ['홈', '서재', '상태', '달력', 'MY'],
     ),
     (
       locale: const Locale('en'),
       width: 393.0,
       labels: const ['Home', 'Library', 'Stats', 'Calendar', 'MY'],
+      visibleLabels: const ['Home', 'Books', 'Stats', 'Cal', 'MY'],
     ),
     (
       locale: const Locale('ko'),
       width: 320.0,
       labels: const ['홈', '서재', '상태', '캘린더', 'MY'],
+      visibleLabels: const ['홈', '서재', '상태', '달력', 'MY'],
     ),
     (
       locale: const Locale('en'),
       width: 320.0,
       labels: const ['Home', 'Library', 'Stats', 'Calendar', 'MY'],
+      visibleLabels: const ['Home', 'Books', 'Stats', 'Cal', 'MY'],
     ),
   ]) {
     testWidgets(
@@ -76,13 +80,13 @@ void main() {
         final itemNode = tester.getSemantics(
           find.byKey(ValueKey('bottom-nav-item-$index')),
         );
-        expect(
-          labelText.data?.replaceAll('\u200B', ''),
-          testCase.labels[index],
-        );
-        expect(labelText.maxLines, 4);
+        expect(labelText.data, testCase.visibleLabels[index]);
+        expect(labelText.data, isNot(contains('\u200B')));
+        expect(labelText.maxLines, 1);
+        expect(labelText.softWrap, isFalse);
         expect(labelText.textScaler, isNull);
-        expect(labelParagraph.textScaler.scale(10), 20);
+        expect(labelText.style?.fontSize, 8);
+        expect(labelParagraph.textScaler.scale(8), 16);
         expect(labelParagraph.didExceedMaxLines, isFalse);
         expect(itemNode.label, testCase.labels[index]);
         expect(itemNode.flagsCollection.isButton, isTrue);

@@ -60,6 +60,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navSearch => '검색';
 
   @override
+  String get navHomeCompact => '홈';
+
+  @override
+  String get navLibraryCompact => '서재';
+
+  @override
+  String get navStatsCompact => '상태';
+
+  @override
+  String get navCalendarCompact => '달력';
+
+  @override
   String get navSearchHint => '탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.';
 
   @override

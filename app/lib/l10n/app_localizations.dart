@@ -200,6 +200,30 @@ abstract class AppLocalizations {
   /// **'검색'**
   String get navSearch;
 
+  /// 큰 접근성 글자에서 사용하는 홈 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'홈'**
+  String get navHomeCompact;
+
+  /// 큰 접근성 글자에서 사용하는 서재 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'서재'**
+  String get navLibraryCompact;
+
+  /// 큰 접근성 글자에서 사용하는 상태 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'상태'**
+  String get navStatsCompact;
+
+  /// 큰 접근성 글자에서 사용하는 캘린더 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get navCalendarCompact;
+
   /// Accessibility hint for the bottom navigation search button
   ///
   /// In ko, this message translates to:

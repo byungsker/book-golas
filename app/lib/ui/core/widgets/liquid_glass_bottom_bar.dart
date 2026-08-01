@@ -98,6 +98,17 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     ];
   }
 
+  List<String> _getCompactTabLabels(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      l10n.navHomeCompact,
+      l10n.navLibraryCompact,
+      l10n.navStatsCompact,
+      l10n.navCalendarCompact,
+      'MY',
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -344,16 +355,8 @@ class _BLabBottomBarState extends State<BLabBottomBar>
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.5);
     final scaledLabelFontSize = MediaQuery.textScalerOf(context).scale(10);
-    var labelLineCount = 1;
-    if (scaledLabelFontSize > 18) {
-      labelLineCount = 4;
-    } else if (scaledLabelFontSize > 16) {
-      labelLineCount = 3;
-    } else if (scaledLabelFontSize > 13) {
-      labelLineCount = 2;
-    }
-    final responsiveHeight =
-        8 + 24 + 2 + (scaledLabelFontSize * 1.5 * labelLineCount);
+    final useCompactLabels = scaledLabelFontSize > 14;
+    final responsiveHeight = 12 + 24 + 2 + (scaledLabelFontSize * 1.5);
     final tabBarHeight = responsiveHeight > 62 ? responsiveHeight : 62.0;
 
     return GestureDetector(
@@ -377,6 +380,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
               builder: (context, constraints) {
                 _tabWidth = constraints.maxWidth / _tabIcons.length;
                 final labels = _getTabLabels(context);
+                final compactLabels = _getCompactTabLabels(context);
 
                 return Stack(
                   children: [
@@ -394,7 +398,11 @@ class _BLabBottomBarState extends State<BLabBottomBar>
                           child: _buildTabItem(
                             index,
                             _tabIcons[index],
+                            useCompactLabels
+                                ? compactLabels[index]
+                                : labels[index],
                             labels[index],
+                            useCompactLabels,
                             foregroundColor,
                             inactiveForegroundColor,
                           ),
@@ -494,7 +502,9 @@ class _BLabBottomBarState extends State<BLabBottomBar>
   Widget _buildTabItem(
     int index,
     _TabItemData tab,
-    String label,
+    String displayLabel,
+    String semanticLabel,
+    bool useCompactLabel,
     Color foregroundColor,
     Color inactiveForegroundColor,
   ) {
@@ -508,7 +518,7 @@ class _BLabBottomBarState extends State<BLabBottomBar>
       key: ValueKey('bottom-nav-item-$index'),
       button: true,
       selected: isSelected,
-      label: label,
+      label: semanticLabel,
       onTap: selectTab,
       child: ExcludeSemantics(
         child: GestureDetector(
@@ -525,7 +535,8 @@ class _BLabBottomBarState extends State<BLabBottomBar>
               return _buildTabContent(
                 index,
                 tab,
-                label,
+                displayLabel,
+                useCompactLabel,
                 foregroundColor,
                 inactiveForegroundColor,
                 isSelected || overlap > 0.5,
@@ -543,14 +554,12 @@ class _BLabBottomBarState extends State<BLabBottomBar>
     int index,
     _TabItemData tab,
     String label,
+    bool useCompactLabel,
     Color foregroundColor,
     Color inactiveForegroundColor,
     bool isHighlighted,
   ) {
     final iconColor = isHighlighted ? foregroundColor : inactiveForegroundColor;
-    final scaledLabelFontSize = MediaQuery.textScalerOf(context).scale(10);
-    final displayLabel =
-        scaledLabelFontSize > 13 ? label.split('').join('\u200B') : label;
 
     return Center(
       child: Column(
@@ -563,13 +572,15 @@ class _BLabBottomBarState extends State<BLabBottomBar>
           ),
           const SizedBox(height: 2),
           Text(
-            displayLabel,
+            label,
             key: ValueKey('bottom-nav-label-$index'),
-            maxLines: 4,
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: iconColor,
-              fontSize: 10,
+              fontSize: useCompactLabel ? 8 : 10,
               fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
             ),
           ),

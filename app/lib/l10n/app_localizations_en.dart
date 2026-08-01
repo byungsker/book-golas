@@ -60,6 +60,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSearch => 'Search';
 
   @override
+  String get navHomeCompact => 'Home';
+
+  @override
+  String get navLibraryCompact => 'Books';
+
+  @override
+  String get navStatsCompact => 'Stats';
+
+  @override
+  String get navCalendarCompact => 'Cal';
+
+  @override
   String get navSearchHint =>
       'Tap to search. Touch and hold to choose a search mode.';
 

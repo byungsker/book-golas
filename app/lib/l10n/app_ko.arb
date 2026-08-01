@@ -50,6 +50,14 @@
   "@navCalendar": {"description": "Calendar navigation"},
 
   "navSearch": "검색",
+  "navHomeCompact": "홈",
+  "@navHomeCompact": {"description": "큰 접근성 글자에서 사용하는 홈 하단 탐색 축약 라벨"},
+  "navLibraryCompact": "서재",
+  "@navLibraryCompact": {"description": "큰 접근성 글자에서 사용하는 서재 하단 탐색 축약 라벨"},
+  "navStatsCompact": "상태",
+  "@navStatsCompact": {"description": "큰 접근성 글자에서 사용하는 상태 하단 탐색 축약 라벨"},
+  "navCalendarCompact": "달력",
+  "@navCalendarCompact": {"description": "큰 접근성 글자에서 사용하는 캘린더 하단 탐색 축약 라벨"},
   "@navSearch": {"description": "Search button in the bottom navigation"},
 
   "navSearchHint": "탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.",
