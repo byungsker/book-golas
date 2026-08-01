@@ -1,7 +1,465 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:book_golas/data/services/deep_link_service.dart';
 
 void main() {
+  testWidgets('deep-link replacement preserves the root app shell',
+      (tester) async {
+    final navigatorKey = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: navigatorKey,
+        home: const Scaffold(body: Text('home')),
+      ),
+    );
+
+    showDialog<void>(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Text('blocking-popup'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('blocking-popup'), findsOneWidget);
+
+    DeepLinkNavigator.open(
+      navigatorKey.currentState!,
+      MaterialPageRoute<void>(
+        builder: (context) => const Scaffold(
+          body: Text('first-deep-link-destination'),
+        ),
+      ),
+      useReplacement: true,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('blocking-popup'), findsNothing);
+    expect(find.text('first-deep-link-destination'), findsOneWidget);
+
+    DeepLinkNavigator.open(
+      navigatorKey.currentState!,
+      MaterialPageRoute<void>(
+        builder: (context) => const Scaffold(
+          body: Text('second-deep-link-destination'),
+        ),
+      ),
+      useReplacement: true,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('first-deep-link-destination'), findsNothing);
+    expect(find.text('second-deep-link-destination'), findsOneWidget);
+
+    navigatorKey.currentState!.pop();
+    await tester.pumpAndSettle();
+
+    expect(find.text('home'), findsOneWidget);
+    expect(find.text('second-deep-link-destination'), findsNothing);
+  });
+
+  test('dispatch guard rejects delayed completion after session loss',
+      () async {
+    const guard = DeepLinkDispatchGuard(
+      userId: 'user-1',
+      navigationGeneration: 7,
+    );
+    final delayedFetch = Completer<void>();
+    String? currentUserId = 'user-1';
+    var currentGeneration = 7;
+    var navigationReady = true;
+
+    final canCompleteAfterFetch = delayedFetch.future.then((_) {
+      return guard.canComplete(
+        currentUserId: currentUserId,
+        currentNavigationGeneration: currentGeneration,
+        navigationReady: navigationReady,
+      );
+    });
+    currentUserId = null;
+    currentGeneration += 1;
+    navigationReady = false;
+    delayedFetch.complete();
+
+    expect(await canCompleteAfterFetch, isFalse);
+  });
+
+  test('dispatch guard rejects completion after an account switch', () {
+    const guard = DeepLinkDispatchGuard(
+      userId: 'user-1',
+      navigationGeneration: 3,
+    );
+
+    expect(
+      guard.canComplete(
+        currentUserId: 'user-2',
+        currentNavigationGeneration: 3,
+        navigationReady: true,
+      ),
+      isFalse,
+    );
+  });
+
+  group('DeepLinkBookResolver', () {
+    test('does not query a book before authentication', () async {
+      final resolver = DeepLinkBookResolver();
+      var wasCalled = false;
+
+      final book = await resolver.fetchOwnedBook(
+        userId: null,
+        bookId: 'book-1',
+        fetch: (userId, bookId) async {
+          wasCalled = true;
+          return null;
+        },
+      );
+
+      expect(book, isNull);
+      expect(wasCalled, isFalse);
+    });
+
+    test('passes the authenticated owner to the book query', () async {
+      final resolver = DeepLinkBookResolver();
+      String? queriedUserId;
+      String? queriedBookId;
+
+      await resolver.fetchOwnedBook(
+        userId: 'user-1',
+        bookId: 'book-1',
+        fetch: (userId, bookId) async {
+          queriedUserId = userId;
+          queriedBookId = bookId;
+          return null;
+        },
+      );
+
+      expect(queriedUserId, 'user-1');
+      expect(queriedBookId, 'book-1');
+    });
+
+    test('keeps the deep-link query explicitly user scoped', () async {
+      final source =
+          await File('lib/data/services/deep_link_service.dart').readAsString();
+
+      expect(source, contains(".eq('id', ownedBookId)"));
+      expect(source, contains(".eq('user_id', userId)"));
+    });
+  });
+
+  group('DeepLinkIntentCoordinator', () {
+    test('replays a pre-auth cold-start intent exactly once when ready',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      final request = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/search'),
+        useReplacement: true,
+      );
+
+      await coordinator.receive(
+        request,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      expect(dispatched, isEmpty);
+
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [request]);
+    });
+
+    test('preserves current-book action and replacement mode before login',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      final request = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/scan/current'),
+        useReplacement: true,
+      );
+
+      await coordinator.receive(
+        request,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched.single.uri, request.uri);
+      expect(dispatched.single.useReplacement, isTrue);
+    });
+
+    test('dispatches supported warm-start intents immediately', () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      final requests = [
+        DeepLinkRequest(uri: Uri.parse('bookgolas://book/search')),
+        DeepLinkRequest(uri: Uri.parse('bookgolas://book/detail/current')),
+        DeepLinkRequest(uri: Uri.parse('bookgolas://book/record/current')),
+        DeepLinkRequest(uri: Uri.parse('bookgolas://book/scan/current')),
+      ];
+
+      for (final request in requests) {
+        await coordinator.receive(
+          request,
+          isAuthenticated: true,
+          dispatch: dispatched.add,
+        );
+      }
+
+      expect(dispatched, requests);
+    });
+
+    test('suppresses duplicate native and plugin deliveries', () async {
+      var now = DateTime(2026, 8, 1, 12);
+      final coordinator = DeepLinkIntentCoordinator(now: () => now);
+      final dispatched = <DeepLinkRequest>[];
+      final request = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/current'),
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      await coordinator.receive(
+        request,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      now = now.add(const Duration(milliseconds: 500));
+      await coordinator.receive(
+        request,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [request]);
+    });
+
+    test('keeps the latest intent received while login is required', () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      final first = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/search'),
+      );
+      final latest = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/current'),
+      );
+
+      await coordinator.receive(
+        first,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.receive(
+        latest,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [latest]);
+    });
+
+    test('keeps replacement navigation for duplicate pending widget intent',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      final uri = Uri.parse(
+        'bookgolas://book/detail/current?homeWidget=true',
+      );
+
+      await coordinator.receive(
+        DeepLinkRequest(uri: uri, useReplacement: true),
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.receive(
+        DeepLinkRequest(uri: uri),
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched.single.useReplacement, isTrue);
+    });
+
+    test('drains an intent received while the cold-start replay is running',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final firstDispatchStarted = Completer<void>();
+      final finishFirstDispatch = Completer<void>();
+      final dispatched = <DeepLinkRequest>[];
+      final first = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/search'),
+      );
+      final second = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/current'),
+      );
+
+      await coordinator.receive(
+        first,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      final ready = coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: (request) async {
+          dispatched.add(request);
+          if (request == first) {
+            firstDispatchStarted.complete();
+            await finishFirstDispatch.future;
+          }
+        },
+      );
+      await firstDispatchStarted.future;
+      await coordinator.receive(
+        second,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      finishFirstDispatch.complete();
+      await ready;
+
+      expect(dispatched, [first, second]);
+    });
+
+    test('drops session-bound pending work when navigation becomes unavailable',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final firstDispatchStarted = Completer<void>();
+      final finishFirstDispatch = Completer<void>();
+      final dispatched = <DeepLinkRequest>[];
+      final first = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/current'),
+      );
+      final queuedDuringDispatch = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/scan/current'),
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      final firstDispatch = coordinator.receive(
+        first,
+        isAuthenticated: true,
+        dispatch: (request) async {
+          dispatched.add(request);
+          firstDispatchStarted.complete();
+          await finishFirstDispatch.future;
+        },
+      );
+      await firstDispatchStarted.future;
+      await coordinator.receive(
+        queuedDuringDispatch,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      coordinator.markNavigationUnavailable(clearPending: true);
+      finishFirstDispatch.complete();
+      await firstDispatch;
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [first]);
+    });
+  });
+
+  group('DeepLinkRequest native payload', () {
+    test('parses replacement policy from a native payload map', () {
+      final request = DeepLinkRequest.fromNativePayload({
+        'url': 'bookgolas://book/scan/current?homeWidget=true',
+        'useReplacement': true,
+      });
+
+      expect(request?.uri.path, '/scan/current');
+      expect(request?.useReplacement, isTrue);
+    });
+
+    test('supports a legacy native URL string without replacement', () {
+      final request = DeepLinkRequest.fromNativePayload(
+        'bookgolas://book/search',
+      );
+
+      expect(request?.uri, Uri.parse('bookgolas://book/search'));
+      expect(request?.useReplacement, isFalse);
+    });
+
+    test('rejects malformed native payloads', () {
+      expect(DeepLinkRequest.fromNativePayload(null), isNull);
+      expect(DeepLinkRequest.fromNativePayload({'url': 42}), isNull);
+    });
+  });
+
+  group('iOS deep link delivery contract', () {
+    test('disables Flutter routing while app_links owns delivery', () async {
+      final plist = await File('ios/Runner/Info.plist').readAsString();
+
+      expect(
+        plist,
+        contains('<key>FlutterDeepLinkingEnabled</key>\n\t\t<false/>'),
+      );
+    });
+
+    test('buffers native URLs and handles cold-start quick actions', () async {
+      final appDelegate =
+          await File('ios/Runner/AppDelegate.swift').readAsString();
+
+      expect(appDelegate, contains('pendingDeepLink'));
+      expect(appDelegate, contains('consumePendingDeepLink'));
+      expect(appDelegate, contains('acknowledgeDeepLink'));
+      expect(appDelegate, contains('launchOptions?[.shortcutItem]'));
+      expect(appDelegate, contains('let didFinish = super.application'));
+      expect(appDelegate, contains('return didFinish'));
+      expect(
+        RegExp(
+          r'launchOptions\?\[\.shortcutItem\][\s\S]*?sendDeepLink\(urlString, useReplacement: true\)[\s\S]*?return false',
+        ).hasMatch(appDelegate),
+        isTrue,
+      );
+      expect(appDelegate, contains('return true'));
+    });
+
+    test('marks every WidgetKit book URL for home_widget delivery', () async {
+      final widgetSource =
+          await File('ios/BookgolasWidget/BookgolasWidget.swift')
+              .readAsString();
+      final urls = RegExp(r'"bookgolas://book/[^"\n]+"')
+          .allMatches(widgetSource)
+          .map((match) => match.group(0)!)
+          .toList();
+
+      expect(urls, isNotEmpty);
+      expect(urls.every((url) => url.contains('homeWidget=true')), isTrue);
+    });
+  });
+
   group('DeepLinkService.parseUri - search', () {
     test('should parse search URI as search action', () {
       final uri = Uri.parse('bookgolas://book/search');
@@ -19,6 +477,13 @@ void main() {
       expect(result, isNotNull);
       expect(result!.action, DeepLinkAction.search);
       expect(result.bookId, isNull);
+    });
+
+    test('should ignore the home widget query marker', () {
+      final uri = Uri.parse('bookgolas://book/search?homeWidget=true');
+      final result = DeepLinkService.parseUri(uri);
+
+      expect(result?.action, DeepLinkAction.search);
     });
   });
 

@@ -350,6 +350,20 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkService.init(navigatorKey: navigatorKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer2<AuthViewModel, OnboardingViewModel>(
       builder: (context, authViewModel, onboardingViewModel, _) {
@@ -396,6 +410,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
+    DeepLinkService.markNavigationUnavailable();
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     super.dispose();
@@ -427,14 +442,13 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
-
-      DeepLinkService.init(context, navigatorKey: navigatorKey);
-
       final subscriptionService = context.read<SubscriptionService>();
       final subscriptionViewModel = context.read<SubscriptionViewModel>();
       final adViewModel = context.read<AdViewModel>();
       final notificationSettingsService =
           context.read<NotificationSettingsService>();
+
+      await DeepLinkService.markNavigationReady();
 
       if (FeatureFlags.paidSubscriptionsEnabled) {
         final userId = Supabase.instance.client.auth.currentUser?.id;
