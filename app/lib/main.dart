@@ -142,6 +142,7 @@ class AppBootstrap extends StatelessWidget {
       await Supabase.initialize(
         url: AppConfig.supabaseUrl,
         anonKey: AppConfig.supabaseAnonKey,
+        authOptions: DeepLinkAuthConfiguration.supabaseOptions,
         realtimeClientOptions: RealtimeClientOptions(
           logLevel: AppConfig.isProduction
               ? RealtimeLogLevel.error

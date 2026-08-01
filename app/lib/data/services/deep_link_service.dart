@@ -27,6 +27,31 @@ class DeepLinkResult {
   const DeepLinkResult({required this.action, this.bookId});
 }
 
+class DeepLinkAuthConfiguration {
+  static const supabaseOptions = FlutterAuthClientOptions(
+    detectSessionInUri: false,
+  );
+}
+
+class DeepLinkContentNormalizer {
+  static Uri normalize(DeepLinkResult result) {
+    final action = switch (result.action) {
+      DeepLinkAction.search => 'search',
+      DeepLinkAction.bookDetail => 'detail',
+      DeepLinkAction.bookRecord => 'record',
+      DeepLinkAction.bookScan => 'scan',
+    };
+    return Uri(
+      scheme: 'bookgolas',
+      host: 'book',
+      pathSegments: [
+        action,
+        if (result.bookId case final bookId?) bookId,
+      ],
+    );
+  }
+}
+
 class DeepLinkRequest {
   final Uri uri;
   final bool useReplacement;
@@ -124,12 +149,54 @@ class DeepLinkCallbackDeduplicator {
   }
 }
 
+enum DeepLinkAuthCallbackOutcome {
+  completed,
+  duplicate,
+  rejected,
+  failed,
+}
+
+class DeepLinkAuthCallbackProcessor {
+  final DeepLinkCallbackDeduplicator _deduplicator;
+
+  DeepLinkAuthCallbackProcessor({DeepLinkCallbackDeduplicator? deduplicator})
+      : _deduplicator = deduplicator ?? DeepLinkCallbackDeduplicator();
+
+  Future<DeepLinkAuthCallbackOutcome> process(
+    Uri uri, {
+    required Future<void> Function(Uri uri) exchange,
+  }) async {
+    final hasQueryError = uri.queryParameters.containsKey('error') ||
+        uri.queryParameters.containsKey('error_description');
+    final hasFragmentError = RegExp(
+      r'(^|&)(error|error_description)=',
+    ).hasMatch(uri.fragment);
+    if (hasQueryError || hasFragmentError) {
+      return DeepLinkAuthCallbackOutcome.rejected;
+    }
+    if (!_deduplicator.markIfNew(uri)) {
+      return DeepLinkAuthCallbackOutcome.duplicate;
+    }
+    try {
+      await exchange(uri);
+      return DeepLinkAuthCallbackOutcome.completed;
+    } catch (_) {
+      return DeepLinkAuthCallbackOutcome.failed;
+    }
+  }
+
+  void clear() {
+    _deduplicator.clear();
+  }
+}
+
 class DeepLinkLogSanitizer {
   static String describe(Uri uri) {
-    if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
-      return '${uri.scheme}://${uri.host}${uri.path}';
+    final origin = '${uri.scheme}://${uri.host}';
+    if (uri.host == 'book' && uri.pathSegments.isNotEmpty) {
+      return '$origin/${uri.pathSegments.first}';
     }
-    return uri.toString();
+    return origin;
   }
 }
 
@@ -251,8 +318,8 @@ class DeepLinkService {
   static StreamSubscription<Uri?>? _widgetClickSubscription;
   static GlobalKey<NavigatorState>? _navigatorKey;
   static const _deepLinkChannel = MethodChannel('com.bookgolas.app/deep_link');
-  static final DeepLinkCallbackDeduplicator _authCallbackDeduplicator =
-      DeepLinkCallbackDeduplicator();
+  static final DeepLinkAuthCallbackProcessor _authCallbackProcessor =
+      DeepLinkAuthCallbackProcessor();
   static final DeepLinkIntentCoordinator _intentCoordinator =
       DeepLinkIntentCoordinator();
   static final DeepLinkBookResolver _bookResolver = DeepLinkBookResolver();
@@ -378,7 +445,10 @@ class DeepLinkService {
       final initialWidgetUri =
           await HomeWidget.initiallyLaunchedFromHomeWidget();
       if (initialWidgetUri != null) {
-        debugPrint('📱 위젯 콜드스타트 딥링크: $initialWidgetUri');
+        debugPrint(
+          '📱 위젯 콜드스타트 딥링크: '
+          '${DeepLinkLogSanitizer.describe(initialWidgetUri)}',
+        );
         await _handleDeepLink(initialWidgetUri, useReplacement: true);
       }
     } catch (e) {
@@ -389,7 +459,10 @@ class DeepLinkService {
     _widgetClickSubscription = HomeWidget.widgetClicked.listen(
       (Uri? uri) {
         if (uri != null) {
-          debugPrint('📱 위젯 클릭 딥링크: $uri');
+          debugPrint(
+            '📱 위젯 클릭 딥링크: '
+            '${DeepLinkLogSanitizer.describe(uri)}',
+          );
           _handleDeepLink(uri, useReplacement: true);
         }
       },
@@ -457,33 +530,45 @@ class DeepLinkService {
   static Future<void> _handleDeepLink(Uri uri,
       {bool useReplacement = false}) async {
     if (uri.host == 'login-callback' || uri.host == 'reset-callback') {
-      if (uri.query.contains('error=') || uri.fragment.contains('error=')) {
-        debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시');
-        return;
-      }
-      if (!_authCallbackDeduplicator.markIfNew(uri)) {
-        debugPrint('🔗 이미 처리된 인증 콜백 — 무시');
-        return;
-      }
       debugPrint('🔗 Supabase 인증 콜백 수신');
-      try {
-        await Supabase.instance.client.auth.getSessionFromUrl(uri);
-        debugPrint('🔗 Supabase 인증 콜백 완료');
-      } catch (e) {
-        debugPrint('🔗 Supabase 인증 콜백 실패: $e');
+      final outcome = await _authCallbackProcessor.process(
+        uri,
+        exchange: (callbackUri) async {
+          await Supabase.instance.client.auth.getSessionFromUrl(callbackUri);
+        },
+      );
+      switch (outcome) {
+        case DeepLinkAuthCallbackOutcome.completed:
+          debugPrint('🔗 Supabase 인증 콜백 완료');
+          break;
+        case DeepLinkAuthCallbackOutcome.duplicate:
+          debugPrint('🔗 이미 처리된 인증 콜백 — 무시');
+          break;
+        case DeepLinkAuthCallbackOutcome.rejected:
+          debugPrint('🔗 인증 콜백 에러 파라미터 감지 — 무시');
+          break;
+        case DeepLinkAuthCallbackOutcome.failed:
+          debugPrint('🔗 Supabase 인증 콜백 실패');
+          break;
       }
       return;
     }
 
-    debugPrint('🔗 딥링크 수신: $uri (useReplacement=$useReplacement)');
-
-    if (parseUri(uri) == null) {
-      debugPrint('🔗 유효하지 않은 딥링크: $uri');
+    final result = parseUri(uri);
+    if (result == null) {
+      debugPrint(
+        '🔗 유효하지 않은 딥링크: ${DeepLinkLogSanitizer.describe(uri)}',
+      );
       return;
     }
+    final normalizedUri = DeepLinkContentNormalizer.normalize(result);
+    debugPrint(
+      '🔗 딥링크 수신: ${DeepLinkLogSanitizer.describe(normalizedUri)} '
+      '(useReplacement=$useReplacement)',
+    );
 
     await _intentCoordinator.receive(
-      DeepLinkRequest(uri: uri, useReplacement: useReplacement),
+      DeepLinkRequest(uri: normalizedUri, useReplacement: useReplacement),
       isAuthenticated: Supabase.instance.client.auth.currentUser != null,
       dispatch: _dispatchDeepLink,
     );
@@ -653,7 +738,7 @@ class DeepLinkService {
     _navigatorKey = null;
     _isInitialized = false;
     _navigationGeneration += 1;
-    _authCallbackDeduplicator.clear();
+    _authCallbackProcessor.clear();
     _intentCoordinator.reset();
   }
 }

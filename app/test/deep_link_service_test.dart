@@ -133,6 +133,82 @@ void main() {
     expect(description, isNot(contains('secret')));
   });
 
+  test('custom deep-link handler is the single auth callback owner', () {
+    expect(
+      DeepLinkAuthConfiguration.supabaseOptions.detectSessionInUri,
+      isFalse,
+    );
+  });
+
+  test('cold and warm auth callback delivery exchanges a session once',
+      () async {
+    final processor = DeepLinkAuthCallbackProcessor();
+    final callback = Uri.parse('bookgolas://login-callback?code=secret-code');
+    var exchangeCount = 0;
+
+    final coldStart = await processor.process(
+      callback,
+      exchange: (_) async {
+        exchangeCount += 1;
+      },
+    );
+    final warmStartDuplicate = await processor.process(
+      callback,
+      exchange: (_) async {
+        exchangeCount += 1;
+      },
+    );
+
+    expect(coldStart, DeepLinkAuthCallbackOutcome.completed);
+    expect(warmStartDuplicate, DeepLinkAuthCallbackOutcome.duplicate);
+    expect(exchangeCount, 1);
+  });
+
+  test('callback-controlled errors are rejected before session exchange',
+      () async {
+    final processor = DeepLinkAuthCallbackProcessor();
+    final callback = Uri.parse(
+      'bookgolas://login-callback#error_description=secret',
+    );
+    var exchangeCount = 0;
+
+    final outcome = await processor.process(
+      callback,
+      exchange: (_) async {
+        exchangeCount += 1;
+      },
+    );
+
+    expect(outcome, DeepLinkAuthCallbackOutcome.rejected);
+    expect(exchangeCount, 0);
+  });
+
+  test('content deep-link logging omits identifiers and untrusted data', () {
+    final uri = Uri.parse(
+      'bookgolas://book/detail/private-book?token=secret#credential',
+    );
+
+    final description = DeepLinkLogSanitizer.describe(uri);
+
+    expect(description, 'bookgolas://book/detail');
+    expect(description, isNot(contains('private-book')));
+    expect(description, isNot(contains('secret')));
+    expect(description, isNot(contains('credential')));
+  });
+
+  test('content deep links normalize to supported semantic fields', () {
+    final raw = Uri.parse(
+      'bookgolas://book/scan/current?homeWidget=true&token=secret#credential',
+    );
+    final result = DeepLinkService.parseUri(raw)!;
+
+    final normalized = DeepLinkContentNormalizer.normalize(result);
+
+    expect(normalized, Uri.parse('bookgolas://book/scan/current'));
+    expect(normalized.query, isEmpty);
+    expect(normalized.fragment, isEmpty);
+  });
+
   group('DeepLinkBookResolver', () {
     test('does not query a book before authentication', () async {
       final resolver = DeepLinkBookResolver();
