@@ -200,6 +200,13 @@ class DeepLinkLogSanitizer {
   }
 }
 
+class DeepLinkLogMessages {
+  static const currentBookResolvedFromDatabase =
+      '🔗 "current" → DB reading 책 확인';
+  static const currentBookResolvedFromWidget = '🔗 "current" → 위젯 저장 책 확인';
+  static const targetBookNotFound = '🔗 딥링크 대상 책을 찾을 수 없음';
+}
+
 class DeepLinkIntentCoordinator {
   final DateTime Function() _now;
   final Duration _duplicateWindow;
@@ -512,13 +519,13 @@ class DeepLinkService {
           .limit(1);
       if ((response as List).isNotEmpty) {
         final id = response.first['id'] as String;
-        debugPrint('🔗 "current" → DB 첫 reading 책 ID: $id');
+        debugPrint(DeepLinkLogMessages.currentBookResolvedFromDatabase);
         return id;
       }
 
       final storedId = await HomeWidget.getWidgetData<String>('book_id');
       if (storedId != null && storedId.isNotEmpty) {
-        debugPrint('🔗 "current" → 위젯 저장 책 ID: $storedId');
+        debugPrint(DeepLinkLogMessages.currentBookResolvedFromWidget);
         return storedId;
       }
     } catch (e) {
@@ -681,7 +688,7 @@ class DeepLinkService {
     final book = await _fetchBook(resolvedId, userId: userId);
     if (!canComplete()) return;
     if (book == null) {
-      debugPrint('🔗 책을 찾을 수 없음: $resolvedId');
+      debugPrint(DeepLinkLogMessages.targetBookNotFound);
       return;
     }
     DeepLinkNavigator.open(

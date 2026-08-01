@@ -196,6 +196,20 @@ void main() {
     expect(description, isNot(contains('credential')));
   });
 
+  test('content resolution log branches use fixed classifications', () {
+    const messages = [
+      DeepLinkLogMessages.currentBookResolvedFromDatabase,
+      DeepLinkLogMessages.currentBookResolvedFromWidget,
+      DeepLinkLogMessages.targetBookNotFound,
+    ];
+
+    for (final message in messages) {
+      expect(message, isNot(contains('private-book')));
+      expect(message, isNot(contains('secret')));
+      expect(message, isNot(contains('current-book-id')));
+    }
+  });
+
   test('content deep links normalize to supported semantic fields', () {
     final raw = Uri.parse(
       'bookgolas://book/scan/current?homeWidget=true&token=secret#credential',
