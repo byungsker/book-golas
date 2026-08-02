@@ -25,6 +25,17 @@ void main() {
       tester,
     ) async {
       final brightness = ValueNotifier(Brightness.dark);
+      final platformCalls = <MethodCall>[];
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+
+      messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        platformCalls.add(call);
+        return null;
+      });
+      addTearDown(
+        () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+      );
 
       await tester.pumpWidget(
         ValueListenableBuilder<Brightness>(
@@ -44,6 +55,11 @@ void main() {
       await tester.pump();
 
       expect(_activeOverlay(tester).statusBarIconBrightness, Brightness.dark);
+      expect(platformCalls.last.method, 'SystemChrome.setSystemUIOverlayStyle');
+      expect(
+        platformCalls.last.arguments['statusBarIconBrightness'],
+        'Brightness.dark',
+      );
     });
   });
 }
