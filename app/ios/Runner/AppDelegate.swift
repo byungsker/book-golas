@@ -44,7 +44,7 @@ import home_widget
       name: "com.bookgolas.app/system_ui",
       binaryMessenger: controller.binaryMessenger
     )
-    systemUiChannel.setMethodCallHandler { call, result in
+    systemUiChannel.setMethodCallHandler { [weak self] call, result in
       guard call.method == "setStatusBarBrightness",
             let isDark = call.arguments as? Bool else {
         result(FlutterMethodNotImplemented)
@@ -52,6 +52,7 @@ import home_widget
       }
 
       if #available(iOS 13.0, *) {
+        self?.window?.overrideUserInterfaceStyle = isDark ? .dark : .light
         UIApplication.shared.statusBarStyle = isDark ? .lightContent : .darkContent
       } else {
         UIApplication.shared.statusBarStyle = isDark ? .lightContent : .default
