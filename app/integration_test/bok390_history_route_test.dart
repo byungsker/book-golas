@@ -61,8 +61,21 @@ void main() {
             brightness: testCase.brightness,
           ),
         );
-        await tester.pump(const Duration(milliseconds: 1000));
-        await tester.pump();
+        final completedTabInitialization = find.byKey(
+          const ValueKey('scrollable-tab-action-3'),
+          skipOffstage: false,
+        );
+        for (var attempt = 0;
+            attempt < 40 && completedTabInitialization.evaluate().isEmpty;
+            attempt++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        expect(
+          completedTabInitialization,
+          findsOneWidget,
+          reason:
+              'Completed-book four-tab initialization did not finish before selecting History.',
+        );
 
         final l10n = AppLocalizations.of(
           tester.element(find.byType(BookDetailScreen)),
