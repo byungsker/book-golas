@@ -488,6 +488,15 @@ def require_forbidden_environment_contract(content: str, label: str) -> None:
 
 
 def run_self_test() -> None:
+    def write_deflated_ipa(ipa_path: Path, member_path: str, content: bytes) -> None:
+        with zipfile.ZipFile(
+            ipa_path, "w", compression=zipfile.ZIP_DEFLATED
+        ) as archive:
+            archive.writestr(member_path, content)
+        with zipfile.ZipFile(ipa_path) as archive:
+            if archive.getinfo(member_path).compress_type != zipfile.ZIP_DEFLATED:
+                raise BoundaryError("self-test IPA member was not deflated")
+
     require_allowed_defines("--dart-define=ENVIRONMENT=development", "allowed")
     try:
         require_allowed_defines("--dart-define=OPENAI_API_KEY=value", "blocked")
@@ -617,25 +626,26 @@ def run_self_test() -> None:
         else:
             raise BoundaryError("self-test did not scan a cross-chunk forbidden value")
         runner_ipa = artifact / "Runner.ipa"
-        with zipfile.ZipFile(runner_ipa, "w") as archive:
-            archive.writestr(
-                "Payload/Runner.app/config",
-                base64.b64encode(forbidden_value.encode("utf-8")),
-            )
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/config",
+            base64.b64encode(forbidden_value.encode("utf-8")),
+        )
         try:
             require_clean_artifact(runner_ipa, (forbidden_value,))
         except BoundaryError:
             pass
         else:
             raise BoundaryError("self-test did not scan compressed IPA content")
-        with zipfile.ZipFile(runner_ipa, "w") as archive:
-            archive.writestr(
-                "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
-                b"PRIVATE_KEY",
-            )
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
+            b"PRIVATE_KEY",
+        )
         require_clean_artifact(runner_ipa)
-        with zipfile.ZipFile(runner_ipa, "w") as archive:
-            archive.writestr("Payload/Runner.app/config", b"OPENAI_API_KEY")
+        write_deflated_ipa(
+            runner_ipa, "Payload/Runner.app/config", b"OPENAI_API_KEY"
+        )
         try:
             require_clean_artifact(runner_ipa)
         except BoundaryError as error:
@@ -646,11 +656,11 @@ def run_self_test() -> None:
                 raise BoundaryError("self-test did not provide a safe marker diagnostic")
         else:
             raise BoundaryError("self-test did not scan an app-owned server marker")
-        with zipfile.ZipFile(runner_ipa, "w") as archive:
-            archive.writestr(
-                "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
-                forbidden_value.encode("utf-8"),
-            )
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
+            forbidden_value.encode("utf-8"),
+        )
         try:
             require_clean_artifact(runner_ipa, (forbidden_value,))
         except BoundaryError:
