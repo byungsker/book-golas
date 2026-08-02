@@ -93,13 +93,31 @@ void main() {
           tester.element(find.byType(BookDetailScreen)),
         );
         final actionBar = find.byKey(FloatingActionBar.actionBarKey);
+        final cumulativePages = find.text(l10n.historyTabCumulativePages);
         final finalRecord = find.text(l10n.historyTabCumulativeLabel(320));
+        for (var attempt = 0;
+            attempt < 40 &&
+                (cumulativePages.evaluate().isEmpty ||
+                    finalRecord.evaluate().isEmpty);
+            attempt++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
 
         expect(history, findsOneWidget);
         expect(actionBar, findsOneWidget);
-        expect(find.text(l10n.historyTabCumulativePages), findsWidgets);
+        expect(
+          cumulativePages,
+          findsWidgets,
+          reason:
+              'History cumulative-pages label did not render after data loading.',
+        );
         expect(find.text(l10n.historyTabReadingTime), findsWidgets);
-        expect(finalRecord, findsOneWidget);
+        expect(
+          finalRecord,
+          findsOneWidget,
+          reason:
+              'History final daily record did not render after data loading.',
+        );
         expect(tester.takeException(), isNull);
 
         final historyScrollable = find.descendant(
