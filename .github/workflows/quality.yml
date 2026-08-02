@@ -26,17 +26,8 @@ jobs:
           flutter-version: '3.35.0'
           channel: stable
           cache: true
-      - name: Create test environment
-        run: |
-          printf '%s\n' \
-            'ALADIN_TTB_KEY=test' \
-            'SUPABASE_URL_DEV=https://example.supabase.co' \
-            'SUPABASE_ANON_KEY_DEV=test' \
-            'SUPABASE_URL_PROD=https://example.supabase.co' \
-            'SUPABASE_ANON_KEY_PROD=test' \
-            'GOOGLE_CLOUD_VISION_API_KEY=test' \
-            'REVENUECAT_PUBLIC_KEY=test' \
-            'ENVIRONMENT=development' > .env
+      - name: Verify mobile client configuration boundary
+        run: python3 tool/verify_mobile_client_config.py --self-test --source-root . --workflow ../.github/workflows/ios-testflight.yml --workflow ../.github/workflows/ios-production.yml
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter analyze --no-fatal-infos

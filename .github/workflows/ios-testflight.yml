@@ -238,6 +238,9 @@ jobs:
           cd app
           flutter pub get
 
+      - name: Verify mobile client configuration inputs
+        run: python3 app/tool/verify_mobile_client_config.py --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
+
       - name: Install CocoaPods
         env:
           LANG: en_US.UTF-8
@@ -302,12 +305,14 @@ jobs:
       - name: Build Flutter iOS
         id: build-metadata
         env:
+          ENVIRONMENT: development
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_DEV }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_DEV }}
           REVENUECAT_PUBLIC_KEY: ${{ secrets.REVENUECAT_PUBLIC_KEY }}
           GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
+          python3 app/tool/verify_mobile_client_config.py --require-client-environment
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
@@ -321,11 +326,14 @@ jobs:
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER" \
             --dart-define=PAID_SUBSCRIPTIONS_ENABLED="$PAID_SUBSCRIPTIONS_ENABLED" \
-            --dart-define=ENVIRONMENT=development \
+            --dart-define=ENVIRONMENT="$ENVIRONMENT" \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=REVENUECAT_PUBLIC_KEY="$REVENUECAT_PUBLIC_KEY" \
             --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
+
+      - name: Verify mobile build artifact boundary
+        run: python3 app/tool/verify_mobile_client_config.py --artifact app/build/ios
 
       - name: Build and Upload to TestFlight
         env:
