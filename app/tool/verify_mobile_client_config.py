@@ -28,6 +28,16 @@ ALLOWED_DART_DEFINES = frozenset(
         "SUPABASE_URL",
     }
 )
+REQUIRED_CLIENT_ENVIRONMENT = (
+    "ENVIRONMENT",
+    "PAID_SUBSCRIPTIONS_ENABLED",
+    "REVENUECAT_PUBLIC_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_URL",
+)
+OPTIONAL_CLIENT_ENVIRONMENT = (
+    "GOOGLE_SERVER_CLIENT_ID",
+)
 SERVER_ONLY_MARKERS = (
     "ALADIN_TTB_KEY",
     "APP_STORE_CONNECT_API_KEY",
@@ -103,15 +113,11 @@ def require_allowed_source_defines(source_root: Path) -> None:
 
 
 def require_client_environment(environment: dict[str, str]) -> None:
-    required = (
-        "ENVIRONMENT",
-        "GOOGLE_SERVER_CLIENT_ID",
-        "PAID_SUBSCRIPTIONS_ENABLED",
-        "REVENUECAT_PUBLIC_KEY",
-        "SUPABASE_ANON_KEY",
-        "SUPABASE_URL",
+    missing = sorted(
+        name
+        for name in REQUIRED_CLIENT_ENVIRONMENT
+        if not environment.get(name, "").strip()
     )
-    missing = sorted(name for name in required if not environment.get(name, "").strip())
     if missing:
         raise BoundaryError(
             "required client configuration is missing: " + ", ".join(missing)
@@ -125,7 +131,10 @@ def require_client_environment(environment: dict[str, str]) -> None:
     ):
         raise BoundaryError("SUPABASE_URL must be a public Supabase HTTPS URL")
     for marker in SERVER_ONLY_MARKERS:
-        if any(marker in environment[name] for name in required):
+        if any(
+            marker in environment.get(name, "")
+            for name in REQUIRED_CLIENT_ENVIRONMENT + OPTIONAL_CLIENT_ENVIRONMENT
+        ):
             raise BoundaryError("client configuration contains a server-only marker")
     parts = environment["SUPABASE_ANON_KEY"].split(".")
     if len(parts) == 3:
@@ -247,13 +256,27 @@ def run_self_test() -> None:
     require_client_environment(
         {
             "ENVIRONMENT": "development",
-            "GOOGLE_SERVER_CLIENT_ID": "public-test-client-id",
+            "GOOGLE_SERVER_CLIENT_ID": "",
             "PAID_SUBSCRIPTIONS_ENABLED": "false",
             "REVENUECAT_PUBLIC_KEY": "public-test-key",
             "SUPABASE_ANON_KEY": "public-test-key",
             "SUPABASE_URL": "https://example.supabase.co",
         }
     )
+    try:
+        require_client_environment(
+            {
+                "ENVIRONMENT": "development",
+                "PAID_SUBSCRIPTIONS_ENABLED": "false",
+                "REVENUECAT_PUBLIC_KEY": "public-test-key",
+                "SUPABASE_ANON_KEY": "public-test-key",
+                "SUPABASE_URL": "",
+            }
+        )
+    except BoundaryError:
+        pass
+    else:
+        raise BoundaryError("self-test did not block an empty required client value")
     try:
         require_client_environment(
             {
