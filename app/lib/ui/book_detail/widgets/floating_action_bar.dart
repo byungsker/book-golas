@@ -1,17 +1,24 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/floating_context_dropdown.dart';
 
 class FloatingActionBar extends StatelessWidget {
+  static const double bottomOffset = 22;
+  static const double contentSeparation = 16;
+  static const actionBarKey = ValueKey('book-detail-floating-action-bar');
+
   final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
   final VoidCallback? onTimerTap;
+  final ValueChanged<double>? onHeightChanged;
   final bool isReadingMode;
   final bool isTimerRunning;
 
@@ -21,6 +28,7 @@ class FloatingActionBar extends StatelessWidget {
     required this.onAddMemorablePageTap,
     this.onRecallSearchTap,
     this.onTimerTap,
+    this.onHeightChanged,
     this.isReadingMode = true,
     this.isTimerRunning = false,
   });
@@ -29,24 +37,89 @@ class FloatingActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final bottomSafeArea = MediaQuery.viewPaddingOf(context).bottom;
+
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 22,
-      child: isReadingMode
-          ? _ReadingModeBar(
-              isDark: isDark,
-              onUpdatePageTap: onUpdatePageTap,
-              onAddMemorablePageTap: onAddMemorablePageTap,
-              onRecallSearchTap: onRecallSearchTap,
-              onTimerTap: onTimerTap,
-            )
-          : _CompletedModeBar(
-              isDark: isDark,
-              onAddMemorablePageTap: onAddMemorablePageTap,
-              onRecallSearchTap: onRecallSearchTap,
-            ),
+      bottom: bottomOffset + bottomSafeArea,
+      child: _MeasureSize(
+        key: actionBarKey,
+        onChange: (size) => onHeightChanged?.call(size.height),
+        child: isReadingMode
+            ? _ReadingModeBar(
+                isDark: isDark,
+                onUpdatePageTap: onUpdatePageTap,
+                onAddMemorablePageTap: onAddMemorablePageTap,
+                onRecallSearchTap: onRecallSearchTap,
+                onTimerTap: onTimerTap,
+              )
+            : _CompletedModeBar(
+                isDark: isDark,
+                onAddMemorablePageTap: onAddMemorablePageTap,
+                onRecallSearchTap: onRecallSearchTap,
+              ),
+      ),
     );
+  }
+
+  static double contentBottomClearance({
+    required double actionBarHeight,
+    required double bottomSafeArea,
+  }) {
+    return actionBarHeight + bottomOffset + bottomSafeArea + contentSeparation;
+  }
+
+  static double minimumHeightFor(
+    BuildContext context, {
+    required bool isReadingMode,
+  }) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final buttonHeight = math
+        .max(62, MediaQuery.textScalerOf(context).scale(15) * 2.4 + 16)
+        .toDouble();
+    if (isReadingMode && textScale >= 1.4) {
+      return buttonHeight * 2 + 8;
+    }
+    return buttonHeight;
+  }
+}
+
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({
+    super.key,
+    required this.onChange,
+    required super.child,
+  });
+
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderMeasureSize(onChange);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderMeasureSize renderObject,
+  ) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _oldSize) return;
+    _oldSize = size;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(size));
   }
 }
 
