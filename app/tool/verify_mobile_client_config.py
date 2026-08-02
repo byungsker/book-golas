@@ -7,6 +7,7 @@ import binascii
 import json
 import os
 import re
+import shlex
 import sys
 import tempfile
 import zipfile
@@ -38,6 +39,55 @@ REQUIRED_CLIENT_ENVIRONMENT = (
 OPTIONAL_CLIENT_ENVIRONMENT = (
     "GOOGLE_SERVER_CLIENT_ID",
 )
+FORBIDDEN_ENVIRONMENT_CONTRACTS = {
+    "ios-testflight.yml": (
+        {
+            "CERTIFICATE_P12_BASE64",
+            "CERTIFICATE_PASSWORD",
+        },
+        {
+            "ALADIN_TTB_KEY",
+            "FIREBASE_SERVICE_ACCOUNT",
+            "GOOGLE_CLOUD_VISION_API_KEY",
+            "OPENAI_API_KEY",
+            "RESEND_API_KEY",
+            "REVENUECAT_WEBHOOK_AUTH_KEY_DEV",
+            "SUPABASE_SERVICE_ROLE_KEY",
+        },
+    ),
+    "ios-production.yml": (
+        {
+            "APP_STORE_CONNECT_API_KEY_CONTENT",
+            "CERTIFICATE_P12_BASE64",
+            "CERTIFICATE_PASSWORD",
+        },
+        {
+            "ALADIN_TTB_KEY",
+            "FIREBASE_SERVICE_ACCOUNT",
+            "GOOGLE_CLOUD_VISION_API_KEY",
+            "OPENAI_API_KEY",
+            "RESEND_API_KEY",
+            "REVENUECAT_WEBHOOK_AUTH_KEY_PROD",
+            "SUPABASE_SERVICE_ROLE_KEY",
+        },
+    ),
+}
+SIGNED_IPA_WORKFLOW_STEPS = {
+    "ios-testflight.yml": (
+        "Build signed TestFlight IPA",
+        "Verify signed TestFlight IPA boundary",
+        "Upload scanned TestFlight IPA",
+        "fastlane beta_build",
+        "fastlane beta_upload",
+    ),
+    "ios-production.yml": (
+        "Build signed App Store IPA",
+        "Verify signed App Store IPA boundary",
+        "Upload scanned App Store IPA",
+        "fastlane release_build",
+        "fastlane release_upload",
+    ),
+}
 SERVER_ONLY_MARKERS = (
     "ALADIN_TTB_KEY",
     "APP_STORE_CONNECT_API_KEY",
@@ -71,6 +121,8 @@ ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
     FROM_ENVIRONMENT_CALL,
     re.DOTALL,
 )
+SIGNED_IPA_SCANNER_PATH = "app/tool/verify_mobile_client_config.py"
+SIGNED_IPA_SCANNER_INTERPRETER = "/usr/bin/python3"
 
 
 class BoundaryError(ValueError):
@@ -210,7 +262,7 @@ def require_clean_artifact(artifact: Path, forbidden_values: tuple[str, ...] = (
             raise BoundaryError("forbidden value-derived material found in mobile artifact")
 
 
-def require_forbidden_environment_values(
+def require_required_forbidden_environment_values(
     environment: dict[str, str], names: tuple[str, ...]
 ) -> tuple[str, ...]:
     missing = sorted(name for name in names if not environment.get(name, "").strip())
@@ -221,7 +273,144 @@ def require_forbidden_environment_values(
     return tuple(environment[name] for name in names)
 
 
+def optional_forbidden_environment_values(
+    environment: dict[str, str], names: tuple[str, ...]
+) -> tuple[str, ...]:
+    return tuple(
+        environment[name] for name in names if environment.get(name, "").strip()
+    )
+
+
+def forbidden_environment_values(
+    environment: dict[str, str], required_names: tuple[str, ...], optional_names: tuple[str, ...]
+) -> tuple[str, ...]:
+    overlapping_names = sorted(set(required_names) & set(optional_names))
+    if overlapping_names:
+        raise BoundaryError(
+            "forbidden environment inputs cannot be both required and optional: "
+            + ", ".join(overlapping_names)
+        )
+    return require_required_forbidden_environment_values(
+        environment, required_names
+    ) + optional_forbidden_environment_values(environment, optional_names)
+
+
+def workflow_step_run_block(content: str, label: str, step_name: str) -> tuple[str, ...]:
+    lines = content.splitlines()
+    step_pattern = re.compile(r"^(?P<indent>\s*)-\s+name:\s*(?P<name>.+?)\s*$")
+    matches = []
+    for index, line in enumerate(lines):
+        match = step_pattern.fullmatch(line)
+        if match and match.group("name").strip(" '\"") == step_name:
+            matches.append((index, len(match.group("indent"))))
+    if len(matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} must occur once")
+
+    start, step_indent = matches[0]
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        match = step_pattern.fullmatch(lines[index])
+        if match and len(match.group("indent")) <= step_indent:
+            end = index
+            break
+
+    run_pattern = re.compile(r"^(?P<indent>\s*)run:\s*\|\s*$")
+    run_matches = [
+        (index, len(match.group("indent")))
+        for index in range(start + 1, end)
+        if (match := run_pattern.fullmatch(lines[index]))
+    ]
+    if len(run_matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} must have one run block")
+
+    run_start, run_indent = run_matches[0]
+    run_lines = []
+    for line in lines[run_start + 1 : end]:
+        if line.strip() and len(line) - len(line.lstrip()) <= run_indent:
+            break
+        run_lines.append(line)
+    if not run_lines:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} run block is empty")
+    return tuple(run_lines)
+
+
+def shell_commands(run_lines: tuple[str, ...], label: str) -> tuple[str, ...]:
+    commands = []
+    current = []
+    continuing = False
+    for line in run_lines:
+        stripped = line.strip()
+        code = line.split("#", 1)[0].strip()
+        if not code:
+            if continuing and stripped.startswith("#"):
+                raise BoundaryError(f"{label}: shell comments cannot interrupt a continuation")
+            continue
+        continuing = code.endswith("\\")
+        current.append(code[:-1].rstrip() if continuing else code)
+        if continuing:
+            continue
+        commands.append(" ".join(current))
+        current = []
+        continuing = False
+    if current:
+        if continuing:
+            raise BoundaryError(f"{label}: shell continuation is incomplete")
+        commands.append(" ".join(current))
+    return tuple(commands)
+
+
+def signed_ipa_scanner_tokens(command: str, label: str) -> tuple[str, ...]:
+    if any(token in command for token in ("$", "`", ";", "|", "&", "<", ">", "(", ")", "{", "}")):
+        raise BoundaryError(f"{label}: signed IPA scanner must not use shell wrappers")
+    try:
+        tokens = tuple(shlex.split(command, posix=True))
+    except ValueError as error:
+        raise BoundaryError(f"{label}: signed IPA scanner command is not valid shell syntax") from error
+
+    if tokens[:2] != (SIGNED_IPA_SCANNER_INTERPRETER, SIGNED_IPA_SCANNER_PATH):
+        raise BoundaryError(
+            f"{label}: signed IPA scanner must execute {SIGNED_IPA_SCANNER_INTERPRETER} "
+            f"{SIGNED_IPA_SCANNER_PATH} directly"
+        )
+    return tokens
+
+
+def signed_ipa_scan_command(content: str, label: str) -> tuple[str, ...]:
+    workflow = SIGNED_IPA_WORKFLOW_STEPS.get(Path(label).name)
+    if workflow is None:
+        raise BoundaryError(f"{label}: signed IPA workflow contract is unknown")
+    _, scan_step, _, _, _ = workflow
+    commands = shell_commands(workflow_step_run_block(content, label, scan_step), label)
+    if len(commands) != 1:
+        raise BoundaryError(f"{label}: signed IPA boundary must contain only the scanner command")
+    tokens = signed_ipa_scanner_tokens(commands[0], label)
+    artifact_values = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--artifact"
+    ]
+    if artifact_values != ["app/ios/build/Runner.ipa"]:
+        raise BoundaryError(f"{label}: signed IPA boundary must scan Runner.ipa")
+    return tokens
+
+
 def require_upload_order(content: str, label: str) -> None:
+    workflow = SIGNED_IPA_WORKFLOW_STEPS.get(Path(label).name)
+    if workflow is not None:
+        build_step, _, upload_step, build_command, upload_command = workflow
+        build_commands = shell_commands(
+            workflow_step_run_block(content, label, build_step), label
+        )
+        upload_commands = shell_commands(
+            workflow_step_run_block(content, label, upload_step), label
+        )
+        if sum(build_command in command for command in build_commands) != 1:
+            raise BoundaryError(f"{label}: signed IPA archive command must occur once")
+        signed_ipa_scan_command(content, label)
+        if sum(upload_command in command for command in upload_commands) != 1:
+            raise BoundaryError(f"{label}: signed IPA upload command must occur once")
+        require_forbidden_environment_contract(content, label)
+        return
     archive_matches = list(re.finditer(r"fastlane (?:beta|release)_build", content))
     upload_matches = list(re.finditer(r"fastlane (?:beta|release)_upload", content))
     scan_matches = list(
@@ -231,6 +420,39 @@ def require_upload_order(content: str, label: str) -> None:
         raise BoundaryError(f"{label}: signed IPA archive, scan, and upload must each occur once")
     if not archive_matches[0].start() < scan_matches[0].start() < upload_matches[0].start():
         raise BoundaryError(f"{label}: signed IPA scan must occur after archive and before upload")
+
+
+def require_forbidden_environment_contract(content: str, label: str) -> None:
+    expected = FORBIDDEN_ENVIRONMENT_CONTRACTS.get(Path(label).name)
+    if expected is None:
+        return
+    tokens = signed_ipa_scan_command(content, label)
+    if "--forbidden-env" in tokens:
+        raise BoundaryError(f"{label}: forbidden environment inputs must be classified")
+    required_names = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--required-forbidden-env"
+    ]
+    optional_names = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--optional-forbidden-env"
+    ]
+    if any(
+        not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name)
+        for name in required_names + optional_names
+    ):
+        raise BoundaryError(f"{label}: forbidden environment input names must be literal")
+    if len(required_names) != len(set(required_names)) or len(optional_names) != len(
+        set(optional_names)
+    ):
+        raise BoundaryError(f"{label}: forbidden environment inputs must not repeat")
+    if set(required_names) & set(optional_names):
+        raise BoundaryError(f"{label}: forbidden environment inputs cannot overlap")
+    expected_required, expected_optional = expected
+    if set(required_names) != expected_required or set(optional_names) != expected_optional:
+        raise BoundaryError(f"{label}: forbidden environment input contract does not match")
 
 
 def run_self_test() -> None:
@@ -292,7 +514,9 @@ def run_self_test() -> None:
         pass
     else:
         raise BoundaryError("self-test did not block an invalid client URL")
-    require_forbidden_environment_values({"SCAN_VALUE": "present"}, ("SCAN_VALUE",))
+    require_required_forbidden_environment_values(
+        {"SCAN_VALUE": "present"}, ("SCAN_VALUE",)
+    )
     for environment, names, message in (
         (
             {"SCAN_VALUE": "present"},
@@ -306,11 +530,28 @@ def run_self_test() -> None:
         ),
     ):
         try:
-            require_forbidden_environment_values(environment, names)
+            require_required_forbidden_environment_values(environment, names)
         except BoundaryError:
             pass
         else:
             raise BoundaryError(message)
+    if optional_forbidden_environment_values({}, ("OPTIONAL",)):
+        raise BoundaryError("self-test did not skip an unset optional forbidden value")
+    if optional_forbidden_environment_values({"OPTIONAL": " "}, ("OPTIONAL",)):
+        raise BoundaryError("self-test did not skip a blank optional forbidden value")
+    optional_value = "optional-server-only-test-value"
+    if optional_forbidden_environment_values(
+        {"OPTIONAL": optional_value}, ("OPTIONAL",)
+    ) != (optional_value,):
+        raise BoundaryError("self-test did not collect a configured optional forbidden value")
+    try:
+        forbidden_environment_values(
+            {"DUPLICATE": "present"}, ("DUPLICATE",), ("DUPLICATE",)
+        )
+    except BoundaryError:
+        pass
+    else:
+        raise BoundaryError("self-test did not reject duplicate forbidden input classes")
     with tempfile.TemporaryDirectory() as directory:
         artifact = Path(directory) / "app"
         artifact.mkdir()
@@ -352,6 +593,18 @@ def run_self_test() -> None:
             pass
         else:
             raise BoundaryError("self-test did not scan compressed IPA content")
+        (artifact / "binary").write_bytes(optional_value.encode("utf-8"))
+        try:
+            require_clean_artifact(
+                artifact,
+                optional_forbidden_environment_values(
+                    {"OPTIONAL": optional_value}, ("OPTIONAL",)
+                ),
+            )
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan a configured optional forbidden value")
         source = Path(directory) / "source"
         source_directory = source / "lib"
         source_directory.mkdir(parents=True)
@@ -405,8 +658,101 @@ def run_self_test() -> None:
             "blocked",
         )
     except BoundaryError:
-        return
-    raise BoundaryError("self-test did not block invalid IPA scan ordering")
+        pass
+    else:
+        raise BoundaryError("self-test did not block invalid IPA scan ordering")
+    for workflow_name, contract in FORBIDDEN_ENVIRONMENT_CONTRACTS.items():
+        build_step, scan_step, upload_step, build_command, upload_command = (
+            SIGNED_IPA_WORKFLOW_STEPS[workflow_name]
+        )
+        required_names, optional_names = contract
+        flags = " ".join(
+            [
+                "--required-forbidden-env " + name
+                for name in sorted(required_names)
+            ]
+            + [
+                "--optional-forbidden-env " + name
+                for name in sorted(optional_names)
+            ]
+        )
+        scan_command = (
+            "/usr/bin/python3 app/tool/verify_mobile_client_config.py "
+            "--artifact app/ios/build/Runner.ipa "
+            + flags
+        )
+        workflow = "\n".join(
+            (
+                "jobs:",
+                "  build:",
+                "    steps:",
+                f"      - name: {build_step}",
+                "        run: |",
+                f"          {build_command}",
+                f"      - name: {scan_step}",
+                "        run: |",
+                f"          {scan_command}",
+                f"      - name: {upload_step}",
+                "        run: |",
+                f"          {upload_command}",
+            )
+        )
+        require_upload_order(workflow, workflow_name)
+        for prefix in (
+            "echo ",
+            "printf '%s' ",
+            "command ",
+            "$(printf python3) ",
+            "PATH=/tmp ",
+            "env PATH=/tmp ",
+            "python3 -u ",
+        ):
+            try:
+                signed_ipa_scanner_tokens(prefix + scan_command, workflow_name)
+            except BoundaryError:
+                pass
+            else:
+                raise BoundaryError(
+                    "self-test did not block a signed IPA scanner shell wrapper"
+                )
+        for bypass in (
+            workflow.replace(
+                scan_command,
+                scan_command.split(" --required", 1)[0] + "\n          # " + flags,
+            ),
+            workflow.replace(
+                f"      - name: {upload_step}",
+                "\n".join(
+                    (
+                        "      - name: Unrelated scanner-looking step",
+                        "        run: |",
+                        f"          {scan_command}",
+                        f"      - name: {upload_step}",
+                    )
+                ),
+            ).replace(scan_command, scan_command.split(" --required", 1)[0], 1),
+            workflow.replace(scan_command, "echo " + scan_command),
+            workflow.replace(scan_command, "PATH=/tmp " + scan_command),
+            workflow.replace(scan_command, "env PATH=/tmp " + scan_command),
+            workflow.replace(
+                scan_command,
+                "function python3() { :; }\n          " + scan_command,
+            ),
+            workflow.replace(
+                scan_command,
+                "alias python3=':'\n          " + scan_command,
+            ),
+            workflow.replace(scan_command, "true\n          " + scan_command),
+            workflow.replace(scan_command, scan_command + "\n          true"),
+        ):
+            try:
+                require_upload_order(bypass, workflow_name)
+            except BoundaryError:
+                pass
+            else:
+                raise BoundaryError(
+                    "self-test did not block a signed IPA workflow classification bypass"
+                )
 
 
 def parse_args() -> argparse.Namespace:
@@ -414,7 +760,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-root", type=Path)
     parser.add_argument("--workflow", type=Path, action="append", default=[])
     parser.add_argument("--artifact", type=Path, action="append", default=[])
-    parser.add_argument("--forbidden-env", action="append", default=[])
+    parser.add_argument("--required-forbidden-env", action="append", default=[])
+    parser.add_argument("--optional-forbidden-env", action="append", default=[])
     parser.add_argument("--require-client-environment", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args()
@@ -433,8 +780,11 @@ def main() -> int:
             content = workflow.read_text("utf-8")
             require_allowed_defines(content, str(workflow))
             require_upload_order(content, str(workflow))
-        forbidden_values = require_forbidden_environment_values(
-            dict(os.environ), tuple(args.forbidden_env)
+            require_forbidden_environment_contract(content, str(workflow))
+        forbidden_values = forbidden_environment_values(
+            dict(os.environ),
+            tuple(args.required_forbidden_env),
+            tuple(args.optional_forbidden_env),
         )
         for artifact in args.artifact:
             require_clean_artifact(artifact, forbidden_values)
