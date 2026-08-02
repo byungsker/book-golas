@@ -890,6 +890,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationsDisabled => 'Notifications disabled';
 
   @override
+  String get myPageNotificationPermissionDenied =>
+      'Notifications are disabled in system settings.';
+
+  @override
   String get myPageNotificationSettingsFailed =>
       'Failed to change notification settings';
 

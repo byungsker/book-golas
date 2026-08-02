@@ -850,6 +850,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
 
   @override
+  String get myPageNotificationPermissionDenied => '시스템 설정에서 알림을 허용해 주세요.';
+
+  @override
   String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
 
   @override

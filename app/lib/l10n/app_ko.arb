@@ -906,6 +906,9 @@
     
     "myPageNotificationsDisabled": "알림이 비활성화되었습니다",
     "@myPageNotificationsDisabled": {"description": "Notifications disabled message"},
+
+    "myPageNotificationPermissionDenied": "시스템 설정에서 알림을 허용해 주세요.",
+    "@myPageNotificationPermissionDenied": {"description": "Notification permission was denied or must be enabled in system settings"},
     
     "myPageNotificationSettingsFailed": "알림 설정 변경에 실패했습니다",
     "@myPageNotificationSettingsFailed": {"description": "Notification settings change failed message"},

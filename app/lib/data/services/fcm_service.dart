@@ -46,14 +46,13 @@ class FCMService {
     tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
     await _initializeLocalNotifications();
-    await _requestPermission();
 
-    _fcmToken = await _firebaseMessaging.getToken();
-    debugPrint('FCM Token: $_fcmToken');
+    _firebaseMessaging.onTokenRefresh.listen((newToken) async {
+      final settings = await _firebaseMessaging.getNotificationSettings();
+      if (!_isAuthorized(settings)) return;
 
-    _firebaseMessaging.onTokenRefresh.listen((newToken) {
       _fcmToken = newToken;
-      debugPrint('FCM Token refreshed: $newToken');
+      debugPrint('FCM token refreshed');
       saveTokenToSupabase();
     });
 
@@ -72,9 +71,9 @@ class FCMService {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(
@@ -88,8 +87,14 @@ class FCMService {
     );
   }
 
-  Future<void> _requestPermission() async {
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+  Future<bool> requestPermissionAndRegister() async {
+    final currentSettings = await _firebaseMessaging.getNotificationSettings();
+    if (_isAuthorized(currentSettings)) {
+      await _registerToken();
+      return true;
+    }
+
+    final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -97,6 +102,23 @@ class FCMService {
     );
 
     debugPrint('User granted permission: ${settings.authorizationStatus}');
+    if (!_isAuthorized(settings)) {
+      return false;
+    }
+
+    await _registerToken();
+    return true;
+  }
+
+  bool _isAuthorized(NotificationSettings settings) {
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  Future<void> _registerToken() async {
+    _fcmToken = await _firebaseMessaging.getToken();
+    debugPrint('FCM token registered');
+    await saveTokenToSupabase();
   }
 
   void _handleForegroundMessage(RemoteMessage message) {

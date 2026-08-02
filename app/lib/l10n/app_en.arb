@@ -254,6 +254,8 @@
      "myPageNotificationTimeTitle": "Notification Time",
      "myPageNotificationsEnabled": "Notifications enabled",
      "myPageNotificationsDisabled": "Notifications disabled",
+     "myPageNotificationPermissionDenied": "Notifications are disabled in system settings.",
+     "@myPageNotificationPermissionDenied": {"description": "Notification permission was denied or must be enabled in system settings"},
      "myPageNotificationSettingsFailed": "Failed to change notification settings",
      "myPageNotificationTimeChanged": "Notification time changed to {time}",
      "@myPageNotificationTimeChanged": {
