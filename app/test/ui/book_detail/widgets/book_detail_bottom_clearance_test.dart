@@ -74,8 +74,10 @@ class _BottomClearanceHostState extends State<_BottomClearanceHost> {
   Widget build(BuildContext context) {
     final actionBarHeight = _actionBarHeight ??
         FloatingActionBar.minimumHeightFor(context, isReadingMode: true);
-    final bottomPadding =
-        FloatingActionBar.contentBottomClearance(actionBarHeight);
+    final bottomPadding = FloatingActionBar.contentBottomClearance(
+      actionBarHeight: actionBarHeight,
+      bottomSafeArea: MediaQuery.viewPaddingOf(context).bottom,
+    );
 
     return Scaffold(
       body: Stack(
