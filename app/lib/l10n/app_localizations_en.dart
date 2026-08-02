@@ -719,10 +719,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bookDetailPausedPosition(
-    int currentPage,
-    int totalPages,
-    int percentage,
-  ) {
+      int currentPage, int totalPages, int percentage) {
     return 'Paused at: ${currentPage}p / ${totalPages}p ($percentage%)';
   }
 
@@ -1538,10 +1535,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String readingManagementProgress(
-    int progress,
-    int currentPage,
-    int totalPages,
-  ) {
+      int progress, int currentPage, int totalPages) {
     return 'Currently $progress% in progress ($currentPage / $totalPages pages)';
   }
 
@@ -2664,6 +2658,141 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTabDailyPages => 'Daily Pages';
 
   @override
+  String get historyTabReadingTime => 'Reading Time';
+
+  @override
+  String historyTabChartCumulativeTooltip(int page) {
+    return 'Cumulative: $page p\\n';
+  }
+
+  @override
+  String historyTabChartDailyTooltip(int page) {
+    return 'Daily: +$page p';
+  }
+
+  @override
+  String historyTabDurationSeconds(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String historyTabDurationMinutes(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String historyTabDurationHours(int hours) {
+    return '${hours}h';
+  }
+
+  @override
+  String historyTabDurationHoursMinutes(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String historyTabDurationHoursMinutesSeconds(
+      int hours, int minutes, int seconds) {
+    return '${hours}h ${minutes}m ${seconds}s';
+  }
+
+  @override
+  String historyTabAttemptBadge(int attempt, String encouragement) {
+    return 'Attempt $attempt · $encouragement';
+  }
+
+  @override
+  String get historyTabReadingTimeStats => '⏱️ Reading time statistics';
+
+  @override
+  String get historyTabTotalReadingTime => 'Total reading time';
+
+  @override
+  String get historyTabTotalSessions => 'Total sessions';
+
+  @override
+  String get historyTabAnalysisCompletedAfterAttemptsTitle =>
+      'You finished it!';
+
+  @override
+  String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt) {
+    return 'You finished after $attempt attempts. Your persistence paid off!';
+  }
+
+  @override
+  String get historyTabAnalysisCompletedTitle =>
+      'Congratulations on finishing!';
+
+  @override
+  String get historyTabAnalysisCompletedMessage =>
+      'You reached your goal. Ready to read another book?';
+
+  @override
+  String get historyTabAnalysisPastDueRetryTitle => 'Let\'s finish this time';
+
+  @override
+  String historyTabAnalysisPastDueRetryMessage(int attempt) {
+    return 'This is attempt $attempt. Reset the target date and read through to the end.';
+  }
+
+  @override
+  String get historyTabAnalysisPastDueTitle => 'Your target date passed';
+
+  @override
+  String get historyTabAnalysisPastDueMessage =>
+      'That\'s okay. Set a new target date and start again.';
+
+  @override
+  String get historyTabAnalysisFarAheadTitle => 'You\'re moving fast!';
+
+  @override
+  String get historyTabAnalysisFarAheadMessage =>
+      'You\'re reading much faster than expected. You may finish early at this pace!';
+
+  @override
+  String get historyTabAnalysisAheadTitle => 'You\'re ahead of plan!';
+
+  @override
+  String get historyTabAnalysisAheadMessage =>
+      'You\'re ahead of schedule. Keep this pace to reach your goal.';
+
+  @override
+  String get historyTabAnalysisOnTrackTitle => 'You\'re on track';
+
+  @override
+  String get historyTabAnalysisOnTrackMessage =>
+      'You\'re reading consistently. Want to read a little more today?';
+
+  @override
+  String get historyTabAnalysisBehindRetryTitle => 'Can you pick up the pace?';
+
+  @override
+  String get historyTabAnalysisBehindRetryMessage =>
+      'Let\'s finish this time. A little more reading each day can help you catch up!';
+
+  @override
+  String get historyTabAnalysisBehindTitle => 'Want to read a little more?';
+
+  @override
+  String get historyTabAnalysisBehindMessage =>
+      'You\'re a little behind plan. Reading a little more today can help you catch up!';
+
+  @override
+  String get historyTabAnalysisFarBehindRetryTitle => 'Don\'t give up!';
+
+  @override
+  String historyTabAnalysisFarBehindRetryMessage(int attempt) {
+    return 'You\'re on attempt $attempt. Adjust your target date or focus a little more.';
+  }
+
+  @override
+  String get historyTabAnalysisFarBehindTitle => 'You may need a new target';
+
+  @override
+  String get historyTabAnalysisFarBehindMessage =>
+      'Your current pace may not reach the goal. Would you like to adjust the target date?';
+
+  @override
   String get historyTabDailyRecords => 'Daily Records';
 
   @override
@@ -3482,12 +3611,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyDateTimeFormat(
-    int year,
-    int month,
-    int day,
-    int hour,
-    int minute,
-  ) {
+      int year, int month, int day, int hour, int minute) {
     return '$month/$day/$year $hour:$minute';
   }
 
