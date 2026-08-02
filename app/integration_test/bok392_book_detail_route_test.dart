@@ -56,10 +56,10 @@ void main() {
           expect(find.byType(CompactBookHeader), findsOneWidget);
           expect(find.text(_title), findsOneWidget);
           expect(find.text(_author), findsOneWidget);
-          expect(
-            find.text(locale.languageCode == 'ko' ? '독서 중' : 'Reading'),
-            findsOneWidget,
+          final l10n = AppLocalizations.of(
+            tester.element(find.byType(BookDetailScreen)),
           );
+          expect(find.text(l10n.statusReading), findsOneWidget);
           expect(tester.takeException(), isNull);
 
           await binding.takeScreenshot(
