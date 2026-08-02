@@ -686,10 +686,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String bookDetailPausedPosition(
-    int currentPage,
-    int totalPages,
-    int percentage,
-  ) {
+      int currentPage, int totalPages, int percentage) {
     return '중단 위치: ${currentPage}p / ${totalPages}p ($percentage%)';
   }
 
@@ -848,6 +845,20 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
+
+  @override
+  String get myPageNotificationPermissionTitle => '설정에서 알림을 허용해 주세요';
+
+  @override
+  String get myPageNotificationPermissionDenied =>
+      '기기 설정에서 북골라스 알림을 켠 뒤 다시 시도해 주세요.';
+
+  @override
+  String get myPageOpenSettings => '설정 열기';
+
+  @override
+  String get myPageNotificationPermissionRequestFailed =>
+      '알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.';
 
   @override
   String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
@@ -1482,10 +1493,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String readingManagementProgress(
-    int progress,
-    int currentPage,
-    int totalPages,
-  ) {
+      int progress, int currentPage, int totalPages) {
     return '현재 $progress% 진행 중이에요 ($currentPage / $totalPages 페이지)';
   }
 
@@ -3395,12 +3403,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String historyDateTimeFormat(
-    int year,
-    int month,
-    int day,
-    int hour,
-    int minute,
-  ) {
+      int year, int month, int day, int hour, int minute) {
     return '$year년 $month월 $day일 $hour시 $minute분';
   }
 

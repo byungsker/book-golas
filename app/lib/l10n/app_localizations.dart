@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko'),
+    Locale('ko')
   ];
 
   /// App title
@@ -1399,10 +1399,7 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'중단 위치: {currentPage}p / {totalPages}p ({percentage}%)'**
   String bookDetailPausedPosition(
-    int currentPage,
-    int totalPages,
-    int percentage,
-  );
+      int currentPage, int totalPages, int percentage);
 
   /// Attempt start message
   ///
@@ -1679,6 +1676,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'알림이 비활성화되었습니다'**
   String get myPageNotificationsDisabled;
+
+  /// Title for the notification permission recovery dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'설정에서 알림을 허용해 주세요'**
+  String get myPageNotificationPermissionTitle;
+
+  /// Notification permission recovery guidance
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 설정에서 북골라스 알림을 켠 뒤 다시 시도해 주세요.'**
+  String get myPageNotificationPermissionDenied;
+
+  /// Button that opens the device application settings
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get myPageOpenSettings;
+
+  /// Notification enablement failed for a technical reason and explains how to retry
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.'**
+  String get myPageNotificationPermissionRequestFailed;
 
   /// Notification settings change failed message
   ///
@@ -2849,10 +2870,7 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'현재 {progress}% 진행 중이에요 ({currentPage} / {totalPages} 페이지)'**
   String readingManagementProgress(
-    int progress,
-    int currentPage,
-    int totalPages,
-  );
+      int progress, int currentPage, int totalPages);
 
   /// Pause label
   ///
@@ -6345,12 +6363,7 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{year}년 {month}월 {day}일 {hour}시 {minute}분'**
   String historyDateTimeFormat(
-    int year,
-    int month,
-    int day,
-    int hour,
-    int minute,
-  );
+      int year, int month, int day, int hour, int minute);
 
   /// Email invalid or already registered error
   ///
@@ -7496,9 +7509,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

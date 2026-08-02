@@ -7,13 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
 import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+import 'package:book_golas/ui/auth/controllers/notification_toggle_controller.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/auth/view_model/third_party_ai_consent_settings_controller.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
@@ -30,25 +33,37 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 import 'login_screen.dart';
+import 'notification_permission_dialog.dart';
 import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/auth/utils/legal_content.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
-  const MyPageScreen({super.key});
+  const MyPageScreen({
+    super.key,
+    this.requestNotificationPermission,
+  });
+
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => MyPageViewModel(),
-      child: const _MyPageContent(),
+      child: _MyPageContent(
+        requestNotificationPermission: requestNotificationPermission,
+      ),
     );
   }
 }
 
 class _MyPageContent extends StatefulWidget {
-  const _MyPageContent();
+  const _MyPageContent({this.requestNotificationPermission});
+
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   State<_MyPageContent> createState() => _MyPageContentState();
@@ -884,47 +899,69 @@ class _MyPageContentState extends State<_MyPageContent> {
                             value: settings.notificationEnabled,
                             onChanged: (value) async {
                               HapticFeedback.selectionClick();
-                              final success = await settingsViewModel
-                                  .updateNotificationEnabled(value);
+                              final result = await NotificationToggleController(
+                                requestPermission: widget
+                                        .requestNotificationPermission ??
+                                    FCMService().requestPermissionAndRegister,
+                                persistEnabled:
+                                    settingsViewModel.updateNotificationEnabled,
+                                scheduleDailyReminder: () =>
+                                    FCMService().scheduleDailyReminder(
+                                  hour: settings.dailyReminderHour,
+                                  minute: settings.dailyReminderMinute,
+                                ),
+                                scheduleGoalAlarm: () =>
+                                    FCMService().scheduleGoalAlarm(
+                                  hour: settings.goalAlarmHour,
+                                  minute: settings.goalAlarmMinute,
+                                ),
+                                cancelDailyReminder:
+                                    FCMService().cancelDailyReminder,
+                                cancelGoalAlarm: FCMService().cancelGoalAlarm,
+                              ).setEnabled(value);
 
-                              if (success) {
-                                if (value) {
-                                  await FCMService().scheduleDailyReminder(
-                                    hour: settings.dailyReminderHour,
-                                    minute: settings.dailyReminderMinute,
-                                  );
-                                  await FCMService().scheduleGoalAlarm(
-                                    hour: settings.goalAlarmHour,
-                                    minute: settings.goalAlarmMinute,
-                                  );
-                                } else {
-                                  await FCMService().cancelDailyReminder();
-                                  await FCMService().cancelGoalAlarm();
-                                }
+                              if (!context.mounted) return;
 
-                                if (mounted) {
+                              switch (result) {
+                                case NotificationToggleResult.enabled:
                                   CustomSnackbar.show(
                                     context,
-                                    message: value
-                                        ? AppLocalizations.of(context)
-                                            .myPageNotificationEnabled
-                                        : AppLocalizations.of(context)
-                                            .myPageNotificationDisabled,
-                                    type: value
-                                        ? BLabSnackbarType.success
-                                        : BLabSnackbarType.info,
+                                    message: AppLocalizations.of(context)
+                                        .myPageNotificationEnabled,
+                                    type: BLabSnackbarType.success,
                                     bottomOffset: 32,
                                   );
-                                }
-                              } else if (mounted) {
-                                CustomSnackbar.show(
-                                  context,
-                                  message: settingsViewModel.errorMessage ??
-                                      AppLocalizations.of(context)
-                                          .myPageNotificationChangeFailed,
-                                  type: BLabSnackbarType.error,
-                                  bottomOffset: 32,
-                                );
+                                  return;
+                                case NotificationToggleResult.disabled:
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: AppLocalizations.of(context)
+                                        .myPageNotificationDisabled,
+                                    type: BLabSnackbarType.info,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
+                                case NotificationToggleResult.permissionDenied:
+                                  await _showNotificationPermissionDialog(
+                                    context,
+                                  );
+                                  return;
+                                case NotificationToggleResult
+                                      .permissionRequestFailed:
+                                  await _showNotificationPermissionFailureDialog(
+                                    context,
+                                  );
+                                  return;
+                                case NotificationToggleResult.updateFailed:
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: settingsViewModel.errorMessage ??
+                                        AppLocalizations.of(context)
+                                            .myPageNotificationChangeFailed,
+                                    type: BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
                               }
                             },
                             activeTrackColor: BLabColors.primary,
@@ -1107,6 +1144,33 @@ class _MyPageContentState extends State<_MyPageContent> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Future<void> _showNotificationPermissionDialog(
+    BuildContext context,
+  ) async {
+    final shouldOpenSettings = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionDialog(
+        onCancel: () => Navigator.pop(dialogContext, false),
+        onOpenSettings: () => Navigator.pop(dialogContext, true),
+      ),
+    );
+
+    if (shouldOpenSettings == true) {
+      await openAppSettings();
+    }
+  }
+
+  Future<void> _showNotificationPermissionFailureDialog(
+    BuildContext context,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionFailureDialog(
+        onClose: () => Navigator.pop(dialogContext),
       ),
     );
   }
