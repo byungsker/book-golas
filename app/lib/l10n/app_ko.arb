@@ -1697,6 +1697,11 @@
          "attemptEncouragement": {"type": "String"}
        }
      },
+
+     "detailTabAttemptEncouragement": "끝까지 함께해요!",
+     "@detailTabAttemptEncouragement": {
+       "description": "Locale-specific encouragement shown beside a reread attempt"
+     },
      
      "detailTabChangeButton": "변경",
      "@detailTabChangeButton": {"description": "Change button"},

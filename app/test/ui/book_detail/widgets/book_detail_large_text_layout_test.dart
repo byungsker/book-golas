@@ -245,9 +245,13 @@ void main() {
           testCase.locale.languageCode == 'ko' ? '독후감' : 'Review';
       final changeLabel =
           testCase.locale.languageCode == 'ko' ? '변경' : 'Change';
+      final attemptLabel = testCase.locale.languageCode == 'ko'
+          ? '12번째 · 끝까지 함께해요!'
+          : 'Attempt 12 · Keep going!';
       expect(find.text(scheduleTitle), findsOneWidget);
       expect(find.text(reviewTitle), findsOneWidget);
       expect(find.text(changeLabel), findsOneWidget);
+      expect(find.text(attemptLabel), findsOneWidget);
     });
   }
 
@@ -396,7 +400,6 @@ Future<void> _pumpDetailTabAtLargeText(
               status: BookStatus.completed.value,
             ),
             attemptCount: 12,
-            attemptEncouragement: 'Keep going',
             dailyAchievements: const {},
             onTargetDateChange: () {},
             onDelete: () {},

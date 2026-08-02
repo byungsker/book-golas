@@ -9,7 +9,6 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 class DetailTab extends StatelessWidget {
   final Book book;
   final int attemptCount;
-  final String attemptEncouragement;
   final Map<String, bool> dailyAchievements;
   final VoidCallback onTargetDateChange;
   final VoidCallback? onPauseReading;
@@ -20,7 +19,6 @@ class DetailTab extends StatelessWidget {
     super.key,
     required this.book,
     required this.attemptCount,
-    required this.attemptEncouragement,
     required this.dailyAchievements,
     required this.onTargetDateChange,
     this.onPauseReading,
@@ -391,7 +389,10 @@ class DetailTab extends StatelessWidget {
     final targetDate =
         book.targetDate.toString().substring(0, 10).replaceAll('-', '.');
     final attempt = attemptCount > 1
-        ? l10n.detailTabAttempt(attemptCount, attemptEncouragement)
+        ? l10n.detailTabAttempt(
+            attemptCount,
+            l10n.detailTabAttemptEncouragement,
+          )
         : null;
     final useStackedLayout = MediaQuery.textScalerOf(context).scale(14) > 20;
 

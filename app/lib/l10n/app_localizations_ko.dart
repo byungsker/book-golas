@@ -1568,6 +1568,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get detailTabAttemptEncouragement => '끝까지 함께해요!';
+
+  @override
   String get detailTabChangeButton => '변경';
 
   @override

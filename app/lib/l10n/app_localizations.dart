@@ -2998,6 +2998,12 @@ abstract class AppLocalizations {
   /// **'{attemptCount}번째 · {attemptEncouragement}'**
   String detailTabAttempt(int attemptCount, String attemptEncouragement);
 
+  /// Locale-specific encouragement shown beside a reread attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'끝까지 함께해요!'**
+  String get detailTabAttemptEncouragement;
+
   /// Change button
   ///
   /// In ko, this message translates to:

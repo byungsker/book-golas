@@ -691,6 +691,7 @@
        "detailTabScheduleStartDate": "Start Date",
        "detailTabScheduleTargetDate": "Target Date",
        "detailTabAttempt": "Attempt {attemptCount} · {attemptEncouragement}",
+       "detailTabAttemptEncouragement": "Keep going!",
        "detailTabChangeButton": "Change",
        "detailTabGoalAchievement": "Goal Achievement",
        "detailTabAchievementStats": "{achievedCount} out of {passedDays} days achieved",

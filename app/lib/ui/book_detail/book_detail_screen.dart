@@ -544,7 +544,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             DetailTab(
                               book: book,
                               attemptCount: bookVm.attemptCount,
-                              attemptEncouragement: bookVm.attemptEncouragement,
                               dailyAchievements: bookVm.dailyAchievements,
                               onTargetDateChange: () =>
                                   _showUpdateTargetDateDialog(bookVm),

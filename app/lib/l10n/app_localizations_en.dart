@@ -1624,6 +1624,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get detailTabAttemptEncouragement => 'Keep going!';
+
+  @override
   String get detailTabChangeButton => 'Change';
 
   @override
