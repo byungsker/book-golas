@@ -51,8 +51,10 @@ file can contain server-only configuration.
 
 The source guard recognizes Dart-valid whitespace and comments around the
 `String.fromEnvironment` member access, while continuing to reject non-literal
-setting names. Formatting therefore cannot turn an indirect configuration
-lookup into an allowed client setting.
+setting names. It accepts only one allowlisted string literal as the complete
+argument expression; adjacent literals, including comment-separated forms, are
+rejected. Formatting therefore cannot turn an indirect configuration lookup
+into an allowed client setting.
 
 ## Server-only credentials and rotation
 

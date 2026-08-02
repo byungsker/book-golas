@@ -49,12 +49,16 @@ DART_DEFINE_PATTERN = re.compile(
 )
 ANY_DART_DEFINE_PATTERN = re.compile(r"--dart-define(?![-A-Za-z])")
 DART_TRIVIA = r"(?:\s+|/\*.*?\*/|//[^\r\n]*(?:\r?\n|$))*"
+FROM_ENVIRONMENT_CALL = (
+    rf"(?:String|bool|int|double){DART_TRIVIA}\."
+    rf"{DART_TRIVIA}fromEnvironment{DART_TRIVIA}\({DART_TRIVIA}"
+)
 FROM_ENVIRONMENT_PATTERN = re.compile(
-    rf"(?:String|bool|int|double){DART_TRIVIA}\.{DART_TRIVIA}fromEnvironment{DART_TRIVIA}\({DART_TRIVIA}['\"]([A-Za-z][A-Za-z0-9_]*)['\"]",
+    rf"{FROM_ENVIRONMENT_CALL}(?P<quote>['\"])(?P<name>[A-Za-z][A-Za-z0-9_]*)(?P=quote){DART_TRIVIA}(?:,|\))",
     re.DOTALL,
 )
 ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
-    rf"(?:String|bool|int|double){DART_TRIVIA}\.{DART_TRIVIA}fromEnvironment{DART_TRIVIA}\(",
+    FROM_ENVIRONMENT_CALL,
     re.DOTALL,
 )
 
@@ -81,12 +85,12 @@ def require_allowed_source_defines(source_root: Path) -> None:
     defines: set[str] = set()
     for source_file in source_root.rglob("*.dart"):
         content = source_file.read_text("utf-8")
-        matches = FROM_ENVIRONMENT_PATTERN.findall(content)
+        matches = list(FROM_ENVIRONMENT_PATTERN.finditer(content))
         if len(matches) != len(ANY_FROM_ENVIRONMENT_PATTERN.findall(content)):
             raise BoundaryError(
-                f"{source_file}: fromEnvironment must use a literal configuration name"
+                f"{source_file}: fromEnvironment must use exactly one literal configuration name"
             )
-        defines.update(matches)
+        defines.update(match.group("name") for match in matches)
     disallowed = sorted(defines - ALLOWED_DART_DEFINES)
     if disallowed:
         raise BoundaryError(
@@ -303,16 +307,31 @@ def run_self_test() -> None:
             encoding="utf-8",
         )
         require_allowed_source_defines(source)
-        (source / "invalid.dart").write_text(
-            "const configName = 'OPENAI_API_KEY'; String // type\n. // member\nfromEnvironment // call\n(configName);",
-            encoding="utf-8",
-        )
-        try:
-            require_allowed_source_defines(source)
-        except BoundaryError:
-            pass
-        else:
-            raise BoundaryError("self-test did not block an indirect source define")
+        for filename, content, message in (
+            (
+                "indirect.dart",
+                "const configName = 'OPENAI_API_KEY'; String // type\n. // member\nfromEnvironment // call\n(configName);",
+                "self-test did not block an indirect source define",
+            ),
+            (
+                "adjacent.dart",
+                "const value = String.fromEnvironment('SUPABASE_URL' '_OVERRIDE');",
+                "self-test did not block adjacent source literals",
+            ),
+            (
+                "adjacent_trivia.dart",
+                "const value = String /* type */ . /* member */ fromEnvironment /* call */ ( 'SUPABASE_URL' /* adjacent */ '_OVERRIDE' );",
+                "self-test did not block comment-separated adjacent source literals",
+            ),
+        ):
+            invalid_source = Path(directory) / filename
+            invalid_source.write_text(content, encoding="utf-8")
+            try:
+                require_allowed_source_defines(invalid_source.parent)
+            except BoundaryError:
+                invalid_source.unlink()
+            else:
+                raise BoundaryError(message)
     require_upload_order(
         "fastlane beta_build --artifact app/ios/build/Runner.ipa fastlane beta_upload",
         "allowed",
