@@ -36,6 +36,7 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/book_info_sheet.dart';
+import 'widgets/sheets/book_review_prompt_sheet.dart';
 // import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
@@ -747,127 +748,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   /// 독후감 작성 유도 바텀시트
-  void _showBookReviewPromptSheet(BookDetailViewModel bookVm) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Future<void> _showBookReviewPromptSheet(BookDetailViewModel bookVm) async {
     final book = bookVm.currentBook;
-
-    showModalBottomSheet(
+    final shouldWriteReview = await showBookReviewPromptSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isDismissible: true,
-      builder: (bottomSheetContext) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const Text(
-              '🎉',
-              style: TextStyle(fontSize: 48),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Congratulations!',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              book.title,
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Would you like to write a review?',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark ? Colors.grey[300] : Colors.grey[700],
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).bookDetailLater,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.grey[300] : Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(bottomSheetContext);
-                      _navigateToBookReview(context, book);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: BLabColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).bookDetailTabReview,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
-            ),
-          ],
-        ),
-      ),
+      bookTitle: book.title,
     );
+
+    if (shouldWriteReview && mounted) {
+      await _navigateToBookReview(context, book);
+    }
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
