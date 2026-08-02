@@ -11,19 +11,27 @@ class CustomTabBar extends StatelessWidget {
     this.tabLabels = const ['기록', '히스토리', '상세'],
   });
 
-  static double extentFor(BuildContext context) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: 'Ag',
-        style: DefaultTextStyle.of(
-          context,
-        ).style.merge(const TextStyle(fontSize: 14)),
-      ),
-      maxLines: 1,
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-    )..layout();
-    final contentHeight = textPainter.height + 36;
+  static double extentFor(BuildContext context, List<String> tabLabels) {
+    final availableWidth = MediaQuery.sizeOf(context).width - 40;
+    final tabWidth = availableWidth / tabLabels.length;
+    final textStyle = DefaultTextStyle.of(context).style.merge(
+          const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        );
+    var maxTextHeight = 0.0;
+
+    for (final label in tabLabels) {
+      final textPainter = TextPainter(
+        text: TextSpan(text: label, style: textStyle),
+        textAlign: TextAlign.center,
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: tabWidth);
+      if (textPainter.height > maxTextHeight) {
+        maxTextHeight = textPainter.height;
+      }
+    }
+
+    final contentHeight = maxTextHeight + 36;
     return contentHeight < 56 ? 56 : contentHeight;
   }
 

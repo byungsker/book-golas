@@ -143,6 +143,26 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets(
+      'completed-book tab bar fits at 200 percent text scale in $label',
+      (tester) async {
+        await _pumpStickyTabBarAtLargeText(
+          tester,
+          testCase: testCase,
+          tabLabels: const ['Record', 'History', 'Review', 'Details'],
+        );
+
+        expect(tester.takeException(), isNull);
+        final tabBarRect = tester.getRect(find.byType(CustomTabBar));
+        expect(tabBarRect.height, greaterThan(56));
+        for (final label in const ['Record', 'History', 'Review', 'Details']) {
+          final labelRect = tester.getRect(find.text(label));
+          expect(labelRect.top, greaterThanOrEqualTo(tabBarRect.top));
+          expect(labelRect.bottom, lessThanOrEqualTo(tabBarRect.bottom));
+        }
+      },
+    );
+
     testWidgets('streak card fits at 200 percent text scale in $label', (
       tester,
     ) async {
@@ -320,6 +340,7 @@ double _contrastRatio(Color foreground, Color background) {
 Future<void> _pumpStickyTabBarAtLargeText(
   WidgetTester tester, {
   required ({Locale locale, ThemeMode themeMode, double width}) testCase,
+  List<String> tabLabels = const ['Record', 'History', 'Detail'],
 }) async {
   tester.view.physicalSize = Size(testCase.width, 852);
   tester.view.devicePixelRatio = 1;
@@ -350,13 +371,13 @@ Future<void> _pumpStickyTabBarAtLargeText(
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: StickyTabBarDelegate(
-                    extent: CustomTabBar.extentFor(context),
+                    extent: CustomTabBar.extentFor(context, tabLabels),
                     backgroundColor: testCase.themeMode == ThemeMode.dark
                         ? BLabColors.scaffoldDark
                         : BLabColors.elevatedLight,
                     child: CustomTabBar(
                       tabController: tabController,
-                      tabLabels: const ['Record', 'History', 'Detail'],
+                      tabLabels: tabLabels,
                     ),
                   ),
                 ),
