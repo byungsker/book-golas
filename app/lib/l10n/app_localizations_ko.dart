@@ -249,6 +249,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailTargetDate => '목표일';
 
   @override
+  String get bookDetailEditTargetDate => '목표일 수정';
+
+  @override
   String get bookDetailReviewWritten => '작성됨';
 
   @override
@@ -1563,6 +1566,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String detailTabAttempt(int attemptCount, String attemptEncouragement) {
     return '$attemptCount번째 · $attemptEncouragement';
   }
+
+  @override
+  String get detailTabAttemptEncouragement => '끝까지 함께해요!';
 
   @override
   String get detailTabChangeButton => '변경';

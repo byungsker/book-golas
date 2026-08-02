@@ -250,6 +250,9 @@
    
    "bookDetailTargetDate": "목표일",
    "@bookDetailTargetDate": {"description": "Target date label in book detail"},
+
+   "bookDetailEditTargetDate": "목표일 수정",
+   "@bookDetailEditTargetDate": {"description": "Accessible label for editing the target date"},
    
    "bookDetailReviewWritten": "작성됨",
    "@bookDetailReviewWritten": {"description": "Review written status in book detail"},
@@ -1693,6 +1696,11 @@
          "attemptCount": {"type": "int"},
          "attemptEncouragement": {"type": "String"}
        }
+     },
+
+     "detailTabAttemptEncouragement": "끝까지 함께해요!",
+     "@detailTabAttemptEncouragement": {
+       "description": "Locale-specific encouragement shown beside a reread attempt"
      },
      
      "detailTabChangeButton": "변경",

@@ -271,6 +271,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
         // TabController 길이 동기화 (책 완독 상태 변경 시)
         final shouldHaveReviewTab = _isBookCompleted(book);
         final targetLength = shouldHaveReviewTab ? 4 : 3;
+        final l10n = AppLocalizations.of(context);
+        final tabLabels = shouldHaveReviewTab
+            ? [
+                l10n.bookDetailTabRecord,
+                l10n.bookDetailTabHistory,
+                l10n.bookDetailTabReview,
+                l10n.bookDetailTabDetail,
+              ]
+            : [
+                l10n.bookDetailTabRecord,
+                l10n.bookDetailTabHistory,
+                l10n.bookDetailTabDetail,
+              ];
         if (_currentTabLength != targetLength) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _updateTabControllerIfNeeded(book);
@@ -454,27 +467,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: StickyTabBarDelegate(
+                          extent: CustomTabBar.extentFor(context, tabLabels),
                           child: CustomTabBar(
                             tabController: _tabController!,
-                            tabLabels: _isBookCompleted(book)
-                                ? [
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabRecord,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabHistory,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabReview,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabDetail,
-                                  ]
-                                : [
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabRecord,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabHistory,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabDetail,
-                                  ],
+                            tabLabels: tabLabels,
                           ),
                           backgroundColor: isDark
                               ? BLabColors.scaffoldDark
@@ -548,7 +544,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                             DetailTab(
                               book: book,
                               attemptCount: bookVm.attemptCount,
-                              attemptEncouragement: bookVm.attemptEncouragement,
                               dailyAchievements: bookVm.dailyAchievements,
                               onTargetDateChange: () =>
                                   _showUpdateTargetDateDialog(bookVm),

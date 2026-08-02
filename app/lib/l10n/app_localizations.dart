@@ -542,6 +542,12 @@ abstract class AppLocalizations {
   /// **'목표일'**
   String get bookDetailTargetDate;
 
+  /// Accessible label for editing the target date
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일 수정'**
+  String get bookDetailEditTargetDate;
+
   /// Review written status in book detail
   ///
   /// In ko, this message translates to:
@@ -2991,6 +2997,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{attemptCount}번째 · {attemptEncouragement}'**
   String detailTabAttempt(int attemptCount, String attemptEncouragement);
+
+  /// Locale-specific encouragement shown beside a reread attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'끝까지 함께해요!'**
+  String get detailTabAttemptEncouragement;
 
   /// Change button
   ///

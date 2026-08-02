@@ -268,6 +268,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookDetailTargetDate => 'Target Date';
 
   @override
+  String get bookDetailEditTargetDate => 'Edit target date';
+
+  @override
   String get bookDetailReviewWritten => 'Written';
 
   @override
@@ -1619,6 +1622,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String detailTabAttempt(int attemptCount, String attemptEncouragement) {
     return 'Attempt $attemptCount · $attemptEncouragement';
   }
+
+  @override
+  String get detailTabAttemptEncouragement => 'Keep going!';
 
   @override
   String get detailTabChangeButton => 'Change';
