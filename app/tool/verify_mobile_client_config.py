@@ -7,6 +7,7 @@ import binascii
 import json
 import os
 import re
+import shlex
 import sys
 import tempfile
 import zipfile
@@ -120,6 +121,8 @@ ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
     FROM_ENVIRONMENT_CALL,
     re.DOTALL,
 )
+SHELL_ASSIGNMENT_PATTERN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_./:-]*")
+SIGNED_IPA_SCANNER_PATH = "app/tool/verify_mobile_client_config.py"
 
 
 class BoundaryError(ValueError):
@@ -334,26 +337,51 @@ def workflow_step_run_block(content: str, label: str, step_name: str) -> tuple[s
 def shell_commands(run_lines: tuple[str, ...], label: str) -> tuple[str, ...]:
     commands = []
     current = []
+    continuing = False
     for line in run_lines:
         stripped = line.strip()
         code = line.split("#", 1)[0].strip()
         if not code:
-            if current and current[-1].endswith("\\") and stripped.startswith("#"):
+            if continuing and stripped.startswith("#"):
                 raise BoundaryError(f"{label}: shell comments cannot interrupt a continuation")
             continue
-        current.append(code)
-        if code.endswith("\\"):
+        continuing = code.endswith("\\")
+        current.append(code[:-1].rstrip() if continuing else code)
+        if continuing:
             continue
         commands.append(" ".join(current))
         current = []
+        continuing = False
     if current:
-        if current[-1].endswith("\\"):
+        if continuing:
             raise BoundaryError(f"{label}: shell continuation is incomplete")
         commands.append(" ".join(current))
     return tuple(commands)
 
 
-def signed_ipa_scan_command(content: str, label: str) -> str:
+def signed_ipa_scanner_tokens(command: str, label: str) -> tuple[str, ...]:
+    if any(token in command for token in ("$", "`", ";", "|", "&", "<", ">", "(", ")")):
+        raise BoundaryError(f"{label}: signed IPA scanner must not use shell wrappers")
+    try:
+        tokens = tuple(shlex.split(command, posix=True))
+    except ValueError as error:
+        raise BoundaryError(f"{label}: signed IPA scanner command is not valid shell syntax") from error
+
+    index = 0
+    while index < len(tokens) and SHELL_ASSIGNMENT_PATTERN.fullmatch(tokens[index]):
+        index += 1
+    if index < len(tokens) and tokens[index] == "env":
+        index += 1
+        while index < len(tokens) and SHELL_ASSIGNMENT_PATTERN.fullmatch(tokens[index]):
+            index += 1
+    if tokens[index : index + 2] != ("python3", SIGNED_IPA_SCANNER_PATH):
+        raise BoundaryError(
+            f"{label}: signed IPA scanner must execute python3 {SIGNED_IPA_SCANNER_PATH} directly"
+        )
+    return tokens
+
+
+def signed_ipa_scan_command(content: str, label: str) -> tuple[str, ...]:
     workflow = SIGNED_IPA_WORKFLOW_STEPS.get(Path(label).name)
     if workflow is None:
         raise BoundaryError(f"{label}: signed IPA workflow contract is unknown")
@@ -362,14 +390,19 @@ def signed_ipa_scan_command(content: str, label: str) -> str:
     matches = [
         command
         for command in commands
-        if re.search(r"\bpython3\s+app/tool/verify_mobile_client_config\.py\b", command)
+        if SIGNED_IPA_SCANNER_PATH in command
     ]
     if len(matches) != 1:
         raise BoundaryError(f"{label}: signed IPA boundary must invoke the scanner once")
-    command = matches[0]
-    if "--artifact app/ios/build/Runner.ipa" not in command:
+    tokens = signed_ipa_scanner_tokens(matches[0], label)
+    artifact_values = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--artifact"
+    ]
+    if artifact_values != ["app/ios/build/Runner.ipa"]:
         raise BoundaryError(f"{label}: signed IPA boundary must scan Runner.ipa")
-    return command
+    return tokens
 
 
 def require_upload_order(content: str, label: str) -> None:
@@ -404,15 +437,24 @@ def require_forbidden_environment_contract(content: str, label: str) -> None:
     expected = FORBIDDEN_ENVIRONMENT_CONTRACTS.get(Path(label).name)
     if expected is None:
         return
-    command = signed_ipa_scan_command(content, label)
-    if "--forbidden-env" in command:
+    tokens = signed_ipa_scan_command(content, label)
+    if "--forbidden-env" in tokens:
         raise BoundaryError(f"{label}: forbidden environment inputs must be classified")
-    required_names = re.findall(
-        r"--required-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", command
-    )
-    optional_names = re.findall(
-        r"--optional-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", command
-    )
+    required_names = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--required-forbidden-env"
+    ]
+    optional_names = [
+        tokens[index + 1]
+        for index, token in enumerate(tokens[:-1])
+        if token == "--optional-forbidden-env"
+    ]
+    if any(
+        not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name)
+        for name in required_names + optional_names
+    ):
+        raise BoundaryError(f"{label}: forbidden environment input names must be literal")
     if len(required_names) != len(set(required_names)) or len(optional_names) != len(
         set(optional_names)
     ):
@@ -667,6 +709,23 @@ def run_self_test() -> None:
             )
         )
         require_upload_order(workflow, workflow_name)
+        for prefix in ("SAFE_ENV=1 ", "env SAFE_ENV=1 "):
+            signed_ipa_scanner_tokens(prefix + scan_command, workflow_name)
+        for prefix in (
+            "echo ",
+            "printf '%s' ",
+            "command ",
+            "$(printf python3) ",
+            "python3 -u ",
+        ):
+            try:
+                signed_ipa_scanner_tokens(prefix + scan_command, workflow_name)
+            except BoundaryError:
+                pass
+            else:
+                raise BoundaryError(
+                    "self-test did not block a signed IPA scanner shell wrapper"
+                )
         for bypass in (
             workflow.replace(
                 scan_command,
@@ -683,6 +742,7 @@ def run_self_test() -> None:
                     )
                 ),
             ).replace(scan_command, scan_command.split(" --required", 1)[0], 1),
+            workflow.replace(scan_command, "echo " + scan_command),
         ):
             try:
                 require_upload_order(bypass, workflow_name)
