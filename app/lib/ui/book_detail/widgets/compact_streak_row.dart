@@ -70,7 +70,7 @@ class CompactStreakRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildDaysRow(recentDays, isDark),
+          _buildDaysRow(context, recentDays, isDark),
           const SizedBox(height: 10),
           _buildStreakInfo(context, streak, isDark),
         ],
@@ -78,61 +78,86 @@ class CompactStreakRow extends StatelessWidget {
     );
   }
 
-  Widget _buildDaysRow(List<Map<String, dynamic>> recentDays, bool isDark) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(7, (index) {
-        final dayInfo = recentDays[index];
-        final isAchieved = dayInfo['achieved'] as bool;
-        final dayLabel = dayInfo['dayLabel'] as String;
-        final isToday = dayInfo['isToday'] as bool;
+  Widget _buildDaysRow(
+    BuildContext context,
+    List<Map<String, dynamic>> recentDays,
+    bool isDark,
+  ) {
+    final useWrappedLayout = MediaQuery.textScalerOf(context).scale(11) > 18;
+    final dayItems = List.generate(
+      7,
+      (index) => _buildDayItem(recentDays[index], isDark, index),
+    );
 
-        return Container(
-          width: 38,
-          margin: EdgeInsets.only(left: index > 0 ? 6 : 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                dayLabel,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                  color: isToday
-                      ? BLabColors.primary
-                      : (isDark ? Colors.grey[400] : Colors.grey[500]),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: isAchieved
-                      ? BLabColors.success
-                      : (isDark
-                          ? Colors.white.withValues(alpha: 0.12)
-                          : Colors.grey[200]),
-                  shape: BoxShape.circle,
-                  border: isToday
-                      ? Border.all(
-                          color: BLabColors.primary,
-                          width: 2,
-                        )
-                      : null,
-                ),
-                child: isAchieved
-                    ? const Icon(
-                        CupertinoIcons.checkmark,
-                        size: 12,
-                        color: Colors.white,
-                      )
-                    : null,
-              ),
-            ],
+    if (useWrappedLayout) {
+      return Wrap(
+        key: const ValueKey('compact-streak-days-wrapped'),
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
+        children:
+            dayItems.map((item) => SizedBox(width: 64, child: item)).toList(),
+      );
+    }
+
+    return Row(
+      children: dayItems.map((item) => Expanded(child: item)).toList(),
+    );
+  }
+
+  Widget _buildDayItem(
+    Map<String, dynamic> dayInfo,
+    bool isDark,
+    int index,
+  ) {
+    final isAchieved = dayInfo['achieved'] as bool;
+    final dayLabel = dayInfo['dayLabel'] as String;
+    final isToday = dayInfo['isToday'] as bool;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          dayLabel,
+          key: ValueKey('compact-streak-day-label-$index'),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+            color: isToday
+                ? BLabColors.primary
+                : (isDark
+                    ? BLabColors.textSecondaryDark
+                    : BLabColors.textSecondaryLight),
           ),
-        );
-      }),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: isAchieved
+                ? BLabColors.success
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.grey[200]),
+            shape: BoxShape.circle,
+            border: isToday
+                ? Border.all(
+                    color: BLabColors.primary,
+                    width: 2,
+                  )
+                : null,
+          ),
+          child: isAchieved
+              ? const Icon(
+                  CupertinoIcons.checkmark,
+                  size: 12,
+                  color: Colors.white,
+                )
+              : null,
+        ),
+      ],
     );
   }
 
@@ -149,14 +174,24 @@ class CompactStreakRow extends StatelessWidget {
               : (isDark ? Colors.grey[500] : Colors.grey[400]),
         ),
         const SizedBox(width: 4),
-        Text(
-          streak > 0 ? l10n.streakDaysAchieved(streak) : l10n.streakFirstRecord,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: streak > 0
-                ? (isDark ? Colors.white : Colors.grey[800])
-                : (isDark ? Colors.grey[400] : Colors.grey[500]),
+        Flexible(
+          child: Text(
+            streak > 0
+                ? l10n.streakDaysAchieved(streak)
+                : l10n.streakFirstRecord,
+            key: const ValueKey('compact-streak-message'),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: streak > 0
+                  ? (isDark
+                      ? BLabColors.textPrimaryDark
+                      : BLabColors.textPrimaryLight)
+                  : (isDark
+                      ? BLabColors.textSecondaryDark
+                      : BLabColors.textSecondaryLight),
+            ),
           ),
         ),
       ],

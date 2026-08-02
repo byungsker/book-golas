@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/utils/sticky_tab_bar_delegate.dart';
 import 'package:book_golas/ui/book_detail/widgets/compact_reading_schedule.dart';
+import 'package:book_golas/ui/book_detail/widgets/compact_streak_row.dart';
 import 'package:book_golas/ui/book_detail/widgets/custom_tab_bar.dart';
 import 'package:book_golas/ui/book_detail/widgets/dashboard_progress_widget.dart';
 import 'package:book_golas/ui/book_detail/widgets/floating_action_bar.dart'
@@ -140,6 +141,32 @@ void main() {
       await _pumpStickyTabBarAtLargeText(tester, testCase: testCase);
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('streak card fits at 200 percent text scale in $label', (
+      tester,
+    ) async {
+      await _pumpAtLargeText(
+        tester,
+        testCase: testCase,
+        child: const CompactStreakRow(dailyAchievements: {}),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.byKey(const ValueKey('compact-streak-days-wrapped')),
+        findsOneWidget,
+      );
+      _expectTextContrast(
+        tester,
+        const ValueKey('compact-streak-day-label-0'),
+        testCase.themeMode,
+      );
+      _expectTextContrast(
+        tester,
+        const ValueKey('compact-streak-message'),
+        testCase.themeMode,
+      );
     });
   }
 
