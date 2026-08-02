@@ -268,6 +268,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookDetailTargetDate => 'Target Date';
 
   @override
+  String get bookDetailEditTargetDate => 'Edit target date';
+
+  @override
   String get bookDetailReviewWritten => 'Written';
 
   @override

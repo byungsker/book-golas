@@ -250,6 +250,9 @@
    
    "bookDetailTargetDate": "목표일",
    "@bookDetailTargetDate": {"description": "Target date label in book detail"},
+
+   "bookDetailEditTargetDate": "목표일 수정",
+   "@bookDetailEditTargetDate": {"description": "Accessible label for editing the target date"},
    
    "bookDetailReviewWritten": "작성됨",
    "@bookDetailReviewWritten": {"description": "Review written status in book detail"},

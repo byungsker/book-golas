@@ -542,6 +542,12 @@ abstract class AppLocalizations {
   /// **'목표일'**
   String get bookDetailTargetDate;
 
+  /// Accessible label for editing the target date
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일 수정'**
+  String get bookDetailEditTargetDate;
+
   /// Review written status in book detail
   ///
   /// In ko, this message translates to:

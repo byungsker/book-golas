@@ -249,6 +249,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailTargetDate => '목표일';
 
   @override
+  String get bookDetailEditTargetDate => '목표일 수정';
+
+  @override
   String get bookDetailReviewWritten => '작성됨';
 
   @override

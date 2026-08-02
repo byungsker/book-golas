@@ -35,77 +35,80 @@ class DashboardProgressWidget extends StatelessWidget {
     final isOverdue = daysLeft < 0;
 
     return Container(
+      key: const ValueKey('dashboard-progress'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? BLabColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildProgressColumn(context, isDark, progressPercent),
-          ),
-          Container(
-            width: 1,
-            height: 100,
-            color: isDark ? Colors.grey[700] : Colors.grey[200],
-          ),
-          Expanded(
-            child: Column(
+      child: LayoutBuilder(
+        builder: (context, _) {
+          final scaledBodySize = MediaQuery.textScalerOf(context).scale(14);
+          final useStackedLayout = scaledBodySize > 20;
+          if (useStackedLayout) {
+            return Column(
+              key: const ValueKey('dashboard-progress-stacked'),
               children: [
-                Text(
-                  isOverdue ? 'D+${daysLeft.abs()}' : 'D-$daysLeft',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: isOverdue || daysLeft <= 3
-                        ? BLabColors.errorAlt
-                        : BLabColors.primary,
-                    letterSpacing: -1,
-                  ),
+                _buildProgressColumn(
+                  context,
+                  isDark,
+                  progressPercent,
+                  diameter: 144,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.of(context).pagesRemaining(pagesLeft),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  ),
+                Divider(
+                  height: 32,
+                  color: isDark ? Colors.grey[700] : Colors.grey[200],
                 ),
-                const SizedBox(height: 4),
-                _buildDailyTargetButton(context, isDark),
+                _buildRemainingColumn(context, isDark, isOverdue),
               ],
-            ),
-          ),
-        ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(
+                child: _buildProgressColumn(
+                  context,
+                  isDark,
+                  progressPercent,
+                  diameter: 100,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 100,
+                color: isDark ? Colors.grey[700] : Colors.grey[200],
+              ),
+              Expanded(
+                child: _buildRemainingColumn(context, isDark, isOverdue),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildProgressColumn(
-    BuildContext context,
-    bool isDark,
-    String progressPercent,
-  ) {
+      BuildContext context, bool isDark, String progressPercent,
+      {required double diameter}) {
     return Column(
       children: [
         SizedBox(
-          width: 100,
-          height: 100,
+          width: diameter,
+          height: diameter,
           child: Stack(
             alignment: Alignment.center,
             children: [
               SizedBox(
-                width: 100,
-                height: 100,
+                width: diameter,
+                height: diameter,
                 child: CustomPaint(
                   painter: CircularProgressPainter(
                     progress: animatedProgress.clamp(0.0, 1.0),
@@ -122,6 +125,8 @@ class DashboardProgressWidget extends StatelessWidget {
                 children: [
                   Text(
                     '$progressPercent%',
+                    maxLines: 1,
+                    softWrap: false,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
@@ -137,6 +142,7 @@ class DashboardProgressWidget extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           '$currentPage / ${totalPages}p',
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -147,48 +153,97 @@ class DashboardProgressWidget extends StatelessWidget {
     );
   }
 
+  Widget _buildRemainingColumn(
+    BuildContext context,
+    bool isDark,
+    bool isOverdue,
+  ) {
+    return Column(
+      children: [
+        Text(
+          isOverdue ? 'D+${daysLeft.abs()}' : 'D-$daysLeft',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: isOverdue || daysLeft <= 3
+                ? BLabColors.errorAlt
+                : BLabColors.primary,
+            letterSpacing: -1,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          AppLocalizations.of(context).pagesRemaining(pagesLeft),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildDailyTargetButton(context, isDark),
+      ],
+    );
+  }
+
   Widget _buildDailyTargetButton(BuildContext context, bool isDark) {
-    final dailyTarget =
-        dailyTargetPages ??
+    final dailyTarget = dailyTargetPages ??
         (daysLeft > 0 ? (pagesLeft / daysLeft).ceil() : pagesLeft);
     if (dailyTarget <= 0) return const SizedBox.shrink();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTap: onDailyTargetTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: BLabColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    AppLocalizations.of(
-                      context,
-                    ).todayGoalWithPages(dailyTarget),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: BLabColors.success,
-                    ),
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.visible,
+        Semantics(
+          button: true,
+          label: AppLocalizations.of(context).todayGoalWithPages(dailyTarget),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onDailyTargetTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: BLabColors.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: ExcludeSemantics(
+                          child: Text(
+                            AppLocalizations.of(
+                              context,
+                            ).todayGoalWithPages(dailyTarget),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: BLabColors.success,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const ExcludeSemantics(
+                        child: Icon(
+                          CupertinoIcons.pencil,
+                          size: 13,
+                          color: BLabColors.success,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 6),
-                const Icon(
-                  CupertinoIcons.pencil,
-                  size: 13,
-                  color: BLabColors.success,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -200,15 +255,16 @@ class DashboardProgressWidget extends StatelessWidget {
               color: BLabColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
               children: [
                 const Icon(
                   CupertinoIcons.checkmark_seal_fill,
                   size: 12,
                   color: BLabColors.gold,
                 ),
-                const SizedBox(width: 4),
                 Text(
                   AppLocalizations.of(context).bookDetailGoalAchieved,
                   style: const TextStyle(

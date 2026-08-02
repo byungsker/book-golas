@@ -128,6 +128,8 @@
    "bookDetailTabDetail": "Details",
    "bookDetailStartDate": "Start Date",
    "bookDetailTargetDate": "Target Date",
+   "bookDetailEditTargetDate": "Edit target date",
+   "@bookDetailEditTargetDate": {"description": "Accessible label for editing the target date"},
    "bookDetailReviewWritten": "Written",
    "bookDetailReviewNotWritten": "Not yet written",
    "bookDetailLegendAchieved": "Achieved",
