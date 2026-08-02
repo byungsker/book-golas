@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/theme/system_ui_overlay_style.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
@@ -325,6 +326,14 @@ class MyApp extends StatelessWidget {
             themeMode: themeViewModel.themeMode,
             theme: BLabTheme.light,
             darkTheme: BLabTheme.dark,
+            builder: (context, child) {
+              return ThemeAwareSystemUiOverlay(
+                brightness: themeViewModel.isDarkMode
+                    ? Brightness.dark
+                    : Brightness.light,
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
             locale: localeViewModel.locale,
             localizationsDelegates: const [
               AppLocalizations.delegate,
