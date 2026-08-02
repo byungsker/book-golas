@@ -1209,6 +1209,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pageUpdateNewPageLabel => 'New Page Number';
 
   @override
+  String get pageAbbreviation => 'p';
+
+  @override
   String get pageUpdateCancel => 'Cancel';
 
   @override

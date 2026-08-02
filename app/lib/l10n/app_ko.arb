@@ -1240,6 +1240,9 @@
      
      "pageUpdateNewPageLabel": "새 페이지 번호",
      "@pageUpdateNewPageLabel": {"description": "New page number label"},
+
+     "pageAbbreviation": "p",
+     "@pageAbbreviation": {"description": "Abbreviated page unit shown beside page number inputs"},
      
      "pageUpdateCancel": "취소",
      "@pageUpdateCancel": {"description": "Cancel button"},

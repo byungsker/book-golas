@@ -1159,6 +1159,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get pageUpdateNewPageLabel => '새 페이지 번호';
 
   @override
+  String get pageAbbreviation => 'p';
+
+  @override
   String get pageUpdateCancel => '취소';
 
   @override

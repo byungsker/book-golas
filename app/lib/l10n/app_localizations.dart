@@ -2244,6 +2244,12 @@ abstract class AppLocalizations {
   /// **'새 페이지 번호'**
   String get pageUpdateNewPageLabel;
 
+  /// Abbreviated page unit shown beside page number inputs
+  ///
+  /// In ko, this message translates to:
+  /// **'p'**
+  String get pageAbbreviation;
+
   /// Cancel button
   ///
   /// In ko, this message translates to:
