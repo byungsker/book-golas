@@ -19,7 +19,7 @@ void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
     await Supabase.initialize(
-      url: 'http://localhost:54321',
+      url: 'http://127.0.0.1:65535',
       anonKey: 'test-anon-key',
     );
   });
@@ -46,12 +46,11 @@ void main() {
 
               final titleFinder = find.text(_title);
               final authorFinder = find.text(_author);
-              final statusFinder = find.text(
-                locale.languageCode == 'ko' ? '독서 중' : 'Reading',
-              );
-              final bookInfoLabel = AppLocalizations.of(
+              final l10n = AppLocalizations.of(
                 tester.element(find.byType(BookDetailScreen)),
-              ).bookInfoViewButton;
+              );
+              final statusFinder = find.text(l10n.statusReading);
+              final bookInfoLabel = l10n.bookInfoViewButton;
               final bookInfoFinder = find.byKey(
                 const ValueKey('compact-book-header-book-info'),
               );
@@ -88,7 +87,7 @@ void main() {
               );
               expect(
                 statusNode.label,
-                locale.languageCode == 'ko' ? '독서 중' : 'Reading',
+                l10n.statusReading,
               );
               final bookInfoNode = tester.getSemantics(bookInfoFinder);
               expect(bookInfoNode.label, bookInfoLabel);
@@ -151,6 +150,7 @@ Future<void> _pumpDetailScreen(
         ],
         child: BookDetailScreen(
           isEmbedded: true,
+          loadRemoteData: false,
           book: Book(
             id: 'compact-header-test-book',
             title: _title,

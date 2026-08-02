@@ -116,6 +116,7 @@ class _BookDetailRouteFixture extends StatelessWidget {
         ],
         child: BookDetailScreen(
           isEmbedded: true,
+          loadRemoteData: false,
           book: Book(
             id: 'bok-392-safe-fixture',
             title: _title,
