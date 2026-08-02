@@ -7,6 +7,47 @@ import 'package:book_golas/ui/book_detail/widgets/completed_book_action_card.dar
 import 'package:book_golas/ui/core/theme/design_system.dart';
 
 void main() {
+  for (final locale in const [Locale('ko'), Locale('en')]) {
+    testWidgets(
+      'completed actions stay inline at default scale on 393px in ${locale.languageCode}',
+      (tester) async {
+        final actions = _ActionCounts();
+        await _pumpCompletedActions(
+          tester,
+          testCase: (
+            locale: locale,
+            themeMode: ThemeMode.light,
+            width: 393.0,
+          ),
+          actions: actions,
+          textScale: 1,
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(
+          find.byKey(const ValueKey('completed-book-action-title-inline')),
+          findsNWidgets(2),
+        );
+        expect(
+          find.byKey(
+            const ValueKey('completed-book-action-description-inline'),
+          ),
+          findsNWidgets(2),
+        );
+        expect(
+          find.byKey(const ValueKey('completed-book-action-title-stacked')),
+          findsNothing,
+        );
+        expect(
+          find.byKey(
+            const ValueKey('completed-book-action-description-stacked'),
+          ),
+          findsNothing,
+        );
+      },
+    );
+  }
+
   final testCases = <({Locale locale, ThemeMode themeMode, double width})>[
     for (final locale in const [Locale('ko'), Locale('en')])
       for (final themeMode in const [ThemeMode.light, ThemeMode.dark])

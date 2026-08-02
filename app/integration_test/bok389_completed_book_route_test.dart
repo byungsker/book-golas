@@ -42,6 +42,13 @@ void main() {
       testWidgets(
         'BOK-389 completed detail route preserves CTA copy, safe area, and restart flow at 393px and 200 percent in ${locale.languageCode} ${brightness.name}',
         (tester) async {
+          final originalHitTestWarningShouldBeFatal =
+              WidgetController.hitTestWarningShouldBeFatal;
+          WidgetController.hitTestWarningShouldBeFatal = true;
+          addTearDown(() {
+            WidgetController.hitTestWarningShouldBeFatal =
+                originalHitTestWarningShouldBeFatal;
+          });
           await binding.setSurfaceSize(const Size(393, 852));
           addTearDown(() => binding.setSurfaceSize(null));
 
@@ -66,30 +73,52 @@ void main() {
             const ValueKey('completed-book-restart-action'),
           );
 
-          await tester.scrollUntilVisible(
-            reviewCard,
-            240,
-            scrollable: find.byType(Scrollable).first,
+          final overlayFreeViewportBottom =
+              tester.view.physicalSize.height / tester.view.devicePixelRatio -
+                  62 -
+                  22;
+          final overlayFreeViewportTop =
+              tester.getRect(find.byType(AppBar)).bottom + 12;
+          await _positionActionAboveFloatingBar(
+            tester,
+            card: reviewCard,
+            overlayFreeViewportBottom: overlayFreeViewportBottom,
           );
-          await tester.scrollUntilVisible(
-            restartCard,
-            240,
-            scrollable: find.byType(Scrollable).first,
+          _expectActionAboveFloatingBar(
+            tester,
+            card: reviewCard,
+            texts: [
+              l10n.bookDetailWriteReview,
+              l10n.bookDetailRecordThoughts,
+            ],
+            overlayFreeViewportTop: overlayFreeViewportTop,
+            overlayFreeViewportBottom: overlayFreeViewportBottom,
           );
-          await tester.pump();
-
-          for (final text in [
-            l10n.bookDetailWriteReview,
-            l10n.bookDetailRecordThoughts,
-            l10n.bookDetailContinueReading,
-            l10n.bookDetailAchieveGoal,
-          ]) {
-            expect(find.text(text), findsOneWidget);
-          }
-          for (final card in [reviewCard, restartCard]) {
-            expect(tester.getSize(card).shortestSide, greaterThanOrEqualTo(48));
-            expect(tester.getRect(card).bottom, lessThanOrEqualTo(818));
-          }
+          await _positionActionAboveFloatingBar(
+            tester,
+            card: restartCard,
+            overlayFreeViewportBottom: overlayFreeViewportBottom,
+          );
+          _expectActionAboveFloatingBar(
+            tester,
+            card: restartCard,
+            texts: [
+              l10n.bookDetailContinueReading,
+              l10n.bookDetailAchieveGoal,
+            ],
+            overlayFreeViewportTop: overlayFreeViewportTop,
+            overlayFreeViewportBottom: overlayFreeViewportBottom,
+          );
+          _expectActionAboveFloatingBar(
+            tester,
+            card: reviewCard,
+            texts: [
+              l10n.bookDetailWriteReview,
+              l10n.bookDetailRecordThoughts,
+            ],
+            overlayFreeViewportTop: overlayFreeViewportTop,
+            overlayFreeViewportBottom: overlayFreeViewportBottom,
+          );
           expect(
             find.semantics.byLabel(
               '${l10n.bookDetailContinueReading}. ${l10n.bookDetailAchieveGoal}',
@@ -97,23 +126,64 @@ void main() {
             findsOneWidget,
           );
           expect(tester.takeException(), isNull);
-
           await binding.takeScreenshot(
-            'BOK-389-${locale.languageCode}-${brightness.name}-393-200',
+            'BOK-389-${locale.languageCode}-${brightness.name}-393-200-both-ctas',
           );
-          await tester.tap(restartCard);
-          await tester.pump(const Duration(milliseconds: 250));
-          expect(find.byType(ReadingStartScreen), findsOneWidget);
-          expect(tester.takeException(), isNull);
 
           if (evidenceHoldMilliseconds > 0) {
             await tester.pump(
               const Duration(milliseconds: evidenceHoldMilliseconds),
             );
           }
+
+          await tester.tap(restartCard);
+          await tester.pump(const Duration(milliseconds: 250));
+          await tester.pump();
+          expect(find.byType(ReadingStartScreen), findsOneWidget);
+          expect(tester.takeException(), isNull);
         },
       );
     }
+  }
+}
+
+Future<void> _positionActionAboveFloatingBar(
+  WidgetTester tester, {
+  required Finder card,
+  required double overlayFreeViewportBottom,
+}) async {
+  await tester.pump();
+  final position = Scrollable.maybeOf(tester.element(card))!.position;
+  final cardRect = tester.getRect(card);
+  final targetOffset = (position.pixels +
+          cardRect.bottom -
+          (overlayFreeViewportBottom - 12))
+      .clamp(
+    position.minScrollExtent,
+    position.maxScrollExtent,
+  ).toDouble();
+  position.jumpTo(targetOffset);
+  await tester.pump();
+}
+
+void _expectActionAboveFloatingBar(
+  WidgetTester tester, {
+  required Finder card,
+  required List<String> texts,
+  required double overlayFreeViewportTop,
+  required double overlayFreeViewportBottom,
+}) {
+  final cardRect = tester.getRect(card);
+  expect(tester.getSize(card).shortestSide, greaterThanOrEqualTo(48));
+  expect(cardRect.top, greaterThanOrEqualTo(overlayFreeViewportTop));
+  expect(cardRect.bottom, lessThanOrEqualTo(overlayFreeViewportBottom));
+
+  for (final text in texts) {
+    final textFinder = find.text(text);
+    expect(textFinder, findsOneWidget);
+    final textRect = tester.getRect(textFinder);
+    expect(textRect.top, greaterThanOrEqualTo(overlayFreeViewportTop));
+    expect(textRect.bottom, lessThanOrEqualTo(overlayFreeViewportBottom));
   }
 }
 

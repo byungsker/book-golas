@@ -22,7 +22,8 @@ class CompletedBookActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textScale = MediaQuery.textScalerOf(context).scale(15);
+    final textScaleFactor =
+        MediaQuery.textScalerOf(context).scale(15) / 15;
 
     return Semantics(
       button: true,
@@ -53,7 +54,7 @@ class CompletedBookActionCard extends StatelessWidget {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final shouldStack =
-                      textScale >= 1.3 || constraints.maxWidth < 300;
+                      textScaleFactor >= 1.3 || constraints.maxWidth < 300;
                   return shouldStack
                       ? _StackedCardContent(
                           icon: icon,
@@ -198,9 +199,17 @@ class _ActionText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: _titleStyle(isDark)),
+        Text(
+          title,
+          key: const ValueKey('completed-book-action-title-inline'),
+          style: _titleStyle(isDark),
+        ),
         const SizedBox(height: 2),
-        Text(description, style: _descriptionStyle(isDark)),
+        Text(
+          description,
+          key: const ValueKey('completed-book-action-description-inline'),
+          style: _descriptionStyle(isDark),
+        ),
       ],
     );
   }

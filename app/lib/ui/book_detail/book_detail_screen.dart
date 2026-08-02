@@ -469,7 +469,12 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 const SizedBox(height: 12),
                                 _buildRestartReadingButton(context),
                               ],
-                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: !_isBookPlanned(book) &&
+                                        !widget.isEmbedded
+                                    ? 104
+                                    : 20,
+                              ),
                             ],
                           ),
                         ),
