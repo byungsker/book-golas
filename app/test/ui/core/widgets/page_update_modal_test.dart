@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsAction, Tristate;
+import 'dart:ui' show SemanticsAction, SemanticsFlag;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -69,15 +69,9 @@ void main() {
                 );
                 final inputNode = tester.getSemantics(inputSemantics);
                 expect(inputNode.label, contains(inputLabel));
-                expect(inputNode.flagsCollection.isTextField, isTrue);
-                expect(
-                  inputNode.flagsCollection.isEnabled,
-                  Tristate.isTrue,
-                );
-                expect(
-                  inputNode.flagsCollection.isFocused,
-                  isNot(Tristate.none),
-                );
+                expect(inputNode.hasFlag(SemanticsFlag.isTextField), isTrue);
+                expect(inputNode.hasFlag(SemanticsFlag.isEnabled), isTrue);
+                expect(inputNode.hasFlag(SemanticsFlag.isFocusable), isTrue);
                 final inputData = inputNode.getSemanticsData();
                 expect(inputData.hasAction(SemanticsAction.tap), isTrue);
                 expect(inputData.hasAction(SemanticsAction.focus), isTrue);
@@ -132,8 +126,8 @@ void main() {
             );
             expect(inputNode.label, contains('New Page Number'));
             expect(inputNode.value, '$page');
-            expect(inputNode.flagsCollection.isTextField, isTrue);
-            expect(inputNode.flagsCollection.isFocused, Tristate.isTrue);
+            expect(inputNode.hasFlag(SemanticsFlag.isTextField), isTrue);
+            expect(inputNode.hasFlag(SemanticsFlag.isFocused), isTrue);
             expect(
               inputNode.getSemanticsData().hasAction(SemanticsAction.setText),
               isTrue,
