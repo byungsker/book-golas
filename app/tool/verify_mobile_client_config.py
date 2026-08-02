@@ -71,6 +71,22 @@ FORBIDDEN_ENVIRONMENT_CONTRACTS = {
         },
     ),
 }
+SIGNED_IPA_WORKFLOW_STEPS = {
+    "ios-testflight.yml": (
+        "Build signed TestFlight IPA",
+        "Verify signed TestFlight IPA boundary",
+        "Upload scanned TestFlight IPA",
+        "fastlane beta_build",
+        "fastlane beta_upload",
+    ),
+    "ios-production.yml": (
+        "Build signed App Store IPA",
+        "Verify signed App Store IPA boundary",
+        "Upload scanned App Store IPA",
+        "fastlane release_build",
+        "fastlane release_upload",
+    ),
+}
 SERVER_ONLY_MARKERS = (
     "ALADIN_TTB_KEY",
     "APP_STORE_CONNECT_API_KEY",
@@ -276,7 +292,103 @@ def forbidden_environment_values(
     ) + optional_forbidden_environment_values(environment, optional_names)
 
 
+def workflow_step_run_block(content: str, label: str, step_name: str) -> tuple[str, ...]:
+    lines = content.splitlines()
+    step_pattern = re.compile(r"^(?P<indent>\s*)-\s+name:\s*(?P<name>.+?)\s*$")
+    matches = []
+    for index, line in enumerate(lines):
+        match = step_pattern.fullmatch(line)
+        if match and match.group("name").strip(" '\"") == step_name:
+            matches.append((index, len(match.group("indent"))))
+    if len(matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} must occur once")
+
+    start, step_indent = matches[0]
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        match = step_pattern.fullmatch(lines[index])
+        if match and len(match.group("indent")) <= step_indent:
+            end = index
+            break
+
+    run_pattern = re.compile(r"^(?P<indent>\s*)run:\s*\|\s*$")
+    run_matches = [
+        (index, len(match.group("indent")))
+        for index in range(start + 1, end)
+        if (match := run_pattern.fullmatch(lines[index]))
+    ]
+    if len(run_matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} must have one run block")
+
+    run_start, run_indent = run_matches[0]
+    run_lines = []
+    for line in lines[run_start + 1 : end]:
+        if line.strip() and len(line) - len(line.lstrip()) <= run_indent:
+            break
+        run_lines.append(line)
+    if not run_lines:
+        raise BoundaryError(f"{label}: signed IPA step {step_name!r} run block is empty")
+    return tuple(run_lines)
+
+
+def shell_commands(run_lines: tuple[str, ...], label: str) -> tuple[str, ...]:
+    commands = []
+    current = []
+    for line in run_lines:
+        stripped = line.strip()
+        code = line.split("#", 1)[0].strip()
+        if not code:
+            if current and current[-1].endswith("\\") and stripped.startswith("#"):
+                raise BoundaryError(f"{label}: shell comments cannot interrupt a continuation")
+            continue
+        current.append(code)
+        if code.endswith("\\"):
+            continue
+        commands.append(" ".join(current))
+        current = []
+    if current:
+        if current[-1].endswith("\\"):
+            raise BoundaryError(f"{label}: shell continuation is incomplete")
+        commands.append(" ".join(current))
+    return tuple(commands)
+
+
+def signed_ipa_scan_command(content: str, label: str) -> str:
+    workflow = SIGNED_IPA_WORKFLOW_STEPS.get(Path(label).name)
+    if workflow is None:
+        raise BoundaryError(f"{label}: signed IPA workflow contract is unknown")
+    _, scan_step, _, _, _ = workflow
+    commands = shell_commands(workflow_step_run_block(content, label, scan_step), label)
+    matches = [
+        command
+        for command in commands
+        if re.search(r"\bpython3\s+app/tool/verify_mobile_client_config\.py\b", command)
+    ]
+    if len(matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA boundary must invoke the scanner once")
+    command = matches[0]
+    if "--artifact app/ios/build/Runner.ipa" not in command:
+        raise BoundaryError(f"{label}: signed IPA boundary must scan Runner.ipa")
+    return command
+
+
 def require_upload_order(content: str, label: str) -> None:
+    workflow = SIGNED_IPA_WORKFLOW_STEPS.get(Path(label).name)
+    if workflow is not None:
+        build_step, _, upload_step, build_command, upload_command = workflow
+        build_commands = shell_commands(
+            workflow_step_run_block(content, label, build_step), label
+        )
+        upload_commands = shell_commands(
+            workflow_step_run_block(content, label, upload_step), label
+        )
+        if sum(build_command in command for command in build_commands) != 1:
+            raise BoundaryError(f"{label}: signed IPA archive command must occur once")
+        signed_ipa_scan_command(content, label)
+        if sum(upload_command in command for command in upload_commands) != 1:
+            raise BoundaryError(f"{label}: signed IPA upload command must occur once")
+        require_forbidden_environment_contract(content, label)
+        return
     archive_matches = list(re.finditer(r"fastlane (?:beta|release)_build", content))
     upload_matches = list(re.finditer(r"fastlane (?:beta|release)_upload", content))
     scan_matches = list(
@@ -292,13 +404,14 @@ def require_forbidden_environment_contract(content: str, label: str) -> None:
     expected = FORBIDDEN_ENVIRONMENT_CONTRACTS.get(Path(label).name)
     if expected is None:
         return
-    if "--forbidden-env" in content:
+    command = signed_ipa_scan_command(content, label)
+    if "--forbidden-env" in command:
         raise BoundaryError(f"{label}: forbidden environment inputs must be classified")
     required_names = re.findall(
-        r"--required-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", content
+        r"--required-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", command
     )
     optional_names = re.findall(
-        r"--optional-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", content
+        r"--optional-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", command
     )
     if len(required_names) != len(set(required_names)) or len(optional_names) != len(
         set(optional_names)
@@ -514,8 +627,71 @@ def run_self_test() -> None:
             "blocked",
         )
     except BoundaryError:
-        return
-    raise BoundaryError("self-test did not block invalid IPA scan ordering")
+        pass
+    else:
+        raise BoundaryError("self-test did not block invalid IPA scan ordering")
+    for workflow_name, contract in FORBIDDEN_ENVIRONMENT_CONTRACTS.items():
+        build_step, scan_step, upload_step, build_command, upload_command = (
+            SIGNED_IPA_WORKFLOW_STEPS[workflow_name]
+        )
+        required_names, optional_names = contract
+        flags = " ".join(
+            [
+                "--required-forbidden-env " + name
+                for name in sorted(required_names)
+            ]
+            + [
+                "--optional-forbidden-env " + name
+                for name in sorted(optional_names)
+            ]
+        )
+        scan_command = (
+            "python3 app/tool/verify_mobile_client_config.py "
+            "--artifact app/ios/build/Runner.ipa "
+            + flags
+        )
+        workflow = "\n".join(
+            (
+                "jobs:",
+                "  build:",
+                "    steps:",
+                f"      - name: {build_step}",
+                "        run: |",
+                f"          {build_command}",
+                f"      - name: {scan_step}",
+                "        run: |",
+                f"          {scan_command}",
+                f"      - name: {upload_step}",
+                "        run: |",
+                f"          {upload_command}",
+            )
+        )
+        require_upload_order(workflow, workflow_name)
+        for bypass in (
+            workflow.replace(
+                scan_command,
+                scan_command.split(" --required", 1)[0] + "\n          # " + flags,
+            ),
+            workflow.replace(
+                f"      - name: {upload_step}",
+                "\n".join(
+                    (
+                        "      - name: Unrelated scanner-looking step",
+                        "        run: |",
+                        f"          {scan_command}",
+                        f"      - name: {upload_step}",
+                    )
+                ),
+            ).replace(scan_command, scan_command.split(" --required", 1)[0], 1),
+        ):
+            try:
+                require_upload_order(bypass, workflow_name)
+            except BoundaryError:
+                pass
+            else:
+                raise BoundaryError(
+                    "self-test did not block a signed IPA workflow classification bypass"
+                )
 
 
 def parse_args() -> argparse.Namespace:
