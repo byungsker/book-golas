@@ -30,17 +30,25 @@ class _ThemeAwareSystemUiOverlayState extends State<ThemeAwareSystemUiOverlay> {
   SystemUiOverlayStyle get _overlayStyle =>
       systemUiOverlayStyleForBrightness(widget.brightness);
 
+  void _applyOverlayStyle() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        SystemChrome.setSystemUIOverlayStyle(_overlayStyle);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(_overlayStyle);
+    _applyOverlayStyle();
   }
 
   @override
   void didUpdateWidget(ThemeAwareSystemUiOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.brightness != widget.brightness) {
-      SystemChrome.setSystemUIOverlayStyle(_overlayStyle);
+      _applyOverlayStyle();
     }
   }
 

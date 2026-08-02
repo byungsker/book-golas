@@ -53,6 +53,7 @@ void main() {
 
       brightness.value = Brightness.light;
       await tester.pump();
+      await tester.pump();
 
       expect(_activeOverlay(tester).statusBarIconBrightness, Brightness.dark);
       expect(platformCalls.last.method, 'SystemChrome.setSystemUIOverlayStyle');
