@@ -53,6 +53,7 @@ import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
 import 'package:book_golas/data/services/book_share_service.dart';
 import 'widgets/book_share_composer.dart';
+import 'widgets/completed_book_action_card.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
@@ -466,7 +467,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   _buildBookReviewButton(context, book),
                                 ],
                                 const SizedBox(height: 12),
-                                _buildRestartReadingButton(context, book),
+                                _buildRestartReadingButton(context),
                               ],
                               const SizedBox(height: 20),
                             ],
@@ -1523,151 +1524,28 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   Widget _buildBookReviewButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
 
-    return GestureDetector(
+    return CompletedBookActionCard(
+      cardKey: const ValueKey('completed-book-review-action'),
+      title: hasReview
+          ? AppLocalizations.of(context).bookDetailEditReview
+          : AppLocalizations.of(context).bookDetailWriteReview,
+      description: hasReview
+          ? AppLocalizations.of(context).bookDetailReviewYourWritten
+          : AppLocalizations.of(context).bookDetailRecordThoughts,
+      icon: CupertinoIcons.pencil_outline,
       onTap: () => _navigateToBookReview(context, book),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: BLabColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.pencil_outline,
-                    color: BLabColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      hasReview
-                          ? AppLocalizations.of(context).bookDetailEditReview
-                          : AppLocalizations.of(context).bookDetailWriteReview,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      hasReview
-                          ? AppLocalizations.of(context)
-                              .bookDetailReviewYourWritten
-                          : AppLocalizations.of(context)
-                              .bookDetailRecordThoughts,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: isDark ? Colors.grey[400] : Colors.grey[500],
-              size: 20,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildRestartReadingButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
+  Widget _buildRestartReadingButton(BuildContext context) {
+    return CompletedBookActionCard(
+      cardKey: const ValueKey('completed-book-restart-action'),
+      title: AppLocalizations.of(context).bookDetailContinueReading,
+      description: AppLocalizations.of(context).bookDetailAchieveGoal,
+      icon: Icons.refresh_rounded,
       onTap: () => _navigateToReadingStart(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: BLabColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.refresh_rounded,
-                    color: BLabColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).bookDetailContinueReading,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      AppLocalizations.of(context).bookDetailAchieveGoal,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: isDark ? Colors.grey[400] : Colors.grey[500],
-              size: 20,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
