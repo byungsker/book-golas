@@ -45,7 +45,7 @@ class DetailTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_isCompleted && onReviewTap != null) ...[
-            _buildReviewPreviewCard(isDark),
+            _buildReviewPreviewCard(context, isDark),
             const SizedBox(height: 16),
           ],
           _buildReadingScheduleCard(context, isDark),
@@ -85,6 +85,7 @@ class DetailTab extends StatelessWidget {
   }
 
   Widget _buildReadingActionsButton(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => _showReadingActionsSheet(context),
       child: Container(
@@ -120,7 +121,7 @@ class DetailTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '독서 관리',
+                    l10n.detailTabManagement,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class DetailTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '쉬어가기, 삭제 등',
+                    l10n.detailTabManagementDesc,
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -151,6 +152,7 @@ class DetailTab extends StatelessWidget {
 
   Widget _buildDeleteButton(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
+    final useStackedLayout = MediaQuery.textScalerOf(context).scale(14) > 20;
     return GestureDetector(
       onTap: onDelete,
       child: Container(
@@ -163,7 +165,14 @@ class DetailTab extends StatelessWidget {
             width: 1,
           ),
         ),
-        child: Row(
+        child: Flex(
+          key: ValueKey(
+            useStackedLayout
+                ? 'detail-tab-delete-stacked'
+                : 'detail-tab-delete-inline',
+          ),
+          direction: useStackedLayout ? Axis.vertical : Axis.horizontal,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
@@ -171,22 +180,40 @@ class DetailTab extends StatelessWidget {
               color: BLabColors.errorAlt,
               size: 18,
             ),
-            const SizedBox(width: 8),
-            Text(
-              l10n.bookDetailDeleteReading,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: BLabColors.errorAlt,
-              ),
+            SizedBox(
+              width: useStackedLayout ? 0 : 8,
+              height: useStackedLayout ? 8 : 0,
             ),
+            if (useStackedLayout)
+              Text(
+                l10n.detailTabDeleteReading,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: BLabColors.errorAlt,
+                ),
+              )
+            else
+              Flexible(
+                child: Text(
+                  l10n.detailTabDeleteReading,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: BLabColors.errorAlt,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildReviewPreviewCard(bool isDark) {
+  Widget _buildReviewPreviewCard(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context);
     final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
 
     return GestureDetector(
@@ -227,16 +254,19 @@ class DetailTab extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '독후감',
+                        l10n.detailTabReview,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : BLabColors.scaffoldDark,
+                          color:
+                              isDark ? Colors.white : BLabColors.scaffoldDark,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        hasReview ? '작성됨' : '아직 작성되지 않음',
+                        hasReview
+                            ? l10n.detailTabReviewWritten
+                            : l10n.detailTabReviewNotWritten,
                         style: TextStyle(
                           fontSize: 12,
                           color: hasReview
@@ -280,7 +310,7 @@ class DetailTab extends StatelessWidget {
             ] else ...[
               const SizedBox(height: 12),
               Text(
-                '책을 읽고 느낀 점을 기록해보세요',
+                l10n.detailTabReviewDescription,
                 style: TextStyle(
                   fontSize: 13,
                   color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -326,102 +356,150 @@ class DetailTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                l10n.bookDetailSchedule,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  l10n.detailTabSchedule,
+                  key: const ValueKey('detail-tab-schedule-title'),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           _buildScheduleRow(
-            l10n.bookDetailStartDate,
+            context,
+            l10n.detailTabScheduleStartDate,
             book.startDate.toString().substring(0, 10).replaceAll('-', '.'),
             CupertinoIcons.play_circle,
             isDark: isDark,
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                CupertinoIcons.flag_fill,
-                size: 16,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 8),
-              Text(
-                l10n.bookDetailTargetDate,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      book.targetDate
-                          .toString()
-                          .substring(0, 10)
-                          .replaceAll('-', '.'),
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    if (attemptCount > 1) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: BLabColors.warning.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$attemptCount번째 · $attemptEncouragement',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: BLabColors.warning,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: onTargetDateChange,
-                style: TextButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  '변경',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildTargetScheduleRow(context, l10n, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildScheduleRow(String label, String value, IconData icon,
-      {Widget? trailing, bool isDark = false}) {
+  Widget _buildTargetScheduleRow(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    final targetDate =
+        book.targetDate.toString().substring(0, 10).replaceAll('-', '.');
+    final attempt = attemptCount > 1
+        ? l10n.detailTabAttempt(attemptCount, attemptEncouragement)
+        : null;
+    final useStackedLayout = MediaQuery.textScalerOf(context).scale(14) > 20;
+
+    final details = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.detailTabScheduleTargetDate,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          targetDate,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        if (attempt != null) ...[
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: BLabColors.warning.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              attempt,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: BLabColors.warning,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+
+    final changeButton = TextButton(
+      onPressed: onTargetDateChange,
+      style: TextButton.styleFrom(
+        minimumSize: const Size(44, 44),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        l10n.detailTabChangeButton,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      ),
+    );
+
     return Row(
+      key: ValueKey(
+        useStackedLayout
+            ? 'detail-tab-target-date-stacked'
+            : 'detail-tab-target-date-inline',
+      ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          CupertinoIcons.flag_fill,
+          size: 16,
+          color: isDark ? Colors.grey[400] : Colors.grey[600],
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: useStackedLayout
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    details,
+                    const SizedBox(height: 8),
+                    changeButton,
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: details),
+                    const SizedBox(width: 8),
+                    changeButton,
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScheduleRow(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon, {
+    Widget? trailing,
+    bool isDark = false,
+  }) {
+    final useStackedLayout = MediaQuery.textScalerOf(context).scale(14) > 20;
+    return Row(
+      key: ValueKey(
+        useStackedLayout
+            ? 'detail-tab-schedule-row-stacked'
+            : 'detail-tab-schedule-row-inline',
+      ),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
           icon,
@@ -429,24 +507,53 @@ class DetailTab extends StatelessWidget {
           color: isDark ? Colors.grey[400] : Colors.grey[600],
         ),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-          ),
+          child: useStackedLayout
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
         if (trailing != null) trailing,
       ],
@@ -500,48 +607,70 @@ class DetailTab extends StatelessWidget {
   Widget _buildGoalHeader(BuildContext context, int passedDays,
       int achievedCount, int achievementRate, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return Row(
+    final useStackedLayout = MediaQuery.textScalerOf(context).scale(14) > 20;
+    final title = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [BLabColors.success, BLabColors.success],
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            CupertinoIcons.flame_fill,
-            size: 20,
-            color: Colors.white,
+        Text(
+          l10n.detailTabGoalAchievement,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : BLabColors.scaffoldDark,
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
+        const SizedBox(height: 2),
+        Text(
+          l10n.detailTabAchievementStats(passedDays, achievedCount),
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.6)
+                : Colors.grey[500]!,
+          ),
+        ),
+      ],
+    );
+    final icon = Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [BLabColors.success, BLabColors.success],
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Icon(
+        CupertinoIcons.flame_fill,
+        size: 20,
+        color: Colors.white,
+      ),
+    );
+
+    if (useStackedLayout) {
+      return Column(
+        key: const ValueKey('detail-tab-goal-header-stacked'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.bookDetailGoalProgress,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : BLabColors.scaffoldDark,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.bookDetailAchievementStatus(passedDays, achievedCount),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.6)
-                      : Colors.grey[500]!,
-                ),
-              ),
+              icon,
+              const SizedBox(width: 12),
+              Expanded(child: title),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          _buildAchievementBadge(achievementRate),
+        ],
+      );
+    }
+
+    return Row(
+      key: const ValueKey('detail-tab-goal-header-inline'),
+      children: [
+        icon,
+        const SizedBox(width: 12),
+        Expanded(child: title),
         _buildAchievementBadge(achievementRate),
       ],
     );
@@ -666,27 +795,66 @@ class DetailTab extends StatelessWidget {
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLegendItem(
-            l10n.bookDetailLegendAchieved, BLabColors.success, isDark),
-        const SizedBox(width: 16),
-        _buildLegendItem(
-            l10n.bookDetailLegendMissed, BLabColors.errorLight, isDark),
-        const SizedBox(width: 16),
-        _buildLegendItem(
-            l10n.bookDetailLegendScheduled,
-            isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : BLabColors.grey100Light,
-            isDark),
-      ],
+    final useStackedLayout = MediaQuery.textScalerOf(context).scale(12) > 18;
+    final items = [
+      _buildLegendItem(
+        l10n.detailTabLegendAchieved,
+        BLabColors.success,
+        isDark,
+        expandLabel: useStackedLayout,
+      ),
+      _buildLegendItem(
+        l10n.detailTabLegendMissed,
+        BLabColors.errorLight,
+        isDark,
+        expandLabel: useStackedLayout,
+      ),
+      _buildLegendItem(
+        l10n.detailTabLegendScheduled,
+        isDark ? Colors.white.withValues(alpha: 0.1) : BLabColors.grey100Light,
+        isDark,
+        expandLabel: useStackedLayout,
+      ),
+    ];
+
+    if (useStackedLayout) {
+      return Column(
+        key: const ValueKey('detail-tab-legend-wrap'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var index = 0; index < items.length; index++) ...[
+            if (index > 0) const SizedBox(height: 8),
+            items[index],
+          ],
+        ],
+      );
+    }
+
+    return Wrap(
+      key: const ValueKey('detail-tab-legend-wrap'),
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 8,
+      children: items,
     );
   }
 
-  Widget _buildLegendItem(String label, Color color, bool isDark) {
+  Widget _buildLegendItem(
+    String label,
+    Color color,
+    bool isDark, {
+    bool expandLabel = false,
+  }) {
+    final labelText = Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        color: isDark ? Colors.grey[400] : Colors.grey[600],
+        fontWeight: FontWeight.w500,
+      ),
+    );
     return Row(
+      mainAxisSize: expandLabel ? MainAxisSize.max : MainAxisSize.min,
       children: [
         Container(
           width: 16,
@@ -697,14 +865,7 @@ class DetailTab extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        if (expandLabel) Expanded(child: labelText) else labelText,
       ],
     );
   }

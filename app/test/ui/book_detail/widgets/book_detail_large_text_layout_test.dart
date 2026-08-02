@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/utils/sticky_tab_bar_delegate.dart';
 import 'package:book_golas/ui/book_detail/widgets/compact_reading_schedule.dart';
@@ -9,6 +10,7 @@ import 'package:book_golas/ui/book_detail/widgets/custom_tab_bar.dart';
 import 'package:book_golas/ui/book_detail/widgets/dashboard_progress_widget.dart';
 import 'package:book_golas/ui/book_detail/widgets/floating_action_bar.dart'
     as book_detail;
+import 'package:book_golas/ui/book_detail/widgets/tabs/detail_tab.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 
@@ -212,6 +214,41 @@ void main() {
         testCase.themeMode,
       );
     });
+
+    testWidgets('completed detail tab fits at 200 percent text scale in $label',
+        (
+      tester,
+    ) async {
+      await _pumpDetailTabAtLargeText(tester, testCase: testCase);
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.byKey(const ValueKey('detail-tab-schedule-row-stacked')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('detail-tab-target-date-stacked')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('detail-tab-goal-header-stacked')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('detail-tab-legend-wrap')),
+        findsOneWidget,
+      );
+
+      final scheduleTitle =
+          testCase.locale.languageCode == 'ko' ? '독서 일정' : 'Reading Schedule';
+      final reviewTitle =
+          testCase.locale.languageCode == 'ko' ? '독후감' : 'Review';
+      final changeLabel =
+          testCase.locale.languageCode == 'ko' ? '변경' : 'Change';
+      expect(find.text(scheduleTitle), findsOneWidget);
+      expect(find.text(reviewTitle), findsOneWidget);
+      expect(find.text(changeLabel), findsOneWidget);
+    });
   }
 
   testWidgets('reading schedule stacks at phone width and standard text size', (
@@ -319,6 +356,57 @@ void main() {
       findsNothing,
     );
   });
+}
+
+Future<void> _pumpDetailTabAtLargeText(
+  WidgetTester tester, {
+  required ({Locale locale, ThemeMode themeMode, double width}) testCase,
+}) async {
+  tester.view.physicalSize = Size(testCase.width, 852);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  final today = DateTime(2026, 8, 2);
+  await tester.pumpWidget(
+    MaterialApp(
+      locale: testCase.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      theme: BLabTheme.light,
+      darkTheme: BLabTheme.dark,
+      themeMode: testCase.themeMode,
+      builder: (context, appChild) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: const TextScaler.linear(2)),
+        child: appChild!,
+      ),
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: DetailTab(
+            book: Book(
+              title: 'The Little Prince',
+              author: 'Antoine de Saint-Exupéry',
+              startDate: today,
+              targetDate: today.add(const Duration(days: 13)),
+              currentPage: 144,
+              totalPages: 144,
+              status: BookStatus.completed.value,
+            ),
+            attemptCount: 12,
+            attemptEncouragement: 'Keep going',
+            dailyAchievements: const {},
+            onTargetDateChange: () {},
+            onDelete: () {},
+            onReviewTap: () {},
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
 }
 
 void _expectTextContrast(
