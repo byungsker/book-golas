@@ -49,6 +49,11 @@ JWT `anon` role when present.
 `--dart-define-from-file` is deliberately rejected because a local environment
 file can contain server-only configuration.
 
+The source guard recognizes Dart-valid whitespace and comments around the
+`String.fromEnvironment` member access, while continuing to reject non-literal
+setting names. Formatting therefore cannot turn an indirect configuration
+lookup into an allowed client setting.
+
 ## Server-only credentials and rotation
 
 Server-only values stay in the approved deployment secret store and are read

@@ -50,11 +50,11 @@ DART_DEFINE_PATTERN = re.compile(
 ANY_DART_DEFINE_PATTERN = re.compile(r"--dart-define(?![-A-Za-z])")
 DART_TRIVIA = r"(?:\s+|/\*.*?\*/|//[^\r\n]*(?:\r?\n|$))*"
 FROM_ENVIRONMENT_PATTERN = re.compile(
-    rf"(?:String|bool|int|double)\.fromEnvironment{DART_TRIVIA}\({DART_TRIVIA}['\"]([A-Za-z][A-Za-z0-9_]*)['\"]",
+    rf"(?:String|bool|int|double){DART_TRIVIA}\.{DART_TRIVIA}fromEnvironment{DART_TRIVIA}\({DART_TRIVIA}['\"]([A-Za-z][A-Za-z0-9_]*)['\"]",
     re.DOTALL,
 )
 ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
-    rf"(?:String|bool|int|double)\.fromEnvironment{DART_TRIVIA}\(",
+    rf"(?:String|bool|int|double){DART_TRIVIA}\.{DART_TRIVIA}fromEnvironment{DART_TRIVIA}\(",
     re.DOTALL,
 )
 
@@ -295,12 +295,16 @@ def run_self_test() -> None:
         source = Path(directory) / "source"
         source.mkdir()
         (source / "allowed.dart").write_text(
-            "const value = String.fromEnvironment /* build setting */ ( 'ENVIRONMENT' );",
+            "const value = String /* type */ . /* member */ fromEnvironment /* call */ ( 'ENVIRONMENT' );",
+            encoding="utf-8",
+        )
+        (source / "allowed_line_comment.dart").write_text(
+            "const value = String // type\n. // member\nfromEnvironment // call\n( 'ENVIRONMENT' );",
             encoding="utf-8",
         )
         require_allowed_source_defines(source)
         (source / "invalid.dart").write_text(
-            "const configName = 'OPENAI_API_KEY'; String.fromEnvironment(configName);",
+            "const configName = 'OPENAI_API_KEY'; String // type\n. // member\nfromEnvironment // call\n(configName);",
             encoding="utf-8",
         )
         try:
