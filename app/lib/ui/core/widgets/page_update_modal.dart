@@ -109,9 +109,10 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   void initState() {
     super.initState();
     final start = (widget.currentPage ?? 0) + 1;
+    final hasPageInfo = widget.currentPage != null && widget.totalPages != null;
     _selectedPage = start;
     _pageController = TextEditingController(
-      text: widget.currentPage == null ? '' : start.toString(),
+      text: hasPageInfo ? start.toString() : '',
     );
     _wheelController = FixedExtentScrollController(initialItem: 0);
   }

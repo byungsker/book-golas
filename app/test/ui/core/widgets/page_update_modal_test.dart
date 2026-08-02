@@ -20,73 +20,78 @@ void main() {
             'keyboard $keyboardInset',
             (tester) async {
               final semantics = tester.ensureSemantics();
-              await _pumpModalHarness(
-                tester,
-                locale: locale,
-                brightness: brightness,
-                width: width,
-                keyboardInset: keyboardInset,
-              );
+              try {
+                await _pumpModalHarness(
+                  tester,
+                  locale: locale,
+                  brightness: brightness,
+                  width: width,
+                  keyboardInset: keyboardInset,
+                );
 
-              await tester.tap(find.text('open'));
-              await tester.pumpAndSettle();
-
-              expect(tester.takeException(), isNull);
-              expect(
-                find.byKey(const ValueKey('page-update-modal-scroll')),
-                findsOneWidget,
-              );
-              expect(
-                find.byKey(const ValueKey('page-update-input')),
-                findsOneWidget,
-              );
-              expect(
-                find.byKey(const ValueKey('page-update-dial')),
-                findsNothing,
-              );
-
-              for (final key in const [
-                ValueKey('page-update-submit'),
-                ValueKey('page-update-cancel'),
-              ]) {
-                final action = find.byKey(key);
-                await tester.ensureVisible(action);
+                await tester.tap(find.text('open'));
                 await tester.pumpAndSettle();
-                expect(action.hitTestable(), findsOneWidget);
-                expect(tester.takeException(), isNull);
-              }
 
-              final updateLabel =
-                  locale.languageCode == 'ko' ? '업데이트' : 'Update';
-              final cancelLabel = locale.languageCode == 'ko' ? '취소' : 'Cancel';
-              final inputLabel =
-                  locale.languageCode == 'ko' ? '새 페이지 번호' : 'New Page Number';
-              final inputSemantics = find.bySemanticsLabel(
-                RegExp(inputLabel),
-              );
-              final inputNode = tester.getSemantics(inputSemantics);
-              expect(inputNode.label, contains(inputLabel));
-              expect(inputNode.flagsCollection.isTextField, isTrue);
-              expect(
-                inputNode.flagsCollection.isEnabled,
-                Tristate.isTrue,
-              );
-              expect(
-                inputNode.flagsCollection.isFocused,
-                isNot(Tristate.none),
-              );
-              final inputData = inputNode.getSemanticsData();
-              expect(inputData.hasAction(SemanticsAction.tap), isTrue);
-              expect(inputData.hasAction(SemanticsAction.focus), isTrue);
-              expect(
-                find.semantics.byLabel(updateLabel),
-                findsOneWidget,
-              );
-              expect(
-                find.semantics.byLabel(cancelLabel),
-                findsOneWidget,
-              );
-              semantics.dispose();
+                expect(tester.takeException(), isNull);
+                expect(
+                  find.byKey(const ValueKey('page-update-modal-scroll')),
+                  findsOneWidget,
+                );
+                expect(
+                  find.byKey(const ValueKey('page-update-input')),
+                  findsOneWidget,
+                );
+                expect(
+                  find.byKey(const ValueKey('page-update-dial')),
+                  findsNothing,
+                );
+
+                for (final key in const [
+                  ValueKey('page-update-submit'),
+                  ValueKey('page-update-cancel'),
+                ]) {
+                  final action = find.byKey(key);
+                  await tester.ensureVisible(action);
+                  await tester.pumpAndSettle();
+                  expect(action.hitTestable(), findsOneWidget);
+                  expect(tester.takeException(), isNull);
+                }
+
+                final updateLabel =
+                    locale.languageCode == 'ko' ? '업데이트' : 'Update';
+                final cancelLabel =
+                    locale.languageCode == 'ko' ? '취소' : 'Cancel';
+                final inputLabel = locale.languageCode == 'ko'
+                    ? '새 페이지 번호'
+                    : 'New Page Number';
+                final inputSemantics = find.bySemanticsLabel(
+                  RegExp(inputLabel),
+                );
+                final inputNode = tester.getSemantics(inputSemantics);
+                expect(inputNode.label, contains(inputLabel));
+                expect(inputNode.flagsCollection.isTextField, isTrue);
+                expect(
+                  inputNode.flagsCollection.isEnabled,
+                  Tristate.isTrue,
+                );
+                expect(
+                  inputNode.flagsCollection.isFocused,
+                  isNot(Tristate.none),
+                );
+                final inputData = inputNode.getSemanticsData();
+                expect(inputData.hasAction(SemanticsAction.tap), isTrue);
+                expect(inputData.hasAction(SemanticsAction.focus), isTrue);
+                expect(
+                  find.semantics.byLabel(updateLabel),
+                  findsOneWidget,
+                );
+                expect(
+                  find.semantics.byLabel(cancelLabel),
+                  findsOneWidget,
+                );
+              } finally {
+                semantics.dispose();
+              }
             },
           );
         }
@@ -101,52 +106,55 @@ void main() {
         (tester) async {
           PageUpdateResult? result;
           final semantics = tester.ensureSemantics();
-          await _pumpModalHarness(
-            tester,
-            locale: const Locale('en'),
-            brightness: Brightness.dark,
-            width: width,
-            keyboardInset: 280,
-            onResult: (value) => result = value,
-          );
+          try {
+            await _pumpModalHarness(
+              tester,
+              locale: const Locale('en'),
+              brightness: Brightness.dark,
+              width: width,
+              keyboardInset: 280,
+              onResult: (value) => result = value,
+            );
 
-          await tester.tap(find.text('open'));
-          await tester.pumpAndSettle();
+            await tester.tap(find.text('open'));
+            await tester.pumpAndSettle();
 
-          final input = find.descendant(
-            of: find.byKey(const ValueKey('page-update-input')),
-            matching: find.byType(TextField),
-          );
-          await tester.ensureVisible(input);
-          await tester.enterText(input, '$page');
-          await tester.pump();
+            final input = find.descendant(
+              of: find.byKey(const ValueKey('page-update-input')),
+              matching: find.byType(TextField),
+            );
+            await tester.ensureVisible(input);
+            await tester.enterText(input, '$page');
+            await tester.pump();
 
-          final inputNode = tester.getSemantics(
-            find.bySemanticsLabel(RegExp('New Page Number')),
-          );
-          expect(inputNode.label, contains('New Page Number'));
-          expect(inputNode.value, '$page');
-          expect(inputNode.flagsCollection.isTextField, isTrue);
-          expect(inputNode.flagsCollection.isFocused, Tristate.isTrue);
-          expect(
-            inputNode.getSemanticsData().hasAction(SemanticsAction.setText),
-            isTrue,
-          );
+            final inputNode = tester.getSemantics(
+              find.bySemanticsLabel(RegExp('New Page Number')),
+            );
+            expect(inputNode.label, contains('New Page Number'));
+            expect(inputNode.value, '$page');
+            expect(inputNode.flagsCollection.isTextField, isTrue);
+            expect(inputNode.flagsCollection.isFocused, Tristate.isTrue);
+            expect(
+              inputNode.getSemanticsData().hasAction(SemanticsAction.setText),
+              isTrue,
+            );
 
-          final submit = find.byKey(const ValueKey('page-update-submit'));
-          await tester.ensureVisible(submit);
-          await tester.pumpAndSettle();
-          await tester.tap(submit);
-          await tester.pumpAndSettle();
+            final submit = find.byKey(const ValueKey('page-update-submit'));
+            await tester.ensureVisible(submit);
+            await tester.pumpAndSettle();
+            await tester.tap(submit);
+            await tester.pumpAndSettle();
 
-          expect(result?.page, page);
-          expect(result?.didNotRead, isFalse);
-          expect(
-            find.byKey(const ValueKey('page-update-modal-scroll')),
-            findsNothing,
-          );
-          expect(tester.takeException(), isNull);
-          semantics.dispose();
+            expect(result?.page, page);
+            expect(result?.didNotRead, isFalse);
+            expect(
+              find.byKey(const ValueKey('page-update-modal-scroll')),
+              findsNothing,
+            );
+            expect(tester.takeException(), isNull);
+          } finally {
+            semantics.dispose();
+          }
         },
       );
     }
