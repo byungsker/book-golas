@@ -28,11 +28,12 @@ class FloatingActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomSafeArea = MediaQuery.viewPaddingOf(context).bottom;
 
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 22,
+      bottom: 22 + bottomSafeArea,
       child: isReadingMode
           ? _ReadingModeBar(
               isDark: isDark,
