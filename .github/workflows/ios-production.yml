@@ -271,7 +271,7 @@ jobs:
           REVENUECAT_WEBHOOK_AUTH_KEY_PROD: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          python3 app/tool/verify_mobile_client_config.py \
+          /usr/bin/python3 app/tool/verify_mobile_client_config.py \
             --artifact app/ios/build/Runner.ipa \
             --required-forbidden-env APP_STORE_CONNECT_API_KEY_CONTENT \
             --required-forbidden-env CERTIFICATE_P12_BASE64 \
