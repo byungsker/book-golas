@@ -68,29 +68,41 @@ class CompactBookHeader extends StatelessWidget {
                 if (onBookInfoTap != null) ...[
                   const SizedBox(height: 8),
                   Semantics(
+                    key: const ValueKey('compact-book-header-book-info'),
                     button: true,
                     label: AppLocalizations.of(context).bookInfoViewButton,
                     child: GestureDetector(
                       onTap: onBookInfoTap,
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 4,
-                        runSpacing: 2,
-                        children: [
-                          const Icon(
-                            CupertinoIcons.info_circle,
-                            size: 14,
-                            color: BLabColors.primary,
-                          ),
-                          Text(
-                            AppLocalizations.of(context).bookInfoViewButton,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: BLabColors.primary,
-                              fontWeight: FontWeight.w500,
+                      behavior: HitTestBehavior.opaque,
+                      child: ExcludeSemantics(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
+                              runSpacing: 2,
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.info_circle,
+                                  size: 14,
+                                  color: BLabColors.primary,
+                                ),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  ).bookInfoViewButton,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: BLabColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

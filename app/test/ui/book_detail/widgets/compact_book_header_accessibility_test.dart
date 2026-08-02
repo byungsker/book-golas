@@ -49,9 +49,16 @@ void main() {
               final statusFinder = find.text(
                 locale.languageCode == 'ko' ? '독서 중' : 'Reading',
               );
+              final bookInfoLabel = AppLocalizations.of(
+                tester.element(find.byType(BookDetailScreen)),
+              ).bookInfoViewButton;
+              final bookInfoFinder = find.byKey(
+                const ValueKey('compact-book-header-book-info'),
+              );
               expect(titleFinder, findsOneWidget);
               expect(authorFinder, findsOneWidget);
               expect(statusFinder, findsOneWidget);
+              expect(bookInfoFinder, findsOneWidget);
 
               final headerRect = tester.getRect(headerFinder);
               for (final finder in [titleFinder, authorFinder, statusFinder]) {
@@ -82,6 +89,16 @@ void main() {
               expect(
                 statusNode.label,
                 locale.languageCode == 'ko' ? '독서 중' : 'Reading',
+              );
+              final bookInfoNode = tester.getSemantics(bookInfoFinder);
+              expect(bookInfoNode.label, bookInfoLabel);
+              expect(
+                bookInfoNode.getSemanticsData().flagsCollection.isButton,
+                isTrue,
+              );
+              expect(
+                tester.getRect(bookInfoFinder).height,
+                greaterThanOrEqualTo(48),
               );
             } finally {
               semantics.dispose();
