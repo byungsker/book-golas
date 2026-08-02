@@ -4,6 +4,22 @@ import FirebaseCore
 import FirebaseMessaging
 import home_widget
 
+final class StatusBarFlutterViewController: FlutterViewController {
+  private var isDarkTheme = false
+
+  func updateStatusBar(isDark: Bool) {
+    isDarkTheme = isDark
+    setNeedsStatusBarAppearanceUpdate()
+  }
+
+  override var preferredStatusBarStyle: UIStatusBarStyle {
+    if #available(iOS 13.0, *) {
+      return isDarkTheme ? .lightContent : .darkContent
+    }
+    return isDarkTheme ? .lightContent : .default
+  }
+}
+
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var deepLinkChannel: FlutterMethodChannel?
@@ -38,7 +54,7 @@ import home_widget
 
     GeneratedPluginRegistrant.register(with: self)
 
-    let controller = window?.rootViewController as! FlutterViewController
+    let controller = window?.rootViewController as! StatusBarFlutterViewController
 
     let systemUiChannel = FlutterMethodChannel(
       name: "com.bookgolas.app/system_ui",
@@ -53,10 +69,8 @@ import home_widget
 
       if #available(iOS 13.0, *) {
         self?.window?.overrideUserInterfaceStyle = isDark ? .dark : .light
-        UIApplication.shared.statusBarStyle = isDark ? .lightContent : .darkContent
-      } else {
-        UIApplication.shared.statusBarStyle = isDark ? .lightContent : .default
       }
+      controller.updateStatusBar(isDark: isDark)
       result(nil)
     }
 
