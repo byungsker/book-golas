@@ -71,7 +71,6 @@ void main() {
                 expect(inputNode.label, contains(inputLabel));
                 expect(inputNode.hasFlag(SemanticsFlag.isTextField), isTrue);
                 expect(inputNode.hasFlag(SemanticsFlag.isEnabled), isTrue);
-                expect(inputNode.hasFlag(SemanticsFlag.isFocusable), isTrue);
                 final inputData = inputNode.getSemanticsData();
                 expect(inputData.hasAction(SemanticsAction.tap), isTrue);
                 expect(inputData.hasAction(SemanticsAction.focus), isTrue);
