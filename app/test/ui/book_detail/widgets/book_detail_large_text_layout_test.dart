@@ -10,6 +10,7 @@ import 'package:book_golas/ui/book_detail/widgets/dashboard_progress_widget.dart
 import 'package:book_golas/ui/book_detail/widgets/floating_action_bar.dart'
     as book_detail;
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 
 void main() {
   final testCases = <({Locale locale, ThemeMode themeMode, double width})>[
@@ -146,20 +147,43 @@ void main() {
     testWidgets(
       'completed-book tab bar fits at 200 percent text scale in $label',
       (tester) async {
+        final semantics = tester.ensureSemantics();
         await _pumpStickyTabBarAtLargeText(
           tester,
           testCase: testCase,
-          tabLabels: const ['Record', 'History', 'Review', 'Details'],
+          completed: true,
         );
 
         expect(tester.takeException(), isNull);
         final tabBarRect = tester.getRect(find.byType(CustomTabBar));
-        expect(tabBarRect.height, greaterThan(56));
-        for (final label in const ['Record', 'History', 'Review', 'Details']) {
-          final labelRect = tester.getRect(find.text(label));
-          expect(labelRect.top, greaterThanOrEqualTo(tabBarRect.top));
-          expect(labelRect.bottom, lessThanOrEqualTo(tabBarRect.bottom));
+        expect(tabBarRect.height, greaterThanOrEqualTo(56));
+        expect(find.byType(ScrollableTabBar), findsOneWidget);
+
+        final labels = testCase.locale.languageCode == 'ko'
+            ? const ['기록', '히스토리', '독후감', '상세']
+            : const ['Record', 'History', 'Review', 'Details'];
+        for (final tabLabel in labels) {
+          expect(find.semantics.byLabel(tabLabel), findsOneWidget);
+          final labelText = tester.widget<Text>(find.text(tabLabel));
+          expect(labelText.maxLines, 1);
+          expect(labelText.softWrap, isFalse);
         }
+
+        final scrollView = tester.widget<SingleChildScrollView>(
+          find.byKey(const ValueKey('scrollable-tab-bar-scroll-view')),
+        );
+        expect(scrollView.controller, isNotNull);
+        expect(scrollView.controller!.position.maxScrollExtent, greaterThan(0));
+
+        tester.semantics.tap(find.semantics.byLabel(labels.last));
+        await tester.pumpAndSettle();
+        expect(scrollView.controller!.offset, greaterThan(0));
+        final lastLabelRect = tester.getRect(find.text(labels.last));
+        expect(lastLabelRect.left, greaterThanOrEqualTo(tabBarRect.left));
+        expect(lastLabelRect.right, lessThanOrEqualTo(tabBarRect.right));
+        expect(lastLabelRect.top, greaterThanOrEqualTo(tabBarRect.top));
+        expect(lastLabelRect.bottom, lessThanOrEqualTo(tabBarRect.bottom));
+        semantics.dispose();
       },
     );
 
@@ -340,7 +364,7 @@ double _contrastRatio(Color foreground, Color background) {
 Future<void> _pumpStickyTabBarAtLargeText(
   WidgetTester tester, {
   required ({Locale locale, ThemeMode themeMode, double width}) testCase,
-  List<String> tabLabels = const ['Record', 'History', 'Detail'],
+  bool completed = false,
 }) async {
   tester.view.physicalSize = Size(testCase.width, 852);
   tester.view.devicePixelRatio = 1;
@@ -361,31 +385,48 @@ Future<void> _pumpStickyTabBarAtLargeText(
         ).copyWith(textScaler: const TextScaler.linear(2)),
         child: appChild!,
       ),
-      home: DefaultTabController(
-        length: 3,
-        child: Builder(
-          builder: (context) {
-            final tabController = DefaultTabController.of(context);
-            return CustomScrollView(
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: StickyTabBarDelegate(
-                    extent: CustomTabBar.extentFor(context, tabLabels),
-                    backgroundColor: testCase.themeMode == ThemeMode.dark
-                        ? BLabColors.scaffoldDark
-                        : BLabColors.elevatedLight,
-                    child: CustomTabBar(
-                      tabController: tabController,
-                      tabLabels: tabLabels,
+      home: Builder(
+        builder: (context) {
+          final l10n = AppLocalizations.of(context);
+          final tabLabels = completed
+              ? [
+                  l10n.bookDetailTabRecord,
+                  l10n.bookDetailTabHistory,
+                  l10n.bookDetailTabReview,
+                  l10n.bookDetailTabDetail,
+                ]
+              : [
+                  l10n.bookDetailTabRecord,
+                  l10n.bookDetailTabHistory,
+                  l10n.bookDetailTabDetail,
+                ];
+          return DefaultTabController(
+            length: tabLabels.length,
+            child: Builder(
+              builder: (context) {
+                final tabController = DefaultTabController.of(context);
+                return CustomScrollView(
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: StickyTabBarDelegate(
+                        extent: CustomTabBar.extentFor(context, tabLabels),
+                        backgroundColor: testCase.themeMode == ThemeMode.dark
+                            ? BLabColors.scaffoldDark
+                            : BLabColors.elevatedLight,
+                        child: CustomTabBar(
+                          tabController: tabController,
+                          tabLabels: tabLabels,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SliverFillRemaining(child: SizedBox.expand()),
-              ],
-            );
-          },
-        ),
+                    const SliverFillRemaining(child: SizedBox.expand()),
+                  ],
+                );
+              },
+            ),
+          );
+        },
       ),
     ),
   );
