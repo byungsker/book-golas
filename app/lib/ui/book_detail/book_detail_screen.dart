@@ -58,6 +58,7 @@ class BookDetailScreen extends StatelessWidget {
   final Book book;
   final bool showCelebration;
   final bool isEmbedded;
+  final bool loadRemoteData;
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -68,6 +69,7 @@ class BookDetailScreen extends StatelessWidget {
     required this.book,
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.loadRemoteData = true,
     this.initialTabIndex,
     this.autoOpenScan = false,
     this.onCallbacksReady,
@@ -90,12 +92,15 @@ class BookDetailScreen extends StatelessWidget {
           create: (_) => ReadingProgressViewModel(bookId: book.id!),
         ),
         ChangeNotifierProvider(
-          create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
+          create: (_) => loadRemoteData
+              ? (RecallViewModel()..loadRecentSearches(book.id!))
+              : RecallViewModel(),
         ),
       ],
       child: _BookDetailContent(
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
+        loadRemoteData: loadRemoteData,
         initialTabIndex: initialTabIndex,
         autoOpenScan: autoOpenScan,
         onCallbacksReady: onCallbacksReady,
@@ -107,6 +112,7 @@ class BookDetailScreen extends StatelessWidget {
 class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
+  final bool loadRemoteData;
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -115,6 +121,7 @@ class _BookDetailContent extends StatefulWidget {
   const _BookDetailContent({
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.loadRemoteData = true,
     this.initialTabIndex,
     this.autoOpenScan = false,
     this.onCallbacksReady,
@@ -179,20 +186,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final memorableVm = context.read<MemorablePageViewModel>();
       final progressVm = context.read<ReadingProgressViewModel>();
 
-      // 최신 책 데이터 가져오기 (DB에서 fresh data)
-      await bookVm.refreshBook();
-
-      // DB eventual consistency를 위한 딜레이 후 achievements 로드
-      await Future.delayed(const Duration(milliseconds: 300));
-      await bookVm.loadDailyAchievements();
+      if (widget.loadRemoteData) {
+        await bookVm.refreshBook();
+        await Future.delayed(const Duration(milliseconds: 300));
+        await bookVm.loadDailyAchievements();
+      }
 
       if (mounted) {
         _animatedProgress =
             bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
       }
 
-      memorableVm.fetchBookImages();
-      progressVm.fetchProgressHistory();
+      if (widget.loadRemoteData) {
+        memorableVm.fetchBookImages();
+        progressVm.fetchProgressHistory();
+      }
 
       // 탭 컨트롤러 업데이트 (완독 상태면 4탭)
       _updateTabControllerIfNeeded(bookVm.currentBook);
