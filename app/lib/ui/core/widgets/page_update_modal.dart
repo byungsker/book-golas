@@ -110,7 +110,9 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
     super.initState();
     final start = (widget.currentPage ?? 0) + 1;
     _selectedPage = start;
-    _pageController = TextEditingController();
+    _pageController = TextEditingController(
+      text: widget.currentPage == null ? '' : start.toString(),
+    );
     _wheelController = FixedExtentScrollController(initialItem: 0);
   }
 
@@ -172,6 +174,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
 
   Widget _buildDialPicker() {
     return Container(
+      key: const ValueKey('page-update-dial'),
       height: 120,
       decoration: BoxDecoration(
         color: widget.isDark ? BLabColors.subtleDark : Colors.grey[100],
@@ -243,6 +246,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   @override
   Widget build(BuildContext context) {
     final hasPageInfo = widget.currentPage != null && widget.totalPages != null;
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
 
     return SingleChildScrollView(
       key: const ValueKey('page-update-modal-scroll'),
@@ -321,7 +325,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                 color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
-          if (hasPageInfo) ...[
+          if (hasPageInfo && !isLargeText) ...[
             const SizedBox(height: 20),
             _buildDialPicker(),
           ],
@@ -355,8 +359,9 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
             hintText: hasPageInfo
                 ? '${widget.currentPage! + 1} ~ ${widget.totalPages}'
                 : widget.l10n.pageInputHint,
+            semanticLabel: widget.l10n.pageUpdateNewPageLabel,
             errorText: _errorText,
-            suffixText: 'p',
+            suffixText: widget.l10n.pageAbbreviation,
             suffixStyle: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,

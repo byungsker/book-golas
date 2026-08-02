@@ -566,6 +566,8 @@
        "pageUpdateCurrentPage": "Currently {currentPage}p",
        "pageUpdateTotalPages": " / Total {totalPages}p",
        "pageUpdateNewPageLabel": "New Page Number",
+       "pageAbbreviation": "p",
+       "@pageAbbreviation": {"description": "Abbreviated page unit shown beside page number inputs"},
        "pageUpdateCancel": "Cancel",
        "pageUpdateButton": "Update",
        "timerDidNotRead": "I didn't read",
