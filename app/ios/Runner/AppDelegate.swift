@@ -40,6 +40,25 @@ import home_widget
 
     let controller = window?.rootViewController as! FlutterViewController
 
+    let systemUiChannel = FlutterMethodChannel(
+      name: "com.bookgolas.app/system_ui",
+      binaryMessenger: controller.binaryMessenger
+    )
+    systemUiChannel.setMethodCallHandler { call, result in
+      guard call.method == "setStatusBarBrightness",
+            let isDark = call.arguments as? Bool else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+
+      if #available(iOS 13.0, *) {
+        UIApplication.shared.statusBarStyle = isDark ? .lightContent : .darkContent
+      } else {
+        UIApplication.shared.statusBarStyle = isDark ? .lightContent : .default
+      }
+      result(nil)
+    }
+
     let appGroupChannel = FlutterMethodChannel(
       name: "com.bookgolas.app/app_group",
       binaryMessenger: controller.binaryMessenger

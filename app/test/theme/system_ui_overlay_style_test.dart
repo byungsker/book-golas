@@ -28,13 +28,18 @@ void main() {
       final platformCalls = <MethodCall>[];
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      const systemUiChannel = MethodChannel('com.bookgolas.app/system_ui');
 
       messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
         platformCalls.add(call);
         return null;
       });
+      messenger.setMockMethodCallHandler(systemUiChannel, (call) async => null);
       addTearDown(
         () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+      );
+      addTearDown(
+        () => messenger.setMockMethodCallHandler(systemUiChannel, null),
       );
 
       await tester.pumpWidget(

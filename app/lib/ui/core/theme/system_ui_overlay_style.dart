@@ -27,6 +27,8 @@ class ThemeAwareSystemUiOverlay extends StatefulWidget {
 }
 
 class _ThemeAwareSystemUiOverlayState extends State<ThemeAwareSystemUiOverlay> {
+  static const _platformChannel = MethodChannel('com.bookgolas.app/system_ui');
+
   SystemUiOverlayStyle get _overlayStyle =>
       systemUiOverlayStyleForBrightness(widget.brightness);
 
@@ -34,6 +36,10 @@ class _ThemeAwareSystemUiOverlayState extends State<ThemeAwareSystemUiOverlay> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         SystemChrome.setSystemUIOverlayStyle(_overlayStyle);
+        _platformChannel.invokeMethod<void>(
+          'setStatusBarBrightness',
+          widget.brightness == Brightness.dark,
+        );
       }
     });
   }
