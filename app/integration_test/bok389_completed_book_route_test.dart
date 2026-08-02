@@ -11,6 +11,7 @@ import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/compact_book_header.dart';
+import 'package:book_golas/ui/book_detail/widgets/floating_action_bar.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/ad_view_model.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
@@ -52,6 +53,14 @@ void main() {
           await binding.setSurfaceSize(const Size(393, 852));
           addTearDown(() => binding.setSurfaceSize(null));
 
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump();
+          expect(find.byType(ReadingStartScreen), findsNothing);
+          expect(
+            find.byKey(FloatingActionBar.actionBarKey),
+            findsNothing,
+          );
+
           await tester.pumpWidget(
             _CompletedBookRouteFixture(
               locale: locale,
@@ -73,12 +82,22 @@ void main() {
             const ValueKey('completed-book-restart-action'),
           );
 
+          final floatingActionBar = find.byKey(FloatingActionBar.actionBarKey);
+          expect(floatingActionBar, findsOneWidget);
+          final actionBarRect = tester.getRect(floatingActionBar);
           final overlayFreeViewportBottom =
-              tester.view.physicalSize.height / tester.view.devicePixelRatio -
-                  62 -
-                  22;
+              actionBarRect.top - FloatingActionBar.contentSeparation;
           final overlayFreeViewportTop =
               tester.getRect(find.byType(AppBar)).bottom + 12;
+          final viewportBottom = tester.getRect(find.byType(Scaffold)).bottom;
+          expect(
+            actionBarRect.bottom,
+            lessThanOrEqualTo(
+              viewportBottom -
+                  FloatingActionBar.bottomOffset -
+                  _CompletedBookRouteFixture.bottomSafeArea,
+            ),
+          );
           await _positionActionAboveFloatingBar(
             tester,
             card: reviewCard,
@@ -109,16 +128,6 @@ void main() {
             overlayFreeViewportTop: overlayFreeViewportTop,
             overlayFreeViewportBottom: overlayFreeViewportBottom,
           );
-          _expectActionAboveFloatingBar(
-            tester,
-            card: reviewCard,
-            texts: [
-              l10n.bookDetailWriteReview,
-              l10n.bookDetailRecordThoughts,
-            ],
-            overlayFreeViewportTop: overlayFreeViewportTop,
-            overlayFreeViewportBottom: overlayFreeViewportBottom,
-          );
           expect(
             find.semantics.byLabel(
               '${l10n.bookDetailContinueReading}. ${l10n.bookDetailAchieveGoal}',
@@ -141,6 +150,14 @@ void main() {
           await tester.pump();
           expect(find.byType(ReadingStartScreen), findsOneWidget);
           expect(tester.takeException(), isNull);
+
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump();
+          expect(find.byType(ReadingStartScreen), findsNothing);
+          expect(
+            find.byKey(FloatingActionBar.actionBarKey),
+            findsNothing,
+          );
         },
       );
     }
@@ -155,13 +172,13 @@ Future<void> _positionActionAboveFloatingBar(
   await tester.pump();
   final position = Scrollable.maybeOf(tester.element(card))!.position;
   final cardRect = tester.getRect(card);
-  final targetOffset = (position.pixels +
-          cardRect.bottom -
-          (overlayFreeViewportBottom - 12))
-      .clamp(
-    position.minScrollExtent,
-    position.maxScrollExtent,
-  ).toDouble();
+  final targetOffset =
+      (position.pixels + cardRect.bottom - (overlayFreeViewportBottom - 12))
+          .clamp(
+            position.minScrollExtent,
+            position.maxScrollExtent,
+          )
+          .toDouble();
   position.jumpTo(targetOffset);
   await tester.pump();
 }
@@ -188,6 +205,8 @@ void _expectActionAboveFloatingBar(
 }
 
 class _CompletedBookRouteFixture extends StatelessWidget {
+  static const bottomSafeArea = 34.0;
+
   const _CompletedBookRouteFixture({
     required this.locale,
     required this.brightness,
@@ -207,6 +226,9 @@ class _CompletedBookRouteFixture extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        key: ValueKey(
+          'bok389-material-app-${locale.languageCode}-${brightness.name}',
+        ),
         locale: locale,
         theme: BLabTheme.light,
         darkTheme: BLabTheme.dark,
@@ -217,11 +239,14 @@ class _CompletedBookRouteFixture extends StatelessWidget {
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: const TextScaler.linear(2),
-            viewPadding: const EdgeInsets.only(top: 59, bottom: 34),
+            viewPadding: const EdgeInsets.only(top: 59, bottom: bottomSafeArea),
           ),
           child: child!,
         ),
         home: BookDetailScreen(
+          key: ValueKey(
+            'bok389-book-detail-${locale.languageCode}-${brightness.name}',
+          ),
           loadRemoteData: false,
           book: Book(
               id: 'bok-389-completed-route-fixture',

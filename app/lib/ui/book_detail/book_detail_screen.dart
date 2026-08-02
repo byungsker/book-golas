@@ -139,6 +139,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
   late AnimationController _progressAnimController;
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
+  double? _floatingActionBarHeight;
   final ScrollController _scrollController = ScrollController();
 
   // Confetti 컨트롤러
@@ -154,6 +155,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   void _onTabChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _updateFloatingActionBarHeight(double height) {
+    if (!mounted ||
+        (_floatingActionBarHeight != null &&
+            (_floatingActionBarHeight! - height).abs() < 0.5)) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _floatingActionBarHeight = height);
+      }
+    });
   }
 
   void _updateTabControllerIfNeeded(Book book) {
@@ -470,10 +484,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 _buildRestartReadingButton(context),
                               ],
                               SizedBox(
-                                height: !_isBookPlanned(book) &&
-                                        !widget.isEmbedded
-                                    ? 104
-                                    : 20,
+                                height: _completedActionBottomClearance(
+                                  context,
+                                  book,
+                                ),
                               ),
                             ],
                           ),
@@ -595,6 +609,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           : null,
                       isReadingMode: _isBookReading(bookVm.currentBook),
                       isTimerRunning: timerVm.isRunning,
+                      onHeightChanged: _updateFloatingActionBarHeight,
                     );
                   },
                 ),
@@ -1551,6 +1566,20 @@ class _BookDetailContentState extends State<_BookDetailContent>
       description: AppLocalizations.of(context).bookDetailAchieveGoal,
       icon: Icons.refresh_rounded,
       onTap: () => _navigateToReadingStart(context),
+    );
+  }
+
+  double _completedActionBottomClearance(BuildContext context, Book book) {
+    if (widget.isEmbedded || _isBookPlanned(book) || !_isBookCompleted(book)) {
+      return 20;
+    }
+    return FloatingActionBar.contentBottomClearance(
+      actionBarHeight: _floatingActionBarHeight ??
+          FloatingActionBar.minimumHeightFor(
+            context,
+            isReadingMode: false,
+          ),
+      bottomSafeArea: MediaQuery.viewPaddingOf(context).bottom,
     );
   }
 

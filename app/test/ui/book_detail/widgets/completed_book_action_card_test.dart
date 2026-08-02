@@ -66,6 +66,14 @@ void main() {
     ) async {
       final actions = _ActionCounts();
       final semantics = tester.ensureSemantics();
+      var semanticsDisposed = false;
+      void disposeSemantics() {
+        if (semanticsDisposed) return;
+        semanticsDisposed = true;
+        semantics.dispose();
+      }
+
+      addTearDown(disposeSemantics);
 
       await _pumpCompletedActions(
         tester,
@@ -117,7 +125,7 @@ void main() {
       await tester.pump();
       expect(actions.review, 1);
       expect(actions.restart, 1);
-      semantics.dispose();
+      disposeSemantics();
     });
   }
 }
