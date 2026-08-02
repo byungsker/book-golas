@@ -38,6 +38,39 @@ REQUIRED_CLIENT_ENVIRONMENT = (
 OPTIONAL_CLIENT_ENVIRONMENT = (
     "GOOGLE_SERVER_CLIENT_ID",
 )
+FORBIDDEN_ENVIRONMENT_CONTRACTS = {
+    "ios-testflight.yml": (
+        {
+            "CERTIFICATE_P12_BASE64",
+            "CERTIFICATE_PASSWORD",
+        },
+        {
+            "ALADIN_TTB_KEY",
+            "FIREBASE_SERVICE_ACCOUNT",
+            "GOOGLE_CLOUD_VISION_API_KEY",
+            "OPENAI_API_KEY",
+            "RESEND_API_KEY",
+            "REVENUECAT_WEBHOOK_AUTH_KEY_DEV",
+            "SUPABASE_SERVICE_ROLE_KEY",
+        },
+    ),
+    "ios-production.yml": (
+        {
+            "APP_STORE_CONNECT_API_KEY_CONTENT",
+            "CERTIFICATE_P12_BASE64",
+            "CERTIFICATE_PASSWORD",
+        },
+        {
+            "ALADIN_TTB_KEY",
+            "FIREBASE_SERVICE_ACCOUNT",
+            "GOOGLE_CLOUD_VISION_API_KEY",
+            "OPENAI_API_KEY",
+            "RESEND_API_KEY",
+            "REVENUECAT_WEBHOOK_AUTH_KEY_PROD",
+            "SUPABASE_SERVICE_ROLE_KEY",
+        },
+    ),
+}
 SERVER_ONLY_MARKERS = (
     "ALADIN_TTB_KEY",
     "APP_STORE_CONNECT_API_KEY",
@@ -210,7 +243,7 @@ def require_clean_artifact(artifact: Path, forbidden_values: tuple[str, ...] = (
             raise BoundaryError("forbidden value-derived material found in mobile artifact")
 
 
-def require_forbidden_environment_values(
+def require_required_forbidden_environment_values(
     environment: dict[str, str], names: tuple[str, ...]
 ) -> tuple[str, ...]:
     missing = sorted(name for name in names if not environment.get(name, "").strip())
@@ -219,6 +252,28 @@ def require_forbidden_environment_values(
             "forbidden value scan requested for unset variables: " + ", ".join(missing)
         )
     return tuple(environment[name] for name in names)
+
+
+def optional_forbidden_environment_values(
+    environment: dict[str, str], names: tuple[str, ...]
+) -> tuple[str, ...]:
+    return tuple(
+        environment[name] for name in names if environment.get(name, "").strip()
+    )
+
+
+def forbidden_environment_values(
+    environment: dict[str, str], required_names: tuple[str, ...], optional_names: tuple[str, ...]
+) -> tuple[str, ...]:
+    overlapping_names = sorted(set(required_names) & set(optional_names))
+    if overlapping_names:
+        raise BoundaryError(
+            "forbidden environment inputs cannot be both required and optional: "
+            + ", ".join(overlapping_names)
+        )
+    return require_required_forbidden_environment_values(
+        environment, required_names
+    ) + optional_forbidden_environment_values(environment, optional_names)
 
 
 def require_upload_order(content: str, label: str) -> None:
@@ -231,6 +286,29 @@ def require_upload_order(content: str, label: str) -> None:
         raise BoundaryError(f"{label}: signed IPA archive, scan, and upload must each occur once")
     if not archive_matches[0].start() < scan_matches[0].start() < upload_matches[0].start():
         raise BoundaryError(f"{label}: signed IPA scan must occur after archive and before upload")
+
+
+def require_forbidden_environment_contract(content: str, label: str) -> None:
+    expected = FORBIDDEN_ENVIRONMENT_CONTRACTS.get(Path(label).name)
+    if expected is None:
+        return
+    if "--forbidden-env" in content:
+        raise BoundaryError(f"{label}: forbidden environment inputs must be classified")
+    required_names = re.findall(
+        r"--required-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", content
+    )
+    optional_names = re.findall(
+        r"--optional-forbidden-env\s+([A-Za-z][A-Za-z0-9_]*)", content
+    )
+    if len(required_names) != len(set(required_names)) or len(optional_names) != len(
+        set(optional_names)
+    ):
+        raise BoundaryError(f"{label}: forbidden environment inputs must not repeat")
+    if set(required_names) & set(optional_names):
+        raise BoundaryError(f"{label}: forbidden environment inputs cannot overlap")
+    expected_required, expected_optional = expected
+    if set(required_names) != expected_required or set(optional_names) != expected_optional:
+        raise BoundaryError(f"{label}: forbidden environment input contract does not match")
 
 
 def run_self_test() -> None:
@@ -292,7 +370,9 @@ def run_self_test() -> None:
         pass
     else:
         raise BoundaryError("self-test did not block an invalid client URL")
-    require_forbidden_environment_values({"SCAN_VALUE": "present"}, ("SCAN_VALUE",))
+    require_required_forbidden_environment_values(
+        {"SCAN_VALUE": "present"}, ("SCAN_VALUE",)
+    )
     for environment, names, message in (
         (
             {"SCAN_VALUE": "present"},
@@ -306,11 +386,28 @@ def run_self_test() -> None:
         ),
     ):
         try:
-            require_forbidden_environment_values(environment, names)
+            require_required_forbidden_environment_values(environment, names)
         except BoundaryError:
             pass
         else:
             raise BoundaryError(message)
+    if optional_forbidden_environment_values({}, ("OPTIONAL",)):
+        raise BoundaryError("self-test did not skip an unset optional forbidden value")
+    if optional_forbidden_environment_values({"OPTIONAL": " "}, ("OPTIONAL",)):
+        raise BoundaryError("self-test did not skip a blank optional forbidden value")
+    optional_value = "optional-server-only-test-value"
+    if optional_forbidden_environment_values(
+        {"OPTIONAL": optional_value}, ("OPTIONAL",)
+    ) != (optional_value,):
+        raise BoundaryError("self-test did not collect a configured optional forbidden value")
+    try:
+        forbidden_environment_values(
+            {"DUPLICATE": "present"}, ("DUPLICATE",), ("DUPLICATE",)
+        )
+    except BoundaryError:
+        pass
+    else:
+        raise BoundaryError("self-test did not reject duplicate forbidden input classes")
     with tempfile.TemporaryDirectory() as directory:
         artifact = Path(directory) / "app"
         artifact.mkdir()
@@ -352,6 +449,18 @@ def run_self_test() -> None:
             pass
         else:
             raise BoundaryError("self-test did not scan compressed IPA content")
+        (artifact / "binary").write_bytes(optional_value.encode("utf-8"))
+        try:
+            require_clean_artifact(
+                artifact,
+                optional_forbidden_environment_values(
+                    {"OPTIONAL": optional_value}, ("OPTIONAL",)
+                ),
+            )
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan a configured optional forbidden value")
         source = Path(directory) / "source"
         source_directory = source / "lib"
         source_directory.mkdir(parents=True)
@@ -414,7 +523,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-root", type=Path)
     parser.add_argument("--workflow", type=Path, action="append", default=[])
     parser.add_argument("--artifact", type=Path, action="append", default=[])
-    parser.add_argument("--forbidden-env", action="append", default=[])
+    parser.add_argument("--required-forbidden-env", action="append", default=[])
+    parser.add_argument("--optional-forbidden-env", action="append", default=[])
     parser.add_argument("--require-client-environment", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args()
@@ -433,8 +543,11 @@ def main() -> int:
             content = workflow.read_text("utf-8")
             require_allowed_defines(content, str(workflow))
             require_upload_order(content, str(workflow))
-        forbidden_values = require_forbidden_environment_values(
-            dict(os.environ), tuple(args.forbidden_env)
+            require_forbidden_environment_contract(content, str(workflow))
+        forbidden_values = forbidden_environment_values(
+            dict(os.environ),
+            tuple(args.required_forbidden_env),
+            tuple(args.optional_forbidden_env),
         )
         for artifact in args.artifact:
             require_clean_artifact(artifact, forbidden_values)

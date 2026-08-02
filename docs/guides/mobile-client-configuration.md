@@ -52,6 +52,12 @@ including the production build-only App Store signing credential, without
 writing those values to its output. The build step also validates the injected
 client values without logging them, including the Supabase URL and the legacy
 JWT `anon` role when present.
+
+The IPA scan declares every supplied server-only value as either required or
+optional. Required signing and build-guaranteed values must be nonblank and
+are always scanned. Optional server-runtime values are scanned with the same
+raw and encoded checks when configured, but an unset or blank optional value
+adds no scan needle. A value cannot be declared in both classes.
 `--dart-define-from-file` is deliberately rejected because a local environment
 file can contain server-only configuration.
 

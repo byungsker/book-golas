@@ -374,15 +374,15 @@ jobs:
         run: |
           python3 app/tool/verify_mobile_client_config.py \
             --artifact app/ios/build/Runner.ipa \
-            --forbidden-env ALADIN_TTB_KEY \
-            --forbidden-env CERTIFICATE_P12_BASE64 \
-            --forbidden-env CERTIFICATE_PASSWORD \
-            --forbidden-env FIREBASE_SERVICE_ACCOUNT \
-            --forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
-            --forbidden-env OPENAI_API_KEY \
-            --forbidden-env RESEND_API_KEY \
-            --forbidden-env REVENUECAT_WEBHOOK_AUTH_KEY_DEV \
-            --forbidden-env SUPABASE_SERVICE_ROLE_KEY
+            --required-forbidden-env CERTIFICATE_P12_BASE64 \
+            --required-forbidden-env CERTIFICATE_PASSWORD \
+            --optional-forbidden-env ALADIN_TTB_KEY \
+            --optional-forbidden-env FIREBASE_SERVICE_ACCOUNT \
+            --optional-forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
+            --optional-forbidden-env OPENAI_API_KEY \
+            --optional-forbidden-env RESEND_API_KEY \
+            --optional-forbidden-env REVENUECAT_WEBHOOK_AUTH_KEY_DEV \
+            --optional-forbidden-env SUPABASE_SERVICE_ROLE_KEY
 
       - name: Upload scanned TestFlight IPA
         env:
