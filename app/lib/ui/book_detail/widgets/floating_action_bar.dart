@@ -267,38 +267,48 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final shouldStackActions = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+
+    final recordAction = _GlassPillButton(
+      key: _recordKey,
+      isDark: widget.isDark,
+      icon: CupertinoIcons.pencil,
+      label: l10n.bottomBarRecord,
+      onTap: () => _onRecordTap(context),
+      onLongPressStart: (details) => _onRecordLongPressStart(context, details),
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+    );
+    final startReadingAction = _GlassPillButton(
+      key: _startReadingKey,
+      isDark: widget.isDark,
+      icon: CupertinoIcons.book_fill,
+      label: l10n.bottomBarStartReading,
+      onTap: () => _onStartReadingTap(context),
+      onLongPressStart: (details) =>
+          _onStartReadingLongPressStart(context, details),
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+    );
+
+    if (shouldStackActions) {
+      return Column(
+        key: const ValueKey('reading-action-bar-stacked'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: double.infinity, child: recordAction),
+          const SizedBox(height: 8),
+          SizedBox(width: double.infinity, child: startReadingAction),
+        ],
+      );
+    }
 
     return Row(
+      key: const ValueKey('reading-action-bar-inline'),
       children: [
-        Expanded(
-          flex: 3,
-          child: _GlassPillButton(
-            key: _recordKey,
-            isDark: widget.isDark,
-            icon: CupertinoIcons.pencil,
-            label: l10n.bottomBarRecord,
-            onTap: () => _onRecordTap(context),
-            onLongPressStart: (details) =>
-                _onRecordLongPressStart(context, details),
-            onLongPressMoveUpdate: _onLongPressMoveUpdate,
-            onLongPressEnd: _onLongPressEnd,
-          ),
-        ),
+        Expanded(flex: 4, child: recordAction),
         const SizedBox(width: 12),
-        Expanded(
-          flex: 7,
-          child: _GlassPillButton(
-            key: _startReadingKey,
-            isDark: widget.isDark,
-            icon: CupertinoIcons.book_fill,
-            label: l10n.bottomBarStartReading,
-            onTap: () => _onStartReadingTap(context),
-            onLongPressStart: (details) =>
-                _onStartReadingLongPressStart(context, details),
-            onLongPressMoveUpdate: _onLongPressMoveUpdate,
-            onLongPressEnd: _onLongPressEnd,
-          ),
-        ),
+        Expanded(flex: 6, child: startReadingAction),
       ],
     );
   }
@@ -468,56 +478,71 @@ class _GlassPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final supportsWrappedLabel = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+
+    return Semantics(
+      button: true,
+      label: label,
       onTap: onTap,
-      onLongPressStart: onLongPressStart,
-      onLongPressMoveUpdate: onLongPressMoveUpdate,
-      onLongPressEnd: onLongPressEnd,
-      behavior: HitTestBehavior.opaque,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            height: 62,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.08),
-                width: 0.5,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 17,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.85)
-                      : Colors.black.withValues(alpha: 0.65),
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: onTap,
+          onLongPressStart: onLongPressStart,
+          onLongPressMoveUpdate: onLongPressMoveUpdate,
+          onLongPressEnd: onLongPressEnd,
+          behavior: HitTestBehavior.opaque,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 62),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: supportsWrappedLabel ? 8 : 0,
                 ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.08),
+                    width: 0.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 17,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.85)
                           : Colors.black.withValues(alpha: 0.65),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: supportsWrappedLabel ? 2 : 1,
+                        overflow: TextOverflow.visible,
+                        softWrap: supportsWrappedLabel,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : Colors.black.withValues(alpha: 0.65),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
