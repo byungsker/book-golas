@@ -62,6 +62,7 @@ jobs:
       - name: Validate reproducible Edge Function dependencies
         run: |
           supabase/functions/deploy-with-retry_test.sh
+          supabase/functions/verify-no-esm-imports_test.sh
           while IFS= read -r entry; do
             config="$(dirname "$entry")/deno.json"
             lockfile="$(dirname "$entry")/deno.lock"
@@ -69,10 +70,7 @@ jobs:
             test -f "$lockfile"
             deno check --frozen --config "$config" "$entry"
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
-          if rg -n 'https://esm\.sh/' supabase/functions -g '*.ts'; then
-            echo "::error::Edge Functions must not import esm.sh directly."
-            exit 1
-          fi
+          supabase/functions/verify-no-esm-imports.sh
 
       - name: Test third-party AI provider boundaries
         run: |
