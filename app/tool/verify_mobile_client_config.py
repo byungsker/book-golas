@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 
@@ -43,9 +44,15 @@ SERVER_ONLY_MARKERS = (
     "SUPABASE_ACCESS_TOKEN",
     "SUPABASE_PROJECT_REF",
 )
-DART_DEFINE_PATTERN = re.compile(r"--dart-define(?:=|\s+)([A-Za-z][A-Za-z0-9_]*)")
+DART_DEFINE_PATTERN = re.compile(
+    r"--dart-define(?:=|\s+)([A-Za-z][A-Za-z0-9_]*)="
+)
+ANY_DART_DEFINE_PATTERN = re.compile(r"--dart-define(?![-A-Za-z])")
 FROM_ENVIRONMENT_PATTERN = re.compile(
     r"(?:String|bool|int|double)\.fromEnvironment\(\s*['\"]([A-Za-z][A-Za-z0-9_]*)['\"]"
+)
+ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
+    r"(?:String|bool|int|double)\.fromEnvironment\("
 )
 
 
@@ -56,7 +63,10 @@ class BoundaryError(ValueError):
 def require_allowed_defines(content: str, label: str) -> None:
     if "--dart-define-from-file" in content:
         raise BoundaryError(f"{label}: --dart-define-from-file is not permitted")
-    defines = set(DART_DEFINE_PATTERN.findall(content))
+    matches = DART_DEFINE_PATTERN.findall(content)
+    if len(matches) != len(ANY_DART_DEFINE_PATTERN.findall(content)):
+        raise BoundaryError(f"{label}: Dart define syntax must use a literal name")
+    defines = set(matches)
     disallowed = sorted(defines - ALLOWED_DART_DEFINES)
     if disallowed:
         raise BoundaryError(
@@ -67,7 +77,13 @@ def require_allowed_defines(content: str, label: str) -> None:
 def require_allowed_source_defines(source_root: Path) -> None:
     defines: set[str] = set()
     for source_file in source_root.rglob("*.dart"):
-        defines.update(FROM_ENVIRONMENT_PATTERN.findall(source_file.read_text("utf-8")))
+        content = source_file.read_text("utf-8")
+        matches = FROM_ENVIRONMENT_PATTERN.findall(content)
+        if len(matches) != len(ANY_FROM_ENVIRONMENT_PATTERN.findall(content)):
+            raise BoundaryError(
+                f"{source_file}: fromEnvironment must use a literal configuration name"
+            )
+        defines.update(matches)
     disallowed = sorted(defines - ALLOWED_DART_DEFINES)
     if disallowed:
         raise BoundaryError(
@@ -112,26 +128,76 @@ def require_client_environment(environment: dict[str, str]) -> None:
             raise BoundaryError("SUPABASE_ANON_KEY must have the anon role")
 
 
-def require_clean_artifact(artifact: Path) -> None:
+def encoded_forms(value: str) -> tuple[bytes, ...]:
+    raw = value.encode("utf-8")
+    base64_value = base64.b64encode(raw)
+    urlsafe_base64_value = base64.urlsafe_b64encode(raw)
+    return (
+        raw,
+        base64_value,
+        base64_value.rstrip(b"="),
+        urlsafe_base64_value,
+        urlsafe_base64_value.rstrip(b"="),
+        raw.hex().encode("ascii"),
+    )
+
+
+def scan_stream(handle: object, needles: tuple[bytes, ...]) -> bool:
+    carry = b""
+    while content := handle.read(65536):
+        content = carry + content
+        if any(needle in content for needle in needles):
+            return True
+        carry = content[-512:]
+    return False
+
+
+def artifact_files(artifact: Path) -> tuple[Path, ...]:
+    if artifact.is_file():
+        return (artifact,)
+    return tuple(
+        item for item in artifact.rglob("*") if item.is_file() and not item.is_symlink()
+    )
+
+
+def file_contains_forbidden_material(file_path: Path, needles: tuple[bytes, ...]) -> bool:
+    if zipfile.is_zipfile(file_path):
+        with zipfile.ZipFile(file_path) as archive:
+            for member in archive.infolist():
+                if member.is_dir():
+                    continue
+                with archive.open(member) as handle:
+                    if scan_stream(handle, needles):
+                        return True
+        return False
+    with file_path.open("rb") as handle:
+        return scan_stream(handle, needles)
+
+
+def require_clean_artifact(artifact: Path, forbidden_values: tuple[str, ...] = ()) -> None:
     if not artifact.exists():
         raise BoundaryError(f"artifact path does not exist: {artifact}")
-    found: set[str] = set()
-    for artifact_file in artifact.rglob("*"):
-        if not artifact_file.is_file() or artifact_file.is_symlink():
-            continue
-        with artifact_file.open("rb") as handle:
-            carry = b""
-            while content := handle.read(65536):
-                content = carry + content
-                for marker in SERVER_ONLY_MARKERS:
-                    if marker.encode("utf-8") in content:
-                        found.add(marker)
-                carry = content[-64:]
-    if found:
-        raise BoundaryError(
-            "server-only configuration markers found in mobile artifact: "
-            + ", ".join(sorted(found))
-        )
+    marker_needles = tuple(marker.encode("utf-8") for marker in SERVER_ONLY_MARKERS)
+    value_needles = tuple(
+        form for value in forbidden_values if value for form in encoded_forms(value)
+    )
+    for artifact_file in artifact_files(artifact):
+        if file_contains_forbidden_material(artifact_file, marker_needles):
+            raise BoundaryError("server-only configuration marker found in mobile artifact")
+        if value_needles and file_contains_forbidden_material(artifact_file, value_needles):
+            raise BoundaryError("forbidden value-derived material found in mobile artifact")
+
+
+def require_upload_order(content: str, label: str) -> None:
+    archive_matches = list(re.finditer(r"fastlane (?:beta|release)_build", content))
+    upload_matches = list(re.finditer(r"fastlane (?:beta|release)_upload", content))
+    scan_matches = list(
+        re.finditer(r"--artifact app/ios/build/Runner\.ipa", content)
+    )
+    if len(archive_matches) != 1 or len(upload_matches) != 1 or len(scan_matches) != 1:
+        raise BoundaryError(f"{label}: signed IPA archive, scan, and upload must each occur once")
+    if not archive_matches[0].start() < scan_matches[0].start() < upload_matches[0].start():
+        raise BoundaryError(f"{label}: signed IPA scan must occur after archive and before upload")
 
 
 def run_self_test() -> None:
@@ -142,6 +208,12 @@ def run_self_test() -> None:
         pass
     else:
         raise BoundaryError("self-test did not block a server-only Dart define")
+    try:
+        require_allowed_defines("--dart-define=${CONFIG_NAME}=value", "blocked")
+    except BoundaryError:
+        pass
+    else:
+        raise BoundaryError("self-test did not block an indirect Dart define")
     try:
         require_allowed_defines("--dart-define-from-file=local.env", "blocked")
     except BoundaryError:
@@ -184,8 +256,50 @@ def run_self_test() -> None:
         try:
             require_clean_artifact(artifact)
         except BoundaryError:
-            return
-    raise BoundaryError("self-test did not block a server-only artifact marker")
+            pass
+        else:
+            raise BoundaryError("self-test did not block a server-only artifact marker")
+        forbidden_value = "server-only-test-value"
+        (artifact / "binary").write_bytes(forbidden_value.encode("utf-8"))
+        try:
+            require_clean_artifact(artifact, (forbidden_value,))
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan a raw forbidden value")
+        (artifact / "binary").write_bytes(b"safe")
+        with zipfile.ZipFile(artifact / "Runner.ipa", "w") as archive:
+            archive.writestr("Payload/Runner.app/config", base64.b64encode(forbidden_value.encode("utf-8")))
+        try:
+            require_clean_artifact(artifact / "Runner.ipa", (forbidden_value,))
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan compressed IPA content")
+        source = Path(directory) / "source"
+        source.mkdir()
+        (source / "invalid.dart").write_text(
+            "const configName = 'OPENAI_API_KEY'; String.fromEnvironment(configName);",
+            encoding="utf-8",
+        )
+        try:
+            require_allowed_source_defines(source)
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not block an indirect source define")
+    require_upload_order(
+        "fastlane beta_build --artifact app/ios/build/Runner.ipa fastlane beta_upload",
+        "allowed",
+    )
+    try:
+        require_upload_order(
+            "fastlane beta_build fastlane beta_upload --artifact app/ios/build/Runner.ipa",
+            "blocked",
+        )
+    except BoundaryError:
+        return
+    raise BoundaryError("self-test did not block invalid IPA scan ordering")
 
 
 def parse_args() -> argparse.Namespace:
@@ -193,6 +307,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-root", type=Path)
     parser.add_argument("--workflow", type=Path, action="append", default=[])
     parser.add_argument("--artifact", type=Path, action="append", default=[])
+    parser.add_argument("--forbidden-env", action="append", default=[])
     parser.add_argument("--require-client-environment", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args()
@@ -208,9 +323,14 @@ def main() -> int:
         if args.require_client_environment:
             require_client_environment(dict(os.environ))
         for workflow in args.workflow:
-            require_allowed_defines(workflow.read_text("utf-8"), str(workflow))
+            content = workflow.read_text("utf-8")
+            require_allowed_defines(content, str(workflow))
+            require_upload_order(content, str(workflow))
+        forbidden_values = tuple(
+            os.environ[name] for name in args.forbidden_env if os.environ.get(name)
+        )
         for artifact in args.artifact:
-            require_clean_artifact(artifact)
+            require_clean_artifact(artifact, forbidden_values)
     except (BoundaryError, OSError) as error:
         print(f"mobile client configuration boundary failed: {error}", file=sys.stderr)
         return 1

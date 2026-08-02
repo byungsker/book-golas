@@ -35,12 +35,16 @@ After a local build, scan the produced bundle:
 
 ```bash
 python3 app/tool/verify_mobile_client_config.py \
-  --artifact app/build/ios
+  --artifact app/ios/build/Runner.ipa
 ```
 
-The same checks run before and after the TestFlight and production iOS builds.
-The build step also validates the injected client values without logging them,
-including the Supabase URL and the legacy JWT `anon` role when present.
+The CI build flow exports the signed IPA first, scans that exact IPA before the
+upload lane receives its upload credentials, then uploads the same file. The
+scanner reads compressed IPA members and checks server-only markers plus raw,
+base64, URL-safe base64, and hex forms of the supplied server-only values
+without writing those values to its output. The build step also validates the
+injected client values without logging them, including the Supabase URL and the
+legacy JWT `anon` role when present.
 `--dart-define-from-file` is deliberately rejected because a local environment
 file can contain server-only configuration.
 
