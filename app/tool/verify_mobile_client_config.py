@@ -48,11 +48,14 @@ DART_DEFINE_PATTERN = re.compile(
     r"--dart-define(?:=|\s+)([A-Za-z][A-Za-z0-9_]*)="
 )
 ANY_DART_DEFINE_PATTERN = re.compile(r"--dart-define(?![-A-Za-z])")
+DART_TRIVIA = r"(?:\s+|/\*.*?\*/|//[^\r\n]*(?:\r?\n|$))*"
 FROM_ENVIRONMENT_PATTERN = re.compile(
-    r"(?:String|bool|int|double)\.fromEnvironment\(\s*['\"]([A-Za-z][A-Za-z0-9_]*)['\"]"
+    rf"(?:String|bool|int|double)\.fromEnvironment{DART_TRIVIA}\({DART_TRIVIA}['\"]([A-Za-z][A-Za-z0-9_]*)['\"]",
+    re.DOTALL,
 )
 ANY_FROM_ENVIRONMENT_PATTERN = re.compile(
-    r"(?:String|bool|int|double)\.fromEnvironment\("
+    rf"(?:String|bool|int|double)\.fromEnvironment{DART_TRIVIA}\(",
+    re.DOTALL,
 )
 
 
@@ -143,12 +146,15 @@ def encoded_forms(value: str) -> tuple[bytes, ...]:
 
 
 def scan_stream(handle: object, needles: tuple[bytes, ...]) -> bool:
+    if not needles:
+        return False
+    carry_size = max(len(needle) for needle in needles) - 1
     carry = b""
     while content := handle.read(65536):
         content = carry + content
         if any(needle in content for needle in needles):
             return True
-        carry = content[-512:]
+        carry = content[-carry_size:] if carry_size else b""
     return False
 
 
@@ -267,6 +273,16 @@ def run_self_test() -> None:
             pass
         else:
             raise BoundaryError("self-test did not scan a raw forbidden value")
+        cross_chunk_value = "z" * 2048
+        (artifact / "binary").write_bytes(
+            b"x" * (65536 - 1024) + cross_chunk_value.encode("utf-8")
+        )
+        try:
+            require_clean_artifact(artifact, (cross_chunk_value,))
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan a cross-chunk forbidden value")
         (artifact / "binary").write_bytes(b"safe")
         with zipfile.ZipFile(artifact / "Runner.ipa", "w") as archive:
             archive.writestr("Payload/Runner.app/config", base64.b64encode(forbidden_value.encode("utf-8")))
@@ -278,6 +294,11 @@ def run_self_test() -> None:
             raise BoundaryError("self-test did not scan compressed IPA content")
         source = Path(directory) / "source"
         source.mkdir()
+        (source / "allowed.dart").write_text(
+            "const value = String.fromEnvironment /* build setting */ ( 'ENVIRONMENT' );",
+            encoding="utf-8",
+        )
+        require_allowed_source_defines(source)
         (source / "invalid.dart").write_text(
             "const configName = 'OPENAI_API_KEY'; String.fromEnvironment(configName);",
             encoding="utf-8",

@@ -261,6 +261,7 @@ jobs:
       - name: Verify signed App Store IPA boundary
         env:
           ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -271,6 +272,7 @@ jobs:
           python3 app/tool/verify_mobile_client_config.py \
             --artifact app/ios/build/Runner.ipa \
             --forbidden-env ALADIN_TTB_KEY \
+            --forbidden-env APP_STORE_CONNECT_API_KEY_CONTENT \
             --forbidden-env FIREBASE_SERVICE_ACCOUNT \
             --forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
             --forbidden-env OPENAI_API_KEY \
