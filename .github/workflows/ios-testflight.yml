@@ -6,6 +6,8 @@ on:
       - 'version/mobile/**'
     paths:
       - '.github/workflows/ios-testflight.yml'
+      - '.github/workflows/ios-production.yml'
+      - 'app/**'
       - 'supabase/functions/**'
   push:
     branches:
@@ -79,6 +81,22 @@ jobs:
             supabase/functions/vision-ocr/index_test.ts
           deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
             supabase/functions/structure-notes/services/chain-service.test.ts
+
+  mobile-client-config-boundary:
+    name: Mobile Client Configuration Boundary
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify mobile client configuration boundary
+        run: python3 app/tool/verify_mobile_client_config.py --self-test --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
 
   migrate-database:
     name: Apply Database Migrations (Dev)
@@ -238,6 +256,9 @@ jobs:
           cd app
           flutter pub get
 
+      - name: Verify mobile client configuration inputs
+        run: python3 app/tool/verify_mobile_client_config.py --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
+
       - name: Install CocoaPods
         env:
           LANG: en_US.UTF-8
@@ -299,15 +320,17 @@ jobs:
           echo "Keychain certificates:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
-      - name: Build Flutter iOS
+      - name: Build Flutter iOS inputs
         id: build-metadata
         env:
+          ENVIRONMENT: development
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_DEV }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_DEV }}
           REVENUECAT_PUBLIC_KEY: ${{ secrets.REVENUECAT_PUBLIC_KEY }}
           GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
+          python3 app/tool/verify_mobile_client_config.py --require-client-environment
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
@@ -321,13 +344,47 @@ jobs:
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER" \
             --dart-define=PAID_SUBSCRIPTIONS_ENABLED="$PAID_SUBSCRIPTIONS_ENABLED" \
-            --dart-define=ENVIRONMENT=development \
+            --dart-define=ENVIRONMENT="$ENVIRONMENT" \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=REVENUECAT_PUBLIC_KEY="$REVENUECAT_PUBLIC_KEY" \
             --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
 
-      - name: Build and Upload to TestFlight
+      - name: Build signed TestFlight IPA
+        env:
+          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
+          WIDGET_PROFILE_NAME: ${{ steps.install-cert.outputs.WIDGET_PROFILE_NAME }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+        run: |
+          cd app/ios
+          bundle exec fastlane beta_build
+
+      - name: Verify signed TestFlight IPA boundary
+        env:
+          ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REVENUECAT_WEBHOOK_AUTH_KEY_DEV: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_DEV }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python3 app/tool/verify_mobile_client_config.py \
+            --artifact app/ios/build/Runner.ipa \
+            --forbidden-env ALADIN_TTB_KEY \
+            --forbidden-env CERTIFICATE_P12_BASE64 \
+            --forbidden-env CERTIFICATE_PASSWORD \
+            --forbidden-env FIREBASE_SERVICE_ACCOUNT \
+            --forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
+            --forbidden-env OPENAI_API_KEY \
+            --forbidden-env RESEND_API_KEY \
+            --forbidden-env REVENUECAT_WEBHOOK_AUTH_KEY_DEV \
+            --forbidden-env SUPABASE_SERVICE_ROLE_KEY
+
+      - name: Upload scanned TestFlight IPA
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -338,7 +395,7 @@ jobs:
           LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
-          bundle exec fastlane beta
+          bundle exec fastlane beta_upload
 
       - name: Verify TestFlight build processing
         timeout-minutes: 35
