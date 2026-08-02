@@ -112,35 +112,38 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.photo_on_rectangle,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.bookDetailNoPhotos,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.photo_on_rectangle,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.bookDetailAddPhotoHint,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              const SizedBox(height: 12),
+              Text(
+                l10n.bookDetailNoPhotos,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                l10n.bookDetailAddPhotoHint,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

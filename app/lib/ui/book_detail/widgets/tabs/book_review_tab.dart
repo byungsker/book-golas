@@ -165,12 +165,15 @@ class BookReviewTab extends StatelessWidget {
               color: BLabColors.primary,
             ),
             const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context).bookReviewTabEditButton,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: BLabColors.primary,
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context).bookReviewTabEditButton,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: BLabColors.primary,
+                ),
               ),
             ),
           ],

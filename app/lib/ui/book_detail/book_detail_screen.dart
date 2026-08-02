@@ -529,7 +529,9 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         final contentBottomPadding = !widget.isEmbedded &&
                                 !_isBookPlanned(bookVm.currentBook)
                             ? FloatingActionBar.contentBottomClearance(
-                                actionBarHeight,
+                                actionBarHeight: actionBarHeight,
+                                bottomSafeArea:
+                                    MediaQuery.viewPaddingOf(context).bottom,
                               )
                             : 100.0;
                         return TabBarView(

@@ -68,27 +68,30 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.chart_bar,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context).noProgressRecords,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.chart_bar,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                AppLocalizations.of(context).noProgressRecords,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
