@@ -262,6 +262,8 @@ jobs:
         env:
           ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -273,6 +275,8 @@ jobs:
             --artifact app/ios/build/Runner.ipa \
             --forbidden-env ALADIN_TTB_KEY \
             --forbidden-env APP_STORE_CONNECT_API_KEY_CONTENT \
+            --forbidden-env CERTIFICATE_P12_BASE64 \
+            --forbidden-env CERTIFICATE_PASSWORD \
             --forbidden-env FIREBASE_SERVICE_ACCOUNT \
             --forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
             --forbidden-env OPENAI_API_KEY \

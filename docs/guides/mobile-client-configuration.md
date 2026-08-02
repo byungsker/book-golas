@@ -56,6 +56,12 @@ argument expression; adjacent literals, including comment-separated forms, are
 rejected. Formatting therefore cannot turn an indirect configuration lookup
 into an allowed client setting.
 
+The pull-request guard uses positive paths for the two iOS workflows and
+`app/**`, which covers the Flutter library, the verification tool, Fastlane,
+and mobile build configuration. Consequently, web-only and documentation-only
+changes do not trigger it; GitHub Actions does not permit `paths` and
+`paths-ignore` together for the same event.
+
 ## Server-only credentials and rotation
 
 Server-only values stay in the approved deployment secret store and are read

@@ -83,7 +83,10 @@ def require_allowed_defines(content: str, label: str) -> None:
 
 def require_allowed_source_defines(source_root: Path) -> None:
     defines: set[str] = set()
-    for source_file in source_root.rglob("*.dart"):
+    source_directory = source_root / "lib"
+    if not source_directory.is_dir():
+        raise BoundaryError(f"Flutter source directory does not exist: {source_directory}")
+    for source_file in source_directory.rglob("*.dart"):
         content = source_file.read_text("utf-8")
         matches = list(FROM_ENVIRONMENT_PATTERN.finditer(content))
         if len(matches) != len(ANY_FROM_ENVIRONMENT_PATTERN.findall(content)):
@@ -198,6 +201,17 @@ def require_clean_artifact(artifact: Path, forbidden_values: tuple[str, ...] = (
             raise BoundaryError("forbidden value-derived material found in mobile artifact")
 
 
+def require_forbidden_environment_values(
+    environment: dict[str, str], names: tuple[str, ...]
+) -> tuple[str, ...]:
+    missing = sorted(name for name in names if not environment.get(name, "").strip())
+    if missing:
+        raise BoundaryError(
+            "forbidden value scan requested for unset variables: " + ", ".join(missing)
+        )
+    return tuple(environment[name] for name in names)
+
+
 def require_upload_order(content: str, label: str) -> None:
     archive_matches = list(re.finditer(r"fastlane (?:beta|release)_build", content))
     upload_matches = list(re.finditer(r"fastlane (?:beta|release)_upload", content))
@@ -255,6 +269,25 @@ def run_self_test() -> None:
         pass
     else:
         raise BoundaryError("self-test did not block an invalid client URL")
+    require_forbidden_environment_values({"SCAN_VALUE": "present"}, ("SCAN_VALUE",))
+    for environment, names, message in (
+        (
+            {"SCAN_VALUE": "present"},
+            ("MISSING",),
+            "self-test did not block an unset forbidden scan value",
+        ),
+        (
+            {"EMPTY": " "},
+            ("EMPTY",),
+            "self-test did not block an empty forbidden scan value",
+        ),
+    ):
+        try:
+            require_forbidden_environment_values(environment, names)
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError(message)
     with tempfile.TemporaryDirectory() as directory:
         artifact = Path(directory) / "app"
         artifact.mkdir()
@@ -297,13 +330,20 @@ def run_self_test() -> None:
         else:
             raise BoundaryError("self-test did not scan compressed IPA content")
         source = Path(directory) / "source"
-        source.mkdir()
-        (source / "allowed.dart").write_text(
+        source_directory = source / "lib"
+        source_directory.mkdir(parents=True)
+        (source_directory / "allowed.dart").write_text(
             "const value = String /* type */ . /* member */ fromEnvironment /* call */ ( 'ENVIRONMENT' );",
             encoding="utf-8",
         )
-        (source / "allowed_line_comment.dart").write_text(
+        (source_directory / "allowed_line_comment.dart").write_text(
             "const value = String // type\n. // member\nfromEnvironment // call\n( 'ENVIRONMENT' );",
+            encoding="utf-8",
+        )
+        ignored_directory = source / "tool"
+        ignored_directory.mkdir()
+        (ignored_directory / "ignored.dart").write_text(
+            "const configName = 'OPENAI_API_KEY'; String.fromEnvironment(configName);",
             encoding="utf-8",
         )
         require_allowed_source_defines(source)
@@ -324,10 +364,10 @@ def run_self_test() -> None:
                 "self-test did not block comment-separated adjacent source literals",
             ),
         ):
-            invalid_source = Path(directory) / filename
+            invalid_source = source_directory / filename
             invalid_source.write_text(content, encoding="utf-8")
             try:
-                require_allowed_source_defines(invalid_source.parent)
+                require_allowed_source_defines(source)
             except BoundaryError:
                 invalid_source.unlink()
             else:
@@ -370,8 +410,8 @@ def main() -> int:
             content = workflow.read_text("utf-8")
             require_allowed_defines(content, str(workflow))
             require_upload_order(content, str(workflow))
-        forbidden_values = tuple(
-            os.environ[name] for name in args.forbidden_env if os.environ.get(name)
+        forbidden_values = require_forbidden_environment_values(
+            dict(os.environ), tuple(args.forbidden_env)
         )
         for artifact in args.artifact:
             require_clean_artifact(artifact, forbidden_values)
