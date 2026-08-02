@@ -327,10 +327,10 @@ class MyApp extends StatelessWidget {
             theme: BLabTheme.light,
             darkTheme: BLabTheme.dark,
             builder: (context, child) {
-              return AnnotatedRegion<SystemUiOverlayStyle>(
-                value: systemUiOverlayStyleForBrightness(
-                  Theme.of(context).brightness,
-                ),
+              return ThemeAwareSystemUiOverlay(
+                brightness: themeViewModel.isDarkMode
+                    ? Brightness.dark
+                    : Brightness.light,
                 child: child ?? const SizedBox.shrink(),
               );
             },

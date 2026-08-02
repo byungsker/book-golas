@@ -1,5 +1,6 @@
 import 'package:book_golas/ui/core/theme/system_ui_overlay_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,5 +20,40 @@ void main() {
       expect(style.statusBarIconBrightness, Brightness.light);
       expect(style.statusBarBrightness, Brightness.dark);
     });
+
+    testWidgets('updates the active overlay when the theme changes', (
+      tester,
+    ) async {
+      final brightness = ValueNotifier(Brightness.dark);
+
+      await tester.pumpWidget(
+        ValueListenableBuilder<Brightness>(
+          valueListenable: brightness,
+          builder: (context, value, child) {
+            return ThemeAwareSystemUiOverlay(
+              brightness: value,
+              child: const SizedBox(),
+            );
+          },
+        ),
+      );
+
+      expect(_activeOverlay(tester).statusBarIconBrightness, Brightness.light);
+
+      brightness.value = Brightness.light;
+      await tester.pump();
+
+      expect(_activeOverlay(tester).statusBarIconBrightness, Brightness.dark);
+    });
   });
+}
+
+SystemUiOverlayStyle _activeOverlay(WidgetTester tester) {
+  return tester
+      .widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+        find.byWidgetPredicate(
+          (widget) => widget is AnnotatedRegion<SystemUiOverlayStyle>,
+        ),
+      )
+      .value;
 }
