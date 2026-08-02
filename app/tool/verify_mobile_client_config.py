@@ -104,6 +104,15 @@ SERVER_ONLY_MARKERS = (
     "SUPABASE_ACCESS_TOKEN",
     "SUPABASE_PROJECT_REF",
 )
+ARTIFACT_SERVER_ONLY_MARKERS = tuple(
+    sorted(
+        {
+            name
+            for required_names, optional_names in FORBIDDEN_ENVIRONMENT_CONTRACTS.values()
+            for name in required_names | optional_names
+        }
+    )
+)
 DART_DEFINE_PATTERN = re.compile(
     r"--dart-define(?:=|\s+)([A-Za-z][A-Za-z0-9_]*)="
 )
@@ -213,17 +222,18 @@ def encoded_forms(value: str) -> tuple[bytes, ...]:
     )
 
 
-def scan_stream(handle: object, needles: tuple[bytes, ...]) -> bool:
+def scan_stream(handle: object, needles: tuple[bytes, ...]) -> bytes | None:
     if not needles:
-        return False
+        return None
     carry_size = max(len(needle) for needle in needles) - 1
     carry = b""
     while content := handle.read(65536):
         content = carry + content
-        if any(needle in content for needle in needles):
-            return True
+        for needle in needles:
+            if needle in content:
+                return needle
         carry = content[-carry_size:] if carry_size else b""
-    return False
+    return None
 
 
 def artifact_files(artifact: Path) -> tuple[Path, ...]:
@@ -234,32 +244,54 @@ def artifact_files(artifact: Path) -> tuple[Path, ...]:
     )
 
 
-def file_contains_forbidden_material(file_path: Path, needles: tuple[bytes, ...]) -> bool:
-    if zipfile.is_zipfile(file_path):
-        with zipfile.ZipFile(file_path) as archive:
+def artifact_forbidden_material(
+    artifact: Path, artifact_file: Path, needles: tuple[bytes, ...]
+) -> tuple[str, bytes] | None:
+    relative_file = (
+        artifact_file.relative_to(artifact) if artifact.is_dir() else artifact_file.name
+    )
+    if zipfile.is_zipfile(artifact_file):
+        with zipfile.ZipFile(artifact_file) as archive:
             for member in archive.infolist():
                 if member.is_dir():
                     continue
                 with archive.open(member) as handle:
-                    if scan_stream(handle, needles):
-                        return True
-        return False
-    with file_path.open("rb") as handle:
-        return scan_stream(handle, needles)
+                    if matched_needle := scan_stream(handle, needles):
+                        return (f"{relative_file}/{member.filename}", matched_needle)
+        return None
+    with artifact_file.open("rb") as handle:
+        if matched_needle := scan_stream(handle, needles):
+            return (str(relative_file), matched_needle)
+    return None
 
 
 def require_clean_artifact(artifact: Path, forbidden_values: tuple[str, ...] = ()) -> None:
     if not artifact.exists():
         raise BoundaryError(f"artifact path does not exist: {artifact}")
-    marker_needles = tuple(marker.encode("utf-8") for marker in SERVER_ONLY_MARKERS)
+    marker_needles = tuple(
+        marker.encode("utf-8") for marker in ARTIFACT_SERVER_ONLY_MARKERS
+    )
     value_needles = tuple(
         form for value in forbidden_values if value for form in encoded_forms(value)
     )
     for artifact_file in artifact_files(artifact):
-        if file_contains_forbidden_material(artifact_file, marker_needles):
-            raise BoundaryError("server-only configuration marker found in mobile artifact")
-        if value_needles and file_contains_forbidden_material(artifact_file, value_needles):
-            raise BoundaryError("forbidden value-derived material found in mobile artifact")
+        if marker_match := artifact_forbidden_material(
+            artifact, artifact_file, marker_needles
+        ):
+            relative_path, marker = marker_match
+            raise BoundaryError(
+                "server-only configuration marker "
+                f"{marker.decode('ascii')} found in mobile artifact at {relative_path}"
+            )
+        if value_needles and (
+            value_match := artifact_forbidden_material(
+                artifact, artifact_file, value_needles
+            )
+        ):
+            relative_path, _ = value_match
+            raise BoundaryError(
+                f"forbidden value-derived material found in mobile artifact at {relative_path}"
+            )
 
 
 def require_required_forbidden_environment_values(
@@ -456,6 +488,15 @@ def require_forbidden_environment_contract(content: str, label: str) -> None:
 
 
 def run_self_test() -> None:
+    def write_deflated_ipa(ipa_path: Path, member_path: str, content: bytes) -> None:
+        with zipfile.ZipFile(
+            ipa_path, "w", compression=zipfile.ZIP_DEFLATED
+        ) as archive:
+            archive.writestr(member_path, content)
+        with zipfile.ZipFile(ipa_path) as archive:
+            if archive.getinfo(member_path).compress_type != zipfile.ZIP_DEFLATED:
+                raise BoundaryError("self-test IPA member was not deflated")
+
     require_allowed_defines("--dart-define=ENVIRONMENT=development", "allowed")
     try:
         require_allowed_defines("--dart-define=OPENAI_API_KEY=value", "blocked")
@@ -584,15 +625,48 @@ def run_self_test() -> None:
             pass
         else:
             raise BoundaryError("self-test did not scan a cross-chunk forbidden value")
-        (artifact / "binary").write_bytes(b"safe")
-        with zipfile.ZipFile(artifact / "Runner.ipa", "w") as archive:
-            archive.writestr("Payload/Runner.app/config", base64.b64encode(forbidden_value.encode("utf-8")))
+        runner_ipa = artifact / "Runner.ipa"
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/config",
+            base64.b64encode(forbidden_value.encode("utf-8")),
+        )
         try:
-            require_clean_artifact(artifact / "Runner.ipa", (forbidden_value,))
+            require_clean_artifact(runner_ipa, (forbidden_value,))
         except BoundaryError:
             pass
         else:
             raise BoundaryError("self-test did not scan compressed IPA content")
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
+            b"PRIVATE_KEY",
+        )
+        require_clean_artifact(runner_ipa)
+        write_deflated_ipa(
+            runner_ipa, "Payload/Runner.app/config", b"OPENAI_API_KEY"
+        )
+        try:
+            require_clean_artifact(runner_ipa)
+        except BoundaryError as error:
+            if (
+                "OPENAI_API_KEY" not in str(error)
+                or "Payload/Runner.app/config" not in str(error)
+            ):
+                raise BoundaryError("self-test did not provide a safe marker diagnostic")
+        else:
+            raise BoundaryError("self-test did not scan an app-owned server marker")
+        write_deflated_ipa(
+            runner_ipa,
+            "Payload/Runner.app/Frameworks/Flutter.framework/Flutter",
+            forbidden_value.encode("utf-8"),
+        )
+        try:
+            require_clean_artifact(runner_ipa, (forbidden_value,))
+        except BoundaryError:
+            pass
+        else:
+            raise BoundaryError("self-test did not scan a vendor forbidden value")
         (artifact / "binary").write_bytes(optional_value.encode("utf-8"))
         try:
             require_clean_artifact(
