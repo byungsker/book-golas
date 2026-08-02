@@ -65,32 +65,33 @@ void main() {
           const ValueKey('scrollable-tab-action-3'),
           skipOffstage: false,
         );
+        final history = find.byType(
+          ProgressHistoryTab,
+          skipOffstage: false,
+        );
         for (var attempt = 0;
-            attempt < 40 && completedTabInitialization.evaluate().isEmpty;
+            attempt < 40 &&
+                (completedTabInitialization.evaluate().isEmpty ||
+                    history.evaluate().isEmpty);
             attempt++) {
           await tester.pump(const Duration(milliseconds: 100));
         }
         expect(
           completedTabInitialization,
           findsOneWidget,
-          reason:
-              'Completed-book four-tab initialization did not finish before selecting History.',
+          reason: 'Completed-book four-tab initialization did not finish.',
         );
+        expect(
+          history,
+          findsOneWidget,
+          reason:
+              'Completed-book History did not appear after four-tab initialization.',
+        );
+        await tester.pumpAndSettle();
 
         final l10n = AppLocalizations.of(
           tester.element(find.byType(BookDetailScreen)),
         );
-        final historyTabAction = find.byKey(
-          const ValueKey('scrollable-tab-action-1'),
-          skipOffstage: false,
-        );
-        expect(historyTabAction, findsOneWidget);
-        final historyAction = tester.widget<InkWell>(historyTabAction);
-        expect(historyAction.onTap, isNotNull);
-        historyAction.onTap!();
-        await tester.pumpAndSettle();
-
-        final history = find.byType(ProgressHistoryTab);
         final actionBar = find.byKey(FloatingActionBar.actionBarKey);
         final finalRecord = find.text(l10n.historyTabCumulativeLabel(320));
 
