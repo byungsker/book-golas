@@ -2598,6 +2598,136 @@ class AppLocalizationsKo extends AppLocalizations {
   String get historyTabDailyPages => '일일 페이지';
 
   @override
+  String get historyTabReadingTime => '독서 시간';
+
+  @override
+  String historyTabChartCumulativeTooltip(int page) {
+    return '누적: ${page}p\\n';
+  }
+
+  @override
+  String historyTabChartDailyTooltip(int page) {
+    return '일일: +${page}p';
+  }
+
+  @override
+  String historyTabDurationSeconds(int seconds) {
+    return '$seconds초';
+  }
+
+  @override
+  String historyTabDurationMinutes(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String historyTabDurationHours(int hours) {
+    return '$hours시간';
+  }
+
+  @override
+  String historyTabDurationHoursMinutes(int hours, int minutes) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
+  String historyTabDurationHoursMinutesSeconds(
+      int hours, int minutes, int seconds) {
+    return '$hours시간 $minutes분 $seconds초';
+  }
+
+  @override
+  String historyTabAttemptBadge(int attempt, String encouragement) {
+    return '$attempt번째 · $encouragement';
+  }
+
+  @override
+  String get historyTabReadingTimeStats => '⏱️ 독서 시간 통계';
+
+  @override
+  String get historyTabTotalReadingTime => '총 독서 시간';
+
+  @override
+  String get historyTabTotalSessions => '총 세션';
+
+  @override
+  String get historyTabAnalysisCompletedAfterAttemptsTitle => '드디어 완독!';
+
+  @override
+  String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt) {
+    return '$attempt번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!';
+  }
+
+  @override
+  String get historyTabAnalysisCompletedTitle => '완독 축하해요!';
+
+  @override
+  String get historyTabAnalysisCompletedMessage => '목표를 달성했어요. 다음 책도 함께 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisPastDueRetryTitle => '이번엔 완주해봐요';
+
+  @override
+  String historyTabAnalysisPastDueRetryMessage(int attempt) {
+    return '$attempt번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?';
+  }
+
+  @override
+  String get historyTabAnalysisPastDueTitle => '목표일이 지났어요';
+
+  @override
+  String get historyTabAnalysisPastDueMessage => '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!';
+
+  @override
+  String get historyTabAnalysisFarAheadTitle => '놀라운 속도예요!';
+
+  @override
+  String get historyTabAnalysisFarAheadMessage =>
+      '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!';
+
+  @override
+  String get historyTabAnalysisAheadTitle => '순조롭게 진행 중!';
+
+  @override
+  String get historyTabAnalysisAheadMessage =>
+      '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!';
+
+  @override
+  String get historyTabAnalysisOnTrackTitle => '계획대로 진행 중';
+
+  @override
+  String get historyTabAnalysisOnTrackMessage => '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindRetryTitle => '조금 더 속도를 내볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindRetryMessage =>
+      '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!';
+
+  @override
+  String get historyTabAnalysisBehindTitle => '조금 더 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindMessage =>
+      '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!';
+
+  @override
+  String get historyTabAnalysisFarBehindRetryTitle => '포기하지 마세요!';
+
+  @override
+  String historyTabAnalysisFarBehindRetryMessage(int attempt) {
+    return '$attempt번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!';
+  }
+
+  @override
+  String get historyTabAnalysisFarBehindTitle => '목표 재설정이 필요할 수도';
+
+  @override
+  String get historyTabAnalysisFarBehindMessage =>
+      '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?';
+
+  @override
   String get historyTabDailyRecords => '일별 기록';
 
   @override
