@@ -181,6 +181,19 @@ class _HistoryRouteServer {
   }
 
   Object _responseFor(String path) {
+    if (path.endsWith('/books')) {
+      return const {
+        'id': 'history-route-fixture',
+        'title': 'A completed history fixture',
+        'author': 'Bookgolas QA',
+        'start_date': '2026-07-01T00:00:00.000Z',
+        'target_date': '2026-07-31T00:00:00.000Z',
+        'current_page': 320,
+        'total_pages': 320,
+        'status': 'completed',
+        'attempt_count': 2,
+      };
+    }
     if (path.endsWith('/reading_progress_history')) {
       return const [
         {
