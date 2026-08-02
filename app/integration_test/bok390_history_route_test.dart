@@ -162,6 +162,10 @@ void main() {
         );
         expect(tester.takeException(), isNull);
 
+        await binding.takeScreenshot(
+          'BOK-390-${testCase.locale.languageCode}-${testCase.brightness.name}-393-200-history-chart',
+        );
+
         final historyScrollable = find.descendant(
           of: history,
           matching: find.byType(Scrollable, skipOffstage: false),
