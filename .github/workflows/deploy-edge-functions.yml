@@ -27,7 +27,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.109.1
+          version: latest
 
       - name: Link to Project
         run: |
@@ -62,14 +62,14 @@ jobs:
 
           if [ -n "$FUNCTION" ]; then
             echo "Deploying single function: $FUNCTION to $TARGET"
-            supabase/functions/deploy-with-retry.sh "$FUNCTION"
+            supabase functions deploy "$FUNCTION"
           else
             echo "Deploying all functions to $TARGET..."
             for fn in supabase/functions/*/; do
               fn_name=$(basename "$fn")
               [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
               echo "  Deploying: $fn_name"
-              supabase/functions/deploy-with-retry.sh "$fn_name"
+              supabase functions deploy "$fn_name"
             done
           fi
           echo "✅ Deployment complete"
