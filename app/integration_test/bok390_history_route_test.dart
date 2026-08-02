@@ -12,6 +12,7 @@ import 'package:book_golas/data/services/subscription_service.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/book_detail/view_model/reading_progress_view_model.dart';
 import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/floating_action_bar.dart';
 import 'package:book_golas/ui/book_detail/widgets/tabs/progress_history_tab.dart';
@@ -65,14 +66,8 @@ void main() {
           const ValueKey('scrollable-tab-action-3'),
           skipOffstage: false,
         );
-        final history = find.byType(
-          ProgressHistoryTab,
-          skipOffstage: false,
-        );
         for (var attempt = 0;
-            attempt < 40 &&
-                (completedTabInitialization.evaluate().isEmpty ||
-                    history.evaluate().isEmpty);
+            attempt < 40 && completedTabInitialization.evaluate().isEmpty;
             attempt++) {
           await tester.pump(const Duration(milliseconds: 100));
         }
@@ -81,20 +76,58 @@ void main() {
           findsOneWidget,
           reason: 'Completed-book four-tab initialization did not finish.',
         );
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+
+        final historyTabAction = find.byKey(
+          const ValueKey('scrollable-tab-action-1'),
+          skipOffstage: false,
+        );
+        expect(
+          historyTabAction,
+          findsOneWidget,
+          reason: 'Completed-book History action did not appear.',
+        );
+
+        final history = find.byType(
+          ProgressHistoryTab,
+          skipOffstage: false,
+        );
+        final tabViewFinder = find.byType(TabBarView, skipOffstage: false);
+        final activeTabView = tester.widget<TabBarView>(tabViewFinder);
+        final activePageView = tester.widget<PageView>(
+          find.descendant(
+            of: tabViewFinder,
+            matching: find.byType(PageView, skipOffstage: false),
+          ),
+        );
+        expect(activeTabView.controller?.index, 1);
+        expect(activeTabView.controller?.animation?.value, 1);
+        expect(activePageView.controller?.page, 1);
         expect(
           history,
           findsOneWidget,
           reason:
-              'Completed-book History did not appear after four-tab initialization.',
+              'Completed-book History was not mounted after route initialization.',
         );
-        await tester.pumpAndSettle();
 
         final l10n = AppLocalizations.of(
           tester.element(find.byType(BookDetailScreen)),
         );
         final actionBar = find.byKey(FloatingActionBar.actionBarKey);
-        final cumulativePages = find.text(l10n.historyTabCumulativePages);
-        final finalRecord = find.text(l10n.historyTabCumulativeLabel(320));
+        final progressViewModel = Provider.of<ReadingProgressViewModel>(
+          tester.element(history),
+          listen: false,
+        );
+        final cumulativePages = find.text(
+          l10n.historyTabCumulativePages,
+          skipOffstage: false,
+        );
+        final finalRecord = find.text(
+          l10n.historyTabCumulativeLabel(320),
+          skipOffstage: false,
+        );
         for (var attempt = 0;
             attempt < 40 &&
                 (cumulativePages.evaluate().isEmpty ||
@@ -108,21 +141,31 @@ void main() {
         expect(
           cumulativePages,
           findsWidgets,
-          reason:
-              'History cumulative-pages label did not render after data loading.',
+          reason: 'History cumulative-pages label did not render after data '
+              'loading. loading=${progressViewModel.isLoading}, '
+              'error=${progressViewModel.errorMessage}, '
+              'records=${progressViewModel.progressHistory?.length}, '
+              'requests=${server.requestPaths}',
         );
-        expect(find.text(l10n.historyTabReadingTime), findsWidgets);
+        expect(
+          find.text(l10n.historyTabReadingTime, skipOffstage: false),
+          findsWidgets,
+        );
         expect(
           finalRecord,
           findsOneWidget,
-          reason:
-              'History final daily record did not render after data loading.',
+          reason: 'History final daily record did not render after data '
+              'loading. loading=${progressViewModel.isLoading}, '
+              'error=${progressViewModel.errorMessage}, '
+              'records=${progressViewModel.progressHistory?.length}, '
+              'requests=${server.requestPaths}',
         );
         expect(tester.takeException(), isNull);
 
         final historyScrollable = find.descendant(
           of: history,
-          matching: find.byType(Scrollable),
+          matching: find.byType(Scrollable, skipOffstage: false),
+          skipOffstage: false,
         );
         final position =
             tester.state<ScrollableState>(historyScrollable.first).position;
@@ -182,6 +225,7 @@ class _CompletedHistoryRouteFixture extends StatelessWidget {
           ),
         ],
         child: BookDetailScreen(
+          initialTabIndex: 1,
           book: Book(
             id: 'history-route-fixture',
             title: 'A completed history fixture',
@@ -203,6 +247,7 @@ class _HistoryRouteServer {
   _HistoryRouteServer._(this._server);
 
   final HttpServer _server;
+  final List<String> requestPaths = [];
 
   String get url =>
       'http://${InternetAddress.loopbackIPv4.address}:${_server.port}';
@@ -216,6 +261,7 @@ class _HistoryRouteServer {
 
   void _serve() {
     _server.listen((request) async {
+      requestPaths.add('${request.method} ${request.uri}');
       request.response.headers.contentType = ContentType.json;
       request.response.write(jsonEncode(_responseFor(request.uri.path)));
       await request.response.close();
