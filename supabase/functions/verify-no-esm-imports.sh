@@ -8,6 +8,11 @@ if ! command -v grep >/dev/null 2>&1; then
   exit 1
 fi
 
+if [ ! -d "$functions_dir" ]; then
+  echo "::error::Edge Function scan root must be an existing directory."
+  exit 1
+fi
+
 if grep -R -n --include='*.ts' 'https://esm\.sh/' "$functions_dir"; then
   echo "::error::Edge Functions must not import esm.sh directly."
   exit 1
