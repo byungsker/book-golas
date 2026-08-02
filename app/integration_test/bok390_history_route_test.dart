@@ -67,6 +67,16 @@ void main() {
         final l10n = AppLocalizations.of(
           tester.element(find.byType(BookDetailScreen)),
         );
+        final historyTabAction = find.byKey(
+          const ValueKey('scrollable-tab-action-1'),
+          skipOffstage: false,
+        );
+        expect(historyTabAction, findsOneWidget);
+        final historyAction = tester.widget<InkWell>(historyTabAction);
+        expect(historyAction.onTap, isNotNull);
+        historyAction.onTap!();
+        await tester.pumpAndSettle();
+
         final history = find.byType(ProgressHistoryTab);
         final actionBar = find.byKey(FloatingActionBar.actionBarKey);
         final finalRecord = find.text(l10n.historyTabCumulativeLabel(320));
