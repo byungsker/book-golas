@@ -12,20 +12,22 @@ class NotificationPermissionCoordinator {
   static Future<NotificationPermissionRequestResult> request({
     required Future<bool> Function() isAuthorized,
     required Future<bool> Function() requestPermission,
-    required Future<void> Function() registerToken,
+    required Future<bool> Function() registerToken,
   }) async {
     try {
       if (await isAuthorized()) {
-        await registerToken();
-        return NotificationPermissionRequestResult.granted;
+        return await registerToken()
+            ? NotificationPermissionRequestResult.granted
+            : NotificationPermissionRequestResult.failed;
       }
 
       if (!await requestPermission()) {
         return NotificationPermissionRequestResult.denied;
       }
 
-      await registerToken();
-      return NotificationPermissionRequestResult.granted;
+      return await registerToken()
+          ? NotificationPermissionRequestResult.granted
+          : NotificationPermissionRequestResult.failed;
     } catch (error) {
       debugPrint('Notification permission request failed: $error');
       return NotificationPermissionRequestResult.failed;

@@ -899,7 +899,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPageNotificationPermissionRequestFailed =>
-      'Couldn\'t check notification permission. Please try again.';
+      'Couldn\'t enable notifications. Close this message, then turn the switch on again.';
 
   @override
   String get myPageNotificationSettingsFailed =>

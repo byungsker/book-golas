@@ -121,10 +121,10 @@ class FCMService {
         settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
-  Future<void> _registerToken() async {
+  Future<bool> _registerToken() async {
     _fcmToken = await _firebaseMessaging.getToken();
     debugPrint('FCM token registered');
-    await saveTokenToSupabase();
+    return saveTokenToSupabase();
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
@@ -267,10 +267,10 @@ class FCMService {
     return locale.languageCode;
   }
 
-  Future<void> saveTokenToSupabase() async {
+  Future<bool> saveTokenToSupabase() async {
     if (_fcmToken == null) {
       debugPrint('FCM token is null');
-      return;
+      return false;
     }
 
     final supabase = Supabase.instance.client;
@@ -278,7 +278,7 @@ class FCMService {
 
     if (userId == null) {
       debugPrint('User not logged in');
-      return;
+      return false;
     }
 
     try {
@@ -320,8 +320,10 @@ class FCMService {
             );
         debugPrint('FCM token saved with default settings (locale=$locale)');
       }
+      return true;
     } catch (e) {
       debugPrint('Error saving FCM token: $e');
+      return false;
     }
   }
 

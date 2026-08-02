@@ -52,7 +52,12 @@ void main() {
       fcmService,
       contains('NotificationPermissionCoordinator.refreshToken('),
     );
-    expect(fcmService, contains('await saveTokenToSupabase();'));
+    expect(fcmService, contains('return saveTokenToSupabase();'));
+    expect(fcmService, contains('Future<bool> saveTokenToSupabase() async'));
+    expect(
+        fcmService,
+        contains(
+            "debugPrint('Error saving FCM token: \$e');\n      return false;"));
   });
 
   test('My Page delegates notification changes to the guarded controller', () {

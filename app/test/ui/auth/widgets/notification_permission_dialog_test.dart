@@ -111,7 +111,7 @@ void main() {
 
     expect(find.text('알림 설정 변경에 실패했습니다'), findsOneWidget);
     expect(
-      find.text('알림 권한 상태를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+      find.text('알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.'),
       findsOneWidget,
     );
 
@@ -130,7 +130,9 @@ void main() {
 
     expect(find.text('Failed to change notification settings'), findsOneWidget);
     expect(
-      find.text("Couldn't check notification permission. Please try again."),
+      find.text(
+        "Couldn't enable notifications. Close this message, then turn the switch on again.",
+      ),
       findsOneWidget,
     );
   });

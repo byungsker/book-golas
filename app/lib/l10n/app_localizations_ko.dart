@@ -858,7 +858,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get myPageNotificationPermissionRequestFailed =>
-      '알림 권한 상태를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      '알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.';
 
   @override
   String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';

@@ -15,7 +15,10 @@ void main() {
           permissionRequests++;
           return true;
         },
-        registerToken: () async => tokenRegistrations++,
+        registerToken: () async {
+          tokenRegistrations++;
+          return true;
+        },
       );
 
       expect(result, NotificationPermissionRequestResult.granted);
@@ -30,7 +33,10 @@ void main() {
     final result = await NotificationPermissionCoordinator.request(
       isAuthorized: () async => false,
       requestPermission: () async => false,
-      registerToken: () async => tokenRegistrations++,
+      registerToken: () async {
+        tokenRegistrations++;
+        return true;
+      },
     );
 
     expect(result, NotificationPermissionRequestResult.denied);
@@ -41,7 +47,17 @@ void main() {
     final result = await NotificationPermissionCoordinator.request(
       isAuthorized: () async => throw StateError('plugin unavailable'),
       requestPermission: () async => true,
-      registerToken: () async {},
+      registerToken: () async => true,
+    );
+
+    expect(result, NotificationPermissionRequestResult.failed);
+  });
+
+  test('token persistence failure returns a distinct failed result', () async {
+    final result = await NotificationPermissionCoordinator.request(
+      isAuthorized: () async => true,
+      requestPermission: () async => true,
+      registerToken: () async => false,
     );
 
     expect(result, NotificationPermissionRequestResult.failed);
