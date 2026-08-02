@@ -14,6 +14,7 @@ import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
 import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/ui/auth/controllers/notification_toggle_controller.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
@@ -44,7 +45,8 @@ class MyPageScreen extends StatelessWidget {
     this.requestNotificationPermission,
   });
 
-  final Future<bool> Function()? requestNotificationPermission;
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,8 @@ class MyPageScreen extends StatelessWidget {
 class _MyPageContent extends StatefulWidget {
   const _MyPageContent({this.requestNotificationPermission});
 
-  final Future<bool> Function()? requestNotificationPermission;
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   State<_MyPageContent> createState() => _MyPageContentState();
@@ -943,6 +946,12 @@ class _MyPageContentState extends State<_MyPageContent> {
                                     context,
                                   );
                                   return;
+                                case NotificationToggleResult
+                                      .permissionRequestFailed:
+                                  await _showNotificationPermissionFailureDialog(
+                                    context,
+                                  );
+                                  return;
                                 case NotificationToggleResult.updateFailed:
                                   CustomSnackbar.show(
                                     context,
@@ -1153,6 +1162,17 @@ class _MyPageContentState extends State<_MyPageContent> {
     if (shouldOpenSettings == true) {
       await openAppSettings();
     }
+  }
+
+  Future<void> _showNotificationPermissionFailureDialog(
+    BuildContext context,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionFailureDialog(
+        onClose: () => Navigator.pop(dialogContext),
+      ),
+    );
   }
 
   Widget _buildAccountCard(BuildContext context) {

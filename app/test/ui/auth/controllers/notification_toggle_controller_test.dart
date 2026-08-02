@@ -1,3 +1,4 @@
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
 import 'package:book_golas/ui/auth/controllers/notification_toggle_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,7 +11,8 @@ void main() {
   late int goalCancels;
 
   NotificationToggleController buildController({
-    required Future<bool> Function() requestPermission,
+    required Future<NotificationPermissionRequestResult> Function()
+        requestPermission,
     Future<bool> Function(bool enabled)? persistEnabled,
   }) {
     return NotificationToggleController(
@@ -41,7 +43,7 @@ void main() {
     final controller = buildController(
       requestPermission: () async {
         permissionRequests++;
-        return true;
+        return NotificationPermissionRequestResult.granted;
       },
     );
 
@@ -60,7 +62,7 @@ void main() {
     final controller = buildController(
       requestPermission: () async {
         permissionRequests++;
-        return false;
+        return NotificationPermissionRequestResult.denied;
       },
     );
 
@@ -80,7 +82,9 @@ void main() {
     final controller = buildController(
       requestPermission: () async {
         permissionRequests++;
-        return granted;
+        return granted
+            ? NotificationPermissionRequestResult.granted
+            : NotificationPermissionRequestResult.denied;
       },
     );
 
@@ -103,7 +107,8 @@ void main() {
 
   test('failed persistence does not schedule or cancel reminders', () async {
     final controller = buildController(
-      requestPermission: () async => true,
+      requestPermission: () async =>
+          NotificationPermissionRequestResult.granted,
       persistEnabled: (enabled) async {
         persistedValues.add(enabled);
         return false;
@@ -125,7 +130,7 @@ void main() {
     final controller = buildController(
       requestPermission: () async {
         permissionRequests++;
-        return true;
+        return NotificationPermissionRequestResult.granted;
       },
     );
 
@@ -136,5 +141,22 @@ void main() {
     expect(persistedValues, [false]);
     expect(dailyCancels, 1);
     expect(goalCancels, 1);
+  });
+
+  test('technical permission failure remains distinct from denial', () async {
+    final controller = buildController(
+      requestPermission: () async {
+        permissionRequests++;
+        return NotificationPermissionRequestResult.failed;
+      },
+    );
+
+    final result = await controller.setEnabled(true);
+
+    expect(result, NotificationToggleResult.permissionRequestFailed);
+    expect(permissionRequests, 1);
+    expect(persistedValues, isEmpty);
+    expect(dailySchedules, 0);
+    expect(goalSchedules, 0);
   });
 }

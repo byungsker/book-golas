@@ -37,3 +37,32 @@ class NotificationPermissionDialog extends StatelessWidget {
     );
   }
 }
+
+class NotificationPermissionFailureDialog extends StatelessWidget {
+  const NotificationPermissionFailureDialog({
+    super.key,
+    required this.onClose,
+  });
+
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return AlertDialog(
+      backgroundColor: isDark ? BLabColors.surfaceDark : Colors.white,
+      title: Text(localizations.myPageNotificationSettingsFailed),
+      content: Text(
+        localizations.myPageNotificationPermissionRequestFailed,
+      ),
+      actions: [
+        BLabButton(
+          text: localizations.commonConfirm,
+          onPressed: onClose,
+        ),
+      ],
+    );
+  }
+}

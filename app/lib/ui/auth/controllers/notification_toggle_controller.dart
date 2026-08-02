@@ -1,7 +1,10 @@
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
+
 enum NotificationToggleResult {
   enabled,
   disabled,
   permissionDenied,
+  permissionRequestFailed,
   updateFailed,
 }
 
@@ -15,7 +18,8 @@ class NotificationToggleController {
     required this.cancelGoalAlarm,
   });
 
-  final Future<bool> Function() requestPermission;
+  final Future<NotificationPermissionRequestResult> Function()
+      requestPermission;
   final Future<bool> Function(bool enabled) persistEnabled;
   final Future<void> Function() scheduleDailyReminder;
   final Future<void> Function() scheduleGoalAlarm;
@@ -23,8 +27,16 @@ class NotificationToggleController {
   final Future<void> Function() cancelGoalAlarm;
 
   Future<NotificationToggleResult> setEnabled(bool enabled) async {
-    if (enabled && !await requestPermission()) {
-      return NotificationToggleResult.permissionDenied;
+    if (enabled) {
+      final permissionResult = await requestPermission();
+      switch (permissionResult) {
+        case NotificationPermissionRequestResult.granted:
+          break;
+        case NotificationPermissionRequestResult.denied:
+          return NotificationToggleResult.permissionDenied;
+        case NotificationPermissionRequestResult.failed:
+          return NotificationToggleResult.permissionRequestFailed;
+      }
     }
 
     if (!await persistEnabled(enabled)) {

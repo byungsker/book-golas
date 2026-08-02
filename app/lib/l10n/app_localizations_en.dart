@@ -719,10 +719,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bookDetailPausedPosition(
-    int currentPage,
-    int totalPages,
-    int percentage,
-  ) {
+      int currentPage, int totalPages, int percentage) {
     return 'Paused at: ${currentPage}p / ${totalPages}p ($percentage%)';
   }
 
@@ -899,6 +896,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myPageOpenSettings => 'Open Settings';
+
+  @override
+  String get myPageNotificationPermissionRequestFailed =>
+      'Couldn\'t check notification permission. Please try again.';
 
   @override
   String get myPageNotificationSettingsFailed =>
@@ -1549,10 +1550,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String readingManagementProgress(
-    int progress,
-    int currentPage,
-    int totalPages,
-  ) {
+      int progress, int currentPage, int totalPages) {
     return 'Currently $progress% in progress ($currentPage / $totalPages pages)';
   }
 
@@ -3493,12 +3491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyDateTimeFormat(
-    int year,
-    int month,
-    int day,
-    int hour,
-    int minute,
-  ) {
+      int year, int month, int day, int hour, int minute) {
     return '$month/$day/$year $hour:$minute';
   }
 

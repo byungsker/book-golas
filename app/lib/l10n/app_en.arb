@@ -260,6 +260,8 @@
      "@myPageNotificationPermissionDenied": {"description": "Notification permission recovery guidance"},
      "myPageOpenSettings": "Open Settings",
      "@myPageOpenSettings": {"description": "Button that opens the device application settings"},
+     "myPageNotificationPermissionRequestFailed": "Couldn't check notification permission. Please try again.",
+     "@myPageNotificationPermissionRequestFailed": {"description": "Notification permission request failed for a technical reason"},
      "myPageNotificationSettingsFailed": "Failed to change notification settings",
      "myPageNotificationTimeChanged": "Notification time changed to {time}",
      "@myPageNotificationTimeChanged": {

@@ -915,6 +915,9 @@
 
     "myPageOpenSettings": "설정 열기",
     "@myPageOpenSettings": {"description": "Button that opens the device application settings"},
+
+    "myPageNotificationPermissionRequestFailed": "알림 권한 상태를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.",
+    "@myPageNotificationPermissionRequestFailed": {"description": "Notification permission request failed for a technical reason"},
     
     "myPageNotificationSettingsFailed": "알림 설정 변경에 실패했습니다",
     "@myPageNotificationSettingsFailed": {"description": "Notification settings change failed message"},

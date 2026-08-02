@@ -50,10 +50,9 @@ void main() {
     );
     expect(
       fcmService,
-      contains(
-          'final settings = await _firebaseMessaging.getNotificationSettings();'),
+      contains('NotificationPermissionCoordinator.refreshToken('),
     );
-    expect(fcmService, contains('if (!_isAuthorized(settings)) return;'));
+    expect(fcmService, contains('await saveTokenToSupabase();'));
   });
 
   test('My Page delegates notification changes to the guarded controller', () {
@@ -78,12 +77,12 @@ void main() {
     final fcmService = _read('lib/data/services/fcm_service.dart');
     final request = _methodBody(
       fcmService,
-      'Future<bool> requestPermissionAndRegister() async {',
+      'requestPermissionAndRegister() {',
       'bool _isAuthorized(NotificationSettings settings) {',
     );
 
     expect(request, contains('_firebaseMessaging.requestPermission('));
-    expect(request, contains('return false;'));
-    expect(request, contains('await _registerToken();'));
+    expect(request, contains('NotificationPermissionCoordinator.request('));
+    expect(request, contains('registerToken: _registerToken'));
   });
 }

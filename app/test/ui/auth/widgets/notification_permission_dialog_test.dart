@@ -31,6 +31,28 @@ void main() {
     );
   }
 
+  Future<void> pumpFailureDialog(
+    WidgetTester tester, {
+    required Locale locale,
+    required VoidCallback onClose,
+  }) {
+    return tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: NotificationPermissionFailureDialog(onClose: onClose),
+        ),
+      ),
+    );
+  }
+
   testWidgets('Korean denial dialog provides a settings recovery action',
       (tester) async {
     var settingsOpens = 0;
@@ -75,5 +97,41 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(settingsOpens, 1);
+  });
+
+  testWidgets('technical failure is distinct and dismissible in Korean',
+      (tester) async {
+    var closes = 0;
+
+    await pumpFailureDialog(
+      tester,
+      locale: const Locale('ko'),
+      onClose: () => closes++,
+    );
+
+    expect(find.text('알림 설정 변경에 실패했습니다'), findsOneWidget);
+    expect(
+      find.text('알림 권한 상태를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('확인'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(closes, 1);
+  });
+
+  testWidgets('technical failure is distinct in English', (tester) async {
+    await pumpFailureDialog(
+      tester,
+      locale: const Locale('en'),
+      onClose: () {},
+    );
+
+    expect(find.text('Failed to change notification settings'), findsOneWidget);
+    expect(
+      find.text("Couldn't check notification permission. Please try again."),
+      findsOneWidget,
+    );
   });
 }

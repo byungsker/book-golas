@@ -9,6 +9,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
+
 class FCMService {
   static final FCMService _instance = FCMService._internal();
   factory FCMService() => _instance;
@@ -48,12 +50,17 @@ class FCMService {
     await _initializeLocalNotifications();
 
     _firebaseMessaging.onTokenRefresh.listen((newToken) async {
-      final settings = await _firebaseMessaging.getNotificationSettings();
-      if (!_isAuthorized(settings)) return;
-
-      _fcmToken = newToken;
-      debugPrint('FCM token refreshed');
-      saveTokenToSupabase();
+      await NotificationPermissionCoordinator.refreshToken(
+        isAuthorized: () async {
+          final settings = await _firebaseMessaging.getNotificationSettings();
+          return _isAuthorized(settings);
+        },
+        saveToken: () async {
+          _fcmToken = newToken;
+          debugPrint('FCM token refreshed');
+          await saveTokenToSupabase();
+        },
+      );
     });
 
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -87,27 +94,26 @@ class FCMService {
     );
   }
 
-  Future<bool> requestPermissionAndRegister() async {
-    final currentSettings = await _firebaseMessaging.getNotificationSettings();
-    if (_isAuthorized(currentSettings)) {
-      await _registerToken();
-      return true;
-    }
-
-    final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
+  Future<NotificationPermissionRequestResult> requestPermissionAndRegister() {
+    return NotificationPermissionCoordinator.request(
+      isAuthorized: () async {
+        final settings = await _firebaseMessaging.getNotificationSettings();
+        return _isAuthorized(settings);
+      },
+      requestPermission: () async {
+        final settings = await _firebaseMessaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: false,
+        );
+        debugPrint(
+          'User granted permission: ${settings.authorizationStatus}',
+        );
+        return _isAuthorized(settings);
+      },
+      registerToken: _registerToken,
     );
-
-    debugPrint('User granted permission: ${settings.authorizationStatus}');
-    if (!_isAuthorized(settings)) {
-      return false;
-    }
-
-    await _registerToken();
-    return true;
   }
 
   bool _isAuthorized(NotificationSettings settings) {
