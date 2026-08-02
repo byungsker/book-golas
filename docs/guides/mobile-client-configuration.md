@@ -19,6 +19,12 @@ provider access tokens, local environment files, or local operational overrides.
 The public keys above still require their provider-side restrictions. They are
 not a substitute for a server-side secret or a quota boundary.
 
+`GOOGLE_SERVER_CLIENT_ID` is allowlisted but optional: an unset or empty value
+is compiled as an empty Dart define and the app maps it to no server client ID.
+The build boundary still requires `ENVIRONMENT`, `PAID_SUBSCRIPTIONS_ENABLED`,
+`REVENUECAT_PUBLIC_KEY`, `SUPABASE_ANON_KEY`, and `SUPABASE_URL`; no server-only
+value is permitted in either required or optional client input.
+
 ## Local verification
 
 Run this before a local iOS build:
