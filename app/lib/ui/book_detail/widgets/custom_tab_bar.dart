@@ -11,6 +11,22 @@ class CustomTabBar extends StatelessWidget {
     this.tabLabels = const ['기록', '히스토리', '상세'],
   });
 
+  static double extentFor(BuildContext context) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: 'Ag',
+        style: DefaultTextStyle.of(
+          context,
+        ).style.merge(const TextStyle(fontSize: 14)),
+      ),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final contentHeight = textPainter.height + 36;
+    return contentHeight < 56 ? 56 : contentHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

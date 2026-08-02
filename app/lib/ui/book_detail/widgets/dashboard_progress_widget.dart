@@ -203,7 +203,7 @@ class DashboardProgressWidget extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: onDailyTargetTap,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: BLabColors.success.withValues(alpha: 0.1),
@@ -223,21 +223,28 @@ class DashboardProgressWidget extends StatelessWidget {
                             AppLocalizations.of(
                               context,
                             ).todayGoalWithPages(dailyTarget),
+                            key: const ValueKey(
+                              'dashboard-progress-daily-target',
+                            ),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: BLabColors.success,
+                              color: isDark
+                                  ? BLabColors.success
+                                  : BLabColors.textPrimaryLight,
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const ExcludeSemantics(
+                      ExcludeSemantics(
                         child: Icon(
                           CupertinoIcons.pencil,
                           size: 13,
-                          color: BLabColors.success,
+                          color: isDark
+                              ? BLabColors.success
+                              : BLabColors.textPrimaryLight,
                         ),
                       ),
                     ],
@@ -260,17 +267,19 @@ class DashboardProgressWidget extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 4,
               children: [
-                const Icon(
+                Icon(
                   CupertinoIcons.checkmark_seal_fill,
                   size: 12,
-                  color: BLabColors.gold,
+                  color: isDark ? BLabColors.gold : BLabColors.textPrimaryLight,
                 ),
                 Text(
                   AppLocalizations.of(context).bookDetailGoalAchieved,
-                  style: const TextStyle(
+                  key: const ValueKey('dashboard-progress-goal-achieved'),
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: BLabColors.gold,
+                    color:
+                        isDark ? BLabColors.gold : BLabColors.textPrimaryLight,
                   ),
                 ),
               ],

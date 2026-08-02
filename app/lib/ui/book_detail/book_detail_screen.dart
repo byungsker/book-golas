@@ -454,6 +454,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: StickyTabBarDelegate(
+                          extent: CustomTabBar.extentFor(context),
                           child: CustomTabBar(
                             tabController: _tabController!,
                             tabLabels: _isBookCompleted(book)

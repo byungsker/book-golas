@@ -56,7 +56,7 @@ class CompactReadingSchedule extends StatelessWidget {
         builder: (context, constraints) {
           final scaledDateSize = MediaQuery.textScalerOf(context).scale(13);
           final useStackedLayout =
-              constraints.maxWidth < 360 || scaledDateSize > 18;
+              constraints.maxWidth < 400 || scaledDateSize > 18;
           if (useStackedLayout) {
             return _buildStackedLayout(
               context,
@@ -100,7 +100,9 @@ class CompactReadingSchedule extends StatelessWidget {
         Icon(
           CupertinoIcons.arrow_right,
           size: 12,
-          color: isDark ? Colors.grey[500] : Colors.grey[400],
+          color: isDark
+              ? BLabColors.textTertiaryDark
+              : BLabColors.textTertiaryLight,
         ),
         const SizedBox(width: 12),
         _buildDateColumn(
@@ -113,7 +115,7 @@ class CompactReadingSchedule extends StatelessWidget {
         _buildTotalDays(l10n, totalDays, isDark),
         if (attemptCount > 1) ...[
           const SizedBox(width: 8),
-          _buildAttemptBadge(l10n),
+          _buildAttemptBadge(l10n, isDark),
         ],
         const Spacer(),
         if (showEditButton) _buildEditButton(context),
@@ -169,7 +171,7 @@ class CompactReadingSchedule extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             _buildTotalDays(l10n, totalDays, isDark),
-            if (attemptCount > 1) _buildAttemptBadge(l10n),
+            if (attemptCount > 1) _buildAttemptBadge(l10n, isDark),
           ],
         ),
       ],
@@ -183,10 +185,12 @@ class CompactReadingSchedule extends StatelessWidget {
   ) {
     return Text(
       l10n.totalDaysFormat(totalDays),
+      key: const ValueKey('reading-schedule-total-days'),
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: isDark ? Colors.grey[500] : Colors.grey[500],
+        color:
+            isDark ? BLabColors.textTertiaryDark : BLabColors.textTertiaryLight,
       ),
     );
   }
@@ -198,10 +202,15 @@ class CompactReadingSchedule extends StatelessWidget {
       children: [
         Text(
           label,
+          key: ValueKey(
+            'reading-schedule-date-label-${isBold ? 'target' : 'start'}',
+          ),
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w500,
-            color: isDark ? Colors.grey[500] : Colors.grey[500],
+            color: isDark
+                ? BLabColors.textTertiaryDark
+                : BLabColors.textTertiaryLight,
           ),
         ),
         const SizedBox(height: 2),
@@ -219,7 +228,7 @@ class CompactReadingSchedule extends StatelessWidget {
     );
   }
 
-  Widget _buildAttemptBadge(AppLocalizations l10n) {
+  Widget _buildAttemptBadge(AppLocalizations l10n, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -228,10 +237,11 @@ class CompactReadingSchedule extends StatelessWidget {
       ),
       child: Text(
         l10n.attemptOrdinal(attemptCount),
-        style: const TextStyle(
+        key: const ValueKey('reading-schedule-attempt-badge'),
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: BLabColors.warning,
+          color: isDark ? BLabColors.warning : BLabColors.textPrimaryLight,
         ),
       ),
     );
