@@ -118,15 +118,45 @@ void main() {
             card: restartCard,
             overlayFreeViewportBottom: overlayFreeViewportBottom,
           );
-          _expectActionAboveFloatingBar(
+          _expectCompletedActionsAboveFloatingBar(
             tester,
-            card: restartCard,
-            texts: [
-              l10n.bookDetailContinueReading,
-              l10n.bookDetailAchieveGoal,
+            cards: [
+              _CompletedActionExpectation(
+                card: reviewCard,
+                texts: [
+                  l10n.bookDetailWriteReview,
+                  l10n.bookDetailRecordThoughts,
+                ],
+              ),
+              _CompletedActionExpectation(
+                card: restartCard,
+                texts: [
+                  l10n.bookDetailContinueReading,
+                  l10n.bookDetailAchieveGoal,
+                ],
+              ),
             ],
-            overlayFreeViewportTop: overlayFreeViewportTop,
-            overlayFreeViewportBottom: overlayFreeViewportBottom,
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pump();
+          _expectCompletedActionsAboveFloatingBar(
+            tester,
+            cards: [
+              _CompletedActionExpectation(
+                card: reviewCard,
+                texts: [
+                  l10n.bookDetailWriteReview,
+                  l10n.bookDetailRecordThoughts,
+                ],
+              ),
+              _CompletedActionExpectation(
+                card: restartCard,
+                texts: [
+                  l10n.bookDetailContinueReading,
+                  l10n.bookDetailAchieveGoal,
+                ],
+              ),
+            ],
           );
           expect(
             find.semantics.byLabel(
@@ -161,6 +191,39 @@ void main() {
         },
       );
     }
+  }
+}
+
+class _CompletedActionExpectation {
+  const _CompletedActionExpectation({
+    required this.card,
+    required this.texts,
+  });
+
+  final Finder card;
+  final List<String> texts;
+}
+
+void _expectCompletedActionsAboveFloatingBar(
+  WidgetTester tester, {
+  required List<_CompletedActionExpectation> cards,
+}) {
+  final floatingActionBar = find.byKey(FloatingActionBar.actionBarKey);
+  expect(floatingActionBar, findsOneWidget);
+  final actionBarRect = tester.getRect(floatingActionBar);
+  final overlayFreeViewportBottom =
+      actionBarRect.top - FloatingActionBar.contentSeparation;
+  final overlayFreeViewportTop =
+      tester.getRect(find.byType(AppBar)).bottom + 12;
+
+  for (final action in cards) {
+    _expectActionAboveFloatingBar(
+      tester,
+      card: action.card,
+      texts: action.texts,
+      overlayFreeViewportTop: overlayFreeViewportTop,
+      overlayFreeViewportBottom: overlayFreeViewportBottom,
+    );
   }
 }
 
