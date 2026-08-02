@@ -67,26 +67,43 @@ class CompactBookHeader extends StatelessWidget {
                 _buildAuthorAndStatus(context, isDark),
                 if (onBookInfoTap != null) ...[
                   const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: onBookInfoTap,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.info_circle,
-                          size: 14,
-                          color: BLabColors.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          AppLocalizations.of(context).bookInfoViewButton,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: BLabColors.primary,
-                            fontWeight: FontWeight.w500,
+                  Semantics(
+                    key: const ValueKey('compact-book-header-book-info'),
+                    button: true,
+                    label: AppLocalizations.of(context).bookInfoViewButton,
+                    child: GestureDetector(
+                      onTap: onBookInfoTap,
+                      behavior: HitTestBehavior.opaque,
+                      child: ExcludeSemantics(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
+                              runSpacing: 2,
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.info_circle,
+                                  size: 14,
+                                  color: BLabColors.primary,
+                                ),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  ).bookInfoViewButton,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: BLabColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
@@ -135,48 +152,50 @@ class CompactBookHeader extends StatelessWidget {
   }
 
   Widget _buildTitle(bool isDark) {
-    return GestureDetector(
-      onTap: onTitleTap,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          height: 1.3,
-          color: isDark ? Colors.white : Colors.black,
+    return Semantics(
+      button: onTitleTap != null,
+      label: title,
+      child: GestureDetector(
+        onTap: onTitleTap,
+        child: ExcludeSemantics(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              height: 1.3,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 
   Widget _buildAuthorAndStatus(BuildContext context, bool isDark) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (author != null) ...[
-          Flexible(
+        if (author != null && author!.isNotEmpty) ...[
+          Semantics(
+            button: onBookInfoTap != null,
+            label: author!,
             child: GestureDetector(
               onTap: onBookInfoTap,
-              child: Text(
-                author!,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  fontWeight: FontWeight.w500,
+              child: ExcludeSemantics(
+                child: Text(
+                  author!,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
-          Text(
-            ' · ',
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? Colors.grey[500] : Colors.grey[400],
-            ),
-          ),
+          const SizedBox(height: 4),
         ],
         _buildStatusBadge(context),
       ],
@@ -186,33 +205,40 @@ class CompactBookHeader extends StatelessWidget {
   Widget _buildStatusBadge(BuildContext context) {
     final statusInfo = _getStatusInfo(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: statusInfo.color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: statusInfo.color,
-              shape: BoxShape.circle,
-            ),
+    return Semantics(
+      key: const ValueKey('compact-book-header-status'),
+      label: statusInfo.label,
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: statusInfo.color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(6),
           ),
-          const SizedBox(width: 5),
-          Text(
-            statusInfo.label,
-            style: TextStyle(
-              color: statusInfo.color,
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-            ),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 5,
+            runSpacing: 2,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: statusInfo.color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Text(
+                statusInfo.label,
+                style: TextStyle(
+                  color: statusInfo.color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
