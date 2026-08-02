@@ -1680,11 +1680,23 @@ abstract class AppLocalizations {
   /// **'알림이 비활성화되었습니다'**
   String get myPageNotificationsDisabled;
 
-  /// Notification permission was denied or must be enabled in system settings
+  /// Title for the notification permission recovery dialog
   ///
   /// In ko, this message translates to:
-  /// **'시스템 설정에서 알림을 허용해 주세요.'**
+  /// **'설정에서 알림을 허용해 주세요'**
+  String get myPageNotificationPermissionTitle;
+
+  /// Notification permission recovery guidance
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 설정에서 북골라스 알림을 켠 뒤 다시 시도해 주세요.'**
   String get myPageNotificationPermissionDenied;
+
+  /// Button that opens the device application settings
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get myPageOpenSettings;
 
   /// Notification settings change failed message
   ///

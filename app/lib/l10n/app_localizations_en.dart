@@ -890,8 +890,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageNotificationsDisabled => 'Notifications disabled';
 
   @override
+  String get myPageNotificationPermissionTitle =>
+      'Allow notifications in Settings';
+
+  @override
   String get myPageNotificationPermissionDenied =>
-      'Notifications are disabled in system settings.';
+      'Turn on notifications for Bookgolas in your device settings, then try again.';
+
+  @override
+  String get myPageOpenSettings => 'Open Settings';
 
   @override
   String get myPageNotificationSettingsFailed =>

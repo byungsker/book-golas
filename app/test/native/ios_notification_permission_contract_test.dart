@@ -58,16 +58,20 @@ void main() {
 
   test('My Page delegates notification changes to the guarded controller', () {
     final myPage = _read('lib/ui/auth/widgets/my_page_screen.dart');
+    final permissionDialog =
+        _read('lib/ui/auth/widgets/notification_permission_dialog.dart');
     final controllerIndex = myPage.indexOf('NotificationToggleController(');
     final requestIndex = myPage.indexOf('requestPermissionAndRegister');
     final persistIndex = myPage.indexOf('updateNotificationEnabled');
-    final deniedIndex = myPage.indexOf('myPageNotificationPermissionDenied');
 
     expect(controllerIndex, greaterThanOrEqualTo(0));
     expect(requestIndex, greaterThanOrEqualTo(0));
     expect(persistIndex, greaterThan(requestIndex));
-    expect(deniedIndex, greaterThan(persistIndex));
     expect(myPage, contains('NotificationToggleResult.permissionDenied'));
+    expect(myPage, contains('NotificationPermissionDialog'));
+    expect(myPage, contains('openAppSettings()'));
+    expect(permissionDialog, contains('myPageNotificationPermissionDenied'));
+    expect(permissionDialog, contains('myPageOpenSettings'));
   });
 
   test('permission request remains available for a retry', () {

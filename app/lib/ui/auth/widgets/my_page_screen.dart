@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/data/services/ad_service.dart';
@@ -31,6 +32,7 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 import 'login_screen.dart';
+import 'notification_permission_dialog.dart';
 import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/auth/utils/legal_content.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
@@ -937,12 +939,8 @@ class _MyPageContentState extends State<_MyPageContent> {
                                   );
                                   return;
                                 case NotificationToggleResult.permissionDenied:
-                                  CustomSnackbar.show(
+                                  await _showNotificationPermissionDialog(
                                     context,
-                                    message: AppLocalizations.of(context)
-                                        .myPageNotificationPermissionDenied,
-                                    type: BLabSnackbarType.error,
-                                    bottomOffset: 32,
                                   );
                                   return;
                                 case NotificationToggleResult.updateFailed:
@@ -1139,6 +1137,22 @@ class _MyPageContentState extends State<_MyPageContent> {
         ],
       ),
     );
+  }
+
+  Future<void> _showNotificationPermissionDialog(
+    BuildContext context,
+  ) async {
+    final shouldOpenSettings = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionDialog(
+        onCancel: () => Navigator.pop(dialogContext, false),
+        onOpenSettings: () => Navigator.pop(dialogContext, true),
+      ),
+    );
+
+    if (shouldOpenSettings == true) {
+      await openAppSettings();
+    }
   }
 
   Widget _buildAccountCard(BuildContext context) {

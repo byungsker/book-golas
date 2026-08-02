@@ -75,7 +75,7 @@ void main() {
     expect(goalCancels, 0);
   });
 
-  test('retry requests permission again and succeeds after a denial', () async {
+  test('retry after a system settings change requests status again', () async {
     var granted = false;
     final controller = buildController(
       requestPermission: () async {
