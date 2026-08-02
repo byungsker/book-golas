@@ -519,6 +519,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           return const Center(
                               child: CircularProgressIndicator());
                         }
+                        final isReadingMode =
+                            _isBookReading(bookVm.currentBook);
+                        final actionBarHeight = _floatingActionBarHeight ??
+                            FloatingActionBar.minimumHeightFor(
+                              context,
+                              isReadingMode: isReadingMode,
+                            );
+                        final contentBottomPadding = !widget.isEmbedded &&
+                                !_isBookPlanned(bookVm.currentBook)
+                            ? FloatingActionBar.contentBottomClearance(
+                                actionBarHeight: actionBarHeight,
+                                bottomSafeArea:
+                                    MediaQuery.viewPaddingOf(context).bottom,
+                              )
+                            : 100.0;
                         return TabBarView(
                           controller: _tabController,
                           children: [
@@ -545,6 +560,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   _showExistingImageModal(id, url, text,
                                       pageNumber: page),
                               onImagesLoaded: memorableVm.onImagesLoaded,
+                              bottomContentPadding: contentBottomPadding,
                             ),
                             Consumer<ReadingProgressViewModel>(
                               builder: (context, progressVm, _) {
@@ -561,6 +577,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   bookId: book.id ?? '',
                                   dailySessionDurations:
                                       progressVm.dailySessionDurations,
+                                  bottomContentPadding: contentBottomPadding,
                                 );
                               },
                             ),
@@ -569,6 +586,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 book: book,
                                 onEditTap: () =>
                                     _navigateToBookReview(context, book),
+                                bottomContentPadding: contentBottomPadding,
                               ),
                             DetailTab(
                               book: book,
@@ -581,6 +599,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               onDelete: () => _showDeleteConfirmation(bookVm),
                               onReviewTap: () =>
                                   _navigateToBookReview(context, book),
+                              bottomContentPadding: contentBottomPadding,
                             ),
                           ],
                         );

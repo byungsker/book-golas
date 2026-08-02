@@ -26,6 +26,7 @@ class MemorablePagesTab extends StatefulWidget {
   final void Function(String imageId, String? imageUrl, String? extractedText,
       int? pageNumber) onImageTap;
   final void Function(List<Map<String, dynamic>> images) onImagesLoaded;
+  final double bottomContentPadding;
 
   const MemorablePagesTab({
     super.key,
@@ -40,6 +41,7 @@ class MemorablePagesTab extends StatefulWidget {
     required this.onDeleteSelected,
     required this.onImageTap,
     required this.onImagesLoaded,
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -110,35 +112,38 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.photo_on_rectangle,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.bookDetailNoPhotos,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.photo_on_rectangle,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.bookDetailAddPhotoHint,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              const SizedBox(height: 12),
+              Text(
+                l10n.bookDetailNoPhotos,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                l10n.bookDetailAddPhotoHint,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -281,15 +286,18 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     final totalCount = images.length + (shouldInsertAd ? 1 : 0);
 
     return ListView.builder(
-      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
+      padding: EdgeInsets.only(
+        left: 4,
+        right: 4,
+        bottom: widget.bottomContentPadding,
+      ),
       itemCount: totalCount,
       itemBuilder: (context, index) {
         if (shouldInsertAd && index == _adInsertIndex) {
           return _buildInlineAdItem(isDark);
         }
-        final imageIndex = shouldInsertAd && index > _adInsertIndex
-            ? index - 1
-            : index;
+        final imageIndex =
+            shouldInsertAd && index > _adInsertIndex ? index - 1 : index;
         return _buildImageItem(images[imageIndex], isDark);
       },
     );
