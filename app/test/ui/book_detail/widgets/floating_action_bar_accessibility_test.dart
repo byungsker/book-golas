@@ -57,6 +57,7 @@ void main() {
         expect(textRect.left, greaterThanOrEqualTo(buttonRect.left));
         expect(textRect.right, lessThanOrEqualTo(buttonRect.right));
         expect(buttonRect.height, greaterThanOrEqualTo(48));
+        expect(buttonRect.bottom, lessThanOrEqualTo(796));
         expect(find.semantics.byLabel(actionLabel), findsOneWidget);
       }
 
@@ -127,6 +128,7 @@ Future<void> _pumpFloatingActionBar(
       builder: (context, appChild) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
           textScaler: TextScaler.linear(textScale),
+          viewPadding: const EdgeInsets.only(bottom: 34),
         ),
         child: appChild!,
       ),
