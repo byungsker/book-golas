@@ -2058,5 +2058,13 @@
             "thirdPartyAiConsentWithdrawn": "Future sharing with this provider has been turned off.",
             "@thirdPartyAiConsentWithdrawn": {"description": "Confirmation after withdrawing third-party AI sharing consent"},
             "thirdPartyAiConsentWithdrawFailed": "We couldn't turn off data sharing. Check your connection and try again.",
-            "@thirdPartyAiConsentWithdrawFailed": {"description": "Error shown when third-party AI consent withdrawal is not persisted"}
+            "@thirdPartyAiConsentWithdrawFailed": {"description": "Error shown when third-party AI consent withdrawal is not persisted"},
+            "historyTabAttemptEncouragementFirst": "Excellent!",
+            "@historyTabAttemptEncouragementFirst": {"description": "History badge encouragement for a first reading attempt"},
+            "historyTabAttemptEncouragementSecond": "You're doing well",
+            "@historyTabAttemptEncouragementSecond": {"description": "History badge encouragement for a second reading attempt"},
+            "historyTabAttemptEncouragementThird": "Keep it up!",
+            "@historyTabAttemptEncouragementThird": {"description": "History badge encouragement for a third reading attempt"},
+            "historyTabAttemptEncouragementMore": "I'm here to help…",
+            "@historyTabAttemptEncouragementMore": {"description": "History badge encouragement for later reading attempts"}
 }

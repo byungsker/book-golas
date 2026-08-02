@@ -4147,4 +4147,16 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get thirdPartyAiConsentWithdrawFailed =>
       '데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
+
+  @override
+  String get historyTabAttemptEncouragementFirst => '최고!';
+
+  @override
+  String get historyTabAttemptEncouragementSecond => '잘하고 있다';
+
+  @override
+  String get historyTabAttemptEncouragementThird => '화이팅!';
+
+  @override
+  String get historyTabAttemptEncouragementMore => '내가 더 도와줄게...';
 }

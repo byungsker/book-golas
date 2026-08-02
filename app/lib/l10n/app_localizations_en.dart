@@ -4299,4 +4299,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get thirdPartyAiConsentWithdrawFailed =>
       'We couldn\'t turn off data sharing. Check your connection and try again.';
+
+  @override
+  String get historyTabAttemptEncouragementFirst => 'Excellent!';
+
+  @override
+  String get historyTabAttemptEncouragementSecond => 'You\'re doing well';
+
+  @override
+  String get historyTabAttemptEncouragementThird => 'Keep it up!';
+
+  @override
+  String get historyTabAttemptEncouragementMore => 'I\'m here to help…';
 }

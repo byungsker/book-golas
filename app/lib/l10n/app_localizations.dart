@@ -7685,6 +7685,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'**
   String get thirdPartyAiConsentWithdrawFailed;
+
+  /// History badge encouragement for a first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'최고!'**
+  String get historyTabAttemptEncouragementFirst;
+
+  /// History badge encouragement for a second reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'잘하고 있다'**
+  String get historyTabAttemptEncouragementSecond;
+
+  /// History badge encouragement for a third reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'화이팅!'**
+  String get historyTabAttemptEncouragementThird;
+
+  /// History badge encouragement for later reading attempts
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 더 도와줄게...'**
+  String get historyTabAttemptEncouragementMore;
 }
 
 class _AppLocalizationsDelegate

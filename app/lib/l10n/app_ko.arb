@@ -3565,5 +3565,13 @@
          "thirdPartyAiConsentWithdrawn": "이 업체로의 향후 전송을 중단했습니다.",
          "@thirdPartyAiConsentWithdrawn": {"description": "Confirmation after withdrawing third-party AI sharing consent"},
          "thirdPartyAiConsentWithdrawFailed": "데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
-         "@thirdPartyAiConsentWithdrawFailed": {"description": "Error shown when third-party AI consent withdrawal is not persisted"}
+         "@thirdPartyAiConsentWithdrawFailed": {"description": "Error shown when third-party AI consent withdrawal is not persisted"},
+         "historyTabAttemptEncouragementFirst": "최고!",
+         "@historyTabAttemptEncouragementFirst": {"description": "History badge encouragement for a first reading attempt"},
+         "historyTabAttemptEncouragementSecond": "잘하고 있다",
+         "@historyTabAttemptEncouragementSecond": {"description": "History badge encouragement for a second reading attempt"},
+         "historyTabAttemptEncouragementThird": "화이팅!",
+         "@historyTabAttemptEncouragementThird": {"description": "History badge encouragement for a third reading attempt"},
+         "historyTabAttemptEncouragementMore": "내가 더 도와줄게...",
+         "@historyTabAttemptEncouragementMore": {"description": "History badge encouragement for later reading attempts"}
 }

@@ -14,7 +14,6 @@ enum _ChartMode { cumulativePages, readingTime }
 class ProgressHistoryTab extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> progressFuture;
   final int attemptCount;
-  final String attemptEncouragement;
   final double progressPercentage;
   final int daysLeft;
   final DateTime startDate;
@@ -27,7 +26,6 @@ class ProgressHistoryTab extends StatefulWidget {
     super.key,
     required this.progressFuture,
     required this.attemptCount,
-    required this.attemptEncouragement,
     required this.progressPercentage,
     required this.daysLeft,
     required this.startDate,
@@ -224,7 +222,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 child: Text(
                   l10n.historyTabAttemptBadge(
                     widget.attemptCount,
-                    widget.attemptEncouragement,
+                    _attemptEncouragement(l10n),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -258,19 +256,30 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return Wrap(
-      spacing: 24,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
-      children: [
-        _buildLegendItem(
-          l10n.historyTabCumulativePages,
-          BLabColors.primary,
-          isDark,
-        ),
-        const SizedBox(width: 24),
-        _buildLegendItem(l10n.historyTabDailyPages, BLabColors.success, isDark),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => Wrap(
+        spacing: 24,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: _buildLegendItem(
+              l10n.historyTabCumulativePages,
+              BLabColors.primary,
+              isDark,
+            ),
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: _buildLegendItem(
+              l10n.historyTabDailyPages,
+              BLabColors.success,
+              isDark,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -286,12 +295,14 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -630,15 +641,15 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
   }
 
   Widget _buildReadingTimeLegendRow(BuildContext context, bool isDark) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      children: [
-        _buildLegendItem(
+    return LayoutBuilder(
+      builder: (context, constraints) => ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+        child: _buildLegendItem(
           AppLocalizations.of(context).historyTabReadingTime,
           BLabColors.warning,
           isDark,
         ),
-      ],
+      ),
     );
   }
 
@@ -1031,7 +1042,9 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                         child: Text(
                           AppLocalizations.of(context).historyTabAttemptBadge(
                             widget.attemptCount,
-                            widget.attemptEncouragement,
+                            _attemptEncouragement(
+                              AppLocalizations.of(context),
+                            ),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -1221,6 +1234,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     return Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context);
+        final useStackedLayout =
+            MediaQuery.textScalerOf(context).scale(14) > 20;
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
@@ -1231,93 +1246,157 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
               color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
             ),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: BLabColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    '${date.day}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: BLabColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+          child: useStackedLayout
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.historyDateTimeFormat(
-                        date.year,
-                        date.month,
-                        date.day,
-                        date.hour,
-                        date.minute,
-                      ),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDailyRecordDate(date),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildDailyRecordDetails(
+                            date,
+                            page,
+                            l10n,
+                            isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _buildDailyRecordSummary(
+                        pagesRead,
+                        readingTime,
+                        l10n,
+                        isDark,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.historyTabCumulativeLabel(page),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ],
+                )
+              : Row(
+                  children: [
+                    _buildDailyRecordDate(date),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildDailyRecordDetails(date, page, l10n, isDark),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: _buildDailyRecordSummary(
+                        pagesRead,
+                        readingTime,
+                        l10n,
+                        isDark,
                       ),
                     ),
                   ],
                 ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDailyRecordDate(DateTime date) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: BLabColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          '${date.day}',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: BLabColors.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyRecordDetails(
+    DateTime date,
+    int page,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.historyDateTimeFormat(
+            date.year,
+            date.month,
+            date.day,
+            date.hour,
+            date.minute,
+          ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          l10n.historyTabCumulativeLabel(page),
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDailyRecordSummary(
+    int pagesRead,
+    int readingTime,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '+$pagesRead ',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: BLabColors.success,
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '+$pagesRead',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: BLabColors.success,
-                        ),
-                      ),
-                      Text(
-                        ' ${l10n.historyTabPagesUnit}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (readingTime > 0)
-                    Text(
-                      _formatDuration(readingTime, l10n),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                ],
+              TextSpan(
+                text: l10n.historyTabPagesUnit,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),
-        );
-      },
+          textAlign: TextAlign.end,
+        ),
+        if (readingTime > 0)
+          Text(
+            _formatDuration(readingTime, l10n),
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+      ],
     );
   }
 
@@ -1582,5 +1661,18 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
         ),
       ),
     );
+  }
+
+  String _attemptEncouragement(AppLocalizations l10n) {
+    switch (widget.attemptCount) {
+      case 1:
+        return l10n.historyTabAttemptEncouragementFirst;
+      case 2:
+        return l10n.historyTabAttemptEncouragementSecond;
+      case 3:
+        return l10n.historyTabAttemptEncouragementThird;
+      default:
+        return l10n.historyTabAttemptEncouragementMore;
+    }
   }
 }
