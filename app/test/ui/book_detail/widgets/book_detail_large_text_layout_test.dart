@@ -235,7 +235,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.byKey(const ValueKey('detail-tab-legend-wrap')),
+        find.byKey(const ValueKey('detail-tab-legend-stacked')),
         findsOneWidget,
       );
 

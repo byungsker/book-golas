@@ -40,6 +40,7 @@ class CustomTabBar extends StatelessWidget {
 
     final backgroundColor =
         isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight;
+    final tabBarHeight = extentFor(context, tabLabels);
 
     return AnimatedBuilder(
       animation: tabController,
@@ -62,7 +63,7 @@ class CustomTabBar extends StatelessWidget {
             tabs: tabLabels,
             selectedIndex: tabController.index,
             tabWidth: 44,
-            height: extentFor(context, tabLabels),
+            height: tabBarHeight,
             backgroundColor: backgroundColor,
             indicatorColor: BLabColors.textPrimary(context),
             selectedTextColor: BLabColors.textPrimary(context),

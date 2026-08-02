@@ -820,7 +820,7 @@ class DetailTab extends StatelessWidget {
 
     if (useStackedLayout) {
       return Column(
-        key: const ValueKey('detail-tab-legend-wrap'),
+        key: const ValueKey('detail-tab-legend-stacked'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var index = 0; index < items.length; index++) ...[
