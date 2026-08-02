@@ -59,12 +59,25 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Validate reproducible Edge Function dependencies
+        run: |
+          supabase/functions/deploy-with-retry_test.sh
+          supabase/functions/verify-no-esm-imports_test.sh
+          while IFS= read -r entry; do
+            config="$(dirname "$entry")/deno.json"
+            lockfile="$(dirname "$entry")/deno.lock"
+            test -f "$config"
+            test -f "$lockfile"
+            deno check --frozen --config "$config" "$entry"
+          done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
+          supabase/functions/verify-no-esm-imports.sh
+
       - name: Test third-party AI provider boundaries
         run: |
-          deno test --config supabase/functions/deno.json --allow-env --allow-net \
+          deno test --frozen --config supabase/functions/deno.json --allow-env --allow-net \
             supabase/functions/_shared/third-party-ai-consent.test.ts \
             supabase/functions/vision-ocr/index_test.ts
-          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+          deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
             supabase/functions/structure-notes/services/chain-service.test.ts
 
   migrate-database:
@@ -153,7 +166,7 @@ jobs:
             recommend-next-books \
             structure-notes \
             vision-ocr; do
-            supabase functions deploy "$function_name" \
+            supabase/functions/deploy-with-retry.sh "$function_name" \
               --project-ref "$SUPABASE_PROJECT_REF"
           done
 
