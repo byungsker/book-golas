@@ -61,10 +61,10 @@ jobs:
 
       - name: Test third-party AI provider boundaries
         run: |
-          deno test --config supabase/functions/deno.json --allow-env --allow-net \
+          deno test --frozen --config supabase/functions/deno.json --allow-env --allow-net \
             supabase/functions/_shared/third-party-ai-consent.test.ts \
             supabase/functions/vision-ocr/index_test.ts
-          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+          deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
             supabase/functions/structure-notes/services/chain-service.test.ts
 
   migrate-database:
@@ -153,7 +153,7 @@ jobs:
             recommend-next-books \
             structure-notes \
             vision-ocr; do
-            supabase functions deploy "$function_name" \
+            supabase/functions/deploy-with-retry.sh "$function_name" \
               --project-ref "$SUPABASE_PROJECT_REF"
           done
 

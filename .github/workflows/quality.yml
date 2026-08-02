@@ -68,12 +68,18 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Validate bounded deployment retry
+        run: supabase/functions/deploy-with-retry_test.sh
       - name: Check all functions
         run: |
           while IFS= read -r entry; do
             config="$(dirname "$entry")/deno.json"
-            if [ ! -f "$config" ]; then
-              config="supabase/functions/deno.json"
-            fi
-            deno check --config "$config" "$entry"
+            lockfile="$(dirname "$entry")/deno.lock"
+            test -f "$config"
+            test -f "$lockfile"
+            deno check --frozen --config "$config" "$entry"
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
+          if rg -n 'https://esm\.sh/' supabase/functions -g '*.ts'; then
+            echo "::error::Edge Functions must not import esm.sh directly."
+            exit 1
+          fi

@@ -2,7 +2,7 @@
 // Firebase 서비스 계정을 사용하여 FCM 푸시 알림을 전송합니다.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
 import { create, getNumericDate } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 // Firebase 서비스 계정 JSON (Supabase Secrets에 저장)
