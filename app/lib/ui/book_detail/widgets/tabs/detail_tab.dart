@@ -14,6 +14,7 @@ class DetailTab extends StatelessWidget {
   final VoidCallback? onPauseReading;
   final VoidCallback? onDelete;
   final VoidCallback? onReviewTap;
+  final double bottomContentPadding;
 
   const DetailTab({
     super.key,
@@ -24,6 +25,7 @@ class DetailTab extends StatelessWidget {
     this.onPauseReading,
     this.onDelete,
     this.onReviewTap,
+    this.bottomContentPadding = 100,
   });
 
   bool get _isReading =>
@@ -38,7 +40,7 @@ class DetailTab extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
+      padding: EdgeInsets.only(bottom: bottomContentPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

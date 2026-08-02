@@ -8,11 +8,13 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 class BookReviewTab extends StatelessWidget {
   final Book book;
   final VoidCallback onEditTap;
+  final double bottomContentPadding;
 
   const BookReviewTab({
     super.key,
     required this.book,
     required this.onEditTap,
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -25,7 +27,7 @@ class BookReviewTab extends StatelessWidget {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
+      padding: EdgeInsets.only(bottom: bottomContentPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

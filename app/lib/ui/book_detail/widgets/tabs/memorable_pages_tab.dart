@@ -26,6 +26,7 @@ class MemorablePagesTab extends StatefulWidget {
   final void Function(String imageId, String? imageUrl, String? extractedText,
       int? pageNumber) onImageTap;
   final void Function(List<Map<String, dynamic>> images) onImagesLoaded;
+  final double bottomContentPadding;
 
   const MemorablePagesTab({
     super.key,
@@ -40,6 +41,7 @@ class MemorablePagesTab extends StatefulWidget {
     required this.onDeleteSelected,
     required this.onImageTap,
     required this.onImagesLoaded,
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -281,15 +283,18 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     final totalCount = images.length + (shouldInsertAd ? 1 : 0);
 
     return ListView.builder(
-      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
+      padding: EdgeInsets.only(
+        left: 4,
+        right: 4,
+        bottom: widget.bottomContentPadding,
+      ),
       itemCount: totalCount,
       itemBuilder: (context, index) {
         if (shouldInsertAd && index == _adInsertIndex) {
           return _buildInlineAdItem(isDark);
         }
-        final imageIndex = shouldInsertAd && index > _adInsertIndex
-            ? index - 1
-            : index;
+        final imageIndex =
+            shouldInsertAd && index > _adInsertIndex ? index - 1 : index;
         return _buildImageItem(images[imageIndex], isDark);
       },
     );

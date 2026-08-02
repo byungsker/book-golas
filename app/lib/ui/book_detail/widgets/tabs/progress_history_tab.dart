@@ -21,6 +21,7 @@ class ProgressHistoryTab extends StatefulWidget {
   final DateTime targetDate;
   final String bookId;
   final Map<String, int> dailySessionDurations;
+  final double bottomContentPadding;
 
   const ProgressHistoryTab({
     super.key,
@@ -33,6 +34,7 @@ class ProgressHistoryTab extends StatefulWidget {
     required this.targetDate,
     required this.bookId,
     this.dailySessionDurations = const {},
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -116,7 +118,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
     return Builder(
       builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 100),
+        padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1318,7 +1320,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
   Widget _buildSkeleton(bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
       child: Shimmer.fromColors(
         baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
         highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
