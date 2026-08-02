@@ -328,6 +328,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
               : 16.0;
 
           final scaledMaxY = (maxPage * 1.1).ceilToDouble();
+          final yInterval = (scaledMaxY / 4).ceilToDouble();
           final barScaleFactor =
               scaledMaxY / (maxDailyPage > 0 ? maxDailyPage * 1.5 : 1);
 
@@ -443,10 +444,16 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 40,
+                    reservedSize: 48,
+                    interval: yInterval,
                     getTitlesWidget: (value, meta) {
                       return Text(
                         value.toInt().toString(),
+                        maxLines: 1,
+                        softWrap: false,
+                        textScaler: MediaQuery.textScalerOf(context).clamp(
+                          maxScaleFactor: 1.4,
+                        ),
                         style: TextStyle(
                           fontSize: 11,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -527,115 +534,95 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
   Widget _buildChartModeToggle(bool isDark) {
     final l10n = AppLocalizations.of(context);
+    final useVerticalLayout = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final cumulativeOption = _buildChartModeOption(
+      isDark: isDark,
+      mode: _ChartMode.cumulativePages,
+      label: l10n.historyTabCumulativePages,
+      selectedColor: BLabColors.primary,
+      key: const ValueKey('history-chart-mode-cumulative'),
+    );
+    final readingTimeOption = _buildChartModeOption(
+      isDark: isDark,
+      mode: _ChartMode.readingTime,
+      label: l10n.historyTabReadingTime,
+      selectedColor: BLabColors.warning,
+      key: const ValueKey('history-chart-mode-reading-time'),
+    );
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[800] : Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Semantics(
-              button: true,
-              selected: _chartMode == _ChartMode.cumulativePages,
-              label: l10n.historyTabCumulativePages,
-              child: GestureDetector(
-                key: const ValueKey('history-chart-mode-cumulative'),
-                onTap: () =>
-                    setState(() => _chartMode = _ChartMode.cumulativePages),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _chartMode == _ChartMode.cumulativePages
-                        ? (isDark ? BLabColors.surfaceDark : Colors.white)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: _chartMode == _ChartMode.cumulativePages
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      l10n.historyTabCumulativePages,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: _chartMode == _ChartMode.cumulativePages
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: _chartMode == _ChartMode.cumulativePages
-                            ? BLabColors.primary
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
+      child: useVerticalLayout
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                cumulativeOption,
+                const SizedBox(height: 3),
+                readingTimeOption,
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: cumulativeOption),
+                Expanded(child: readingTimeOption),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildChartModeOption({
+    required bool isDark,
+    required _ChartMode mode,
+    required String label,
+    required Color selectedColor,
+    required Key key,
+  }) {
+    final selected = _chartMode == mode;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        key: key,
+        onTap: () => setState(() => _chartMode = mode),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          decoration: BoxDecoration(
+            color: selected
+                ? (isDark ? BLabColors.surfaceDark : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
                     ),
-                  ),
-                ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              maxLines: 2,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected
+                    ? selectedColor
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
               ),
             ),
           ),
-          Expanded(
-            child: Semantics(
-              button: true,
-              selected: _chartMode == _ChartMode.readingTime,
-              label: l10n.historyTabReadingTime,
-              child: GestureDetector(
-                key: const ValueKey('history-chart-mode-reading-time'),
-                onTap: () =>
-                    setState(() => _chartMode = _ChartMode.readingTime),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _chartMode == _ChartMode.readingTime
-                        ? (isDark ? BLabColors.surfaceDark : Colors.white)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: _chartMode == _ChartMode.readingTime
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      l10n.historyTabReadingTime,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: _chartMode == _ChartMode.readingTime
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: _chartMode == _ChartMode.readingTime
-                            ? BLabColors.warning
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -668,6 +655,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
         : 10.0;
     final scaledMaxY =
         maxMinutes > 0 ? (maxMinutes * 1.3).ceilToDouble() : 10.0;
+    final yInterval = (scaledMaxY / 4).ceilToDouble();
 
     return SizedBox(
       height: 250,
@@ -740,10 +728,16 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 50,
+                    reservedSize: 64,
+                    interval: yInterval,
                     getTitlesWidget: (value, meta) {
                       return Text(
                         _formatMinutesLabel(value, l10n),
+                        maxLines: 1,
+                        softWrap: false,
+                        textScaler: MediaQuery.textScalerOf(context).clamp(
+                          maxScaleFactor: 1.4,
+                        ),
                         style: TextStyle(
                           fontSize: 11,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],

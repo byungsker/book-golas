@@ -40,6 +40,14 @@ void main() {
         const ValueKey('history-chart-mode-reading-time'),
       );
       expect(tester.getSize(cumulativeToggle).height, greaterThanOrEqualTo(44));
+      expect(
+        tester.getSize(cumulativeToggle).width,
+        greaterThan(testCase.width * 0.7),
+      );
+      expect(
+        tester.getRect(cumulativeToggle).bottom,
+        lessThanOrEqualTo(tester.getRect(readingTimeToggle).top),
+      );
       expect(find.text(attemptBadge), findsWidgets);
       expect(
           tester.getSize(readingTimeToggle).height, greaterThanOrEqualTo(44));
