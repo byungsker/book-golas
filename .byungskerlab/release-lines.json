@@ -27,7 +27,7 @@
     },
     "web": {
       "active_versions": [
-        "1.0.0"
+        "1.0.1"
       ],
       "evidence_refs": [
         "docs/product-roadmap.md"
