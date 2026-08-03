@@ -4894,6 +4894,211 @@ abstract class AppLocalizations {
   /// **'일일 페이지'**
   String get historyTabDailyPages;
 
+  /// History chart mode and legend for reading time
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시간'**
+  String get historyTabReadingTime;
+
+  /// Cumulative page count in chart tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'누적: {page}p\n'**
+  String historyTabChartCumulativeTooltip(int page);
+
+  /// Daily page count in chart tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'일일: +{page}p'**
+  String historyTabChartDailyTooltip(int page);
+
+  /// Short duration label in seconds for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초'**
+  String historyTabDurationSeconds(int seconds);
+
+  /// Short duration label in minutes for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분'**
+  String historyTabDurationMinutes(int minutes);
+
+  /// Short duration label in hours for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간'**
+  String historyTabDurationHours(int hours);
+
+  /// Short duration label in hours and minutes for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분'**
+  String historyTabDurationHoursMinutes(int hours, int minutes);
+
+  /// Duration label in hours, minutes, and seconds
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분 {seconds}초'**
+  String historyTabDurationHoursMinutesSeconds(
+      int hours, int minutes, int seconds);
+
+  /// Attempt number and encouragement badge in history
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 · {encouragement}'**
+  String historyTabAttemptBadge(int attempt, String encouragement);
+
+  /// Heading for reading time statistics
+  ///
+  /// In ko, this message translates to:
+  /// **'⏱️ 독서 시간 통계'**
+  String get historyTabReadingTimeStats;
+
+  /// Label for total reading time
+  ///
+  /// In ko, this message translates to:
+  /// **'총 독서 시간'**
+  String get historyTabTotalReadingTime;
+
+  /// Label for total reading sessions
+  ///
+  /// In ko, this message translates to:
+  /// **'총 세션'**
+  String get historyTabTotalSessions;
+
+  /// Analysis title after completing a later reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'드디어 완독!'**
+  String get historyTabAnalysisCompletedAfterAttemptsTitle;
+
+  /// Completion analysis message after multiple attempts
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!'**
+  String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt);
+
+  /// Analysis title after completing the first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'완독 축하해요!'**
+  String get historyTabAnalysisCompletedTitle;
+
+  /// Analysis message after completing the first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'목표를 달성했어요. 다음 책도 함께 읽어볼까요?'**
+  String get historyTabAnalysisCompletedMessage;
+
+  /// Analysis title for a later reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'이번엔 완주해봐요'**
+  String get historyTabAnalysisPastDueRetryTitle;
+
+  /// Past due analysis message for a retry
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?'**
+  String historyTabAnalysisPastDueRetryMessage(int attempt);
+
+  /// Analysis title for a first reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일이 지났어요'**
+  String get historyTabAnalysisPastDueTitle;
+
+  /// Analysis message for a first reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!'**
+  String get historyTabAnalysisPastDueMessage;
+
+  /// Analysis title when reading is far ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'놀라운 속도예요!'**
+  String get historyTabAnalysisFarAheadTitle;
+
+  /// Analysis message when reading is far ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!'**
+  String get historyTabAnalysisFarAheadMessage;
+
+  /// Analysis title when reading is ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'순조롭게 진행 중!'**
+  String get historyTabAnalysisAheadTitle;
+
+  /// Analysis message when reading is ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!'**
+  String get historyTabAnalysisAheadMessage;
+
+  /// Analysis title when reading is on plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획대로 진행 중'**
+  String get historyTabAnalysisOnTrackTitle;
+
+  /// Analysis message when reading is on plan
+  ///
+  /// In ko, this message translates to:
+  /// **'꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?'**
+  String get historyTabAnalysisOnTrackMessage;
+
+  /// Analysis title when a later reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'조금 더 속도를 내볼까요?'**
+  String get historyTabAnalysisBehindRetryTitle;
+
+  /// Analysis message when a later reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!'**
+  String get historyTabAnalysisBehindRetryMessage;
+
+  /// Analysis title when a first reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'조금 더 읽어볼까요?'**
+  String get historyTabAnalysisBehindTitle;
+
+  /// Analysis message when a first reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!'**
+  String get historyTabAnalysisBehindMessage;
+
+  /// Analysis title when a later reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'포기하지 마세요!'**
+  String get historyTabAnalysisFarBehindRetryTitle;
+
+  /// Far behind analysis message for a retry
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!'**
+  String historyTabAnalysisFarBehindRetryMessage(int attempt);
+
+  /// Analysis title when a first reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 재설정이 필요할 수도'**
+  String get historyTabAnalysisFarBehindTitle;
+
+  /// Analysis message when a first reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?'**
+  String get historyTabAnalysisFarBehindMessage;
+
   /// No description provided for @historyTabDailyRecords.
   ///
   /// In ko, this message translates to:
@@ -7480,6 +7685,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'**
   String get thirdPartyAiConsentWithdrawFailed;
+
+  /// History badge encouragement for a first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'최고!'**
+  String get historyTabAttemptEncouragementFirst;
+
+  /// History badge encouragement for a second reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'잘하고 있다'**
+  String get historyTabAttemptEncouragementSecond;
+
+  /// History badge encouragement for a third reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'화이팅!'**
+  String get historyTabAttemptEncouragementThird;
+
+  /// History badge encouragement for later reading attempts
+  ///
+  /// In ko, this message translates to:
+  /// **'계속 잘하고 있어!'**
+  String get historyTabAttemptEncouragementMore;
 }
 
 class _AppLocalizationsDelegate

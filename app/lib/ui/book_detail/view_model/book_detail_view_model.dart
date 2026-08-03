@@ -95,19 +95,6 @@ class BookDetailViewModel extends BaseViewModel {
   int get pagesLeft => (_currentBook.totalPages - _currentBook.currentPage)
       .clamp(0, _currentBook.totalPages);
 
-  String get attemptEncouragement {
-    switch (_attemptCount) {
-      case 1:
-        return '최고!';
-      case 2:
-        return '잘하고 있다';
-      case 3:
-        return '화이팅!';
-      default:
-        return '내가 더 도와줄게...';
-    }
-  }
-
   BookDetailViewModel({
     required BookService bookService,
     required Book initialBook,

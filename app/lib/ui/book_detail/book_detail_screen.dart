@@ -568,8 +568,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   progressFuture: Future.value(
                                       progressVm.progressHistory ?? []),
                                   attemptCount: bookVm.attemptCount,
-                                  attemptEncouragement:
-                                      bookVm.attemptEncouragement,
                                   progressPercentage: bookVm.progressPercentage,
                                   daysLeft: bookVm.daysLeft,
                                   startDate: book.startDate,
