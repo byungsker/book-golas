@@ -58,7 +58,7 @@
       "profile": "web-release-train",
       "mode": "version-line",
       "active_versions": [
-        "1.0.0"
+        "1.0.1"
       ],
       "target_version_source": ".byungskerlab/release-lines.json",
       "production_branch": "main",
