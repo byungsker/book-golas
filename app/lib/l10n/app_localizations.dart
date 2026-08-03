@@ -4967,7 +4967,7 @@ abstract class AppLocalizations {
   /// **'총 세션'**
   String get historyTabTotalSessions;
 
-  /// No description provided for @historyTabAnalysisCompletedAfterAttemptsTitle.
+  /// Analysis title after completing a later reading attempt
   ///
   /// In ko, this message translates to:
   /// **'드디어 완독!'**
@@ -4979,19 +4979,19 @@ abstract class AppLocalizations {
   /// **'{attempt}번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!'**
   String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt);
 
-  /// No description provided for @historyTabAnalysisCompletedTitle.
+  /// Analysis title after completing the first reading attempt
   ///
   /// In ko, this message translates to:
   /// **'완독 축하해요!'**
   String get historyTabAnalysisCompletedTitle;
 
-  /// No description provided for @historyTabAnalysisCompletedMessage.
+  /// Analysis message after completing the first reading attempt
   ///
   /// In ko, this message translates to:
   /// **'목표를 달성했어요. 다음 책도 함께 읽어볼까요?'**
   String get historyTabAnalysisCompletedMessage;
 
-  /// No description provided for @historyTabAnalysisPastDueRetryTitle.
+  /// Analysis title for a later reading attempt past its target date
   ///
   /// In ko, this message translates to:
   /// **'이번엔 완주해봐요'**
@@ -5003,79 +5003,79 @@ abstract class AppLocalizations {
   /// **'{attempt}번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?'**
   String historyTabAnalysisPastDueRetryMessage(int attempt);
 
-  /// No description provided for @historyTabAnalysisPastDueTitle.
+  /// Analysis title for a first reading attempt past its target date
   ///
   /// In ko, this message translates to:
   /// **'목표일이 지났어요'**
   String get historyTabAnalysisPastDueTitle;
 
-  /// No description provided for @historyTabAnalysisPastDueMessage.
+  /// Analysis message for a first reading attempt past its target date
   ///
   /// In ko, this message translates to:
   /// **'괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!'**
   String get historyTabAnalysisPastDueMessage;
 
-  /// No description provided for @historyTabAnalysisFarAheadTitle.
+  /// Analysis title when reading is far ahead of plan
   ///
   /// In ko, this message translates to:
   /// **'놀라운 속도예요!'**
   String get historyTabAnalysisFarAheadTitle;
 
-  /// No description provided for @historyTabAnalysisFarAheadMessage.
+  /// Analysis message when reading is far ahead of plan
   ///
   /// In ko, this message translates to:
   /// **'예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!'**
   String get historyTabAnalysisFarAheadMessage;
 
-  /// No description provided for @historyTabAnalysisAheadTitle.
+  /// Analysis title when reading is ahead of plan
   ///
   /// In ko, this message translates to:
   /// **'순조롭게 진행 중!'**
   String get historyTabAnalysisAheadTitle;
 
-  /// No description provided for @historyTabAnalysisAheadMessage.
+  /// Analysis message when reading is ahead of plan
   ///
   /// In ko, this message translates to:
   /// **'계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!'**
   String get historyTabAnalysisAheadMessage;
 
-  /// No description provided for @historyTabAnalysisOnTrackTitle.
+  /// Analysis title when reading is on plan
   ///
   /// In ko, this message translates to:
   /// **'계획대로 진행 중'**
   String get historyTabAnalysisOnTrackTitle;
 
-  /// No description provided for @historyTabAnalysisOnTrackMessage.
+  /// Analysis message when reading is on plan
   ///
   /// In ko, this message translates to:
   /// **'꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?'**
   String get historyTabAnalysisOnTrackMessage;
 
-  /// No description provided for @historyTabAnalysisBehindRetryTitle.
+  /// Analysis title when a later reading attempt is behind plan
   ///
   /// In ko, this message translates to:
   /// **'조금 더 속도를 내볼까요?'**
   String get historyTabAnalysisBehindRetryTitle;
 
-  /// No description provided for @historyTabAnalysisBehindRetryMessage.
+  /// Analysis message when a later reading attempt is behind plan
   ///
   /// In ko, this message translates to:
   /// **'이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!'**
   String get historyTabAnalysisBehindRetryMessage;
 
-  /// No description provided for @historyTabAnalysisBehindTitle.
+  /// Analysis title when a first reading attempt is behind plan
   ///
   /// In ko, this message translates to:
   /// **'조금 더 읽어볼까요?'**
   String get historyTabAnalysisBehindTitle;
 
-  /// No description provided for @historyTabAnalysisBehindMessage.
+  /// Analysis message when a first reading attempt is behind plan
   ///
   /// In ko, this message translates to:
   /// **'계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!'**
   String get historyTabAnalysisBehindMessage;
 
-  /// No description provided for @historyTabAnalysisFarBehindRetryTitle.
+  /// Analysis title when a later reading attempt is far behind plan
   ///
   /// In ko, this message translates to:
   /// **'포기하지 마세요!'**
@@ -5087,13 +5087,13 @@ abstract class AppLocalizations {
   /// **'{attempt}번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!'**
   String historyTabAnalysisFarBehindRetryMessage(int attempt);
 
-  /// No description provided for @historyTabAnalysisFarBehindTitle.
+  /// Analysis title when a first reading attempt is far behind plan
   ///
   /// In ko, this message translates to:
   /// **'목표 재설정이 필요할 수도'**
   String get historyTabAnalysisFarBehindTitle;
 
-  /// No description provided for @historyTabAnalysisFarBehindMessage.
+  /// Analysis message when a first reading attempt is far behind plan
   ///
   /// In ko, this message translates to:
   /// **'현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?'**
