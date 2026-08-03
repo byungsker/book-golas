@@ -168,15 +168,10 @@ void main() {
           'BOK-390-${testCase.locale.languageCode}-${testCase.brightness.name}-393-200-history-chart',
         );
 
-        final historyScrollable = find.descendant(
-          of: history,
-          matching: find.byType(Scrollable, skipOffstage: false),
-          skipOffstage: false,
-        );
-        final position =
-            tester.state<ScrollableState>(historyScrollable.first).position;
+        final position = Scrollable.of(tester.element(finalRecord)).position;
+        expect(position.maxScrollExtent, greaterThan(0));
         position.jumpTo(position.maxScrollExtent);
-        await tester.pump();
+        await tester.pumpAndSettle();
 
         expect(
           tester.getRect(finalRecord).bottom,
