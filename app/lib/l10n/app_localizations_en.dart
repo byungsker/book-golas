@@ -2677,7 +2677,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyTabChartCumulativeTooltip(int page) {
-    return 'Cumulative: $page p\\n';
+    return 'Cumulative: $page p\n';
   }
 
   @override
@@ -4310,5 +4310,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTabAttemptEncouragementThird => 'Keep it up!';
 
   @override
-  String get historyTabAttemptEncouragementMore => 'I\'m here to help…';
+  String get historyTabAttemptEncouragementMore => 'You\'ve got this!';
 }

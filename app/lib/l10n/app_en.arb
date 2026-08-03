@@ -1163,7 +1163,7 @@
            "historyTabDailyPages": "Daily Pages",
            "historyTabReadingTime": "Reading Time",
            "@historyTabReadingTime": {"description": "History chart mode and legend for reading time"},
-           "historyTabChartCumulativeTooltip": "Cumulative: {page} p\\n",
+           "historyTabChartCumulativeTooltip": "Cumulative: {page} p\n",
            "@historyTabChartCumulativeTooltip": {"description": "Cumulative page count in chart tooltip", "placeholders": {"page": {"type": "int"}}},
            "historyTabChartDailyTooltip": "Daily: +{page} p",
            "@historyTabChartDailyTooltip": {"description": "Daily page count in chart tooltip", "placeholders": {"page": {"type": "int"}}},
@@ -2065,6 +2065,6 @@
             "@historyTabAttemptEncouragementSecond": {"description": "History badge encouragement for a second reading attempt"},
             "historyTabAttemptEncouragementThird": "Keep it up!",
             "@historyTabAttemptEncouragementThird": {"description": "History badge encouragement for a third reading attempt"},
-            "historyTabAttemptEncouragementMore": "I'm here to help…",
+            "historyTabAttemptEncouragementMore": "You've got this!",
             "@historyTabAttemptEncouragementMore": {"description": "History badge encouragement for later reading attempts"}
 }

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,73 +22,109 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
+      try {
+        await _pumpHistoryTab(tester, testCase: testCase);
 
-      await _pumpHistoryTab(tester, testCase: testCase);
+        expect(tester.takeException(), isNull);
 
-      expect(tester.takeException(), isNull);
+        final cumulativeLabel = testCase.locale.languageCode == 'ko'
+            ? '누적 페이지'
+            : 'Cumulative Pages';
+        final readingTimeLabel =
+            testCase.locale.languageCode == 'ko' ? '독서 시간' : 'Reading Time';
+        final attemptBadge = testCase.locale.languageCode == 'ko'
+            ? '2번째 · 잘하고 있다'
+            : "Attempt 2 · You're doing well";
+        final cumulativeToggle = find.byKey(
+          const ValueKey('history-chart-mode-cumulative'),
+        );
+        final readingTimeToggle = find.byKey(
+          const ValueKey('history-chart-mode-reading-time'),
+        );
+        expect(
+            tester.getSize(cumulativeToggle).height, greaterThanOrEqualTo(44));
+        expect(
+          tester.getSize(cumulativeToggle).width,
+          greaterThan(testCase.width * 0.7),
+        );
+        expect(
+          tester.getRect(cumulativeToggle).bottom,
+          lessThanOrEqualTo(tester.getRect(readingTimeToggle).top),
+        );
+        expect(find.text(attemptBadge), findsWidgets);
+        expect(
+            tester.getSize(readingTimeToggle).height, greaterThanOrEqualTo(44));
+        expect(
+          tester
+              .widget<Semantics>(
+                find
+                    .ancestor(
+                      of: cumulativeToggle,
+                      matching: find.byType(Semantics),
+                    )
+                    .first,
+              )
+              .properties
+              .label,
+          cumulativeLabel,
+        );
+        expect(
+          tester
+              .widget<Semantics>(
+                find
+                    .ancestor(
+                      of: readingTimeToggle,
+                      matching: find.byType(Semantics),
+                    )
+                    .first,
+              )
+              .properties
+              .label,
+          readingTimeLabel,
+        );
 
-      final cumulativeLabel =
-          testCase.locale.languageCode == 'ko' ? '누적 페이지' : 'Cumulative Pages';
-      final readingTimeLabel =
-          testCase.locale.languageCode == 'ko' ? '독서 시간' : 'Reading Time';
-      final attemptBadge = testCase.locale.languageCode == 'ko'
-          ? '2번째 · 잘하고 있다'
-          : "Attempt 2 · You're doing well";
-      final cumulativeToggle = find.byKey(
-        const ValueKey('history-chart-mode-cumulative'),
-      );
-      final readingTimeToggle = find.byKey(
-        const ValueKey('history-chart-mode-reading-time'),
-      );
-      expect(tester.getSize(cumulativeToggle).height, greaterThanOrEqualTo(44));
-      expect(
-        tester.getSize(cumulativeToggle).width,
-        greaterThan(testCase.width * 0.7),
-      );
-      expect(
-        tester.getRect(cumulativeToggle).bottom,
-        lessThanOrEqualTo(tester.getRect(readingTimeToggle).top),
-      );
-      expect(find.text(attemptBadge), findsWidgets);
-      expect(
-          tester.getSize(readingTimeToggle).height, greaterThanOrEqualTo(44));
-      expect(
-        tester
-            .widget<Semantics>(
-              find
-                  .ancestor(
-                    of: cumulativeToggle,
-                    matching: find.byType(Semantics),
-                  )
-                  .first,
-            )
-            .properties
-            .label,
-        cumulativeLabel,
-      );
-      expect(
-        tester
-            .widget<Semantics>(
-              find
-                  .ancestor(
-                    of: readingTimeToggle,
-                    matching: find.byType(Semantics),
-                  )
-                  .first,
-            )
-            .properties
-            .label,
-        readingTimeLabel,
-      );
+        await tester.tap(readingTimeToggle);
+        await tester.pumpAndSettle();
 
-      await tester.tap(readingTimeToggle);
-      await tester.pumpAndSettle();
-
-      expect(tester.takeException(), isNull);
-      expect(find.text(readingTimeLabel), findsAtLeastNWidgets(2));
-      semantics.dispose();
+        expect(tester.takeException(), isNull);
+        expect(find.text(readingTimeLabel), findsAtLeastNWidgets(2));
+      } finally {
+        semantics.dispose();
+      }
     });
   }
+
+  testWidgets('cumulative chart tooltip separates cumulative and daily values',
+      (
+    tester,
+  ) async {
+    await _pumpHistoryTab(
+      tester,
+      testCase: (
+        locale: const Locale('en'),
+        themeMode: ThemeMode.light,
+        width: 393,
+      ),
+    );
+
+    final chart = tester.widget<LineChart>(find.byType(LineChart));
+    final cumulativeBar = chart.data.lineBarsData.last;
+    final touchedSpot = LineBarSpot(
+      cumulativeBar,
+      chart.data.lineBarsData.length - 1,
+      cumulativeBar.spots.first,
+    );
+    final tooltipItems = chart.data.lineTouchData.touchTooltipData
+        .getTooltipItems([touchedSpot]);
+    final tooltip = tooltipItems.single!;
+    final renderedText = StringBuffer(tooltip.text);
+    for (final child in tooltip.children ?? const <TextSpan>[]) {
+      renderedText.write(child.toPlainText());
+    }
+
+    expect(renderedText.toString(), contains('Cumulative: 42 p\nDaily: +42 p'));
+    expect(renderedText.toString(), isNot(contains(r'\n')));
+  });
 }
 
 Future<void> _pumpHistoryTab(

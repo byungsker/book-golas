@@ -4903,7 +4903,7 @@ abstract class AppLocalizations {
   /// Cumulative page count in chart tooltip
   ///
   /// In ko, this message translates to:
-  /// **'누적: {page}p\\n'**
+  /// **'누적: {page}p\n'**
   String historyTabChartCumulativeTooltip(int page);
 
   /// Daily page count in chart tooltip
@@ -7707,7 +7707,7 @@ abstract class AppLocalizations {
   /// History badge encouragement for later reading attempts
   ///
   /// In ko, this message translates to:
-  /// **'내가 더 도와줄게...'**
+  /// **'계속 잘하고 있어!'**
   String get historyTabAttemptEncouragementMore;
 }
 

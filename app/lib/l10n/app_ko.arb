@@ -2706,7 +2706,7 @@
         "historyTabDailyPages": "일일 페이지",
         "historyTabReadingTime": "독서 시간",
         "@historyTabReadingTime": {"description": "History chart mode and legend for reading time"},
-        "historyTabChartCumulativeTooltip": "누적: {page}p\\n",
+        "historyTabChartCumulativeTooltip": "누적: {page}p\n",
         "@historyTabChartCumulativeTooltip": {"description": "Cumulative page count in chart tooltip", "placeholders": {"page": {"type": "int"}}},
         "historyTabChartDailyTooltip": "일일: +{page}p",
         "@historyTabChartDailyTooltip": {"description": "Daily page count in chart tooltip", "placeholders": {"page": {"type": "int"}}},
@@ -3572,6 +3572,6 @@
          "@historyTabAttemptEncouragementSecond": {"description": "History badge encouragement for a second reading attempt"},
          "historyTabAttemptEncouragementThird": "화이팅!",
          "@historyTabAttemptEncouragementThird": {"description": "History badge encouragement for a third reading attempt"},
-         "historyTabAttemptEncouragementMore": "내가 더 도와줄게...",
+         "historyTabAttemptEncouragementMore": "계속 잘하고 있어!",
          "@historyTabAttemptEncouragementMore": {"description": "History badge encouragement for later reading attempts"}
 }
