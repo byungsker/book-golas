@@ -38,6 +38,19 @@ jobs:
                 per_page: 100,
               },
             );
+            const expectedFileCount = Number(
+              context.payload.pull_request.changed_files,
+            );
+            if (!Number.isSafeInteger(expectedFileCount)) {
+              core.setFailed("PR changed-file count is unavailable");
+              return;
+            }
+            if (files.length !== expectedFileCount) {
+              core.setFailed(
+                `Changed-file evidence is incomplete: collected ${files.length}, expected ${expectedFileCount}`,
+              );
+              return;
+            }
             const paths = files
               .flatMap((file) =>
                 file.status === "renamed"
