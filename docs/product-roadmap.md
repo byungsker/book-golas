@@ -1,6 +1,6 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-07-25
+Last updated: 2026-08-04
 
 ## Target Delivery Contract
 
