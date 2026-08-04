@@ -32,7 +32,17 @@ jobs:
               --paginate \
               --slurp \
               "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files?per_page=100" |
-              jq -c '[.[][] | .filename]' |
+              jq -c '[
+                .[][] |
+                (
+                  if .status == "renamed" then
+                    .previous_filename, .filename
+                  else
+                    .filename
+                  end
+                ) |
+                select(type == "string" and length > 0)
+              ]' |
               openssl base64 -A
           )"
           test -n "$changed_files_b64"
