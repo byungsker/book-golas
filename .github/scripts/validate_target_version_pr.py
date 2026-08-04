@@ -172,6 +172,32 @@ def validate(
             + ", ".join(invalid_paths[:5])
         )
 
+    sync_only_paths = policy.get("sync_only_paths", [])
+    if not isinstance(sync_only_paths, list) or not all(
+        isinstance(pattern, str) and pattern for pattern in sync_only_paths
+    ):
+        raise PolicyError(f"delivery unit {unit} has invalid sync_only_paths policy")
+    restricted_paths = [
+        path
+        for path in changed_files
+        if any(
+            fnmatch.fnmatchcase(path, pattern)
+            for pattern in sync_only_paths
+        )
+    ]
+    if restricted_paths:
+        if branch_type != "sync":
+            raise PolicyError(
+                f"sync-only paths require a sync branch for {unit}: "
+                + ", ".join(restricted_paths[:5])
+            )
+        mixed_paths = [path for path in changed_files if path not in restricted_paths]
+        if mixed_paths:
+            raise PolicyError(
+                f"sync-only paths cannot be mixed with other changes for {unit}: "
+                + ", ".join(mixed_paths[:5])
+            )
+
     expected = {
         "Target-Delivery-Unit": unit,
         "Target-Version": version,

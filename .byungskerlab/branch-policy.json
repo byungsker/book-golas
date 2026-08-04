@@ -43,6 +43,7 @@
         ".github/workflows/daily-nudge.yml",
         ".github/workflows/ios-production.yml",
         ".github/workflows/ios-testflight.yml",
+        ".github/workflows/quality.yml",
         ".github/workflows/schema-check.yml",
         "README.md",
         "app/**",
@@ -52,6 +53,9 @@
       "sync_bases": [
         "dev",
         "version/mobile/1.0.2"
+      ],
+      "sync_only_paths": [
+        ".github/workflows/quality.yml"
       ]
     },
     "web": {
