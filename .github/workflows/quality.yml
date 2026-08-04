@@ -69,6 +69,7 @@ jobs:
         working-directory: app
     steps:
       - if: needs.changes.outputs.flutter != 'true'
+        working-directory: .
         run: echo "No Flutter changes detected"
       - if: needs.changes.outputs.flutter == 'true'
         uses: actions/checkout@v4
@@ -108,6 +109,7 @@ jobs:
         working-directory: web
     steps:
       - if: needs.changes.outputs.web != 'true'
+        working-directory: .
         run: echo "No Web changes detected"
       - if: needs.changes.outputs.web == 'true'
         uses: actions/checkout@v4
