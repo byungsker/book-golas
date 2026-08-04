@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-25
 
+## Target Delivery Contract
+
+Target-Delivery-Unit: mobile
+Target-Version: 1.0.2
+Delivery-Profile: mobile-store
+
 ## Priority order
 
 Bookgolas follows this release order:
