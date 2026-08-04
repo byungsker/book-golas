@@ -53,6 +53,9 @@
       "sync_bases": [
         "dev",
         "version/mobile/1.0.2"
+      ],
+      "sync_only_paths": [
+        ".github/workflows/quality.yml"
       ]
     },
     "web": {
