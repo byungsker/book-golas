@@ -19,6 +19,8 @@ const growthMetricKeys: Array<keyof GrowthMetricsRpc> = [
   "users_with_ai_recall",
 ];
 
+const maximumMetricCount = 1_000_000_000;
+
 export function normalizeGrowthMetrics(
   value: unknown
 ): GrowthMetricsRpc | null {
@@ -30,7 +32,11 @@ export function normalizeGrowthMetrics(
 
   const record = candidate as Record<string, unknown>;
   const isValid = growthMetricKeys.every(
-    (key) => typeof record[key] === "number" && Number.isFinite(record[key])
+    (key) =>
+      typeof record[key] === "number" &&
+      Number.isSafeInteger(record[key]) &&
+      record[key] >= 0 &&
+      record[key] <= maximumMetricCount
   );
 
   return isValid ? (record as GrowthMetricsRpc) : null;

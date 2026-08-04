@@ -175,7 +175,7 @@ export function AdminDashboard({
       {error && (
         <div
           role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-foreground"
         >
           {error} 아래 수치는 마지막 성공 갱신 시점의 값입니다.
         </div>

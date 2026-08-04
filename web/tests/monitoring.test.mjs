@@ -51,6 +51,24 @@ test("growth metrics reject empty or incomplete RPC responses", () => {
   assert.equal(normalizeGrowthMetrics(null), null);
 });
 
+test("growth metrics reject invalid count values", () => {
+  assert.equal(
+    normalizeGrowthMetrics({ ...growthMetricsRow, total_users: -1 }),
+    null
+  );
+  assert.equal(
+    normalizeGrowthMetrics({ ...growthMetricsRow, total_users: 0.5 }),
+    null
+  );
+  assert.equal(
+    normalizeGrowthMetrics({
+      ...growthMetricsRow,
+      total_users: 1_000_000_001,
+    }),
+    null
+  );
+});
+
 test("next action prioritizes an unavailable active-user metric", () => {
   const action = getNextAction({
     generated_at: "2026-07-29T04:00:00.000Z",
