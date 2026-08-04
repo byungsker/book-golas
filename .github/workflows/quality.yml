@@ -12,21 +12,74 @@ concurrency:
   group: quality-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
+  changes:
+    name: Resolve Quality Scope
+    runs-on: ubuntu-latest
+    outputs:
+      flutter: ${{ steps.scope.outputs.flutter }}
+      web: ${{ steps.scope.outputs.web }}
+      edge: ${{ steps.scope.outputs.edge }}
+    steps:
+      - id: scope
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: 100,
+              },
+            );
+            const paths = files
+              .flatMap((file) =>
+                file.status === "renamed"
+                  ? [file.previous_filename, file.filename]
+                  : [file.filename],
+              )
+              .filter(Boolean);
+            core.setOutput(
+              "flutter",
+              paths.some((path) =>
+                path === ".env.example" || path.startsWith("app/"),
+              ),
+            );
+            core.setOutput(
+              "web",
+              paths.some((path) => path.startsWith("web/")),
+            );
+            core.setOutput(
+              "edge",
+              paths.some((path) => path.startsWith("supabase/functions/")),
+            );
+
   flutter:
     name: Flutter Analyze and Test
+    needs: changes
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - if: needs.changes.outputs.flutter != 'true'
+        run: echo "No Flutter changes detected"
+      - if: needs.changes.outputs.flutter == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.flutter == 'true'
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.35.0'
           channel: stable
           cache: true
       - name: Create test environment
+        if: needs.changes.outputs.flutter == 'true'
         run: |
           printf '%s\n' \
             'ALADIN_TTB_KEY=test' \
@@ -37,38 +90,57 @@ jobs:
             'GOOGLE_CLOUD_VISION_API_KEY=test' \
             'REVENUECAT_PUBLIC_KEY=test' \
             'ENVIRONMENT=development' > .env
-      - run: flutter pub get
-      - run: flutter gen-l10n
-      - run: flutter analyze --no-fatal-infos
-      - run: flutter test --no-pub
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter pub get
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter gen-l10n
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter analyze --no-fatal-infos
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter test --no-pub
 
   web:
     name: Web Audit, Lint, and Build
+    needs: changes
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - if: needs.changes.outputs.web != 'true'
+        run: echo "No Web changes detected"
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - run: npm ci
-      - run: npm audit --audit-level=high
-      - run: npm run lint
-      - run: npm run build
+      - if: needs.changes.outputs.web == 'true'
+        run: npm ci
+      - if: needs.changes.outputs.web == 'true'
+        run: npm audit --audit-level=high
+      - if: needs.changes.outputs.web == 'true'
+        run: npm run lint
+      - if: needs.changes.outputs.web == 'true'
+        run: npm run build
 
   edge-functions:
     name: Edge Function Type Check
+    needs: changes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      - if: needs.changes.outputs.edge != 'true'
+        run: echo "No Edge Function changes detected"
+      - if: needs.changes.outputs.edge == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.edge == 'true'
+        uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
       - name: Check all functions
+        if: needs.changes.outputs.edge == 'true'
         run: |
           while IFS= read -r entry; do
             config="$(dirname "$entry")/deno.json"
