@@ -1,22 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { normalizeGrowthMetrics } from "@/lib/admin/monitoring";
 import { requireAdminUser } from "@/lib/supabase-server";
 import type { AdminMonitoringMetrics } from "@/types/monitoring";
 
-type GrowthMetricsRpc = {
-  total_users: number;
-  new_users_7d: number;
-  active_users_7d: number;
-  total_books: number;
-  books_created_7d: number;
-  users_with_books: number;
-  total_reading_records: number;
-  reading_records_7d: number;
-  users_with_reading_records: number;
-  total_ai_recalls: number;
-  ai_recalls_7d: number;
-  users_with_ai_recall: number;
+type CountResult = {
+  count: number | null;
+  error: { message: string } | null;
 };
 
 export const dynamic = "force-dynamic";
@@ -52,44 +43,8 @@ export async function GET() {
 
   const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [
-    rpcResult,
-    totalUsersResult,
-    newUsersResult,
-    totalBooksResult,
-    newBooksResult,
-    totalReadingResult,
-    newReadingResult,
-    totalRecallResult,
-    newRecallResult,
-    sentPushResult,
-    clickedPushResult,
-  ] = await Promise.all([
+  const [rpcResult, sentPushResult, clickedPushResult] = await Promise.all([
     supabaseAdmin.rpc("get_control_plane_growth_metrics"),
-    supabaseAdmin.from("users").select("id", { count: "exact", head: true }),
-    supabaseAdmin
-      .from("users")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", cutoff),
-    supabaseAdmin.from("books").select("id", { count: "exact", head: true }),
-    supabaseAdmin
-      .from("books")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", cutoff),
-    supabaseAdmin
-      .from("reading_progress_history")
-      .select("id", { count: "exact", head: true }),
-    supabaseAdmin
-      .from("reading_progress_history")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", cutoff),
-    supabaseAdmin
-      .from("recall_search_history")
-      .select("id", { count: "exact", head: true }),
-    supabaseAdmin
-      .from("recall_search_history")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", cutoff),
     supabaseAdmin
       .from("push_logs")
       .select("id", { count: "exact", head: true })
@@ -101,16 +56,67 @@ export async function GET() {
       .eq("is_clicked", true),
   ]);
 
+  if (rpcResult.error) {
+    console.error(
+      "get_control_plane_growth_metrics failed:",
+      rpcResult.error.message
+    );
+  }
+
   const rpcMetrics = rpcResult.error
     ? null
-    : (rpcResult.data as GrowthMetricsRpc | null);
+    : normalizeGrowthMetrics(rpcResult.data);
+  let totalUsersResult: CountResult | null = null;
+  let newUsersResult: CountResult | null = null;
+  let totalBooksResult: CountResult | null = null;
+  let newBooksResult: CountResult | null = null;
+  let totalReadingResult: CountResult | null = null;
+  let newReadingResult: CountResult | null = null;
+  let totalRecallResult: CountResult | null = null;
+  let newRecallResult: CountResult | null = null;
+
+  if (!rpcMetrics) {
+    [
+      totalUsersResult,
+      newUsersResult,
+      totalBooksResult,
+      newBooksResult,
+      totalReadingResult,
+      newReadingResult,
+      totalRecallResult,
+      newRecallResult,
+    ] = await Promise.all([
+      supabaseAdmin.from("users").select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", cutoff),
+      supabaseAdmin.from("books").select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("books")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", cutoff),
+      supabaseAdmin
+        .from("reading_progress_history")
+        .select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("reading_progress_history")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", cutoff),
+      supabaseAdmin
+        .from("recall_search_history")
+        .select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("recall_search_history")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", cutoff),
+    ]);
+  }
+
   const unavailableMetrics: string[] = [];
 
-  function countOrNull(
-    result: { count: number | null; error: { message: string } | null },
-    metricName: string
-  ) {
-    if (result.error) {
+  function countOrNull(result: CountResult | null, metricName: string) {
+    if (!result || result.error) {
       unavailableMetrics.push(metricName);
       return null;
     }

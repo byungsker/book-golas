@@ -4,8 +4,24 @@ import test from "node:test";
 import {
   formatGeneratedAt,
   getNextAction,
+  normalizeGrowthMetrics,
   percentage,
 } from "../src/lib/admin/monitoring.ts";
+
+const growthMetricsRow = {
+  total_users: 12,
+  new_users_7d: 2,
+  active_users_7d: 5,
+  total_books: 18,
+  books_created_7d: 4,
+  users_with_books: 7,
+  total_reading_records: 43,
+  reading_records_7d: 9,
+  users_with_reading_records: 6,
+  total_ai_recalls: 6,
+  ai_recalls_7d: 2,
+  users_with_ai_recall: 3,
+};
 
 test("percentage returns a rounded rate and preserves unavailable values", () => {
   assert.equal(percentage(1, 3), 33.3);
@@ -18,6 +34,21 @@ test("generated time is stable in Korea Standard Time", () => {
     formatGeneratedAt("2026-07-29T04:00:00.000Z"),
     "2026.07.29 13:00 KST"
   );
+});
+
+test("generated time falls back for an invalid timestamp", () => {
+  assert.equal(formatGeneratedAt("not-a-date"), "시간 정보 없음");
+});
+
+test("growth metrics normalize a single RPC row from array responses", () => {
+  assert.deepEqual(normalizeGrowthMetrics([growthMetricsRow]), growthMetricsRow);
+  assert.deepEqual(normalizeGrowthMetrics(growthMetricsRow), growthMetricsRow);
+});
+
+test("growth metrics reject empty or incomplete RPC responses", () => {
+  assert.equal(normalizeGrowthMetrics([]), null);
+  assert.equal(normalizeGrowthMetrics({ total_users: 12 }), null);
+  assert.equal(normalizeGrowthMetrics(null), null);
 });
 
 test("next action prioritizes an unavailable active-user metric", () => {

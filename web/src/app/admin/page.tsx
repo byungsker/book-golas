@@ -172,6 +172,15 @@ export function AdminDashboard({
         </Button>
       </section>
 
+      {error && (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+        >
+          {error} 아래 수치는 마지막 성공 갱신 시점의 값입니다.
+        </div>
+      )}
+
       {metrics.source_status === "partial" && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
           고유 사용자 기반 지표는 성장 집계 RPC 배포 후 표시됩니다. 연결되지

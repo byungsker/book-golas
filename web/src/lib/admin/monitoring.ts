@@ -1,7 +1,40 @@
 import type {
   AdminMonitoringMetrics,
+  GrowthMetricsRpc,
   MetricValue,
 } from "@/types/monitoring";
+
+const growthMetricKeys: Array<keyof GrowthMetricsRpc> = [
+  "total_users",
+  "new_users_7d",
+  "active_users_7d",
+  "total_books",
+  "books_created_7d",
+  "users_with_books",
+  "total_reading_records",
+  "reading_records_7d",
+  "users_with_reading_records",
+  "total_ai_recalls",
+  "ai_recalls_7d",
+  "users_with_ai_recall",
+];
+
+export function normalizeGrowthMetrics(
+  value: unknown
+): GrowthMetricsRpc | null {
+  const candidate = Array.isArray(value) ? value[0] : value;
+
+  if (!candidate || typeof candidate !== "object") {
+    return null;
+  }
+
+  const record = candidate as Record<string, unknown>;
+  const isValid = growthMetricKeys.every(
+    (key) => typeof record[key] === "number" && Number.isFinite(record[key])
+  );
+
+  return isValid ? (record as GrowthMetricsRpc) : null;
+}
 
 export function percentage(
   numerator: MetricValue,
@@ -23,6 +56,12 @@ export function formatPercentage(value: number | null): string {
 }
 
 export function formatGeneratedAt(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "시간 정보 없음";
+  }
+
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
     year: "numeric",
@@ -32,7 +71,7 @@ export function formatGeneratedAt(value: string): string {
     minute: "2-digit",
     hourCycle: "h23",
   })
-    .formatToParts(new Date(value))
+    .formatToParts(date)
     .reduce<Record<string, string>>((result, part) => {
       result[part.type] = part.value;
       return result;
