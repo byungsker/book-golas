@@ -66,7 +66,7 @@ unverified.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
 
-## Parallel track — web 1.0.0 data-informed admin
+## Parallel track — web 1.0.2 data-informed admin
 
 - Replace direct browser-side operational queries with an authenticated
   server-side aggregate metrics boundary.
