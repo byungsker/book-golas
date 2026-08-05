@@ -68,6 +68,7 @@
       "production_branch": "main",
       "allowed_paths": [
         "AGENTS.md",
+        ".github/workflows/quality.yml",
         "docs/**",
         "web/**"
       ]
