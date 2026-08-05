@@ -71,6 +71,9 @@
         ".github/workflows/quality.yml",
         "docs/**",
         "web/**"
+      ],
+      "sync_only_paths": [
+        ".github/workflows/quality.yml"
       ]
     },
     "backend": {
