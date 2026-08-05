@@ -62,11 +62,12 @@
       "profile": "web-release-train",
       "mode": "version-line",
       "active_versions": [
-        "1.0.1"
+        "1.0.2"
       ],
       "target_version_source": ".byungskerlab/release-lines.json",
       "production_branch": "main",
       "allowed_paths": [
+        "AGENTS.md",
         "docs/**",
         "web/**"
       ]
