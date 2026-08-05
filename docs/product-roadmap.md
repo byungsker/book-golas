@@ -1,6 +1,16 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-07-29
+Last updated: 2026-08-05
+
+## Target Delivery Contract
+
+Target-Delivery-Unit: mobile
+Target-Version: 1.0.2
+Delivery-Profile: mobile-store
+
+Target-Delivery-Unit: web
+Target-Version: 1.0.2
+Delivery-Profile: web-release-train
 
 ## Priority order
 
@@ -11,7 +21,7 @@ Bookgolas follows this release order:
 3. Publish the Android release to Google Play after the test and policy gates pass.
 
 The independently delivered web admin has an approved parallel release train:
-**web 1.0.0**. It does not change the mobile 1.0.2 binary scope.
+**web 1.0.2**. It does not change the mobile 1.0.2 binary scope.
 
 ## P0 — 1.0.2 patch release
 
@@ -56,7 +66,7 @@ unverified.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
 
-## Parallel track — web 1.0.0 data-informed admin
+## Parallel track — web 1.0.2 data-informed admin
 
 - Replace direct browser-side operational queries with an authenticated
   server-side aggregate metrics boundary.
