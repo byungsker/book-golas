@@ -12,6 +12,14 @@ Target-Delivery-Unit: web
 Target-Version: 1.0.2
 Delivery-Profile: web-release-train
 
+Web 1.0.2 release-line evidence:
+
+- Source baseline: `main@80c78d030a5290f047b1aa6d00e43a5331913803`.
+- Reviewed governance change source: PR #336 merge commit
+  `b165870b75d16df0f6c3986581d85301dc8a2d09` on `dev`; its reviewed change
+  was cherry-picked into the version line as `fe2b5b1b7c766a5b83b586e4d0ccbd36786f1579`.
+- Version line: `version/web/1.0.2`.
+
 ## Priority order
 
 Bookgolas follows this release order:
