@@ -16,6 +16,11 @@
         "dev",
         "main"
       ],
+      "sync_bases": [
+        "dev",
+        "main",
+        "version/web/1.0.2"
+      ],
       "allowed_paths": [
         ".byungskerlab/branch-policy.json",
         ".byungskerlab/release-lines.json",
@@ -68,8 +73,12 @@
       "production_branch": "main",
       "allowed_paths": [
         "AGENTS.md",
+        ".github/workflows/quality.yml",
         "docs/**",
         "web/**"
+      ],
+      "sync_only_paths": [
+        ".github/workflows/quality.yml"
       ]
     },
     "backend": {
