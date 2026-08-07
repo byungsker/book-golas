@@ -30,6 +30,12 @@ class MigrationSafetyTests(unittest.TestCase):
             False,
         )
 
+    def test_identifier_containing_where_is_not_a_predicate(self) -> None:
+        self.assert_findings("DELETE FROM public.somewhere_items;", True)
+
+    def test_string_containing_safe_marker_is_not_an_exception(self) -> None:
+        self.assert_findings("SELECT 'safe-delete'; DELETE FROM public.items;", True)
+
 
 if __name__ == "__main__":
     unittest.main()

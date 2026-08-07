@@ -8,6 +8,7 @@ from pathlib import Path
 TOKEN_PATTERN = re.compile(
     r"(?is)('(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|--[^\n]*|/\*.*?\*/)|;"
 )
+COMMENT_PATTERN = re.compile(r"(?is)--[^\n]*|/\*.*?\*/")
 OPERATION_PATTERN = re.compile(
     r"(?is)\b(drop\s+(?:table|column)|truncate(?:\s+table)?|delete\s+from)\b"
 )
@@ -28,9 +29,11 @@ def sanitize_sql(source: str) -> str:
 
 
 def is_safe(source: str, start: int, end: int) -> bool:
-    window_start = max(0, start - 240)
-    window_end = min(len(source), end + 240)
-    return "safe-delete" in source[window_start:window_end].lower()
+    statement = source[start:end]
+    return any(
+        "safe-delete" in match.group(0).lower()
+        for match in COMMENT_PATTERN.finditer(statement)
+    )
 
 
 def violations(path: Path) -> list[str]:
@@ -39,13 +42,14 @@ def violations(path: Path) -> list[str]:
     findings: list[str] = []
     for match in OPERATION_PATTERN.finditer(sanitized):
         operation = re.sub(r"\s+", " ", match.group(1).lower())
+        statement_start = sanitized.rfind(";", 0, match.start()) + 1
         statement_end = sanitized.find(";", match.end())
         if statement_end == -1:
             statement_end = len(sanitized)
         statement = sanitized[match.end() : statement_end]
-        safe = is_safe(source, match.start(), statement_end)
+        safe = is_safe(source, statement_start, statement_end)
         if operation.startswith("delete"):
-            if "where" not in statement.lower() and not safe:
+            if not re.search(r"\bwhere\b", statement, re.IGNORECASE) and not safe:
                 findings.append(f"{path}: DELETE without WHERE at {match.start()}")
         elif not safe:
             findings.append(f"{path}: {operation.upper()} requires -- safe-delete")

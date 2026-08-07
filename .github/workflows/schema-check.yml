@@ -58,6 +58,9 @@ jobs:
           
           echo "All migration files follow naming conventions"
 
+      - name: Run migration safety fixtures
+        run: python3 -m unittest discover -s supabase/tests -p 'test_validate_migrations.py' -v
+
       - name: Check for new migrations in PR
         id: check-new-migrations
         run: |
