@@ -18,6 +18,9 @@ Web 1.0.2 release-line evidence:
 - Reviewed governance change source: PR #336 merge commit
   `b165870b75d16df0f6c3986581d85301dc8a2d09` on `dev`; its reviewed change
   was cherry-picked into the version line as `fe2b5b1b7c766a5b83b586e4d0ccbd36786f1579`.
+- Quality-policy and quality-workflow sync: PR #341 source head
+  `df1a9718f3a60a512026eb1c8f791009315e3d0c`, merged as
+  `3be8d89d55f3d02619d98849c27e28b7104e6251` into the version line.
 - Version line: `version/web/1.0.2`.
 
 ## Priority order
