@@ -132,176 +132,75 @@ UI (lib/ui/) → ViewModel → Repository → Service
 
 ## Git Workflow
 
-### Branch Strategy
+브랜치 생성, PR, release/hotfix, 역반영과 브랜치 정리는 전역
+`engineering-team` 하네스의 `references/branch-strategy.md`를 따른다.
+이 문서에서는 Bookgolas의 배포 프로필과 저장소 고유 규칙만 정의한다.
 
-```
-main (Production)
- │
- └── dev (TestFlight)
-      │
-      └── daily/YYYY-MM-DD (일별 작업 그룹화 - 직접 커밋 금지!)
-           │
-           ├── feature/BYU-XXX-task-name (실제 작업 브랜치)
-           ├── feature/BYU-YYY-another-task
-           └── fix/BYU-ZZZ-bug-fix
-```
+### Delivery Profiles
 
-**브랜치 역할:**
+| Surface | Profile |
+| --- | --- |
+| `app/` iOS/Android 앱 | `mobile-store` |
+| `web/` Next.js Admin | `web-release-train` |
+| `supabase/` Functions 및 DB | 모바일 결합 시 `mobile-store`, 독립 배포 시 `backend-service` |
 
-| 브랜치 | 용도 | 직접 커밋 |
-|--------|------|----------|
-| `main` | Production 릴리즈 | ❌ 금지 |
-| `dev` | 개발 통합 브랜치 | ❌ 금지 |
-| `daily/YYYY-MM-DD` | 일별 작업 그룹화 (머지 타겟) | ❌ 금지 |
-| `feature/BYU-XXX-*` | **실제 코드 작업** | ✅ 허용 |
+### Repository-Specific Rules
 
-### Daily Workflow
-
-⚠️ **중요: `daily` 브랜치에 직접 커밋하지 마라. 반드시 `feature/BYU-XXX` 브랜치를 만들어서 작업해라.**
-
-```
-1. 작업 시작
-   ├── daily/YYYY-MM-DD 브랜치가 없으면 dev에서 생성
-   └── daily 브랜치에서 feature/BYU-XXX 브랜치 생성 ← 여기서 작업!
-
-2. 이슈별 작업 (각 이슈마다 반복)
-   ├── feature/BYU-XXX 브랜치에서 코드 작성 및 커밋
-   ├── 작업 완료 시 feature/BYU-XXX → daily PR 생성 및 머지
-   └── 다음 이슈는 daily에서 새로운 feature/BYU-YYY 브랜치 생성
-
-3. 일일 작업 완료
-   └── daily → dev PR 생성 → 머지 → TestFlight 자동 배포
-
-4. 버전 릴리즈
-   └── dev → main PR 생성 (버전 태그: v1.x.x) → 머지 → App Store 배포
-```
-
-### PR 생성 규칙 (CRITICAL - BLOCKING)
-
-**허용되는 PR 방향:**
-
-| From | To | 허용 |
-|------|-----|------|
-| `feature/BYU-XXX` | `daily/YYYY-MM-DD` | ✅ 허용 |
-| `daily/YYYY-MM-DD` | `dev` | ✅ 허용 |
-| `dev` | `main` | ✅ 허용 (릴리즈 시) |
-| `feature/BYU-XXX` | `dev` | ❌ **절대 금지** |
-| `feature/BYU-XXX` | `main` | ❌ **절대 금지** |
-| `daily/YYYY-MM-DD` | `main` | ❌ **절대 금지** |
-
-**daily 브랜치가 remote에 없을 때:**
-
-```bash
-# ❌ 잘못된 대응: dev에 직접 PR 생성
-gh pr create --base dev  # 절대 금지!
-
-# ✅ 올바른 대응: daily 브랜치 생성 후 push
-git checkout dev
-git pull origin dev
-git checkout -b daily/$(date +%Y-%m-%d)
-git push -u origin daily/$(date +%Y-%m-%d)
-# 그 후 feature → daily PR 생성
-```
-
-**PR 생성 전 필수 체크리스트:**
-
-1. [ ] `--base`가 `daily/YYYY-MM-DD` 형식인가? (feature PR의 경우)
-2. [ ] daily 브랜치가 remote에 존재하는가? 없으면 생성 먼저!
-3. [ ] `--base dev` 또는 `--base main`을 사용하고 있지 않은가?
-
-**위반 시 = BLOCKED. 작업 중단하고 올바른 절차로 재진행.**
-
-### 브랜치 생성 예시
-
-```bash
-# 1. daily 브랜치 생성 (없으면)
-git checkout dev
-git pull origin dev
-git checkout -b daily/2025-01-07
-
-# 2. 이슈 작업용 feature 브랜치 생성
-git checkout daily/2025-01-07
-git checkout -b feature/BYU-225-fix-network-error
-
-# 3. 작업 및 커밋 (feature 브랜치에서!)
-# ... 코드 작성 ...
-git add .
-git commit -m "fix: 네트워크 오류 수정 (BYU-225)"
-
-# 4. feature → daily PR 생성 및 머지
-git push origin feature/BYU-225-fix-network-error
-gh pr create --base daily/2025-01-07 --head feature/BYU-225-fix-network-error
-
-# 5. 다음 이슈는 daily에서 새 브랜치
-git checkout daily/2025-01-07
-git pull origin daily/2025-01-07
-git checkout -b feature/BYU-248-tab-cycling
-```
-
-### Commit Rules
-
-- 반드시 gh를 **byungsker** 계정으로 커밋, 푸시, PR을 진행해야해.
-- 커밋 메세지는 영문 컨벤셔널 커밋으로 해야해. (단, description은 한글 불릿 포인트로 작성.)
-- 맥락 별로 커밋을 만들며 진행해야해.
-
-### Merge Rules
-
-- PR 머지 시 반드시 **"Create a merge commit"** 방식으로 머지해라.
-- ❌ "Squash and merge" 사용 금지
-- ❌ "Rebase and merge" 사용 금지
-- `gh pr merge` 사용 시: `gh pr merge --merge` (기본값이 merge commit)
-
-### PR Template
-
-PR 생성 시 아래 템플릿을 사용해. (인용문은 지우고 해당 내용을 작성)
-
-```markdown
-> 이번 PR의 목적을 한 문장으로 요약해주세요.
->
-> - 예: 사용자가 프로필 정보를 수정할 수 있는 기능을 추가했습니다.
-
-## 📋 Changes
-
-> 주요 변경사항을 bullet로 정리해주세요.
->
-> - 예:
->   - `UserProfileEdit.tsx` 컴포넌트 추가
->   - `/api/user/profile` PUT 엔드포인트 연결
->   - Validation 로직 추가
-
-## 🧠 Context & Background
-
-> 이 변경이 필요한 이유를 설명해주세요.
-> 관련된 이슈나 문서 링크를 첨부해도 좋아요.
->
-> - 예: 유저 피드백에 따라 프로필 수정 기능이 필요했습니다. (#45)
-
-## ✅ How to Test
-
-> 테스트 방법을 단계별로 작성해주세요.
->
-> - 예:
->   1. `/profile/edit` 페이지로 이동
->   2. 이름 수정 후 저장 클릭
->   3. 수정 내용이 DB에 반영되는지 확인
-
-## 🧾 Screenshots or Videos (Optional)
-
-> UI 변경이 있을 경우, Before / After 이미지를 첨부해주세요.
-> 또는 Loom, GitHub Video를 추가해도 좋아요.
-
-## 🔗 Related Issues
-
-> 연관된 이슈를 연결해주세요.
->
-> - 예:
->   - Closes: #123
->   - Related: #456
-
-## 🙌 Additional Notes (Optional)
-
-> 기타 참고사항, TODO, 리뷰어에게 요청사항 등을 작성해주세요. - 예: 스타일 관련 부분은 별도 PR로 분리 예정입니다.
-```
+- 모든 브랜치와 PR은 `.byungskerlab/branch-policy.json`,
+  `.byungskerlab/release-lines.json`과 전역 Target Delivery Contract를
+  따른다.
+- 기계 검증 가능한 활성 버전 원본은 `release-lines.json`이며, 현재
+  승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
+  현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
+  독립 Web admin의 승인된 parallel release train은 `1.0.2`이며,
+  독립 backend service도 `1.0.2` release line을 사용하며,
+  `docs/product-roadmap.md`가 그 evidence를 기록한다. `AGENTS.md`와 각
+  delivery unit의
+  active version이 일치하지 않으면 브랜치나 PR을 만들 수 없다.
+- active version을 여는 정책 변경은 byungsker 검토가 필요한
+  `chore/governance/1.0.0/<scope>` PR로만 수행한다.
+- `daily/*`는 사용하지 않는다.
+- 모바일 작업과 모바일에 결합된 backend 작업은 승인된 `dev`에서 연
+  `version/mobile/x.y.z`에서 분기하고 같은 version line으로 PR한다.
+- `web/`은 승인된 버전마다 운영 `main`에서
+  `version/web/x.y.z`를 열고 같은 버전 작업만 받은 뒤
+  `release/web/x.y.z` QA를 거쳐 `main`으로 승격한다.
+- 현재 `ios-testflight.yml`과 `ios-production.yml`이 Supabase migration과
+  Functions 배포를 함께 수행한다. 이 결합을 제거하기 전까지 자동
+  Supabase 배포는 `mobile-store` 흐름을 따른다.
+- Functions만 독립 배포할 때는 검증된 `backend-service` 1.0.2
+  커밋과 명시적 배포 권한을 확인하고 수동
+  `deploy-edge-functions.yml`을 사용한다. 이 workflow는 backend
+  delivery unit만 소유하며 mobile 경로로 우회하지 않는다.
+- `integration/<unit>/x.y.z/<purpose>`는 같은 버전의 여러 검토 완료
+  작업 조합 검증에만 사용하며 직접 커밋, 새 작업의 기반, promotion
+  source로 사용하지 않는다.
+- 작업 브랜치는
+  `[codex/]<type>/<delivery-unit>/<x.y.z>/<issue-or-scope>` 형식이다.
+- PR 본문에는 `Target-Delivery-Unit`, `Target-Version`,
+  `Delivery-Profile`을 정확히 한 번씩 기록한다.
+- release 또는 hotfix 승격 PR은 governance 변경으로
+  `.byungskerlab/release-lines.json`에 승인된 source branch와 정확한
+  40자리 source SHA를 먼저 등록한다. PR의 `Promotion-Source-SHA`가
+  registry 및 실제 commit ancestry와 일치하지 않으면 반려한다.
+- 브랜치·worktree·commit·push·PR 생성/수정/리뷰/승인/merge를 수행하는
+  모든 Engineering Team 에이전트가 타깃 버전을 독립 확인한다.
+- branch, base, PR metadata, issue, roadmap, policy config 중 하나라도
+  빠지거나 다르면 `REQUEST_CHANGES`로 반려하고 Git 작업을 진행하지 않는다.
+- release 또는 hotfix source branch/SHA나 ancestry를 검증할 수 없어도
+  `REQUEST_CHANGES`로 반려한다.
+- `.github/workflows/target-version-gate.yml`은 이 규칙을 fail-closed로
+  검사한다. required check가 없거나 skipped/neutral/failing이면 merge
+  승인으로 간주하지 않는다.
+- 기존 비준수 활성 브랜치는 그대로 PR하지 않는다. 올바른 version
+  line에서 새 브랜치를 만들고 필요한 커밋만 안전하게 옮긴다.
+- 커밋 제목은 영문 Conventional Commit을 사용하고, 본문 설명은 한글
+  불릿으로 작성한다.
+- 이 저장소의 PR은 전역 기본값을 강화해 항상 merge commit으로
+  병합한다. squash와 rebase merge는 사용하지 않는다.
+- PR 설명에는 목적, 주요 변경, 배경, 검증 방법과 관련 이슈를 포함한다.
+- 브랜치 생성, 커밋, push, PR, merge, tag, 출시와 배포는 각각 사용자
+  권한 범위 안에서만 수행한다.
 
 ## Critical Rules
 
@@ -443,15 +342,17 @@ supabase functions deploy <function-name>
 supabase secrets set OPENAI_API_KEY=sk-...
 ```
 
-### Deployment Flow
+### Environment Promotion
 
-```
-1. 로컬 개발 → supabase-dev 프로젝트
-2. feature → daily → dev 머지 → TestFlight (supabase-dev)
-3. dev → main 머지 → Production (supabase prod) ← CI가 prod 환경변수 주입
-```
-
-**WARNING**: Production Supabase에 직접 migration이나 function 배포하지 마라. main 브랜치 CI를 통해서만 배포해라.
+- 로컬 개발은 `supabase-dev`만 사용한다.
+- `dev`의 iOS TestFlight 워크플로는 Dev migration과 Functions 배포를
+  함께 수행한다.
+- `main`의 iOS Production 워크플로는 Production migration과 Functions
+  배포를 App Store 빌드와 함께 수행한다.
+- Functions 단독 배포는 수동 워크플로를 사용하며 Production 대상은
+  별도 명시적 권한이 필요하다.
+- Production Supabase에 로컬에서 직접 migration이나 Functions를
+  배포하지 않는다.
 
 ### Database Migration Guidelines (CRITICAL)
 
@@ -485,26 +386,12 @@ supabase migration new add_user_preferences
 
 #### Migration Workflow
 
-```
-1. 마이그레이션 파일 생성 (CLI 필수!)
-   └── supabase migration new add_new_column
-   └── 생성된 파일: supabase/migrations/20260125123456_add_new_column.sql
-
-2. SQL 작성
-   └── 생성된 파일에 SQL 작성
-
-3. Dev DB에 적용 (로컬에서)
-   └── supabase link --project-ref reoiqefoymdsqzpbouxi
-   └── supabase db push
-
-4. 코드 작성 및 테스트
-
-5. feature → daily → dev 머지
-   └── CI가 자동으로 Dev DB에 마이그레이션 적용 (이미 적용된 경우 스킵)
-
-6. dev → main 머지 (Production 배포)
-   └── CI가 자동으로 Prod DB에 마이그레이션 적용
-```
+1. Supabase CLI로 migration 파일을 생성한다.
+2. SQL을 작성하고 Dev DB에서 적용·검증한다.
+3. 코드와 migration 검사를 함께 통과시킨다.
+4. 위 Git Workflow와 현재 CI 결합 규칙에 따라 동일한 검증 변경을
+   승격한다.
+5. Production 적용은 CI와 사용자 승인 경계를 거친다.
 
 #### MCP 대안: 읽기 전용 사용
 
