@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { csvEscape } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -335,14 +336,4 @@ function StatCard({
       </CardContent>
     </Card>
   );
-}
-
-function csvEscape(value: string): string {
-  const neutralized = /^[\u0000-\u0020]*[=+\-@]/.test(value)
-    ? `'${value}`
-    : value;
-  if (/[",\n]/.test(neutralized)) {
-    return `"${neutralized.replace(/"/g, '""')}"`;
-  }
-  return neutralized;
 }

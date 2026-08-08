@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:waitlist-security": "node scripts/waitlist-security.test.mjs"
+    "lint": "npm run test:waitlist-security && eslint",
+    "test:waitlist-security": "node --experimental-strip-types scripts/waitlist-security.test.mts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
