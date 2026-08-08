@@ -92,6 +92,8 @@ export function aiUsageErrorResponse(
   error: unknown,
   headers: Record<string, string>,
 ): Response | null {
+  const normalizedError = normalizeAiProviderTimeout(error);
+  if (normalizedError) error = normalizedError;
   if (!(error instanceof AiUsageError)) return null;
   return new Response(
     JSON.stringify({ error: error.code }),
@@ -102,17 +104,40 @@ export function aiUsageErrorResponse(
   );
 }
 
+export function normalizeAiProviderTimeout(
+  error: unknown,
+): AiUsageError | null {
+  if (error instanceof AiUsageError) {
+    return error.code === "provider_timeout" ? error : null;
+  }
+  if (!(error instanceof Error)) return null;
+  if (
+    error.name === "AbortError" || error.name === "TimeoutError" ||
+    /timed?\s*out|timeout/i.test(error.message)
+  ) {
+    return new AiUsageError("provider_timeout", 503);
+  }
+  return null;
+}
+
 export async function fetchAiProvider(
   input: RequestInfo | URL,
   init: RequestInit,
+  timeoutMs = AI_PROVIDER_TIMEOUT_MS,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), AI_PROVIDER_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const signal = init.signal
       ? AbortSignal.any([controller.signal, init.signal])
       : controller.signal;
-    return await fetch(input, { ...init, signal });
+    const response = await fetch(input, { ...init, signal });
+    const body = await response.arrayBuffer();
+    return new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new AiUsageError("provider_timeout", 503);

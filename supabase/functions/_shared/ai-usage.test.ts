@@ -10,6 +10,7 @@ import {
   aiUsageErrorResponse,
   assertAiInputSize,
   consumeAiBudget,
+  fetchAiProvider,
   withAiBudget,
 } from "./ai-usage.ts";
 
@@ -80,6 +81,27 @@ Deno.test("provider timeout errors return a stable 503 response", async () => {
   const response = aiUsageErrorResponse(
     new AiUsageError("provider_timeout", 503),
     { "Access-Control-Allow-Origin": "*" },
+  );
+  assertEquals(response?.status, 503);
+  assertEquals(await response?.json(), { error: "provider_timeout" });
+});
+
+Deno.test("provider aborts normalize through the actual fetch boundary", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const error = await assertRejects(
+    () =>
+      fetchAiProvider("data:text/plain,ok", { signal: controller.signal }, 10),
+  );
+  assertEquals(error instanceof AiUsageError, true);
+  assertEquals((error as AiUsageError).code, "provider_timeout");
+  assertEquals((error as AiUsageError).status, 503);
+});
+
+Deno.test("generic LangChain timeout errors normalize to provider timeout", async () => {
+  const response = aiUsageErrorResponse(
+    new Error("Request timed out in AsyncCaller"),
+    {},
   );
   assertEquals(response?.status, 503);
   assertEquals(await response?.json(), { error: "provider_timeout" });
