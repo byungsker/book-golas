@@ -47,6 +47,9 @@ Exit gate:
   path.
 - Store metadata, privacy disclosures, review notes, and release evidence match
   the shipped binary.
+- Backend-service 1.0.2 remains excluded from production execution until
+  BOK-396 records the approved project ref, protected `main`, manual-dispatch
+  rejection, a verified 1.0.2 source SHA, and explicit deployment authority.
 - byungsker explicitly approves the external release action.
 
 ## P1 — Android / Google Play readiness
