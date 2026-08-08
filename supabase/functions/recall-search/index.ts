@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
-  consumeAiBudget,
   fetchAiProvider,
+  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -193,8 +193,11 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        await consumeAiBudget(supabaseClient, query.length);
-        return generateEmbedding(query);
+        return withAiBudget(
+          supabaseClient,
+          query.length,
+          () => generateEmbedding(query),
+        );
       },
     );
     if (!embeddingOperation.allowed) {
@@ -301,8 +304,11 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        await consumeAiBudget(supabaseClient, answerInputChars);
-        return generateAnswer(query, context);
+        return withAiBudget(
+          supabaseClient,
+          answerInputChars,
+          () => generateAnswer(query, context),
+        );
       },
     );
     if (!answerOperation.allowed) {

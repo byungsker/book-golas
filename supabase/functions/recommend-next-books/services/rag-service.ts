@@ -19,7 +19,9 @@ interface UserInterests {
 export async function extractUserInterests(
   supabase: SupabaseClient,
   userId: string,
-  beforeProviderCall: (input: string) => Promise<void> = async () => {},
+  beforeProviderCall: (
+    input: string,
+  ) => Promise<() => Promise<void>> = async () => async () => {},
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
@@ -33,13 +35,17 @@ export async function extractUserInterests(
   });
 
   const interestQuery = "독서에서 중요하게 생각하는 주제와 개념";
-  await beforeProviderCall(interestQuery);
-
-  const results = await vectorStore.similaritySearch(
-    interestQuery,
-    config.rag.topHighlightsCount,
-    { user_id: userId },
-  );
+  const releaseProviderLease = await beforeProviderCall(interestQuery);
+  let results;
+  try {
+    results = await vectorStore.similaritySearch(
+      interestQuery,
+      config.rag.topHighlightsCount,
+      { user_id: userId },
+    );
+  } finally {
+    await releaseProviderLease();
+  }
 
   if (results.length === 0) {
     return { topHighlights: [], keywords: [] };

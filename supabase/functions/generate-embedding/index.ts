@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
-  consumeAiBudget,
   fetchAiProvider,
+  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -149,8 +149,11 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        await consumeAiBudget(authClient, contentText.length);
-        return generateEmbedding(contentText);
+        return withAiBudget(
+          authClient,
+          contentText.length,
+          () => generateEmbedding(contentText),
+        );
       },
     );
     if (!embeddingOperation.allowed) {

@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
-  consumeAiBudget,
   fetchAiProvider,
+  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -201,12 +201,6 @@ serve(async (req: Request) => {
       .order("created_at", { ascending: true })
       .limit(15);
 
-    console.log(
-      `[generate-book-review] Generating review for book: ${book.title}, memos: ${
-        memos?.length ?? 0
-      }`,
-    );
-
     const inputChars = [
       book.title,
       book.author,
@@ -228,10 +222,14 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        await consumeAiBudget(supabaseClient, inputChars);
-        return generateReviewWithGPT(
-          book as BookData,
-          (memos as MemoContent[]) ?? [],
+        return withAiBudget(
+          supabaseClient,
+          inputChars,
+          () =>
+            generateReviewWithGPT(
+              book as BookData,
+              (memos as MemoContent[]) ?? [],
+            ),
         );
       },
     );

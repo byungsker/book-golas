@@ -3,7 +3,10 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ReadingInsight, ReadingPatterns } from "../types.ts";
 import { config } from "../config.ts";
-import { AI_PROVIDER_TIMEOUT_MS } from "../../_shared/ai-usage.ts";
+import {
+  AI_MAX_OUTPUT_TOKENS,
+  AI_PROVIDER_TIMEOUT_MS,
+} from "../../_shared/ai-usage.ts";
 
 interface MemoryRecord {
   id: string;
@@ -30,11 +33,15 @@ export class InsightService {
   private llm: ChatOpenAI;
   private supabase: SupabaseClient;
   private promptTemplate: PromptTemplate;
-  private readonly beforeProviderCall: (input: string) => Promise<void>;
+  private readonly beforeProviderCall: (
+    input: string,
+  ) => Promise<() => Promise<void>>;
 
   constructor(
     supabase: SupabaseClient,
-    beforeProviderCall: (input: string) => Promise<void> = async () => {},
+    beforeProviderCall: (
+      input: string,
+    ) => Promise<() => Promise<void>> = async () => async () => {},
   ) {
     this.supabase = supabase;
     this.beforeProviderCall = beforeProviderCall;
@@ -43,6 +50,7 @@ export class InsightService {
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
       temperature: config.openai.temperature,
+      maxTokens: AI_MAX_OUTPUT_TOKENS,
       timeout: Math.min(
         config.insights.timeoutSeconds * 1000,
         AI_PROVIDER_TIMEOUT_MS,
@@ -112,7 +120,7 @@ export class InsightService {
       yearOverYear: this.formatYearOverYear(patterns),
       memory: memory || "(이전 인사이트 없음)",
     });
-    await this.beforeProviderCall(formattedPrompt);
+    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
 
     let response;
     try {
@@ -125,6 +133,8 @@ export class InsightService {
         throw new Error("Insight generation timed out");
       }
       throw error;
+    } finally {
+      await releaseProviderLease();
     }
 
     const insights = this.parseResponse(response.content as string);

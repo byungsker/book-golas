@@ -17,11 +17,21 @@ export class ProfileCollector {
 
   async collect(
     userId: string,
-    beforeProviderCall: (input: string) => Promise<void> = async () => {},
+    beforeProviderCall: (
+      input: string,
+    ) => Promise<() => Promise<void>> = async () => async () => {},
   ): Promise<UserReadingProfile> {
     const completedBooks = await this.fetchCompletedBooks(userId);
     const booksAnalytics = await this.analyzeBooksInDetail(completedBooks);
     const stats = calculateAggregateStats(booksAnalytics);
+    if (booksAnalytics.length === 0) {
+      return {
+        userId,
+        books: booksAnalytics,
+        stats,
+        interests: { topHighlights: [], keywords: [] },
+      };
+    }
     const interests = await extractUserInterests(
       this.supabase,
       userId,

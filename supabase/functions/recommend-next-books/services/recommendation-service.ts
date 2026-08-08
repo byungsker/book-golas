@@ -6,7 +6,10 @@ import type {
   UserReadingProfile,
 } from "../types.ts";
 import { config } from "../config.ts";
-import { AI_PROVIDER_TIMEOUT_MS } from "../../_shared/ai-usage.ts";
+import {
+  AI_MAX_OUTPUT_TOKENS,
+  AI_PROVIDER_TIMEOUT_MS,
+} from "../../_shared/ai-usage.ts";
 
 const PROMPT_KO = `
 당신은 독서 추천 전문가입니다. 사용자의 **책별 세부 독서 패턴**을 분석하여 다음 읽을 책 {recommendCount}권을 추천해주세요.
@@ -90,11 +93,15 @@ export class RecommendationService {
   private llm: ChatOpenAI;
   private promptTemplate: PromptTemplate;
   private locale: string;
-  private readonly beforeProviderCall: (input: string) => Promise<void>;
+  private readonly beforeProviderCall: (
+    input: string,
+  ) => Promise<() => Promise<void>>;
 
   constructor(
     locale: string = "ko",
-    beforeProviderCall: (input: string) => Promise<void> = async () => {},
+    beforeProviderCall: (
+      input: string,
+    ) => Promise<() => Promise<void>> = async () => async () => {},
   ) {
     this.locale = locale;
     this.beforeProviderCall = beforeProviderCall;
@@ -102,6 +109,7 @@ export class RecommendationService {
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
       temperature: config.openai.temperature,
+      maxTokens: AI_MAX_OUTPUT_TOKENS,
       timeout: AI_PROVIDER_TIMEOUT_MS,
     });
 
@@ -132,8 +140,13 @@ export class RecommendationService {
       keywords: profile.interests.keywords.join(", ") || noneText,
     });
 
-    await this.beforeProviderCall(formattedPrompt);
-    const response = await this.llm.invoke(formattedPrompt);
+    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
+    let response;
+    try {
+      response = await this.llm.invoke(formattedPrompt);
+    } finally {
+      await releaseProviderLease();
+    }
     return this.parseResponse(response.content as string);
   }
 

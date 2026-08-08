@@ -7,9 +7,9 @@ import {
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 import {
+  acquireAiBudget,
   aiUsageErrorResponse,
   assertAiInputSize,
-  consumeAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -120,7 +120,7 @@ serve(async (req: Request) => {
     assertAiInputSize(inputChars);
     const chainService = new ChainService(
       OPENAI_API_KEY,
-      (prompt) => consumeAiBudget(supabaseClient, prompt.length),
+      (prompt) => acquireAiBudget(supabaseClient, prompt.length),
     );
     const structureOperation = await executeThirdPartyAiOperation(
       supabaseClient,
