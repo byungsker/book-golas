@@ -72,9 +72,13 @@ begin
       return 'duplicate';
   end;
 
+  -- safe-delete
+  delete from public.waitlist_rate_limits
+   where updated_at < now() - interval '2 hours';
+
   return 'success';
 end;
 $$;
 
 revoke all on function public.register_waitlist_submission(text, text, text, text) from public, anon, authenticated;
-grant execute on function public.register_waitlist_submission(text, text, text, text) to anon, authenticated;
+grant execute on function public.register_waitlist_submission(text, text, text, text) to service_role;

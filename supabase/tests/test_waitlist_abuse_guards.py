@@ -21,9 +21,10 @@ def main() -> None:
     require("for update")
     require("current_count >= 5")
     require("interval '1 hour'")
+    require("interval '2 hours'")
     require("return 'rate_limited'")
     require("return 'duplicate'")
-    require("grant execute on function public.register_waitlist_submission(text, text, text, text) to anon, authenticated")
+    require("grant execute on function public.register_waitlist_submission(text, text, text, text) to service_role")
     if "user_agent" in SQL:
         raise AssertionError("waitlist RPC must not collect user_agent")
     if "drop policy" in SQL.lower() or "revoke insert on table public.waitlist" in SQL.lower():

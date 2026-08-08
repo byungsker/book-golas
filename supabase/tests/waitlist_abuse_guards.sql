@@ -62,6 +62,19 @@ set role anon;
 do $$
 begin
   begin
+    perform public.register_waitlist_submission(
+      'blocked@example.com',
+      'ko',
+      'fixture',
+      repeat('e', 64)
+    );
+    raise exception 'anonymous role can execute waitlist registration';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
+  begin
     perform count(*) from public.waitlist_rate_limits;
     raise exception 'anonymous role can read waitlist rate limits';
   exception
