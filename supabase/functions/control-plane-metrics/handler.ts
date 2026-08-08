@@ -16,6 +16,7 @@ export type GrowthMetrics = {
 type HandlerDependencies = {
   productId: string;
   environment: "development" | "production";
+  configurationValid: boolean;
   expectedToken: string;
   loadMetrics: () => Promise<GrowthMetrics>;
   now: () => Date;
@@ -91,6 +92,9 @@ export function createHandler(
   dependencies: HandlerDependencies,
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
+    if (!dependencies.configurationValid) {
+      return jsonResponse({ error: "Metrics unavailable" }, 503);
+    }
     if (request.method !== "GET") {
       return jsonResponse({ error: "Method not allowed" }, 405);
     }

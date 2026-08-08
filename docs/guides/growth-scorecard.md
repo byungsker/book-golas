@@ -17,10 +17,10 @@ content, reading notes, queries, or other row-level records.
 
 ## Environments
 
-Local work and TestFlight use the development Supabase project. Production is
-configured only through the approved production CI path. Both environments
-must use a random token of at least 32 characters, and the Company Control
-Plane private config must carry the matching environment token.
+Local work and TestFlight use the development Supabase project. Both
+environments use the approved private CLI runbook below, must use a random
+token of at least 32 characters, and must carry the matching environment token
+in the Company Control Plane private config.
 
 The CLI runbook below is the approved deployment path. It applies the
 repository migrations, sets `CONTROL_PLANE_METRICS_TOKEN` and
@@ -43,9 +43,16 @@ project, and use a private, temporary env file containing only the two
 
 ```bash
 supabase link --project-ref "$SUPABASE_PROJECT_REF"
+mkdir -p "$CONTROL_PLANE_EVIDENCE_DIR"
+chmod 700 "$CONTROL_PLANE_EVIDENCE_DIR"
+git rev-parse HEAD > "$CONTROL_PLANE_EVIDENCE_DIR/source-commit-before.txt"
+supabase functions list --project-ref "$SUPABASE_PROJECT_REF" \
+  > "$CONTROL_PLANE_EVIDENCE_DIR/functions-before.txt"
 supabase db push --include-all
 supabase secrets set --env-file "$CONTROL_PLANE_ENV_FILE"
 supabase functions deploy control-plane-metrics
+supabase functions list --project-ref "$SUPABASE_PROJECT_REF" \
+  > "$CONTROL_PLANE_EVIDENCE_DIR/functions-after.txt"
 
 endpoint="https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/control-plane-metrics"
 curl --fail-with-body --silent --show-error \
@@ -64,13 +71,17 @@ jq -e '
 The private env file must set `CONTROL_PLANE_METRICS_TOKEN` to a random value
 of at least 32 characters and `CONTROL_PLANE_ENVIRONMENT` to `development` or
 `production`. Remove the temporary env and response files after verification.
+Retain the private `functions-before.txt`, `functions-after.txt`, and source
+commit evidence according to the operations retention policy. To roll back,
+check out the known-good commit recorded in `source-commit-before.txt` and
+rerun `supabase functions deploy control-plane-metrics`, then verify the
+endpoint again.
 
 The migration revokes RPC access from `PUBLIC`, `anon`, and `authenticated`;
 only `service_role` can execute the aggregate query.
 
 ## Rollback
 
-Disable the function deployment and remove its private control-plane source.
 If the endpoint secret must be rotated, replace the matching private secret and
 rerun this CLI procedure for that environment.
 If the RPC must be removed, apply a forward migration that revokes and drops

@@ -33,6 +33,7 @@ Deno.test("control plane metrics requires a bounded bearer token", async () => {
   const handler = createHandler({
     productId: "bookgolas",
     environment: "production",
+    configurationValid: true,
     expectedToken: token,
     now: () => new Date("2026-07-29T00:00:00Z"),
     loadMetrics: () => {
@@ -51,6 +52,7 @@ Deno.test("control plane metrics accepts only GET", async () => {
   const handler = createHandler({
     productId: "bookgolas",
     environment: "production",
+    configurationValid: true,
     expectedToken: token,
     now: () => new Date("2026-07-29T00:00:00Z"),
     loadMetrics: () => Promise.resolve(metrics),
@@ -65,6 +67,7 @@ Deno.test("control plane metrics returns aggregate-only evidence", async () => {
   const handler = createHandler({
     productId: "bookgolas",
     environment: "production",
+    configurationValid: true,
     expectedToken: token,
     now: () => new Date("2026-07-29T00:00:00Z"),
     loadMetrics: () => Promise.resolve(metrics),
@@ -97,6 +100,7 @@ Deno.test("control plane metrics rejects malformed aggregate values", async () =
   const handler = createHandler({
     productId: "bookgolas",
     environment: "production",
+    configurationValid: true,
     expectedToken: token,
     now: () => new Date("2026-07-29T00:00:00Z"),
     loadMetrics: () =>
@@ -115,6 +119,7 @@ Deno.test("control plane metrics rejects missing or extra aggregate keys", async
   const handler = createHandler({
     productId: "bookgolas",
     environment: "production",
+    configurationValid: true,
     expectedToken: token,
     now: () => new Date("2026-07-29T00:00:00Z"),
     loadMetrics: () =>
@@ -128,4 +133,24 @@ Deno.test("control plane metrics rejects missing or extra aggregate keys", async
   const response = await handler(request());
 
   assertEquals(response.status, 503);
+});
+
+Deno.test("control plane metrics fails closed for invalid configuration", async () => {
+  let called = false;
+  const handler = createHandler({
+    productId: "bookgolas",
+    environment: "development",
+    configurationValid: false,
+    expectedToken: token,
+    now: () => new Date("2026-07-29T00:00:00Z"),
+    loadMetrics: () => {
+      called = true;
+      return Promise.resolve(metrics);
+    },
+  });
+
+  const response = await handler(request());
+
+  assertEquals(response.status, 503);
+  assertEquals(called, false);
 });

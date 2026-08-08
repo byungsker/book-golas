@@ -6,8 +6,11 @@ import { createHandler, type GrowthMetrics } from "./handler.ts";
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const expectedToken = Deno.env.get("CONTROL_PLANE_METRICS_TOKEN") ?? "";
-const environment = Deno.env.get("CONTROL_PLANE_ENVIRONMENT") === "production"
+const environmentSetting = Deno.env.get("CONTROL_PLANE_ENVIRONMENT") ?? "";
+const environment = environmentSetting === "production"
   ? "production"
+  : environmentSetting === "development"
+  ? "development"
   : "development";
 
 const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
@@ -17,6 +20,11 @@ const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
 const handler = createHandler({
   productId: "bookgolas",
   environment,
+  configurationValid: (
+    (environmentSetting === "development" ||
+      environmentSetting === "production") &&
+    expectedToken.length >= 32
+  ),
   expectedToken,
   now: () => new Date(),
   loadMetrics: async () => {
