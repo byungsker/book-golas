@@ -8,7 +8,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
-import { acquireAiBudget, aiUsageErrorResponse } from "../_shared/ai-usage.ts";
+import {
+  acquireAiBudget,
+  aiUsageErrorResponse,
+  assertAiInputSize,
+} from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -72,7 +76,10 @@ serve(async (req: Request) => {
     const patternCollector = new PatternCollector(supabase);
     const insightService = new InsightService(
       supabase,
-      (prompt) => acquireAiBudget(authClient, prompt.length),
+      (prompt) => {
+        assertAiInputSize(prompt.length);
+        return acquireAiBudget(authClient, prompt.length);
+      },
     );
 
     const patterns = await patternCollector.collect(userId);

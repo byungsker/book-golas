@@ -120,7 +120,10 @@ serve(async (req: Request) => {
     assertAiInputSize(inputChars);
     const chainService = new ChainService(
       OPENAI_API_KEY,
-      (prompt) => acquireAiBudget(supabaseClient, prompt.length),
+      (prompt) => {
+        assertAiInputSize(prompt.length);
+        return acquireAiBudget(supabaseClient, prompt.length);
+      },
     );
     const structureOperation = await executeThirdPartyAiOperation(
       supabaseClient,
