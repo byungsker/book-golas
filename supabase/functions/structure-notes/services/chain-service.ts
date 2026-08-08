@@ -6,6 +6,7 @@ import {
 import { summaryPrompt, SummaryResult } from "../prompts/summary.ts";
 import { connectionPrompt, ConnectionResult } from "../prompts/connection.ts";
 import type { Cluster, Connection, Node, NoteStructure } from "../types.ts";
+import { AI_PROVIDER_TIMEOUT_MS } from "../../_shared/ai-usage.ts";
 
 export interface ContentItem {
   id: string;
@@ -66,12 +67,18 @@ export function remapResolvedConnections(
 
 export class ChainService {
   private llm: ChatOpenAI;
+  private readonly beforeProviderCall: (input: string) => Promise<void>;
 
-  constructor(apiKey: string) {
+  constructor(
+    apiKey: string,
+    beforeProviderCall: (input: string) => Promise<void> = async () => {},
+  ) {
+    this.beforeProviderCall = beforeProviderCall;
     this.llm = new ChatOpenAI({
       openAIApiKey: apiKey,
       modelName: "gpt-4o-mini",
       temperature: 0.3,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
     });
   }
 
@@ -136,6 +143,7 @@ export class ChainService {
     contents: string,
   ): Promise<ClassificationResult> {
     const formattedPrompt = await classificationPrompt.format({ contents });
+    await this.beforeProviderCall(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ClassificationResult>(
       response.content as string,
@@ -168,6 +176,7 @@ export class ChainService {
 
   private async runSummary(clusteredContents: string): Promise<SummaryResult> {
     const formattedPrompt = await summaryPrompt.format({ clusteredContents });
+    await this.beforeProviderCall(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<SummaryResult>(response.content as string);
   }
@@ -209,6 +218,7 @@ ${clusterContents}`;
     const formattedPrompt = await connectionPrompt.format({
       summarizedClusters,
     });
+    await this.beforeProviderCall(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ConnectionResult>(response.content as string);
   }

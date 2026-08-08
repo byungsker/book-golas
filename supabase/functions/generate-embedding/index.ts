@@ -5,6 +5,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import {
+  aiUsageErrorResponse,
+  consumeAiBudget,
+  fetchAiProvider,
+} from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -18,17 +23,20 @@ interface EmbeddingRequest {
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+  const response = await fetchAiProvider(
+    "https://api.openai.com/v1/embeddings",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: text,
+      }),
     },
-    body: JSON.stringify({
-      model: "text-embedding-3-small",
-      input: text,
-    }),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -115,6 +123,16 @@ serve(async (req: Request) => {
       );
     }
 
+    if (contentText.length > 20_000) {
+      return new Response(JSON.stringify({ error: "input_too_large" }), {
+        status: 413,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -130,7 +148,10 @@ serve(async (req: Request) => {
       authClient,
       user.id,
       "open_ai",
-      () => generateEmbedding(contentText),
+      async () => {
+        await consumeAiBudget(authClient, contentText.length);
+        return generateEmbedding(contentText);
+      },
     );
     if (!embeddingOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
@@ -175,6 +196,10 @@ serve(async (req: Request) => {
       },
     );
   } catch (error) {
+    const usageResponse = aiUsageErrorResponse(error, {
+      "Access-Control-Allow-Origin": "*",
+    });
+    if (usageResponse) return usageResponse;
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,

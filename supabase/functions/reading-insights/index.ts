@@ -8,6 +8,7 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import { aiUsageErrorResponse, consumeAiBudget } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -71,7 +72,10 @@ serve(async (req: Request) => {
     console.log(`[reading-insights] Processing insights for user: ${userId}`);
 
     const patternCollector = new PatternCollector(supabase);
-    const insightService = new InsightService(supabase);
+    const insightService = new InsightService(
+      supabase,
+      (prompt) => consumeAiBudget(authClient, prompt.length),
+    );
 
     const patterns = await patternCollector.collect(userId);
     console.log(`[reading-insights] Patterns collected: ${
@@ -104,6 +108,8 @@ serve(async (req: Request) => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
+    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
+    if (usageResponse) return usageResponse;
     const errorMessage = error instanceof Error
       ? error.message
       : "Unknown error";

@@ -8,6 +8,7 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import { aiUsageErrorResponse, consumeAiBudget } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -72,7 +73,10 @@ serve(async (req: Request) => {
       `[recommend-next-books] Collecting profile for user: ${userId}`,
     );
     const profileCollector = new ProfileCollector(supabase);
-    const profile = await profileCollector.collect(userId);
+    const profile = await profileCollector.collect(
+      userId,
+      (prompt) => consumeAiBudget(authClient, prompt.length),
+    );
 
     if (profile.books.length === 0) {
       return new Response(
@@ -92,7 +96,10 @@ serve(async (req: Request) => {
     console.log(
       `[recommend-next-books] Generating recommendations (locale: ${locale})...`,
     );
-    const recommendationService = new RecommendationService(locale);
+    const recommendationService = new RecommendationService(
+      locale,
+      (prompt) => consumeAiBudget(authClient, prompt.length),
+    );
     const recommendationOperation = await executeThirdPartyAiOperation(
       authClient,
       user.id,
@@ -132,6 +139,8 @@ serve(async (req: Request) => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
+    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
+    if (usageResponse) return usageResponse;
     const errorMessage = error instanceof Error
       ? error.message
       : "Unknown error";
