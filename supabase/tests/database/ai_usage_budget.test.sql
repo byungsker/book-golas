@@ -42,6 +42,19 @@ INSERT INTO auth.users (
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '77777777-7777-7777-7777-777777777777',
+    'authenticated',
+    'authenticated',
+    'ai-budget-concurrency@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
   );
 
 COMMIT;
@@ -84,11 +97,11 @@ SELECT dblink_exec('ai_budget_a', 'SET ROLE authenticated');
 SELECT dblink_exec('ai_budget_b', 'SET ROLE authenticated');
 SELECT dblink_exec(
   'ai_budget_a',
-  'SET request.jwt.claim.sub = ''55555555-5555-5555-5555-555555555555'''
+  'SET request.jwt.claim.sub = ''77777777-7777-7777-7777-777777777777'''
 );
 SELECT dblink_exec(
   'ai_budget_b',
-  'SET request.jwt.claim.sub = ''55555555-5555-5555-5555-555555555555'''
+  'SET request.jwt.claim.sub = ''77777777-7777-7777-7777-777777777777'''
 );
 SELECT dblink_exec('ai_budget_a', 'BEGIN');
 SELECT *
@@ -220,6 +233,7 @@ SELECT * FROM finish();
 DELETE FROM auth.users
 WHERE id IN (
   '55555555-5555-5555-5555-555555555555',
-  '66666666-6666-6666-6666-666666666666'
+  '66666666-6666-6666-6666-666666666666',
+  '77777777-7777-7777-7777-777777777777'
 );
 COMMIT;
