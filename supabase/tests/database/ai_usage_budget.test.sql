@@ -53,6 +53,19 @@ INSERT INTO auth.users (
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '88888888-8888-8888-8888-888888888888',
+    'authenticated',
+    'authenticated',
+    'ai-budget-quota@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
   );
 
 SET LOCAL ROLE authenticated;
@@ -164,14 +177,14 @@ SELECT results_eq(
 
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub =
-  '55555555-5555-5555-5555-555555555555';
+  '88888888-8888-8888-8888-888888888888';
 
 DO $$
 DECLARE
   attempt INTEGER;
   result JSONB;
 BEGIN
-  FOR attempt IN 1..29 LOOP
+  FOR attempt IN 1..30 LOOP
     result := public.consume_ai_usage(10);
     IF NOT (result->>'allowed')::boolean THEN
       RAISE EXCEPTION 'unexpected quota rejection at attempt %', attempt;
@@ -189,7 +202,7 @@ SELECT results_eq(
   $$
     SELECT request_count
     FROM public.ai_usage_buckets
-    WHERE user_id = '55555555-5555-5555-5555-555555555555'
+    WHERE user_id = '88888888-8888-8888-8888-888888888888'
   $$,
   ARRAY[30],
   'quota rejection does not increment the bucket'
