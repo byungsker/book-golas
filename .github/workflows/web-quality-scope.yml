@@ -1,0 +1,80 @@
+name: Trusted Web Quality
+
+on:
+  pull_request_target:
+    branches:
+      - main
+      - dev
+      - 'daily/**'
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+
+concurrency:
+  group: trusted-web-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scope:
+    name: Resolve Trusted Web Scope
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.changed.outputs.web }}
+    steps:
+      - id: changed
+        name: Read changed paths from GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: 100,
+              },
+            );
+            const web = files.some((file) =>
+              file.filename.startsWith("web/") ||
+              (file.status === "renamed" && file.previous_filename.startsWith("web/")),
+            );
+            core.setOutput("web", web);
+
+  web:
+    name: Web Audit, Lint, and Build
+    needs: scope
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - if: needs.scope.outputs.web != 'true'
+        working-directory: .
+        run: echo "No Web changes detected"
+      - if: needs.scope.outputs.web == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - if: needs.scope.outputs.web == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - if: needs.scope.outputs.web == 'true'
+        run: npm ci
+      - if: needs.scope.outputs.web == 'true'
+        run: npm audit --audit-level=high
+      - if: needs.scope.outputs.web == 'true'
+        run: npm run lint
+      - if: needs.scope.outputs.web == 'true'
+        run: npm run build

@@ -29,6 +29,7 @@
         ".github/scripts/validate_target_version_pr.py",
         ".github/workflows/target-version-gate.yml",
         ".github/workflows/quality.yml",
+        ".github/workflows/web-quality-scope.yml",
         ".github/workflows/schema-check.yml",
         "AGENTS.md",
         "docs/product-roadmap.md"
