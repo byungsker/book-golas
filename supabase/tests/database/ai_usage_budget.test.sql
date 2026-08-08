@@ -40,6 +40,19 @@ INSERT INTO auth.users (
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '77777777-7777-7777-7777-777777777777',
+    'authenticated',
+    'authenticated',
+    'ai-budget-concurrency@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
   );
 
 SET LOCAL ROLE authenticated;
@@ -63,6 +76,9 @@ SELECT ok(
   position('FOR UPDATE' IN pg_get_functiondef('public.consume_ai_usage(integer)'::regprocedure)) > 0,
   'budget function locks the user bucket for concurrent calls'
 );
+
+SET LOCAL request.jwt.claim.sub =
+  '77777777-7777-7777-7777-777777777777';
 
 SELECT results_eq(
   $$
@@ -91,12 +107,12 @@ RESET ROLE;
 SELECT ok(
   (SELECT COUNT(*) = 3
    FROM public.ai_usage_leases
-   WHERE user_id = '55555555-5555-5555-5555-555555555555'),
+   WHERE user_id = '77777777-7777-7777-7777-777777777777'),
   'the user bucket tracks the active lease count'
 );
 
-DELETE FROM public.ai_usage_leases
-WHERE user_id = '55555555-5555-5555-5555-555555555555';
+SET LOCAL request.jwt.claim.sub =
+  '55555555-5555-5555-5555-555555555555';
 
 SELECT results_eq(
   $$
