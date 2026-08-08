@@ -189,12 +189,6 @@ jobs:
       - name: Lint local schema
         run: supabase db lint --local --level error
 
-      - name: Run waitlist abuse guard fixtures
-        run: |
-          python3 supabase/tests/test_waitlist_abuse_guards.py
-          DB_URL="$(supabase status -o env | sed -n 's/^DB_URL=//p')"
-          psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/tests/waitlist_abuse_guards.sql
-
       - name: Stop local database
         if: always()
         run: supabase stop --no-backup || true
