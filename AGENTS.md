@@ -154,9 +154,8 @@ UI (lib/ui/) → ViewModel → Repository → Service
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
   독립 Web admin의 승인된 parallel release train은 `1.0.2`이며,
   독립 backend service도 `1.0.2` release line을 사용하며,
-  `docs/product-roadmap.md`와
-  `docs/guides/release-1.0.2-backend-plan.md`가
-  그 evidence를 함께 기록한다. `AGENTS.md`와 각 delivery unit의
+  `docs/product-roadmap.md`가 그 evidence를 기록한다. `AGENTS.md`와 각
+  delivery unit의
   active version이 일치하지 않으면 브랜치나 PR을 만들 수 없다.
 - active version을 여는 정책 변경은 byungsker 검토가 필요한
   `chore/governance/1.0.0/<scope>` PR로만 수행한다.
