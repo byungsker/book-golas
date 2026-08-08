@@ -44,6 +44,9 @@ INSERT INTO auth.users (
     '{}'
   );
 
+COMMIT;
+BEGIN;
+
 SELECT dblink_connect(
   'ai_budget_a',
   'host=127.0.0.1 port=5432 dbname=' || current_database() ||
@@ -214,4 +217,9 @@ SELECT throws_ok(
 );
 
 SELECT * FROM finish();
-ROLLBACK;
+DELETE FROM auth.users
+WHERE id IN (
+  '55555555-5555-5555-5555-555555555555',
+  '66666666-6666-6666-6666-666666666666'
+);
+COMMIT;
