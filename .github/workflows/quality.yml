@@ -6,9 +6,15 @@ on:
       - main
       - dev
       - 'daily/**'
+  push:
+    branches:
+      - 'codex/**'
+      - 'version/**'
+      - 'release/**'
+      - 'hotfix/**'
 
 concurrency:
-  group: quality-${{ github.event.pull_request.number }}
+  group: quality-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -51,26 +57,26 @@ jobs:
       run:
         working-directory: web
     steps:
-      - if: !contains(github.head_ref, '/web/')
+      - if: ${{ !contains(github.head_ref || github.ref_name, '/web/') }}
         working-directory: .
         run: echo "Web quality is not applicable to this delivery unit"
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         run: npm ci
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         run: npm audit --audit-level=high
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         run: npm run lint
-      - if: contains(github.head_ref, '/web/')
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         run: npm run build
 
   edge-functions:
