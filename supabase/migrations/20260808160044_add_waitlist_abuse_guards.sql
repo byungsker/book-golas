@@ -72,9 +72,6 @@ begin
       return 'duplicate';
   end;
 
-  delete from public.waitlist_rate_limits
-   where window_started_at < now() - interval '2 hours';
-
   return 'success';
 end;
 $$;

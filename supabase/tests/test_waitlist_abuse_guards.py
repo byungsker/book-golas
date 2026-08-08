@@ -21,7 +21,6 @@ def main() -> None:
     require("for update")
     require("current_count >= 5")
     require("interval '1 hour'")
-    require("interval '2 hours'")
     require("return 'rate_limited'")
     require("return 'duplicate'")
     require("grant execute on function public.register_waitlist_submission(text, text, text, text) to anon, authenticated")
