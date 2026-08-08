@@ -189,6 +189,7 @@ BEGIN
     IF NOT (result->>'allowed')::boolean THEN
       RAISE EXCEPTION 'unexpected quota rejection at attempt %', attempt;
     END IF;
+    PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
   END LOOP;
 END
 $$;
