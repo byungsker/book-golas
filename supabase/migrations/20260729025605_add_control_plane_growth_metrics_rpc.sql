@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION public.get_control_plane_growth_metrics()
 RETURNS jsonb
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
   WITH cutoff AS (

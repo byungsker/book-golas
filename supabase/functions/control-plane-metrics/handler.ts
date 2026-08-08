@@ -26,6 +26,21 @@ const jsonHeaders = {
   "Cache-Control": "no-store",
 };
 
+const metricKeys = [
+  "total_users",
+  "new_users_7d",
+  "active_users_7d",
+  "total_books",
+  "books_created_7d",
+  "users_with_books",
+  "total_reading_records",
+  "reading_records_7d",
+  "users_with_reading_records",
+  "total_ai_recalls",
+  "ai_recalls_7d",
+  "users_with_ai_recall",
+] as const;
+
 function jsonResponse(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), { status, headers: jsonHeaders });
 }
@@ -57,8 +72,18 @@ async function isAuthorized(
 }
 
 function validMetrics(value: GrowthMetrics): boolean {
-  return Object.values(value).every((metric) =>
-    Number.isSafeInteger(metric) && metric >= 0 && metric <= 1_000_000_000
+  const keys = Object.keys(value);
+  if (
+    keys.length !== metricKeys.length ||
+    !metricKeys.every((key) => Object.prototype.hasOwnProperty.call(value, key))
+  ) {
+    return false;
+  }
+
+  return metricKeys.every((key) =>
+    Number.isSafeInteger(value[key]) &&
+    value[key] >= 0 &&
+    value[key] <= 1_000_000_000
   );
 }
 

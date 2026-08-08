@@ -110,3 +110,22 @@ Deno.test("control plane metrics rejects malformed aggregate values", async () =
 
   assertEquals(response.status, 503);
 });
+
+Deno.test("control plane metrics rejects missing or extra aggregate keys", async () => {
+  const handler = createHandler({
+    productId: "bookgolas",
+    environment: "production",
+    expectedToken: token,
+    now: () => new Date("2026-07-29T00:00:00Z"),
+    loadMetrics: () =>
+      Promise.resolve({
+        ...metrics,
+        total_users: undefined,
+        unexpected_metric: 1,
+      } as unknown as GrowthMetrics),
+  });
+
+  const response = await handler(request());
+
+  assertEquals(response.status, 503);
+});
