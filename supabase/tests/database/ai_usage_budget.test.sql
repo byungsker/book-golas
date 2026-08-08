@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(16);
+SELECT plan(18);
 
 INSERT INTO auth.users (
   instance_id,
@@ -60,6 +60,19 @@ INSERT INTO auth.users (
     'authenticated',
     'authenticated',
     'ai-budget-quota@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '99999999-9999-9999-9999-999999999999',
+    'authenticated',
+    'authenticated',
+    'ai-budget-input@example.com',
     '',
     now(),
     now(),
@@ -209,6 +222,47 @@ SELECT results_eq(
   $$,
   ARRAY[30],
   'quota rejection does not increment the bucket'
+);
+
+SET LOCAL request.jwt.claim.sub =
+  '99999999-9999-9999-9999-999999999999';
+
+DO $$
+DECLARE
+  attempt INTEGER;
+  result JSONB;
+BEGIN
+  FOR attempt IN 1..7 LOOP
+    result := public.consume_ai_usage(20000);
+    IF NOT (result->>'allowed')::boolean THEN
+      RAISE EXCEPTION 'unexpected input quota rejection at attempt %', attempt;
+    END IF;
+    PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
+  END LOOP;
+
+  result := public.consume_ai_usage(10000);
+  IF NOT (result->>'allowed')::boolean THEN
+    RAISE EXCEPTION 'unexpected input quota rejection at final partial attempt';
+  END IF;
+  PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
+END
+$$;
+
+SELECT ok(
+  NOT (public.consume_ai_usage(1)->>'allowed')::boolean,
+  'the daily input-character limit rejects the next character'
+);
+
+RESET ROLE;
+
+SELECT results_eq(
+  $$
+    SELECT request_count, input_chars
+    FROM public.ai_usage_buckets
+    WHERE user_id = '99999999-9999-9999-9999-999999999999'
+  $$,
+  $$ VALUES (8, 150000::bigint) $$,
+  'input quota rejection leaves both counters unchanged'
 );
 
 SET LOCAL ROLE authenticated;

@@ -10,7 +10,8 @@ export class AiUsageError extends Error {
       | "input_too_large"
       | "quota_exceeded"
       | "concurrency_exceeded"
-      | "budget_unavailable",
+      | "budget_unavailable"
+      | "provider_timeout",
     readonly status: 413 | 429 | 503,
   ) {
     super(code);
@@ -96,7 +97,7 @@ export function aiUsageErrorResponse(
     JSON.stringify({ error: error.code }),
     {
       status: error.status,
-      headers: { "Content-Type": "application/json", ...headers },
+      headers: { ...headers, "Content-Type": "application/json" },
     },
   );
 }
@@ -108,7 +109,15 @@ export async function fetchAiProvider(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_PROVIDER_TIMEOUT_MS);
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    const signal = init.signal
+      ? AbortSignal.any([controller.signal, init.signal])
+      : controller.signal;
+    return await fetch(input, { ...init, signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new AiUsageError("provider_timeout", 503);
+    }
+    throw error;
   } finally {
     clearTimeout(timeout);
   }
