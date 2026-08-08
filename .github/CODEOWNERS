@@ -4,4 +4,5 @@
 /.github/PULL_REQUEST_TEMPLATE.md @byungsker
 /.github/scripts/validate_target_version_pr.py @byungsker
 /.github/workflows/target-version-gate.yml @byungsker
+/.github/workflows/schema-check.yml @byungsker
 /AGENTS.md @byungsker
