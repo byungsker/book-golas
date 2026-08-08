@@ -8,6 +8,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import {
+  acquireAiBudget,
+  aiUsageErrorResponse,
+  assertAiInputSize,
+} from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -68,20 +73,16 @@ serve(async (req: Request) => {
       config.supabase.serviceRoleKey,
     );
 
-    console.log(`[reading-insights] Processing insights for user: ${userId}`);
-
     const patternCollector = new PatternCollector(supabase);
-    const insightService = new InsightService(supabase);
+    const insightService = new InsightService(
+      supabase,
+      (prompt) => {
+        assertAiInputSize(prompt.length);
+        return acquireAiBudget(authClient, prompt.length);
+      },
+    );
 
     const patterns = await patternCollector.collect(userId);
-    console.log(`[reading-insights] Patterns collected: ${
-      JSON.stringify({
-        books: patterns.completionRates.totalStarted,
-        completed: patterns.completionRates.completed,
-        highlights: patterns.highlightStats.totalCount,
-      })
-    }`);
-
     const insightOperation = await executeThirdPartyAiOperation(
       authClient,
       user.id,
@@ -92,8 +93,6 @@ serve(async (req: Request) => {
       return thirdPartyAiConsentRequiredResponse(corsHeaders);
     }
     const insights = insightOperation.value;
-    console.log(`[reading-insights] Generated ${insights.length} insights`);
-
     const response: ReadingInsightResponse = {
       success: true,
       insights,
@@ -104,6 +103,8 @@ serve(async (req: Request) => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
+    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
+    if (usageResponse) return usageResponse;
     const errorMessage = error instanceof Error
       ? error.message
       : "Unknown error";

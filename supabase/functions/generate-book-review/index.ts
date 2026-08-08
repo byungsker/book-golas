@@ -5,6 +5,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import {
+  aiUsageErrorResponse,
+  fetchAiProvider,
+  withAiBudget,
+} from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -57,19 +62,21 @@ async function generateReviewWithGPT(
     .filter(Boolean)
     .join("\n");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            `당신은 독서 기록을 바탕으로 진솔하고 개인적인 독후감 초안을 작성하는 도우미입니다.
+  const response = await fetchAiProvider(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              `당신은 독서 기록을 바탕으로 진솔하고 개인적인 독후감 초안을 작성하는 도우미입니다.
 
 작성 가이드라인:
 - 사용자의 메모와 기록을 바탕으로 자연스러운 독후감 초안 작성
@@ -80,10 +87,10 @@ async function generateReviewWithGPT(
 - 분량: 300-500자 내외
 - 마무리는 열린 형태로 (사용자가 추가할 수 있도록)
 - 마크다운이나 특수 서식 없이 일반 텍스트로 작성`,
-        },
-        {
-          role: "user",
-          content: `다음 책에 대한 독후감 초안을 작성해주세요.
+          },
+          {
+            role: "user",
+            content: `다음 책에 대한 독후감 초안을 작성해주세요.
 
 === 책 정보 ===
 ${bookInfo}
@@ -92,12 +99,13 @@ ${bookInfo}
 ${memoTexts}
 
 위 정보를 바탕으로 자연스러운 독후감 초안을 작성해주세요.`,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    }),
-  });
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    },
+  );
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -193,21 +201,37 @@ serve(async (req: Request) => {
       .order("created_at", { ascending: true })
       .limit(15);
 
-    console.log(
-      `[generate-book-review] Generating review for book: ${book.title}, memos: ${
-        memos?.length ?? 0
-      }`,
-    );
+    const inputChars = [
+      book.title,
+      book.author,
+      book.genre,
+      book.review,
+      ...(memos ?? []).map((memo) => memo.content_text),
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .reduce((total, value) => total + value.length, 0);
+    if (inputChars > 20_000) {
+      return new Response(JSON.stringify({ error: "input_too_large" }), {
+        status: 413,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     const reviewOperation = await executeThirdPartyAiOperation(
       supabaseClient,
       user.id,
       "open_ai",
-      () =>
-        generateReviewWithGPT(
-          book as BookData,
-          (memos as MemoContent[]) ?? [],
-        ),
+      async () => {
+        return withAiBudget(
+          supabaseClient,
+          inputChars,
+          () =>
+            generateReviewWithGPT(
+              book as BookData,
+              (memos as MemoContent[]) ?? [],
+            ),
+        );
+      },
     );
     if (!reviewOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse(corsHeaders);
@@ -226,6 +250,8 @@ serve(async (req: Request) => {
       },
     );
   } catch (error) {
+    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
+    if (usageResponse) return usageResponse;
     console.error("[generate-book-review] Error:", error);
     return new Response(
       JSON.stringify({ error: (error as Error).message }),

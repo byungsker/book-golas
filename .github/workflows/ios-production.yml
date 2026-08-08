@@ -91,6 +91,8 @@ jobs:
         run: |
           deno test --frozen --config supabase/functions/deno.json --allow-env --allow-net \
             supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/_shared/ai-usage.test.ts \
+            supabase/functions/recommend-next-books/services/profile-collector.test.ts \
             supabase/functions/vision-ocr/index_test.ts
           deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
             supabase/functions/structure-notes/services/chain-service.test.ts

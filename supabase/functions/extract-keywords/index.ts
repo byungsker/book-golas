@@ -5,6 +5,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import {
+  aiUsageErrorResponse,
+  fetchAiProvider,
+  withAiBudget,
+} from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -16,18 +21,20 @@ interface KeywordRequest {
 async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
   const combinedText = texts.join("\n---\n");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `당신은 텍스트에서 핵심 키워드를 추출하는 전문가입니다.
+  const response = await fetchAiProvider(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `당신은 텍스트에서 핵심 키워드를 추출하는 전문가입니다.
 주어진 독서 기록들에서 가장 의미있는 핵심 명사/키워드를 추출하세요.
 
 규칙:
@@ -36,17 +43,18 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
 - 책의 핵심 개념이나 주제를 나타내는 단어 우선
 - 최대 8개까지만 추출
 - JSON 배열 형식으로만 응답 (예: ["습관", "목표", "성장"])`,
-        },
-        {
-          role: "user",
-          content:
-            `다음 독서 기록들에서 핵심 키워드를 추출해주세요:\n\n${combinedText}`,
-        },
-      ],
-      temperature: 0.3,
-      max_tokens: 200,
-    }),
-  });
+          },
+          {
+            role: "user",
+            content:
+              `다음 독서 기록들에서 핵심 키워드를 추출해주세요:\n\n${combinedText}`,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+      }),
+    },
+  );
 
   if (!response.ok) {
     throw new Error(`OpenAI API error: ${response.status}`);
@@ -155,11 +163,27 @@ serve(async (req: Request) => {
     }
 
     const texts = contents.map((c: { content_text: string }) => c.content_text);
+    const inputChars = texts.reduce((total, text) => total + text.length, 0);
+    if (inputChars > 20_000) {
+      return new Response(JSON.stringify({ error: "input_too_large" }), {
+        status: 413,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
     const keywordOperation = await executeThirdPartyAiOperation(
       supabaseClient,
       user.id,
       "open_ai",
-      () => extractKeywordsWithGPT(texts),
+      async () => {
+        return withAiBudget(
+          supabaseClient,
+          inputChars,
+          () => extractKeywordsWithGPT(texts),
+        );
+      },
     );
     if (!keywordOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
@@ -177,6 +201,10 @@ serve(async (req: Request) => {
       },
     });
   } catch (error) {
+    const usageResponse = aiUsageErrorResponse(error, {
+      "Access-Control-Allow-Origin": "*",
+    });
+    if (usageResponse) return usageResponse;
     console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: (error as Error).message }),

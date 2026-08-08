@@ -5,6 +5,11 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
+import {
+  aiUsageErrorResponse,
+  fetchAiProvider,
+  withAiBudget,
+} from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -24,17 +29,20 @@ interface SourceDocument {
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+  const response = await fetchAiProvider(
+    "https://api.openai.com/v1/embeddings",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: text,
+      }),
     },
-    body: JSON.stringify({
-      model: "text-embedding-3-small",
-      input: text,
-    }),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -90,22 +98,25 @@ ${TONE_CONFIG.styleGuide}
 관련 기록:
 ${context}`;
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+  const response = await fetchAiProvider(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.3,
+        max_tokens: 1000,
+      }),
     },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.3,
-      max_tokens: 1000,
-    }),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -165,13 +176,29 @@ serve(async (req: Request) => {
       );
     }
 
+    if (query.length > 2_000) {
+      return new Response(JSON.stringify({ error: "input_too_large" }), {
+        status: 413,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     const isGlobalSearch = !bookId;
 
     const embeddingOperation = await executeThirdPartyAiOperation(
       supabaseClient,
       user.id,
       "open_ai",
-      () => generateEmbedding(query),
+      async () => {
+        return withAiBudget(
+          supabaseClient,
+          query.length,
+          () => generateEmbedding(query),
+        );
+      },
     );
     if (!embeddingOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
@@ -261,11 +288,28 @@ serve(async (req: Request) => {
       })
       .join("\n\n");
 
+    const answerInputChars = query.length + context.length;
+    if (answerInputChars > 20_000) {
+      return new Response(JSON.stringify({ error: "input_too_large" }), {
+        status: 413,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     const answerOperation = await executeThirdPartyAiOperation(
       supabaseClient,
       user.id,
       "open_ai",
-      () => generateAnswer(query, context),
+      async () => {
+        return withAiBudget(
+          supabaseClient,
+          answerInputChars,
+          () => generateAnswer(query, context),
+        );
+      },
     );
     if (!answerOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse({
@@ -319,6 +363,10 @@ serve(async (req: Request) => {
       },
     });
   } catch (error) {
+    const usageResponse = aiUsageErrorResponse(error, {
+      "Access-Control-Allow-Origin": "*",
+    });
+    if (usageResponse) return usageResponse;
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
