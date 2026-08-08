@@ -46,6 +46,7 @@
         ".byungskerlab/release.yaml",
         ".env.example",
         ".github/workflows/daily-nudge.yml",
+        ".github/workflows/deploy-edge-functions.yml",
         ".github/workflows/ios-production.yml",
         ".github/workflows/ios-testflight.yml",
         ".github/workflows/quality.yml",
