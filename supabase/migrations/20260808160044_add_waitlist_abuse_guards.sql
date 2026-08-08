@@ -46,7 +46,7 @@ as $$
 declare
   normalized_email text := pg_catalog.lower(pg_catalog.btrim(p_email));
   normalized_locale text := case when p_locale = 'en' then 'en' else 'ko' end;
-  normalized_source text := pg_catalog.coalesce(pg_catalog.nullif(pg_catalog.left(pg_catalog.btrim(p_source), 80), ''), 'landing');
+  normalized_source text := coalesce(nullif(pg_catalog.left(pg_catalog.btrim(p_source), 80), ''), 'landing');
   current_window timestamptz;
   current_count integer;
 begin
