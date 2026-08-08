@@ -44,7 +44,7 @@
       ],
       "evidence_refs": [
         "docs/product-roadmap.md",
-        "docs/guides/release-1.0.2-plan.md"
+        "docs/guides/release-1.0.2-backend-plan.md"
       ],
       "promotion_sources": {
         "release": {},

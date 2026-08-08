@@ -12,6 +12,10 @@ Target-Delivery-Unit: web
 Target-Version: 1.0.2
 Delivery-Profile: web-release-train
 
+Target-Delivery-Unit: backend
+Target-Version: 1.0.2
+Delivery-Profile: backend-service
+
 ## Priority order
 
 Bookgolas follows this release order:
@@ -29,6 +33,11 @@ The existing [1.0.2 release plan](./guides/release-1.0.2-plan.md) remains the
 source of truth for the patch scope and release blockers. The patch is not
 complete until the outstanding stability, privacy, metadata, and platform
 verification items are closed with evidence.
+
+The independently deployed Edge Function boundary is tracked by the
+[backend 1.0.2 release plan](./guides/release-1.0.2-backend-plan.md). It is a
+companion delivery line for the same patch and does not authorize production
+deployment by itself.
 
 Exit gate:
 
