@@ -41,7 +41,7 @@ export class InsightService {
     supabase: SupabaseClient,
     beforeProviderCall: (
       input: string,
-    ) => Promise<() => Promise<void>> = async () => async () => {},
+    ) => Promise<() => Promise<void>>,
   ) {
     this.supabase = supabase;
     this.beforeProviderCall = beforeProviderCall;
@@ -51,6 +51,7 @@ export class InsightService {
       modelName: config.openai.model,
       temperature: config.openai.temperature,
       maxTokens: AI_MAX_OUTPUT_TOKENS,
+      maxRetries: 0,
       timeout: Math.min(
         config.insights.timeoutSeconds * 1000,
         AI_PROVIDER_TIMEOUT_MS,

@@ -21,10 +21,11 @@ export async function extractUserInterests(
   userId: string,
   beforeProviderCall: (
     input: string,
-  ) => Promise<() => Promise<void>> = async () => async () => {},
+  ) => Promise<() => Promise<void>>,
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
+    maxRetries: 0,
     timeout: AI_PROVIDER_TIMEOUT_MS,
   });
 

@@ -98,10 +98,10 @@ export class RecommendationService {
   ) => Promise<() => Promise<void>>;
 
   constructor(
-    locale: string = "ko",
     beforeProviderCall: (
       input: string,
-    ) => Promise<() => Promise<void>> = async () => async () => {},
+    ) => Promise<() => Promise<void>>,
+    locale: string = "ko",
   ) {
     this.locale = locale;
     this.beforeProviderCall = beforeProviderCall;
@@ -110,6 +110,7 @@ export class RecommendationService {
       modelName: config.openai.model,
       temperature: config.openai.temperature,
       maxTokens: AI_MAX_OUTPUT_TOKENS,
+      maxRetries: 0,
       timeout: AI_PROVIDER_TIMEOUT_MS,
     });
 

@@ -98,8 +98,8 @@ serve(async (req: Request) => {
     }
 
     const recommendationService = new RecommendationService(
-      locale,
       (prompt) => acquireAiBudget(authClient, prompt.length),
+      locale,
     );
     const recommendationOperation = await executeThirdPartyAiOperation(
       authClient,

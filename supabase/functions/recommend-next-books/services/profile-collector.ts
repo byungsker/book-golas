@@ -19,7 +19,7 @@ export class ProfileCollector {
     userId: string,
     beforeProviderCall: (
       input: string,
-    ) => Promise<() => Promise<void>> = async () => async () => {},
+    ) => Promise<() => Promise<void>>,
   ): Promise<UserReadingProfile> {
     const completedBooks = await this.fetchCompletedBooks(userId);
     const booksAnalytics = await this.analyzeBooksInDetail(completedBooks);

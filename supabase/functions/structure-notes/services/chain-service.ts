@@ -78,7 +78,7 @@ export class ChainService {
     apiKey: string,
     beforeProviderCall: (
       input: string,
-    ) => Promise<() => Promise<void>> = async () => async () => {},
+    ) => Promise<() => Promise<void>>,
   ) {
     this.beforeProviderCall = beforeProviderCall;
     this.llm = new ChatOpenAI({
@@ -86,6 +86,7 @@ export class ChainService {
       modelName: "gpt-4o-mini",
       temperature: 0.3,
       maxTokens: AI_MAX_OUTPUT_TOKENS,
+      maxRetries: 0,
       timeout: AI_PROVIDER_TIMEOUT_MS,
     });
   }
