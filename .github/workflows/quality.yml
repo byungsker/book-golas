@@ -11,7 +11,36 @@ concurrency:
   group: quality-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
+  changes:
+    name: Resolve Quality Scope
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.scope.outputs.web }}
+    steps:
+      - id: scope
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: 100,
+              },
+            );
+            const changed = files.some((file) =>
+              file.filename.startsWith("web/") ||
+              (file.status === "renamed" && file.previous_filename.startsWith("web/")),
+            );
+            core.setOutput("web", changed);
+
   flutter:
     name: Flutter Analyze and Test
     runs-on: ubuntu-latest
@@ -43,21 +72,31 @@ jobs:
 
   web:
     name: Web Audit, Lint, and Build
+    needs: changes
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - if: needs.changes.outputs.web != 'true'
+        working-directory: .
+        run: echo "No Web changes detected"
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - run: npm ci
-      - run: npm audit --audit-level=high
-      - run: npm run lint
-      - run: npm run build
+      - if: needs.changes.outputs.web == 'true'
+        run: npm ci
+      - if: needs.changes.outputs.web == 'true'
+        run: npm audit --audit-level=high
+      - if: needs.changes.outputs.web == 'true'
+        run: npm run lint
+      - if: needs.changes.outputs.web == 'true'
+        run: npm run build
 
   edge-functions:
     name: Edge Function Type Check
