@@ -18,6 +18,7 @@ type Status =
   | "submitting"
   | "success"
   | "duplicate"
+  | "rate_limited"
   | "invalid"
   | "error";
 
@@ -48,6 +49,8 @@ export function WaitlistModal({
         setStatus("duplicate");
       } else if (result.code === "invalid") {
         setStatus("invalid");
+      } else if (result.code === "rate_limited") {
+        setStatus("rate_limited");
       } else {
         setStatus("error");
       }
@@ -134,6 +137,9 @@ export function WaitlistModal({
             )}
             {status === "invalid" && (
               <p className="text-sm text-rose-300">{t("invalid")}</p>
+            )}
+            {status === "rate_limited" && (
+              <p className="text-sm text-amber-300">{t("rateLimited")}</p>
             )}
             {status === "error" && (
               <p className="text-sm text-rose-300">{t("error")}</p>

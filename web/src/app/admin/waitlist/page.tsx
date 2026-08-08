@@ -33,7 +33,6 @@ type WaitlistEntry = {
   email: string;
   locale: "ko" | "en";
   source: string | null;
-  user_agent: string | null;
   created_at: string;
 };
 
@@ -55,7 +54,7 @@ export default function WaitlistAdminPage() {
     setError(null);
     const { data, error: fetchError } = await supabase
       .from("waitlist")
-      .select("id, email, locale, source, user_agent, created_at")
+      .select("id, email, locale, source, created_at")
       .order("created_at", { ascending: false })
       .limit(1000);
 
@@ -339,8 +338,9 @@ function StatCard({
 }
 
 function csvEscape(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  const neutralized = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  if (/[",\n]/.test(neutralized)) {
+    return `"${neutralized.replace(/"/g, '""')}"`;
   }
-  return value;
+  return neutralized;
 }
