@@ -5,13 +5,15 @@ const action = await readFile("src/app/actions/waitlist.ts", "utf8");
 const page = await readFile("src/app/admin/waitlist/page.tsx", "utf8");
 
 function csvEscape(value) {
-  const neutralized = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  const neutralized = /^[\u0000-\u0020]*[=+\-@]/.test(value)
+    ? `'${value}`
+    : value;
   return /[",\n]/.test(neutralized)
     ? `"${neutralized.replace(/"/g, '""')}"`
     : neutralized;
 }
 
-for (const value of ["=SUM(A1:A2)", "+1", "-1", "@cmd"]) {
+for (const value of ["=SUM(A1:A2)", "+1", "-1", "@cmd", " \t=SUM(A1:A2)", "\u0000@cmd"]) {
   assert.equal(csvEscape(value).startsWith("'"), true);
 }
 assert.equal(action.includes("user_agent"), false);

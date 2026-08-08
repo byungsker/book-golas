@@ -84,7 +84,6 @@
     "successDesc": "We'll email you the moment Bookgolas launches.",
     "duplicate": "You're already on the list — see you at launch!",
     "invalid": "Please enter a valid email address.",
-    "rateLimited": "Please try again in a little while.",
     "error": "Something went wrong. Please try again later.",
     "privacy": "We'll only email you about the launch — nothing else."
   },

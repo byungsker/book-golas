@@ -18,7 +18,6 @@ type Status =
   | "submitting"
   | "success"
   | "duplicate"
-  | "rate_limited"
   | "invalid"
   | "error";
 
@@ -49,8 +48,6 @@ export function WaitlistModal({
         setStatus("duplicate");
       } else if (result.code === "invalid") {
         setStatus("invalid");
-      } else if (result.code === "rate_limited") {
-        setStatus("rate_limited");
       } else {
         setStatus("error");
       }
@@ -132,17 +129,15 @@ export function WaitlistModal({
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="source" value={source} />
 
-            {status === "duplicate" && (
-              <p className="text-sm text-amber-300">{t("duplicate")}</p>
-            )}
-            {status === "invalid" && (
-              <p className="text-sm text-rose-300">{t("invalid")}</p>
-            )}
-            {status === "rate_limited" && (
-              <p className="text-sm text-amber-300">{t("rateLimited")}</p>
-            )}
-            {status === "error" && (
-              <p className="text-sm text-rose-300">{t("error")}</p>
+            {(status === "duplicate" || status === "invalid" || status === "error") && (
+              <p
+                role={status === "error" ? "alert" : "status"}
+                aria-live="polite"
+                aria-atomic="true"
+                className={`text-sm ${status === "duplicate" ? "text-amber-300" : "text-rose-300"}`}
+              >
+                {t(status)}
+              </p>
             )}
 
             <button
