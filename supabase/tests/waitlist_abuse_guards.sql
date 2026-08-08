@@ -60,6 +60,35 @@ end;
 $$;
 
 reset role;
+
+set role authenticated;
+
+do $$
+begin
+  begin
+    perform public.register_waitlist_submission(
+      'blocked-authenticated@example.com',
+      'ko',
+      'fixture',
+      repeat('6', 64)
+    );
+    raise exception 'authenticated role can execute waitlist registration';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
+  begin
+    perform count(*) from public.waitlist_rate_limits;
+    raise exception 'authenticated role can read waitlist rate limits';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+end;
+$$;
+
+reset role;
 set role postgres;
 insert into public.waitlist_rate_limits (ip_hash, window_started_at, submission_count, updated_at)
 values (repeat('f', 64), now() - interval '3 hours', 1, now() - interval '3 hours')
