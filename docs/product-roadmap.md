@@ -35,9 +35,10 @@ complete until the outstanding stability, privacy, metadata, and platform
 verification items are closed with evidence.
 
 The independently deployed Edge Function boundary is a backend-service
-companion delivery line for the same patch. Its production deployment remains
-subject to the protected `main` environment and does not authorize execution
-by itself.
+companion delivery line for the same patch. The protected `main` environment,
+approved project ref, and manual-dispatch rejection controls are still pending
+implementation and evidence in BOK-396; opening this line does not authorize
+production execution by itself.
 
 Exit gate:
 
