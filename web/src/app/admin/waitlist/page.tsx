@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { csvEscape } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,7 +34,6 @@ type WaitlistEntry = {
   email: string;
   locale: "ko" | "en";
   source: string | null;
-  user_agent: string | null;
   created_at: string;
 };
 
@@ -55,7 +55,7 @@ export default function WaitlistAdminPage() {
     setError(null);
     const { data, error: fetchError } = await supabase
       .from("waitlist")
-      .select("id, email, locale, source, user_agent, created_at")
+      .select("id, email, locale, source, created_at")
       .order("created_at", { ascending: false })
       .limit(1000);
 
@@ -336,11 +336,4 @@ function StatCard({
       </CardContent>
     </Card>
   );
-}
-
-function csvEscape(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
 }

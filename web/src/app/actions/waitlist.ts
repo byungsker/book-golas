@@ -1,7 +1,6 @@
 "use server";
 
 import { after } from "next/server";
-import { headers } from "next/headers";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { sendWaitlistWelcome } from "@/lib/email/client";
 
@@ -25,14 +24,12 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
     return { ok: false, code: "invalid" };
   }
 
-  const headerStore = await headers();
-  const userAgent = headerStore.get("user-agent")?.slice(0, 500) ?? null;
   const locale = localeInput === "en" ? "en" : "ko";
 
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("waitlist")
-    .insert({ email, locale, user_agent: userAgent, source });
+    .insert({ email, locale, source });
 
   if (error) {
     if (error.code === "23505") return { ok: false, code: "duplicate" };
@@ -42,7 +39,7 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
   after(async () => {
     const result = await sendWaitlistWelcome(email, locale);
     if (!result.ok) {
-      console.error("[waitlist] email send failed", { email, reason: result.reason });
+      console.error("[waitlist] email send failed", { reason: result.reason });
     }
   });
 
