@@ -2,8 +2,6 @@ BEGIN;
 
 SELECT plan(14);
 
-CREATE EXTENSION IF NOT EXISTS dblink;
-
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -42,34 +40,7 @@ INSERT INTO auth.users (
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}'
-  ),
-  (
-    '00000000-0000-0000-0000-000000000000',
-    '77777777-7777-7777-7777-777777777777',
-    'authenticated',
-    'authenticated',
-    'ai-budget-concurrency@example.com',
-    '',
-    now(),
-    now(),
-    now(),
-    '{"provider":"email","providers":["email"]}',
-    '{}'
   );
-
-COMMIT;
-BEGIN;
-
-SELECT dblink_connect(
-  'ai_budget_a',
-  'host=127.0.0.1 port=5432 dbname=' || current_database() ||
-    ' user=postgres password=postgres'
-);
-SELECT dblink_connect(
-  'ai_budget_b',
-  'host=127.0.0.1 port=5432 dbname=' || current_database() ||
-    ' user=postgres password=postgres'
-);
 
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub =
@@ -93,50 +64,32 @@ SELECT ok(
   'budget function locks the user bucket for concurrent calls'
 );
 
-SELECT dblink_exec('ai_budget_a', 'SET ROLE authenticated');
-SELECT dblink_exec('ai_budget_b', 'SET ROLE authenticated');
-SELECT dblink_exec(
-  'ai_budget_a',
-  'SET request.jwt.claim.sub = ''77777777-7777-7777-7777-777777777777'''
-);
-SELECT dblink_exec(
-  'ai_budget_b',
-  'SET request.jwt.claim.sub = ''77777777-7777-7777-7777-777777777777'''
-);
-SELECT dblink_exec('ai_budget_a', 'BEGIN');
-SELECT *
-FROM dblink('ai_budget_a', 'SELECT public.consume_ai_usage(10)')
-  AS result(value JSONB);
-SELECT dblink_exec('ai_budget_b', 'SET statement_timeout = 5000');
-SELECT dblink_exec('ai_budget_b', 'BEGIN');
-SELECT ok(
-  dblink_send_query(
-    'ai_budget_b',
-    'SELECT public.consume_ai_usage(10)'
-  ) = 1,
-  'a concurrent budget call is submitted without bypassing the row lock'
-);
-SELECT pg_sleep(0.1);
-SELECT ok(
-  dblink_is_busy('ai_budget_b') = 1,
-  'the concurrent call waits for the first transaction'
-);
-SELECT dblink_exec('ai_budget_a', 'COMMIT');
 SELECT results_eq(
   $$
-    SELECT value->>'allowed'
-    FROM dblink_get_result('ai_budget_b') AS result(value JSONB)
+    SELECT (public.consume_ai_usage(10)->>'allowed')
   $$,
   ARRAY['true'::text],
-  'the concurrent call completes after the first transaction releases the row lock'
+  'a third in-flight budget call remains within the concurrency cap'
 );
-SELECT *
-FROM dblink_get_result('ai_budget_b') AS result(value JSONB);
-SELECT dblink_exec('ai_budget_b', 'COMMIT');
-SELECT dblink_disconnect('ai_budget_a');
-SELECT dblink_disconnect('ai_budget_b');
+SELECT results_eq(
+  $$
+    SELECT public.consume_ai_usage(10)->>'reason'
+  $$,
+  ARRAY['concurrency_exceeded'::text],
+  'the fourth in-flight budget call is rejected'
+);
 
 RESET ROLE;
+
+SELECT ok(
+  (SELECT COUNT(*) = 3
+   FROM public.ai_usage_leases
+   WHERE user_id = '55555555-5555-5555-5555-555555555555'),
+  'the user bucket tracks the active lease count'
+);
+
+DELETE FROM public.ai_usage_leases
+WHERE user_id = '55555555-5555-5555-5555-555555555555';
 
 SELECT results_eq(
   $$
@@ -230,10 +183,4 @@ SELECT throws_ok(
 );
 
 SELECT * FROM finish();
-DELETE FROM auth.users
-WHERE id IN (
-  '55555555-5555-5555-5555-555555555555',
-  '66666666-6666-6666-6666-666666666666',
-  '77777777-7777-7777-7777-777777777777'
-);
-COMMIT;
+ROLLBACK;
