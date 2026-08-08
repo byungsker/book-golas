@@ -1,3 +1,5 @@
+set role service_role;
+
 do $$
 declare
   result text;
@@ -53,6 +55,24 @@ begin
   );
   if result <> 'invalid' then
     raise exception 'expected invalid, got %', result;
+  end if;
+end;
+$$;
+
+reset role;
+set role postgres;
+insert into public.waitlist_rate_limits (ip_hash, window_started_at, submission_count, updated_at)
+values (repeat('f', 64), now() - interval '3 hours', 1, now() - interval '3 hours')
+on conflict (ip_hash) do update set updated_at = excluded.updated_at;
+set role service_role;
+select public.cleanup_waitlist_rate_limits();
+reset role;
+do $$
+begin
+  if exists (
+    select 1 from public.waitlist_rate_limits where ip_hash = repeat('f', 64)
+  ) then
+    raise exception 'stale rate bucket was not removed';
   end if;
 end;
 $$;
