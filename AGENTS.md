@@ -153,7 +153,10 @@ UI (lib/ui/) → ViewModel → Repository → Service
   승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
   독립 Web admin의 승인된 parallel release train은 `1.0.2`이며,
-  `AGENTS.md`와 `docs/product-roadmap.md`가 그 evidence를 함께 기록한다.
+  독립 backend service도 `1.0.2` release line을 사용하며,
+  `docs/product-roadmap.md`가 그 evidence를 기록한다. `AGENTS.md`와 각
+  delivery unit의
+  active version이 일치하지 않으면 브랜치나 PR을 만들 수 없다.
 - active version을 여는 정책 변경은 byungsker 검토가 필요한
   `chore/governance/1.0.0/<scope>` PR로만 수행한다.
 - `daily/*`는 사용하지 않는다.
@@ -165,8 +168,10 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - 현재 `ios-testflight.yml`과 `ios-production.yml`이 Supabase migration과
   Functions 배포를 함께 수행한다. 이 결합을 제거하기 전까지 자동
   Supabase 배포는 `mobile-store` 흐름을 따른다.
-- Functions만 독립 배포할 때는 검증된 커밋과 명시적 배포 권한을
-  확인하고 수동 `deploy-edge-functions.yml`을 사용한다.
+- Functions만 독립 배포할 때는 검증된 `backend-service` 1.0.2
+  커밋과 명시적 배포 권한을 확인하고 수동
+  `deploy-edge-functions.yml`을 사용한다. 이 workflow는 backend
+  delivery unit만 소유하며 mobile 경로로 우회하지 않는다.
 - `integration/<unit>/x.y.z/<purpose>`는 같은 버전의 여러 검토 완료
   작업 조합 검증에만 사용하며 직접 커밋, 새 작업의 기반, promotion
   source로 사용하지 않는다.

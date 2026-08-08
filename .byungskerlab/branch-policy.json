@@ -46,7 +46,6 @@
         ".byungskerlab/release.yaml",
         ".env.example",
         ".github/workflows/daily-nudge.yml",
-        ".github/workflows/deploy-edge-functions.yml",
         ".github/workflows/ios-production.yml",
         ".github/workflows/ios-testflight.yml",
         ".github/workflows/quality.yml",
@@ -85,7 +84,9 @@
     "backend": {
       "profile": "backend-service",
       "mode": "continuous",
-      "active_versions": [],
+      "active_versions": [
+        "1.0.2"
+      ],
       "target_version_source": ".byungskerlab/release-lines.json",
       "production_branch": "main",
       "allowed_paths": [
