@@ -44,8 +44,16 @@ INSERT INTO auth.users (
     '{}'
   );
 
-SELECT dblink_connect('ai_budget_a', 'dbname=' || current_database());
-SELECT dblink_connect('ai_budget_b', 'dbname=' || current_database());
+SELECT dblink_connect(
+  'ai_budget_a',
+  'host=127.0.0.1 port=5432 dbname=' || current_database() ||
+    ' user=postgres password=postgres'
+);
+SELECT dblink_connect(
+  'ai_budget_b',
+  'host=127.0.0.1 port=5432 dbname=' || current_database() ||
+    ' user=postgres password=postgres'
+);
 
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub =
