@@ -199,6 +199,8 @@ SELECT ok(
   'the 31st daily request is rejected'
 );
 
+RESET ROLE;
+
 SELECT results_eq(
   $$
     SELECT request_count
@@ -208,6 +210,8 @@ SELECT results_eq(
   ARRAY[30],
   'quota rejection does not increment the bucket'
 );
+
+SET LOCAL ROLE authenticated;
 
 SELECT throws_ok(
   $$ SELECT * FROM public.ai_usage_buckets $$,
