@@ -5,5 +5,4 @@
 /.github/scripts/validate_target_version_pr.py @byungsker
 /.github/workflows/target-version-gate.yml @byungsker
 /.github/workflows/quality.yml @byungsker
-/.github/workflows/web-quality-scope.yml @byungsker
 /AGENTS.md @byungsker
