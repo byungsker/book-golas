@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// Stats navigation
   ///
   /// In ko, this message translates to:
-  /// **'상태'**
+  /// **'통계'**
   String get navStats;
 
   /// Calendar navigation
@@ -193,6 +193,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'캘린더'**
   String get navCalendar;
+
+  /// Search button in the bottom navigation
+  ///
+  /// In ko, this message translates to:
+  /// **'검색'**
+  String get navSearch;
+
+  /// 큰 접근성 글자에서 사용하는 홈 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'홈'**
+  String get navHomeCompact;
+
+  /// 큰 접근성 글자에서 사용하는 서재 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'서재'**
+  String get navLibraryCompact;
+
+  /// 큰 접근성 글자에서 사용하는 통계 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'통계'**
+  String get navStatsCompact;
+
+  /// 큰 접근성 글자에서 사용하는 캘린더 하단 탐색 축약 라벨
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get navCalendarCompact;
+
+  /// Accessibility hint for the bottom navigation search button
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.'**
+  String get navSearchHint;
 
   /// Book count with unit
   ///
@@ -505,6 +541,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'목표일'**
   String get bookDetailTargetDate;
+
+  /// Accessible label for editing the target date
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일 수정'**
+  String get bookDetailEditTargetDate;
 
   /// Review written status in book detail
   ///
@@ -1635,6 +1677,30 @@ abstract class AppLocalizations {
   /// **'알림이 비활성화되었습니다'**
   String get myPageNotificationsDisabled;
 
+  /// Title for the notification permission recovery dialog
+  ///
+  /// In ko, this message translates to:
+  /// **'설정에서 알림을 허용해 주세요'**
+  String get myPageNotificationPermissionTitle;
+
+  /// Notification permission recovery guidance
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 설정에서 북골라스 알림을 켠 뒤 다시 시도해 주세요.'**
+  String get myPageNotificationPermissionDenied;
+
+  /// Button that opens the device application settings
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get myPageOpenSettings;
+
+  /// Notification enablement failed for a technical reason and explains how to retry
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.'**
+  String get myPageNotificationPermissionRequestFailed;
+
   /// Notification settings change failed message
   ///
   /// In ko, this message translates to:
@@ -1844,6 +1910,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{userName}님의 독서 패턴을 분석하여 추천하는 책들이에요'**
   String readingStartAIRecommendationDesc(String userName);
+
+  /// Title of the AI recommendation consent recovery card
+  ///
+  /// In ko, this message translates to:
+  /// **'맞춤 도서 추천을 받아보세요'**
+  String get readingStartAiRecommendationConsentTitle;
+
+  /// Description of the AI recommendation consent recovery card
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록을 분석하기 전에 OpenAI 데이터 제공 내용을 확인해 주세요. 허용하기 전에는 아무 정보도 전송하지 않습니다.'**
+  String get readingStartAiRecommendationConsentDescription;
+
+  /// Button that opens OpenAI data sharing consent for recommendations
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 제공 내용 확인'**
+  String get readingStartAiRecommendationConsentAction;
 
   /// Search input hint text
   ///
@@ -2180,6 +2264,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새 페이지 번호'**
   String get pageUpdateNewPageLabel;
+
+  /// Abbreviated page unit shown beside page number inputs
+  ///
+  /// In ko, this message translates to:
+  /// **'p'**
+  String get pageAbbreviation;
 
   /// Cancel button
   ///
@@ -2931,6 +3021,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{attemptCount}번째 · {attemptEncouragement}'**
   String detailTabAttempt(int attemptCount, String attemptEncouragement);
+
+  /// Locale-specific encouragement shown beside a reread attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'끝까지 함께해요!'**
+  String get detailTabAttemptEncouragement;
 
   /// Change button
   ///
@@ -4797,6 +4893,211 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'일일 페이지'**
   String get historyTabDailyPages;
+
+  /// History chart mode and legend for reading time
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 시간'**
+  String get historyTabReadingTime;
+
+  /// Cumulative page count in chart tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'누적: {page}p\n'**
+  String historyTabChartCumulativeTooltip(int page);
+
+  /// Daily page count in chart tooltip
+  ///
+  /// In ko, this message translates to:
+  /// **'일일: +{page}p'**
+  String historyTabChartDailyTooltip(int page);
+
+  /// Short duration label in seconds for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초'**
+  String historyTabDurationSeconds(int seconds);
+
+  /// Short duration label in minutes for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분'**
+  String historyTabDurationMinutes(int minutes);
+
+  /// Short duration label in hours for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간'**
+  String historyTabDurationHours(int hours);
+
+  /// Short duration label in hours and minutes for chart axis
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분'**
+  String historyTabDurationHoursMinutes(int hours, int minutes);
+
+  /// Duration label in hours, minutes, and seconds
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분 {seconds}초'**
+  String historyTabDurationHoursMinutesSeconds(
+      int hours, int minutes, int seconds);
+
+  /// Attempt number and encouragement badge in history
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 · {encouragement}'**
+  String historyTabAttemptBadge(int attempt, String encouragement);
+
+  /// Heading for reading time statistics
+  ///
+  /// In ko, this message translates to:
+  /// **'⏱️ 독서 시간 통계'**
+  String get historyTabReadingTimeStats;
+
+  /// Label for total reading time
+  ///
+  /// In ko, this message translates to:
+  /// **'총 독서 시간'**
+  String get historyTabTotalReadingTime;
+
+  /// Label for total reading sessions
+  ///
+  /// In ko, this message translates to:
+  /// **'총 세션'**
+  String get historyTabTotalSessions;
+
+  /// Analysis title after completing a later reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'드디어 완독!'**
+  String get historyTabAnalysisCompletedAfterAttemptsTitle;
+
+  /// Completion analysis message after multiple attempts
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!'**
+  String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt);
+
+  /// Analysis title after completing the first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'완독 축하해요!'**
+  String get historyTabAnalysisCompletedTitle;
+
+  /// Analysis message after completing the first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'목표를 달성했어요. 다음 책도 함께 읽어볼까요?'**
+  String get historyTabAnalysisCompletedMessage;
+
+  /// Analysis title for a later reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'이번엔 완주해봐요'**
+  String get historyTabAnalysisPastDueRetryTitle;
+
+  /// Past due analysis message for a retry
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?'**
+  String historyTabAnalysisPastDueRetryMessage(int attempt);
+
+  /// Analysis title for a first reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일이 지났어요'**
+  String get historyTabAnalysisPastDueTitle;
+
+  /// Analysis message for a first reading attempt past its target date
+  ///
+  /// In ko, this message translates to:
+  /// **'괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!'**
+  String get historyTabAnalysisPastDueMessage;
+
+  /// Analysis title when reading is far ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'놀라운 속도예요!'**
+  String get historyTabAnalysisFarAheadTitle;
+
+  /// Analysis message when reading is far ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!'**
+  String get historyTabAnalysisFarAheadMessage;
+
+  /// Analysis title when reading is ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'순조롭게 진행 중!'**
+  String get historyTabAnalysisAheadTitle;
+
+  /// Analysis message when reading is ahead of plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!'**
+  String get historyTabAnalysisAheadMessage;
+
+  /// Analysis title when reading is on plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획대로 진행 중'**
+  String get historyTabAnalysisOnTrackTitle;
+
+  /// Analysis message when reading is on plan
+  ///
+  /// In ko, this message translates to:
+  /// **'꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?'**
+  String get historyTabAnalysisOnTrackMessage;
+
+  /// Analysis title when a later reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'조금 더 속도를 내볼까요?'**
+  String get historyTabAnalysisBehindRetryTitle;
+
+  /// Analysis message when a later reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!'**
+  String get historyTabAnalysisBehindRetryMessage;
+
+  /// Analysis title when a first reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'조금 더 읽어볼까요?'**
+  String get historyTabAnalysisBehindTitle;
+
+  /// Analysis message when a first reading attempt is behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!'**
+  String get historyTabAnalysisBehindMessage;
+
+  /// Analysis title when a later reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'포기하지 마세요!'**
+  String get historyTabAnalysisFarBehindRetryTitle;
+
+  /// Far behind analysis message for a retry
+  ///
+  /// In ko, this message translates to:
+  /// **'{attempt}번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!'**
+  String historyTabAnalysisFarBehindRetryMessage(int attempt);
+
+  /// Analysis title when a first reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 재설정이 필요할 수도'**
+  String get historyTabAnalysisFarBehindTitle;
+
+  /// Analysis message when a first reading attempt is far behind plan
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?'**
+  String get historyTabAnalysisFarBehindMessage;
 
   /// No description provided for @historyTabDailyRecords.
   ///
@@ -6994,6 +7295,420 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'목표 완독일을 설정하세요'**
   String get bookDetailStartReadingSubtitle;
+
+  /// Title of the Google Cloud Vision data sharing consent sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision OCR을 허용할까요?'**
+  String get thirdPartyAiGoogleConsentTitle;
+
+  /// Purpose of Google Cloud Vision data sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'문자를 추출하기 위해 선택한 페이지 이미지를 미국의 Google Cloud Vision으로 안전하게 전송합니다.'**
+  String get thirdPartyAiGoogleConsentDescription;
+
+  /// Data, recipient, and purpose for Google Cloud Vision sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 항목: 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트\n이전 국가: 미국\n이전 시점·방법: OCR을 실행할 때마다 미국 리전 엔드포인트로 TLS 암호화 전송\n제공받는 자: Google LLC(1600 Amphitheatre Parkway, Mountain View, CA 94043, USA)\n연락처: Google Cloud 개인정보 보호 문의 양식(cloud.google.com/privacy)\n목적: 이미지 문자 추출\n보유·이용 기간: 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있음(공개된 정확한 기간 없음)'**
+  String get thirdPartyAiGoogleDataDescription;
+
+  /// Title of the OpenAI data sharing consent sheet
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 기반 기능을 허용할까요?'**
+  String get thirdPartyAiOpenAiConsentTitle;
+
+  /// Purpose of OpenAI data sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'북골라스는 선택한 AI 기능에 미국의 OpenAI를 사용합니다. 동의한 뒤 아래에 안내된 데이터만 전송합니다.'**
+  String get thirdPartyAiOpenAiConsentDescription;
+
+  /// Data, recipient, and purpose for OpenAI sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 독서 기록 유형·페이지 위치, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음'**
+  String get thirdPartyAiOpenAiDataDescription;
+
+  /// Optional use and withdrawal notice for third-party AI sharing
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있습니다. 철회 성공이 확인된 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.'**
+  String get thirdPartyAiOptionalNotice;
+
+  /// Google Vision overseas transfer refusal and withdrawal notice
+  ///
+  /// In ko, this message translates to:
+  /// **'선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 Google OCR은 사용할 수 없지만 직접 텍스트를 입력하고 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 OCR 요청은 전송되지 않습니다.'**
+  String get thirdPartyAiGoogleOptionalNotice;
+
+  /// OpenAI overseas transfer refusal and withdrawal notice
+  ///
+  /// In ko, this message translates to:
+  /// **'선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.'**
+  String get thirdPartyAiOpenAiOptionalNotice;
+
+  /// Decline optional overseas transfer button
+  ///
+  /// In ko, this message translates to:
+  /// **'동의하지 않음'**
+  String get thirdPartyAiDecline;
+
+  /// Agree to Google OCR overseas transfer button
+  ///
+  /// In ko, this message translates to:
+  /// **'Google OCR 국외 이전에 동의'**
+  String get thirdPartyAiAgreeGoogle;
+
+  /// Agree to OpenAI overseas transfer button
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 국외 이전에 동의'**
+  String get thirdPartyAiAgreeOpenAi;
+
+  /// Assurance shown before optional overseas transfer
+  ///
+  /// In ko, this message translates to:
+  /// **'동의하기 전에는 아무 데이터도 전송하지 않습니다.'**
+  String get thirdPartyAiNothingSent;
+
+  /// Consent summary current action label
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 하려는 일'**
+  String get thirdPartyAiSectionAction;
+
+  /// Consent summary current data label
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 기능에 필요한 데이터'**
+  String get thirdPartyAiSectionData;
+
+  /// Consent summary recipient label
+  ///
+  /// In ko, this message translates to:
+  /// **'전송 대상'**
+  String get thirdPartyAiSectionRecipient;
+
+  /// Google OCR recipient summary
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision · 미국'**
+  String get thirdPartyAiRecipientGoogle;
+
+  /// OpenAI recipient summary
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI OpCo, LLC · 미국'**
+  String get thirdPartyAiRecipientOpenAi;
+
+  /// Provider-wide effect of Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 선택은 Google OCR을 사용할 때마다 적용됩니다.'**
+  String get thirdPartyAiAdditionalGoogle;
+
+  /// Provider-wide effect of OpenAI consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 제공자 단위 선택은 OpenAI 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩에 함께 적용됩니다.'**
+  String get thirdPartyAiAdditionalOpenAi;
+
+  /// Current action for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 페이지 이미지에서 문자 추출'**
+  String get thirdPartyAiContextGoogleOcr;
+
+  /// Current data for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 페이지 이미지와 한국어·영어 언어 힌트'**
+  String get thirdPartyAiDataGoogleOcr;
+
+  /// Current action for AI recall consent
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 내 독서 기록 검색'**
+  String get thirdPartyAiContextRecall;
+
+  /// Current data for AI recall consent
+  ///
+  /// In ko, this message translates to:
+  /// **'입력한 질문과 관련 책 정보·메모·하이라이트·OCR 텍스트'**
+  String get thirdPartyAiDataRecall;
+
+  /// Current action for AI review draft consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록을 바탕으로 리뷰 초안 작성'**
+  String get thirdPartyAiContextReviewDraft;
+
+  /// Current data for AI review draft consent
+  ///
+  /// In ko, this message translates to:
+  /// **'책 제목·저자·장르·평점·기존 리뷰와 페이지 위치가 포함된 메모·하이라이트·OCR 텍스트 최대 15개'**
+  String get thirdPartyAiDataReviewDraft;
+
+  /// Current action for AI reading insights consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 활동에서 인사이트 생성'**
+  String get thirdPartyAiContextReadingInsights;
+
+  /// Current data for AI reading insights consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 날짜·진행률·속도·목표·시도·활동 통계'**
+  String get thirdPartyAiDataReadingInsights;
+
+  /// Current action for AI mind map consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 책의 기록을 마인드맵으로 정리'**
+  String get thirdPartyAiContextMindMap;
+
+  /// Mind map state title when AI consent was declined
+  ///
+  /// In ko, this message translates to:
+  /// **'마인드맵에 AI 이용 동의가 필요해요'**
+  String get thirdPartyAiMindMapConsentRequiredTitle;
+
+  /// Mind map state description when AI consent was declined
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록은 그대로 보관됩니다. 마인드맵으로 정리하고 싶을 때만 국외 이전 내용을 확인하고 동의해 주세요.'**
+  String get thirdPartyAiMindMapConsentRequiredDescription;
+
+  /// Action to reopen AI consent from the mind map
+  ///
+  /// In ko, this message translates to:
+  /// **'동의 내용 다시 보기'**
+  String get thirdPartyAiMindMapConsentRequiredAction;
+
+  /// Current data for AI mind map consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 기록 유형·페이지 위치와 메모·하이라이트·OCR 텍스트; 저장된 기록 ID 대신 요청 전용 번호 사용'**
+  String get thirdPartyAiDataMindMap;
+
+  /// Current action for AI recommendations consent
+  ///
+  /// In ko, this message translates to:
+  /// **'독서 활동을 바탕으로 책 추천'**
+  String get thirdPartyAiContextRecommendations;
+
+  /// Current data for AI recommendations consent
+  ///
+  /// In ko, this message translates to:
+  /// **'책 정보·독서 상태와 진행률·평점·참여 통계'**
+  String get thirdPartyAiDataRecommendations;
+
+  /// Full provider-wide data summary in OpenAI consent settings
+  ///
+  /// In ko, this message translates to:
+  /// **'기능에 따라 입력한 질문, 책 정보, 독서 상태·날짜·진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표·시도·활동 통계를 사용합니다.'**
+  String get thirdPartyAiDataManageOpenAi;
+
+  /// Settings context for Google OCR consent
+  ///
+  /// In ko, this message translates to:
+  /// **'Google OCR 데이터 공유 관리'**
+  String get thirdPartyAiContextManageGoogle;
+
+  /// Settings context for OpenAI consent
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 데이터 공유 관리'**
+  String get thirdPartyAiContextManageOpenAi;
+
+  /// Expand overseas transfer details
+  ///
+  /// In ko, this message translates to:
+  /// **'국외 이전 상세보기'**
+  String get thirdPartyAiShowDetails;
+
+  /// Collapse overseas transfer details
+  ///
+  /// In ko, this message translates to:
+  /// **'국외 이전 상세 접기'**
+  String get thirdPartyAiHideDetails;
+
+  /// Consent saving status
+  ///
+  /// In ko, this message translates to:
+  /// **'선택을 저장하고 있어요…'**
+  String get thirdPartyAiSaving;
+
+  /// Consent status lookup progress
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 상태를 확인하고 있어요…'**
+  String get thirdPartyAiCheckingStatus;
+
+  /// Unknown consent grant result
+  ///
+  /// In ko, this message translates to:
+  /// **'선택이 저장됐는지 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 상태를 다시 확인하거나, 공유를 중지한 뒤 닫아 주세요.'**
+  String get thirdPartyAiGrantStatusUnknown;
+
+  /// Withdraw an uncertain grant before closing
+  ///
+  /// In ko, this message translates to:
+  /// **'공유 중지 후 닫기'**
+  String get thirdPartyAiStopSharingAndClose;
+
+  /// Consent withdrawal progress
+  ///
+  /// In ko, this message translates to:
+  /// **'공유를 중지하고 있어요…'**
+  String get thirdPartyAiStoppingSharing;
+
+  /// Consent persistence error
+  ///
+  /// In ko, this message translates to:
+  /// **'선택을 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'**
+  String get thirdPartyAiSaveFailed;
+
+  /// Retry consent operation
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get thirdPartyAiRetry;
+
+  /// Close consent details
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get thirdPartyAiClose;
+
+  /// Consent status lookup error
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 공유 상태를 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 계속하기 전에 상태를 다시 확인해 주세요.'**
+  String get thirdPartyAiStatusUnavailable;
+
+  /// Google Cloud privacy external link
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud 개인정보 안내 열기'**
+  String get thirdPartyAiGooglePrivacyLink;
+
+  /// OpenAI subprocessors external link
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 하위처리자 목록 열기'**
+  String get thirdPartyAiOpenAiSubprocessorsLink;
+
+  /// OpenAI privacy email link
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 개인정보 문의 이메일'**
+  String get thirdPartyAiOpenAiPrivacyContact;
+
+  /// Title of AI data sharing settings section
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 데이터 공유'**
+  String get thirdPartyAiSettingsTitle;
+
+  /// Description of AI data sharing settings
+  ///
+  /// In ko, this message translates to:
+  /// **'업체별 향후 전송 허용 여부를 관리합니다.'**
+  String get thirdPartyAiSettingsDescription;
+
+  /// Google Cloud Vision consent setting title
+  ///
+  /// In ko, this message translates to:
+  /// **'Google Cloud Vision OCR'**
+  String get thirdPartyAiGoogleSettingTitle;
+
+  /// Google Cloud Vision consent setting subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'텍스트 추출을 위한 선택한 페이지 이미지'**
+  String get thirdPartyAiGoogleSettingSubtitle;
+
+  /// OpenAI consent setting title
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 기능'**
+  String get thirdPartyAiOpenAiSettingTitle;
+
+  /// OpenAI consent setting subtitle
+  ///
+  /// In ko, this message translates to:
+  /// **'요청한 AI 결과에 필요한 독서 데이터'**
+  String get thirdPartyAiOpenAiSettingSubtitle;
+
+  /// Consent state allowed
+  ///
+  /// In ko, this message translates to:
+  /// **'동의함'**
+  String get thirdPartyAiStateAllowed;
+
+  /// Consent state not allowed
+  ///
+  /// In ko, this message translates to:
+  /// **'동의 안 함'**
+  String get thirdPartyAiStateNotAllowed;
+
+  /// Consent state unavailable
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 확인 불가'**
+  String get thirdPartyAiStateUnavailable;
+
+  /// Open provider consent details
+  ///
+  /// In ko, this message translates to:
+  /// **'상세보기'**
+  String get thirdPartyAiViewDetails;
+
+  /// Retry consent status lookup
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 다시 확인'**
+  String get thirdPartyAiRetryStatus;
+
+  /// Confirmation after withdrawing third-party AI sharing consent
+  ///
+  /// In ko, this message translates to:
+  /// **'이 업체로의 향후 전송을 중단했습니다.'**
+  String get thirdPartyAiConsentWithdrawn;
+
+  /// Error shown when third-party AI consent withdrawal is not persisted
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.'**
+  String get thirdPartyAiConsentWithdrawFailed;
+
+  /// History badge encouragement for a first reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'최고!'**
+  String get historyTabAttemptEncouragementFirst;
+
+  /// History badge encouragement for a second reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'잘하고 있다'**
+  String get historyTabAttemptEncouragementSecond;
+
+  /// History badge encouragement for a third reading attempt
+  ///
+  /// In ko, this message translates to:
+  /// **'화이팅!'**
+  String get historyTabAttemptEncouragementThird;
+
+  /// History badge encouragement for later reading attempts
+  ///
+  /// In ko, this message translates to:
+  /// **'계속 잘하고 있어!'**
+  String get historyTabAttemptEncouragementMore;
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,4 @@
 class AppConfig {
-  static const String _supabaseUrlOverride = String.fromEnvironment(
-    'SUPABASE_URL_OVERRIDE',
-  );
   static const String environment = String.fromEnvironment(
     'ENVIRONMENT',
     defaultValue: 'development',
@@ -23,9 +20,6 @@ class AppConfig {
   static const String naverClientSecret = '';
 
   static String get supabaseUrl {
-    if (_supabaseUrlOverride.isNotEmpty) {
-      return _supabaseUrlOverride;
-    }
     if (_supabaseUrl.isNotEmpty) {
       return _supabaseUrl;
     }

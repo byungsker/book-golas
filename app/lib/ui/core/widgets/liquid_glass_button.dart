@@ -54,6 +54,17 @@ class BLabButton extends StatelessWidget {
         break;
     }
 
+    final label = Text(
+      text,
+      textAlign: TextAlign.center,
+      softWrap: true,
+      style: TextStyle(
+        color: textColor,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
     final content = ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
@@ -82,33 +93,34 @@ class BLabButton extends StatelessWidget {
                     Icon(icon, color: textColor, size: 20),
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    text,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Flexible(child: label),
                 ],
               ),
         ),
       ),
     );
 
-    if (onPressed == null) {
-      return Opacity(
-        opacity: 0.5,
-        child: content,
-      );
+    void handlePress() {
+      HapticFeedback.selectionClick();
+      onPressed?.call();
     }
 
-    return BLabPressableWrapper(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onPressed!();
-      },
-      child: content,
+    final interactiveButton = onPressed == null
+        ? Opacity(
+            opacity: 0.5,
+            child: content,
+          )
+        : BLabPressableWrapper(
+            onTap: handlePress,
+            child: content,
+          );
+
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: text,
+      onTap: onPressed == null ? null : handlePress,
+      child: ExcludeSemantics(child: interactiveButton),
     );
   }
 }

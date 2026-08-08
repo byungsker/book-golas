@@ -1,5 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
+
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -10,7 +15,7 @@ interface KeywordRequest {
 
 async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
   const combinedText = texts.join("\n---\n");
-  
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -34,7 +39,8 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
         },
         {
           role: "user",
-          content: `다음 독서 기록들에서 핵심 키워드를 추출해주세요:\n\n${combinedText}`,
+          content:
+            `다음 독서 기록들에서 핵심 키워드를 추출해주세요:\n\n${combinedText}`,
         },
       ],
       temperature: 0.3,
@@ -48,11 +54,13 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
 
   const data = await response.json();
   const content = data.choices[0].message.content.trim();
-  
+
   try {
     const keywords = JSON.parse(content);
     if (Array.isArray(keywords)) {
-      return keywords.filter((k: string) => k && k.length >= 2 && k.length <= 10);
+      return keywords.filter((k: string) =>
+        k && k.length >= 2 && k.length <= 10
+      );
     }
   } catch {
     const matches = content.match(/["']([^"']+)["']/g);
@@ -60,7 +68,7 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
       return matches.map((m: string) => m.replace(/["']/g, "")).slice(0, 8);
     }
   }
-  
+
   return [];
 }
 
@@ -81,7 +89,7 @@ serve(async (req: Request) => {
     if (!OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -89,7 +97,7 @@ serve(async (req: Request) => {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } }
+      { global: { headers: { Authorization: authHeader ?? "" } } },
     );
 
     const {
@@ -109,7 +117,7 @@ serve(async (req: Request) => {
     if (!bookId) {
       return new Response(
         JSON.stringify({ error: "Missing required field: bookId" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -121,7 +129,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const { data: contents, error: fetchError } = await serviceClient
@@ -147,7 +155,18 @@ serve(async (req: Request) => {
     }
 
     const texts = contents.map((c: { content_text: string }) => c.content_text);
-    const keywords = await extractKeywordsWithGPT(texts);
+    const keywordOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => extractKeywordsWithGPT(texts),
+    );
+    if (!keywordOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+    const keywords = keywordOperation.value;
     const limitedKeywords = keywords.slice(0, limit);
 
     return new Response(JSON.stringify({ keywords: limitedKeywords }), {
@@ -167,7 +186,7 @@ serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   }
 });

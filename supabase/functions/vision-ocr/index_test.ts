@@ -21,7 +21,8 @@ function request(body: unknown, contentLength?: number): Request {
 Deno.test("vision proxy rejects unauthenticated requests", async () => {
   const handler = createHandler({
     apiKey: "test-key",
-    authenticate: () => Promise.resolve(false),
+    authenticate: () => Promise.resolve(null),
+    hasConsent: () => Promise.resolve(false),
     fetchUpstream: () => Promise.reject(new Error("must not run")),
   });
 
@@ -30,10 +31,37 @@ Deno.test("vision proxy rejects unauthenticated requests", async () => {
   assertEquals(response.status, 401);
 });
 
+for (const state of ["missing", "withdrawn", "stale", "lookup error"]) {
+  Deno.test(
+    `vision proxy rejects ${state} consent without an upstream call`,
+    async () => {
+      let upstreamCalls = 0;
+      const handler = createHandler({
+        apiKey: "test-key",
+        authenticate: () => Promise.resolve("user-a"),
+        hasConsent: () => Promise.resolve(false),
+        fetchUpstream: () => {
+          upstreamCalls += 1;
+          return Promise.resolve(new Response());
+        },
+      });
+
+      const response = await handler(request({ imageBase64: "dGVzdA==" }));
+
+      assertEquals(response.status, 403);
+      assertEquals(await response.json(), {
+        error: "third_party_ai_consent_required",
+      });
+      assertEquals(upstreamCalls, 0);
+    },
+  );
+}
+
 Deno.test("vision proxy rejects oversized requests before upstream transfer", async () => {
   const handler = createHandler({
     apiKey: "test-key",
-    authenticate: () => Promise.resolve(true),
+    authenticate: () => Promise.resolve("user-a"),
+    hasConsent: () => Promise.resolve(true),
     fetchUpstream: () => Promise.reject(new Error("must not run")),
   });
 
@@ -49,7 +77,8 @@ Deno.test("vision proxy sends valid content without exposing response secrets", 
   let requestedBody = "";
   const handler = createHandler({
     apiKey: "server-key",
-    authenticate: () => Promise.resolve(true),
+    authenticate: () => Promise.resolve("user-a"),
+    hasConsent: () => Promise.resolve(true),
     fetchUpstream: (input, init) => {
       requestedUrl = input.toString();
       requestedBody = init != null && "body" in init

@@ -58,6 +58,9 @@ jobs:
           
           echo "All migration files follow naming conventions"
 
+      - name: Run migration safety fixtures
+        run: python3 -m unittest discover -s supabase/tests -p 'test_validate_migrations.py' -v
+
       - name: Check for new migrations in PR
         id: check-new-migrations
         run: |
@@ -113,78 +116,8 @@ jobs:
       - name: Block dangerous operations (CRITICAL)
         if: steps.check-new-migrations.outputs.new_migrations == 'true'
         run: |
-          echo "Checking for dangerous SQL operations..."
-          
           NEW_MIGRATIONS=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD -- 'supabase/migrations/*.sql' || true)
-          
-          BLOCKED=0
-          
-          for file in $NEW_MIGRATIONS; do
-            if [ -f "$file" ]; then
-              echo "Scanning $file..."
-              
-              # BLOCKED: These operations require manual review and approval
-              if grep -qi "DROP TABLE" "$file"; then
-                echo "::error file=$file::❌ BLOCKED: DROP TABLE detected"
-                echo "  → 테이블 삭제는 CI에서 차단됩니다. 수동 승인 필요."
-                BLOCKED=$((BLOCKED + 1))
-              fi
-              
-              if grep -qi "DROP COLUMN" "$file"; then
-                echo "::error file=$file::❌ BLOCKED: DROP COLUMN detected"
-                echo "  → 컬럼 삭제는 CI에서 차단됩니다. 기존 데이터 손실 위험."
-                BLOCKED=$((BLOCKED + 1))
-              fi
-              
-              if grep -qi "TRUNCATE" "$file"; then
-                echo "::error file=$file::❌ BLOCKED: TRUNCATE detected"
-                echo "  → 데이터 전체 삭제는 절대 금지입니다."
-                BLOCKED=$((BLOCKED + 1))
-              fi
-              
-              if grep -qi "DELETE FROM.*WHERE" "$file" && ! grep -qi "-- safe-delete" "$file"; then
-                echo "::error file=$file::❌ BLOCKED: Mass DELETE detected"
-                echo "  → 대량 삭제는 CI에서 차단됩니다. '-- safe-delete' 주석으로 명시적 승인 필요."
-                BLOCKED=$((BLOCKED + 1))
-              fi
-              
-              # WARNING: These need attention but don't block
-              if grep -qi "ALTER.*TYPE" "$file"; then
-                echo "::warning file=$file::⚠️ WARNING: Column type change detected"
-                echo "  → 데이터 호환성 확인 필요. 기존 데이터가 변환 가능한지 검증하세요."
-              fi
-              
-              if grep -qi "NOT NULL" "$file" && ! grep -qi "DEFAULT" "$file"; then
-                echo "::warning file=$file::⚠️ WARNING: NOT NULL without DEFAULT"
-                echo "  → 기존 데이터에 NULL이 있으면 마이그레이션 실패할 수 있습니다."
-              fi
-              
-              if grep -qi "RENAME" "$file"; then
-                echo "::warning file=$file::⚠️ WARNING: RENAME detected"
-                echo "  → 이름 변경 시 코드에서 해당 이름을 참조하는 곳도 함께 수정하세요."
-              fi
-            fi
-          done
-          
-          if [ $BLOCKED -gt 0 ]; then
-            echo ""
-            echo "========================================"
-            echo "❌ $BLOCKED dangerous operation(s) blocked"
-            echo "========================================"
-            echo ""
-            echo "파괴적 변경은 CI에서 자동 실행되지 않습니다."
-            echo ""
-            echo "해결 방법:"
-            echo "1. Supabase 대시보드에서 수동으로 실행"
-            echo "2. 또는 안전한 3단계 삭제 패턴 사용:"
-            echo "   - Phase 1: 코드에서 사용 중단"
-            echo "   - Phase 2: 컬럼명 변경 (_deprecated_xxx)"
-            echo "   - Phase 3: 2주 후 실제 삭제"
-            echo ""
-            exit 1
-          fi
-          
-          echo "✅ SQL validation complete - no dangerous operations detected"
+          python3 supabase/tests/validate_migrations.py $NEW_MIGRATIONS
 
       - name: Start local database
         run: supabase db start

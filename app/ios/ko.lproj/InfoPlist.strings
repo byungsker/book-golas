@@ -1,3 +1,9 @@
 /* Korean localization */
 "CFBundleDisplayName" = "북골라스";
 "CFBundleName" = "북골라스";
+"NSCameraUsageDescription" = "책 페이지를 스캔하기 위해 카메라 권한이 필요합니다.";
+"NSPhotoLibraryUsageDescription" = "프로필 이미지 또는 책 페이지 이미지를 선택하기 위해 사진 보관함 권한이 필요합니다.";
+"NSPhotoLibraryAddUsageDescription" = "스캔한 이미지를 저장하기 위해 사진 보관함 권한이 필요합니다.";
+"QUICK_ACTION_CONTINUE_READING" = "이어서 읽기";
+"QUICK_ACTION_SCAN_PAGE" = "페이지 스캔";
+"QUICK_ACTION_ADD_BOOK" = "책 추가";

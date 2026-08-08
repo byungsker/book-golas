@@ -9,6 +9,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
+
 class FCMService {
   static final FCMService _instance = FCMService._internal();
   factory FCMService() => _instance;
@@ -46,15 +48,19 @@ class FCMService {
     tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
     await _initializeLocalNotifications();
-    await _requestPermission();
 
-    _fcmToken = await _firebaseMessaging.getToken();
-    debugPrint('FCM Token: $_fcmToken');
-
-    _firebaseMessaging.onTokenRefresh.listen((newToken) {
-      _fcmToken = newToken;
-      debugPrint('FCM Token refreshed: $newToken');
-      saveTokenToSupabase();
+    _firebaseMessaging.onTokenRefresh.listen((newToken) async {
+      await NotificationPermissionCoordinator.refreshToken(
+        isAuthorized: () async {
+          final settings = await _firebaseMessaging.getNotificationSettings();
+          return _isAuthorized(settings);
+        },
+        saveToken: () async {
+          _fcmToken = newToken;
+          debugPrint('FCM token refreshed');
+          await saveTokenToSupabase();
+        },
+      );
     });
 
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -72,9 +78,9 @@ class FCMService {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(
@@ -88,15 +94,37 @@ class FCMService {
     );
   }
 
-  Future<void> _requestPermission() async {
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
+  Future<NotificationPermissionRequestResult> requestPermissionAndRegister() {
+    return NotificationPermissionCoordinator.request(
+      isAuthorized: () async {
+        final settings = await _firebaseMessaging.getNotificationSettings();
+        return _isAuthorized(settings);
+      },
+      requestPermission: () async {
+        final settings = await _firebaseMessaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: false,
+        );
+        debugPrint(
+          'User granted permission: ${settings.authorizationStatus}',
+        );
+        return _isAuthorized(settings);
+      },
+      registerToken: _registerToken,
     );
+  }
 
-    debugPrint('User granted permission: ${settings.authorizationStatus}');
+  bool _isAuthorized(NotificationSettings settings) {
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  Future<bool> _registerToken() async {
+    _fcmToken = await _firebaseMessaging.getToken();
+    debugPrint('FCM token registered');
+    return saveTokenToSupabase();
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
@@ -239,10 +267,10 @@ class FCMService {
     return locale.languageCode;
   }
 
-  Future<void> saveTokenToSupabase() async {
+  Future<bool> saveTokenToSupabase() async {
     if (_fcmToken == null) {
       debugPrint('FCM token is null');
-      return;
+      return false;
     }
 
     final supabase = Supabase.instance.client;
@@ -250,7 +278,7 @@ class FCMService {
 
     if (userId == null) {
       debugPrint('User not logged in');
-      return;
+      return false;
     }
 
     try {
@@ -292,8 +320,10 @@ class FCMService {
             );
         debugPrint('FCM token saved with default settings (locale=$locale)');
       }
+      return true;
     } catch (e) {
       debugPrint('Error saving FCM token: $e');
+      return false;
     }
   }
 

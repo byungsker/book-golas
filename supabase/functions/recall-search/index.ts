@@ -1,5 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
+
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -47,14 +52,14 @@ async function generateEmbedding(text: string): Promise<number[]> {
 const TONE_CONFIG = {
   // 사용자 호칭: "회원님", "" (생략), "독자님" 등
   userAddress: "",
-  
+
   // 말투 스타일 가이드
   styleGuide: `
 - 친근하고 부드러운 ~요 체를 사용해요 (예: "기록하셨어요", "인상깊으셨나봐요")
 - "당신"이라는 표현은 사용하지 않아요
 - 공감하는 느낌으로 답변해요 (예: "이 부분이 특히 와닿으셨군요!")
 - 너무 길게 설명하지 않고 핵심만 전달해요`,
-  
+
   // 예시 표현들 (AI가 참고할 표현)
   examplePhrases: [
     "하이라이트하신 부분을 보면~",
@@ -67,7 +72,7 @@ const TONE_CONFIG = {
 
 async function generateAnswer(
   query: string,
-  context: string
+  context: string,
 ): Promise<string> {
   const systemPrompt = `독서 기록을 검색해주는 AI 도우미예요.
 사용자가 직접 하이라이트하거나 메모한 내용만을 기반으로 답변해요.
@@ -128,7 +133,7 @@ serve(async (req: Request) => {
     if (!OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -136,7 +141,7 @@ serve(async (req: Request) => {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } }
+      { global: { headers: { Authorization: authHeader ?? "" } } },
     );
 
     const {
@@ -156,13 +161,24 @@ serve(async (req: Request) => {
     if (!query) {
       return new Response(
         JSON.stringify({ error: "Missing required field: query" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
     const isGlobalSearch = !bookId;
 
-    const queryEmbedding = await generateEmbedding(query);
+    const embeddingOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => generateEmbedding(query),
+    );
+    if (!embeddingOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+    const queryEmbedding = embeddingOperation.value;
     const embeddingString = `[${queryEmbedding.join(",")}]`;
 
     const serviceClient = createClient(
@@ -173,7 +189,7 @@ serve(async (req: Request) => {
           autoRefreshToken: false,
           persistSession: false,
         },
-      }
+      },
     );
 
     const { data: searchResults, error: searchError } = await serviceClient.rpc(
@@ -183,7 +199,7 @@ serve(async (req: Request) => {
         match_count: isGlobalSearch ? 10 : 5,
         filter_user_id: user.id,
         filter_book_id: isGlobalSearch ? null : bookId,
-      }
+      },
     );
 
     if (searchError) {
@@ -208,7 +224,9 @@ serve(async (req: Request) => {
       });
     }
 
-    const uniqueBookIds = [...new Set(searchResults.map((r: any) => r.book_id))];
+    const uniqueBookIds = [
+      ...new Set(searchResults.map((r: any) => r.book_id)),
+    ];
     const bookTitleMap: Record<string, string> = {};
 
     if (uniqueBookIds.length > 0) {
@@ -226,23 +244,35 @@ serve(async (req: Request) => {
 
     const context = searchResults
       .map((result: any, index: number) => {
-        const typeLabel =
-          result.content_type === "highlight"
-            ? "하이라이트"
-            : result.content_type === "note"
-            ? "메모"
-            : "사진 속 텍스트";
+        const typeLabel = result.content_type === "highlight"
+          ? "하이라이트"
+          : result.content_type === "note"
+          ? "메모"
+          : "사진 속 텍스트";
         const pageInfo = result.page_number
           ? ` (${result.page_number}페이지)`
           : "";
         const bookInfo = isGlobalSearch && bookTitleMap[result.book_id]
           ? ` [${bookTitleMap[result.book_id]}]`
           : "";
-        return `[${index + 1}] ${typeLabel}${pageInfo}${bookInfo}:\n${result.content_text}`;
+        return `[${
+          index + 1
+        }] ${typeLabel}${pageInfo}${bookInfo}:\n${result.content_text}`;
       })
       .join("\n\n");
 
-    const answer = await generateAnswer(query, context);
+    const answerOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => generateAnswer(query, context),
+    );
+    if (!answerOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+    const answer = answerOperation.value;
 
     const sources: SourceDocument[] = searchResults.map((result: any) => ({
       type: result.content_type,

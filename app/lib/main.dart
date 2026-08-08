@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/theme/system_ui_overlay_style.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
@@ -142,6 +143,7 @@ class AppBootstrap extends StatelessWidget {
       await Supabase.initialize(
         url: AppConfig.supabaseUrl,
         anonKey: AppConfig.supabaseAnonKey,
+        authOptions: DeepLinkAuthConfiguration.supabaseOptions,
         realtimeClientOptions: RealtimeClientOptions(
           logLevel: AppConfig.isProduction
               ? RealtimeLogLevel.error
@@ -324,6 +326,14 @@ class MyApp extends StatelessWidget {
             themeMode: themeViewModel.themeMode,
             theme: BLabTheme.light,
             darkTheme: BLabTheme.dark,
+            builder: (context, child) {
+              return ThemeAwareSystemUiOverlay(
+                brightness: themeViewModel.isDarkMode
+                    ? Brightness.dark
+                    : Brightness.light,
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
             locale: localeViewModel.locale,
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -349,6 +359,20 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkService.init(navigatorKey: navigatorKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthViewModel, OnboardingViewModel>(
@@ -396,6 +420,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
+    DeepLinkService.markNavigationUnavailable();
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     super.dispose();
@@ -427,14 +452,13 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
-
-      DeepLinkService.init(context, navigatorKey: navigatorKey);
-
       final subscriptionService = context.read<SubscriptionService>();
       final subscriptionViewModel = context.read<SubscriptionViewModel>();
       final adViewModel = context.read<AdViewModel>();
       final notificationSettingsService =
           context.read<NotificationSettingsService>();
+
+      await DeepLinkService.markNavigationReady();
 
       if (FeatureFlags.paidSubscriptionsEnabled) {
         final userId = Supabase.instance.client.auth.currentUser?.id;

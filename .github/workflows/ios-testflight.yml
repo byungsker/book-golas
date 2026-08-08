@@ -1,19 +1,22 @@
 name: iOS TestFlight Deploy
 
 on:
+  pull_request:
+    branches:
+      - 'version/mobile/**'
+    paths:
+      - '.github/workflows/ios-testflight.yml'
+      - '.github/workflows/ios-production.yml'
+      - 'app/**'
+      - 'supabase/functions/**'
   push:
     branches:
       - dev
       - 'version/mobile/**'
       - 'release/mobile/**'
-    # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
-    paths-ignore:
-      - 'web/**'
-      - 'supabase/functions/**'
-      - 'docs/**'
-      - '**/*.md'
-      - '.gitignore'
-      - '.editorconfig'
+    paths:
+      - 'app/**'
+      - 'supabase/**'
   workflow_dispatch:
     inputs:
       operation:
@@ -36,9 +39,133 @@ on:
         type: string
 
 jobs:
+  edge-function-tests:
+    name: Test Mobile Edge Functions
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Validate reproducible Edge Function dependencies
+        run: |
+          supabase/functions/deploy-with-retry_test.sh
+          supabase/functions/verify-no-esm-imports_test.sh
+          while IFS= read -r entry; do
+            config="$(dirname "$entry")/deno.json"
+            lockfile="$(dirname "$entry")/deno.lock"
+            test -f "$config"
+            test -f "$lockfile"
+            deno check --frozen --config "$config" "$entry"
+          done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
+          supabase/functions/verify-no-esm-imports.sh
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --frozen --config supabase/functions/deno.json --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+          deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
+
+  mobile-client-config-boundary:
+    name: Mobile Client Configuration Boundary
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify mobile client configuration boundary
+        run: python3 app/tool/verify_mobile_client_config.py --self-test --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
+
+  workflow-trigger-contract:
+    name: Mobile Store Workflow Trigger Contract
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify automatic deployment paths
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          expected = ("app/**", "supabase/**")
+
+          def push_paths(path: str) -> tuple[str, ...]:
+              lines = Path(path).read_text("utf-8").splitlines()
+              push = lines.index("  push:")
+              end = next(
+                  (
+                      index
+                      for index in range(push + 1, len(lines))
+                      if lines[index].strip()
+                      and len(lines[index]) - len(lines[index].lstrip()) <= 2
+                  ),
+                  len(lines),
+              )
+              block = lines[push + 1 : end]
+              if "    paths-ignore:" in block:
+                  raise SystemExit(f"{path}: push.paths-ignore is not permitted")
+              paths = block.index("    paths:")
+              values = []
+              for line in block[paths + 1 :]:
+                  if line.strip() and len(line) - len(line.lstrip()) <= 4:
+                      break
+                  if line.strip():
+                      values.append(line.split("-", 1)[1].strip(" '\""))
+              return tuple(values)
+
+          for workflow in (
+              ".github/workflows/ios-testflight.yml",
+              ".github/workflows/ios-production.yml",
+          ):
+              actual = push_paths(workflow)
+              if actual != expected:
+                  raise SystemExit(f"{workflow}: expected {expected}, found {actual}")
+
+          prefixes = tuple(pattern.removesuffix("**") for pattern in expected)
+          fixtures = {
+              ".byungskerlab/branch-policy.json": False,
+              ".byungskerlab/release-lines.json": False,
+              ".github/workflows/ios-testflight.yml": False,
+              "docs/product-roadmap.md": False,
+              "app/lib/main.dart": True,
+              "supabase/functions/delete-user/index.ts": True,
+          }
+          for changed_path, should_deploy in fixtures.items():
+              does_deploy = changed_path.startswith(prefixes)
+              if does_deploy != should_deploy:
+                  raise SystemExit(
+                      f"{changed_path}: expected deploy={should_deploy}, found {does_deploy}"
+                  )
+          PY
+
   migrate-database:
     name: Apply Database Migrations (Dev)
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
     runs-on: self-hosted
 
     steps:
@@ -77,9 +204,58 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-  build-and-deploy:
+  deploy-edge-functions:
     needs: migrate-database
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy' }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --config supabase/functions/deno.json --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+          deno test --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
+
+      - name: Deploy consent-gated Edge Functions to Dev
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_DEV }}
+        run: |
+          for function_name in \
+            extract-keywords \
+            generate-book-review \
+            generate-embedding \
+            reading-insights \
+            recall-search \
+            recommend-next-books \
+            structure-notes \
+            vision-ocr; do
+            supabase/functions/deploy-with-retry.sh "$function_name" \
+              --project-ref "$SUPABASE_PROJECT_REF"
+          done
+
+  build-and-deploy:
+    needs: deploy-edge-functions
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.operation == 'deploy') }}
     runs-on: macos-26
 
     steps:
@@ -145,6 +321,9 @@ jobs:
           cd app
           flutter pub get
 
+      - name: Verify mobile client configuration inputs
+        run: python3 app/tool/verify_mobile_client_config.py --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
+
       - name: Install CocoaPods
         env:
           LANG: en_US.UTF-8
@@ -206,15 +385,17 @@ jobs:
           echo "Keychain certificates:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
-      - name: Build Flutter iOS
+      - name: Build Flutter iOS inputs
         id: build-metadata
         env:
+          ENVIRONMENT: development
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_DEV || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_DEV }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_DEV }}
           REVENUECAT_PUBLIC_KEY: ${{ secrets.REVENUECAT_PUBLIC_KEY }}
           GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
+          python3 app/tool/verify_mobile_client_config.py --require-client-environment
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
@@ -228,13 +409,47 @@ jobs:
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER" \
             --dart-define=PAID_SUBSCRIPTIONS_ENABLED="$PAID_SUBSCRIPTIONS_ENABLED" \
-            --dart-define=ENVIRONMENT=development \
+            --dart-define=ENVIRONMENT="$ENVIRONMENT" \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=REVENUECAT_PUBLIC_KEY="$REVENUECAT_PUBLIC_KEY" \
             --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
 
-      - name: Build and Upload to TestFlight
+      - name: Build signed TestFlight IPA
+        env:
+          PROVISIONING_PROFILE_NAME: ${{ steps.install-cert.outputs.PROVISIONING_PROFILE_NAME }}
+          WIDGET_PROFILE_NAME: ${{ steps.install-cert.outputs.WIDGET_PROFILE_NAME }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+        run: |
+          cd app/ios
+          bundle exec fastlane beta_build
+
+      - name: Verify signed TestFlight IPA boundary
+        env:
+          ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REVENUECAT_WEBHOOK_AUTH_KEY_DEV: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_DEV }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          /usr/bin/python3 app/tool/verify_mobile_client_config.py \
+            --artifact app/ios/build/Runner.ipa \
+            --required-forbidden-env CERTIFICATE_P12_BASE64 \
+            --required-forbidden-env CERTIFICATE_PASSWORD \
+            --optional-forbidden-env ALADIN_TTB_KEY \
+            --optional-forbidden-env FIREBASE_SERVICE_ACCOUNT \
+            --optional-forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
+            --optional-forbidden-env OPENAI_API_KEY \
+            --optional-forbidden-env RESEND_API_KEY \
+            --optional-forbidden-env REVENUECAT_WEBHOOK_AUTH_KEY_DEV \
+            --optional-forbidden-env SUPABASE_SERVICE_ROLE_KEY
+
+      - name: Upload scanned TestFlight IPA
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -245,7 +460,7 @@ jobs:
           LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
-          bundle exec fastlane beta
+          bundle exec fastlane beta_upload
 
       - name: Verify TestFlight build processing
         timeout-minutes: 35

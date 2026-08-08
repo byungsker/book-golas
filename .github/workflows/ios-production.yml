@@ -4,14 +4,9 @@ on:
   push:
     branches:
       - main
-    # web 전용 / 문서 전용 변경 시 iOS 빌드 트리거 안 함
-    paths-ignore:
-      - 'web/**'
-      - 'supabase/functions/**'
-      - 'docs/**'
-      - '**/*.md'
-      - '.gitignore'
-      - '.editorconfig'
+    paths:
+      - 'app/**'
+      - 'supabase/**'
   workflow_dispatch:
 
 jobs:
@@ -68,8 +63,58 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-  build-and-deploy:
+  deploy-edge-functions:
     needs: migrate-database
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.1
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test third-party AI provider boundaries
+        run: |
+          deno test --frozen --config supabase/functions/deno.json --allow-env --allow-net \
+            supabase/functions/_shared/third-party-ai-consent.test.ts \
+            supabase/functions/vision-ocr/index_test.ts
+          deno test --frozen --config supabase/functions/structure-notes/deno.json --allow-env --allow-net \
+            supabase/functions/structure-notes/services/chain-service.test.ts
+
+      - name: Deploy consent-gated Edge Functions to Production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
+        run: |
+          for function_name in \
+            extract-keywords \
+            generate-book-review \
+            generate-embedding \
+            reading-insights \
+            recall-search \
+            recommend-next-books \
+            structure-notes \
+            vision-ocr; do
+            supabase/functions/deploy-with-retry.sh "$function_name" \
+              --project-ref "$SUPABASE_PROJECT_REF"
+          done
+
+  build-and-deploy:
+    needs: deploy-edge-functions
     runs-on: macos-26
 
     steps:
@@ -135,6 +180,9 @@ jobs:
           cd app
           flutter pub get
 
+      - name: Verify mobile client configuration inputs
+        run: python3 app/tool/verify_mobile_client_config.py --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
+
       - name: Install CocoaPods
         env:
           LANG: en_US.UTF-8
@@ -165,15 +213,17 @@ jobs:
           echo "Keychain certificates:"
           security find-identity -v -p codesigning $KEYCHAIN_PATH
 
-      - name: Build Flutter iOS
+      - name: Build Flutter iOS inputs
         id: build-metadata
         env:
+          ENVIRONMENT: production
           PAID_SUBSCRIPTIONS_ENABLED: ${{ vars.PAID_SUBSCRIPTIONS_ENABLED_PROD || 'false' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROD }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_PROD }}
           REVENUECAT_PUBLIC_KEY: ${{ secrets.REVENUECAT_PUBLIC_KEY }}
           GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
+          python3 app/tool/verify_mobile_client_config.py --require-client-environment
           cd app
           BUILD_NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: ([0-9]+\.[0-9]+\.[0-9]+)\+.*/\1/')
           BUILD_NUMBER=$(( (${{ github.run_number }} + 135) * 100 + ${{ github.run_attempt }} ))
@@ -187,13 +237,13 @@ jobs:
             --build-name="$BUILD_NAME" \
             --build-number="$BUILD_NUMBER" \
             --dart-define=PAID_SUBSCRIPTIONS_ENABLED="$PAID_SUBSCRIPTIONS_ENABLED" \
-            --dart-define=ENVIRONMENT=production \
+            --dart-define=ENVIRONMENT="$ENVIRONMENT" \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=REVENUECAT_PUBLIC_KEY="$REVENUECAT_PUBLIC_KEY" \
             --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
 
-      - name: Build and Upload to App Store
+      - name: Build signed App Store IPA
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -202,7 +252,44 @@ jobs:
           LC_ALL: en_US.UTF-8
         run: |
           cd app/ios
-          bundle exec fastlane release
+          bundle exec fastlane release_build
+
+      - name: Verify signed App Store IPA boundary
+        env:
+          ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REVENUECAT_WEBHOOK_AUTH_KEY_PROD: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          /usr/bin/python3 app/tool/verify_mobile_client_config.py \
+            --artifact app/ios/build/Runner.ipa \
+            --required-forbidden-env APP_STORE_CONNECT_API_KEY_CONTENT \
+            --required-forbidden-env CERTIFICATE_P12_BASE64 \
+            --required-forbidden-env CERTIFICATE_PASSWORD \
+            --optional-forbidden-env ALADIN_TTB_KEY \
+            --optional-forbidden-env FIREBASE_SERVICE_ACCOUNT \
+            --optional-forbidden-env GOOGLE_CLOUD_VISION_API_KEY \
+            --optional-forbidden-env OPENAI_API_KEY \
+            --optional-forbidden-env RESEND_API_KEY \
+            --optional-forbidden-env REVENUECAT_WEBHOOK_AUTH_KEY_PROD \
+            --optional-forbidden-env SUPABASE_SERVICE_ROLE_KEY
+
+      - name: Upload scanned App Store IPA
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+        run: |
+          cd app/ios
+          bundle exec fastlane release_upload
 
       - name: Verify App Store Connect build processing
         timeout-minutes: 35
