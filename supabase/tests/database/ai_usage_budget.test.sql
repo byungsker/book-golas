@@ -1,6 +1,6 @@
 BEGIN;
 
-SELECT plan(15);
+SELECT plan(16);
 
 INSERT INTO auth.users (
   instance_id,
@@ -96,6 +96,13 @@ SELECT results_eq(
 );
 SELECT results_eq(
   $$
+    SELECT (public.consume_ai_usage(10)->>'allowed')
+  $$,
+  ARRAY['true'::text],
+  'the concurrency cap remains stable across the third lease'
+);
+SELECT results_eq(
+  $$
     SELECT public.consume_ai_usage(10)->>'reason'
   $$,
   ARRAY['concurrency_exceeded'::text],
@@ -120,7 +127,7 @@ SELECT results_eq(
     FROM public.ai_usage_buckets
     WHERE user_id = '55555555-5555-5555-5555-555555555555'
   $$,
-  ARRAY[3],
+  ARRAY[1],
   'rejected input does not increment the request count'
 );
 
@@ -164,7 +171,7 @@ DECLARE
   attempt INTEGER;
   result JSONB;
 BEGIN
-  FOR attempt IN 1..27 LOOP
+  FOR attempt IN 1..29 LOOP
     result := public.consume_ai_usage(10);
     IF NOT (result->>'allowed')::boolean THEN
       RAISE EXCEPTION 'unexpected quota rejection at attempt %', attempt;
