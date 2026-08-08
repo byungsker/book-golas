@@ -91,6 +91,7 @@
       "production_branch": "main",
       "allowed_paths": [
         ".github/workflows/deploy-edge-functions.yml",
+        ".github/workflows/schema-check.yml",
         "docs/**",
         "supabase/**"
       ]
