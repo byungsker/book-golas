@@ -96,6 +96,9 @@ jobs:
       - name: Verify mobile client configuration boundary
         run: python3 app/tool/verify_mobile_client_config.py --self-test --source-root app --workflow .github/workflows/ios-testflight.yml --workflow .github/workflows/ios-production.yml
 
+      - name: Verify production deployment workflow boundary
+        run: python3 supabase/tests/test_production_edge_workflow_contract.py
+
   workflow-trigger-contract:
     name: Mobile Store Workflow Trigger Contract
     if: ${{ github.event_name == 'pull_request' }}
