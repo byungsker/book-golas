@@ -24,7 +24,10 @@ security definer
 set search_path = ''
 as $$
 begin
-  if pg_catalog.current_setting('app.admin_audit_cleanup', true) <> 'true' then
+  if tg_op = 'UPDATE' then
+    raise exception 'admin audit events are append-only';
+  end if;
+  if old.created_at >= pg_catalog.now() - pg_catalog.make_interval(years => 2) then
     raise exception 'admin audit events are append-only';
   end if;
   return old;
@@ -47,7 +50,6 @@ as $$
 declare
   deleted_count integer;
 begin
-  perform pg_catalog.set_config('app.admin_audit_cleanup', 'true', true);
   -- safe-delete
   delete from public.admin_audit_events
    where created_at < pg_catalog.now() - pg_catalog.make_interval(years => 2);

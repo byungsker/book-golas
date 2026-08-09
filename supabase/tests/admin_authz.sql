@@ -28,4 +28,36 @@ begin
   end if;
 end;
 $$;
+
+do $$
+declare
+  fresh_id uuid;
+  stale_id uuid;
+begin
+  insert into public.admin_audit_events (action, resource_type, resource_id, metadata)
+  values ('waitlist.delete', 'waitlist', gen_random_uuid(), '{}'::jsonb)
+  returning id into fresh_id;
+  begin
+    update public.admin_audit_events set metadata = '{"blocked":true}'::jsonb where id = fresh_id;
+    raise exception 'audit update unexpectedly succeeded';
+  exception when others then
+    null;
+  end;
+  begin
+    delete from public.admin_audit_events where id = fresh_id;
+    raise exception 'fresh audit delete unexpectedly succeeded';
+  exception when others then
+    null;
+  end;
+  insert into public.admin_audit_events (action, resource_type, resource_id, metadata, created_at)
+  values ('waitlist.delete', 'waitlist', gen_random_uuid(), '{}'::jsonb, now() - interval '3 years')
+  returning id into stale_id;
+  set role service_role;
+  perform public.cleanup_admin_audit_events();
+  reset role;
+  if exists (select 1 from public.admin_audit_events where id = stale_id) then
+    raise exception 'stale audit event was not cleaned up';
+  end if;
+end;
+$$;
 reset role;
