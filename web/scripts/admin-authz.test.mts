@@ -24,18 +24,25 @@ const routes = [
 
 for (const path of routes) {
   const source = await readFile(path, "utf8");
-  const authIndex = source.indexOf("requireAdminUser");
-  const serviceIndex = source.indexOf("createServiceRoleSupabaseClient()");
-  assert.notEqual(authIndex, -1, `${path} must require an admin user`);
+  const executable = source.replace(/^import .*?;$/gm, "");
+  const authIndex = executable.indexOf("requireAdminUser");
+  const serviceIndex = executable.indexOf("createServiceRoleSupabaseClient()");
+  assert.notEqual(authIndex, -1, `${path} must invoke requireAdminUser`);
   assert.notEqual(serviceIndex, -1, `${path} must use the server service-role boundary`);
   assert.ok(authIndex < serviceIndex, `${path} must establish auth before the service-role client`);
+  assert.match(executable, /status:\s*401/);
+  assert.match(executable, /status:\s*500/);
 }
 
 const templateRoute = await readFile("src/app/api/admin/push-templates/route.ts", "utf8");
 const waitlistRoute = await readFile("src/app/api/admin/waitlist/route.ts", "utf8");
 assert.equal(templateRoute.includes('rpc("admin_update_push_template"'), true);
 assert.equal(templateRoute.includes('.from("push_templates").update'), false);
+assert.match(templateRoute, /UUID\.test\(id\)/);
+assert.match(templateRoute, /status:\s*404/);
 assert.equal(waitlistRoute.includes('rpc("admin_delete_waitlist_entry"'), true);
 assert.equal(waitlistRoute.includes('.from("waitlist").delete'), false);
+assert.match(waitlistRoute, /UUID\.test\(id\)/);
+assert.match(waitlistRoute, /status:\s*404/);
 
 console.log("admin authz fixtures passed");
