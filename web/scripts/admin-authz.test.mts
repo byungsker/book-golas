@@ -24,7 +24,7 @@ const routes = [
 
 for (const path of routes) {
   const source = await readFile(path, "utf8");
-  const authIndex = source.indexOf("if (!(await requireAdminUser())");
+  const authIndex = Math.max(source.indexOf("if (!(await requireAdminUser())"), source.indexOf("const admin = await requireAdminUser()"));
   const serviceIndex = source.indexOf("createServiceRoleSupabaseClient()");
   assert.notEqual(authIndex, -1, `${path} must require an admin user`);
   assert.notEqual(serviceIndex, -1, `${path} must use the server service-role boundary`);
