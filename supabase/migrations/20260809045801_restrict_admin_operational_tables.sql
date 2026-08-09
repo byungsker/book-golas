@@ -116,7 +116,8 @@ begin
          title_en = case when p_changes ? 'title_en' then p_changes->>'title_en' else title_en end,
          body_template_en = case when p_changes ? 'body_template_en' then p_changes->>'body_template_en' else body_template_en end,
          is_active = case when p_changes ? 'is_active' then (p_changes->>'is_active')::boolean else is_active end,
-         priority = case when p_changes ? 'priority' then (p_changes->>'priority')::integer else priority end
+         priority = case when p_changes ? 'priority' then (p_changes->>'priority')::integer else priority end,
+         updated_at = pg_catalog.now()
    where id = p_template_id
    returning id into changed_id;
 
