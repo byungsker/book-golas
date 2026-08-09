@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabase, PushLog } from "@/lib/supabase";
+import type { PushLog } from "@/lib/supabase";
 
 const PUSH_TYPES = [
   { value: "all", label: "전체" },
@@ -31,8 +31,6 @@ const PUSH_TYPES = [
   { value: "announcement", label: "Announcement" },
   { value: "test", label: "Test" },
 ];
-
-const PAGE_SIZE = 20;
 
 export default function PushLogsPage() {
   const [logs, setLogs] = useState<PushLog[]>([]);
@@ -65,22 +63,12 @@ export default function PushLogsPage() {
   const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from("push_logs")
-        .select("*")
-        .order("sent_at", { ascending: false })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-
-      if (typeFilter !== "all") {
-        query = query.eq("push_type", typeFilter);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setLogs(data || []);
-      setHasMore((data?.length || 0) === PAGE_SIZE);
+      const params = new URLSearchParams({ page: String(page), type: typeFilter });
+      const response = await fetch(`/api/admin/push-logs?${params}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch logs");
+      setLogs(data.logs || []);
+      setHasMore(Boolean(data.hasMore));
     } catch (error) {
       console.error("Failed to fetch logs:", error);
     } finally {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { supabase, PushLog } from "@/lib/supabase";
+import type { PushLog } from "@/lib/supabase";
 
 type DashboardStats = {
   todaySent: number;
@@ -39,12 +39,10 @@ export default function AdminDashboard() {
 
   async function fetchDashboardData() {
     try {
-      const today = new Date().toISOString().split("T")[0];
-
-      const { data: todayLogs } = await supabase
-        .from("push_logs")
-        .select("*")
-        .gte("sent_at", today);
+      const response = await fetch("/api/admin/push-logs?dashboard=1");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch dashboard logs");
+      const todayLogs = data.todayLogs as PushLog[];
 
       if (todayLogs) {
         const sent = todayLogs.length;
@@ -78,15 +76,7 @@ export default function AdminDashboard() {
         );
       }
 
-      const { data: recent } = await supabase
-        .from("push_logs")
-        .select("*")
-        .order("sent_at", { ascending: false })
-        .limit(10);
-
-      if (recent) {
-        setRecentLogs(recent);
-      }
+      setRecentLogs((data.recentLogs || []) as PushLog[]);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
     } finally {
