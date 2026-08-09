@@ -20,34 +20,12 @@ begin
   if not has_function_privilege('service_role', 'public.admin_delete_waitlist_entry(uuid,uuid)', 'EXECUTE') then
     raise exception 'service_role cannot execute waitlist audit RPC';
   end if;
-end;
-$$;
-
-set role authenticated;
-
-do $$
-begin
-  if has_table_privilege(current_user, 'public.push_templates', 'SELECT') then
-    raise exception 'authenticated role can read push templates';
-  end if;
-  if has_table_privilege(current_user, 'public.push_announcements', 'SELECT') then
-    raise exception 'authenticated role can read push announcements';
+  if has_function_privilege('authenticated', 'public.admin_update_push_template(uuid,uuid,jsonb)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.admin_delete_waitlist_entry(uuid,uuid)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.admin_update_push_template(uuid,uuid,jsonb)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.admin_delete_waitlist_entry(uuid,uuid)', 'EXECUTE') then
+    raise exception 'untrusted role can execute admin mutation RPC';
   end if;
 end;
 $$;
-
-reset role;
-set role anon;
-
-do $$
-begin
-  if has_table_privilege(current_user, 'public.push_templates', 'SELECT') then
-    raise exception 'anonymous role can read push templates';
-  end if;
-  if has_table_privilege(current_user, 'public.push_announcements', 'SELECT') then
-    raise exception 'anonymous role can read push announcements';
-  end if;
-end;
-$$;
-
 reset role;

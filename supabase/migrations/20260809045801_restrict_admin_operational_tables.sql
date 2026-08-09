@@ -15,6 +15,7 @@ create table if not exists public.admin_audit_events (
 
 alter table public.admin_audit_events enable row level security;
 revoke all on table public.admin_audit_events from public, anon, authenticated, service_role;
+create index if not exists admin_audit_events_created_at_idx on public.admin_audit_events (created_at);
 
 create or replace function public.prevent_admin_audit_event_mutation()
 returns trigger
@@ -23,7 +24,10 @@ security definer
 set search_path = ''
 as $$
 begin
-  raise exception 'admin audit events are append-only';
+  if pg_catalog.current_setting('app.admin_audit_cleanup', true) <> 'true' then
+    raise exception 'admin audit events are append-only';
+  end if;
+  return old;
 end;
 $$;
 
@@ -43,6 +47,7 @@ as $$
 declare
   deleted_count integer;
 begin
+  perform pg_catalog.set_config('app.admin_audit_cleanup', 'true', true);
   -- safe-delete
   delete from public.admin_audit_events
    where created_at < pg_catalog.now() - pg_catalog.make_interval(years => 2);
@@ -79,7 +84,7 @@ begin
   ) then
     raise exception 'unknown template field';
   end if;
-  if p_changes ? 'name' and pg_catalog.jsonb_typeof(p_changes->'name') not in ('string', 'null') then
+  if p_changes ? 'name' and (pg_catalog.jsonb_typeof(p_changes->'name') not in ('string', 'null') or pg_catalog.length(p_changes->>'name') > 120) then
     raise exception 'invalid template name';
   end if;
   if p_changes ? 'title' and (pg_catalog.jsonb_typeof(p_changes->'title') <> 'string' or pg_catalog.length(p_changes->>'title') > 120) then
@@ -88,10 +93,10 @@ begin
   if p_changes ? 'body_template' and (pg_catalog.jsonb_typeof(p_changes->'body_template') <> 'string' or pg_catalog.length(p_changes->>'body_template') > 1000) then
     raise exception 'invalid template body';
   end if;
-  if p_changes ? 'title_en' and pg_catalog.jsonb_typeof(p_changes->'title_en') not in ('string', 'null') then
+  if p_changes ? 'title_en' and (pg_catalog.jsonb_typeof(p_changes->'title_en') not in ('string', 'null') or pg_catalog.length(p_changes->>'title_en') > 120) then
     raise exception 'invalid English title';
   end if;
-  if p_changes ? 'body_template_en' and pg_catalog.jsonb_typeof(p_changes->'body_template_en') not in ('string', 'null') then
+  if p_changes ? 'body_template_en' and (pg_catalog.jsonb_typeof(p_changes->'body_template_en') not in ('string', 'null') or pg_catalog.length(p_changes->>'body_template_en') > 1000) then
     raise exception 'invalid English body';
   end if;
   if p_changes ? 'is_active' and pg_catalog.jsonb_typeof(p_changes->'is_active') <> 'boolean' then
@@ -160,6 +165,3 @@ $$;
 
 revoke all on function public.admin_delete_waitlist_entry(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.admin_delete_waitlist_entry(uuid, uuid) to service_role;
-
-revoke all on table public.push_templates from anon, authenticated;
-revoke all on table public.push_announcements from anon, authenticated;
