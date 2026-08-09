@@ -741,6 +741,8 @@ Future<void> reExtractTextFromImage(
   if (!consent) return;
   if (!context.mounted) return;
 
+  var isLoadingDialogShown = false;
+
   try {
     showDialog(
       context: context,
@@ -776,11 +778,17 @@ Future<void> reExtractTextFromImage(
         ),
       ),
     );
+    isLoadingDialogShown = true;
 
     final httpClient = HttpClient();
     final request = await httpClient.getUrl(Uri.parse(imageUrl));
     final response = await request.close();
     final bytes = await consolidateHttpClientResponseBytes(response);
+    httpClient.close(force: true);
+
+    if (response.statusCode != HttpStatus.ok || bytes.isEmpty) {
+      throw StateError('Image download failed');
+    }
 
     final tempDir = Directory.systemTemp;
     final tempFile = File(
@@ -788,6 +796,7 @@ Future<void> reExtractTextFromImage(
     await tempFile.writeAsBytes(bytes);
 
     Navigator.of(context, rootNavigator: true).pop();
+    isLoadingDialogShown = false;
 
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: tempFile.path,
@@ -852,19 +861,30 @@ Future<void> reExtractTextFromImage(
         ),
       ),
     );
+    isLoadingDialogShown = true;
 
     final ocrService = GoogleVisionOcrService();
     final croppedBytes = await croppedFile.readAsBytes();
     final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
 
     Navigator.of(context, rootNavigator: true).pop();
+    isLoadingDialogShown = false;
 
     if (ocrText.isNotEmpty) {
       await SubscriptionUtils.incrementOcrUsage();
+      onConfirm(ocrText);
+      return;
     }
-    onConfirm(ocrText);
+
+    CustomSnackbar.show(
+      context,
+      message: AppLocalizations.of(context).ocrExtractionFailed,
+      rootOverlay: true,
+    );
   } catch (e) {
-    Navigator.of(context, rootNavigator: true).pop();
+    if (isLoadingDialogShown && context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
     CustomSnackbar.show(context,
         message: AppLocalizations.of(context).ocrReExtractionFailed,
         rootOverlay: true);
