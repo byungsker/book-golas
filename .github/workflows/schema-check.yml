@@ -199,6 +199,7 @@ jobs:
           pg_isready --dbname="$DB_URL"
           psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/tests/waitlist_abuse_guards.sql
           psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/tests/admin_authz.sql
+          psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/tests/admin_read_revoke.sql
 
       - name: Run manual Edge deployment contract fixture
         run: python3 supabase/tests/test_deploy_edge_workflow_contract.py
