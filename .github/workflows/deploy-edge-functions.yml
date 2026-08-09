@@ -41,6 +41,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -49,6 +51,11 @@ jobs:
 
       - name: Link to Project
         run: |
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_REF_DEV" != "reoiqefoymdsqzpbouxi" ]]; then
+            echo "::error::Development deployment requires the approved Supabase project ref."
+            exit 1
+          fi
           echo "Linking to Dev..."
           supabase link --project-ref "$SUPABASE_PROJECT_REF_DEV"
         env:
@@ -73,7 +80,8 @@ jobs:
 
       - name: Deploy Edge Functions
         run: |
-          FUNCTION="${{ inputs.function_name }}"
+          set -euo pipefail
+          FUNCTION="$FUNCTION_INPUT"
 
           if [ -n "$FUNCTION" ]; then
             echo "Deploying single function: $FUNCTION to dev"
@@ -90,3 +98,4 @@ jobs:
           echo "✅ Deployment complete"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          FUNCTION_INPUT: ${{ inputs.function_name }}
