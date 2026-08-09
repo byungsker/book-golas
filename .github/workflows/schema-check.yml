@@ -194,6 +194,7 @@ jobs:
       - name: Run waitlist abuse guard fixtures
         run: |
           python3 supabase/tests/test_waitlist_abuse_guards.py
+          python3 supabase/tests/test_waitlist_production_boundary.py
           DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
           pg_isready --dbname="$DB_URL"
           psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/tests/waitlist_abuse_guards.sql
