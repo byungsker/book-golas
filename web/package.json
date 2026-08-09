@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npm run test:waitlist-security && eslint",
-    "test:waitlist-security": "node --experimental-strip-types scripts/waitlist-security.test.mts"
+    "lint": "npm run test:waitlist-security && npm run test:admin-authz && eslint",
+    "test:waitlist-security": "node --experimental-strip-types scripts/waitlist-security.test.mts",
+    "test:admin-authz": "node --experimental-strip-types scripts/admin-authz.test.mts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -25,6 +26,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.18.0",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

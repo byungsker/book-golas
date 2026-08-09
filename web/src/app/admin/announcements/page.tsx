@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
 import type { PushAnnouncement } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,12 +35,9 @@ export default function AnnouncementsPage() {
   const [loading, setLoading] = useState(true);
 
   const loadAnnouncements = useCallback(async () => {
-    const { data } = await supabase
-      .from("push_announcements")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    setAnnouncements(data || []);
+    const response = await fetch("/api/admin/announcements");
+    const data = await response.json();
+    setAnnouncements(response.ok ? data.announcements || [] : []);
     setLoading(false);
   }, []);
 

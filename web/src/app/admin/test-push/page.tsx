@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { supabase } from "@/lib/supabase";
 import type { PushTemplate } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,17 +50,9 @@ export default function TestPushPage() {
   async function fetchData() {
     setLoading(true);
 
-    const { data: templatesData, error: templatesError } = await supabase
-      .from("push_templates")
-      .select("*")
-      .eq("is_active", true)
-      .order("priority");
-
-    console.log("Templates:", templatesData, templatesError);
-
-    if (templatesData) {
-      setTemplates(templatesData);
-    }
+    const templatesResponse = await fetch("/api/admin/push-templates");
+    const templatesData = await templatesResponse.json();
+    if (templatesResponse.ok) setTemplates((templatesData.templates || []).filter((template: PushTemplate) => template.is_active));
 
     try {
       const response = await fetch("/api/admin/fcm-tokens");
