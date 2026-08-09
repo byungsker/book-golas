@@ -3,6 +3,18 @@ import { isIP } from "node:net";
 
 type HeaderReader = Pick<Headers, "get">;
 
+export type WaitlistRpcResult = "success" | "duplicate" | "invalid" | "rate_limited" | "unknown";
+
+export function toPublicWaitlistResult(result: WaitlistRpcResult) {
+  if (result === "success" || result === "duplicate") return { ok: true as const };
+  if (result === "invalid") return { ok: false as const, code: "invalid" as const };
+  return { ok: false as const, code: "unknown" as const };
+}
+
+export function shouldSendWaitlistWelcome(result: WaitlistRpcResult): boolean {
+  return result === "success";
+}
+
 export function getWaitlistClientIp(headerStore: HeaderReader): string | null {
   const raw = (headerStore.get("x-vercel-forwarded-for") ?? headerStore.get("x-forwarded-for"))?.trim();
   if (!raw || raw.includes(",")) return null;

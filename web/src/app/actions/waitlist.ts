@@ -4,7 +4,7 @@ import { after } from "next/server";
 import { headers } from "next/headers";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase-server";
 import { sendWaitlistWelcome } from "@/lib/email/client";
-import { getWaitlistClientIp, hashWaitlistClientIp } from "@/lib/waitlist-security";
+import { getWaitlistClientIp, hashWaitlistClientIp, shouldSendWaitlistWelcome, toPublicWaitlistResult, type WaitlistRpcResult } from "@/lib/waitlist-security";
 
 const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
@@ -48,10 +48,10 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
     return { ok: false, code: "unknown" };
   }
 
-  if (result === "invalid") return { ok: false, code: "invalid" };
-  if (result !== "success" && result !== "duplicate") return { ok: false, code: "unknown" };
+  const publicResult = toPublicWaitlistResult((result ?? "unknown") as WaitlistRpcResult);
+  if (!publicResult.ok) return publicResult;
 
-  if (result === "success") {
+  if (shouldSendWaitlistWelcome((result ?? "unknown") as WaitlistRpcResult)) {
     after(async () => {
       const welcomeResult = await sendWaitlistWelcome(email, locale);
       if (!welcomeResult.ok) {
