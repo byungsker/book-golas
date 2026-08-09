@@ -3828,6 +3828,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t load your memorable pages.\nPlease try again.';
 
   @override
+  String get bookDetailImageMissing => 'This record has no linked image.';
+
+  @override
   String get bookDetailImageUploadFailed =>
       'We couldn\'t upload this memorable page.\nPlease try again.';
 

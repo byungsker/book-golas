@@ -3727,6 +3727,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailImageLoadFailed => '기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.';
 
   @override
+  String get bookDetailImageMissing => '이 기록에는 연결된 이미지가 없습니다.';
+
+  @override
   String get bookDetailImageUploadFailed =>
       '기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.';
 

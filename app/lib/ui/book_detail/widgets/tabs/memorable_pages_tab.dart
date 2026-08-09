@@ -354,6 +354,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     final createdAt = image['created_at'] as String?;
     final hasImageUrl = imageUrl != null && imageUrl.isNotEmpty;
     final imageLoadFailed = image['_image_load_failed'] == true;
+    final imageSourceMissing = image['_image_source_missing'] == true;
     final previewText = _ocrService.getPreviewText(extractedText, maxLines: 2);
     final isSelected = widget.selectedImageIds.contains(imageId);
 
@@ -395,12 +396,13 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (hasImageUrl || imageLoadFailed)
+                if (hasImageUrl || imageLoadFailed || imageSourceMissing)
                   _buildThumbnail(
                     imageId,
                     imageUrl,
                     isDark,
-                    unavailable: imageLoadFailed,
+                    unavailable: imageLoadFailed || imageSourceMissing,
+                    retryable: !imageSourceMissing,
                   ),
                 _buildTextContent(
                   previewText: previewText,
@@ -423,6 +425,7 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     String? imageUrl,
     bool isDark, {
     bool unavailable = false,
+    bool retryable = true,
   }) {
     final l10n = AppLocalizations.of(context);
     final errorColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
@@ -432,7 +435,10 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
         imageId,
         errorColor,
         iconColor,
-        l10n.bookDetailImageLoadFailed,
+        retryable
+            ? l10n.bookDetailImageLoadFailed
+            : l10n.bookDetailImageMissing,
+        retryable: retryable,
       );
     }
 
@@ -475,8 +481,9 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     String imageId,
     Color backgroundColor,
     Color iconColor,
-    String tooltip,
-  ) {
+    String tooltip, {
+    required bool retryable,
+  }) {
     return Hero(
       tag: 'book_image_$imageId',
       child: SizedBox(
@@ -486,10 +493,12 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
           message: tooltip,
           child: Material(
             color: backgroundColor,
-            child: InkWell(
-              onTap: () => _retryImage(imageId),
-              child: Icon(CupertinoIcons.refresh, color: iconColor),
-            ),
+            child: retryable
+                ? InkWell(
+                    onTap: () => _retryImage(imageId),
+                    child: Icon(CupertinoIcons.refresh, color: iconColor),
+                  )
+                : Icon(CupertinoIcons.photo, color: iconColor),
           ),
         ),
       ),

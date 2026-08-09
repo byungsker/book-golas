@@ -22,6 +22,7 @@ enum MemorablePageFailure {
 class MemorablePageViewModel extends BaseViewModel {
   static const _storagePathKey = '_storage_path';
   static const _imageLoadFailedKey = '_image_load_failed';
+  static const _imageSourceMissingKey = '_image_source_missing';
 
   String _bookId;
   final SupabaseClient _supabase;
@@ -96,7 +97,8 @@ class MemorablePageViewModel extends BaseViewModel {
       return {
         ...image,
         'image_url': null,
-        _imageLoadFailedKey: storedValue?.trim().isNotEmpty == true,
+        _imageLoadFailedKey: true,
+        _imageSourceMissingKey: true,
       };
     }
 
@@ -112,6 +114,7 @@ class MemorablePageViewModel extends BaseViewModel {
         _storagePathKey: storagePath,
         'image_url': signedUrl,
         _imageLoadFailedKey: false,
+        _imageSourceMissingKey: false,
       };
     } catch (_) {
       return {
@@ -119,6 +122,7 @@ class MemorablePageViewModel extends BaseViewModel {
         _storagePathKey: storagePath,
         'image_url': null,
         _imageLoadFailedKey: true,
+        _imageSourceMissingKey: false,
       };
     }
   }
@@ -157,6 +161,7 @@ class MemorablePageViewModel extends BaseViewModel {
         _storagePathKey: storagePath,
         'image_url': signedUrl,
         _imageLoadFailedKey: false,
+        _imageSourceMissingKey: false,
       };
       notifyListeners();
       return signedUrl;

@@ -3245,6 +3245,8 @@
          "@bookDetailLoginRequired": {"description": "Authentication required message for memorable page actions"},
          "bookDetailImageLoadFailed": "기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.",
          "@bookDetailImageLoadFailed": {"description": "Memorable page image load failure message"},
+         "bookDetailImageMissing": "이 기록에는 연결된 이미지가 없습니다.",
+         "@bookDetailImageMissing": {"description": "Memorable page image missing message"},
          "bookDetailImageUploadFailed": "기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.",
          "@bookDetailImageUploadFailed": {"description": "Memorable page image upload failure message"},
          "bookDetailImageDeleteFailed": "기억에 남는 페이지를 삭제하지 못했습니다.\n다시 시도해주세요.",

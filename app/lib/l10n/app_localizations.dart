@@ -6930,6 +6930,12 @@ abstract class AppLocalizations {
   /// **'기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.'**
   String get bookDetailImageLoadFailed;
 
+  /// Memorable page image missing message
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기록에는 연결된 이미지가 없습니다.'**
+  String get bookDetailImageMissing;
+
   /// Memorable page image upload failure message
   ///
   /// In ko, this message translates to:
