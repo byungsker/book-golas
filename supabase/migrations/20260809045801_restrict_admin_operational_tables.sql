@@ -16,6 +16,7 @@ create table if not exists public.admin_audit_events (
 alter table public.admin_audit_events enable row level security;
 revoke all on table public.admin_audit_events from public, anon, authenticated, service_role;
 create index if not exists admin_audit_events_created_at_idx on public.admin_audit_events (created_at);
+grant select on table public.push_templates, public.push_announcements to service_role;
 
 create or replace function public.prevent_admin_audit_event_mutation()
 returns trigger

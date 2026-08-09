@@ -14,6 +14,10 @@ begin
      or has_table_privilege('service_role', 'public.admin_audit_events', 'DELETE') then
     raise exception 'service_role can mutate audit table directly';
   end if;
+  if not has_table_privilege('service_role', 'public.push_templates', 'SELECT')
+     or not has_table_privilege('service_role', 'public.push_announcements', 'SELECT') then
+    raise exception 'service_role lost admin operational read access';
+  end if;
   if not has_function_privilege('service_role', 'public.admin_update_push_template(uuid,uuid,jsonb)', 'EXECUTE') then
     raise exception 'service_role cannot execute template audit RPC';
   end if;
