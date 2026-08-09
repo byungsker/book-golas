@@ -17,7 +17,6 @@ type Status =
   | "idle"
   | "submitting"
   | "success"
-  | "duplicate"
   | "invalid"
   | "error";
 
@@ -44,8 +43,6 @@ export function WaitlistModal({
       const result = await joinWaitlist(formData);
       if (result.ok) {
         setStatus("success");
-      } else if (result.code === "duplicate") {
-        setStatus("duplicate");
       } else if (result.code === "invalid") {
         setStatus("invalid");
       } else {
@@ -129,12 +126,12 @@ export function WaitlistModal({
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="source" value={source} />
 
-            {(status === "duplicate" || status === "invalid" || status === "error") && (
+            {(status === "invalid" || status === "error") && (
               <p
                 role={status === "error" ? "alert" : "status"}
                 aria-live="polite"
                 aria-atomic="true"
-                className={`text-sm ${status === "duplicate" ? "text-amber-300" : "text-rose-300"}`}
+                className="text-sm text-rose-300"
               >
                 {t(status)}
               </p>

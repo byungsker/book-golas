@@ -10,7 +10,7 @@ const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export type WaitlistResult =
   | { ok: true }
-  | { ok: false; code: "invalid" | "duplicate" | "unknown" };
+  | { ok: false; code: "invalid" | "unknown" };
 
 export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> {
   const honeypot = String(formData.get("website") ?? "").trim();
@@ -49,7 +49,6 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
   }
 
   if (result === "invalid") return { ok: false, code: "invalid" };
-  if (result === "duplicate") return { ok: false, code: "duplicate" };
   if (result !== "success") return { ok: false, code: "unknown" };
 
   after(async () => {
