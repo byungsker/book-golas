@@ -27,7 +27,11 @@ function jsonResponse(
   status: number,
   requestId: string,
 ): Response {
-  return new Response(JSON.stringify(body), {
+  const responseBody = body !== null && typeof body === "object" &&
+      !Array.isArray(body)
+    ? { ...(body as Record<string, unknown>), requestId }
+    : { data: body, requestId };
+  return new Response(JSON.stringify(responseBody), {
     status,
     headers: { ...jsonHeaders, "X-Request-Id": requestId },
   });

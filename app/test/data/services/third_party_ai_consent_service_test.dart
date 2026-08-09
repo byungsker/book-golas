@@ -10,6 +10,8 @@ import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 
+class MockFunctionsClient extends Mock implements FunctionsClient {}
+
 class FakeConsentStore implements ThirdPartyAiConsentStore {
   final Map<String, ThirdPartyAiConsentRecord> records = {};
   bool failReads = false;
@@ -301,6 +303,72 @@ void main() {
 
     expect(result, isNull);
     verifyNever(() => client.functions);
+  });
+
+  test('OCR adapter retains request ID from a successful response', () async {
+    final client = MockSupabaseClient();
+    final functions = MockFunctionsClient();
+    when(() => client.functions).thenReturn(functions);
+    when(() => functions.invoke(
+          'vision-ocr',
+          body: any(named: 'body'),
+        )).thenAnswer(
+      (_) async => FunctionResponse(
+        status: 200,
+        data: {'text': 'recognized', 'requestId': 'request-success'},
+      ),
+    );
+    final consentStore = FakeConsentStore();
+    final consent = ThirdPartyAiConsentService.withStore(
+      consentStore,
+      () => 'user-a',
+    );
+    await consent.grant(
+      ThirdPartyAiProvider.googleCloudVision,
+      disclosure: disclosure,
+    );
+    final service = GoogleVisionOcrService.withDependencies(consent, client);
+
+    expect(
+      await service.extractTextFromBytes(Uint8List.fromList([1, 2, 3])),
+      'recognized',
+    );
+    expect(service.lastRequestId, 'request-success');
+  });
+
+  test('OCR adapter retains request ID from a failed response', () async {
+    final client = MockSupabaseClient();
+    final functions = MockFunctionsClient();
+    when(() => client.functions).thenReturn(functions);
+    when(() => functions.invoke(
+          'vision-ocr',
+          body: any(named: 'body'),
+        )).thenThrow(
+      const FunctionException(
+        status: 502,
+        details: {
+          'error': 'OCR service unavailable',
+          'requestId': 'request-failure'
+        },
+        reasonPhrase: 'Bad Gateway',
+      ),
+    );
+    final consentStore = FakeConsentStore();
+    final consent = ThirdPartyAiConsentService.withStore(
+      consentStore,
+      () => 'user-a',
+    );
+    await consent.grant(
+      ThirdPartyAiProvider.googleCloudVision,
+      disclosure: disclosure,
+    );
+    final service = GoogleVisionOcrService.withDependencies(consent, client);
+
+    expect(
+      await service.extractTextFromBytes(Uint8List.fromList([1, 2, 3])),
+      isNull,
+    );
+    expect(service.lastRequestId, 'request-failure');
   });
 
   test('OpenAI adapter makes zero client calls without consent', () async {

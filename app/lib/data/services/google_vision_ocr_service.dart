@@ -26,10 +26,13 @@ class GoogleVisionOcrService {
   static const int _maxImageBytes = 8 * 1024 * 1024;
   final ThirdPartyAiConsentService _consentService;
   final SupabaseClient Function() _supabaseProvider;
+  String? _lastRequestId;
 
   SupabaseClient get _supabase => _supabaseProvider();
+  String? get lastRequestId => _lastRequestId;
 
   Future<String?> extractTextFromImageUrl(String imageUrl) async {
+    _lastRequestId = null;
     try {
       final response = await http
           .get(Uri.parse(imageUrl))
@@ -47,6 +50,7 @@ class GoogleVisionOcrService {
   }
 
   Future<String?> extractTextFromBytes(Uint8List imageBytes) async {
+    _lastRequestId = null;
     if (imageBytes.isEmpty || imageBytes.length > _maxImageBytes) {
       debugPrint('OCR image size is invalid');
       return null;
@@ -64,18 +68,39 @@ class GoogleVisionOcrService {
         'vision-ocr',
         body: {'imageBase64': base64Encode(imageBytes)},
       );
+      _captureRequestId(response.data);
       if (response.status != 200 || response.data is! Map) {
-        debugPrint('OCR request failed');
+        _logRequestFailure();
         return null;
       }
 
       final data = Map<String, dynamic>.from(response.data as Map);
       final text = data['text']?.toString() ?? '';
       return text.isEmpty ? null : _cleanupExtractedText(text);
+    } on FunctionException catch (error) {
+      _captureRequestId(error.details);
+      _logRequestFailure();
+      return null;
     } catch (error) {
-      debugPrint('OCR request failed: $error');
+      _logRequestFailure(error);
       return null;
     }
+  }
+
+  void _captureRequestId(Object? payload) {
+    if (payload is! Map) {
+      return;
+    }
+    final requestId = payload['requestId'];
+    if (requestId is String && requestId.isNotEmpty) {
+      _lastRequestId = requestId;
+    }
+  }
+
+  void _logRequestFailure([Object? error]) {
+    final requestId = _lastRequestId;
+    final suffix = requestId == null ? '' : ' (request ID: $requestId)';
+    debugPrint('OCR request failed$suffix${error == null ? '' : ': $error'}');
   }
 
   String _cleanupExtractedText(String rawText) {
