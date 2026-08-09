@@ -1,0 +1,9 @@
+/.byungskerlab/branch-policy.json @byungsker
+/.byungskerlab/release-lines.json @byungsker
+/.github/CODEOWNERS @byungsker
+/.github/PULL_REQUEST_TEMPLATE.md @byungsker
+/.github/scripts/validate_target_version_pr.py @byungsker
+/.github/workflows/target-version-gate.yml @byungsker
+/.github/workflows/quality.yml @byungsker
+/.github/workflows/schema-check.yml @byungsker
+/AGENTS.md @byungsker

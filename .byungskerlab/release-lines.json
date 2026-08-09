@@ -44,8 +44,12 @@
       }
     },
     "backend": {
-      "active_versions": [],
-      "evidence_refs": [],
+      "active_versions": [
+        "1.0.2"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
       "promotion_sources": {
         "release": {},
         "hotfix": {}

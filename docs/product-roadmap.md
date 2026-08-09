@@ -12,16 +12,9 @@ Target-Delivery-Unit: web
 Target-Version: 1.0.2
 Delivery-Profile: web-release-train
 
-Web 1.0.2 release-line evidence:
-
-- Source baseline: `main@80c78d030a5290f047b1aa6d00e43a5331913803`.
-- Reviewed governance change source: PR #336 merge commit
-  `b165870b75d16df0f6c3986581d85301dc8a2d09` on `dev`; its reviewed change
-  was cherry-picked into the version line as `fe2b5b1b7c766a5b83b586e4d0ccbd36786f1579`.
-- Quality-policy and quality-workflow sync: PR #341 source head
-  `df1a9718f3a60a512026eb1c8f791009315e3d0c`, merged as
-  `3be8d89d55f3d02619d98849c27e28b7104e6251` into the version line.
-- Version line: `version/web/1.0.2`.
+Target-Delivery-Unit: backend
+Target-Version: 1.0.2
+Delivery-Profile: backend-service
 
 ## Priority order
 
@@ -41,6 +34,12 @@ source of truth for the patch scope and release blockers. The patch is not
 complete until the outstanding stability, privacy, metadata, and platform
 verification items are closed with evidence.
 
+The independently deployed Edge Function boundary is a backend-service
+companion delivery line for the same patch. The protected `main` environment,
+approved project ref, and manual-dispatch rejection controls are still pending
+implementation and evidence in BOK-396; opening this line does not authorize
+production execution by itself.
+
 Exit gate:
 
 - iOS and Android behavior is verified for the supported feature matrix.
@@ -48,6 +47,9 @@ Exit gate:
   path.
 - Store metadata, privacy disclosures, review notes, and release evidence match
   the shipped binary.
+- Backend-service 1.0.2 remains excluded from production execution until
+  BOK-396 records the approved project ref, protected `main`, manual-dispatch
+  rejection, a verified 1.0.2 source SHA, and explicit deployment authority.
 - byungsker explicitly approves the external release action.
 
 ## P1 — Android / Google Play readiness
