@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { csvEscape } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,17 +52,13 @@ export default function WaitlistAdminPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error: fetchError } = await supabase
-      .from("waitlist")
-      .select("id, email, locale, source, created_at")
-      .order("created_at", { ascending: false })
-      .limit(1000);
-
-    if (fetchError) {
-      setError(fetchError.message);
+    const response = await fetch("/api/admin/waitlist");
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error || "명단을 불러오지 못했습니다.");
       setEntries([]);
     } else {
-      setEntries((data ?? []) as WaitlistEntry[]);
+      setEntries((data.entries ?? []) as WaitlistEntry[]);
     }
     setLoading(false);
   }, []);
@@ -107,13 +102,15 @@ export default function WaitlistAdminPage() {
   async function handleDelete(id: string, email: string) {
     if (!confirm(`${email} 을(를) 명단에서 삭제할까요?`)) return;
     setDeletingId(id);
-    const { error: deleteError } = await supabase
-      .from("waitlist")
-      .delete()
-      .eq("id", id);
+    const response = await fetch("/api/admin/waitlist", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     setDeletingId(null);
-    if (deleteError) {
-      alert("삭제 실패: " + deleteError.message);
+    if (!response.ok) {
+      const data = await response.json();
+      alert("삭제 실패: " + (data.error || "알 수 없는 오류"));
       return;
     }
     setEntries((prev) => prev.filter((entry) => entry.id !== id));

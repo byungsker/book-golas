@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabase, PushTemplate } from "@/lib/supabase";
+import type { PushTemplate } from "@/lib/supabase";
 
 export default function PushTemplatesPage() {
   const [templates, setTemplates] = useState<PushTemplate[]>([]);
@@ -38,13 +38,10 @@ export default function PushTemplatesPage() {
 
   async function fetchTemplates() {
     try {
-      const { data, error } = await supabase
-        .from("push_templates")
-        .select("*")
-        .order("priority", { ascending: true });
-
-      if (error) throw error;
-      setTemplates(data || []);
+      const response = await fetch("/api/admin/push-templates");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch templates");
+      setTemplates(data.templates || []);
     } catch (error) {
       console.error("Failed to fetch templates:", error);
     } finally {
@@ -56,9 +53,11 @@ export default function PushTemplatesPage() {
     if (!editingTemplate) return;
 
     try {
-      const { error } = await supabase
-        .from("push_templates")
-        .update({
+      const response = await fetch("/api/admin/push-templates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingTemplate.id,
           name: editingTemplate.name,
           title: editingTemplate.title,
           body_template: editingTemplate.body_template,
@@ -66,10 +65,9 @@ export default function PushTemplatesPage() {
           body_template_en: editingTemplate.body_template_en,
           is_active: editingTemplate.is_active,
           priority: editingTemplate.priority,
-        })
-        .eq("id", editingTemplate.id);
-
-      if (error) throw error;
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to update template");
 
       setIsDialogOpen(false);
       fetchTemplates();
@@ -81,12 +79,12 @@ export default function PushTemplatesPage() {
 
   async function toggleActive(template: PushTemplate) {
     try {
-      const { error } = await supabase
-        .from("push_templates")
-        .update({ is_active: !template.is_active })
-        .eq("id", template.id);
-
-      if (error) throw error;
+      const response = await fetch("/api/admin/push-templates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: template.id, is_active: !template.is_active }),
+      });
+      if (!response.ok) throw new Error("Failed to update template");
       fetchTemplates();
     } catch (error) {
       console.error("Failed to toggle active:", error);
