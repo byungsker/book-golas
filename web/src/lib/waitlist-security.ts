@@ -16,7 +16,7 @@ export function shouldSendWaitlistWelcome(result: WaitlistRpcResult): boolean {
 }
 
 export function getWaitlistClientIp(headerStore: HeaderReader): string | null {
-  const raw = (headerStore.get("x-vercel-forwarded-for") ?? headerStore.get("x-forwarded-for"))?.trim();
+  const raw = headerStore.get("x-vercel-forwarded-for")?.trim();
   if (!raw || raw.includes(",")) return null;
   const candidate = raw.replace(/^\[|\]$/g, "");
   const family = isIP(candidate);

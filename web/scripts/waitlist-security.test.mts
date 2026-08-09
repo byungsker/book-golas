@@ -23,6 +23,7 @@ assert.equal(shouldSendWaitlistWelcome("success"), true);
 assert.equal(shouldSendWaitlistWelcome("duplicate"), false);
 assert.deepEqual(toPublicWaitlistResult("rate_limited"), { ok: false, code: "unknown" });
 assert.equal(getWaitlistClientIp(new Headers({ "x-vercel-forwarded-for": "198.51.100.10" })), "198.51.100.10");
+assert.equal(getWaitlistClientIp(new Headers({ "x-forwarded-for": "198.51.100.10" })), null);
 assert.equal(getWaitlistClientIp(new Headers({ "x-forwarded-for": "198.51.100.10, 10.0.0.1" })), null);
 assert.equal(getWaitlistClientIp(new Headers({ "cf-connecting-ip": "198.51.100.11" })), null);
 assert.equal(getWaitlistClientIp(new Headers({ "x-vercel-forwarded-for": "2001:0db8:0:0:0:0:0:1" })), "2001:db8::1");
