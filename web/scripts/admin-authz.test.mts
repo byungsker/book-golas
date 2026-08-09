@@ -31,4 +31,11 @@ for (const path of routes) {
   assert.ok(authIndex < serviceIndex, `${path} must establish auth before the service-role client`);
 }
 
+const templateRoute = await readFile("src/app/api/admin/push-templates/route.ts", "utf8");
+const waitlistRoute = await readFile("src/app/api/admin/waitlist/route.ts", "utf8");
+assert.equal(templateRoute.includes('rpc("admin_update_push_template"'), true);
+assert.equal(templateRoute.includes('.from("push_templates").update'), false);
+assert.equal(waitlistRoute.includes('rpc("admin_delete_waitlist_entry"'), true);
+assert.equal(waitlistRoute.includes('.from("waitlist").delete'), false);
+
 console.log("admin authz fixtures passed");

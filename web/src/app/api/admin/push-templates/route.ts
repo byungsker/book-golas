@@ -46,9 +46,12 @@ export async function PATCH(request: NextRequest) {
   if ("is_active" in updates && typeof updates.is_active !== "boolean") return NextResponse.json({ error: "Invalid active state" }, { status: 400 });
   if ("priority" in updates && (!Number.isInteger(updates.priority) || updates.priority < 0 || updates.priority > 10000)) return NextResponse.json({ error: "Invalid priority" }, { status: 400 });
   const client = createServiceRoleSupabaseClient();
-  const { data, error } = await client.from("push_templates").update(updates).eq("id", id).select("id").maybeSingle();
+  const { data, error } = await client.rpc("admin_update_push_template", {
+    p_actor_id: admin.id,
+    p_template_id: id,
+    p_changes: updates,
+  });
   if (error) return NextResponse.json({ error: "Failed to update template" }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Template not found" }, { status: 404 });
-  await client.from("admin_audit_events").insert({ actor_id: admin.id, action: "push_template.update", resource_type: "push_template", resource_id: id, metadata: { fields: Object.keys(updates) } });
   return NextResponse.json({ ok: true });
 }
