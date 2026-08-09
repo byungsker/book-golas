@@ -34,7 +34,12 @@
         "docs/product-roadmap.md"
       ],
       "promotion_sources": {
-        "release": {},
+        "release": {
+          "1.0.2": {
+            "branch": "version/web/1.0.2",
+            "sha": "df9db70c2311bce152498d43ac5162a850ad5239"
+          }
+        },
         "hotfix": {}
       }
     },
