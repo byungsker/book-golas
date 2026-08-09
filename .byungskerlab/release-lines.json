@@ -37,7 +37,7 @@
         "release": {
           "1.0.2": {
             "branch": "version/web/1.0.2",
-            "sha": "f3db1a83dc55eaaec9587dfa370530496981d30c"
+            "sha": "df9db70c2311bce152498d43ac5162a850ad5239"
           }
         },
         "hotfix": {}
