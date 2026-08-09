@@ -49,14 +49,16 @@ export async function joinWaitlist(formData: FormData): Promise<WaitlistResult> 
   }
 
   if (result === "invalid") return { ok: false, code: "invalid" };
-  if (result !== "success") return { ok: false, code: "unknown" };
+  if (result !== "success" && result !== "duplicate") return { ok: false, code: "unknown" };
 
-  after(async () => {
-    const result = await sendWaitlistWelcome(email, locale);
-    if (!result.ok) {
-      console.error("[waitlist] email send failed", { reason: result.reason });
-    }
-  });
+  if (result === "success") {
+    after(async () => {
+      const welcomeResult = await sendWaitlistWelcome(email, locale);
+      if (!welcomeResult.ok) {
+        console.error("[waitlist] email send failed", { reason: welcomeResult.reason });
+      }
+    });
+  }
 
   return { ok: true };
 }
