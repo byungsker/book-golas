@@ -386,6 +386,9 @@ verify_jwt = false
 [functions.reading-insights]
 verify_jwt = false
 
+[functions.vision-ocr]
+verify_jwt = false
+
 [functions.recommend-next-books]
 verify_jwt = false
 

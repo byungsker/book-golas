@@ -21,6 +21,7 @@ enum MemorablePageFailure {
 
 class MemorablePageViewModel extends BaseViewModel {
   static const _storagePathKey = '_storage_path';
+  static const _imageLoadFailedKey = '_image_load_failed';
 
   String _bookId;
   final SupabaseClient _supabase;
@@ -52,10 +53,10 @@ class MemorablePageViewModel extends BaseViewModel {
     required String bookId,
     SupabaseClient? client,
     BookImageStorageService? bookImageStorageService,
-  })  : _bookId = bookId,
-        _supabase = client ?? Supabase.instance.client,
-        _bookImageStorageService =
-            bookImageStorageService ?? BookImageStorageService(client: client);
+  }) : _bookId = bookId,
+       _supabase = client ?? Supabase.instance.client,
+       _bookImageStorageService =
+           bookImageStorageService ?? BookImageStorageService(client: client);
 
   void updateBookId(String bookId) {
     _bookId = bookId;
@@ -91,15 +92,34 @@ class MemorablePageViewModel extends BaseViewModel {
     final storagePath = BookImageStorageService.storagePathFromValue(
       storedValue,
     );
-    if (storagePath == null) return {...image, 'image_url': null};
+    if (storagePath == null) {
+      return {
+        ...image,
+        'image_url': null,
+        _imageLoadFailedKey: storedValue?.trim().isNotEmpty == true,
+      };
+    }
 
     try {
       final signedUrl = await _bookImageStorageService.createSignedUrl(
         storagePath,
       );
-      return {...image, _storagePathKey: storagePath, 'image_url': signedUrl};
+      if (signedUrl == null || signedUrl.isEmpty) {
+        throw StateError('Signed image URL was empty');
+      }
+      return {
+        ...image,
+        _storagePathKey: storagePath,
+        'image_url': signedUrl,
+        _imageLoadFailedKey: false,
+      };
     } catch (_) {
-      return {...image, _storagePathKey: storagePath, 'image_url': null};
+      return {
+        ...image,
+        _storagePathKey: storagePath,
+        'image_url': null,
+        _imageLoadFailedKey: true,
+      };
     }
   }
 
@@ -108,6 +128,41 @@ class MemorablePageViewModel extends BaseViewModel {
     Map<String, dynamic> image,
   ) {
     return _resolveImageUrl(image);
+  }
+
+  Future<String?> refreshImageUrl(String imageId) async {
+    final images = _cachedImages;
+    if (images == null) return null;
+
+    final index = images.indexWhere(
+      (image) => image['id']?.toString() == imageId,
+    );
+    if (index < 0) return null;
+
+    final image = images[index];
+    final storagePath =
+        image[_storagePathKey] as String? ??
+        BookImageStorageService.storagePathFromValue(
+          image['image_url'] as String?,
+        );
+    if (storagePath == null) return null;
+
+    try {
+      final signedUrl = await _bookImageStorageService.createSignedUrl(
+        storagePath,
+      );
+      if (signedUrl == null || signedUrl.isEmpty) return null;
+      images[index] = {
+        ...image,
+        _storagePathKey: storagePath,
+        'image_url': signedUrl,
+        _imageLoadFailedKey: false,
+      };
+      notifyListeners();
+      return signedUrl;
+    } catch (_) {
+      return null;
+    }
   }
 
   List<Map<String, dynamic>> getSortedImages() {
@@ -448,7 +503,8 @@ class MemorablePageViewModel extends BaseViewModel {
     }
     final existingImage = await _findImage(imageId);
     if (existingImage == null) return false;
-    final existingStoragePath = existingImage[_storagePathKey] as String? ??
+    final existingStoragePath =
+        existingImage[_storagePathKey] as String? ??
         existingImage['image_url'] as String?;
 
     return replaceStoredImage(
@@ -531,9 +587,7 @@ class MemorablePageViewModel extends BaseViewModel {
   void _setFailure(MemorablePageFailure failure, [Object? error]) {
     _failure = failure;
     if (error != null) {
-      debugPrint(
-        'Memorable page operation failed: ${error.runtimeType}',
-      );
+      debugPrint('Memorable page operation failed: ${error.runtimeType}');
     }
     setError(failure.name);
   }

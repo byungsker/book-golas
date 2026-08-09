@@ -2342,7 +2342,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get extractingText => '텍스트 추출 중...';
 
   @override
-  String get ocrExtractionFailed => '텍스트 추출 실패';
+  String get ocrExtractionFailed =>
+      '텍스트를 추출하지 못했어요. 이미지와 네트워크를 확인한 뒤 다시 시도해주세요.';
 
   @override
   String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
@@ -2384,7 +2385,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadingImage => '이미지 로딩 중...';
 
   @override
-  String get ocrReExtractionFailed => '재추출 실패';
+  String get ocrReExtractionFailed => '텍스트를 다시 추출하지 못했어요. 잠시 후 다시 시도해주세요.';
 
   @override
   String get reScanButton => '다시 스캔';

@@ -99,6 +99,7 @@ Deno.test("vision proxy sends valid content without exposing response secrets", 
   const body = await response.json();
 
   assertEquals(response.status, 200);
+  assertStringIncludes(response.headers.get("X-Request-Id") ?? "", "-");
   assertEquals(body, { text: "recognized" });
   assertStringIncludes(requestedUrl, "key=server-key");
   assertStringIncludes(requestedBody, "DOCUMENT_TEXT_DETECTION");

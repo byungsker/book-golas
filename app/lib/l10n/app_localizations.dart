@@ -4423,7 +4423,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrExtractionFailed.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출 실패'**
+  /// **'텍스트를 추출하지 못했어요. 이미지와 네트워크를 확인한 뒤 다시 시도해주세요.'**
   String get ocrExtractionFailed;
 
   /// No description provided for @extractTextConfirmTitle.
@@ -4501,7 +4501,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrReExtractionFailed.
   ///
   /// In ko, this message translates to:
-  /// **'재추출 실패'**
+  /// **'텍스트를 다시 추출하지 못했어요. 잠시 후 다시 시도해주세요.'**
   String get ocrReExtractionFailed;
 
   /// No description provided for @reScanButton.

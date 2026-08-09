@@ -2416,7 +2416,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extractingText => 'Extracting text...';
 
   @override
-  String get ocrExtractionFailed => 'Text extraction failed';
+  String get ocrExtractionFailed =>
+      'We couldn\'t extract text. Check the image and network, then try again.';
 
   @override
   String get extractTextConfirmTitle => 'Extract text?';
@@ -2459,7 +2460,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingImage => 'Loading image...';
 
   @override
-  String get ocrReExtractionFailed => 'Re-extraction failed';
+  String get ocrReExtractionFailed =>
+      'We couldn\'t extract the text again. Please try again shortly.';
 
   @override
   String get reScanButton => 'Scan again';
