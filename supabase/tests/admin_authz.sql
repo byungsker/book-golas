@@ -37,22 +37,33 @@ do $$
 declare
   fresh_id uuid;
   stale_id uuid;
+  update_succeeded boolean := false;
+  fresh_delete_succeeded boolean := false;
 begin
   insert into public.admin_audit_events (action, resource_type, resource_id, metadata)
   values ('waitlist.delete', 'waitlist', gen_random_uuid(), '{}'::jsonb)
   returning id into fresh_id;
   begin
     update public.admin_audit_events set metadata = '{"blocked":true}'::jsonb where id = fresh_id;
-    raise exception 'audit update unexpectedly succeeded';
+    update_succeeded := true;
   exception when others then
     null;
   end;
+  if update_succeeded then
+    raise exception 'audit update unexpectedly succeeded';
+  end if;
   begin
     delete from public.admin_audit_events where id = fresh_id;
-    raise exception 'fresh audit delete unexpectedly succeeded';
+    fresh_delete_succeeded := true;
   exception when others then
     null;
   end;
+  if fresh_delete_succeeded then
+    raise exception 'fresh audit delete unexpectedly succeeded';
+  end if;
+  if not exists (select 1 from public.admin_audit_events where id = fresh_id) then
+    raise exception 'fresh audit event was unexpectedly removed';
+  end if;
   insert into public.admin_audit_events (action, resource_type, resource_id, metadata, created_at)
   values ('waitlist.delete', 'waitlist', gen_random_uuid(), '{}'::jsonb, now() - interval '3 years')
   returning id into stale_id;

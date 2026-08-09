@@ -1,6 +1,6 @@
 create table if not exists public.admin_audit_events (
   id uuid primary key default gen_random_uuid(),
-  actor_id uuid references auth.users(id) on delete set null,
+  actor_id uuid,
   action text not null check (action in ('waitlist.delete', 'push_template.update')),
   resource_type text not null check (
     (action = 'waitlist.delete' and resource_type = 'waitlist')
