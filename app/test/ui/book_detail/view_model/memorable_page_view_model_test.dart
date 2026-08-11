@@ -46,6 +46,7 @@ void main() {
     expect(result['image_url'], isNull);
     expect(result['_storage_path'], 'user/book/image.jpg');
     expect(result['_image_load_failed'], isTrue);
+    expect(result['_image_source_missing'], isFalse);
   });
 
   test('marks a record without an image source as unavailable', () async {

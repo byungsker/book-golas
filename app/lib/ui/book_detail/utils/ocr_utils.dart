@@ -23,6 +23,8 @@ typedef OcrImageCropper = Future<Uint8List?> Function(
 );
 typedef OcrTextExtractor = Future<String?> Function(Uint8List imageBytes);
 
+const _ocrImageDownloadTimeout = Duration(seconds: 10);
+
 String sanitizeOcrText(String text) {
   if (text.isEmpty) return text;
 
@@ -589,9 +591,12 @@ Future<void> pickImageAndExtractText(
 Future<Uint8List> _downloadOcrImage(String imageUrl) async {
   final httpClient = HttpClient();
   try {
-    final request = await httpClient.getUrl(Uri.parse(imageUrl));
-    final response = await request.close();
-    final bytes = await consolidateHttpClientResponseBytes(response);
+    final request = await httpClient
+        .getUrl(Uri.parse(imageUrl))
+        .timeout(_ocrImageDownloadTimeout);
+    final response = await request.close().timeout(_ocrImageDownloadTimeout);
+    final bytes = await consolidateHttpClientResponseBytes(response)
+        .timeout(_ocrImageDownloadTimeout);
     if (response.statusCode != HttpStatus.ok || bytes.isEmpty) {
       throw StateError('Image download failed');
     }
@@ -849,6 +854,7 @@ Future<void> reExtractTextFromImage(
 
     final bytes = await (downloadImage ?? _downloadOcrImage)(imageUrl);
 
+    if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
     isLoadingDialogShown = false;
 
@@ -899,6 +905,7 @@ Future<void> reExtractTextFromImage(
             ) ??
             '';
 
+    if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
     isLoadingDialogShown = false;
 
@@ -910,7 +917,7 @@ Future<void> reExtractTextFromImage(
 
     CustomSnackbar.show(
       context,
-      message: AppLocalizations.of(context).ocrExtractionFailed,
+      message: AppLocalizations.of(context).ocrReExtractionFailed,
       rootOverlay: true,
     );
   } catch (e) {

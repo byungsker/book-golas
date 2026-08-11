@@ -75,10 +75,10 @@ void main() {
         await tester.pump();
 
         await _pumpUntil(tester, () {
-          return find.text(l10n.ocrExtractionFailed).evaluate().isNotEmpty;
+          return find.text(l10n.ocrReExtractionFailed).evaluate().isNotEmpty;
         }, timeout: const Duration(seconds: 45));
 
-        expect(find.text(l10n.ocrExtractionFailed), findsOneWidget);
+        expect(find.text(l10n.ocrReExtractionFailed), findsOneWidget);
         expect(confirmedText, isEmpty);
         await binding.takeScreenshot(
           'BOK-410-provider-failure-${locale.languageCode}',
