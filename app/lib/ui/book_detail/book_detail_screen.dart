@@ -560,6 +560,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   _showExistingImageModal(id, url, text,
                                       pageNumber: page),
                               onImagesLoaded: memorableVm.onImagesLoaded,
+                              onImageLoadFailed: memorableVm.refreshImageUrl,
                               bottomContentPadding: contentBottomPadding,
                             ),
                             Consumer<ReadingProgressViewModel>(

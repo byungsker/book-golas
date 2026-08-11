@@ -45,6 +45,33 @@ void main() {
 
     expect(result['image_url'], isNull);
     expect(result['_storage_path'], 'user/book/image.jpg');
+    expect(result['_image_load_failed'], isTrue);
+    expect(result['_image_source_missing'], isFalse);
+  });
+
+  test('marks a record without an image source as unavailable', () async {
+    final result = await viewModel.resolveImageUrlForTesting({
+      'id': 'image-id',
+      'image_url': null,
+    });
+
+    expect(result['image_url'], isNull);
+    expect(result['_image_load_failed'], isTrue);
+    expect(result['_image_source_missing'], isTrue);
+    verifyNever(() => storageService.createSignedUrl(any()));
+  });
+
+  test('marks a successful signed URL as available', () async {
+    when(() => storageService.createSignedUrl('user/book/image.jpg'))
+        .thenAnswer((_) async => 'https://example.com/signed-image');
+
+    final result = await viewModel.resolveImageUrlForTesting({
+      'id': 'image-id',
+      'image_url': 'user/book/image.jpg',
+    });
+
+    expect(result['image_url'], 'https://example.com/signed-image');
+    expect(result['_image_load_failed'], isFalse);
   });
 
   test('keeps replacement success after non-critical cleanup failures',

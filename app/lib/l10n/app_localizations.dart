@@ -4423,7 +4423,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrExtractionFailed.
   ///
   /// In ko, this message translates to:
-  /// **'텍스트 추출 실패'**
+  /// **'텍스트를 추출하지 못했어요. 이미지와 네트워크를 확인한 뒤 다시 시도해주세요.'**
   String get ocrExtractionFailed;
 
   /// No description provided for @extractTextConfirmTitle.
@@ -4501,7 +4501,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrReExtractionFailed.
   ///
   /// In ko, this message translates to:
-  /// **'재추출 실패'**
+  /// **'텍스트를 다시 추출하지 못했어요. 잠시 후 다시 시도해주세요.'**
   String get ocrReExtractionFailed;
 
   /// No description provided for @reScanButton.
@@ -6929,6 +6929,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.'**
   String get bookDetailImageLoadFailed;
+
+  /// Memorable page image missing message
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기록에는 연결된 이미지가 없습니다.'**
+  String get bookDetailImageMissing;
 
   /// Memorable page image upload failure message
   ///

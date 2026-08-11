@@ -259,6 +259,8 @@ jobs:
             supabase/functions/deploy-with-retry.sh "$function_name" \
               --project-ref "$SUPABASE_PROJECT_REF"
           done
+          bash supabase/functions/verify-deployed-function.sh \
+            vision-ocr "$SUPABASE_PROJECT_REF"
 
   build-and-deploy:
     needs: deploy-edge-functions

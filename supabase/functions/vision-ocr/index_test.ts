@@ -49,9 +49,9 @@ for (const state of ["missing", "withdrawn", "stale", "lookup error"]) {
       const response = await handler(request({ imageBase64: "dGVzdA==" }));
 
       assertEquals(response.status, 403);
-      assertEquals(await response.json(), {
-        error: "third_party_ai_consent_required",
-      });
+      const body = await response.json();
+      assertEquals(body.error, "third_party_ai_consent_required");
+      assertEquals(body.requestId, response.headers.get("X-Request-Id"));
       assertEquals(upstreamCalls, 0);
     },
   );
@@ -99,7 +99,9 @@ Deno.test("vision proxy sends valid content without exposing response secrets", 
   const body = await response.json();
 
   assertEquals(response.status, 200);
-  assertEquals(body, { text: "recognized" });
+  assertStringIncludes(response.headers.get("X-Request-Id") ?? "", "-");
+  assertEquals(body.text, "recognized");
+  assertEquals(body.requestId, response.headers.get("X-Request-Id"));
   assertStringIncludes(requestedUrl, "key=server-key");
   assertStringIncludes(requestedBody, "DOCUMENT_TEXT_DETECTION");
 });

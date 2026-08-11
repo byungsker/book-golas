@@ -16,6 +16,15 @@ import 'package:book_golas/ui/home/widgets/pro_upgrade_banner.dart';
 import 'package:book_golas/ui/subscription/widgets/ocr_limit_dialog.dart';
 import 'package:book_golas/utils/subscription_utils.dart';
 
+typedef OcrImageDownloader = Future<Uint8List> Function(String imageUrl);
+typedef OcrImageCropper = Future<Uint8List?> Function(
+  BuildContext context,
+  Uint8List imageBytes,
+);
+typedef OcrTextExtractor = Future<String?> Function(Uint8List imageBytes);
+
+const _ocrImageDownloadTimeout = Duration(seconds: 10);
+
 String sanitizeOcrText(String text) {
   if (text.isEmpty) return text;
 
@@ -579,10 +588,73 @@ Future<void> pickImageAndExtractText(
   }
 }
 
+Future<Uint8List> _downloadOcrImage(String imageUrl) async {
+  final httpClient = HttpClient();
+  try {
+    final request = await httpClient
+        .getUrl(Uri.parse(imageUrl))
+        .timeout(_ocrImageDownloadTimeout);
+    final response = await request.close().timeout(_ocrImageDownloadTimeout);
+    final bytes = await consolidateHttpClientResponseBytes(response)
+        .timeout(_ocrImageDownloadTimeout);
+    if (response.statusCode != HttpStatus.ok || bytes.isEmpty) {
+      throw StateError('Image download failed');
+    }
+    return bytes;
+  } finally {
+    httpClient.close(force: true);
+  }
+}
+
+Future<Uint8List?> _cropOcrImage(
+  BuildContext context,
+  Uint8List imageBytes,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final tempDir = Directory.systemTemp;
+  final tempFile = File(
+    '${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
+  );
+  await tempFile.writeAsBytes(imageBytes);
+  try {
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: tempFile.path,
+      uiSettings: [
+        IOSUiSettings(
+          title: l10n.ocrAreaSelectTitle,
+          cancelButtonTitle: l10n.commonCancel,
+          doneButtonTitle: l10n.commonComplete,
+          aspectRatioLockEnabled: false,
+          resetAspectRatioEnabled: true,
+          rotateButtonsHidden: false,
+          rotateClockwiseButtonHidden: true,
+        ),
+        AndroidUiSettings(
+          toolbarTitle: l10n.ocrAreaSelectTitle,
+          toolbarColor: BLabColors.primary,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+          hideBottomControls: false,
+        ),
+      ],
+    );
+    if (croppedFile == null) return null;
+    return await croppedFile.readAsBytes();
+  } finally {
+    try {
+      await tempFile.delete();
+    } catch (_) {}
+  }
+}
+
 Future<void> reExtractTextFromImage(
   BuildContext context, {
   required String imageUrl,
   required Function(String extractedText) onConfirm,
+  OcrImageDownloader? downloadImage,
+  OcrImageCropper? cropImage,
+  OcrTextExtractor? extractText,
 }) async {
   final canUse = await SubscriptionUtils.canUseOcr();
   if (!canUse) {
@@ -741,6 +813,8 @@ Future<void> reExtractTextFromImage(
   if (!consent) return;
   if (!context.mounted) return;
 
+  var isLoadingDialogShown = false;
+
   try {
     showDialog(
       context: context,
@@ -776,45 +850,16 @@ Future<void> reExtractTextFromImage(
         ),
       ),
     );
+    isLoadingDialogShown = true;
 
-    final httpClient = HttpClient();
-    final request = await httpClient.getUrl(Uri.parse(imageUrl));
-    final response = await request.close();
-    final bytes = await consolidateHttpClientResponseBytes(response);
+    final bytes = await (downloadImage ?? _downloadOcrImage)(imageUrl);
 
-    final tempDir = Directory.systemTemp;
-    final tempFile = File(
-        '${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg');
-    await tempFile.writeAsBytes(bytes);
-
+    if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
+    isLoadingDialogShown = false;
 
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: tempFile.path,
-      uiSettings: [
-        IOSUiSettings(
-          title: AppLocalizations.of(context).ocrAreaSelectTitle,
-          cancelButtonTitle: AppLocalizations.of(context).commonCancel,
-          doneButtonTitle: AppLocalizations.of(context).commonComplete,
-          aspectRatioLockEnabled: false,
-          resetAspectRatioEnabled: true,
-          rotateButtonsHidden: false,
-          rotateClockwiseButtonHidden: true,
-        ),
-        AndroidUiSettings(
-          toolbarTitle: AppLocalizations.of(context).ocrAreaSelectTitle,
-          toolbarColor: BLabColors.primary,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-          hideBottomControls: false,
-        ),
-      ],
-    );
-
-    await tempFile.delete();
-
-    if (croppedFile == null) return;
+    final croppedBytes = await (cropImage ?? _cropOcrImage)(context, bytes);
+    if (croppedBytes == null || croppedBytes.isEmpty) return;
 
     showDialog(
       context: context,
@@ -852,19 +897,33 @@ Future<void> reExtractTextFromImage(
         ),
       ),
     );
+    isLoadingDialogShown = true;
 
-    final ocrService = GoogleVisionOcrService();
-    final croppedBytes = await croppedFile.readAsBytes();
-    final ocrText = await ocrService.extractTextFromBytes(croppedBytes) ?? '';
+    final ocrText =
+        await (extractText ?? GoogleVisionOcrService().extractTextFromBytes)(
+              croppedBytes,
+            ) ??
+            '';
 
+    if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
+    isLoadingDialogShown = false;
 
     if (ocrText.isNotEmpty) {
       await SubscriptionUtils.incrementOcrUsage();
+      onConfirm(ocrText);
+      return;
     }
-    onConfirm(ocrText);
+
+    CustomSnackbar.show(
+      context,
+      message: AppLocalizations.of(context).ocrReExtractionFailed,
+      rootOverlay: true,
+    );
   } catch (e) {
-    Navigator.of(context, rootNavigator: true).pop();
+    if (isLoadingDialogShown && context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
     CustomSnackbar.show(context,
         message: AppLocalizations.of(context).ocrReExtractionFailed,
         rootOverlay: true);
