@@ -67,7 +67,8 @@
       "profile": "web-release-train",
       "mode": "version-line",
       "active_versions": [
-        "1.0.2"
+        "1.0.2",
+        "1.1.0"
       ],
       "target_version_source": ".byungskerlab/release-lines.json",
       "production_branch": "main",
@@ -94,6 +95,20 @@
         ".github/workflows/schema-check.yml",
         "docs/**",
         "supabase/**"
+      ]
+    },
+    "agent_api_cli": {
+      "profile": "package-or-local",
+      "mode": "continuous",
+      "active_versions": [
+        "0.1.0"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "allowed_paths": [
+        "agent-api/**",
+        "cli/**",
+        "docs/agent/**"
       ]
     }
   }

@@ -1,6 +1,6 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-08-05
+Last updated: 2026-08-12
 
 ## Target Delivery Contract
 
@@ -12,9 +12,17 @@ Target-Delivery-Unit: web
 Target-Version: 1.0.2
 Delivery-Profile: web-release-train
 
+Target-Delivery-Unit: web
+Target-Version: 1.1.0
+Delivery-Profile: web-release-train
+
 Target-Delivery-Unit: backend
 Target-Version: 1.0.2
 Delivery-Profile: backend-service
+
+Target-Delivery-Unit: agent_api_cli
+Target-Version: 0.1.0
+Delivery-Profile: package-or-local
 
 ## Priority order
 
@@ -24,8 +32,18 @@ Bookgolas follows this release order:
 2. Prepare and validate the Android / Google Play release.
 3. Publish the Android release to Google Play after the test and policy gates pass.
 
+Owner-approved sequencing override (2026-08-12): byungsker approved starting
+the P3 and P4 discovery issues in parallel with unfinished P0–P2 delivery work.
+This changes discovery sequencing only; it does not change the release
+priority, authorize production deployment, public package publication,
+subscription reactivation, or destructive data access.
+
 The independently delivered web admin has an approved parallel release train:
 **web 1.0.2**. It does not change the mobile 1.0.2 binary scope.
+
+The consumer web parity surface has an approved discovery and implementation
+target of **web 1.1.0**. It is a separate web release line from the web 1.0.2
+admin train and remains separately gated for consumer production launch.
 
 ## P0 — 1.0.2 patch release
 
@@ -96,6 +114,74 @@ Exit gate:
   unavailable rather than appearing as zero.
 - Admin and non-admin authorization checks, lint, build, and browser smoke
   checks pass on the approved web release line.
+
+## P3 — Consumer Web Parity Discovery
+
+Bookgolas will provide the mobile app's supported reading experience through an
+authenticated consumer web surface. The web surface shares the mobile account,
+data, domain states, permissions, and product language. Only platform-native
+capabilities are excluded or replaced with an equivalent browser interaction.
+
+Initial discovery scope:
+
+- Build the app-to-web parity matrix and native-exception policy.
+- Audit Supabase Auth, RLS, Storage, Edge Functions, and cross-surface sync in
+  the Development environment using read-only checks.
+- Establish the BLab/Figma visual baseline and responsive/accessibility
+  contract, or record an explicit exception to BOK-376.
+- Define and validate the M0 vertical slice: sign-in, home, book detail, page
+  update, reload, and mobile/web synchronization.
+- Confirm the web route tree and the release acceptance gates for M1 core
+  parity.
+
+Target implementation line: approved `web 1.1.0` with `web-release-train`.
+The discovery issue is evidence-only and does not authorize consumer
+implementation, branch creation, deployment, publication, or a consumer
+production launch.
+
+Start gate: P0 patch, P1 Android readiness, and P2 Google Play launch remain
+ahead in product release priority. The owner-approved 2026-08-12 sequencing
+override permits this bounded discovery to run in parallel.
+
+Success gate: the parity matrix, exception policy, data/security audit, M0
+acceptance checks, and owner decisions are recorded and ready for a separate
+implementation work package.
+
+Executable issue: BOK-411.
+
+## P4 — Agent access surface discovery and implementation
+
+Bookgolas will expose its existing reading capabilities to AI agents through a
+versioned Agent API and a CLI-first companion surface. The CLI is an
+independently versioned client of the Bookgolas product, not a separate product
+at this stage.
+
+Initial target delivery contract: `agent_api_cli 0.1.0` with the
+`package-or-local` profile. This is a contract-first implementation line for
+BOK-406: the first work package defines and verifies the authenticated,
+read-only API and CLI contracts before expanding behavior. Before either
+surface is independently deployed or published, the delivery contract must be
+re-evaluated and split into an API backend unit and a CLI package unit if their
+promotion paths differ.
+
+Initial scope:
+
+- Define the repeated agent job and capability catalog.
+- Establish the authenticated, user-scoped Agent API contract.
+- Build the deterministic `bookgolas` CLI with JSON output and stable exit
+  codes, beginning with a contract-first, read-only implementation.
+- Start with read-only commands for book search, library, reading progress,
+  Recall, and reading insights.
+- Redesign the Bookgolas Pro package and AI usage economics before subscription
+  reactivation or public CLI access.
+
+Start gate: P0, P1, P2, and P3 remain the product release priority. The
+owner-approved 2026-08-12 sequencing override permits BOK-406's bounded,
+contract-first implementation in parallel. This lane does not authorize
+production deployment, public package publication, subscription reactivation,
+or destructive data access.
+
+Executable issue: BOK-406.
 
 ## Current evidence and unknowns
 
