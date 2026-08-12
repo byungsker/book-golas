@@ -166,7 +166,8 @@ Initial scope:
 
 - Define the repeated agent job and capability catalog.
 - Establish the authenticated, user-scoped Agent API contract.
-- Build a deterministic `bookgolas` CLI with JSON output and stable exit codes.
+- Define the deterministic `bookgolas` CLI contract, including JSON output and
+  stable exit codes, for a separately authorized implementation work package.
 - Start with read-only commands for book search, library, reading progress,
   Recall, and reading insights.
 - Redesign the Bookgolas Pro package and AI usage economics before subscription
