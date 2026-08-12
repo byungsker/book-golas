@@ -149,7 +149,7 @@ implementation work package.
 
 Executable issue: BOK-411.
 
-## P4 — Agent access surface discovery
+## P4 — Agent access surface discovery and implementation
 
 Bookgolas will expose its existing reading capabilities to AI agents through a
 versioned Agent API and a CLI-first companion surface. The CLI is an
@@ -157,26 +157,29 @@ independently versioned client of the Bookgolas product, not a separate product
 at this stage.
 
 Initial target delivery contract: `agent_api_cli 0.1.0` with the
-`package-or-local` profile. This is a bounded discovery bundle for the API
-contract and CLI companion. Before either surface is independently deployed or
-published, the delivery contract must be re-evaluated and split into an API
-backend unit and a CLI package unit if their promotion paths differ.
+`package-or-local` profile. This is a contract-first implementation line for
+BOK-406: the first work package defines and verifies the authenticated,
+read-only API and CLI contracts before expanding behavior. Before either
+surface is independently deployed or published, the delivery contract must be
+re-evaluated and split into an API backend unit and a CLI package unit if their
+promotion paths differ.
 
 Initial scope:
 
 - Define the repeated agent job and capability catalog.
 - Establish the authenticated, user-scoped Agent API contract.
-- Define the deterministic `bookgolas` CLI contract, including JSON output and
-  stable exit codes, for a separately authorized implementation work package.
+- Build the deterministic `bookgolas` CLI with JSON output and stable exit
+  codes, beginning with a contract-first, read-only implementation.
 - Start with read-only commands for book search, library, reading progress,
   Recall, and reading insights.
 - Redesign the Bookgolas Pro package and AI usage economics before subscription
   reactivation or public CLI access.
 
 Start gate: P0, P1, P2, and P3 remain the product release priority. The
-owner-approved 2026-08-12 sequencing override permits bounded discovery in
-parallel. This lane does not authorize production deployment, public package
-publication, subscription reactivation, or destructive data access.
+owner-approved 2026-08-12 sequencing override permits BOK-406's bounded,
+contract-first implementation in parallel. This lane does not authorize
+production deployment, public package publication, subscription reactivation,
+or destructive data access.
 
 Executable issue: BOK-406.
 
