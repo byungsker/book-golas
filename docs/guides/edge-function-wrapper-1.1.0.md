@@ -16,10 +16,11 @@ serve(withEdgeFunction("function-name", async (req, context) => {
 
 The wrapper handles `OPTIONS`, applies the repository CORS policy, propagates a
 safe `x-request-id` or generates one, and adds the ID to the response header.
-It emits one structured event with `functionName`, `requestId`, `status`,
-`latencyMs`, and `errorCode`. `jsonResponse` keeps the existing JSON body
-shape. `errorResponse` assigns a bounded internal error code while preserving
-the public `{ "error": "..." }` shape.
+It emits one structured event with `eventVersion`, `surface`, `severity`,
+`sampled`, `functionName`, `requestId`, `status`, `latencyMs`, and `errorCode`.
+`jsonResponse` keeps the existing JSON body shape. `errorResponse` assigns a
+bounded internal error code while preserving the public `{ "error": "..." }`
+shape.
 
 ## Masking and compatibility
 
@@ -29,8 +30,10 @@ bodies, user IDs, and database error objects are never written to the wrapper
 event. Error codes are lowercase identifiers limited to 64 characters. The
 existing `log-push-click` success payloads and status codes remain unchanged;
 the wrapper standardizes the HTTP boundary through OPTIONS handling, CORS,
-safe request IDs, response metadata headers, structured timing logs, and
-exception masking.
+safe request IDs, response metadata headers, structured timing logs, severity
+classification, and exception masking. The current source emits every request
+with `sampled: true`; the approved collector may later reduce successful
+`info` volume while retaining all `error` events.
 
 ## Verification boundary
 

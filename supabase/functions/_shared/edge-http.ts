@@ -118,9 +118,18 @@ export function withEdgeFunction(
       Math.max(0, Math.round(performance.now() - startedAt)),
       2_147_483_647,
     );
+    const severity = finalizedResponse.status >= 500
+      ? "error"
+      : finalizedResponse.status >= 400
+      ? "warn"
+      : "info";
 
     console.log(JSON.stringify({
+      eventVersion: 1,
       event: "edge_function_request",
+      surface: "supabase_edge_function",
+      severity,
+      sampled: true,
       functionName,
       requestId,
       status: finalizedResponse.status,

@@ -26,7 +26,11 @@ describe("shared Edge Function HTTP wrapper", () => {
       assertEquals(response.headers.get("Access-Control-Allow-Origin"), "*");
       assertEquals(await response.json(), { success: true });
       const event = JSON.parse(log.calls[0].args[0] as string);
+      assertEquals(event.eventVersion, 1);
       assertEquals(event.functionName, "test-function");
+      assertEquals(event.surface, "supabase_edge_function");
+      assertEquals(event.severity, "info");
+      assertEquals(event.sampled, true);
       assertEquals(event.requestId, "req-123");
       assertEquals(event.status, 200);
       assertEquals(event.errorCode, "ok");
@@ -76,6 +80,7 @@ describe("shared Edge Function HTTP wrapper", () => {
       assertEquals(await response.json(), { error: "Internal server error" });
       const event = JSON.parse(log.calls[0].args[0] as string);
       assertEquals(event.errorCode, "internal_error");
+      assertEquals(event.severity, "error");
       assertEquals(
         JSON.stringify(event).includes("provider response secret"),
         false,

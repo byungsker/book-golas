@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aggregateAiUsage, parseAiUsageDateRange, type AiUsageLogRow } from "@/lib/ai-usage";
+import { captureWebError } from "@/lib/error-reporting";
 import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabase-server";
 
 const MAX_ROWS = 10000;
 const FUNCTION_NAME_PATTERN = /^[A-Za-z0-9._:/-]+$/;
 const AI_USAGE_COLUMNS = "function_name, latency_ms, status, estimated_cost_usd, created_at";
+
+function serverError(request: NextRequest, errorCode: string, message: string) {
+  const requestId = captureWebError(request, {
+    route: "/api/admin/ai-usage",
+    errorCode,
+    status: 500,
+  });
+  return NextResponse.json(
+    { error: message },
+    { status: 500, headers: { "x-request-id": requestId } },
+  );
+}
 
 export async function GET(request: NextRequest) {
   if (!(await requireAdminUser())) {
@@ -39,7 +52,7 @@ export async function GET(request: NextRequest) {
       .limit(MAX_ROWS);
 
     if (error) {
-      return NextResponse.json({ error: "Failed to load AI usage summary" }, { status: 500 });
+      return serverError(request, "ai_usage_query_failed", "Failed to load AI usage summary");
     }
 
     const rows = (data ?? []) as AiUsageLogRow[];
@@ -61,6 +74,6 @@ export async function GET(request: NextRequest) {
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch {
-    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    return serverError(request, "ai_usage_route_failed", "Server configuration error");
   }
 }
