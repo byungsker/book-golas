@@ -18,6 +18,7 @@ import {
   selectDeadlineReminderBooks,
   shouldSendDeadlineReminder,
 } from "./deadline-reminder.ts";
+import { classifyPushFailure } from "./delivery-metrics.ts";
 
 const FIREBASE_SERVICE_ACCOUNT = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
@@ -224,6 +225,65 @@ function stableTokenHash(token: string): string {
   return hash.toString(36);
 }
 
+type PushLogOutcome = {
+  userId: string;
+  pushType: string;
+  bookId: string | null;
+  title: string;
+  body: string;
+  deliveryStatus: "failed" | "skipped";
+  dedupeStatus: "not_applicable" | "skipped";
+  failureCode: string;
+  invalidToken: boolean;
+};
+
+async function recordPushLogOutcome(
+  supabaseClient: any,
+  outcome: PushLogOutcome,
+): Promise<void> {
+  const { error } = await supabaseClient.from("push_logs").insert({
+    user_id: outcome.userId,
+    push_type: outcome.pushType,
+    book_id: outcome.bookId,
+    title: outcome.title,
+    body: outcome.body,
+    sent_at: null,
+    delivery_status: outcome.deliveryStatus,
+    failure_code: outcome.failureCode,
+    invalid_token: outcome.invalidToken,
+    dedupe_status: outcome.dedupeStatus,
+    dedupe_key: null,
+  });
+
+  if (error) {
+    console.error("Failed to record push delivery outcome", {
+      code: error.code,
+    });
+  }
+}
+
+async function markPushLogFailure(
+  supabaseClient: any,
+  logId: string,
+  failureCode: string,
+  invalidToken: boolean,
+): Promise<void> {
+  const { error } = await supabaseClient
+    .from("push_logs")
+    .update({
+      delivery_status: "failed",
+      failure_code: failureCode,
+      invalid_token: invalidToken,
+      dedupe_status: "failed",
+      dedupe_key: null,
+    })
+    .eq("id", logId);
+
+  if (error) {
+    console.error("Failed to mark push delivery failure", { code: error.code });
+  }
+}
+
 async function sendToTargets(
   accessToken: string,
   projectId: string,
@@ -234,12 +294,13 @@ async function sendToTargets(
   supabaseClient: any,
   extraData?: Record<string, string>,
   dedupeKey?: string,
-): Promise<{ sent: number; failed: number }> {
+): Promise<{ sent: number; failed: number; skipped: number }> {
   const template = templates.get(templateType);
-  if (!template) return { sent: 0, failed: 0 };
+  if (!template) return { sent: 0, failed: 0, skipped: 0 };
 
   let sent = 0;
   let failed = 0;
+  let skipped = 0;
   const invalidTokens: string[] = [];
 
   for (let i = 0; i < targets.length; i += FCM_BATCH_SIZE) {
@@ -266,6 +327,8 @@ async function sendToTargets(
                 body,
                 sent_at: null,
                 dedupe_key: dedupeKey,
+                delivery_status: "pending",
+                dedupe_status: "reserved",
               })
               .select("id")
               .single();
@@ -276,6 +339,17 @@ async function sendToTargets(
                 "duplicate key",
               );
             if (isDuplicate) {
+              await recordPushLogOutcome(supabaseClient, {
+                userId: target.userId,
+                pushType: templateType,
+                bookId: extraData?.bookId || null,
+                title: resolvedTitle,
+                body,
+                deliveryStatus: "skipped",
+                dedupeStatus: "skipped",
+                failureCode: "duplicate_dedupe_key",
+                invalidToken: false,
+              });
               return { target, status: "skipped" as const };
             }
             throw reservationError;
@@ -297,17 +371,26 @@ async function sendToTargets(
             },
           );
         } catch (error) {
+          const failure = classifyPushFailure(error);
           if (reservedLogId) {
-            const { error: releaseError } = await supabaseClient
-              .from("push_logs")
-              .delete()
-              .eq("id", reservedLogId);
-            if (releaseError) {
-              console.error("Failed to release push dedupe reservation", {
-                dedupeKey,
-                releaseError,
-              });
-            }
+            await markPushLogFailure(
+              supabaseClient,
+              reservedLogId,
+              failure.failureCode,
+              failure.invalidToken,
+            );
+          } else {
+            await recordPushLogOutcome(supabaseClient, {
+              userId: target.userId,
+              pushType: templateType,
+              bookId: extraData?.bookId || null,
+              title: resolvedTitle,
+              body,
+              deliveryStatus: "failed",
+              dedupeStatus: "not_applicable",
+              failureCode: failure.failureCode,
+              invalidToken: failure.invalidToken,
+            });
           }
           throw error;
         }
@@ -315,7 +398,11 @@ async function sendToTargets(
         if (reservedLogId) {
           const { error: markSentError } = await supabaseClient
             .from("push_logs")
-            .update({ sent_at: new Date().toISOString() })
+            .update({
+              sent_at: new Date().toISOString(),
+              delivery_status: "sent",
+              dedupe_status: "sent",
+            })
             .eq("id", reservedLogId);
           if (markSentError) {
             throw markSentError;
@@ -328,6 +415,8 @@ async function sendToTargets(
             title: resolvedTitle,
             body,
             dedupe_key: null,
+            delivery_status: "sent",
+            dedupe_status: "not_applicable",
           });
         }
 
@@ -338,9 +427,9 @@ async function sendToTargets(
     results.forEach((result, idx) => {
       if (result.status === "fulfilled") {
         if (result.value.status === "sent") sent++;
+        if (result.value.status === "skipped") skipped++;
       } else {
-        const msg = result.reason?.message || "";
-        if (msg.includes("UNREGISTERED") || msg.includes("INVALID_ARGUMENT")) {
+        if (classifyPushFailure(result.reason).invalidToken) {
           invalidTokens.push(batch[idx].token);
         }
         failed++;
@@ -353,7 +442,7 @@ async function sendToTargets(
     console.log(`Removed ${invalidTokens.length} invalid tokens`);
   }
 
-  return { sent, failed };
+  return { sent, failed, skipped };
 }
 
 async function runInBatches<T, R>(
@@ -492,7 +581,7 @@ serve(async (req) => {
           );
           if (!book) {
             totalSkipped++;
-            return { sent: 0, failed: 0 };
+            return { sent: 0, failed: 0, skipped: 0 };
           }
 
           const variables = buildDailyReminderVariables(book);
@@ -519,6 +608,7 @@ serve(async (req) => {
       dailyResults.results.forEach((r) => {
         totalSent += r.sent;
         totalFailed += r.failed;
+        totalSkipped += r.skipped;
       });
       console.log(
         `daily_reminder: ${dailyReminderUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`,
@@ -574,7 +664,8 @@ serve(async (req) => {
         async (user: any) => {
           const userBooks = userBooksMap.get(user.user_id) || [];
           const deadlineBooks = selectDeadlineReminderBooks(userBooks, now);
-          const results: { sent: number; failed: number }[] = [];
+          const results: { sent: number; failed: number; skipped: number }[] =
+            [];
           let currentSlotCandidateCount = 0;
           let hasCurrentSlotDeadlineCandidate = false;
 
@@ -652,14 +743,15 @@ serve(async (req) => {
               (acc, result) => ({
                 sent: acc.sent + result.sent,
                 failed: acc.failed + result.failed,
+                skipped: acc.skipped + result.skipped,
               }),
-              { sent: 0, failed: 0 },
+              { sent: 0, failed: 0, skipped: 0 },
             );
           }
 
           if (hasCurrentSlotDeadlineCandidate) {
             totalSkipped++;
-            return { sent: 0, failed: 0 };
+            return { sent: 0, failed: 0, skipped: 0 };
           }
 
           const fallbackBook = userBooks
@@ -682,7 +774,7 @@ serve(async (req) => {
             kstMinute !== (user.goal_alarm_minute ?? 0)
           ) {
             totalSkipped++;
-            return { sent: 0, failed: 0 };
+            return { sent: 0, failed: 0, skipped: 0 };
           }
 
           const remainingPages = Math.max(
@@ -726,6 +818,7 @@ serve(async (req) => {
       goalResults.results.forEach((r) => {
         totalSent += r.sent;
         totalFailed += r.failed;
+        totalSkipped += r.skipped;
       });
       console.log(
         `deadline/goal_alarm: ${goalAlarmUsers.length} targets, sent=${totalSent}, failed=${totalFailed}`,
@@ -769,7 +862,7 @@ serve(async (req) => {
 
           if (!tokenData || tokenData.length === 0) {
             totalSkipped++;
-            return { sent: 0, failed: 0 };
+            return { sent: 0, failed: 0, skipped: 0 };
           }
 
           const targets: PushTarget[] = tokenData.map((t: any) => ({
@@ -796,6 +889,7 @@ serve(async (req) => {
       eventResults.results.forEach((r) => {
         totalSent += r.sent;
         totalFailed += r.failed;
+        totalSkipped += r.skipped;
       });
     }
 
@@ -994,7 +1088,11 @@ async function processEventNudgesFallback(
         supabaseClient,
         { bookId: currentBook.id, bookTitle: currentBook.title },
       );
-      return { sent: result.sent, failed: result.failed, skipped: 0 };
+      return {
+        sent: result.sent,
+        failed: result.failed,
+        skipped: result.skipped,
+      };
     },
   );
 
