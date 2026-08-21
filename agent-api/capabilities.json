@@ -1,0 +1,31 @@
+{
+  "name": "bookgolas-agent-api",
+  "api_version": "v1",
+  "contract_version": "0.1.0",
+  "mode": "read_only",
+  "authentication": {
+    "scheme": "Bearer",
+    "source": "Supabase user access token",
+    "user_scope": "derived from token; user_id query parameters are rejected"
+  },
+  "capabilities": [
+    { "id": "books.search", "method": "GET", "path": "/v1/books/search", "cost_units": 1 },
+    { "id": "library.list", "method": "GET", "path": "/v1/library", "cost_units": 1 },
+    { "id": "reading_progress.list", "method": "GET", "path": "/v1/reading-progress", "cost_units": 1 },
+    { "id": "recall.history", "method": "GET", "path": "/v1/recall", "cost_units": 1 },
+    { "id": "reading_insights.list", "method": "GET", "path": "/v1/insights", "cost_units": 1 },
+    { "id": "account.entitlement", "method": "GET", "path": "/v1/entitlement", "cost_units": 1 }
+  ],
+  "writes": {
+    "enabled": false,
+    "approval_required": true,
+    "dry_run_required": true,
+    "idempotency_required": true,
+    "postcondition_evidence_required": true
+  },
+  "limits": {
+    "page_size_max": 100,
+    "requests_per_user_per_capability_per_minute": 60,
+    "provider_generation_calls": 0
+  }
+}
