@@ -30,7 +30,6 @@
         ".github/workflows/target-version-gate.yml",
         ".github/workflows/quality.yml",
         ".github/workflows/schema-check.yml",
-        ".byungskerlab/product.yaml",
         "AGENTS.md",
         "docs/product-roadmap.md"
       ]
