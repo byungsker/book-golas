@@ -26,6 +26,7 @@
         ".byungskerlab/release-lines.json",
         ".github/CODEOWNERS",
         ".github/PULL_REQUEST_TEMPLATE.md",
+        ".github/scripts/test_validate_target_version_pr.py",
         ".github/scripts/validate_target_version_pr.py",
         ".github/workflows/target-version-gate.yml",
         ".github/workflows/quality.yml",
