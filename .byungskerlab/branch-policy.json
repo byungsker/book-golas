@@ -110,13 +110,10 @@
       ],
       "allowed_paths": [
         ".github/workflows/daily-nudge.yml",
-        ".github/workflows/deploy-edge-functions.yml",
         ".github/workflows/quality.yml",
         ".github/workflows/schema-check.yml",
         "README.md",
         "docs/**",
-        "app/lib/**",
-        "app/test/**",
         "web/ADMIN_GUIDE.md",
         "web/package.json",
         "web/src/app/admin/**",
