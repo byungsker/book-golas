@@ -52,6 +52,7 @@ post_install do |installer|
         '$(inherited)',
         'PERMISSION_CAMERA=1',
         'PERMISSION_PHOTOS=1',
+        'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
       ]
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
     end

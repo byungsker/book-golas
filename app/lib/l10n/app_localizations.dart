@@ -5597,6 +5597,48 @@ abstract class AppLocalizations {
   /// **'책을 완독하고 성과를 축하하세요'**
   String get onboardingDescription3;
 
+  /// 광고 요청 여부를 결정하는 연령 정책 설정
+  ///
+  /// In ko, this message translates to:
+  /// **'연령 및 광고 설정'**
+  String get agePolicyTitle;
+
+  /// 연령 정책 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'연령대를 선택하세요. 이 설정은 이 기기에만 저장되며 광고 요청 여부를 결정합니다.'**
+  String get agePolicyDescription;
+
+  /// 14세 미만 연령 정책 선택지
+  ///
+  /// In ko, this message translates to:
+  /// **'14세 미만'**
+  String get agePolicyUnder14;
+
+  /// 14세 미만 광고 정책 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'광고가 비활성화됩니다.'**
+  String get agePolicyUnder14Description;
+
+  /// 14세 이상 연령 정책 선택지
+  ///
+  /// In ko, this message translates to:
+  /// **'14세 이상'**
+  String get agePolicy14OrOlder;
+
+  /// 14세 이상 광고 정책 설명
+  ///
+  /// In ko, this message translates to:
+  /// **'동의 및 추적 권한을 확인한 뒤 광고를 요청할 수 있습니다.'**
+  String get agePolicy14OrOlderDescription;
+
+  /// 연령 정책 저장 실패
+  ///
+  /// In ko, this message translates to:
+  /// **'연령 설정을 저장하지 못했습니다.'**
+  String get agePolicySaveFailed;
+
   /// No description provided for @totalDaysFormat.
   ///
   /// In ko, this message translates to:

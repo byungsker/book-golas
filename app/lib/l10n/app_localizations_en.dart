@@ -3075,6 +3075,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete books and celebrate your achievements';
 
   @override
+  String get agePolicyTitle => 'Age and advertising';
+
+  @override
+  String get agePolicyDescription =>
+      'Choose your age group. This setting is stored only on this device and controls whether ads can be requested.';
+
+  @override
+  String get agePolicyUnder14 => 'Under 14';
+
+  @override
+  String get agePolicyUnder14Description => 'Ads remain disabled.';
+
+  @override
+  String get agePolicy14OrOlder => '14 or older';
+
+  @override
+  String get agePolicy14OrOlderDescription =>
+      'Ads may be requested after consent and tracking authorization.';
+
+  @override
+  String get agePolicySaveFailed => 'Could not save the age setting.';
+
+  @override
   String totalDaysFormat(int days) {
     return '$days days total';
   }

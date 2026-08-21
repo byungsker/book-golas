@@ -68,6 +68,8 @@
 		<string>갤러리에서 이미지를 선택하기 위해 권한이 필요합니다.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>스캔한 이미지를 저장하기 위해 권한이 필요합니다.</string>
+		<key>NSUserTrackingUsageDescription</key>
+		<string>더 적절한 광고를 제공하기 위해 기기 식별자를 사용합니다.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>
