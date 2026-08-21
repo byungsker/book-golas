@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npm run test:waitlist-security && npm run test:admin-authz && eslint",
+    "lint": "npm run test:waitlist-security && npm run test:admin-authz && npm run test:monitoring && eslint",
     "test:waitlist-security": "node --experimental-strip-types scripts/waitlist-security.test.mts",
-    "test:admin-authz": "node --experimental-strip-types scripts/admin-authz.test.mts"
+    "test:admin-authz": "node --experimental-strip-types scripts/admin-authz.test.mts",
+    "test:monitoring": "node --experimental-strip-types scripts/monitoring.test.mts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
