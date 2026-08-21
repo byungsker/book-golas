@@ -96,3 +96,5 @@ jobs:
             fi
             deno check --config "$config" "$entry"
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
+      - name: Verify authorization contracts
+        run: deno test --allow-read supabase/functions/authorization-contract.test.ts
