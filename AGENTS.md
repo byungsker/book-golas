@@ -143,6 +143,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
 | `app/` iOS/Android 앱 | `mobile-store` |
 | `web/` Next.js Admin | `web-release-train` |
 | `supabase/` Functions 및 DB | 모바일 결합 시 `mobile-store`, 독립 배포 시 `backend-service` |
+| `operations` AI 서버 운영·CI·관측성·운영 증거 | `backend-service` |
 | `agent-api/`, `cli/` | `package-or-local` |
 
 ### Repository-Specific Rules
@@ -155,6 +156,8 @@ UI (lib/ui/) → ViewModel → Repository → Service
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
   독립 Web admin의 승인된 parallel release train은 `1.0.2`와 `1.1.0`이며,
   독립 backend service도 `1.0.2` release line을 사용하며,
+  AI Server Operations readiness는 `operations 1.1.0`과
+  `backend-service` continuous profile을 사용하며,
   Agent API/CLI contract-first bundle은 `agent_api_cli 0.1.0`을 사용하며,
   `docs/product-roadmap.md`가 그 evidence를 기록한다. `AGENTS.md`와 각
   delivery unit의
@@ -171,6 +174,10 @@ UI (lib/ui/) → ViewModel → Repository → Service
   contract-first implementation line이다. 초기 구현은 인증·사용자 범위·read-only와
   구조화된 CLI 계약을 우선하며, API와 CLI의 promotion path가 독립되면
   공개·배포 전에 delivery unit을 분리한다.
+- `operations 1.1.0`은 `main`을 기반으로 하는 continuous operations line이다.
+  브랜치는 `[codex/]<type>/operations/1.1.0/<issue-or-scope>` 형식을 사용하며,
+  CI·runbook·관측성·AI 운영·관리자 운영 경로만 다룬다. 운영 변경의
+  production 배포나 외부 알림 도입은 별도 승인과 검증 없이는 수행하지 않는다.
 - 현재 `ios-testflight.yml`과 `ios-production.yml`이 Supabase migration과
   Functions 배포를 함께 수행한다. 이 결합을 제거하기 전까지 자동
   Supabase 배포는 `mobile-store` 흐름을 따른다.

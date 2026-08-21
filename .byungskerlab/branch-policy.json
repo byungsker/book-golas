@@ -30,6 +30,7 @@
         ".github/workflows/target-version-gate.yml",
         ".github/workflows/quality.yml",
         ".github/workflows/schema-check.yml",
+        ".byungskerlab/product.yaml",
         "AGENTS.md",
         "docs/product-roadmap.md"
       ]
@@ -95,6 +96,34 @@
         ".github/workflows/schema-check.yml",
         "docs/**",
         "supabase/**"
+      ]
+    },
+    "operations": {
+      "profile": "backend-service",
+      "mode": "continuous",
+      "active_versions": [
+        "1.1.0"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "work_bases": [
+        "main"
+      ],
+      "allowed_paths": [
+        ".github/workflows/**",
+        "README.md",
+        "docs/**",
+        "app/lib/**",
+        "app/test/**",
+        "web/ADMIN_GUIDE.md",
+        "web/package.json",
+        "web/src/app/admin/**",
+        "web/src/app/api/admin/**",
+        "web/src/lib/**",
+        "web/src/middleware.ts",
+        "supabase/config.toml",
+        "supabase/functions/**",
+        "supabase/migrations/**"
       ]
     },
     "agent_api_cli": {
