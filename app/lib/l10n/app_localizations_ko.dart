@@ -2990,6 +2990,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingDescription3 => '책을 완독하고 성과를 축하하세요';
 
   @override
+  String get agePolicyTitle => '연령 및 광고 설정';
+
+  @override
+  String get agePolicyDescription =>
+      '연령대를 선택하세요. 이 설정은 이 기기에만 저장되며 광고 요청 여부를 결정합니다.';
+
+  @override
+  String get agePolicyUnder14 => '14세 미만';
+
+  @override
+  String get agePolicyUnder14Description => '광고가 비활성화됩니다.';
+
+  @override
+  String get agePolicy14OrOlder => '14세 이상';
+
+  @override
+  String get agePolicy14OrOlderDescription =>
+      '동의 및 추적 권한을 확인한 뒤 광고를 요청할 수 있습니다.';
+
+  @override
+  String get agePolicySaveFailed => '연령 설정을 저장하지 못했습니다.';
+
+  @override
   String totalDaysFormat(int days) {
     return '총 $days일';
   }

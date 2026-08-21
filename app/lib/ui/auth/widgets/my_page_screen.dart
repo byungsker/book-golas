@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/data/services/ad_service.dart';
+import 'package:book_golas/data/services/age_policy_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
@@ -21,6 +22,7 @@ import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
 import 'package:book_golas/ui/auth/view_model/third_party_ai_consent_settings_controller.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/ad_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
@@ -110,6 +112,67 @@ class _MyPageContentState extends State<_MyPageContent> {
 
   void _refreshThirdPartyAiConsentCard() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _showAgePolicySheet() async {
+    final l10n = AppLocalizations.of(context);
+    final selection = await showModalBottomSheet<AgePolicyStatus>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.agePolicyTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(l10n.agePolicyDescription),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(l10n.agePolicyUnder14),
+                subtitle: Text(l10n.agePolicyUnder14Description),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.under14,
+                ),
+              ),
+              ListTile(
+                title: Text(l10n.agePolicy14OrOlder),
+                subtitle: Text(l10n.agePolicy14OrOlderDescription),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.age14OrOlder,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selection == null || !mounted) return;
+
+    final saved = await context.read<AgePolicyService>().setStatus(selection);
+    if (!mounted) return;
+    if (!saved) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.agePolicySaveFailed,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+
+    if (selection == AgePolicyStatus.age14OrOlder) {
+      await context.read<AdViewModel>().initialize();
+    }
+    setState(() {
+      _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
+    });
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -1368,6 +1431,18 @@ class _MyPageContentState extends State<_MyPageContent> {
                 ),
               );
             },
+          ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.cake,
+            title: AppLocalizations.of(context).agePolicyTitle,
+            onTap: _showAgePolicySheet,
           ),
           FutureBuilder<bool>(
             future: _privacyOptionsRequired,

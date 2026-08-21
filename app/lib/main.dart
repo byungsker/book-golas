@@ -29,6 +29,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/ad_service.dart';
+import 'data/services/age_policy_service.dart';
 import 'data/services/deep_link_service.dart';
 import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
@@ -163,6 +165,8 @@ class AppBootstrap extends StatelessWidget {
       debugPrint('👋 온보딩 설정 프리로드 시작');
       await OnboardingViewModel.preloadPreferences();
 
+      await AdService().agePolicyService.load();
+
       // ThemeViewModel 프리로드
       debugPrint('🎨 테마 설정 프리로드 시작');
       await ThemeViewModel.preloadTheme();
@@ -267,6 +271,9 @@ class MyApp extends StatelessWidget {
         Provider<NoteStructureService>(create: (_) => NoteStructureService()),
         Provider<SubscriptionService>(create: (_) => SubscriptionService()),
         Provider<WidgetDataService>(create: (_) => WidgetDataService()),
+        ChangeNotifierProvider<AgePolicyService>.value(
+          value: AdService().agePolicyService,
+        ),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -389,8 +396,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (onboardingViewModel.shouldShowOnboarding) {
           return OnboardingScreen(
-            onComplete: () {
-              onboardingViewModel.completeOnboarding();
+            onComplete: (agePolicyStatus) async {
+              final saved = await context
+                  .read<AgePolicyService>()
+                  .setStatus(agePolicyStatus);
+              if (saved) {
+                await onboardingViewModel.completeOnboarding();
+              }
+              return saved;
             },
           );
         }
