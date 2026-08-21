@@ -201,10 +201,12 @@ export default function AdminDashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">
-                        {new Date(log.sent_at).toLocaleTimeString("ko-KR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {log.sent_at
+                          ? new Date(log.sent_at).toLocaleTimeString("ko-KR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                          : "처리 중"}
                       </span>
                       <Badge variant="outline">{log.push_type}</Badge>
                     </div>

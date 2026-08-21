@@ -137,6 +137,20 @@ Body: "{bookTitle}" 완독을 축하합니다!
 - 한 페이지당 20개 로그 표시
 - **Previous** / **Next** 버튼으로 페이지 이동
 
+### 운영 요약
+
+화면 상단의 운영 요약은 최근 7일 UTC 기준으로 발송 성공률, 실패율,
+invalid token, CTR, dedupe hit를 표시합니다. 실패 원인은 원문 대신
+`invalid_token`, `provider_unavailable`, `duplicate_dedupe_key` 같은 제한된
+코드로 표시합니다.
+
+- 성공률과 실패율의 분모는 실제 발송 시도(`sent + failed`)입니다.
+- dedupe hit와 pending 예약은 발송 시도와 별도로 표시합니다.
+- Invalid token은 FCM `UNREGISTERED` 계열로 확인되어 정리 대상으로 기록된
+  건입니다. `INVALID_ARGUMENT`는 토큰 삭제 근거로 보지 않습니다.
+- Discord/Slack 알림은 아직 연결되어 있지 않으며, 별도 승인된 threshold와
+  secret 경계 없이는 도입하지 않습니다.
+
 ---
 
 ## 4. 테스트 발송 (`/admin/test-push`)

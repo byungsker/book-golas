@@ -26,9 +26,15 @@ export type PushLog = {
   book_id: string | null;
   title: string | null;
   body: string | null;
-  sent_at: string;
+  sent_at: string | null;
+  created_at: string;
   is_clicked: boolean;
   clicked_at: string | null;
+  delivery_status: "pending" | "sent" | "failed" | "skipped";
+  failure_code: string | null;
+  invalid_token: boolean;
+  dedupe_status: "not_applicable" | "reserved" | "sent" | "failed" | "skipped";
+  dedupe_key: string | null;
 };
 
 export type PushStats = {

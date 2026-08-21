@@ -104,3 +104,4 @@ jobs:
           deno test --config supabase/functions/reading-insights/deno.json --allow-env --allow-net supabase/functions/reading-insights/test.ts
           deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
           deno test --allow-read supabase/functions/_shared/edge-http.test.ts
+          deno test --allow-read supabase/functions/send-batch-nudge/delivery-metrics.test.ts

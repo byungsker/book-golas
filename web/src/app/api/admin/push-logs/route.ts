@@ -1,10 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import { aggregatePushOps, getPushOpsDateRange, type PushLogMetricRow } from "@/lib/push-ops";
 import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabase-server";
 
 const PAGE_SIZE = 20;
+const SUMMARY_MAX_ROWS = 10000;
+const SUMMARY_COLUMNS = "push_type, created_at, sent_at, is_clicked, delivery_status, failure_code, invalid_token, dedupe_status";
 
 export async function GET(request: NextRequest) {
   if (!(await requireAdminUser())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (request.nextUrl.searchParams.get("summary") === "1") {
+    const pushType = request.nextUrl.searchParams.get("type") ?? "all";
+    if (pushType !== "all" && (!/^[A-Za-z0-9_-]+$/.test(pushType) || pushType.length > 80)) {
+      return NextResponse.json({ error: "Invalid push type" }, { status: 400 });
+    }
+
+    try {
+      const dateRange = getPushOpsDateRange();
+      let query = createServiceRoleSupabaseClient()
+        .from("push_logs")
+        .select(SUMMARY_COLUMNS)
+        .gte("created_at", dateRange.fromTimestamp)
+        .lt("created_at", dateRange.toExclusiveTimestamp)
+        .order("created_at", { ascending: false })
+        .limit(SUMMARY_MAX_ROWS);
+      if (pushType !== "all") query = query.eq("push_type", pushType);
+
+      const { data, error } = await query;
+      if (error) return NextResponse.json({ error: "Failed to load push summary" }, { status: 500 });
+
+      return NextResponse.json({
+        range: { from: dateRange.from, to: dateRange.to },
+        pushType,
+        summary: aggregatePushOps((data ?? []) as PushLogMetricRow[]),
+        limits: { maxRows: SUMMARY_MAX_ROWS, truncated: (data?.length ?? 0) === SUMMARY_MAX_ROWS },
+      }, { headers: { "Cache-Control": "no-store" } });
+    } catch {
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+  }
   if (request.nextUrl.searchParams.get("dashboard") === "1") {
     const today = new Date().toISOString().split("T")[0];
     const client = createServiceRoleSupabaseClient();
@@ -20,7 +53,7 @@ export async function GET(request: NextRequest) {
   let query = createServiceRoleSupabaseClient()
     .from("push_logs")
     .select("*")
-    .order("sent_at", { ascending: false });
+    .order("created_at", { ascending: false });
   if (type !== "all") query = query.eq("push_type", type);
   const { data, error } = await query.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
   if (error) return NextResponse.json({ error: "Failed to load logs" }, { status: 500 });
