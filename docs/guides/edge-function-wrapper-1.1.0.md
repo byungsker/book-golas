@@ -28,7 +28,9 @@ Provider response bodies, exception messages, authorization headers, request
 bodies, user IDs, and database error objects are never written to the wrapper
 event. Error codes are lowercase identifiers limited to 64 characters. The
 existing `log-push-click` success payloads and status codes remain unchanged;
-the wrapper only adds response metadata headers and structured timing logs.
+the wrapper standardizes the HTTP boundary through OPTIONS handling, CORS,
+safe request IDs, response metadata headers, structured timing logs, and
+exception masking.
 
 ## Verification boundary
 
@@ -39,6 +41,7 @@ the caller and scopes privileged `push_logs` updates by `user_id`.
 
 ```bash
 deno test --allow-read supabase/functions/_shared/edge-http.test.ts
+deno test --allow-read supabase/functions/authorization-contract.test.ts
 deno check --config supabase/functions/deno.json supabase/functions/log-push-click/index.ts
 ```
 
