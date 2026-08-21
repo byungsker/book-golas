@@ -210,7 +210,10 @@ Deno.test("user Edge Functions keep JWT and ownership markers", async () => {
       "auth.getUser()",
       contract.privilegedMarker,
     );
-    assertSourceOrder(source, contract.name, "Unauthorized", "401");
+    const unauthorizedMarker = source.includes("auth_unauthorized")
+      ? "auth_unauthorized"
+      : "Unauthorized";
+    assertSourceOrder(source, contract.name, unauthorizedMarker, "401");
     assertSourceOrder(
       source,
       contract.name,
@@ -232,8 +235,11 @@ Deno.test("user Edge Functions keep JWT and ownership markers", async () => {
         contract.scopeMarker,
       );
     }
+    const usesSharedWrapper = source.includes("withEdgeFunction(") &&
+      source.includes("../_shared/edge-http.ts");
     assertContract(
-      source.includes('"Access-Control-Allow-Origin": "*"'),
+      source.includes('"Access-Control-Allow-Origin": "*"') ||
+        usesSharedWrapper,
       `${contract.name}: CORS policy is not explicit`,
     );
   }
@@ -343,12 +349,22 @@ Deno.test("RevenueCat webhook keeps its external secret boundary", async () => {
 });
 
 Deno.test("every registered Edge Function declares its CORS representation", async () => {
+  const sharedSource = await readRepositoryFile(
+    "supabase/functions/_shared/edge-http.ts",
+  );
+  assertContract(
+    sharedSource.includes('"Access-Control-Allow-Origin": "*"'),
+    "shared Edge Function wrapper: CORS origin policy is not explicit",
+  );
   for (const name of allFunctionNames) {
     const source = await readRepositoryFile(
       `supabase/functions/${name}/index.ts`,
     );
+    const usesSharedWrapper = source.includes("withEdgeFunction(") &&
+      source.includes("../_shared/edge-http.ts");
     assertContract(
-      source.includes('"Access-Control-Allow-Origin": "*"'),
+      source.includes('"Access-Control-Allow-Origin": "*"') ||
+        usesSharedWrapper,
       `${name}: CORS origin policy is not represented in source`,
     );
   }
