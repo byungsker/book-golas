@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bookgolas.local/agent/0.1.0/agent-response.schema.json",
+  "title": "Bookgolas Agent Response",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {},
+    "meta": {
+      "type": "object",
+      "required": ["api_version", "contract_version", "request_id", "generated_at", "usage"],
+      "properties": {
+        "api_version": { "const": "v1" },
+        "contract_version": { "const": "0.1.0" },
+        "request_id": { "type": "string", "minLength": 1 },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "pagination": {
+          "type": "object",
+          "required": ["page", "page_size", "has_more", "total"],
+          "properties": {
+            "page": { "type": "integer", "minimum": 1 },
+            "page_size": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "has_more": { "type": "boolean" },
+            "total": { "type": ["integer", "null"], "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "usage": {
+          "type": "object",
+          "required": ["capability", "units", "attribution", "ledger", "provider_cost_incurred"],
+          "properties": {
+            "capability": { "type": "string", "minLength": 1 },
+            "units": { "const": 1 },
+            "attribution": { "const": "authenticated_user" },
+            "ledger": { "const": "shared_bookgolas_account" },
+            "provider_cost_incurred": { "const": false }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,221 @@
+openapi: 3.1.0
+info:
+  title: Bookgolas Agent API
+  version: 0.1.0
+  description: Authenticated, user-scoped, read-only API for agent consumption.
+servers:
+  - url: http://127.0.0.1:8787
+security:
+  - bearerAuth: []
+paths:
+  /v1/capabilities:
+    get:
+      security: []
+      operationId: getCapabilities
+      responses:
+        '200':
+          description: Machine-readable capability manifest.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilityResponse'
+  /v1/books/search:
+    get:
+      operationId: searchBooks
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+        '401':
+          $ref: '#/components/responses/AgentError'
+        '429':
+          $ref: '#/components/responses/AgentError'
+  /v1/library:
+    get:
+      operationId: listLibrary
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+        '401':
+          $ref: '#/components/responses/AgentError'
+  /v1/reading-progress:
+    get:
+      operationId: listReadingProgress
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: book_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+  /v1/recall:
+    get:
+      operationId: listRecallHistory
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: book_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+  /v1/insights:
+    get:
+      operationId: listReadingInsights
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+  /v1/entitlement:
+    get:
+      operationId: getAccountEntitlement
+      responses:
+        '200':
+          $ref: '#/components/responses/AgentResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+  responses:
+    AgentResponse:
+      description: Versioned structured response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AgentResponse'
+    AgentError:
+      description: Versioned structured error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AgentError'
+  schemas:
+    AgentResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+        meta:
+          type: object
+          required: [api_version, contract_version, request_id, generated_at, usage]
+          properties:
+            api_version: { type: string, const: v1 }
+            contract_version: { type: string, const: "0.1.0" }
+            request_id: { type: string }
+            generated_at: { type: string, format: date-time }
+            pagination:
+              type: object
+              required: [page, page_size, has_more, total]
+              properties:
+                page: { type: integer, minimum: 1 }
+                page_size: { type: integer, minimum: 1, maximum: 100 }
+                has_more: { type: boolean }
+                total: { type: [integer, 'null'], minimum: 0 }
+              additionalProperties: false
+            usage:
+              type: object
+              required: [capability, units, attribution, ledger, provider_cost_incurred]
+              properties:
+                capability: { type: string }
+                units: { type: integer, const: 1 }
+                attribution: { type: string, const: authenticated_user }
+                ledger: { type: string, const: shared_bookgolas_account }
+                provider_cost_incurred: { type: boolean, const: false }
+          additionalProperties: false
+    AgentError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id, retryable]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            request_id: { type: string }
+            retryable: { type: boolean }
+            details: { type: object }
+          additionalProperties: false
+    CapabilityResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [api_version, contract_version, name, mode, capabilities, writes]
+          properties:
+            api_version: { type: string, const: v1 }
+            contract_version: { type: string, const: "0.1.0" }
+            name: { type: string, const: bookgolas-agent-api }
+            mode: { type: string, const: read_only }
+            capabilities:
+              type: array
+              items:
+                type: object
+                required: [id, method, path, access, side_effect, cost_units]
+                properties:
+                  id: { type: string }
+                  method: { type: string, const: GET }
+                  path: { type: string }
+                  access: { type: string, const: authenticated_user }
+                  side_effect: { type: string, const: none }
+                  cost_units: { type: integer, const: 1 }
+                additionalProperties: false
+            writes:
+              type: object
+              required: [enabled, approval_required, dry_run_required, idempotency_required, postcondition_evidence_required]
+              properties:
+                enabled: { type: boolean, const: false }
+                approval_required: { type: boolean, const: true }
+                dry_run_required: { type: boolean, const: true }
+                idempotency_required: { type: boolean, const: true }
+                postcondition_evidence_required: { type: boolean, const: true }
+              additionalProperties: false
+          additionalProperties: false
+        meta:
+          type: object
+          required: [api_version, contract_version, request_id, generated_at]
+          properties:
+            api_version: { type: string, const: v1 }
+            contract_version: { type: string, const: "0.1.0" }
+            request_id: { type: string }
+            generated_at: { type: string, format: date-time }
+          additionalProperties: false
+      additionalProperties: false
