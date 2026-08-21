@@ -98,3 +98,7 @@ jobs:
           done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)
       - name: Verify authorization contracts
         run: deno test --allow-read supabase/functions/authorization-contract.test.ts
+      - name: Run function tests
+        run: |
+          deno test --allow-net supabase/functions/send-batch-nudge/daily-reminder_test.ts supabase/functions/send-batch-nudge/deadline-reminder_test.ts
+          deno test --config supabase/functions/reading-insights/deno.json --allow-env --allow-net supabase/functions/reading-insights/test.ts
