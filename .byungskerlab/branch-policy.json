@@ -124,6 +124,20 @@
         "supabase/functions/**",
         "supabase/migrations/**"
       ]
+    },
+    "agent_api_cli": {
+      "profile": "package-or-local",
+      "mode": "continuous",
+      "active_versions": [
+        "0.1.0"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "allowed_paths": [
+        "agent-api/**",
+        "cli/**",
+        "docs/agent/**"
+      ]
     }
   }
 }

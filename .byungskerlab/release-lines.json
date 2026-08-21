@@ -67,6 +67,18 @@
         "release": {},
         "hotfix": {}
       }
+    },
+    "agent_api_cli": {
+      "active_versions": [
+        "0.1.0"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
     }
   }
 }
