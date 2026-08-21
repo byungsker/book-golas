@@ -1,5 +1,8 @@
 name: Deploy Edge Functions
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:
@@ -10,7 +13,6 @@ on:
         type: choice
         options:
           - dev
-          - prod
       function_name:
         description: 'Function name (leave empty for all)'
         required: false
@@ -21,8 +23,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Enforce development-only manual dispatch
+        shell: bash
+        env:
+          TARGET: ${{ inputs.target }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$TARGET" != "dev" ]]; then
+            echo "::error::Manual Edge deployment only permits target=dev."
+            exit 1
+          fi
+          if [[ "$REF" != "refs/heads/dev" ]]; then
+            echo "::error::Manual Edge deployment must run from refs/heads/dev."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -31,40 +51,47 @@ jobs:
 
       - name: Link to Project
         run: |
-          if [ "${{ inputs.target }}" = "prod" ]; then
-            echo "Linking to Production..."
-            supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
-          else
-            echo "Linking to Dev..."
-            supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF_DEV }}
+          set -euo pipefail
+          if [[ "$SUPABASE_PROJECT_REF_DEV" != "reoiqefoymdsqzpbouxi" ]]; then
+            echo "::error::Development deployment requires the approved Supabase project ref."
+            exit 1
           fi
+          echo "Linking to Dev..."
+          supabase link --project-ref "$SUPABASE_PROJECT_REF_DEV"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF_DEV: ${{ secrets.SUPABASE_PROJECT_REF_DEV }}
 
-      - name: Configure RevenueCat Webhook Secret
+      - name: Configure Edge Function Secrets
         run: |
-          if [ "${{ inputs.target }}" = "prod" ]; then
-            REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY_PROD"
-          else
-            REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY_DEV"
-          fi
+          REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY_DEV"
           test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
-          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+          test -n "$ALADIN_TTB_KEY"
+          test -n "$GOOGLE_CLOUD_VISION_API_KEY"
+          supabase secrets set \
+            REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY" \
+            ALADIN_TTB_KEY="$ALADIN_TTB_KEY" \
+            GOOGLE_CLOUD_VISION_API_KEY="$GOOGLE_CLOUD_VISION_API_KEY"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           REVENUECAT_WEBHOOK_AUTH_KEY_DEV: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_DEV }}
-          REVENUECAT_WEBHOOK_AUTH_KEY_PROD: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
+          ALADIN_TTB_KEY: ${{ secrets.ALADIN_TTB_KEY }}
+          GOOGLE_CLOUD_VISION_API_KEY: ${{ secrets.GOOGLE_CLOUD_VISION_API_KEY }}
 
       - name: Deploy Edge Functions
         run: |
-          TARGET="${{ inputs.target }}"
-          FUNCTION="${{ inputs.function_name }}"
+          set -euo pipefail
+          FUNCTION="$FUNCTION_INPUT"
 
           if [ -n "$FUNCTION" ]; then
-            echo "Deploying single function: $FUNCTION to $TARGET"
+            if [[ "$FUNCTION" == -* ]]; then
+              echo "::error::Function name must not be a CLI option."
+              exit 1
+            fi
+            echo "Deploying single function: $FUNCTION to dev"
             supabase functions deploy "$FUNCTION"
           else
-            echo "Deploying all functions to $TARGET..."
+            echo "Deploying all functions to dev..."
             for fn in supabase/functions/*/; do
               fn_name=$(basename "$fn")
               [ ! -f "$fn/index.ts" ] && echo "  Skipping: $fn_name (no index.ts)" && continue
@@ -75,3 +102,4 @@ jobs:
           echo "✅ Deployment complete"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          FUNCTION_INPUT: ${{ inputs.function_name }}
