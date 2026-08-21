@@ -7,6 +7,8 @@ type UserFunctionContract = {
   name: string;
   serviceRoleMarker: string;
   scopeMarker: string;
+  privilegedMarker: string;
+  scopeMustPrecedePrivileged: boolean;
 };
 
 const adminRouteContracts: AdminRouteContract[] = [
@@ -25,51 +27,73 @@ const userFunctionContracts: UserFunctionContract[] = [
     name: "delete-user",
     serviceRoleMarker: "serviceRoleKey",
     scopeMarker: '.eq("user_id", user.id)',
+    privilegedMarker:
+      "const adminClient = createClient(supabaseUrl, serviceRoleKey",
+    scopeMustPrecedePrivileged: false,
   },
   {
     name: "export-reading-data",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: "userId !== user.id",
+    privilegedMarker: "const supabaseClient = createClient(",
+    scopeMustPrecedePrivileged: true,
   },
   {
     name: "extract-keywords",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: '.eq("user_id", user.id)',
+    privilegedMarker: "const serviceClient = createClient(",
+    scopeMustPrecedePrivileged: false,
   },
   {
     name: "generate-book-review",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: '.eq("user_id", user.id)',
+    privilegedMarker: "const serviceClient = createClient(",
+    scopeMustPrecedePrivileged: false,
   },
   {
     name: "generate-embedding",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: "userId !== user.id",
+    privilegedMarker: "const supabaseClient = createClient(",
+    scopeMustPrecedePrivileged: true,
   },
   {
     name: "log-push-click",
     serviceRoleMarker: "serviceRoleKey",
     scopeMarker: '.eq("user_id", user.id)',
+    privilegedMarker:
+      "const adminClient = createClient(supabaseUrl, serviceRoleKey",
+    scopeMustPrecedePrivileged: false,
   },
   {
     name: "reading-insights",
     serviceRoleMarker: "config.supabase.serviceRoleKey",
     scopeMarker: "userId !== user.id",
+    privilegedMarker: "const supabase = createClient(",
+    scopeMustPrecedePrivileged: true,
   },
   {
     name: "recall-search",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: "filter_user_id: user.id",
+    privilegedMarker: "const serviceClient = createClient(",
+    scopeMustPrecedePrivileged: false,
   },
   {
     name: "recommend-next-books",
     serviceRoleMarker: "config.supabase.serviceRoleKey",
     scopeMarker: "userId !== user.id",
+    privilegedMarker: "const supabase = createClient(",
+    scopeMustPrecedePrivileged: true,
   },
   {
     name: "structure-notes",
     serviceRoleMarker: "SUPABASE_SERVICE_ROLE_KEY",
     scopeMarker: '.eq("user_id", user.id)',
+    privilegedMarker: "const serviceClient = createClient(",
+    scopeMustPrecedePrivileged: false,
   },
 ];
 
@@ -110,6 +134,22 @@ function firstIndexOf(source: string, markers: string[]): number {
     .map((marker) => source.indexOf(marker))
     .filter((index) => index >= 0);
   return indexes.length > 0 ? Math.min(...indexes) : -1;
+}
+
+function assertSourceOrder(
+  source: string,
+  name: string,
+  beforeMarker: string,
+  afterMarker: string,
+): void {
+  const beforeIndex = source.indexOf(beforeMarker);
+  const afterIndex = source.indexOf(afterMarker);
+  assertContract(beforeIndex >= 0, `${name}: missing ${beforeMarker}`);
+  assertContract(afterIndex >= 0, `${name}: missing ${afterMarker}`);
+  assertContract(
+    beforeIndex < afterIndex,
+    `${name}: ${beforeMarker} must precede ${afterMarker}`,
+  );
 }
 
 Deno.test("admin API handlers keep authentication before privileged work", async () => {
@@ -164,6 +204,34 @@ Deno.test("user Edge Functions keep JWT and ownership markers", async () => {
       source.includes(contract.scopeMarker),
       `${contract.name}: missing authenticated-user scope marker`,
     );
+    assertSourceOrder(
+      source,
+      contract.name,
+      "auth.getUser()",
+      contract.privilegedMarker,
+    );
+    assertSourceOrder(source, contract.name, "Unauthorized", "401");
+    assertSourceOrder(
+      source,
+      contract.name,
+      "401",
+      contract.privilegedMarker,
+    );
+    if (contract.scopeMustPrecedePrivileged) {
+      assertSourceOrder(
+        source,
+        contract.name,
+        contract.scopeMarker,
+        contract.privilegedMarker,
+      );
+    } else {
+      assertSourceOrder(
+        source,
+        contract.name,
+        "auth.getUser()",
+        contract.scopeMarker,
+      );
+    }
     assertContract(
       source.includes('"Access-Control-Allow-Origin": "*"'),
       `${contract.name}: CORS policy is not explicit`,
@@ -192,6 +260,11 @@ Deno.test("service-only and dual-mode Edge Functions keep credential boundaries"
       source.includes("if (!isServiceRole)"),
       `${name}: missing fail-closed rejection`,
     );
+    const privilegedMarker = name === "send-test-push"
+      ? "const response = await fetch(`${supabaseUrl}/functions/v1/send-fcm-push`"
+      : "const supabaseClient = createClient(";
+    assertSourceOrder(source, name, "if (!isServiceRole)", privilegedMarker);
+    assertSourceOrder(source, name, "401", privilegedMarker);
   }
 
   const fcm = await readRepositoryFile(
@@ -213,6 +286,30 @@ Deno.test("service-only and dual-mode Edge Functions keep credential boundaries"
     fcm.includes("SUPABASE_SERVICE_ROLE_KEY"),
     "send-fcm-push: missing service-role secret",
   );
+  assertSourceOrder(
+    fcm,
+    "send-fcm-push",
+    "isServiceRole",
+    "const supabaseClient = createClient(",
+  );
+  assertSourceOrder(
+    fcm,
+    "send-fcm-push",
+    "Unauthorized",
+    "const supabaseClient = createClient(",
+  );
+  assertSourceOrder(
+    fcm,
+    "send-fcm-push",
+    "Forbidden",
+    "const supabaseClient = createClient(",
+  );
+  assertSourceOrder(
+    fcm,
+    "send-fcm-push",
+    "userId !== user.id || token",
+    "const supabaseClient = createClient(",
+  );
 });
 
 Deno.test("RevenueCat webhook keeps its external secret boundary", async () => {
@@ -230,6 +327,18 @@ Deno.test("RevenueCat webhook keeps its external secret boundary", async () => {
   assertContract(
     source.includes("SUPABASE_SERVICE_ROLE_KEY"),
     "revenuecat-webhook: missing service-role write boundary",
+  );
+  assertSourceOrder(
+    source,
+    "revenuecat-webhook",
+    "authHeader !== `Bearer ${REVENUECAT_WEBHOOK_AUTH_KEY}`",
+    "const supabaseClient = createClient(",
+  );
+  assertSourceOrder(
+    source,
+    "revenuecat-webhook",
+    "Unauthorized",
+    "const supabaseClient = createClient(",
   );
 });
 
