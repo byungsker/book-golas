@@ -19,6 +19,7 @@ this API guard.
 | Route | Methods | Protected operation |
 | --- | --- | --- |
 | `/api/admin/announcements` | GET | Read recent announcements with service role |
+| `/api/admin/ai-usage` | GET | Read bounded AI usage aggregates with service role |
 | `/api/admin/fcm-tokens` | GET | Read token counts and user email projection |
 | `/api/admin/push-logs` | GET | Read dashboard or paginated push logs |
 | `/api/admin/push-templates` | GET, PATCH | Read templates; update through audited RPC with actor ID |

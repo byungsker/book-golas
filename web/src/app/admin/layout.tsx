@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
+  { href: "/admin/ai-usage", label: "AI 운영", icon: "🤖" },
   { href: "/admin/users", label: "유저 관리", icon: "👥" },
   { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
