@@ -109,7 +109,10 @@
         "main"
       ],
       "allowed_paths": [
-        ".github/workflows/**",
+        ".github/workflows/daily-nudge.yml",
+        ".github/workflows/deploy-edge-functions.yml",
+        ".github/workflows/quality.yml",
+        ".github/workflows/schema-check.yml",
         "README.md",
         "docs/**",
         "app/lib/**",
