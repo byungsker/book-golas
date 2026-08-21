@@ -13,7 +13,7 @@ public claims.
 
 | Surface | Evidence | Current boundary |
 | --- | --- | --- |
-| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `docs/guides/ai-usage-logging-1.1.0.md` | `generate-embedding` has the first privacy-safe cost, token, latency, and outcome contract; remaining AI functions and aggregate dashboard coverage are later work. |
+| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `docs/guides/ai-usage-logging-1.1.0.md`, `docs/guides/ai-usage-dashboard-1.1.0.md` | `generate-embedding` has the first privacy-safe cost, token, latency, and outcome contract; BOK-419 adds the authenticated, bounded aggregate dashboard. Remaining AI function coverage is later work. |
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/` | FCM delivery and admin views exist; operational success, failure, invalid-token, CTR, and dedupe evidence is incomplete. |
 | Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
 | Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `docs/guides/supabase-deployment-migration-rollback-1.1.0.md`, `docs/guides/edge-function-wrapper-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope, shared Edge Function HTTP boundary, deployment paths, migration handling, rollback boundaries, and Deno tests are recorded; live environment evidence remains separate. |
@@ -21,14 +21,15 @@ public claims.
 ## 1.1.0 scope proposal
 
 Must-have for readiness: BOK-414 CI gates, BOK-415 deploy/migration runbook,
-BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging, and
-BOK-418 common function wrapper. BOK-421 must establish at least one verified
-error-capture path and the cross-surface masking contract.
+BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging,
+BOK-418 common function wrapper, and BOK-419's bounded admin aggregate. BOK-421
+must establish at least one verified error-capture path and the cross-surface
+masking contract.
 
-Follow-up after the core safety/measurement baseline: BOK-419's full admin AI
-usage dashboard, BOK-420's expanded push metrics and alert integration, and
-additional surface coverage beyond the first verified BOK-421 path. These
-remain roadmap work, not silently dropped scope.
+Follow-up after the core safety/measurement baseline: BOK-420's expanded push
+metrics and alert integration, and additional AI surface coverage beyond the
+first verified BOK-421 path. These remain roadmap work, not silently dropped
+scope.
 
 ## Dependency and execution order
 

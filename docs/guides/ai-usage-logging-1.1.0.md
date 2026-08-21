@@ -29,20 +29,18 @@ responses are not copied into `error_code`. RLS is enabled and direct
 `public`, `anon`, and `authenticated` table privileges are revoked. Only the
 server-side `service_role` path can insert or query rows.
 
-Future dashboards or APIs should query an allowlisted aggregate projection
-from an authenticated server route; they should not expose the table directly
-to clients. Retention and aggregate export policy must be approved before
-production use.
+The BOK-419 `/api/admin/ai-usage` route is the allowlisted aggregate projection
+for the first dashboard. It queries only operational columns from an
+authenticated server route and never exposes the table directly to clients.
+Retention and aggregate export policy must be approved before production use.
 
 ## Query candidate
 
-The next repository/API layer can expose `listAiUsageSummary` from the server
-admin boundary, backed by a bounded query that selects only
-`function_name`, `model`, `status`, token counts, estimated cost, latency, and
-`created_at`, with time-range and function filters. A future admin route such
-as `/api/admin/ai-usage` can return daily totals and failure rates without
-returning individual prompts, embeddings, or reading records. BOK-419 owns the
-dashboard and aggregate implementation.
+The `/api/admin/ai-usage` server route uses a bounded query that selects only
+`function_name`, `status`, estimated cost, latency, and `created_at`, with
+time-range and function filters. It returns daily and function-level totals,
+failure rates, and latency without returning individual prompts, embeddings,
+or reading records. BOK-419 owns the dashboard and aggregate implementation.
 
 ## Cost estimate
 
