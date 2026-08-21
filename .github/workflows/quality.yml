@@ -105,3 +105,17 @@ jobs:
           deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
           deno test --allow-read supabase/functions/_shared/edge-http.test.ts
           deno test --allow-read supabase/functions/send-batch-nudge/delivery-metrics.test.ts
+
+  governance-contract:
+    name: Governance Contract Tests
+    if: contains(github.head_ref || github.ref_name, '/governance/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run target-version contract tests
+        run: |
+          if [ -f .github/scripts/test_validate_target_version_pr.py ]; then
+            python3 .github/scripts/test_validate_target_version_pr.py
+          else
+            echo "Governance contract tests are not present on this source branch"
+          fi
