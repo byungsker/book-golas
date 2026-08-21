@@ -17,12 +17,12 @@ from typing import Any, Callable
 SEMVER = r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
 WORK_RE = re.compile(
     rf"^(?P<type>feature|fix|chore|refactor|docs|ci|migration|sync)/"
-    rf"(?P<unit>[a-z0-9][a-z0-9-]*)/(?P<version>{SEMVER})/"
+    rf"(?P<unit>[a-z0-9][a-z0-9_-]*)/(?P<version>{SEMVER})/"
     r"(?P<scope>[A-Za-z0-9][A-Za-z0-9._-]*)$"
 )
 PROMOTION_RE = re.compile(
     rf"^(?P<type>release|hotfix)/"
-    rf"(?P<unit>[a-z0-9][a-z0-9-]*)/(?P<version>{SEMVER})$"
+    rf"(?P<unit>[a-z0-9][a-z0-9_-]*)/(?P<version>{SEMVER})$"
 )
 METADATA_KEYS = (
     "Target-Delivery-Unit",

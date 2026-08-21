@@ -144,6 +144,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
 | `web/` Next.js Admin | `web-release-train` |
 | `supabase/` Functions 및 DB | 모바일 결합 시 `mobile-store`, 독립 배포 시 `backend-service` |
 | `operations` AI 서버 운영·CI·관측성·운영 증거 | `backend-service` |
+| `agent-api/`, `cli/` | `package-or-local` |
 
 ### Repository-Specific Rules
 
@@ -157,6 +158,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
   독립 backend service도 `1.0.2` release line을 사용하며,
   AI Server Operations readiness는 `operations 1.1.0`과
   `backend-service` continuous profile을 사용하며,
+  Agent API/CLI contract-first bundle은 `agent_api_cli 0.1.0`을 사용하며,
   `docs/product-roadmap.md`가 그 evidence를 기록한다. `AGENTS.md`와 각
   delivery unit의
   active version이 일치하지 않으면 브랜치나 PR을 만들 수 없다.
@@ -168,6 +170,10 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - `web/`은 승인된 버전마다 운영 `main`에서
   `version/web/x.y.z`를 열고 같은 버전 작업만 받은 뒤
   `release/web/x.y.z` QA를 거쳐 `main`으로 승격한다.
+- `agent_api_cli 0.1.0`은 API contract와 CLI companion을 함께 다루는
+  contract-first implementation line이다. 초기 구현은 인증·사용자 범위·read-only와
+  구조화된 CLI 계약을 우선하며, API와 CLI의 promotion path가 독립되면
+  공개·배포 전에 delivery unit을 분리한다.
 - `operations 1.1.0`은 `main`을 기반으로 하는 continuous operations line이다.
   브랜치는 `[codex/]<type>/operations/1.1.0/<issue-or-scope>` 형식을 사용하며,
   CI·runbook·관측성·AI 운영·관리자 운영 경로만 다룬다. 운영 변경의

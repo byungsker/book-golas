@@ -16,6 +16,10 @@ Target-Delivery-Unit: backend
 Target-Version: 1.0.2
 Delivery-Profile: backend-service
 
+Target-Delivery-Unit: agent_api_cli
+Target-Version: 0.1.0
+Delivery-Profile: package-or-local
+
 Target-Delivery-Unit: operations
 Target-Version: 1.1.0
 Delivery-Profile: backend-service
@@ -30,6 +34,12 @@ Bookgolas follows this release order:
 
 The independently delivered web admin has an approved parallel release train:
 **web 1.0.2**. It does not change the mobile 1.0.2 binary scope.
+
+Owner-approved sequencing override (2026-08-12): byungsker approved starting
+the P4 discovery issue in parallel with unfinished P0–P2 delivery work. This
+changes discovery sequencing only; it does not authorize production
+deployment, public package publication, subscription reactivation, or
+destructive data access.
 
 ## P0 — 1.0.2 patch release
 
@@ -103,6 +113,40 @@ Exit gate:
   unavailable rather than appearing as zero.
 - Admin and non-admin authorization checks, lint, build, and browser smoke
   checks pass on the approved web release line.
+
+## P4 — Agent access surface discovery and implementation
+
+Bookgolas will expose its existing reading capabilities to AI agents through a
+versioned Agent API and a CLI-first companion surface. The CLI is an
+independently versioned client of the Bookgolas product, not a separate product
+at this stage.
+
+Initial target delivery contract: `agent_api_cli 0.1.0` with the
+`package-or-local` profile. This is a contract-first implementation line for
+BOK-406: the first work package defines and verifies the authenticated,
+read-only API and CLI contracts before expanding behavior. Before either
+surface is independently deployed or published, the delivery contract must be
+re-evaluated and split into an API backend unit and a CLI package unit if their
+promotion paths differ.
+
+Initial scope:
+
+- Define the repeated agent job and capability catalog.
+- Establish the authenticated, user-scoped Agent API contract.
+- Build the deterministic `bookgolas` CLI with JSON output and stable exit
+  codes, beginning with a contract-first, read-only implementation.
+- Start with read-only commands for book search, library, reading progress,
+  Recall, and reading insights.
+- Redesign the Bookgolas Pro package and AI usage economics before subscription
+  reactivation or public CLI access.
+
+Start gate: P0, P1, P2, and P3 remain the product release priority. The
+owner-approved 2026-08-12 sequencing override permits BOK-406's bounded,
+contract-first implementation in parallel. This lane does not authorize
+production deployment, public package publication, subscription reactivation,
+or destructive data access.
+
+Executable issue: BOK-406.
 
 ## Parallel preparation — AI Server Operations Readiness
 
