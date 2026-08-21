@@ -17,6 +17,7 @@ for (const path of pagePaths) {
 
 const routes = [
   "src/app/api/admin/announcements/route.ts",
+  "src/app/api/admin/monitoring/route.ts",
   "src/app/api/admin/push-logs/route.ts",
   "src/app/api/admin/push-templates/route.ts",
   "src/app/api/admin/waitlist/route.ts",

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "/admin", label: "대시보드", icon: "📊" },
+  { href: "/admin", label: "성장·운영", icon: "📊" },
   { href: "/admin/users", label: "유저 관리", icon: "👥" },
   { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
@@ -46,12 +46,11 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="bg-card border-b border-border">
+    <div className="min-h-screen bg-background text-foreground">
+      <nav className="border-b border-border bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <Link href="/admin" className="flex-shrink-0 flex items-center gap-2">
+          <div className="flex h-16 items-center justify-between gap-4">
+            <Link href="/admin" className="flex shrink-0 items-center gap-2">
                 <Image
                   src="/logo-bookgolas.png"
                   alt="북골라스"
@@ -60,34 +59,34 @@ export default function AdminLayout({
                   className="rounded-md"
                 />
                 <span className="text-xl font-bold text-foreground">북골라스</span>
-                <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">Admin</span>
-              </Link>
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      pathname === item.href
-                        ? "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                    )}
-                  >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">Admin</span>
+            </Link>
+            <div className="flex min-w-0 items-center gap-3">
               {userEmail && (
-                <span className="text-sm text-muted-foreground">{userEmail}</span>
+                <span className="hidden truncate text-sm text-muted-foreground lg:block">{userEmail}</span>
               )}
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃
               </Button>
             </div>
+          </div>
+          <div className="flex gap-2 overflow-x-auto border-t border-border py-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={pathname === item.href ? "page" : undefined}
+                className={cn(
+                  "inline-flex shrink-0 items-center whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  pathname === item.href
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                )}
+              >
+                <span className="mr-2">{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </nav>
