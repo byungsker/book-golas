@@ -16,7 +16,7 @@ public claims.
 | AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/` | Authentication and service-role paths exist; cost, latency, and quality evidence are not yet a unified contract. |
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/` | FCM delivery and admin views exist; operational success, failure, invalid-token, CTR, and dedupe evidence is incomplete. |
 | Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
-| Delivery | `.github/workflows/quality.yml`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | Quality and deploy workflows exist; environment, migration, rollback, and production gates remain explicit work. |
+| Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope and Deno tests are recorded; environment, migration, rollback, and production gates remain explicit work. |
 
 ## 1.1.0 scope proposal
 
