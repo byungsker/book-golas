@@ -95,6 +95,34 @@
         "docs/**",
         "supabase/**"
       ]
+    },
+    "operations": {
+      "profile": "backend-service",
+      "mode": "continuous",
+      "active_versions": [
+        "1.1.0"
+      ],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "work_bases": [
+        "main"
+      ],
+      "allowed_paths": [
+        ".github/workflows/daily-nudge.yml",
+        ".github/workflows/quality.yml",
+        ".github/workflows/schema-check.yml",
+        "README.md",
+        "docs/**",
+        "web/ADMIN_GUIDE.md",
+        "web/package.json",
+        "web/src/app/admin/**",
+        "web/src/app/api/admin/**",
+        "web/src/lib/**",
+        "web/src/middleware.ts",
+        "supabase/config.toml",
+        "supabase/functions/**",
+        "supabase/migrations/**"
+      ]
     }
   }
 }
