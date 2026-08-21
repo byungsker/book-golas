@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { captureWebError } from "@/lib/error-reporting";
 import { aggregatePushOps, getPushOpsDateRange, type PushLogMetricRow } from "@/lib/push-ops";
 import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabase-server";
 
 const PAGE_SIZE = 20;
 const SUMMARY_MAX_ROWS = 10000;
 const SUMMARY_COLUMNS = "push_type, created_at, sent_at, is_clicked, delivery_status, failure_code, invalid_token, dedupe_status";
+
+function serverError(request: NextRequest, errorCode: string, message: string) {
+  const requestId = captureWebError(request, {
+    route: "/api/admin/push-logs",
+    errorCode,
+    status: 500,
+  });
+  return NextResponse.json(
+    { error: message },
+    { status: 500, headers: { "x-request-id": requestId } },
+  );
+}
 
 export async function GET(request: NextRequest) {
   if (!(await requireAdminUser())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -26,7 +39,7 @@ export async function GET(request: NextRequest) {
       if (pushType !== "all") query = query.eq("push_type", pushType);
 
       const { data, error } = await query;
-      if (error) return NextResponse.json({ error: "Failed to load push summary" }, { status: 500 });
+      if (error) return serverError(request, "push_summary_query_failed", "Failed to load push summary");
 
       return NextResponse.json({
         range: { from: dateRange.from, to: dateRange.to },
@@ -35,7 +48,7 @@ export async function GET(request: NextRequest) {
         limits: { maxRows: SUMMARY_MAX_ROWS, truncated: (data?.length ?? 0) === SUMMARY_MAX_ROWS },
       }, { headers: { "Cache-Control": "no-store" } });
     } catch {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+      return serverError(request, "push_summary_route_failed", "Server configuration error");
     }
   }
   if (request.nextUrl.searchParams.get("dashboard") === "1") {
@@ -45,7 +58,7 @@ export async function GET(request: NextRequest) {
       client.from("push_logs").select("*").gte("sent_at", today),
       client.from("push_logs").select("*").order("sent_at", { ascending: false }).limit(10),
     ]);
-    if (todayResult.error || recentResult.error) return NextResponse.json({ error: "Failed to load dashboard logs" }, { status: 500 });
+    if (todayResult.error || recentResult.error) return serverError(request, "push_dashboard_query_failed", "Failed to load dashboard logs");
     return NextResponse.json({ todayLogs: todayResult.data ?? [], recentLogs: recentResult.data ?? [] });
   }
   const page = Math.max(0, Number(request.nextUrl.searchParams.get("page") ?? "0") || 0);
@@ -56,6 +69,6 @@ export async function GET(request: NextRequest) {
     .order("created_at", { ascending: false });
   if (type !== "all") query = query.eq("push_type", type);
   const { data, error } = await query.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-  if (error) return NextResponse.json({ error: "Failed to load logs" }, { status: 500 });
+  if (error) return serverError(request, "push_logs_query_failed", "Failed to load logs");
   return NextResponse.json({ logs: data ?? [], hasMore: (data?.length ?? 0) === PAGE_SIZE });
 }

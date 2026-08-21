@@ -17,18 +17,20 @@ public claims.
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/`, `docs/guides/push-operations-metrics-1.1.0.md` | BOK-420 records bounded delivery outcomes, failure categories, invalid-token cleanup, CTR, and persisted dedupe-hit evidence; outbound alerting remains an approval-gated candidate. |
 | Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
 | Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `docs/guides/supabase-deployment-migration-rollback-1.1.0.md`, `docs/guides/edge-function-wrapper-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope, shared Edge Function HTTP boundary, deployment paths, migration handling, rollback boundaries, and Deno tests are recorded; live environment evidence remains separate. |
+| Observability | `web/src/lib/error-reporting.ts`, `supabase/functions/_shared/edge-http.ts`, `docs/guides/error-observability-1.1.0.md` | BOK-421 establishes provider-neutral Web/Edge error capture, request correlation, masking, and sampling boundaries; Flutter provider activation and hosted sinks remain separately authorized. |
 
 ## 1.1.0 scope proposal
 
 Must-have for readiness: BOK-414 CI gates, BOK-415 deploy/migration runbook,
 BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging,
-BOK-418 common function wrapper, BOK-419's bounded admin aggregate, and
-BOK-420's push delivery evidence. BOK-421 must establish at least one verified
-error-capture path and the cross-surface masking contract.
+BOK-418 common function wrapper, BOK-419's bounded admin aggregate,
+BOK-420's push delivery evidence, and BOK-421's verified Web/Edge error-capture
+path with a cross-surface masking contract.
 
-Follow-up after the core safety/measurement baseline: BOK-421's verified
-error-capture path and additional AI surface coverage. External alert
-integration remains separately approved work, not silently enabled scope.
+Follow-up after the core safety/measurement baseline: additional AI surface
+coverage, Flutter provider activation, hosted sink verification, and external
+alert integration. These remain separately approved work, not silently enabled
+scope.
 
 ## Dependency and execution order
 
