@@ -66,6 +66,15 @@ set role authenticated;
 do $$
 begin
   begin
+    insert into public.waitlist (email, locale, source)
+    values ('blocked-authenticated-insert@example.com', 'ko', 'fixture');
+    raise exception 'authenticated role can insert waitlist rows';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
+  begin
     perform public.register_waitlist_submission(
       'blocked-authenticated@example.com',
       'ko',
@@ -110,6 +119,15 @@ set role anon;
 
 do $$
 begin
+  begin
+    insert into public.waitlist (email, locale, source)
+    values ('blocked-anon-insert@example.com', 'ko', 'fixture');
+    raise exception 'anonymous role can insert waitlist rows';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+
   begin
     perform public.register_waitlist_submission(
       'blocked@example.com',
