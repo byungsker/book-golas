@@ -27,6 +27,8 @@ class DeployEdgeWorkflowContractTests(unittest.TestCase):
     def test_dispatch_input_is_not_interpolated_into_shell(self):
         self.assertIn("FUNCTION=\"$FUNCTION_INPUT\"", WORKFLOW)
         self.assertNotIn('FUNCTION="${{ inputs.function_name }}"', WORKFLOW)
+        self.assertIn('[[ "$FUNCTION" == -* ]]', WORKFLOW)
+        self.assertIn("Function name must not be a CLI option.", WORKFLOW)
 
 
 if __name__ == "__main__":

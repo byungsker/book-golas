@@ -84,6 +84,10 @@ jobs:
           FUNCTION="$FUNCTION_INPUT"
 
           if [ -n "$FUNCTION" ]; then
+            if [[ "$FUNCTION" == -* ]]; then
+              echo "::error::Function name must not be a CLI option."
+              exit 1
+            fi
             echo "Deploying single function: $FUNCTION to dev"
             supabase functions deploy "$FUNCTION"
           else
