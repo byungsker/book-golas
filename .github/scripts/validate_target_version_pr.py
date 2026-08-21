@@ -98,6 +98,40 @@ def single_metadata(body: str, key: str) -> str:
     return values[0].strip()
 
 
+def validate_evidence_refs(
+    registry_unit: dict[str, Any],
+    active_versions: list[str],
+    evidence_reader: Callable[[str], str] | None = None,
+) -> None:
+    refs = registry_unit.get("evidence_refs")
+    if not isinstance(refs, list) or not refs or not all(
+        isinstance(ref, str) and ref.strip() for ref in refs
+    ):
+        raise PolicyError(
+            "release registry evidence_refs must be a non-empty string array"
+        )
+    normalized_refs = [ref.strip() for ref in refs]
+    if len(set(normalized_refs)) != len(normalized_refs):
+        raise PolicyError("release registry evidence_refs must not contain duplicates")
+    for ref in normalized_refs:
+        path = Path(ref)
+        if path.is_absolute() or ".." in path.parts:
+            raise PolicyError(f"release registry evidence_ref is unsafe: {ref!r}")
+    if evidence_reader is None:
+        return
+    evidence = {}
+    for ref in normalized_refs:
+        try:
+            evidence[ref] = evidence_reader(ref)
+        except (OSError, UnicodeError) as exc:
+            raise PolicyError(f"release registry evidence_ref is unreadable: {ref!r}") from exc
+    for version in active_versions:
+        if not any(version in content for content in evidence.values()):
+            raise PolicyError(
+                f"active version {version!r} is absent from release registry evidence_refs"
+            )
+
+
 def validate(
     config: dict[str, Any],
     head: str,
@@ -135,7 +169,9 @@ def validate(
     version_source = policy.get("target_version_source")
     if mode not in {"version-line", "continuous"}:
         raise PolicyError(f"invalid mode for {unit}: {mode!r}")
-    if not isinstance(active, list) or version not in active:
+    if not isinstance(active, list) or not active or not all(
+        isinstance(item, str) and re.fullmatch(SEMVER, item) for item in active
+    ) or version not in active:
         raise PolicyError(
             f"target version {version} is not active for {unit}; active={active!r}"
         )
@@ -156,6 +192,11 @@ def validate(
             f"active version source mismatch for {unit}: "
             f"policy={active!r}, registry={registry_versions!r}"
         )
+    validate_evidence_refs(
+        registry_unit,
+        active,
+        lambda ref: Path(ref).read_text(encoding="utf-8"),
+    )
     allowed_paths = policy.get("allowed_paths")
     if not isinstance(allowed_paths, list) or not allowed_paths:
         raise PolicyError(f"delivery unit {unit} has no allowed_paths policy")
