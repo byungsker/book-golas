@@ -1,6 +1,6 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-08-12
+Last updated: 2026-08-21
 
 ## Target Delivery Contract
 
@@ -23,6 +23,10 @@ Delivery-Profile: backend-service
 Target-Delivery-Unit: agent_api_cli
 Target-Version: 0.1.0
 Delivery-Profile: package-or-local
+
+Target-Delivery-Unit: operations
+Target-Version: 1.1.0
+Delivery-Profile: backend-service
 
 ## Priority order
 
@@ -182,6 +186,20 @@ production deployment, public package publication, subscription reactivation,
 or destructive data access.
 
 Executable issue: BOK-406.
+
+## Parallel preparation — AI Server Operations Readiness
+
+Bookgolas의 AI 서버 운영 준비는 `operations 1.1.0`과
+`backend-service` continuous profile을 사용한다. 이 line은 Supabase Edge
+Functions, RAG/AI usage, FCM, 관리자 운영, CI, 보안, 관측성과 runbook 증거를
+다루며, 운영 변경은 `main` 기반 검토 PR을 거친다.
+
+문서화·CI·관측성처럼 제품 동작 위험이 낮은 작업은 P0 안정화와 병렬 진행할
+수 있다. 인증, migration, 관리자 권한, 외부 알림, production 배포와 같은
+변경은 각 issue의 독립 검증과 별도 권한 경계를 유지한다.
+
+Executable issues: BOK-413, BOK-414, BOK-415, BOK-416, BOK-417, BOK-418,
+BOK-419, BOK-420, BOK-421.
 
 ## Current evidence and unknowns
 
