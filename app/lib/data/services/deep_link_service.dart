@@ -392,8 +392,8 @@ class DeepLinkService {
     if (_isInitialized) return;
     _isInitialized = true;
     _setupNativeDeepLinkChannel();
-    await _consumePendingNativeDeepLink();
     await _initWidgetClickHandler();
+    await _consumePendingNativeDeepLink();
     await _initAppLinks();
   }
 
@@ -448,6 +448,21 @@ class DeepLinkService {
   static NavigatorState? get _navigator => _navigatorKey?.currentState;
 
   static Future<void> _initWidgetClickHandler() async {
+    _widgetClickSubscription?.cancel();
+    _widgetClickSubscription = HomeWidget.widgetClicked.listen(
+      (Uri? uri) {
+        if (uri == null) return;
+        debugPrint(
+          '📱 위젯 클릭 딥링크: '
+          '${DeepLinkLogSanitizer.describe(uri)}',
+        );
+        unawaited(_handleDeepLink(uri, useReplacement: true));
+      },
+      onError: (e) {
+        debugPrint('📱 위젯 클릭 스트림 에러: $e');
+      },
+    );
+
     try {
       final initialWidgetUri =
           await HomeWidget.initiallyLaunchedFromHomeWidget();
@@ -461,22 +476,6 @@ class DeepLinkService {
     } catch (e) {
       debugPrint('📱 위젯 초기 링크 처리 실패: $e');
     }
-
-    _widgetClickSubscription?.cancel();
-    _widgetClickSubscription = HomeWidget.widgetClicked.listen(
-      (Uri? uri) {
-        if (uri != null) {
-          debugPrint(
-            '📱 위젯 클릭 딥링크: '
-            '${DeepLinkLogSanitizer.describe(uri)}',
-          );
-          _handleDeepLink(uri, useReplacement: true);
-        }
-      },
-      onError: (e) {
-        debugPrint('📱 위젯 클릭 스트림 에러: $e');
-      },
-    );
   }
 
   static Future<void> _initAppLinks() async {

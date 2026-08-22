@@ -299,7 +299,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider<BookListViewModel>(
-          create: (_) => BookListViewModel(),
+          create: (context) => BookListViewModel(
+            bookService: context.read<BookService>(),
+          ),
         ),
         ChangeNotifierProvider<CalendarViewModel>(
           create: (context) =>
