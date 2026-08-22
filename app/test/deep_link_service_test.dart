@@ -290,6 +290,68 @@ void main() {
       expect(dispatched, [request]);
     });
 
+    test('preserves the selected widget book across cold-start readiness',
+        () async {
+      final coordinator = DeepLinkIntentCoordinator();
+      final dispatched = <DeepLinkRequest>[];
+      final request = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/book-42'),
+        useReplacement: true,
+      );
+
+      await coordinator.receive(
+        request,
+        isAuthenticated: false,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [request]);
+      expect(dispatched.single.uri.pathSegments.last, 'book-42');
+      expect(dispatched.single.useReplacement, isTrue);
+    });
+
+    test('dispatches the selected widget book from a warm or foreground app',
+        () async {
+      var now = DateTime(2026, 8, 22, 12);
+      final coordinator = DeepLinkIntentCoordinator(now: () => now);
+      final dispatched = <DeepLinkRequest>[];
+      final request = DeepLinkRequest(
+        uri: Uri.parse('bookgolas://book/detail/book-77'),
+        useReplacement: true,
+      );
+
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      await coordinator.receive(
+        request,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      now = now.add(const Duration(seconds: 3));
+      coordinator.markNavigationUnavailable(clearPending: false);
+      await coordinator.receive(
+        request,
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+      await coordinator.markNavigationReady(
+        isAuthenticated: true,
+        dispatch: dispatched.add,
+      );
+
+      expect(dispatched, [request, request]);
+      expect(
+        dispatched.every((item) => item.uri.pathSegments.last == 'book-77'),
+        isTrue,
+      );
+    });
+
     test('preserves current-book action and replacement mode before login',
         () async {
       final coordinator = DeepLinkIntentCoordinator();
