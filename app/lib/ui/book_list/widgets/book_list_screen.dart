@@ -381,6 +381,8 @@ class _BookListScreenState extends State<BookListScreen>
               book: book,
               todayPagesRead: vm.todayPagesReadFor(book),
               onTap: () => _navigateToBookDetail(book),
+              onStatusChanged: (status) =>
+                  vm.updateBookStatus(book, status),
             )
           : _buildBookCardByStatus(book, isDark)),
     ];
@@ -419,6 +421,8 @@ class _BookListScreenState extends State<BookListScreen>
               book: book,
               todayPagesRead: vm.todayPagesReadFor(book),
               onTap: () => _navigateToBookDetail(book),
+              onStatusChanged: (status) =>
+                  vm.updateBookStatus(book, status),
             )
           : _buildBookCardByStatus(book, isDark)),
     ];
@@ -450,6 +454,8 @@ class _BookListScreenState extends State<BookListScreen>
         return BookListCard(
           book: book,
           onTap: () => _navigateToBookDetail(book),
+          onStatusChanged: (status) =>
+              _viewModel.updateBookStatus(book, status),
         );
     }
   }
@@ -474,6 +480,8 @@ class _BookListScreenState extends State<BookListScreen>
                   book: book,
                   todayPagesRead: vm.todayPagesReadFor(book),
                   onTap: () => _navigateToBookDetail(book),
+                  onStatusChanged: (status) =>
+                      vm.updateBookStatus(book, status),
                 ))
             .toList(),
       ),
