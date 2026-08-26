@@ -36,6 +36,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonRetry => '다시 시도';
 
   @override
+  String get deepLinkBookUnavailableTitle => '책을 열 수 없습니다';
+
+  @override
+  String get deepLinkBookUnavailableDescription =>
+      '요청한 책이 삭제되었거나 현재 계정에서 더 이상 볼 수 없습니다. 서재에서 책을 확인한 뒤 다시 시도해 주세요.';
+
+  @override
+  String get deepLinkBookUnavailableAction => '서재로 돌아가기';
+
+  @override
   String get commonNext => '다음';
 
   @override

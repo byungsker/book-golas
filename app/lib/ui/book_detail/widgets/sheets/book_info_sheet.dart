@@ -2,16 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'package:book_golas/data/services/aladin_api_service.dart';
-import 'package:book_golas/data/services/book_service.dart';
-import 'package:book_golas/data/services/book_detail_info_cache.dart';
-import 'package:book_golas/data/services/google_books_api_service.dart';
-import 'package:book_golas/data/services/naver_books_api_service.dart';
 import 'package:book_golas/domain/models/book.dart';
-import 'package:book_golas/domain/models/book_detail_info.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/book_detail/view_model/book_info_view_model.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
@@ -21,6 +17,7 @@ Future<void> showBookInfoSheet(
   BuildContext context,
   Book book, {
   void Function(String imageId, String imageUrl)? onCoverTap,
+  BookDetailInfoLoader? detailLoader,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -28,7 +25,16 @@ Future<void> showBookInfoSheet(
     backgroundColor: Colors.transparent,
     isDismissible: true,
     enableDrag: true,
-    builder: (_) => _BookInfoSheetContent(book: book, onCoverTap: onCoverTap),
+    builder: (_) => ChangeNotifierProvider(
+      create: (_) => BookInfoViewModel(
+        book: book,
+        detailLoader: detailLoader,
+      )..loadBookDetail(),
+      child: _BookInfoSheetContent(
+        book: book,
+        onCoverTap: onCoverTap,
+      ),
+    ),
   );
 }
 
@@ -36,7 +42,10 @@ class _BookInfoSheetContent extends StatefulWidget {
   final Book book;
   final void Function(String imageId, String imageUrl)? onCoverTap;
 
-  const _BookInfoSheetContent({required this.book, this.onCoverTap});
+  const _BookInfoSheetContent({
+    required this.book,
+    this.onCoverTap,
+  });
 
   @override
   State<_BookInfoSheetContent> createState() => _BookInfoSheetContentState();
@@ -44,8 +53,6 @@ class _BookInfoSheetContent extends StatefulWidget {
 
 class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     with SingleTickerProviderStateMixin {
-  BookDetailInfo? _bookDetailInfo;
-  bool _isLoading = true;
   bool _isDescriptionExpanded = false;
   late TabController _tabController;
   bool _isTitleExpanded = false;
@@ -59,7 +66,6 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
         setState(() {});
       }
     });
-    _loadBookDetail();
   }
 
   @override
@@ -68,242 +74,11 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     super.dispose();
   }
 
-  Future<void> _loadBookDetail() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final detail = await BookDetailInfoCache.instance.getOrLoad(
-        widget.book,
-        _fetchBookDetail,
-      );
-
-      if (mounted) {
-        setState(() {
-          _bookDetailInfo = detail ?? BookDetailInfo.fromLocal(widget.book);
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('📚 [BookInfo] ERROR: $e');
-      if (mounted) {
-        setState(() {
-          _bookDetailInfo = BookDetailInfo.fromLocal(widget.book);
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<BookDetailInfo?> _fetchBookDetail() async {
-    final hasIsbn = widget.book.isbn != null && widget.book.isbn!.isNotEmpty;
-    var hasRemoteData = false;
-
-    debugPrint(
-      '📚 [BookInfo] 시작: title="${widget.book.title}", isbn=${widget.book.isbn}, hasIsbn=$hasIsbn',
-    );
-
-    BookDetailInfo? detail;
-    BookDetailInfo? googleDetail;
-
-    if (hasIsbn) {
-      debugPrint('📚 [BookInfo] Step1: 네이버 ISBN 검색 (${widget.book.isbn})');
-      final naverDesc = await NaverBooksApiService.fetchDescription(
-        widget.book.isbn!,
-      );
-      debugPrint(
-        '📚 [BookInfo] Step1 결과: ${naverDesc != null ? "${naverDesc.length}자" : "null"}',
-      );
-      if (naverDesc != null && naverDesc.isNotEmpty) {
-        hasRemoteData = true;
-        detail = BookDetailInfo.fromLocal(
-          widget.book,
-        ).copyWith(description: naverDesc);
-      }
-
-      if (detail?.description == null || detail!.description!.isEmpty) {
-        debugPrint('📚 [BookInfo] Step2: 알라딘 ISBN 검색 (${widget.book.isbn})');
-        final aladinDesc = await AladinApiService.fetchDescription(
-          widget.book.isbn!,
-        );
-        debugPrint(
-          '📚 [BookInfo] Step2 결과: ${aladinDesc != null ? "${aladinDesc.length}자" : "null"}',
-        );
-        if (aladinDesc != null && aladinDesc.isNotEmpty) {
-          hasRemoteData = true;
-          detail = BookDetailInfo.fromLocal(
-            widget.book,
-          ).copyWith(description: aladinDesc);
-        }
-      }
-
-      debugPrint(
-        '📚 [BookInfo] Step3: Google Books ISBN 검색 (${widget.book.isbn})',
-      );
-      googleDetail = await GoogleBooksApiService.fetchBookDetail(
-        widget.book.isbn!,
-      );
-      debugPrint(
-        '📚 [BookInfo] Step3 결과: ${googleDetail?.description != null ? "${googleDetail!.description!.length}자" : "null"}',
-      );
-      if (googleDetail != null) hasRemoteData = true;
-
-      if (detail == null ||
-          detail.description == null ||
-          detail.description!.isEmpty) {
-        detail = googleDetail;
-      }
-    }
-
-    if (detail == null ||
-        detail.description == null ||
-        detail.description!.isEmpty) {
-      debugPrint('📚 [BookInfo] Step4: 네이버 제목 검색 ("${widget.book.title}")');
-      final titleDesc = await NaverBooksApiService.fetchDescriptionByTitle(
-        widget.book.title,
-        widget.book.author,
-      );
-      debugPrint(
-        '📚 [BookInfo] Step4 결과: ${titleDesc != null ? "${titleDesc.length}자" : "null"}',
-      );
-      if (titleDesc != null && titleDesc.isNotEmpty) {
-        hasRemoteData = true;
-        detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
-          description: titleDesc,
-        );
-      }
-    }
-
-    if (detail == null ||
-        detail.description == null ||
-        detail.description!.isEmpty) {
-      debugPrint('📚 [BookInfo] Step5: 알라딘 제목 검색 ("${widget.book.title}")');
-      final aladinTitleDesc = await AladinApiService.fetchDescriptionByTitle(
-        widget.book.title,
-      );
-      debugPrint(
-        '📚 [BookInfo] Step5 결과: ${aladinTitleDesc != null ? "${aladinTitleDesc.length}자" : "null"}',
-      );
-      if (aladinTitleDesc != null && aladinTitleDesc.isNotEmpty) {
-        hasRemoteData = true;
-        detail = (detail ?? BookDetailInfo.fromLocal(widget.book)).copyWith(
-          description: aladinTitleDesc,
-        );
-      }
-    }
-
-    detail ??= BookDetailInfo.fromLocal(widget.book);
-
-    if (googleDetail != null) {
-      detail = detail.copyWith(
-        publisher: detail.publisher ?? googleDetail.publisher,
-        isbn: detail.isbn ?? googleDetail.isbn,
-        categories: detail.categories ?? googleDetail.categories,
-        publishedDate: detail.publishedDate ?? googleDetail.publishedDate,
-        language: detail.language ?? googleDetail.language,
-        pageCount: detail.pageCount ?? googleDetail.pageCount,
-      );
-    }
-
-    debugPrint(
-      '📚 [BookInfo] 최종: description=${detail.description != null ? "${detail.description!.length}자" : "null"}',
-    );
-
-    final needsBackfill = widget.book.id != null &&
-        (widget.book.publisher == null ||
-            widget.book.isbn == null ||
-            widget.book.genre == null ||
-            widget.book.aladinUrl == null ||
-            widget.book.price == null);
-
-    if (needsBackfill) {
-      debugPrint(
-        '📚 [BookInfo] 메타데이터 보정 시작: '
-        'publisher=${widget.book.publisher}, isbn=${widget.book.isbn}, '
-        'genre=${widget.book.genre}, aladinUrl=${widget.book.aladinUrl}, '
-        'price=${widget.book.price}',
-      );
-      BookSearchResult? aladinResult;
-
-      try {
-        if (hasIsbn) {
-          aladinResult = await AladinApiService.lookupByISBN(widget.book.isbn!);
-          debugPrint(
-            '📚 [BookInfo] 알라딘 ISBN 조회 결과: '
-            'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}',
-          );
-        }
-
-        aladinResult ??= await AladinApiService.searchByTitle(
-          widget.book.title,
-          widget.book.author,
-        );
-        debugPrint(
-          '📚 [BookInfo] 알라딘 최종 결과: '
-          'publisher=${aladinResult?.publisher}, isbn=${aladinResult?.isbn}, '
-          'genre=${aladinResult?.genre}, aladinUrl=${aladinResult?.aladinUrl != null}',
-        );
-      } catch (e) {
-        debugPrint('📚 [BookInfo] 알라딘 조회 실패: $e');
-      }
-
-      if (aladinResult != null) {
-        hasRemoteData = true;
-        final backfillPublisher =
-            widget.book.publisher == null ? aladinResult.publisher : null;
-        final backfillIsbn =
-            widget.book.isbn == null ? aladinResult.isbn : null;
-        final backfillGenre =
-            widget.book.genre == null ? aladinResult.genre : null;
-        final backfillAladinUrl =
-            widget.book.aladinUrl == null ? aladinResult.aladinUrl : null;
-        final backfillPrice =
-            widget.book.price == null ? aladinResult.price : null;
-
-        detail = detail.copyWith(
-          publisher: detail.publisher ?? aladinResult.publisher,
-          isbn: detail.isbn ?? aladinResult.isbn,
-          categories: detail.categories ??
-              (aladinResult.genre != null ? [aladinResult.genre!] : null),
-          price: detail.price ?? aladinResult.price,
-        );
-
-        debugPrint(
-          '📚 [BookInfo] detail 보정 후: '
-          'publisher=${detail.publisher}, isbn=${detail.isbn}, '
-          'categories=${detail.categories}, price=${detail.price}',
-        );
-
-        if (backfillPublisher != null ||
-            backfillIsbn != null ||
-            backfillGenre != null ||
-            backfillAladinUrl != null ||
-            backfillPrice != null) {
-          BookService().updateBookMetadata(
-            widget.book.id!,
-            publisher: backfillPublisher,
-            isbn: backfillIsbn,
-            genre: backfillGenre,
-            aladinUrl: backfillAladinUrl,
-            price: backfillPrice,
-          );
-
-          debugPrint(
-            '📚 [BookInfo] DB 보정 요청: '
-            'publisher=$backfillPublisher, isbn=$backfillIsbn, '
-            'genre=$backfillGenre, aladinUrl=${backfillAladinUrl != null}, '
-            'price=$backfillPrice',
-          );
-        }
-      }
-    }
-
-    return hasRemoteData ? detail : null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
+    final bookInfoViewModel = context.watch<BookInfoViewModel>();
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final screenHeight = MediaQuery.of(context).size.height;
     final safeMaxSize =
@@ -344,7 +119,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
                     const SizedBox(height: 6),
                     _buildAuthor(isDark),
                     const SizedBox(height: 20),
-                    _buildTabSection(isDark, l10n),
+                    _buildTabSection(isDark, l10n, bookInfoViewModel),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -494,7 +269,11 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     );
   }
 
-  Widget _buildTabSection(bool isDark, AppLocalizations l10n) {
+  Widget _buildTabSection(
+    bool isDark,
+    AppLocalizations l10n,
+    BookInfoViewModel bookInfoViewModel,
+  ) {
     return Column(
       children: [
         TabBar(
@@ -522,19 +301,23 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
           curve: Curves.easeInOut,
           alignment: Alignment.topCenter,
           child: _tabController.index == 0
-              ? _buildDescriptionTab(isDark, l10n)
-              : _buildDetailTab(isDark, l10n),
+              ? _buildDescriptionTab(isDark, l10n, bookInfoViewModel)
+              : _buildDetailTab(isDark, l10n, bookInfoViewModel),
         ),
       ],
     );
   }
 
-  Widget _buildDescriptionTab(bool isDark, AppLocalizations l10n) {
-    if (_isLoading) {
+  Widget _buildDescriptionTab(
+    bool isDark,
+    AppLocalizations l10n,
+    BookInfoViewModel bookInfoViewModel,
+  ) {
+    if (bookInfoViewModel.isLoading) {
       return _buildDescriptionShimmer(isDark);
     }
 
-    final description = _bookDetailInfo?.description;
+    final description = bookInfoViewModel.bookDetailInfo?.description;
 
     if (description == null || description.isEmpty) {
       return Padding(
@@ -657,9 +440,13 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     );
   }
 
-  Widget _buildDetailTab(bool isDark, AppLocalizations l10n) {
+  Widget _buildDetailTab(
+    bool isDark,
+    AppLocalizations l10n,
+    BookInfoViewModel bookInfoViewModel,
+  ) {
     final book = widget.book;
-    final detail = _bookDetailInfo;
+    final detail = bookInfoViewModel.bookDetailInfo;
 
     final publisher = detail?.publisher ?? book.publisher ?? '-';
     final isbn = detail?.isbn ?? book.isbn ?? '-';

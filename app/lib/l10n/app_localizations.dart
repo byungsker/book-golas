@@ -152,6 +152,24 @@ abstract class AppLocalizations {
   /// **'다시 시도'**
   String get commonRetry;
 
+  /// 요청한 책을 열 수 없을 때 표시하는 딥링크 복구 화면 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'책을 열 수 없습니다'**
+  String get deepLinkBookUnavailableTitle;
+
+  /// 누락되었거나 접근할 수 없는 책에 대한 딥링크 복구 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'요청한 책이 삭제되었거나 현재 계정에서 더 이상 볼 수 없습니다. 서재에서 책을 확인한 뒤 다시 시도해 주세요.'**
+  String get deepLinkBookUnavailableDescription;
+
+  /// 딥링크 복구 화면을 닫는 동작
+  ///
+  /// In ko, this message translates to:
+  /// **'서재로 돌아가기'**
+  String get deepLinkBookUnavailableAction;
+
   /// Next button
   ///
   /// In ko, this message translates to:

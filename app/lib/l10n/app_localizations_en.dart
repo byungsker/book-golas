@@ -36,6 +36,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonRetry => 'Retry';
 
   @override
+  String get deepLinkBookUnavailableTitle => 'Book unavailable';
+
+  @override
+  String get deepLinkBookUnavailableDescription =>
+      'This book may have been deleted or is no longer available for your account. Check your library and try again.';
+
+  @override
+  String get deepLinkBookUnavailableAction => 'Return to library';
+
+  @override
   String get commonNext => 'Next';
 
   @override
