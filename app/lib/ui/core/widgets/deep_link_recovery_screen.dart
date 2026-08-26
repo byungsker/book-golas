@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 
 class DeepLinkRecoveryScreen extends StatelessWidget {
@@ -26,7 +27,9 @@ class DeepLinkRecoveryScreen extends StatelessWidget {
                 Icon(
                   Icons.menu_book_outlined,
                   size: 64,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  color: isDark
+                      ? BLabColors.grey(400, context)
+                      : BLabColors.grey(600, context),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -35,7 +38,9 @@ class DeepLinkRecoveryScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     height: 1.5,
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    color: isDark
+                        ? BLabColors.grey(300, context)
+                        : BLabColors.grey(700, context),
                   ),
                 ),
                 const SizedBox(height: 28),
