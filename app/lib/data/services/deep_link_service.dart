@@ -11,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/ui/book_detail/book_detail_screen.dart';
+import 'package:book_golas/ui/core/widgets/deep_link_recovery_screen.dart';
 import 'package:book_golas/ui/reading_start/widgets/reading_start_screen.dart';
 
 enum DeepLinkAction {
@@ -106,6 +107,14 @@ class DeepLinkNavigator {
     } else {
       navigator.push<void>(route);
     }
+  }
+}
+
+class DeepLinkRecoveryRoute {
+  static Route<void> bookUnavailable() {
+    return MaterialPageRoute<void>(
+      builder: (_) => const DeepLinkRecoveryScreen(),
+    );
   }
 }
 
@@ -683,11 +692,24 @@ class DeepLinkService {
   }) async {
     final resolvedId = await _resolveBookId(bookId, userId: userId);
     if (!canComplete()) return;
-    if (resolvedId == null) return;
+    if (resolvedId == null) {
+      debugPrint(DeepLinkLogMessages.targetBookNotFound);
+      DeepLinkNavigator.open(
+        navigator,
+        DeepLinkRecoveryRoute.bookUnavailable(),
+        useReplacement: request.useReplacement,
+      );
+      return;
+    }
     final book = await _fetchBook(resolvedId, userId: userId);
     if (!canComplete()) return;
     if (book == null) {
       debugPrint(DeepLinkLogMessages.targetBookNotFound);
+      DeepLinkNavigator.open(
+        navigator,
+        DeepLinkRecoveryRoute.bookUnavailable(),
+        useReplacement: request.useReplacement,
+      );
       return;
     }
     DeepLinkNavigator.open(

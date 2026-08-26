@@ -17,10 +17,13 @@ import 'package:book_golas/ui/core/widgets/book_image_widget.dart';
 import 'package:book_golas/ui/core/widgets/bookstore_select_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 
+typedef BookDetailInfoLoader = Future<BookDetailInfo?> Function(Book book);
+
 Future<void> showBookInfoSheet(
   BuildContext context,
   Book book, {
   void Function(String imageId, String imageUrl)? onCoverTap,
+  BookDetailInfoLoader? detailLoader,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -28,15 +31,24 @@ Future<void> showBookInfoSheet(
     backgroundColor: Colors.transparent,
     isDismissible: true,
     enableDrag: true,
-    builder: (_) => _BookInfoSheetContent(book: book, onCoverTap: onCoverTap),
+    builder: (_) => _BookInfoSheetContent(
+      book: book,
+      onCoverTap: onCoverTap,
+      detailLoader: detailLoader,
+    ),
   );
 }
 
 class _BookInfoSheetContent extends StatefulWidget {
   final Book book;
   final void Function(String imageId, String imageUrl)? onCoverTap;
+  final BookDetailInfoLoader? detailLoader;
 
-  const _BookInfoSheetContent({required this.book, this.onCoverTap});
+  const _BookInfoSheetContent({
+    required this.book,
+    this.onCoverTap,
+    this.detailLoader,
+  });
 
   @override
   State<_BookInfoSheetContent> createState() => _BookInfoSheetContentState();
@@ -74,7 +86,7 @@ class _BookInfoSheetContentState extends State<_BookInfoSheetContent>
     try {
       final detail = await BookDetailInfoCache.instance.getOrLoad(
         widget.book,
-        _fetchBookDetail,
+        () => widget.detailLoader?.call(widget.book) ?? _fetchBookDetail(),
       );
 
       if (mounted) {
