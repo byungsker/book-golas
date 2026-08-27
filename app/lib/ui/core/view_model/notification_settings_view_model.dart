@@ -5,9 +5,7 @@ import 'package:book_golas/data/services/notification_settings_service.dart';
 class NotificationSettingsViewModel extends BaseViewModel {
   final NotificationSettingsRepository _repository;
 
-  NotificationSettings _settings = NotificationSettings(
-    notificationEnabled: true,
-  );
+  NotificationSettings _settings = NotificationSettings.defaults();
 
   NotificationSettings get settings => _settings;
 

@@ -1,3 +1,4 @@
 /* English localization */
 "CFBundleDisplayName" = "Bookgolas";
 "CFBundleName" = "Bookgolas";
+"NSUserTrackingUsageDescription" = "We use your device identifier to provide more relevant advertisements.";

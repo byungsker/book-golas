@@ -2,8 +2,14 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
 import { config, validateConfig } from "./config.ts";
 import { ProfileCollector } from "./services/profile-collector.ts";
+import { collectProfileWithConsent } from "./services/profile-consent.ts";
 import { RecommendationService } from "./services/recommendation-service.ts";
 import type { RecommendationResponse } from "./types.ts";
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
+import { acquireAiBudget, aiUsageErrorResponse } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -64,11 +70,17 @@ serve(async (req: Request) => {
       config.supabase.serviceRoleKey,
     );
 
-    console.log(
-      `[recommend-next-books] Collecting profile for user: ${userId}`,
-    );
     const profileCollector = new ProfileCollector(supabase);
-    const profile = await profileCollector.collect(userId);
+    const profileOperation = await collectProfileWithConsent(
+      authClient,
+      user.id,
+      profileCollector,
+      (prompt) => acquireAiBudget(authClient, prompt.length),
+    );
+    if (!profileOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    }
+    const profile = profileOperation.value;
 
     if (profile.books.length === 0) {
       return new Response(
@@ -85,11 +97,20 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(
-      `[recommend-next-books] Generating recommendations (locale: ${locale})...`,
+    const recommendationService = new RecommendationService(
+      (prompt) => acquireAiBudget(authClient, prompt.length),
+      locale,
     );
-    const recommendationService = new RecommendationService(locale);
-    const recommendations = await recommendationService.generate(profile);
+    const recommendationOperation = await executeThirdPartyAiOperation(
+      authClient,
+      user.id,
+      "open_ai",
+      () => recommendationService.generate(profile),
+    );
+    if (!recommendationOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    }
+    const recommendations = recommendationOperation.value;
 
     const response: RecommendationResponse = {
       success: true,
@@ -119,6 +140,8 @@ serve(async (req: Request) => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
+    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
+    if (usageResponse) return usageResponse;
     const errorMessage = error instanceof Error
       ? error.message
       : "Unknown error";

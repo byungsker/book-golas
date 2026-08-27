@@ -1,23 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  type EdgeRequestContext,
-  errorResponse,
-  jsonResponse,
-  withEdgeFunction,
-} from "../_shared/edge-http.ts";
+import { createClient } from "@supabase/supabase-js";
 
-async function handleLogPushClick(
-  req: Request,
-  context: EdgeRequestContext,
-): Promise<Response> {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+function jsonResponse(body: Record<string, unknown>, status: number): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...corsHeaders },
+  });
+}
+
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
   if (req.method !== "POST") {
-    return errorResponse(
-      context,
-      "method_not_allowed",
-      405,
-      "Method not allowed",
-    );
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   try {
@@ -34,7 +38,7 @@ async function handleLogPushClick(
       error: userError,
     } = await authClient.auth.getUser();
     if (userError || !user) {
-      return errorResponse(context, "auth_unauthorized", 401, "Unauthorized");
+      return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
     const { logId, pushType } = await req.json();
@@ -42,12 +46,7 @@ async function handleLogPushClick(
       (typeof logId !== "string" || logId.trim().length === 0) &&
       (typeof pushType !== "string" || pushType.trim().length === 0)
     ) {
-      return errorResponse(
-        context,
-        "validation_error",
-        400,
-        "logId or pushType is required",
-      );
+      return jsonResponse({ error: "logId or pushType is required" }, 400);
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey, {
@@ -63,7 +62,7 @@ async function handleLogPushClick(
         .select("id")
         .maybeSingle();
       if (error) throw error;
-      return jsonResponse({ success: data !== null }, 200, context);
+      return jsonResponse({ success: data !== null }, 200);
     }
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -78,7 +77,7 @@ async function handleLogPushClick(
       .limit(1)
       .maybeSingle();
     if (findError) throw findError;
-    if (!recentLog) return jsonResponse({ success: false }, 200, context);
+    if (!recentLog) return jsonResponse({ success: false }, 200);
 
     const { error: updateError } = await adminClient
       .from("push_logs")
@@ -87,15 +86,9 @@ async function handleLogPushClick(
       .eq("user_id", user.id);
     if (updateError) throw updateError;
 
-    return jsonResponse({ success: true, logId: recentLog.id }, 200, context);
-  } catch {
-    return errorResponse(
-      context,
-      "push_click_logging_failed",
-      500,
-      "Failed to log push click",
-    );
+    return jsonResponse({ success: true, logId: recentLog.id }, 200);
+  } catch (error: unknown) {
+    console.error("Push click logging failed:", error);
+    return jsonResponse({ error: "Failed to log push click" }, 500);
   }
-}
-
-serve(withEdgeFunction("log-push-click", handleLogPushClick));
+});

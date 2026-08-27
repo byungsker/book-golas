@@ -4,6 +4,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { Document } from "@langchain/core/documents";
 import { config } from "../config.ts";
 import { extractKeywords } from "../utils/keyword-extractor.ts";
+import { AI_PROVIDER_TIMEOUT_MS } from "../../_shared/ai-usage.ts";
 
 interface HighlightWithBook {
   content: string;
@@ -17,10 +18,15 @@ interface UserInterests {
 
 export async function extractUserInterests(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  beforeProviderCall: (
+    input: string,
+  ) => Promise<() => Promise<void>>,
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
+    maxRetries: 0,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
   });
 
   const vectorStore = new SupabaseVectorStore(embeddings, {
@@ -30,12 +36,17 @@ export async function extractUserInterests(
   });
 
   const interestQuery = "독서에서 중요하게 생각하는 주제와 개념";
-
-  const results = await vectorStore.similaritySearch(
-    interestQuery,
-    config.rag.topHighlightsCount,
-    { user_id: userId }
-  );
+  const releaseProviderLease = await beforeProviderCall(interestQuery);
+  let results;
+  try {
+    results = await vectorStore.similaritySearch(
+      interestQuery,
+      config.rag.topHighlightsCount,
+      { user_id: userId },
+    );
+  } finally {
+    await releaseProviderLease();
+  }
 
   if (results.length === 0) {
     return { topHighlights: [], keywords: [] };
@@ -51,7 +62,7 @@ export async function extractUserInterests(
     .in("id", bookIds);
 
   const bookTitleMap = new Map<string, string>(
-    books?.map((b: { id: string; title: string }) => [b.id, b.title]) || []
+    books?.map((b: { id: string; title: string }) => [b.id, b.title]) || [],
   );
 
   const topHighlights: HighlightWithBook[] = results.map((doc: Document) => ({
@@ -61,7 +72,7 @@ export async function extractUserInterests(
 
   const keywords = extractKeywords(
     topHighlights.map((h) => h.content).join(" "),
-    config.rag.topKeywordsCount
+    config.rag.topKeywordsCount,
   );
 
   return { topHighlights, keywords };

@@ -2,8 +2,10 @@
 
 ## Demo Account / 심사용 계정
 
-- Email: reviewer@bookgolas.app
-- Password: ReviewBookgolas2026!
+심사용 계정 자격 증명은 저장소에 보관하지 않습니다. App Store Connect의 App Review Information에 승인된 보안 채널로 입력하세요.
+
+- Email: App Store Connect에 보안 입력
+- Password: App Store Connect에 보안 입력
 
 ## Basic App Flow / 앱 기본 사용 흐름
 
@@ -22,6 +24,15 @@ From the book detail screen, add notes and highlights.
 ### 4. AI Recall / AI Recall 사용
 AI Recall 탭에서 질문을 입력하면 내 노트와 하이라이트에서 관련 내용을 검색합니다.
 Go to the AI Recall tab and type a question. The AI searches through your notes and highlights for relevant content.
+
+AI Recall 또는 맞춤 추천 등 OpenAI 기능을 처음 요청하면 이전 항목·국가·시점·방법·법적 수령자·연락처·목적·보유기간·거부 효과를 설명하는 선택 동의 화면이 표시됩니다. 동의하지 않아도 기본 독서 기록 기능을 계속 사용할 수 있습니다.
+The first request for AI Recall, personalized recommendations, or another OpenAI feature shows an optional consent sheet covering transferred items, countries, timing, method, legal recipient, contact, purpose, retention, and refusal effect. Declining does not block basic reading-log features.
+
+OCR을 처음 사용하면 미국 Google Cloud Vision으로 이전되는 책 페이지 이미지와 이전 세부사항을 별도로 안내하고 동의를 받습니다.
+The first use of OCR separately discloses the transfer details for sending a book-page image to Google Cloud Vision in the United States and requests consent.
+
+사용자는 마이페이지의 `AI 데이터 공유` 설정에서 Google Cloud Vision과 OpenAI 동의를 각각 철회할 수 있습니다. 동의 영수증은 계정 단위로 서버에 기록되며 철회 성공이 확인된 뒤 모든 기기에서 시작하는 새 전송이 차단됩니다. 이미 시작된 요청은 완료될 수 있습니다.
+Users can independently withdraw Google Cloud Vision or OpenAI consent under `AI data sharing` in My Page. The receipt is stored server-side for the account. New transfers started on any device after withdrawal is confirmed are blocked; a request already underway may finish.
 
 ### 5. Reading Goals / 독서 목표
 목표 탭에서 연간/월간 독서 목표를 설정하고 달성률을 확인하세요.

@@ -2,152 +2,105 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:book_golas/config/app_config.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 
 class GoogleVisionOcrService {
   static final GoogleVisionOcrService _instance =
-      GoogleVisionOcrService._internal();
+      GoogleVisionOcrService._internal(
+    ThirdPartyAiConsentService(),
+    () => Supabase.instance.client,
+  );
   factory GoogleVisionOcrService() => _instance;
-  GoogleVisionOcrService._internal();
+  GoogleVisionOcrService._internal(
+    this._consentService,
+    this._supabaseProvider,
+  );
 
-  static const String _baseUrl =
-      'https://vision.googleapis.com/v1/images:annotate';
+  GoogleVisionOcrService.withDependencies(
+    this._consentService,
+    SupabaseClient supabaseClient,
+  ) : _supabaseProvider = (() => supabaseClient);
+
+  static const int _maxImageBytes = 8 * 1024 * 1024;
+  final ThirdPartyAiConsentService _consentService;
+  final SupabaseClient Function() _supabaseProvider;
+  String? _lastRequestId;
+
+  SupabaseClient get _supabase => _supabaseProvider();
+  String? get lastRequestId => _lastRequestId;
 
   Future<String?> extractTextFromImageUrl(String imageUrl) async {
-    if (!AppConfig.hasGoogleCloudVisionApiKey) {
-      debugPrint('🔴 OCR: API 키가 설정되지 않았습니다.');
-      return null;
-    }
-
+    _lastRequestId = null;
     try {
-      final response = await http.get(Uri.parse(imageUrl));
+      final response = await http
+          .get(Uri.parse(imageUrl))
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) {
-        debugPrint('🔴 OCR: 이미지 다운로드 실패 - ${response.statusCode}');
+        debugPrint('OCR image download failed: ${response.statusCode}');
         return null;
       }
 
       return await extractTextFromBytes(response.bodyBytes);
-    } catch (e) {
-      debugPrint('🔴 OCR: 이미지 다운로드 에러 - $e');
+    } catch (error) {
+      debugPrint('OCR image download failed: $error');
       return null;
     }
   }
 
   Future<String?> extractTextFromBytes(Uint8List imageBytes) async {
-    if (!AppConfig.hasGoogleCloudVisionApiKey) {
-      debugPrint('🔴 OCR: API 키가 설정되지 않았습니다.');
+    _lastRequestId = null;
+    if (imageBytes.isEmpty || imageBytes.length > _maxImageBytes) {
+      debugPrint('OCR image size is invalid');
       return null;
     }
-
-    final apiKey = AppConfig.googleCloudVisionApiKey;
-    final maskedKey = apiKey.length > 8
-        ? '${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}'
-        : '****';
-    debugPrint('🟡 OCR: API 키 확인 - $maskedKey (길이: ${apiKey.length})');
-    debugPrint('🟡 OCR: 텍스트 추출 시작 (이미지 크기: ${imageBytes.length} bytes)');
 
     try {
-      final base64Image = base64Encode(imageBytes);
-      debugPrint('🟡 OCR: Base64 인코딩 완료 (길이: ${base64Image.length})');
+      final consent = await _consentService
+          .hasConsent(ThirdPartyAiProvider.googleCloudVision);
+      if (!consent) {
+        debugPrint('OCR request blocked because consent is missing');
+        return null;
+      }
 
-      final requestBody = {
-        'requests': [
-          {
-            'image': {
-              'content': base64Image,
-            },
-            'features': [
-              {
-                'type': 'DOCUMENT_TEXT_DETECTION',
-                'maxResults': 1,
-              },
-            ],
-            'imageContext': {
-              'languageHints': ['ko', 'en'],
-            },
-          },
-        ],
-      };
-
-      debugPrint('🟡 OCR: API 호출 중...');
-      final response = await http.post(
-        Uri.parse('$_baseUrl?key=${AppConfig.googleCloudVisionApiKey}'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(requestBody),
+      final response = await _supabase.functions.invoke(
+        'vision-ocr',
+        body: {'imageBase64': base64Encode(imageBytes)},
       );
-
-      debugPrint('🟡 OCR: API 응답 코드 - ${response.statusCode}');
-      debugPrint('🟡 OCR: API 응답 헤더 - ${response.headers}');
-
-      if (response.statusCode != 200) {
-        debugPrint('🔴 OCR: API 에러 (상태코드: ${response.statusCode})');
-        debugPrint('🔴 OCR: API 에러 응답 본문 - ${response.body}');
-
-        try {
-          final errorJson = jsonDecode(response.body) as Map<String, dynamic>;
-          final error = errorJson['error'] as Map<String, dynamic>?;
-          if (error != null) {
-            debugPrint('🔴 OCR: 에러 코드 - ${error['code']}');
-            debugPrint('🔴 OCR: 에러 메시지 - ${error['message']}');
-            debugPrint('🔴 OCR: 에러 상태 - ${error['status']}');
-          }
-        } catch (_) {}
+      _captureRequestId(response.data);
+      if (response.status != 200 || response.data is! Map) {
+        _logRequestFailure();
         return null;
       }
 
-      final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      final responses = jsonResponse['responses'] as List<dynamic>?;
-
-      if (responses == null || responses.isEmpty) {
-        debugPrint('🔴 OCR: 응답이 비어있습니다.');
-        return null;
-      }
-
-      final firstResponse = responses[0] as Map<String, dynamic>;
-
-      // 에러 체크
-      if (firstResponse.containsKey('error')) {
-        debugPrint('🔴 OCR: API 에러 - ${firstResponse['error']}');
-        return null;
-      }
-
-      final fullTextAnnotation =
-          firstResponse['fullTextAnnotation'] as Map<String, dynamic>?;
-
-      if (fullTextAnnotation != null) {
-        final structuredText =
-            _extractFromFullTextAnnotation(fullTextAnnotation);
-        if (structuredText.isNotEmpty) {
-          debugPrint(
-              '🟢 OCR: 구조화된 텍스트 추출 성공 (길이: ${structuredText.length})');
-          return _cleanupExtractedText(structuredText);
-        }
-      }
-
-      final textAnnotations =
-          firstResponse['textAnnotations'] as List<dynamic>?;
-
-      if (textAnnotations == null || textAnnotations.isEmpty) {
-        debugPrint('🟠 OCR: 텍스트가 감지되지 않았습니다.');
-        return null;
-      }
-
-      final fullText = textAnnotations[0]['description'] as String?;
-
-      if (fullText == null || fullText.isEmpty) {
-        debugPrint('🟠 OCR: 추출된 텍스트가 비어있습니다.');
-        return null;
-      }
-
-      debugPrint('🟢 OCR: 텍스트 추출 성공 - fallback (길이: ${fullText.length})');
-      return _cleanupExtractedText(fullText);
-    } catch (e) {
-      debugPrint('🔴 OCR: 예외 발생 - $e');
+      final data = Map<String, dynamic>.from(response.data as Map);
+      final text = data['text']?.toString() ?? '';
+      return text.isEmpty ? null : _cleanupExtractedText(text);
+    } on FunctionException catch (error) {
+      _captureRequestId(error.details);
+      _logRequestFailure();
+      return null;
+    } catch (error) {
+      _logRequestFailure(error);
       return null;
     }
+  }
+
+  void _captureRequestId(Object? payload) {
+    if (payload is! Map) {
+      return;
+    }
+    final requestId = payload['requestId'];
+    if (requestId is String && requestId.isNotEmpty) {
+      _lastRequestId = requestId;
+    }
+  }
+
+  void _logRequestFailure([Object? error]) {
+    final requestId = _lastRequestId;
+    final suffix = requestId == null ? '' : ' (request ID: $requestId)';
+    debugPrint('OCR request failed$suffix${error == null ? '' : ': $error'}');
   }
 
   String _cleanupExtractedText(String rawText) {
@@ -165,90 +118,13 @@ class GoogleVisionOcrService {
     return cleaned;
   }
 
-  String _extractFromFullTextAnnotation(Map<String, dynamic> annotation) {
-    final pages = annotation['pages'] as List<dynamic>?;
-    if (pages == null || pages.isEmpty) {
-      return annotation['text'] as String? ?? '';
-    }
-
-    final paragraphs = <String>[];
-
-    for (final page in pages) {
-      final blocks =
-          (page as Map<String, dynamic>)['blocks'] as List<dynamic>?;
-      if (blocks == null) continue;
-
-      for (final block in blocks) {
-        final blockMap = block as Map<String, dynamic>;
-        final blockType = blockMap['blockType'] as String?;
-        if (blockType != null && blockType != 'TEXT') continue;
-
-        final blockParagraphs =
-            blockMap['paragraphs'] as List<dynamic>?;
-        if (blockParagraphs == null) continue;
-
-        for (final paragraph in blockParagraphs) {
-          final words =
-              (paragraph as Map<String, dynamic>)['words'] as List<dynamic>?;
-          if (words == null) continue;
-
-          final text = _buildParagraphText(words);
-          if (text.isNotEmpty) {
-            paragraphs.add(text);
-          }
-        }
-      }
-    }
-
-    if (paragraphs.isEmpty) {
-      return annotation['text'] as String? ?? '';
-    }
-
-    return paragraphs.join('\n\n');
-  }
-
-  String _buildParagraphText(List<dynamic> words) {
-    final buffer = StringBuffer();
-
-    for (final word in words) {
-      final symbols =
-          (word as Map<String, dynamic>)['symbols'] as List<dynamic>?;
-      if (symbols == null) continue;
-
-      for (final symbol in symbols) {
-        final symbolMap = symbol as Map<String, dynamic>;
-        final text = symbolMap['text'] as String?;
-        if (text != null) {
-          buffer.write(text);
-        }
-
-        final property =
-            symbolMap['property'] as Map<String, dynamic>?;
-        final detectedBreak =
-            property?['detectedBreak'] as Map<String, dynamic>?;
-        if (detectedBreak != null) {
-          final breakType = detectedBreak['type'] as String?;
-          if (breakType == 'SPACE' ||
-              breakType == 'SURE_SPACE' ||
-              breakType == 'EOL_SURE_SPACE' ||
-              breakType == 'LINE_BREAK') {
-            buffer.write(' ');
-          } else if (breakType == 'HYPHEN') {
-            buffer.write('-');
-          }
-        }
-      }
-    }
-
-    return buffer.toString().trim();
-  }
-
   String getPreviewText(String? fullText, {int maxLines = 2}) {
     if (fullText == null || fullText.isEmpty) {
       return '';
     }
 
-    final lines = fullText.split('\n').where((line) => line.trim().isNotEmpty).toList();
+    final lines =
+        fullText.split('\n').where((line) => line.trim().isNotEmpty).toList();
 
     if (lines.isEmpty) {
       return '';

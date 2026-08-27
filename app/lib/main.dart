@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/theme/system_ui_overlay_style.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +29,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
+import 'data/services/ad_service.dart';
+import 'data/services/age_policy_service.dart';
 import 'data/services/deep_link_service.dart';
 import 'data/services/fcm_service.dart';
 import 'data/services/notification_settings_service.dart';
@@ -116,23 +118,9 @@ class AppBootstrap extends StatelessWidget {
     try {
       debugPrint('🚀 초기화 시작');
 
-      // .env 파일 로드
-      debugPrint('📄 .env 파일 로드 시작');
-      try {
-        await dotenv.load(fileName: ".env");
-        debugPrint('✅ .env 파일 로드 완료');
-      } catch (e) {
-        debugPrint('⚠️ .env 파일 로드 실패: $e');
-        // .env 파일이 없어도 계속 진행 (환경변수로 대체 가능)
-      }
-
-      debugPrint('🔑 API 키 검증 시작');
-      try {
-        AppConfig.validateApiKeys();
-        debugPrint('✅ API 키 검증 완료');
-      } catch (e) {
-        debugPrint('⚠️ API 키 검증 실패: $e');
-      }
+      debugPrint('🔑 런타임 설정 검증 시작');
+      AppConfig.validateRuntimeConfig();
+      debugPrint('✅ 런타임 설정 검증 완료');
 
       // Firebase 초기화 (이미 초기화되어 있으면 스킵)
       debugPrint('🔥 Firebase 초기화 시작');
@@ -157,8 +145,11 @@ class AppBootstrap extends StatelessWidget {
       await Supabase.initialize(
         url: AppConfig.supabaseUrl,
         anonKey: AppConfig.supabaseAnonKey,
-        realtimeClientOptions: const RealtimeClientOptions(
-          logLevel: RealtimeLogLevel.info,
+        authOptions: DeepLinkAuthConfiguration.supabaseOptions,
+        realtimeClientOptions: RealtimeClientOptions(
+          logLevel: AppConfig.isProduction
+              ? RealtimeLogLevel.error
+              : RealtimeLogLevel.info,
         ),
       );
       debugPrint('✅ Supabase 초기화 성공');
@@ -173,6 +164,8 @@ class AppBootstrap extends StatelessWidget {
       // OnboardingViewModel 프리로드
       debugPrint('👋 온보딩 설정 프리로드 시작');
       await OnboardingViewModel.preloadPreferences();
+
+      await AdService().agePolicyService.load();
 
       // ThemeViewModel 프리로드
       debugPrint('🎨 테마 설정 프리로드 시작');
@@ -278,6 +271,9 @@ class MyApp extends StatelessWidget {
         Provider<NoteStructureService>(create: (_) => NoteStructureService()),
         Provider<SubscriptionService>(create: (_) => SubscriptionService()),
         Provider<WidgetDataService>(create: (_) => WidgetDataService()),
+        ChangeNotifierProvider<AgePolicyService>.value(
+          value: AdService().agePolicyService,
+        ),
         // === Repositories ===
         Provider<BookRepository>(
           create: (context) => BookRepositoryImpl(context.read<BookService>()),
@@ -303,7 +299,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider<BookListViewModel>(
-          create: (_) => BookListViewModel(),
+          create: (context) => BookListViewModel(
+            bookService: context.read<BookService>(),
+          ),
         ),
         ChangeNotifierProvider<CalendarViewModel>(
           create: (context) =>
@@ -337,6 +335,14 @@ class MyApp extends StatelessWidget {
             themeMode: themeViewModel.themeMode,
             theme: BLabTheme.light,
             darkTheme: BLabTheme.dark,
+            builder: (context, child) {
+              return ThemeAwareSystemUiOverlay(
+                brightness: themeViewModel.isDarkMode
+                    ? Brightness.dark
+                    : Brightness.light,
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
             locale: localeViewModel.locale,
             localizationsDelegates: const [
               AppLocalizations.delegate,
@@ -363,6 +369,20 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkService.init(navigatorKey: navigatorKey);
+    });
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer2<AuthViewModel, OnboardingViewModel>(
       builder: (context, authViewModel, onboardingViewModel, _) {
@@ -378,8 +398,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         if (onboardingViewModel.shouldShowOnboarding) {
           return OnboardingScreen(
-            onComplete: () {
-              onboardingViewModel.completeOnboarding();
+            onComplete: (agePolicyStatus) async {
+              final saved = await context
+                  .read<AgePolicyService>()
+                  .setStatus(agePolicyStatus);
+              if (saved) {
+                await onboardingViewModel.completeOnboarding();
+              }
+              return saved;
             },
           );
         }
@@ -409,6 +435,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
+    DeepLinkService.markNavigationUnavailable();
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     super.dispose();
@@ -440,14 +467,13 @@ class _MainScreenState extends State<MainScreen>
     // 인증 완료 후 BookListViewModel 초기화 및 FCM 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<BookListViewModel>().initialize();
-
-      DeepLinkService.init(context, navigatorKey: navigatorKey);
-
       final subscriptionService = context.read<SubscriptionService>();
       final subscriptionViewModel = context.read<SubscriptionViewModel>();
       final adViewModel = context.read<AdViewModel>();
       final notificationSettingsService =
           context.read<NotificationSettingsService>();
+
+      await DeepLinkService.markNavigationReady();
 
       if (FeatureFlags.paidSubscriptionsEnabled) {
         final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -466,6 +492,7 @@ class _MainScreenState extends State<MainScreen>
       await adViewModel.initialize();
 
       await FCMService().initialize();
+      await FCMService().cancelLegacyScheduledReminders();
       debugPrint('FCM 서비스 초기화 완료');
 
       // 알림 터치 시 책 상세 페이지로 이동 (딥링크 지원)
@@ -482,7 +509,7 @@ class _MainScreenState extends State<MainScreen>
           }
 
           Book? book;
-          final String? bookId = payload?['bookId'];
+          final bookId = extractNotificationBookId(payload);
 
           // 1. bookId가 있으면 해당 책 조회
           if (bookId != null) {
@@ -544,7 +571,10 @@ class _MainScreenState extends State<MainScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookDetailScreen(book: targetBook),
+                builder: (context) => BookDetailScreen(
+                  book: targetBook,
+                  initialTabIndex: 0,
+                ),
               ),
             );
           }

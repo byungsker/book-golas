@@ -96,6 +96,12 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final completionBackgroundColor = isDark
+        ? BLabColors.success.withValues(alpha: 0.18)
+        : BLabColors.successBg;
+    final completionForegroundColor =
+        isDark ? BLabColors.success : BLabColors.textPrimaryLight;
 
     final completedDate = widget.book.updatedAt ?? DateTime.now();
     final daysToComplete =
@@ -118,6 +124,9 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
           ],
         ),
         child: Row(
+          crossAxisAlignment: isLargeText
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             Container(
               width: 60,
@@ -158,127 +167,197 @@ class _CompletedBookCardState extends State<CompletedBookCard> {
                     runSpacing: 6,
                     children: [
                       Container(
+                        key: const Key('completedBookCompletionBadge'),
+                        width: isLargeText ? double.infinity : null,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: BLabColors.success.withValues(alpha: 0.1),
+                          color: completionBackgroundColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              CupertinoIcons.checkmark_seal_fill,
-                              size: 14,
-                              color: BLabColors.success,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              daysToComplete > 0
-                                  ? l10n.bookListCompletedIn(daysToComplete)
-                                  : l10n.bookListCompletedSameDay,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: BLabColors.success,
-                              ),
-                            ),
-                          ],
+                        child: _buildBadgeContent(
+                          icon: CupertinoIcons.checkmark_seal_fill,
+                          label: daysToComplete > 0
+                              ? l10n.bookListCompletedIn(daysToComplete)
+                              : l10n.bookListCompletedSameDay,
+                          color: completionForegroundColor,
+                          isLargeText: isLargeText,
+                          iconSize: 14,
+                          fontSize: 12,
+                          spacing: 6,
                         ),
                       ),
                       if (_achievementRate != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _achievementRate! >= 80
-                                ? BLabColors.successBg
-                                : _achievementRate! >= 50
-                                    ? BLabColors.amber
-                                    : BLabColors.errorBg,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _achievementRate! >= 80
-                                    ? CupertinoIcons.star_fill
-                                    : _achievementRate! >= 50
-                                        ? CupertinoIcons.hand_thumbsup_fill
-                                        : CupertinoIcons.flame_fill,
-                                size: 12,
-                                color: _achievementRate! >= 80
-                                    ? BLabColors.success
-                                    : _achievementRate! >= 50
-                                        ? BLabColors.dangerAlt
-                                        : BLabColors.danger,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                l10n.bookListAchievementRate(_achievementRate!),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: _achievementRate! >= 80
-                                      ? BLabColors.success
-                                      : _achievementRate! >= 50
-                                          ? BLabColors.dangerAlt
-                                          : BLabColors.danger,
-                                ),
-                              ),
-                            ],
-                          ),
+                        CompletedBookAchievementBadge(
+                          rate: _achievementRate!,
                         ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.book_fill,
-                        size: 12,
-                        color: isDark ? Colors.grey[500] : Colors.grey[400],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${widget.book.totalPages} ${l10n.unitPages}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  if (isLargeText)
+                    Column(
+                      children: [
+                        _buildMetadataItem(
+                          icon: CupertinoIcons.book_fill,
+                          label: '${widget.book.totalPages} ${l10n.unitPages}',
+                          isDark: isDark,
+                          isExpanded: true,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(
-                        CupertinoIcons.checkmark_circle_fill,
-                        size: 12,
-                        color: isDark ? Colors.grey[500] : Colors.grey[400],
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          l10n.bookListCompletedDate(
+                        const SizedBox(height: 6),
+                        _buildMetadataItem(
+                          icon: CupertinoIcons.checkmark_circle_fill,
+                          label: l10n.bookListCompletedDate(
                               '${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}'),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                          isDark: isDark,
+                          isExpanded: true,
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        _buildMetadataItem(
+                          icon: CupertinoIcons.book_fill,
+                          label: '${widget.book.totalPages} ${l10n.unitPages}',
+                          isDark: isDark,
+                        ),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: _buildMetadataItem(
+                            icon: CupertinoIcons.checkmark_circle_fill,
+                            label: l10n.bookListCompletedDate(
+                                '${completedDate.year}.${completedDate.month.toString().padLeft(2, '0')}.${completedDate.day.toString().padLeft(2, '0')}'),
+                            isDark: isDark,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-              size: 18,
+            Padding(
+              padding: EdgeInsets.only(top: isLargeText ? 4 : 0),
+              child: Icon(
+                CupertinoIcons.chevron_right,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+                size: 18,
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildMetadataItem({
+    required IconData icon,
+    required String label,
+    required bool isDark,
+    bool isExpanded = false,
+    TextOverflow? overflow,
+  }) {
+    final text = Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        color: isDark ? Colors.grey[400] : Colors.grey[600],
+      ),
+      overflow: overflow,
+    );
+
+    return Row(
+      mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(
+            icon,
+            size: 12,
+            color: isDark ? Colors.grey[500] : Colors.grey[400],
+          ),
+        ),
+        const SizedBox(width: 4),
+        if (isExpanded)
+          Expanded(child: text)
+        else if (overflow != null)
+          Flexible(child: text)
+        else
+          text,
+      ],
+    );
+  }
+}
+
+class CompletedBookAchievementBadge extends StatelessWidget {
+  final int rate;
+
+  const CompletedBookAchievementBadge({
+    super.key,
+    required this.rate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final backgroundColor = rate >= 80
+        ? BLabColors.successBg
+        : rate >= 50
+            ? BLabColors.amber
+            : BLabColors.errorBg;
+    final icon = rate >= 80
+        ? CupertinoIcons.star_fill
+        : rate >= 50
+            ? CupertinoIcons.hand_thumbsup_fill
+            : CupertinoIcons.flame_fill;
+
+    return Container(
+      key: const Key('completedBookAchievementBadge'),
+      width: isLargeText ? double.infinity : null,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: _buildBadgeContent(
+        icon: icon,
+        label: l10n.bookListAchievementRate(rate),
+        color: BLabColors.textPrimaryLight,
+        isLargeText: isLargeText,
+        iconSize: 12,
+        fontSize: 11,
+        spacing: 4,
+      ),
+    );
+  }
+}
+
+Widget _buildBadgeContent({
+  required IconData icon,
+  required String label,
+  required Color color,
+  required bool isLargeText,
+  required double iconSize,
+  required double fontSize,
+  required double spacing,
+}) {
+  final text = Text(
+    label,
+    style: TextStyle(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: color,
+    ),
+  );
+
+  return Row(
+    mainAxisSize: isLargeText ? MainAxisSize.max : MainAxisSize.min,
+    children: [
+      Icon(icon, size: iconSize, color: color),
+      SizedBox(width: spacing),
+      if (isLargeText) Expanded(child: text) else Flexible(child: text),
+    ],
+  );
 }

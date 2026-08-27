@@ -321,7 +321,7 @@ struct BookgolasSmallWidgetView: View {
         if entry.isEmpty {
             EmptyStateView(isSmall: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .widgetURL(URL(string: "bookgolas://book/search"))
+                .widgetURL(URL(string: "bookgolas://book/search?homeWidget=true"))
         } else {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 10) {
@@ -353,7 +353,7 @@ struct BookgolasSmallWidgetView: View {
             }
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)"))
+            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true"))
         }
     }
 }
@@ -394,21 +394,21 @@ struct QuickActionSmallWidgetView: View {
                 "book.fill",
                 NSLocalizedString("widget_action_open_book", tableName: nil, bundle: .main, value: "Continue Reading", comment: ""),
                 entry.isEmpty ? "" : entry.displayTitle,
-                entry.isEmpty ? nil : URL(string: "bookgolas://book/detail/\(entry.bookId)")
+                entry.isEmpty ? nil : URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true")
             )
         case "scan":
             return (
                 "doc.viewfinder",
                 NSLocalizedString("widget_action_scan_page", tableName: nil, bundle: .main, value: "Scan Page", comment: ""),
                 entry.isEmpty ? "" : entry.displayTitle,
-                entry.isEmpty ? nil : URL(string: "bookgolas://book/scan/\(entry.bookId)")
+                entry.isEmpty ? nil : URL(string: "bookgolas://book/scan/\(entry.bookId)?homeWidget=true")
             )
         case "add":
             return (
                 "plus.circle",
                 NSLocalizedString("widget_action_add_book", tableName: nil, bundle: .main, value: "Add Book", comment: ""),
                 "",
-                URL(string: "bookgolas://book/search")
+                URL(string: "bookgolas://book/search?homeWidget=true")
             )
         default:
             return ("book.fill", "Book", "", nil)
@@ -425,7 +425,7 @@ struct BookgolasMediumWidgetView: View {
         if entry.isEmpty {
             EmptyStateView(isSmall: false)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .widgetURL(URL(string: "bookgolas://book/search"))
+                .widgetURL(URL(string: "bookgolas://book/search?homeWidget=true"))
         } else {
             HStack(spacing: 12) {
                 CoverImageView(
@@ -472,17 +472,17 @@ struct BookgolasMediumWidgetView: View {
                     QuickActionButton(
                         systemImage: "book.fill",
                         label: NSLocalizedString("widget_action_book", tableName: nil, bundle: .main, value: "Book", comment: ""),
-                        url: URL(string: "bookgolas://book/detail/\(entry.bookId)")
+                        url: URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true")
                     )
                     QuickActionButton(
                         systemImage: "doc.viewfinder",
                         label: NSLocalizedString("widget_action_scan", tableName: nil, bundle: .main, value: "Scan", comment: ""),
-                        url: URL(string: "bookgolas://book/scan/\(entry.bookId)")
+                        url: URL(string: "bookgolas://book/scan/\(entry.bookId)?homeWidget=true")
                     )
                     QuickActionButton(
                         systemImage: "plus.circle",
                         label: NSLocalizedString("widget_action_add", tableName: nil, bundle: .main, value: "Add", comment: ""),
-                        url: URL(string: "bookgolas://book/search")
+                        url: URL(string: "bookgolas://book/search?homeWidget=true")
                     )
                 }
                 .frame(width: 52)
@@ -619,7 +619,7 @@ struct BookgolasLockScreenCircularView: View {
                     .font(.system(size: 10, weight: .semibold))
             }
             .gaugeStyle(.accessoryCircular)
-            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)"))
+            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true"))
         } else {
             ZStack {
                 AccessoryWidgetBackground()
@@ -652,7 +652,7 @@ struct BookgolasLockScreenRectangularView: View {
                 }
                 .gaugeStyle(.accessoryLinear)
             }
-            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)"))
+            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true"))
         } else {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Bookgolas")
@@ -678,7 +678,7 @@ struct BookgolasLockScreenInlineView: View {
                 Label("\u{1F4D6} \(title) p.\(entry.currentPage)/\(entry.totalPages)", systemImage: "")
                 Label("p.\(entry.currentPage)/\(entry.totalPages)", systemImage: "book.fill")
             }
-            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)"))
+            .widgetURL(URL(string: "bookgolas://book/detail/\(entry.bookId)?homeWidget=true"))
         } else {
             Label("Bookgolas", systemImage: "book.fill")
         }
