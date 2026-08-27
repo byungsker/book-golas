@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
-import 'package:book_golas/ui/core/theme/app_colors.dart';
+import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
 
 class PageUpdateResult {
   final int? page;
@@ -25,7 +27,6 @@ class PageUpdateModal {
     bool isTimerFlow = false,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final TextEditingController pageController = TextEditingController();
     final l10n = AppLocalizations.of(context);
 
     final result = await showModalBottomSheet<PageUpdateResult>(
@@ -35,32 +36,40 @@ class PageUpdateModal {
       isDismissible: false,
       enableDrag: false,
       useRootNavigator: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            24,
-            24,
-            24 + MediaQuery.of(sheetContext).viewPadding.bottom,
+      builder: (sheetContext) {
+        final mediaQuery = MediaQuery.of(sheetContext);
+        final keyboardInset = mediaQuery.viewInsets.bottom;
+        final maxHeight =
+            (mediaQuery.size.height - keyboardInset - mediaQuery.padding.top)
+                .clamp(0.0, mediaQuery.size.height)
+                .toDouble();
+
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(bottom: keyboardInset),
+          child: Container(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            decoration: BoxDecoration(
+              color: isDark ? _darkBg : Colors.white,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: _PageUpdateModalContent(
+                isDark: isDark,
+                l10n: l10n,
+                currentPage: currentPage,
+                totalPages: totalPages,
+                readingDuration: readingDuration,
+                isTimerFlow: isTimerFlow,
+              ),
+            ),
           ),
-          decoration: BoxDecoration(
-            color: isDark ? _darkBg : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: _PageUpdateModalContent(
-            isDark: isDark,
-            pageController: pageController,
-            l10n: l10n,
-            currentPage: currentPage,
-            totalPages: totalPages,
-            readingDuration: readingDuration,
-            isTimerFlow: isTimerFlow,
-          ),
-        ),
-      ),
+        );
+      },
     );
 
     return result ?? PageUpdateResult.cancelled;
@@ -69,7 +78,6 @@ class PageUpdateModal {
 
 class _PageUpdateModalContent extends StatefulWidget {
   final bool isDark;
-  final TextEditingController pageController;
   final AppLocalizations l10n;
   final int? currentPage;
   final int? totalPages;
@@ -78,7 +86,6 @@ class _PageUpdateModalContent extends StatefulWidget {
 
   const _PageUpdateModalContent({
     required this.isDark,
-    required this.pageController,
     required this.l10n,
     this.currentPage,
     this.totalPages,
@@ -93,6 +100,7 @@ class _PageUpdateModalContent extends StatefulWidget {
 
 class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   String? _errorText;
+  late final TextEditingController _pageController;
   late FixedExtentScrollController _wheelController;
   int _selectedPage = 0;
   bool _updatingFromWheel = false;
@@ -101,12 +109,17 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   void initState() {
     super.initState();
     final start = (widget.currentPage ?? 0) + 1;
+    final hasPageInfo = widget.currentPage != null && widget.totalPages != null;
     _selectedPage = start;
+    _pageController = TextEditingController(
+      text: hasPageInfo ? start.toString() : '',
+    );
     _wheelController = FixedExtentScrollController(initialItem: 0);
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _wheelController.dispose();
     super.dispose();
   }
@@ -143,7 +156,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   }
 
   void _handleUpdate() {
-    final pageText = widget.pageController.text.trim();
+    final pageText = _pageController.text.trim();
     final page = int.tryParse(pageText);
 
     if (page == null || page <= 0) return;
@@ -154,12 +167,15 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
       return;
     }
 
-    Navigator.of(context, rootNavigator: true)
-        .pop(PageUpdateResult(page: page));
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pop(PageUpdateResult(page: page));
   }
 
   Widget _buildDialPicker() {
     return Container(
+      key: const ValueKey('page-update-dial'),
       height: 120,
       decoration: BoxDecoration(
         color: widget.isDark ? BLabColors.subtleDark : Colors.grey[100],
@@ -191,7 +207,7 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
                 _updatingFromWheel = true;
                 setState(() {
                   _selectedPage = value;
-                  widget.pageController.text = value.toString();
+                  _pageController.text = value.toString();
                   _errorText = _validatePage(value.toString());
                 });
                 _updatingFromWheel = false;
@@ -231,197 +247,160 @@ class _PageUpdateModalContentState extends State<_PageUpdateModalContent> {
   @override
   Widget build(BuildContext context) {
     final hasPageInfo = widget.currentPage != null && widget.totalPages != null;
+    final isLargeText = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: widget.isDark ? Colors.grey[700] : Colors.grey[300],
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(height: 24),
-        if (widget.readingDuration != null) ...[
+    return SingleChildScrollView(
+      key: const ValueKey('page-update-modal-scroll'),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _formatReadingComplete(widget.readingDuration!),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.green,
-              ),
+              color: widget.isDark ? Colors.grey[700] : Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(height: 24),
-        ],
-        Text(
-          widget.l10n.pageUpdateDialogTitle,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: widget.isDark ? Colors.white : Colors.black,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (hasPageInfo)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.l10n.currentPageLabel(widget.currentPage!),
+          if (widget.readingDuration != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _formatReadingComplete(widget.readingDuration!),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: BLabColors.primary,
+                  color: Colors.green,
                 ),
               ),
-              const SizedBox(width: 6),
-              Text(
-                widget.l10n.totalPageLabel(widget.totalPages!),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-            ],
-          )
-        else
+            ),
+            const SizedBox(height: 24),
+          ],
           Text(
-            widget.l10n.pageUpdateValidationRequired,
-            textAlign: TextAlign.center,
+            widget.l10n.pageUpdateDialogTitle,
             style: TextStyle(
-              fontSize: 14,
-              color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: widget.isDark ? Colors.white : Colors.black,
             ),
           ),
-        if (hasPageInfo) ...[
-          const SizedBox(height: 20),
-          _buildDialPicker(),
-        ],
-        const SizedBox(height: 16),
-        TextField(
-          controller: widget.pageController,
-          keyboardType: TextInputType.number,
-          autofocus: !hasPageInfo,
-          textAlign: TextAlign.center,
-          onChanged: (value) {
-            setState(() {
-              _errorText = _validatePage(value);
-            });
-            if (!_updatingFromWheel) {
-              final parsed = int.tryParse(value);
-              if (parsed != null && parsed >= _minPage && parsed <= _maxPage) {
-                _selectedPage = parsed;
-                _wheelController.jumpToItem(parsed - _minPage);
+          const SizedBox(height: 8),
+          if (hasPageInfo)
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                Text(
+                  widget.l10n.currentPageLabel(widget.currentPage!),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: BLabColors.primary,
+                  ),
+                ),
+                Text(
+                  widget.l10n.totalPageLabel(widget.totalPages!),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              widget.l10n.pageUpdateValidationRequired,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          if (hasPageInfo && !isLargeText) ...[
+            const SizedBox(height: 20),
+            _buildDialPicker(),
+          ],
+          const SizedBox(height: 16),
+          BLabTextField(
+            key: const ValueKey('page-update-input'),
+            controller: _pageController,
+            keyboardType: TextInputType.number,
+            autofocus: !hasPageInfo,
+            textAlign: TextAlign.center,
+            onChanged: (value) {
+              setState(() {
+                _errorText = _validatePage(value);
+              });
+              if (!_updatingFromWheel) {
+                final parsed = int.tryParse(value);
+                if (parsed != null &&
+                    parsed >= _minPage &&
+                    parsed <= _maxPage) {
+                  _selectedPage = parsed;
+                  _wheelController.jumpToItem(parsed - _minPage);
+                }
               }
-            }
-          },
-          onSubmitted: (_) => _handleUpdate(),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: widget.isDark ? Colors.white : Colors.black,
-          ),
-          decoration: InputDecoration(
+            },
+            onSubmitted: (_) => _handleUpdate(),
+            textStyle: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: widget.isDark ? Colors.white : Colors.black,
+            ),
             hintText: hasPageInfo
                 ? '${widget.currentPage! + 1} ~ ${widget.totalPages}'
                 : widget.l10n.pageInputHint,
-            hintStyle: TextStyle(
-              color: widget.isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            suffixText: 'p',
+            semanticLabel: widget.l10n.pageUpdateNewPageLabel,
+            errorText: _errorText,
+            suffixText: widget.l10n.pageAbbreviation,
             suffixStyle: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: widget.isDark ? Colors.grey[500] : Colors.grey[500],
+              color: Colors.grey[500],
             ),
-            errorText: _errorText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: widget.isDark
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.1),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: _errorText != null ? Colors.red : BLabColors.primary,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 2),
-            ),
+            showClearButton: false,
           ),
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: GestureDetector(
-            onTap: _handleUpdate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: BLabColors.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                widget.l10n.pageUpdateButton,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+          const SizedBox(height: 24),
+          BLabButton(
+            key: const ValueKey('page-update-submit'),
+            text: widget.l10n.pageUpdateButton,
+            onPressed: _handleUpdate,
+            isFullWidth: true,
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: GestureDetector(
-            onTap: () {
+          const SizedBox(height: 8),
+          BLabButton(
+            key: const ValueKey('page-update-cancel'),
+            text: widget.isTimerFlow
+                ? widget.l10n.timerDidNotRead
+                : widget.l10n.commonCancel,
+            onPressed: () {
               if (widget.isTimerFlow) {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(PageUpdateResult.notRead);
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pop(PageUpdateResult.notRead);
               } else {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(PageUpdateResult.cancelled);
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pop(PageUpdateResult.cancelled);
               }
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                widget.isTimerFlow
-                    ? widget.l10n.timerDidNotRead
-                    : widget.l10n.commonCancel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: widget.isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-            ),
+            variant: BLabButtonVariant.secondary,
+            isFullWidth: true,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

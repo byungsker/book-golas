@@ -1,3 +1,9 @@
 /* English localization */
 "CFBundleDisplayName" = "Bookgolas";
 "CFBundleName" = "Bookgolas";
+"NSCameraUsageDescription" = "Camera access is required to scan book pages.";
+"NSPhotoLibraryUsageDescription" = "Photo library access is required to select a profile image or book page image.";
+"NSPhotoLibraryAddUsageDescription" = "Photo library access is required to save scanned images.";
+"QUICK_ACTION_CONTINUE_READING" = "Continue Reading";
+"QUICK_ACTION_SCAN_PAGE" = "Scan Page";
+"QUICK_ACTION_ADD_BOOK" = "Add Book";

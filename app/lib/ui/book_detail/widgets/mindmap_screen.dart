@@ -2,10 +2,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/book_detail/view_model/note_structure_view_model.dart';
 import 'package:book_golas/ui/book_detail/widgets/note_structure_mindmap.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
+import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
+
+Future<bool> runMindMapRegenerationAfterConsent({
+  required Future<bool> consent,
+  required bool Function() isMounted,
+  required Future<void> Function() regenerate,
+}) async {
+  final allowed = await consent;
+  if (!allowed || !isMounted()) return false;
+  await regenerate();
+  return true;
+}
 
 class MindmapScreen extends StatefulWidget {
   final String bookId;
@@ -24,12 +38,31 @@ class MindmapScreen extends StatefulWidget {
 }
 
 class _MindmapScreenState extends State<MindmapScreen> {
+  bool _consentRequired = false;
+
   @override
   void initState() {
     super.initState();
     if (widget.noteStructureVm.structure == null) {
-      widget.noteStructureVm.loadStructure(widget.bookId);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _loadStructure();
+      });
     }
+  }
+
+  Future<void> _loadStructure() async {
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      feature: ThirdPartyAiFeature.mindMap,
+    );
+    if (!mounted) return;
+    if (!consent) {
+      setState(() => _consentRequired = true);
+      return;
+    }
+    setState(() => _consentRequired = false);
+    await widget.noteStructureVm.loadStructure(widget.bookId);
   }
 
   @override
@@ -79,6 +112,10 @@ class _MindmapScreenState extends State<MindmapScreen> {
         body: SafeArea(
           child: Consumer<NoteStructureViewModel>(
             builder: (context, vm, _) {
+              if (_consentRequired) {
+                return _buildConsentRequiredState(isDark);
+              }
+
               if (vm.isLoading) {
                 return _buildLoadingState(isDark);
               }
@@ -100,6 +137,55 @@ class _MindmapScreenState extends State<MindmapScreen> {
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConsentRequiredState(bool isDark) {
+    final l10n = AppLocalizations.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.account_tree_outlined,
+              size: 56,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.thirdPartyAiMindMapConsentRequiredTitle,
+              textAlign: TextAlign.center,
+              style: AppTypography.headline6.copyWith(
+                color: BLabColors.textPrimary(context),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.thirdPartyAiMindMapConsentRequiredDescription,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodyMedium.copyWith(
+                color: BLabColors.textSecondary(context),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            BLabButton(
+              text: l10n.thirdPartyAiMindMapConsentRequiredAction,
+              onPressed: _loadStructure,
+              child: Text(
+                l10n.thirdPartyAiMindMapConsentRequiredAction,
+                textAlign: TextAlign.center,
+                style: AppTypography.buttonMedium.copyWith(
+                  color: BLabColors.textPrimaryLight,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -237,21 +323,27 @@ class _MindmapScreenState extends State<MindmapScreen> {
   }
 
   Future<void> _regenerate(NoteStructureViewModel vm) async {
-    await vm.regenerateStructure(widget.bookId);
-    if (mounted) {
-      if (vm.errorMessage != null) {
-        CustomSnackbar.show(
-          context,
-          message: '구조화 실패',
-          type: BLabSnackbarType.error,
-        );
-      } else {
-        CustomSnackbar.show(
-          context,
-          message: '마인드맵이 갱신되었습니다',
-          type: BLabSnackbarType.success,
-        );
-      }
+    final regenerated = await runMindMapRegenerationAfterConsent(
+      consent: requestThirdPartyAiConsent(
+        context: context,
+        feature: ThirdPartyAiFeature.mindMap,
+      ),
+      isMounted: () => mounted,
+      regenerate: () => vm.regenerateStructure(widget.bookId),
+    );
+    if (!regenerated || !mounted) return;
+    if (vm.errorMessage != null) {
+      CustomSnackbar.show(
+        context,
+        message: '구조화 실패',
+        type: BLabSnackbarType.error,
+      );
+    } else {
+      CustomSnackbar.show(
+        context,
+        message: '마인드맵이 갱신되었습니다',
+        type: BLabSnackbarType.success,
+      );
     }
   }
 }

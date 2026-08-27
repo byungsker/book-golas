@@ -2,6 +2,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "@supabase/supabase-js";
 import { ChainService } from "./services/chain-service.ts";
 import type { NoteStructure } from "./types.ts";
+import {
+  executeThirdPartyAiOperation,
+  thirdPartyAiConsentRequiredResponse,
+} from "../_shared/third-party-ai-consent.ts";
+import {
+  acquireAiBudget,
+  aiUsageErrorResponse,
+  assertAiInputSize,
+} from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const MIN_CONTENT_COUNT = 5;
@@ -104,11 +113,30 @@ serve(async (req: Request) => {
       );
     }
 
-    const chainService = new ChainService(OPENAI_API_KEY);
-    const structure: NoteStructure = await chainService.generateStructure({
-      bookId,
-      contents,
-    });
+    const inputChars = contents.reduce(
+      (total, content) => total + content.content_text.length,
+      0,
+    );
+    assertAiInputSize(inputChars);
+    const chainService = new ChainService(
+      OPENAI_API_KEY,
+      (prompt) => {
+        assertAiInputSize(prompt.length);
+        return acquireAiBudget(supabaseClient, prompt.length);
+      },
+    );
+    const structureOperation = await executeThirdPartyAiOperation(
+      supabaseClient,
+      user.id,
+      "open_ai",
+      () => chainService.generateStructure({ bookId, contents }),
+    );
+    if (!structureOperation.allowed) {
+      return thirdPartyAiConsentRequiredResponse({
+        "Access-Control-Allow-Origin": "*",
+      });
+    }
+    const structure: NoteStructure = structureOperation.value;
 
     const { error: upsertError } = await serviceClient
       .from("note_structures")
@@ -137,6 +165,10 @@ serve(async (req: Request) => {
       },
     });
   } catch (error) {
+    const usageResponse = aiUsageErrorResponse(error, {
+      "Access-Control-Allow-Origin": "*",
+    });
+    if (usageResponse) return usageResponse;
     console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: (error as Error).message }),

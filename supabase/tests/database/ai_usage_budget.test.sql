@@ -1,0 +1,288 @@
+BEGIN;
+
+SELECT plan(18);
+
+INSERT INTO auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_app_meta_data,
+  raw_user_meta_data
+) VALUES
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '55555555-5555-5555-5555-555555555555',
+    'authenticated',
+    'authenticated',
+    'ai-budget-a@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '66666666-6666-6666-6666-666666666666',
+    'authenticated',
+    'authenticated',
+    'ai-budget-b@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '77777777-7777-7777-7777-777777777777',
+    'authenticated',
+    'authenticated',
+    'ai-budget-concurrency@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '88888888-8888-8888-8888-888888888888',
+    'authenticated',
+    'authenticated',
+    'ai-budget-quota@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '99999999-9999-9999-9999-999999999999',
+    'authenticated',
+    'authenticated',
+    'ai-budget-input@example.com',
+    '',
+    now(),
+    now(),
+    now(),
+    '{"provider":"email","providers":["email"]}',
+    '{}'
+  );
+
+SET LOCAL ROLE authenticated;
+SET LOCAL request.jwt.claim.sub =
+  '55555555-5555-5555-5555-555555555555';
+
+SELECT ok(
+  (public.consume_ai_usage(10)->>'allowed')::boolean,
+  'authenticated user can consume an AI budget unit'
+);
+
+SELECT results_eq(
+  $$
+    SELECT (public.consume_ai_usage(20001)->>'reason')
+  $$,
+  ARRAY['input_too_large'::text],
+  'oversized input is rejected before usage is recorded'
+);
+
+SELECT ok(
+  position('FOR UPDATE' IN pg_get_functiondef('public.consume_ai_usage(integer)'::regprocedure)) > 0,
+  'budget function locks the user bucket for concurrent calls'
+);
+
+SET LOCAL request.jwt.claim.sub =
+  '77777777-7777-7777-7777-777777777777';
+
+SELECT results_eq(
+  $$
+    SELECT (public.consume_ai_usage(10)->>'allowed')
+  $$,
+  ARRAY['true'::text],
+  'a second in-flight budget call remains within the concurrency cap'
+);
+SELECT results_eq(
+  $$
+    SELECT (public.consume_ai_usage(10)->>'allowed')
+  $$,
+  ARRAY['true'::text],
+  'a third in-flight budget call remains within the concurrency cap'
+);
+SELECT results_eq(
+  $$
+    SELECT (public.consume_ai_usage(10)->>'allowed')
+  $$,
+  ARRAY['true'::text],
+  'the concurrency cap remains stable across the third lease'
+);
+SELECT results_eq(
+  $$
+    SELECT public.consume_ai_usage(10)->>'reason'
+  $$,
+  ARRAY['concurrency_exceeded'::text],
+  'the fourth in-flight budget call is rejected'
+);
+
+RESET ROLE;
+
+SELECT ok(
+  (SELECT COUNT(*) = 3
+   FROM public.ai_usage_leases
+   WHERE user_id = '77777777-7777-7777-7777-777777777777'),
+  'the user bucket tracks the active lease count'
+);
+
+SET LOCAL request.jwt.claim.sub =
+  '55555555-5555-5555-5555-555555555555';
+
+SELECT results_eq(
+  $$
+    SELECT request_count
+    FROM public.ai_usage_buckets
+    WHERE user_id = '55555555-5555-5555-5555-555555555555'
+  $$,
+  ARRAY[1],
+  'rejected input does not increment the request count'
+);
+
+SET LOCAL ROLE authenticated;
+SET LOCAL request.jwt.claim.sub =
+  '66666666-6666-6666-6666-666666666666';
+
+SELECT ok(
+  (public.consume_ai_usage(10)->>'allowed')::boolean,
+  'a second authenticated user receives an independent budget'
+);
+
+RESET ROLE;
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.ai_usage_buckets
+    WHERE user_id = '55555555-5555-5555-5555-555555555555'
+  $$,
+  ARRAY[1::bigint],
+  'user A has one isolated usage bucket'
+);
+
+SELECT results_eq(
+  $$
+    SELECT COUNT(*)
+    FROM public.ai_usage_buckets
+    WHERE user_id = '66666666-6666-6666-6666-666666666666'
+  $$,
+  ARRAY[1::bigint],
+  'user B has one isolated usage bucket'
+);
+
+SET LOCAL ROLE authenticated;
+SET LOCAL request.jwt.claim.sub =
+  '88888888-8888-8888-8888-888888888888';
+
+DO $$
+DECLARE
+  attempt INTEGER;
+  result JSONB;
+BEGIN
+  FOR attempt IN 1..30 LOOP
+    result := public.consume_ai_usage(10);
+    IF NOT (result->>'allowed')::boolean THEN
+      RAISE EXCEPTION 'unexpected quota rejection at attempt %', attempt;
+    END IF;
+    PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
+  END LOOP;
+END
+$$;
+
+SELECT ok(
+  NOT (public.consume_ai_usage(10)->>'allowed')::boolean,
+  'the 31st daily request is rejected'
+);
+
+RESET ROLE;
+
+SELECT results_eq(
+  $$
+    SELECT request_count
+    FROM public.ai_usage_buckets
+    WHERE user_id = '88888888-8888-8888-8888-888888888888'
+  $$,
+  ARRAY[30],
+  'quota rejection does not increment the bucket'
+);
+
+SET LOCAL request.jwt.claim.sub =
+  '99999999-9999-9999-9999-999999999999';
+
+DO $$
+DECLARE
+  attempt INTEGER;
+  result JSONB;
+BEGIN
+  FOR attempt IN 1..7 LOOP
+    result := public.consume_ai_usage(20000);
+    IF NOT (result->>'allowed')::boolean THEN
+      RAISE EXCEPTION 'unexpected input quota rejection at attempt %', attempt;
+    END IF;
+    PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
+  END LOOP;
+
+  result := public.consume_ai_usage(10000);
+  IF NOT (result->>'allowed')::boolean THEN
+    RAISE EXCEPTION 'unexpected input quota rejection at final partial attempt';
+  END IF;
+  PERFORM public.release_ai_usage((result->>'leaseId')::uuid);
+END
+$$;
+
+SELECT ok(
+  NOT (public.consume_ai_usage(1)->>'allowed')::boolean,
+  'the daily input-character limit rejects the next character'
+);
+
+RESET ROLE;
+
+SELECT results_eq(
+  $$
+    SELECT request_count, input_chars
+    FROM public.ai_usage_buckets
+    WHERE user_id = '99999999-9999-9999-9999-999999999999'
+  $$,
+  $$ VALUES (8, 150000::bigint) $$,
+  'input quota rejection leaves both counters unchanged'
+);
+
+SET LOCAL ROLE authenticated;
+
+SELECT throws_ok(
+  $$ SELECT * FROM public.ai_usage_buckets $$,
+  '42501',
+  'permission denied for table ai_usage_buckets',
+  'authenticated clients cannot read usage buckets directly'
+);
+
+RESET ROLE;
+SET LOCAL request.jwt.claim.sub = '';
+
+SELECT throws_ok(
+  $$ SELECT public.consume_ai_usage(1) $$,
+  '42501',
+  'authentication required',
+  'unauthenticated callers are rejected by the server-owned function'
+);
+
+SELECT * FROM finish();
+ROLLBACK;

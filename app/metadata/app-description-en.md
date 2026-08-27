@@ -36,8 +36,8 @@ Check your current book and reading progress right from your home screen, withou
 
 Bookgolas is currently free to use and may display ads.
 
-Privacy Policy: https://bookgolas.app/privacy
-Terms of Use: https://bookgolas.app/terms
+Privacy Policy: https://book-golas.vercel.app/privacy
+Terms of Use: https://book-golas.vercel.app/terms
 
 ## Keywords
 

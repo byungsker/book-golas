@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:book_golas/ui/core/view_model/base_view_model.dart';
 import 'package:book_golas/domain/models/book.dart';
 import 'package:book_golas/data/repositories/reading_progress_repository.dart';
+import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/data/services/reading_progress_service.dart';
 import 'package:book_golas/data/services/widget_data_service.dart';
 
@@ -13,11 +14,13 @@ enum AllTabFilter { all, reading, planned, completed, paused }
 
 class BookListViewModel extends BaseViewModel {
   final ReadingProgressRepository _readingProgressRepository;
+  final BookService? _bookService;
   StreamSubscription<List<Map<String, dynamic>>>? _booksSubscription;
   StreamSubscription<AuthState>? _authSubscription;
 
   List<Book> _books = [];
   Map<String, int> _todayPagesReadByBook = {};
+  final Set<String> _statusUpdatesInFlight = {};
   int _selectedTabIndex = 0;
   bool _showAllCurrentBooks = false;
   bool _isInitialized = false;
@@ -49,9 +52,13 @@ class BookListViewModel extends BaseViewModel {
           (book.currentPage >= book.totalPages && book.totalPages > 0))
       .toList();
 
-  BookListViewModel({ReadingProgressRepository? readingProgressRepository})
+  BookListViewModel({
+    ReadingProgressRepository? readingProgressRepository,
+    BookService? bookService,
+  })
       : _readingProgressRepository = readingProgressRepository ??
-            ReadingProgressRepositoryImpl(ReadingProgressService());
+            ReadingProgressRepositoryImpl(ReadingProgressService()),
+        _bookService = bookService;
 
   void initialize() {
     if (_isInitialized) return;
@@ -202,6 +209,34 @@ class BookListViewModel extends BaseViewModel {
       notifyListeners();
     } catch (e) {
       debugPrint('[BookListViewModel] refresh failed: $e');
+    }
+  }
+
+  Future<bool> updateBookStatus(Book book, BookStatus status) async {
+    final bookId = book.id;
+    if (bookId == null || _statusUpdatesInFlight.contains(bookId)) {
+      return false;
+    }
+    if (book.status == status.value) return true;
+
+    _statusUpdatesInFlight.add(bookId);
+    try {
+      final updatedBook =
+          await (_bookService ?? BookService()).updateStatus(bookId, status);
+      if (updatedBook == null) return false;
+
+      final index = _books.indexWhere((currentBook) => currentBook.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+      _syncWidgetData();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('[BookListViewModel] status update failed: $e');
+      return false;
+    } finally {
+      _statusUpdatesInFlight.remove(bookId);
     }
   }
 

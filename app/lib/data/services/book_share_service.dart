@@ -14,32 +14,39 @@ import 'package:book_golas/ui/reading_chart/view_model/reading_chart_view_model.
 import 'package:book_golas/ui/reading_chart/widgets/reading_stats_share_card.dart';
 
 class BookShareService {
-  static Future<void> shareBookCard({
+  static Future<bool> shareBookCard({
     required BuildContext context,
     required Book book,
     required int highlightCount,
+    String? noteText,
+    bool useBookReviewFallback = true,
   }) async {
-    await _shareCard(
+    return _shareCard(
       context: context,
       filePrefix: 'bookgolas_share',
       subject: book.title,
       precache: () => _precacheBookCover(context, book.imageUrl),
-      child: BookShareCard(book: book, highlightCount: highlightCount),
+      child: BookShareCard(
+        book: book,
+        highlightCount: highlightCount,
+        noteText: noteText,
+        useBookReviewFallback: useBookReviewFallback,
+      ),
     );
   }
 
-  static Future<void> shareStatsCard({
+  static Future<bool> shareStatsCard({
     required BuildContext context,
     required ReadingChartViewModel vm,
   }) async {
-    await _shareCard(
+    return _shareCard(
       context: context,
       filePrefix: 'bookgolas_stats',
       child: ReadingStatsShareCard(vm: vm),
     );
   }
 
-  static Future<void> _shareCard({
+  static Future<bool> _shareCard({
     required BuildContext context,
     required String filePrefix,
     required Widget child,
@@ -48,17 +55,18 @@ class BookShareService {
   }) async {
     final repaintKey = GlobalKey();
     OverlayEntry? entry;
+    File? exportedFile;
 
     try {
       if (precache != null) {
         await precache();
       }
 
-      if (!context.mounted) return;
+      if (!context.mounted) return false;
       final mediaQuery = MediaQuery.of(context);
       final directionality = Directionality.of(context);
       final overlay = Overlay.maybeOf(context, rootOverlay: true);
-      if (overlay == null) return;
+      if (overlay == null) return false;
 
       entry = OverlayEntry(
         builder: (_) => Positioned(
@@ -90,23 +98,36 @@ class BookShareService {
         repaintKey: repaintKey,
         pixelRatio: _sharePixelRatio(mediaQuery),
       );
-      if (bytes == null) return;
+      if (bytes == null) return false;
 
       final dir = await getTemporaryDirectory();
       final file = File(
         '${dir.path}/${filePrefix}_${DateTime.now().millisecondsSinceEpoch}.png',
       );
+      exportedFile = file;
       await file.writeAsBytes(bytes, flush: true);
 
-      if (!context.mounted) return;
+      if (!context.mounted) return false;
+      final renderBox = context.findRenderObject() as RenderBox?;
+      final sharePositionOrigin = renderBox == null
+          ? const Rect.fromLTWH(0, 0, 1, 1)
+          : renderBox.localToGlobal(Offset.zero) & renderBox.size;
       await Share.shareXFiles(
         [XFile(file.path, mimeType: 'image/png')],
         subject: subject,
+        sharePositionOrigin: sharePositionOrigin,
       );
+      return true;
     } catch (e) {
       debugPrint('Failed to share card: $e');
+      return false;
     } finally {
       entry?.remove();
+      try {
+        await exportedFile?.delete();
+      } catch (e) {
+        debugPrint('Failed to remove temporary share image: $e');
+      }
     }
   }
 
@@ -126,6 +147,7 @@ class BookShareService {
   static Future<Uint8List?> _capturePngBytes({
     required GlobalKey repaintKey,
     required double pixelRatio,
+    int remainingPaintAttempts = 3,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 80));
     await WidgetsBinding.instance.endOfFrame;
@@ -136,10 +158,12 @@ class BookShareService {
     if (boundary == null) return null;
 
     if (boundary.debugNeedsPaint) {
+      if (remainingPaintAttempts == 0) return null;
       await Future<void>.delayed(const Duration(milliseconds: 20));
       return _capturePngBytes(
         repaintKey: repaintKey,
         pixelRatio: pixelRatio,
+        remainingPaintAttempts: remainingPaintAttempts - 1,
       );
     }
 

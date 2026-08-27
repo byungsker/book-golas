@@ -7,15 +7,22 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
 import 'package:book_golas/data/services/ad_service.dart';
+import 'package:book_golas/data/services/age_policy_service.dart';
 import 'package:book_golas/data/services/fcm_service.dart';
 import 'package:book_golas/data/services/auth_service.dart';
 import 'package:book_golas/data/services/notification_category_prefs.dart';
+import 'package:book_golas/data/services/notification_permission_coordinator.dart';
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
+import 'package:book_golas/ui/auth/controllers/notification_toggle_controller.dart';
 import 'package:book_golas/ui/auth/view_model/my_page_view_model.dart';
+import 'package:book_golas/ui/auth/view_model/third_party_ai_consent_settings_controller.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/view_model/auth_view_model.dart';
+import 'package:book_golas/ui/core/view_model/ad_view_model.dart';
 import 'package:book_golas/ui/core/view_model/notification_settings_view_model.dart';
 import 'package:book_golas/ui/core/view_model/locale_view_model.dart';
 import 'package:book_golas/ui/core/view_model/theme_view_model.dart';
@@ -25,27 +32,40 @@ import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_card.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_text_field.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 import 'login_screen.dart';
+import 'notification_permission_dialog.dart';
 import 'terms_webview_screen.dart';
 import 'package:book_golas/ui/auth/utils/legal_content.dart';
 import 'package:book_golas/ui/subscription/view_model/subscription_view_model.dart';
 import 'package:book_golas/ui/subscription/widgets/subscription_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
-  const MyPageScreen({super.key});
+  const MyPageScreen({
+    super.key,
+    this.requestNotificationPermission,
+  });
+
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => MyPageViewModel(),
-      child: const _MyPageContent(),
+      child: _MyPageContent(
+        requestNotificationPermission: requestNotificationPermission,
+      ),
     );
   }
 }
 
 class _MyPageContent extends StatefulWidget {
-  const _MyPageContent();
+  const _MyPageContent({this.requestNotificationPermission});
+
+  final Future<NotificationPermissionRequestResult> Function()?
+      requestNotificationPermission;
 
   @override
   State<_MyPageContent> createState() => _MyPageContentState();
@@ -54,6 +74,7 @@ class _MyPageContent extends StatefulWidget {
 class _MyPageContentState extends State<_MyPageContent> {
   late TextEditingController _nicknameController;
   late Future<bool> _privacyOptionsRequired;
+  late ThirdPartyAiConsentSettingsController _thirdPartyAiConsentController;
   bool _isUploadingAvatar = false;
 
   @override
@@ -61,6 +82,9 @@ class _MyPageContentState extends State<_MyPageContent> {
     super.initState();
     _nicknameController = TextEditingController();
     _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
+    _thirdPartyAiConsentController = ThirdPartyAiConsentSettingsController(
+      ThirdPartyAiConsentService(),
+    )..addListener(_refreshThirdPartyAiConsentCard);
     Future.microtask(() {
       context.read<AuthViewModel>().fetchCurrentUser();
       context.read<NotificationSettingsViewModel>().loadSettings();
@@ -79,8 +103,76 @@ class _MyPageContentState extends State<_MyPageContent> {
 
   @override
   void dispose() {
+    _thirdPartyAiConsentController
+      ..removeListener(_refreshThirdPartyAiConsentCard)
+      ..dispose();
     _nicknameController.dispose();
     super.dispose();
+  }
+
+  void _refreshThirdPartyAiConsentCard() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _showAgePolicySheet() async {
+    final l10n = AppLocalizations.of(context);
+    final selection = await showModalBottomSheet<AgePolicyStatus>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.agePolicyTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(l10n.agePolicyDescription),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(l10n.agePolicyUnder14),
+                subtitle: Text(l10n.agePolicyUnder14Description),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.under14,
+                ),
+              ),
+              ListTile(
+                title: Text(l10n.agePolicy14OrOlder),
+                subtitle: Text(l10n.agePolicy14OrOlderDescription),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.age14OrOlder,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selection == null || !mounted) return;
+
+    final saved = await context.read<AgePolicyService>().setStatus(selection);
+    if (!mounted) return;
+    if (!saved) {
+      CustomSnackbar.show(
+        context,
+        message: l10n.agePolicySaveFailed,
+        type: BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+      return;
+    }
+
+    if (selection == AgePolicyStatus.age14OrOlder) {
+      await context.read<AdViewModel>().initialize();
+    }
+    setState(() {
+      _privacyOptionsRequired = AdService().isPrivacyOptionsRequired();
+    });
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -509,13 +601,16 @@ class _MyPageContentState extends State<_MyPageContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  user.nickname ??
-                      AppLocalizations.of(context).myPageNoNickname,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: textColor,
+                Flexible(
+                  child: Text(
+                    user.nickname ??
+                        AppLocalizations.of(context).myPageNoNickname,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -867,47 +962,69 @@ class _MyPageContentState extends State<_MyPageContent> {
                             value: settings.notificationEnabled,
                             onChanged: (value) async {
                               HapticFeedback.selectionClick();
-                              final success = await settingsViewModel
-                                  .updateNotificationEnabled(value);
+                              final result = await NotificationToggleController(
+                                requestPermission: widget
+                                        .requestNotificationPermission ??
+                                    FCMService().requestPermissionAndRegister,
+                                persistEnabled:
+                                    settingsViewModel.updateNotificationEnabled,
+                                scheduleDailyReminder: () =>
+                                    FCMService().scheduleDailyReminder(
+                                  hour: settings.dailyReminderHour,
+                                  minute: settings.dailyReminderMinute,
+                                ),
+                                scheduleGoalAlarm: () =>
+                                    FCMService().scheduleGoalAlarm(
+                                  hour: settings.goalAlarmHour,
+                                  minute: settings.goalAlarmMinute,
+                                ),
+                                cancelDailyReminder:
+                                    FCMService().cancelDailyReminder,
+                                cancelGoalAlarm: FCMService().cancelGoalAlarm,
+                              ).setEnabled(value);
 
-                              if (success) {
-                                if (value) {
-                                  await FCMService().scheduleDailyReminder(
-                                    hour: settings.dailyReminderHour,
-                                    minute: settings.dailyReminderMinute,
-                                  );
-                                  await FCMService().scheduleGoalAlarm(
-                                    hour: settings.goalAlarmHour,
-                                    minute: settings.goalAlarmMinute,
-                                  );
-                                } else {
-                                  await FCMService().cancelDailyReminder();
-                                  await FCMService().cancelGoalAlarm();
-                                }
+                              if (!context.mounted) return;
 
-                                if (mounted) {
+                              switch (result) {
+                                case NotificationToggleResult.enabled:
                                   CustomSnackbar.show(
                                     context,
-                                    message: value
-                                        ? AppLocalizations.of(context)
-                                            .myPageNotificationEnabled
-                                        : AppLocalizations.of(context)
-                                            .myPageNotificationDisabled,
-                                    type: value
-                                        ? BLabSnackbarType.success
-                                        : BLabSnackbarType.info,
+                                    message: AppLocalizations.of(context)
+                                        .myPageNotificationEnabled,
+                                    type: BLabSnackbarType.success,
                                     bottomOffset: 32,
                                   );
-                                }
-                              } else if (mounted) {
-                                CustomSnackbar.show(
-                                  context,
-                                  message: settingsViewModel.errorMessage ??
-                                      AppLocalizations.of(context)
-                                          .myPageNotificationChangeFailed,
-                                  type: BLabSnackbarType.error,
-                                  bottomOffset: 32,
-                                );
+                                  return;
+                                case NotificationToggleResult.disabled:
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: AppLocalizations.of(context)
+                                        .myPageNotificationDisabled,
+                                    type: BLabSnackbarType.info,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
+                                case NotificationToggleResult.permissionDenied:
+                                  await _showNotificationPermissionDialog(
+                                    context,
+                                  );
+                                  return;
+                                case NotificationToggleResult
+                                      .permissionRequestFailed:
+                                  await _showNotificationPermissionFailureDialog(
+                                    context,
+                                  );
+                                  return;
+                                case NotificationToggleResult.updateFailed:
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: settingsViewModel.errorMessage ??
+                                        AppLocalizations.of(context)
+                                            .myPageNotificationChangeFailed,
+                                    type: BLabSnackbarType.error,
+                                    bottomOffset: 32,
+                                  );
+                                  return;
                               }
                             },
                             activeTrackColor: BLabColors.primary,
@@ -1090,6 +1207,33 @@ class _MyPageContentState extends State<_MyPageContent> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Future<void> _showNotificationPermissionDialog(
+    BuildContext context,
+  ) async {
+    final shouldOpenSettings = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionDialog(
+        onCancel: () => Navigator.pop(dialogContext, false),
+        onOpenSettings: () => Navigator.pop(dialogContext, true),
+      ),
+    );
+
+    if (shouldOpenSettings == true) {
+      await openAppSettings();
+    }
+  }
+
+  Future<void> _showNotificationPermissionFailureDialog(
+    BuildContext context,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => NotificationPermissionFailureDialog(
+        onClose: () => Navigator.pop(dialogContext),
       ),
     );
   }
@@ -1288,6 +1432,18 @@ class _MyPageContentState extends State<_MyPageContent> {
               );
             },
           ),
+          Divider(
+            height: 24,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
+          ),
+          _buildInfoRow(
+            context: context,
+            icon: Icons.cake,
+            title: AppLocalizations.of(context).agePolicyTitle,
+            onTap: _showAgePolicySheet,
+          ),
           FutureBuilder<bool>(
             future: _privacyOptionsRequired,
             builder: (context, snapshot) {
@@ -1336,6 +1492,255 @@ class _MyPageContentState extends State<_MyPageContent> {
         ],
       ),
     );
+  }
+
+  Widget _buildThirdPartyAiConsentCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final l10n = AppLocalizations.of(context);
+
+    return BLabCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.thirdPartyAiSettingsTitle,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.thirdPartyAiSettingsDescription,
+            style: TextStyle(
+              fontSize: 14,
+              color: textColor.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder<ThirdPartyAiConsentSnapshot>(
+            future: _thirdPartyAiConsentController.snapshot,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+
+              final consent = snapshot.data!;
+              return Column(
+                children: [
+                  _buildThirdPartyAiConsentRow(
+                    context: context,
+                    provider: ThirdPartyAiProvider.googleCloudVision,
+                    icon: Icons.document_scanner_outlined,
+                    title: l10n.thirdPartyAiGoogleSettingTitle,
+                    subtitle: l10n.thirdPartyAiGoogleSettingSubtitle,
+                    state: consent.googleCloudVision,
+                  ),
+                  Divider(
+                    height: 32,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.1),
+                  ),
+                  _buildThirdPartyAiConsentRow(
+                    context: context,
+                    provider: ThirdPartyAiProvider.openAi,
+                    icon: Icons.auto_awesome_outlined,
+                    title: l10n.thirdPartyAiOpenAiSettingTitle,
+                    subtitle: l10n.thirdPartyAiOpenAiSettingSubtitle,
+                    state: consent.openAi,
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThirdPartyAiConsentRow({
+    required BuildContext context,
+    required ThirdPartyAiProvider provider,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required ThirdPartyAiConsentState state,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final isBusy = _thirdPartyAiConsentController.isUpdating(provider);
+    final stateLabel = switch (state) {
+      ThirdPartyAiConsentState.allowed => l10n.thirdPartyAiStateAllowed,
+      ThirdPartyAiConsentState.notAllowed => l10n.thirdPartyAiStateNotAllowed,
+      ThirdPartyAiConsentState.unavailable => l10n.thirdPartyAiStateUnavailable,
+    };
+    final stateColor = switch (state) {
+      ThirdPartyAiConsentState.allowed => BLabColors.textPrimary(context),
+      ThirdPartyAiConsentState.notAllowed => BLabColors.textSecondary(context),
+      ThirdPartyAiConsentState.unavailable =>
+        Theme.of(context).brightness == Brightness.dark
+            ? BLabColors.errorLight
+            : BLabColors.danger,
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 22, color: BLabColors.textSecondary(context)),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTypography.titleSmall.copyWith(
+                  color: BLabColors.textPrimary(context),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: AppTypography.bodySmall.copyWith(
+                  color: BLabColors.textSecondary(context),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Semantics(
+                liveRegion: true,
+                label: stateLabel,
+                child: Text(
+                  stateLabel,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: stateColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  _buildConsentTextAction(
+                    context: context,
+                    label: l10n.thirdPartyAiViewDetails,
+                    onTap: () => showThirdPartyAiConsentDetails(
+                      context: context,
+                      provider: provider,
+                    ),
+                  ),
+                  if (state == ThirdPartyAiConsentState.unavailable)
+                    _buildConsentTextAction(
+                      context: context,
+                      label: l10n.thirdPartyAiRetryStatus,
+                      onTap: _reloadThirdPartyAiConsent,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        if (isBusy)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          Semantics(
+            label: '$title, $stateLabel',
+            toggled: state == ThirdPartyAiConsentState.allowed,
+            enabled: state != ThirdPartyAiConsentState.unavailable,
+            onTap: state == ThirdPartyAiConsentState.unavailable
+                ? null
+                : () => _changeThirdPartyAiConsent(
+                      provider,
+                      state != ThirdPartyAiConsentState.allowed,
+                    ),
+            child: ExcludeSemantics(
+              child: Switch(
+                value: state == ThirdPartyAiConsentState.allowed,
+                activeTrackColor: BLabColors.primary,
+                onChanged: state == ThirdPartyAiConsentState.unavailable
+                    ? null
+                    : (value) => _changeThirdPartyAiConsent(provider, value),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildConsentTextAction({
+    required BuildContext context,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: AppTypography.labelLarge.copyWith(
+                color: BLabColors.textPrimary(context),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _reloadThirdPartyAiConsent() {
+    _thirdPartyAiConsentController.reload();
+  }
+
+  Future<void> _changeThirdPartyAiConsent(
+    ThirdPartyAiProvider provider,
+    bool enabled,
+  ) async {
+    await _thirdPartyAiConsentController.runMutation(provider, () async {
+      if (enabled) {
+        await requestThirdPartyAiConsent(
+          context: context,
+          feature: provider == ThirdPartyAiProvider.googleCloudVision
+              ? ThirdPartyAiFeature.manageGoogleOcr
+              : ThirdPartyAiFeature.manageOpenAi,
+        );
+        return;
+      }
+      final withdrawn = await ThirdPartyAiConsentService().withdraw(provider);
+      if (!mounted) return;
+      CustomSnackbar.show(
+        context,
+        message: withdrawn
+            ? AppLocalizations.of(context).thirdPartyAiConsentWithdrawn
+            : AppLocalizations.of(context).thirdPartyAiConsentWithdrawFailed,
+        type: withdrawn ? BLabSnackbarType.info : BLabSnackbarType.error,
+        bottomOffset: 32,
+      );
+    });
   }
 
   Widget _buildInfoRow({
@@ -1498,6 +1903,8 @@ class _MyPageContentState extends State<_MyPageContent> {
               _buildNotificationCard(context),
               const SizedBox(height: 16),
               _buildAccountCard(context),
+              const SizedBox(height: 16),
+              _buildThirdPartyAiConsentCard(context),
               const SizedBox(height: 16),
               _buildInfoCard(context),
               const SizedBox(height: 16),

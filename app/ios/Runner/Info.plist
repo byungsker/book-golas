@@ -49,6 +49,8 @@
 		</array>
 		<key>GIDClientID</key>
 		<string>$(GID_CLIENT_ID)</string>
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
@@ -66,15 +68,19 @@
 		<string>갤러리에서 이미지를 선택하기 위해 권한이 필요합니다.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>스캔한 이미지를 저장하기 위해 권한이 필요합니다.</string>
+		<key>NSUserTrackingUsageDescription</key>
+		<string>더 적절한 광고를 제공하기 위해 기기 식별자를 사용합니다.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
-		<key>UIStatusBarHidden</key>
-		<false/>
-		<key>UISupportedInterfaceOrientations</key>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	<key>UISupportedInterfaceOrientations</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
 		</array>
@@ -106,7 +112,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.continue-reading</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>이어서 읽기</string>
+				<string>QUICK_ACTION_CONTINUE_READING</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeBookmark</string>
 			</dict>
@@ -114,7 +120,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.scan-page</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>페이지 스캔</string>
+				<string>QUICK_ACTION_SCAN_PAGE</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeCapturePhoto</string>
 			</dict>
@@ -122,7 +128,7 @@
 				<key>UIApplicationShortcutItemType</key>
 				<string>com.bookgolas.add-book</string>
 				<key>UIApplicationShortcutItemTitle</key>
-				<string>책 추가</string>
+				<string>QUICK_ACTION_ADD_BOOK</string>
 				<key>UIApplicationShortcutItemIconType</key>
 				<string>UIApplicationShortcutIconTypeAdd</string>
 			</dict>

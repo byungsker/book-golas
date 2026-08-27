@@ -386,6 +386,9 @@ verify_jwt = false
 [functions.reading-insights]
 verify_jwt = false
 
+[functions.vision-ocr]
+verify_jwt = false
+
 [functions.recommend-next-books]
 verify_jwt = false
 
@@ -408,6 +411,9 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.revenuecat-webhook]
+verify_jwt = false
+
+[functions.control-plane-metrics]
 verify_jwt = false
 
 [analytics]

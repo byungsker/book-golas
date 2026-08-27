@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/liquid_glass_button.dart';
 
 class EmptyStateView extends StatelessWidget {
@@ -37,9 +38,9 @@ class EmptyStateView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
+              key: const ValueKey('empty-state-message'),
+              style: AppTypography.bodyMedium.copyWith(
+                color: BLabColors.textTertiary(context),
               ),
               textAlign: TextAlign.center,
             ),
