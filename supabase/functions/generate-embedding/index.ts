@@ -133,7 +133,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const serviceClient = createClient(
+    const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       {
@@ -165,7 +165,7 @@ serve(async (req: Request) => {
 
     const embeddingString = `[${embedding.join(",")}]`;
 
-    const { data, error } = await serviceClient
+    const { data, error } = await supabaseClient
       .from("reading_content_embeddings")
       .upsert(
         {
