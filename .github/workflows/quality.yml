@@ -66,11 +66,11 @@ jobs:
             );
             core.setOutput(
               "web",
-              paths.some(
-                (path) =>
-                  path.startsWith("web/") ||
-                  path === ".github/workflows/quality.yml",
-              ),
+              paths.some((path) => path.startsWith("web/")),
+            );
+            core.setOutput(
+              "workflow",
+              paths.some((path) => path === ".github/workflows/quality.yml"),
             );
             core.setOutput(
               "edge",
@@ -141,11 +141,23 @@ jobs:
       - if: needs.changes.outputs.web == 'true'
         run: npm audit --audit-level=high
       - if: needs.changes.outputs.web == 'true'
-        run: npm test --if-present
+        run: npm test
       - if: needs.changes.outputs.web == 'true'
         run: npm run lint
       - if: needs.changes.outputs.web == 'true'
         run: npm run build
+
+  workflow-contract:
+    name: Quality Workflow Contract
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.workflow != 'true'
+        run: echo "No Quality workflow changes detected"
+      - if: needs.changes.outputs.workflow == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.workflow == 'true'
+        run: test "$(grep -cF 'run: npm test' .github/workflows/quality.yml)" -eq 1
 
   edge-functions:
     name: Edge Function Type Check
