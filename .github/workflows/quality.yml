@@ -24,6 +24,7 @@ jobs:
       flutter: ${{ steps.scope.outputs.flutter }}
       web: ${{ steps.scope.outputs.web }}
       edge: ${{ steps.scope.outputs.edge }}
+      workflow: ${{ steps.scope.outputs.workflow }}
     steps:
       - id: scope
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
@@ -67,6 +68,10 @@ jobs:
             core.setOutput(
               "web",
               paths.some((path) => path.startsWith("web/")),
+            );
+            core.setOutput(
+              "workflow",
+              paths.some((path) => path === ".github/workflows/quality.yml"),
             );
             core.setOutput(
               "edge",
@@ -142,6 +147,19 @@ jobs:
         run: npm run lint
       - if: needs.changes.outputs.web == 'true'
         run: npm run build
+
+  workflow-contract:
+    name: Quality Workflow Contract
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.workflow != 'true'
+        run: echo "No Quality workflow changes detected"
+      - if: needs.changes.outputs.workflow == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.workflow == 'true'
+        run: |
+          test "$(grep -cE '^[[:space:]]+run: npm test$' .github/workflows/quality.yml)" -eq 1
 
   edge-functions:
     name: Edge Function Type Check
