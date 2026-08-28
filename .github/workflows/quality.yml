@@ -137,6 +137,8 @@ jobs:
       - if: needs.changes.outputs.web == 'true'
         run: npm audit --audit-level=high
       - if: needs.changes.outputs.web == 'true'
+        run: npm test
+      - if: needs.changes.outputs.web == 'true'
         run: npm run lint
       - if: needs.changes.outputs.web == 'true'
         run: npm run build
