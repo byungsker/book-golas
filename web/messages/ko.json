@@ -139,5 +139,101 @@
       "title": "독서 스트릭",
       "desc": "꾸준함을 시각적으로 확인"
     }
+  },
+  "consumer": {
+    "brand": "북골라스",
+    "nav": {
+      "label": "소비자 메뉴",
+      "library": "내 서재",
+      "signOut": "로그아웃"
+    },
+    "home": {
+      "eyebrow": "나의 독서 공간",
+      "title": "읽은 모든 페이지를 한눈에",
+      "description": "북골라스 앱과 웹에서 독서 진행률을 이어서 확인하세요.",
+      "booksHeading": "내 책",
+      "bookCount": "{count, plural, =0 {책 없음} other {#권}}",
+      "openBook": "책 열기",
+      "refresh": "새로고침",
+      "emptyTitle": "서재가 비어 있어요",
+      "emptyDescription": "북골라스 앱에서 책을 추가하면 여기에서 독서 진행률을 확인할 수 있어요."
+    },
+    "book": {
+      "status": {
+        "planned": "읽을 예정",
+        "reading": "읽는 중",
+        "completed": "완독",
+        "will_retry": "잠시 멈춤",
+        "unknown": "읽는 중"
+      },
+      "progressLabel": "독서 진행률",
+      "pages": "페이지",
+      "authorUnknown": "저자 미상",
+      "backHome": "내 서재로",
+      "startDate": "독서 시작일",
+      "targetDate": "완독 목표일"
+    },
+    "reading": {
+      "eyebrow": "독서 진행 업데이트",
+      "title": "독서 진행률 업데이트",
+      "description": "읽은 페이지를 저장하세요. 다음 화면은 계정에서 최신 값을 다시 읽습니다.",
+      "currentPage": "현재 페이지",
+      "save": "진행률 저장",
+      "saving": "저장 중...",
+      "saved": "진행률을 저장했어요",
+      "backToBook": "책 상세로",
+      "offline": "오프라인 상태입니다. 진행률을 저장하기 전에 네트워크를 연결하세요.",
+      "errors": {
+        "invalid_input": "0페이지부터 전체 페이지 수 사이의 값을 입력하세요.",
+        "unauthenticated": "세션이 만료되었습니다. 다시 로그인하세요.",
+        "not_found": "이 책을 서재에서 찾을 수 없습니다.",
+        "conflict": "다른 곳에서 책 정보가 변경되었습니다. 새로고침 후 다시 시도하세요.",
+        "unavailable": "진행률을 저장하지 못했습니다. 다시 시도하세요."
+      }
+    },
+    "states": {
+      "loading": "서재를 불러오는 중...",
+      "retry": "다시 시도",
+      "errorTitle": "서재를 잠시 불러올 수 없어요",
+      "errorDescription": "책을 불러오지 못했습니다. 페이지를 새로고침하거나 잠시 후 다시 시도하세요.",
+      "permissionTitle": "책을 불러올 수 없어요",
+      "permissionDescription": "이 책이 서재에 없거나 조회 권한이 없습니다."
+    },
+    "auth": {
+      "backToSite": "북골라스로 돌아가기",
+      "signInTitle": "북골라스 로그인",
+      "signInDescription": "앱과 웹에서 독서를 이어가세요.",
+      "signUpTitle": "북골라스 계정 만들기",
+      "signUpDescription": "앱과 동기화되는 나만의 독서 공간을 시작하세요.",
+      "resetTitle": "비밀번호 재설정",
+      "resetDescription": "이메일로 안전한 비밀번호 재설정 링크를 보내드려요.",
+      "recoveryTitle": "새 비밀번호 설정",
+      "recoveryDescription": "북골라스 계정의 새 비밀번호를 설정하세요.",
+      "email": "이메일",
+      "password": "비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "signIn": "로그인",
+      "signUp": "계정 만들기",
+      "sendReset": "재설정 링크 보내기",
+      "updatePassword": "비밀번호 변경",
+      "processing": "처리 중...",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "createAccount": "계정 만들기",
+      "hasAccount": "이미 계정이 있나요?",
+      "signInLink": "로그인",
+      "backToSignIn": "로그인으로 돌아가기",
+      "confirmationSent": "로그인하기 전에 이메일을 확인해 계정을 인증하세요.",
+      "resetSent": "해당 이메일의 계정이 있다면 재설정 링크를 보냈습니다.",
+      "passwordUpdated": "비밀번호를 변경했습니다. 새 비밀번호로 다시 로그인하세요.",
+      "errors": {
+        "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+        "emailInUse": "이미 가입된 이메일입니다. 로그인을 시도하세요.",
+        "passwordRejected": "계정 비밀번호 조건을 충족하는 비밀번호를 사용하세요.",
+        "passwordShort": "비밀번호는 8자 이상 입력하세요.",
+        "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+        "generic": "요청을 완료하지 못했습니다. 잠시 후 다시 시도하세요."
+      }
+    }
   }
 }
