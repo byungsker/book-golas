@@ -158,7 +158,8 @@ jobs:
       - if: needs.changes.outputs.workflow == 'true'
         uses: actions/checkout@v4
       - if: needs.changes.outputs.workflow == 'true'
-        run: test "$(grep -cF 'run: npm test' .github/workflows/quality.yml)" -eq 1
+        run: |
+          test "$(grep -cF 'run: npm test' .github/workflows/quality.yml)" -eq 1
 
   edge-functions:
     name: Edge Function Type Check
