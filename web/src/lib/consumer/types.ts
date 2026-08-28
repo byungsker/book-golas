@@ -40,6 +40,8 @@ export function parseConsumerBook(
   const totalPages = toSafeInteger(value.total_pages);
   const rawStatus = value.status;
 
+  if (!isValidReadingPage(currentPage, totalPages)) return null;
+
   return {
     id: value.id,
     title: value.title,
