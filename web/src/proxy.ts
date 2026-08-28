@@ -5,6 +5,10 @@ import { routing } from "./i18n/routing";
 import { isAdminEmail } from "./lib/admin-auth";
 
 const intlMiddleware = createIntlMiddleware(routing);
+const consumerIntlMiddleware = createIntlMiddleware({
+  ...routing,
+  localePrefix: "always",
+});
 const consumerRoutePattern = /^\/(ko|en)\/(auth|home|books|reading)(?:\/|$)/;
 const unprefixedConsumerRoutePattern = /^\/(auth|home|books|reading)(?:\/|$)/;
 
@@ -72,7 +76,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (consumerRoutePattern.test(request.nextUrl.pathname)) {
-    return NextResponse.next({ request });
+    return consumerIntlMiddleware(request);
   }
 
   return intlMiddleware(request);
