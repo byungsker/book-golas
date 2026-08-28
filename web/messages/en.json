@@ -139,5 +139,104 @@
       "title": "Reading Streak",
       "desc": "See your consistency, visualized"
     }
+  },
+  "consumer": {
+    "brand": "Bookgolas",
+    "nav": {
+      "label": "Consumer navigation",
+      "library": "Library",
+      "signOut": "Sign out",
+      "signOutError": "We could not sign you out. Try again."
+    },
+    "home": {
+      "eyebrow": "Your reading space",
+      "title": "Keep every page in view",
+      "description": "Your reading progress stays available across the Bookgolas app and web.",
+      "booksHeading": "My books",
+      "bookCount": "{count, plural, =0 {No books} one {# book} other {# books}}",
+      "openBook": "Open book",
+      "refresh": "Refresh",
+      "emptyTitle": "Your library is empty",
+      "emptyDescription": "Add a book in the Bookgolas app to see your reading progress here."
+    },
+    "book": {
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "unknown": "Reading"
+      },
+      "progressLabel": "Reading progress",
+      "pages": "pages",
+      "authorUnknown": "Unknown author",
+      "backHome": "Back to library",
+      "startDate": "Started",
+      "targetDate": "Target date"
+    },
+    "reading": {
+      "eyebrow": "Reading update",
+      "title": "Update reading progress",
+      "description": "Save the page you reached. The next view will read the latest value from your account.",
+      "currentPage": "Current page",
+      "save": "Save progress",
+      "saving": "Saving...",
+      "saved": "Progress saved",
+      "backToBook": "Back to book",
+      "offline": "You are offline. Reconnect before saving progress.",
+      "errors": {
+        "invalid_input": "Enter a page between 0 and the total page count.",
+        "unauthenticated": "Your session expired. Sign in again.",
+        "not_found": "This book is no longer available in your library.",
+        "conflict": "This book changed elsewhere. Refresh and try again.",
+        "history_unavailable": "Your page was updated, but reading history could not be recorded. Refresh and try again.",
+        "unavailable": "We could not save your progress. Try again."
+      }
+    },
+    "states": {
+      "loading": "Loading your library...",
+      "retry": "Try again",
+      "errorTitle": "The library is temporarily unavailable",
+      "errorDescription": "We could not load your books. Refresh the page or try again shortly.",
+      "permissionTitle": "Book unavailable",
+      "permissionDescription": "This book is not available in your library or you do not have permission to view it."
+    },
+    "auth": {
+      "backToSite": "Back to Bookgolas",
+      "signInTitle": "Sign in to Bookgolas",
+      "signInDescription": "Continue your reading across app and web.",
+      "signUpTitle": "Create your Bookgolas account",
+      "signUpDescription": "Start a private reading space that syncs with the app.",
+      "resetTitle": "Reset your password",
+      "resetDescription": "We will send a secure password reset link to your email.",
+      "recoveryTitle": "Choose a new password",
+      "recoveryDescription": "Set a new password for your Bookgolas account.",
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "signIn": "Sign in",
+      "signUp": "Create account",
+      "sendReset": "Send reset link",
+      "updatePassword": "Update password",
+      "processing": "Processing...",
+      "forgotPassword": "Forgot password?",
+      "createAccount": "Create an account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "backToSignIn": "Back to sign in",
+      "confirmationSent": "Check your email to confirm your account before signing in.",
+      "resetSent": "If an account exists for this email, a reset link has been sent.",
+      "passwordUpdated": "Your password was updated. Sign in again with the new password.",
+      "errors": {
+        "invalidCredentials": "The email or password is incorrect.",
+        "emailInUse": "This email is already registered. Try signing in.",
+        "passwordRejected": "Use a password that meets the account requirements.",
+        "passwordShort": "Use at least 8 characters for your password.",
+        "passwordMismatch": "The passwords do not match.",
+        "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
+        "generic": "We could not complete that request. Try again shortly."
+      }
+    }
   }
 }
