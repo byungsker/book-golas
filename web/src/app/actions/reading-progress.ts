@@ -26,6 +26,7 @@ type UpdateReadingProgressResult =
         | "unauthenticated"
         | "not_found"
         | "conflict"
+        | "history_unavailable"
         | "unavailable";
     };
 
@@ -99,7 +100,6 @@ export async function updateReadingProgress(
     const book = parseConsumerBook(updatedBook as Record<string, unknown>);
     if (!book) return { ok: false, code: "unavailable" };
 
-    let historyRecorded = true;
     if (input.currentPage > previousPage) {
       const { error: historyError } = await supabase
         .from("reading_progress_history")
@@ -109,15 +109,22 @@ export async function updateReadingProgress(
           page: input.currentPage,
           previous_page: previousPage,
         });
-      historyRecorded = !historyError;
+      if (historyError) {
+        revalidateReadingProgressPaths(input);
+        return { ok: false, code: "history_unavailable" };
+      }
     }
 
-    revalidatePath(`/${input.locale}/home`);
-    revalidatePath(`/${input.locale}/books/${input.bookId}`);
-    revalidatePath(`/${input.locale}/reading/${input.bookId}`);
+    revalidateReadingProgressPaths(input);
 
-    return { ok: true, book, historyRecorded };
+    return { ok: true, book, historyRecorded: true };
   } catch {
     return { ok: false, code: "unavailable" };
   }
+}
+
+function revalidateReadingProgressPaths(input: UpdateReadingProgressInput) {
+  revalidatePath(`/${input.locale}/home`);
+  revalidatePath(`/${input.locale}/books/${input.bookId}`);
+  revalidatePath(`/${input.locale}/reading/${input.bookId}`);
 }

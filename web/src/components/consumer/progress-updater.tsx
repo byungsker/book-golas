@@ -47,6 +47,7 @@ export function ProgressUpdater({
 
         if (!result.ok) {
           setErrorCode(result.code);
+          if (result.code === "history_unavailable") router.refresh();
           return;
         }
 

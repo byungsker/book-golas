@@ -7,9 +7,13 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  getPasswordMinLength,
+  signInWithPassword,
+  signOutUser,
+  type AuthMode,
+} from "@/lib/consumer/auth";
 import { getConsumerPath } from "@/lib/consumer/paths";
-
-type AuthMode = "sign-in" | "sign-up" | "reset-password";
 
 type AuthFormProps = {
   mode: AuthMode;
@@ -69,10 +73,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
 
     try {
       if (mode === "sign-in") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await signInWithPassword(supabase.auth, email, password);
         if (error) {
           setErrorKey(getAuthErrorKey(error.message));
           return;
@@ -107,7 +108,11 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           setErrorKey(getAuthErrorKey(error.message));
           return;
         }
-        await supabase.auth.signOut();
+        const signedOut = await signOutUser(supabase.auth);
+        if (!signedOut) {
+          setErrorKey("errors.signOutFailed");
+          return;
+        }
         setSuccessKey("passwordUpdated");
         return;
       }
@@ -144,6 +149,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           ? t("recoveryDescription")
           : t("resetDescription");
   const isEmailForm = mode !== "reset-password" || !isRecovery;
+  const passwordMinLength = getPasswordMinLength(mode, isRecovery);
 
   return (
     <div className="w-full max-w-md">
@@ -192,7 +198,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="h-11 border-white/15 bg-black/20 text-white"
-              minLength={8}
+              minLength={passwordMinLength}
               required
             />
           </div>

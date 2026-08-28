@@ -145,7 +145,8 @@
     "nav": {
       "label": "Consumer navigation",
       "library": "Library",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "signOutError": "We could not sign you out. Try again."
     },
     "home": {
       "eyebrow": "Your reading space",
@@ -188,6 +189,7 @@
         "unauthenticated": "Your session expired. Sign in again.",
         "not_found": "This book is no longer available in your library.",
         "conflict": "This book changed elsewhere. Refresh and try again.",
+        "history_unavailable": "Your page was updated, but reading history could not be recorded. Refresh and try again.",
         "unavailable": "We could not save your progress. Try again."
       }
     },
@@ -232,6 +234,7 @@
         "passwordRejected": "Use a password that meets the account requirements.",
         "passwordShort": "Use at least 8 characters for your password.",
         "passwordMismatch": "The passwords do not match.",
+        "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
         "generic": "We could not complete that request. Try again shortly."
       }
     }
