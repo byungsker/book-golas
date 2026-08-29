@@ -22,7 +22,7 @@ interface EmbeddingRequest {
   sourceId?: string;
 }
 
-async function generateEmbedding(text: string): Promise<{
+async function generateEmbeddingWithUsage(text: string): Promise<{
   value: number[];
   usage: unknown;
 }> {
@@ -48,6 +48,10 @@ async function generateEmbedding(text: string): Promise<{
 
   const data = await response.json();
   return { value: data.data[0].embedding, usage: data.usage };
+}
+
+async function generateEmbedding(text: string): Promise<number[]> {
+  return (await generateEmbeddingWithUsage(text)).value;
 }
 
 serve(async (req: Request) => {
@@ -168,7 +172,7 @@ serve(async (req: Request) => {
             maxOutputTokens: 0,
             requireOutputTokens: false,
           },
-          () => generateEmbedding(contentText),
+          () => generateEmbeddingWithUsage(contentText),
         );
       },
     );

@@ -18,7 +18,7 @@ interface KeywordRequest {
   limit?: number;
 }
 
-async function extractKeywordsWithGPT(texts: string[]): Promise<{
+async function extractKeywordsWithGPTUsage(texts: string[]): Promise<{
   value: string[];
   usage: unknown;
 }> {
@@ -87,6 +87,10 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<{
   }
 
   return { value: [], usage: data.usage };
+}
+
+async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
+  return (await extractKeywordsWithGPTUsage(texts)).value;
 }
 
 serve(async (req: Request) => {
@@ -203,7 +207,7 @@ serve(async (req: Request) => {
             maxOutputTokens: 200,
             requireOutputTokens: true,
           },
-          () => extractKeywordsWithGPT(texts),
+          () => extractKeywordsWithGPTUsage(texts),
         );
       },
     );
