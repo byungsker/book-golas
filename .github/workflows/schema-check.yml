@@ -141,7 +141,7 @@ jobs:
                 BLOCKED=$((BLOCKED + 1))
               fi
               
-              if grep -qi "DELETE FROM.*WHERE" "$file" && ! grep -qi "-- safe-delete" "$file"; then
+              if grep -qi "DELETE FROM.*WHERE" "$file" && ! grep -qi -- "-- safe-delete" "$file"; then
                 echo "::error file=$file::❌ BLOCKED: Mass DELETE detected"
                 echo "  → 대량 삭제는 CI에서 차단됩니다. '-- safe-delete' 주석으로 명시적 승인 필요."
                 BLOCKED=$((BLOCKED + 1))

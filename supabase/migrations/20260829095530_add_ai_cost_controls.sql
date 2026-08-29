@@ -325,6 +325,7 @@ begin
   where user_id = v_actor_id
   for update;
 
+  -- safe-delete: expired leases for the authenticated user only
   delete from public.ai_usage_leases
   where user_id = v_actor_id
     and expires_at <= v_now;
@@ -496,6 +497,7 @@ begin
     return false;
   end if;
 
+  -- safe-delete: the authenticated user's exact lease only
   delete from public.ai_usage_leases where id = p_lease_id;
 
   insert into public.ai_usage_control_events (user_id, function_name, feature, provider, model, prompt_version, event_type, decision, reason, estimated_cost_usd, metadata)
