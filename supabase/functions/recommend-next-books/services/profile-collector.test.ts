@@ -3,6 +3,10 @@ import type { UserReadingProfile } from "../types.ts";
 import {
   THIRD_PARTY_AI_POLICY_VERSION,
 } from "../../_shared/third-party-ai-consent.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 import { collectProfileWithConsent } from "./profile-consent.ts";
 
 function consentClient(receipt: Record<string, unknown> | null): unknown {
@@ -51,7 +55,11 @@ Deno.test(
       consentClient(null),
       "user-a",
       profileCollector,
-      async () => async () => {},
+      async <T>(
+        _input: string,
+        _context: AiBudgetContext,
+        operation: AiProviderOperation<T>,
+      ) => (await operation()).value,
     );
 
     assertEquals(result, { allowed: false });
@@ -68,14 +76,30 @@ Deno.test(
     const profileCollector = {
       collect: async (
         _userId: string,
-        beforeProviderCall: (
+        runProviderCall: <T>(
           input: string,
-        ) => Promise<() => Promise<void>>,
+          context: AiBudgetContext,
+          operation: AiProviderOperation<T>,
+        ) => Promise<T>,
       ) => {
         collectionCalls += 1;
-        const release = await beforeProviderCall("interest query");
+        await runProviderCall(
+          "interest query",
+          {
+            functionName: "recommend-next-books",
+            feature: "recommend-next-books.interest-embedding",
+            provider: "open_ai",
+            model: "text-embedding-3-small",
+            promptVersion: "test-v1",
+            maxOutputTokens: 0,
+            requireOutputTokens: false,
+          },
+          async () => ({
+            value: true,
+            usage: { input_tokens: 1, output_tokens: 0, total_tokens: 1 },
+          }),
+        );
         providerCalls += 1;
-        await release();
         return profile;
       },
     };
@@ -87,7 +111,11 @@ Deno.test(
       }),
       "user-a",
       profileCollector,
-      async () => async () => {},
+      async <T>(
+        _input: string,
+        _context: AiBudgetContext,
+        operation: AiProviderOperation<T>,
+      ) => (await operation()).value,
     );
 
     assertEquals(result, { allowed: true, value: profile });

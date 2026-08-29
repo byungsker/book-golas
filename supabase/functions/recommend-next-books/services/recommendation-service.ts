@@ -10,6 +10,10 @@ import {
   AI_MAX_OUTPUT_TOKENS,
   AI_PROVIDER_TIMEOUT_MS,
 } from "../../_shared/ai-usage.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 const PROMPT_KO = `
 당신은 독서 추천 전문가입니다. 사용자의 **책별 세부 독서 패턴**을 분석하여 다음 읽을 책 {recommendCount}권을 추천해주세요.
@@ -93,18 +97,22 @@ export class RecommendationService {
   private llm: ChatOpenAI;
   private promptTemplate: PromptTemplate;
   private locale: string;
-  private readonly beforeProviderCall: (
+  private readonly runProviderCall: <T>(
     input: string,
-  ) => Promise<() => Promise<void>>;
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>;
 
   constructor(
-    beforeProviderCall: (
+    runProviderCall: <T>(
       input: string,
-    ) => Promise<() => Promise<void>>,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
     locale: string = "ko",
   ) {
     this.locale = locale;
-    this.beforeProviderCall = beforeProviderCall;
+    this.runProviderCall = runProviderCall;
     this.llm = new ChatOpenAI({
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
@@ -141,13 +149,22 @@ export class RecommendationService {
       keywords: profile.interests.keywords.join(", ") || noneText,
     });
 
-    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
-    let response;
-    try {
-      response = await this.llm.invoke(formattedPrompt);
-    } finally {
-      await releaseProviderLease();
-    }
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "recommend-next-books",
+        feature: "recommend-next-books",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "recommendations-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
     return this.parseResponse(response.content as string);
   }
 

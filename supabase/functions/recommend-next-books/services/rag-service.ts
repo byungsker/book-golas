@@ -5,6 +5,10 @@ import { Document } from "@langchain/core/documents";
 import { config } from "../config.ts";
 import { extractKeywords } from "../utils/keyword-extractor.ts";
 import { AI_PROVIDER_TIMEOUT_MS } from "../../_shared/ai-usage.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 interface HighlightWithBook {
   content: string;
@@ -19,12 +23,15 @@ interface UserInterests {
 export async function extractUserInterests(
   supabase: SupabaseClient,
   userId: string,
-  beforeProviderCall: (
+  runProviderCall: <T>(
     input: string,
-  ) => Promise<() => Promise<void>>,
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>,
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
+    model: "text-embedding-3-small",
     maxRetries: 0,
     timeout: AI_PROVIDER_TIMEOUT_MS,
   });
@@ -36,17 +43,35 @@ export async function extractUserInterests(
   });
 
   const interestQuery = "독서에서 중요하게 생각하는 주제와 개념";
-  const releaseProviderLease = await beforeProviderCall(interestQuery);
-  let results;
-  try {
-    results = await vectorStore.similaritySearch(
-      interestQuery,
-      config.rag.topHighlightsCount,
-      { user_id: userId },
-    );
-  } finally {
-    await releaseProviderLease();
-  }
+  const results = await runProviderCall(
+    interestQuery,
+    {
+      functionName: "recommend-next-books",
+      feature: "recommend-next-books.interest-embedding",
+      provider: "open_ai",
+      model: "text-embedding-3-small",
+      promptVersion: "interest-embedding-v1",
+      maxOutputTokens: 0,
+      requireOutputTokens: false,
+    },
+    async () => {
+      const value = await vectorStore.similaritySearch(
+        interestQuery,
+        config.rag.topHighlightsCount,
+        { user_id: userId },
+      );
+      const inputTokens = Math.ceil(interestQuery.length / 4);
+      return {
+        value,
+        usage: {
+          input_tokens: inputTokens,
+          output_tokens: 0,
+          total_tokens: inputTokens,
+          usage_source: "input_estimate",
+        },
+      };
+    },
+  );
 
   if (results.length === 0) {
     return { topHighlights: [], keywords: [] };

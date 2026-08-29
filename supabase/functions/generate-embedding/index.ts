@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
+  createAiProviderRunner,
   fetchAiProvider,
-  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -22,7 +22,10 @@ interface EmbeddingRequest {
   sourceId?: string;
 }
 
-async function generateEmbedding(text: string): Promise<number[]> {
+async function generateEmbedding(text: string): Promise<{
+  value: number[];
+  usage: unknown;
+}> {
   const response = await fetchAiProvider(
     "https://api.openai.com/v1/embeddings",
     {
@@ -44,7 +47,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
   }
 
   const data = await response.json();
-  return data.data[0].embedding;
+  return { value: data.data[0].embedding, usage: data.usage };
 }
 
 serve(async (req: Request) => {
@@ -143,15 +146,28 @@ serve(async (req: Request) => {
         },
       },
     );
+    const runAiCall = createAiProviderRunner(
+      authClient,
+      supabaseClient,
+      user.id,
+    );
 
     const embeddingOperation = await executeThirdPartyAiOperation(
       authClient,
       user.id,
       "open_ai",
       async () => {
-        return withAiBudget(
-          authClient,
-          contentText.length,
+        return runAiCall(
+          contentText,
+          {
+            functionName: "generate-embedding",
+            feature: "generate-embedding",
+            provider: "open_ai",
+            model: "text-embedding-3-small",
+            promptVersion: "embedding-v1",
+            maxOutputTokens: 0,
+            requireOutputTokens: false,
+          },
           () => generateEmbedding(contentText),
         );
       },

@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
+  createAiProviderRunner,
   fetchAiProvider,
-  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -28,7 +28,10 @@ interface SourceDocument {
   bookTitle: string | null;
 }
 
-async function generateEmbedding(text: string): Promise<number[]> {
+async function generateEmbedding(text: string): Promise<{
+  value: number[];
+  usage: unknown;
+}> {
   const response = await fetchAiProvider(
     "https://api.openai.com/v1/embeddings",
     {
@@ -50,7 +53,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
   }
 
   const data = await response.json();
-  return data.data[0].embedding;
+  return { value: data.data[0].embedding, usage: data.usage };
 }
 
 // ============================================================
@@ -81,7 +84,7 @@ const TONE_CONFIG = {
 async function generateAnswer(
   query: string,
   context: string,
-): Promise<string> {
+): Promise<{ value: string; usage: unknown }> {
   const systemPrompt = `독서 기록을 검색해주는 AI 도우미예요.
 사용자가 직접 하이라이트하거나 메모한 내용만을 기반으로 답변해요.
 책의 일반적인 내용이 아닌, '사용자가 중요하게 본 부분'을 알려줘요.
@@ -124,7 +127,7 @@ ${context}`;
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return { value: data.choices[0].message.content, usage: data.usage };
 }
 
 serve(async (req: Request) => {
@@ -153,6 +156,16 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader ?? "" } } },
+    );
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
     );
 
     const {
@@ -186,6 +199,12 @@ serve(async (req: Request) => {
       });
     }
 
+    const runAiCall = createAiProviderRunner(
+      supabaseClient,
+      serviceClient,
+      user.id,
+    );
+
     const isGlobalSearch = !bookId;
 
     const embeddingOperation = await executeThirdPartyAiOperation(
@@ -193,9 +212,17 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        return withAiBudget(
-          supabaseClient,
-          query.length,
+        return runAiCall(
+          query,
+          {
+            functionName: "recall-search",
+            feature: "recall-search.embedding",
+            provider: "open_ai",
+            model: "text-embedding-3-small",
+            promptVersion: "recall-embedding-v1",
+            maxOutputTokens: 0,
+            requireOutputTokens: false,
+          },
           () => generateEmbedding(query),
         );
       },
@@ -207,17 +234,6 @@ serve(async (req: Request) => {
     }
     const queryEmbedding = embeddingOperation.value;
     const embeddingString = `[${queryEmbedding.join(",")}]`;
-
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      },
-    );
 
     const { data: searchResults, error: searchError } = await serviceClient.rpc(
       "match_reading_content",
@@ -304,9 +320,17 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        return withAiBudget(
-          supabaseClient,
-          answerInputChars,
+        return runAiCall(
+          `${query}\n${context}`,
+          {
+            functionName: "recall-search",
+            feature: "recall-search.answer",
+            provider: "open_ai",
+            model: "gpt-4o-mini",
+            promptVersion: "recall-answer-v1",
+            maxOutputTokens: 1_000,
+            requireOutputTokens: true,
+          },
           () => generateAnswer(query, context),
         );
       },

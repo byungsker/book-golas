@@ -13,7 +13,7 @@ public claims.
 
 | Surface | Evidence | Current boundary |
 | --- | --- | --- |
-| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `supabase/functions/llm-evals/`, `docs/guides/ai-quality-evaluation-1.1.0.md` | BOK-427 fixes provider/model/prompt/schema contracts for eight calls and adds a privacy-safe deterministic synthetic gate. BOK-428 and BOK-429 remain the cost-control and observability follow-ons; `reading-insights` and `generate-book-review` are outside BOK-427 coverage. |
+| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `supabase/functions/llm-evals/`, `docs/guides/ai-quality-evaluation-1.1.0.md`, `docs/guides/ai-cost-control-1.1.0.md` | BOK-427 fixes provider/model/prompt/schema contracts for eight calls and adds a privacy-safe deterministic synthetic gate. BOK-428 adds pricing history, preflight reservation, token provenance, quota/budget/hard-cap decisions, and control-event aggregation; BOK-429 remains the observability follow-on. |
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/`, `docs/guides/push-operations-metrics-1.1.0.md` | BOK-420 records bounded delivery outcomes, failure categories, invalid-token cleanup, CTR, and persisted dedupe-hit evidence; outbound alerting remains an approval-gated candidate. |
 | Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
 | Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `docs/guides/supabase-deployment-migration-rollback-1.1.0.md`, `docs/guides/edge-function-wrapper-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope, shared Edge Function HTTP boundary, deployment paths, migration handling, rollback boundaries, and Deno tests are recorded; live environment evidence remains separate. |
@@ -40,8 +40,10 @@ remain separately approved work.
 3. BOK-417 follows the runbook and migration boundary in BOK-415.
 4. BOK-418 follows BOK-417; BOK-419 follows BOK-417; BOK-420 follows BOK-415.
 5. BOK-421 follows BOK-418.
-6. BOK-427 is the first active follow-on; BOK-428 and BOK-429 follow its
-   quality and evidence baseline.
+6. BOK-427 is the first active follow-on; BOK-428 follows BOK-427 for cost
+   and usage control, and BOK-429 follows BOK-428 for privacy-safe
+   operational observability.
+7. BOK-427, BOK-428, and BOK-429 follow the quality and evidence baseline.
 
 Each child issue remains one reviewed PR under `operations/1.1.0`; no child
 issue inherits another issue's approval, deployment, or external-action gate.

@@ -3,9 +3,9 @@
 ## Scope
 
 `public.ai_usage_logs` records operational metrics for server-side AI calls.
-BOK-417 applies the contract to `supabase/functions/generate-embedding/` as the
-first verified surface. The log is an observability record, not an invoice or a
-user-facing usage quota.
+BOK-417 introduced the table and the first embedding contract; BOK-428 extends
+the same contract to the server-side OpenAI call paths. The log is an
+observability record, not an invoice or a user-facing usage quota.
 
 ## Stored fields
 
@@ -14,12 +14,14 @@ user-facing usage quota.
 | `user_id` | Authenticated account scope; nullable so aggregate history can survive account deletion. |
 | `function_name`, `model`, `prompt_version` | Stable routing and contract dimensions. |
 | `input_tokens`, `output_tokens`, `total_tokens` | Provider-reported counts when available. |
-| `estimated_cost_usd` | Input-token estimate for the configured model price. |
+| `estimated_cost_usd` | Token-based estimate for the configured model price; only `finalized` rows contribute to control totals. |
+| `feature`, `pricing_status`, `token_status`, `usage_source` | Cost finalization, token integrity, and provider-versus-input-estimate provenance. |
 | `latency_ms`, `status`, `error_code`, `created_at` | Operational outcome and timing. |
 
-The embedding function stores success and failure rows, measures the provider
-request latency, and records a bounded error code. A log insert failure fails
-the request so an AI call is not silently treated as measured.
+Each wrapped provider call stores a success or failure row, measures request
+latency, and records a bounded error code. A log insert failure fails the
+request so an AI call is not silently treated as measured. Token anomalies and
+missing prices are not finalized as cost.
 
 ## Privacy and access boundary
 
@@ -45,8 +47,7 @@ or reading records. BOK-419 owns the dashboard and aggregate implementation.
 ## Cost estimate
 
 `generate-embedding` uses `text-embedding-3-small`, `embedding-v1`, and an
-input rate of $0.02 per one million tokens according to the [official model
-page](https://developers.openai.com/api/docs/models/text-embedding-3-small).
+input rate of $0.02 per one million tokens from the approved BOK-428 registry.
 The value is an estimate and must be refreshed before financial reporting.
 
 ## Verification

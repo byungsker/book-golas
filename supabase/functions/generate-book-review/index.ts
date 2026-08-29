@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
+  createAiProviderRunner,
   fetchAiProvider,
-  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -40,7 +40,7 @@ const corsHeaders = {
 async function generateReviewWithGPT(
   book: BookData,
   memos: MemoContent[],
-): Promise<string> {
+): Promise<{ value: string; usage: unknown }> {
   const memoTexts = memos.length > 0
     ? memos
       .map(
@@ -115,7 +115,7 @@ ${memoTexts}
   }
 
   const data = await response.json();
-  return data.choices[0].message.content.trim();
+  return { value: data.choices[0].message.content.trim(), usage: data.usage };
 }
 
 serve(async (req: Request) => {
@@ -201,6 +201,12 @@ serve(async (req: Request) => {
       .order("created_at", { ascending: true })
       .limit(15);
 
+    const runAiCall = createAiProviderRunner(
+      supabaseClient,
+      serviceClient,
+      user.id,
+    );
+
     const inputChars = [
       book.title,
       book.author,
@@ -222,9 +228,27 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        return withAiBudget(
-          supabaseClient,
-          inputChars,
+        return runAiCall(
+          [
+            book.title,
+            book.author,
+            book.genre,
+            book.review,
+            ...((memos as MemoContent[]) ?? []).map((memo) =>
+              memo.content_text
+            ),
+          ]
+            .filter((value): value is string => typeof value === "string")
+            .join("\n"),
+          {
+            functionName: "generate-book-review",
+            feature: "generate-book-review",
+            provider: "open_ai",
+            model: "gpt-4o-mini",
+            promptVersion: "book-review-v1",
+            maxOutputTokens: 1_000,
+            requireOutputTokens: true,
+          },
           () =>
             generateReviewWithGPT(
               book as BookData,

@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aggregateAiUsage, parseAiUsageDateRange, type AiUsageLogRow } from "@/lib/ai-usage";
+import {
+  aggregateAiUsage,
+  aggregateAiUsageByFeatureModel,
+  aggregateAiUsageControls,
+  AI_USAGE_POLICY,
+  parseAiUsageDateRange,
+  type AiUsageControlEventRow,
+  type AiUsageLogRow,
+} from "@/lib/ai-usage";
 import { captureWebError } from "@/lib/error-reporting";
 import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabase-server";
 
 const MAX_ROWS = 10000;
 const FUNCTION_NAME_PATTERN = /^[A-Za-z0-9._:/-]+$/;
-const AI_USAGE_COLUMNS = "function_name, latency_ms, status, estimated_cost_usd, created_at";
+const AI_USAGE_COLUMNS = "function_name, feature, provider, model, latency_ms, status, estimated_cost_usd, pricing_status, token_status, usage_source, created_at";
+const AI_CONTROL_COLUMNS = "function_name, event_type, decision, reason, created_at";
 
 function serverError(request: NextRequest, errorCode: string, message: string) {
   const requestId = captureWebError(request, {
@@ -43,25 +52,42 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { data, error } = await createServiceRoleSupabaseClient()
-      .from("ai_usage_logs")
-      .select(AI_USAGE_COLUMNS)
-      .gte("created_at", dateRange.fromTimestamp)
-      .lt("created_at", dateRange.toExclusiveTimestamp)
-      .order("created_at", { ascending: true })
-      .limit(MAX_ROWS);
+    const client = createServiceRoleSupabaseClient();
+    const [usageResult, controlResult] = await Promise.all([
+      client
+        .from("ai_usage_logs")
+        .select(AI_USAGE_COLUMNS)
+        .gte("created_at", dateRange.fromTimestamp)
+        .lt("created_at", dateRange.toExclusiveTimestamp)
+        .order("created_at", { ascending: true })
+        .limit(MAX_ROWS),
+      client
+        .from("ai_usage_control_events")
+        .select(AI_CONTROL_COLUMNS)
+        .gte("created_at", dateRange.fromTimestamp)
+        .lt("created_at", dateRange.toExclusiveTimestamp)
+        .order("created_at", { ascending: true })
+        .limit(MAX_ROWS),
+    ]);
 
-    if (error) {
+    if (usageResult.error || controlResult.error) {
       return serverError(request, "ai_usage_query_failed", "Failed to load AI usage summary");
     }
 
-    const rows = (data ?? []) as AiUsageLogRow[];
+    const rows = (usageResult.data ?? []) as AiUsageLogRow[];
+    const controlRows = (controlResult.data ?? []) as AiUsageControlEventRow[];
     const functionNames = Array.from(
-      new Set(rows.map((row) => row.function_name?.trim()).filter(Boolean))
+      new Set([
+        ...rows.map((row) => row.function_name?.trim()),
+        ...controlRows.map((row) => row.function_name?.trim()),
+      ].filter(Boolean))
     ).sort();
     const filteredRows = functionFilter === "all"
       ? rows
       : rows.filter((row) => row.function_name === functionFilter);
+    const filteredControlRows = functionFilter === "all"
+      ? controlRows
+      : controlRows.filter((row) => row.function_name === functionFilter);
 
     return NextResponse.json(
       {
@@ -69,7 +95,13 @@ export async function GET(request: NextRequest) {
         functionFilter,
         functionNames,
         ...aggregateAiUsage(filteredRows),
-        limits: { maxRows: MAX_ROWS, truncated: rows.length === MAX_ROWS },
+        featureModels: aggregateAiUsageByFeatureModel(filteredRows),
+        controls: aggregateAiUsageControls(filteredControlRows),
+        policy: AI_USAGE_POLICY,
+        limits: {
+          maxRows: MAX_ROWS,
+          truncated: rows.length === MAX_ROWS || controlRows.length === MAX_ROWS,
+        },
       },
       { headers: { "Cache-Control": "no-store" } }
     );
