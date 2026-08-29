@@ -1,7 +1,5 @@
 BEGIN;
 
-SELECT plan(10);
-
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -52,9 +50,13 @@ GRANT SELECT, INSERT ON ai_cost_control_test_reservations TO authenticated;
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub = '';
 
-SELECT throws_ok(
-  $$
-    SELECT public.reserve_ai_usage(
+DO $$
+DECLARE
+  error_state text;
+  error_message text;
+BEGIN
+  BEGIN
+    PERFORM public.reserve_ai_usage(
       'db-test.reservation',
       'open_ai',
       'gpt-4o-mini',
@@ -63,12 +65,18 @@ SELECT throws_ok(
       3,
       100,
       0.00006045
-    )
-  $$,
-  '42501',
-  'authentication required',
-  'unauthenticated reservation calls are rejected'
-);
+    );
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS
+      error_state = RETURNED_SQLSTATE,
+      error_message = MESSAGE_TEXT;
+  END;
+
+  IF error_state IS DISTINCT FROM '42501' OR error_message IS DISTINCT FROM 'authentication required' THEN
+    RAISE EXCEPTION 'unauthenticated reservation assertion failed: state=%, message=%', error_state, error_message;
+  END IF;
+END
+$$;
 
 SET LOCAL request.jwt.claim.sub =
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -91,39 +99,44 @@ FROM (
   ) AS result
 ) reservation;
 
-SELECT ok(
-  (SELECT (result->>'allowed')::boolean FROM ai_cost_control_test_reservations WHERE label = 'owner-release'),
-  'authenticated callers can reserve through the SECURITY DEFINER function'
-);
+DO $$
+DECLARE
+  reservation jsonb;
+  released boolean;
+BEGIN
+  SELECT result INTO reservation
+  FROM ai_cost_control_test_reservations
+  WHERE label = 'owner-release';
+  IF (reservation->>'allowed')::boolean IS DISTINCT FROM true THEN
+    RAISE EXCEPTION 'authenticated reservation assertion failed: %', reservation;
+  END IF;
+  IF reservation->>'policyVersion' IS DISTINCT FROM 'cost-control-v1' THEN
+    RAISE EXCEPTION 'effective policy version assertion failed: %', reservation;
+  END IF;
 
-SELECT results_eq(
-  $$
-    SELECT result->>'policyVersion'
-    FROM ai_cost_control_test_reservations
-    WHERE label = 'owner-release'
-  $$,
-  ARRAY['cost-control-v1'::text],
-  'reservation returns the effective policy version'
-);
-
-SELECT ok(
-  public.release_ai_usage(
-    (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'owner-release')
-  ),
-  'the owning authenticated caller can release its lease'
-);
+  SELECT public.release_ai_usage(lease_id) INTO released
+  FROM ai_cost_control_test_reservations
+  WHERE label = 'owner-release';
+  IF released IS DISTINCT FROM true THEN
+    RAISE EXCEPTION 'owner release assertion failed';
+  END IF;
+END
+$$;
 
 RESET ROLE;
 
-SELECT results_eq(
-  $$
-    SELECT COUNT(*)
-    FROM public.ai_usage_leases
-    WHERE id = (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'owner-release')
-  $$,
-  ARRAY[0::bigint],
-  'owner release removes the lease'
-);
+DO $$
+DECLARE
+  lease_count bigint;
+BEGIN
+  SELECT COUNT(*) INTO lease_count
+  FROM public.ai_usage_leases
+  WHERE id = (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'owner-release');
+  IF lease_count <> 0 THEN
+    RAISE EXCEPTION 'owner release left a lease behind: %', lease_count;
+  END IF;
+END
+$$;
 
 SET LOCAL ROLE authenticated;
 SET LOCAL request.jwt.claim.sub =
@@ -147,53 +160,79 @@ FROM (
   ) AS result
 ) reservation;
 
-SELECT ok(
-  (SELECT (result->>'allowed')::boolean FROM ai_cost_control_test_reservations WHERE label = 'cross-user-release'),
-  'authenticated callers can create the cross-user release fixture'
-);
+DO $$
+DECLARE
+  reservation jsonb;
+BEGIN
+  SELECT result INTO reservation
+  FROM ai_cost_control_test_reservations
+  WHERE label = 'cross-user-release';
+  IF (reservation->>'allowed')::boolean IS DISTINCT FROM true THEN
+    RAISE EXCEPTION 'cross-user fixture reservation assertion failed: %', reservation;
+  END IF;
+END
+$$;
 
 SET LOCAL request.jwt.claim.sub =
   'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 
-SELECT ok(
-  NOT public.release_ai_usage(
-    (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'cross-user-release')
-  ),
-  'a different authenticated user cannot release the lease'
-);
+DO $$
+DECLARE
+  released boolean;
+BEGIN
+  SELECT public.release_ai_usage(lease_id) INTO released
+  FROM ai_cost_control_test_reservations
+  WHERE label = 'cross-user-release';
+  IF released IS DISTINCT FROM false THEN
+    RAISE EXCEPTION 'cross-user release assertion failed: %', released;
+  END IF;
+END
+$$;
 
 RESET ROLE;
 
-SELECT results_eq(
-  $$
-    SELECT COUNT(*)
-    FROM public.ai_usage_leases
-    WHERE id = (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'cross-user-release')
-  $$,
-  ARRAY[1::bigint],
-  'cross-user release leaves the owner lease intact'
-);
+DO $$
+DECLARE
+  lease_count bigint;
+BEGIN
+  SELECT COUNT(*) INTO lease_count
+  FROM public.ai_usage_leases
+  WHERE id = (SELECT lease_id FROM ai_cost_control_test_reservations WHERE label = 'cross-user-release');
+  IF lease_count <> 1 THEN
+    RAISE EXCEPTION 'cross-user release removed the owner lease: %', lease_count;
+  END IF;
+END
+$$;
 
 SET LOCAL ROLE authenticated;
 
-SELECT results_eq(
-  $$
-    SELECT relrowsecurity::text
-    FROM pg_class
-    WHERE oid = 'public.ai_usage_control_events'::regclass
-  $$,
-  ARRAY['true'::text],
-  'control events keep row level security enabled'
-);
+DO $$
+DECLARE
+  rls_enabled boolean;
+  error_state text;
+  error_message text;
+BEGIN
+  SELECT relrowsecurity INTO rls_enabled
+  FROM pg_class
+  WHERE oid = 'public.ai_usage_control_events'::regclass;
+  IF rls_enabled IS DISTINCT FROM true THEN
+    RAISE EXCEPTION 'control event RLS assertion failed';
+  END IF;
 
-SELECT throws_ok(
-  $$ SELECT * FROM public.ai_usage_control_events $$,
-  '42501',
-  'permission denied for table ai_usage_control_events',
-  'authenticated clients cannot read control events directly'
-);
+  BEGIN
+    PERFORM 1 FROM public.ai_usage_control_events;
+  EXCEPTION WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS
+      error_state = RETURNED_SQLSTATE,
+      error_message = MESSAGE_TEXT;
+  END;
+  IF error_state IS DISTINCT FROM '42501' OR error_message IS DISTINCT FROM 'permission denied for table ai_usage_control_events' THEN
+    RAISE EXCEPTION 'direct control event access assertion failed: state=%, message=%', error_state, error_message;
+  END IF;
+END
+$$;
 
 RESET ROLE;
 
-SELECT * FROM finish();
+SELECT 'ai cost-control database contract passed' AS result;
 ROLLBACK;
