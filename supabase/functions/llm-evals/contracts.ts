@@ -1,6 +1,8 @@
 export const EVALUATION_CONTRACT_VERSION = "llm-eval-v1";
 export const EVALUATION_FIXTURE_VERSION = "llm-fixtures-v1";
 export const EVALUATION_RUNNER_VERSION = "llm-eval-runner-v1";
+export const EXPECTED_FIXTURE_SHA256 =
+  "acfb97167dd2763f167b98586bb29ad244483414aef18e26756fd52a664f6c73";
 
 export type EvaluationSurface =
   | "recall-search.embedding"
@@ -92,6 +94,7 @@ export interface EvaluationReport {
     fixtureVersion: typeof EVALUATION_FIXTURE_VERSION;
     runnerVersion: typeof EVALUATION_RUNNER_VERSION;
     fixtureSha256: string;
+    fixtureIntegrityPassed: boolean;
     candidateSource: CandidateSource;
     providerCalls: 0;
     liveProviderCalls: false;

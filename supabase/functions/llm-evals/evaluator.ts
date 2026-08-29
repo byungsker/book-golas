@@ -9,6 +9,7 @@ import {
   type EvaluationCase,
   type EvaluationComponent,
   type EvaluationReport,
+  EXPECTED_FIXTURE_SHA256,
   type JsonRecord,
   LLM_SURFACE_CONTRACTS,
   type SourceReceipt,
@@ -228,6 +229,10 @@ function gradeClassification(
     ? expected.clusterCount
     : 0;
   const countScore = clusters.length === expectedClusterCount ? 1 : 0;
+  const clusterIds = clusters.flatMap((cluster) =>
+    typeof cluster.clusterId === "string" ? [cluster.clusterId] : []
+  );
+  const uniqueClusterIds = new Set(clusterIds).size === clusterIds.length;
   const schemaScore = clusters.length > 0 &&
       clusters.every((cluster) =>
         typeof cluster.clusterId === "string" &&
@@ -236,7 +241,7 @@ function gradeClassification(
         typeof cluster.confidence === "number" &&
         Number.isFinite(cluster.confidence) &&
         cluster.confidence >= 0 && cluster.confidence <= 1
-      )
+      ) && uniqueClusterIds
     ? 1
     : 0;
   const score = average([nodeScore, groupScore, countScore, schemaScore]);
@@ -390,6 +395,10 @@ function gradeRecommendations(
   );
   const titleScore = f1Score(expectedTitles, actualTitles);
   const uniqueTitles = new Set(actualTitles).size === actualTitles.length;
+  const uniqueKeywordSets = recommendations.every((recommendation) => {
+    const keywords = asStrings(recommendation.keywords);
+    return new Set(keywords).size === keywords.length;
+  });
   const schemaScore = recommendations.length > 0 &&
       recommendations.every((recommendation) =>
         typeof recommendation.title === "string" &&
@@ -400,7 +409,7 @@ function gradeRecommendations(
         recommendation.reason.length > 0 &&
         isStringArray(recommendation.keywords) &&
         recommendation.keywords.length > 0
-      ) && uniqueTitles
+      ) && uniqueTitles && uniqueKeywordSets
     ? 1
     : 0;
   const score = average([countScore, termScore, titleScore, schemaScore]);
@@ -615,6 +624,8 @@ export async function evaluateRun(
     ) / totalWeight,
   );
   const overallRegression = bounded(baselineWeightedScore - weightedScore);
+  const fixtureSha256 = await sha256Hex(canonicalJson(SYNTHETIC_EVAL_CASES));
+  const fixtureIntegrityPassed = fixtureSha256 === EXPECTED_FIXTURE_SHA256;
   const failedCases =
     cases.filter((result) => result.failureCodes.length > 0).length;
   const failureClasses: string[] = [];
@@ -633,6 +644,7 @@ export async function evaluateRun(
   }
   if (weightedScore < 0.9) failureClasses.push("overall_score");
   if (overallRegression > 0.05) failureClasses.push("overall_regression");
+  if (!fixtureIntegrityPassed) failureClasses.push("fixture_integrity");
   const reportWithoutHash: Omit<EvaluationReport, "reportSha256"> = {
     schemaVersion: EVALUATION_CONTRACT_VERSION,
     run: {
@@ -640,7 +652,8 @@ export async function evaluateRun(
       sourceCommit: options.sourceCommit,
       fixtureVersion: EVALUATION_FIXTURE_VERSION,
       runnerVersion: EVALUATION_RUNNER_VERSION,
-      fixtureSha256: await sha256Hex(canonicalJson(SYNTHETIC_EVAL_CASES)),
+      fixtureSha256,
+      fixtureIntegrityPassed,
       candidateSource: options.candidateSource,
       providerCalls: 0 as const,
       liveProviderCalls: false as const,

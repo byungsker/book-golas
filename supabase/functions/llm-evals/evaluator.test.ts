@@ -85,6 +85,65 @@ Deno.test("malformed duplicate outputs cannot receive full credit", async () => 
   );
 });
 
+Deno.test("duplicate cluster IDs and recommendation keywords are rejected", async () => {
+  const candidates = syntheticCandidateResults();
+  candidates["structure-classification-groups"] = {
+    clusters: [
+      {
+        clusterId: "cluster-1",
+        name: "집중 습관",
+        nodeIds: ["record-1", "record-2"],
+        confidence: 0.9,
+      },
+      {
+        clusterId: "cluster-1",
+        name: "기록 성찰",
+        nodeIds: ["record-3", "record-4"],
+        confidence: 0.9,
+      },
+    ],
+  };
+  candidates["recommendation-list-quality"] = {
+    recommendations: [
+      {
+        title: "Deep Work",
+        author: "Cal Newport",
+        reason: "focus",
+        keywords: ["focus", "focus"],
+      },
+      {
+        title: "Atomic Habits",
+        author: "James Clear",
+        reason: "habit",
+        keywords: ["habit"],
+      },
+    ],
+  };
+  const report = await evaluateRun({
+    repoRoot: Deno.cwd(),
+    sourceCommit: SOURCE_COMMIT,
+    candidates,
+    candidateSource: "synthetic",
+  });
+  const classification = report.cases.find((item) =>
+    item.id === "structure-classification-groups"
+  );
+  const recommendations = report.cases.find((item) =>
+    item.id === "recommendation-list-quality"
+  );
+
+  assert(classification !== undefined, "classification case must be present");
+  assert(recommendations !== undefined, "recommendation case must be present");
+  assert(
+    classification.score < 1,
+    "duplicate cluster IDs must reduce the score",
+  );
+  assert(
+    recommendations.score < 1,
+    "duplicate recommendation keywords must reduce the score",
+  );
+});
+
 Deno.test("source contracts cover every registered surface", async () => {
   const report = await evaluateRun({
     repoRoot: Deno.cwd(),
@@ -130,4 +189,5 @@ Deno.test("report excludes synthetic inputs and candidate outputs", async () => 
     !report.run.liveProviderCalls,
     "live provider calls must remain disabled",
   );
+  assert(report.run.fixtureIntegrityPassed, "fixture integrity must pass");
 });
