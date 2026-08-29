@@ -1,4 +1,5 @@
 import type { CandidateResults } from "./contracts.ts";
+import { syntheticCandidateResults } from "./candidate.ts";
 import { evaluateRun } from "./evaluator.ts";
 
 function valueFor(flag: string): string | undefined {
@@ -24,16 +25,18 @@ if (!sourceCommit) {
   Deno.exitCode = 2;
 } else {
   try {
-    const candidatePath = valueFor("--candidate");
-    const candidateJson = candidatePath
-      ? JSON.parse(await Deno.readTextFile(candidatePath))
-      : undefined;
+    const candidatePath = valueFor("--candidate") ?? "synthetic";
+    const usesSyntheticCandidate = candidatePath === "synthetic";
+    const candidateJson = usesSyntheticCandidate
+      ? undefined
+      : JSON.parse(await Deno.readTextFile(candidatePath));
     const report = await evaluateRun({
       repoRoot: valueFor("--root") ?? Deno.cwd(),
       sourceCommit,
-      candidates: candidateJson === undefined
-        ? undefined
+      candidates: usesSyntheticCandidate
+        ? syntheticCandidateResults()
         : parseCandidates(candidateJson),
+      candidateSource: usesSyntheticCandidate ? "synthetic" : "external-file",
     });
     console.log(JSON.stringify(report, null, 2));
     if (report.summary.promotionGate !== "pass") Deno.exitCode = 1;

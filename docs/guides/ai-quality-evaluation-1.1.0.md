@@ -20,11 +20,13 @@ schema, 소스 marker와 SHA-256을 보고한다. `reading-insights`와
 ```bash
 deno test --allow-read supabase/functions/llm-evals/evaluator.test.ts
 deno run --allow-read supabase/functions/llm-evals/run.ts \
-  --commit "$(git rev-parse HEAD)"
+  --commit "$(git rev-parse HEAD)" --candidate synthetic
 ```
 
-후자의 기본 결과는 version-pinned baseline이다. 후보 응답을 평가하려면 원문이
-아닌 synthetic 결과 JSON을 `--candidate path.json`으로 전달한다.
+`synthetic`은 baseline과 분리된 고정 후보 결과다. 실제 후보 응답을 평가하려면
+원문이 아닌 synthetic 결과 JSON을 `--candidate path.json`으로 전달한다. CI의
+pull request 실행은 PR head를 checkout하고 `git rev-parse HEAD`와 제출 SHA를
+일치시킨 뒤 후보를 명시적으로 평가한다.
 
 ```json
 {"results":{"keyword-list-quality":{"keywords":["집중","습관","기록"]}}}
@@ -40,4 +42,7 @@ rollback하고 원인을 기록한다. 예외 승격은 byungsker의 exact-SHA �
 CI에서 우회하지 않는다.
 
 보고서에는 raw fixture, 후보 응답, 사용자 데이터가 포함되지 않으며,
-`providerCalls: 0`과 `liveProviderCalls: false`를 확인할 수 있어야 한다.
+`providerCalls: 0`, `liveProviderCalls: false`, `candidateSource`,
+`fixtureSha256`를 확인할 수 있어야 한다. 이미 baseline이 존재하는 후속 PR은
+CI가 `contracts.ts`와 `fixtures.ts` 변경을 차단하므로, 기대값·기준선 변경은
+별도 governance 검토로 분리한다.

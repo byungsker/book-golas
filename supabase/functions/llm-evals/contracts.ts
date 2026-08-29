@@ -42,6 +42,7 @@ export interface EvaluationCase {
 }
 
 export type CandidateResults = Record<string, JsonRecord>;
+export type CandidateSource = "synthetic" | "external-file";
 
 export interface SourceReceipt {
   surface: EvaluationSurface;
@@ -90,6 +91,8 @@ export interface EvaluationReport {
     sourceCommit: string;
     fixtureVersion: typeof EVALUATION_FIXTURE_VERSION;
     runnerVersion: typeof EVALUATION_RUNNER_VERSION;
+    fixtureSha256: string;
+    candidateSource: CandidateSource;
     providerCalls: 0;
     liveProviderCalls: false;
   };
@@ -124,6 +127,7 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
       {
         path: "supabase/functions/recall-search/index.ts",
         markers: [
+          "async function generateEmbedding(text: string): Promise<number[]>",
           "https://api.openai.com/v1/embeddings",
           'model: "text-embedding-3-small"',
         ],
@@ -142,6 +146,7 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
       {
         path: "supabase/functions/recall-search/index.ts",
         markers: [
+          "async function generateAnswer(",
           "https://api.openai.com/v1/chat/completions",
           'model: "gpt-4o-mini"',
           "max_tokens: 1000",
@@ -160,11 +165,15 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
     sourceFiles: [
       {
         path: "supabase/functions/structure-notes/services/chain-service.ts",
-        markers: ['modelName: "gpt-4o-mini"', "runClassification"],
+        markers: [
+          'modelName: "gpt-4o-mini"',
+          "private async runClassification(",
+          "classificationPrompt.format({ contents })",
+        ],
       },
       {
         path: "supabase/functions/structure-notes/prompts/classification.ts",
-        markers: ["classificationPrompt", "JSON만 출력"],
+        markers: ["export const classificationPrompt", "JSON만 출력"],
       },
     ],
   },
@@ -179,11 +188,15 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
     sourceFiles: [
       {
         path: "supabase/functions/structure-notes/services/chain-service.ts",
-        markers: ['modelName: "gpt-4o-mini"', "runSummary"],
+        markers: [
+          'modelName: "gpt-4o-mini"',
+          "private async runSummary(",
+          "summaryPrompt.format({ clusteredContents })",
+        ],
       },
       {
         path: "supabase/functions/structure-notes/prompts/summary.ts",
-        markers: ["summaryPrompt", "JSON만 출력"],
+        markers: ["export const summaryPrompt", "JSON만 출력"],
       },
     ],
   },
@@ -198,11 +211,15 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
     sourceFiles: [
       {
         path: "supabase/functions/structure-notes/services/chain-service.ts",
-        markers: ['modelName: "gpt-4o-mini"', "runConnection"],
+        markers: [
+          'modelName: "gpt-4o-mini"',
+          "private async runConnection(",
+          "connectionPrompt.format({",
+        ],
       },
       {
         path: "supabase/functions/structure-notes/prompts/connection.ts",
-        markers: ["connectionPrompt", "JSON만 출력"],
+        markers: ["export const connectionPrompt", "JSON만 출력"],
       },
     ],
   },
@@ -222,7 +239,13 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
       {
         path:
           "supabase/functions/recommend-next-books/services/recommendation-service.ts",
-        markers: ["PROMPT_KO", "PROMPT_EN", "promptTemplate", "parseResponse"],
+        markers: [
+          "PROMPT_KO",
+          "PROMPT_EN",
+          "async generate(profile: UserReadingProfile): Promise<Recommendation[]>",
+          "this.promptTemplate.format({",
+          "parseResponse",
+        ],
       },
     ],
   },
@@ -238,6 +261,7 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
       {
         path: "supabase/functions/extract-keywords/index.ts",
         markers: [
+          "async function extractKeywordsWithGPT(texts: string[]): Promise<string[]>",
           "https://api.openai.com/v1/chat/completions",
           'model: "gpt-4o-mini"',
           "JSON 배열 형식으로만 응답",
@@ -257,6 +281,7 @@ export const LLM_SURFACE_CONTRACTS: readonly SurfaceContract[] = [
       {
         path: "supabase/functions/generate-embedding/index.ts",
         markers: [
+          "async function generateEmbedding(text: string): Promise<number[]>",
           "https://api.openai.com/v1/embeddings",
           'model: "text-embedding-3-small"',
         ],

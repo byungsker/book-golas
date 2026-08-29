@@ -1,5 +1,6 @@
 import {
   type CandidateResults,
+  type CandidateSource,
   type CaseResult,
   type ContractReceipt,
   EVALUATION_CONTRACT_VERSION,
@@ -24,7 +25,8 @@ interface Grade {
 export interface EvaluateOptions {
   repoRoot: string;
   sourceCommit: string;
-  candidates?: CandidateResults;
+  candidates: CandidateResults;
+  candidateSource: CandidateSource;
   readFile?: (path: string) => Promise<string>;
 }
 
@@ -40,6 +42,11 @@ function asStrings(value: unknown): string[] {
   return asArray(value).filter((item): item is string =>
     typeof item === "string"
   );
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) &&
+    value.every((item) => typeof item === "string");
 }
 
 function asNumbers(value: unknown): number[] {
@@ -60,6 +67,11 @@ function bounded(value: number): number {
 function f1Score(expected: string[], actual: string[]): number {
   const expectedSet = new Set(expected);
   const actualSet = new Set(actual);
+  if (
+    expectedSet.size !== expected.length || actualSet.size !== actual.length
+  ) {
+    return 0;
+  }
   if (expectedSet.size === 0 && actualSet.size === 0) return 1;
   if (expectedSet.size === 0 || actualSet.size === 0) return 0;
   let intersection = 0;
@@ -92,11 +104,17 @@ function gradeRecallAnswer(expected: JsonRecord, candidate: JsonRecord): Grade {
     ? 1
     : anchors.filter((anchor) => answer.includes(anchor)).length /
       anchors.length;
-  const schemaScore = answer.length > 0 && Array.isArray(candidate.sourceIds)
-    ? 1
+  const sourceTypeScore = isStringArray(candidate.sourceIds) ? 1 : 0;
+  const schemaScore = answer.length > 0 && sourceTypeScore === 1 ? 1 : 0;
+  const sourceScore = sourceTypeScore === 1
+    ? f1Score(expectedSourceIds, sourceIds)
     : 0;
-  const sourceScore = f1Score(expectedSourceIds, sourceIds);
-  const score = average([schemaScore, sourceScore, anchorCoverage]);
+  const score = average([
+    schemaScore,
+    sourceTypeScore,
+    sourceScore,
+    anchorCoverage,
+  ]);
   const failureCodes: string[] = [];
   if (schemaScore < 1) failureCodes.push("invalid_answer_schema");
   if (sourceScore < 1) failureCodes.push("source_ids_mismatch");
@@ -105,6 +123,7 @@ function gradeRecallAnswer(expected: JsonRecord, candidate: JsonRecord): Grade {
     score,
     components: [
       component("schema", schemaScore),
+      component("source_id_types", sourceTypeScore),
       component("source_ids_f1", sourceScore),
       component("answer_anchor_coverage", anchorCoverage),
     ],
@@ -213,9 +232,9 @@ function gradeClassification(
       clusters.every((cluster) =>
         typeof cluster.clusterId === "string" &&
         typeof cluster.name === "string" && cluster.name.length > 0 &&
-        Array.isArray(cluster.nodeIds) &&
-        asStrings(cluster.nodeIds).length >= 2 &&
+        isStringArray(cluster.nodeIds) && cluster.nodeIds.length >= 2 &&
         typeof cluster.confidence === "number" &&
+        Number.isFinite(cluster.confidence) &&
         cluster.confidence >= 0 && cluster.confidence <= 1
       )
     ? 1
@@ -266,8 +285,7 @@ function gradeSummary(expected: JsonRecord, candidate: JsonRecord): Grade {
       summaries.every((summary) =>
         typeof summary.clusterId === "string" &&
         typeof summary.summary === "string" && summary.summary.length > 0 &&
-        Array.isArray(summary.keywords) &&
-        asStrings(summary.keywords).length > 0
+        isStringArray(summary.keywords) && summary.keywords.length > 0
       )
     ? 1
     : 0;
@@ -380,8 +398,8 @@ function gradeRecommendations(
         recommendation.author.length > 0 &&
         typeof recommendation.reason === "string" &&
         recommendation.reason.length > 0 &&
-        Array.isArray(recommendation.keywords) &&
-        asStrings(recommendation.keywords).length > 0
+        isStringArray(recommendation.keywords) &&
+        recommendation.keywords.length > 0
       ) && uniqueTitles
     ? 1
     : 0;
@@ -416,8 +434,7 @@ function gradeKeywords(expected: JsonRecord, candidate: JsonRecord): Grade {
     ? expected.maxItems
     : 0;
   const qualityScore = f1Score(required, keywords);
-  const schemaScore = Array.isArray(candidate.keywords) &&
-      keywords.length === asArray(candidate.keywords).length &&
+  const schemaScore = isStringArray(candidate.keywords) &&
       keywords.length <= maxItems &&
       new Set(keywords).size === keywords.length
     ? 1
@@ -552,9 +569,7 @@ export async function evaluateRun(
   const sourceContractPassed = sourceReceipts.every((receipt) =>
     receipt.status === "pass"
   );
-  const candidates = options.candidates ?? Object.fromEntries(
-    SYNTHETIC_EVAL_CASES.map((testCase) => [testCase.id, testCase.baseline]),
-  );
+  const candidates = options.candidates;
   const cases: CaseResult[] = SYNTHETIC_EVAL_CASES.map((testCase) => {
     const candidate = record(candidates[testCase.id]);
     const candidateGrade = gradeCase(testCase, candidate);
@@ -625,6 +640,8 @@ export async function evaluateRun(
       sourceCommit: options.sourceCommit,
       fixtureVersion: EVALUATION_FIXTURE_VERSION,
       runnerVersion: EVALUATION_RUNNER_VERSION,
+      fixtureSha256: await sha256Hex(canonicalJson(SYNTHETIC_EVAL_CASES)),
+      candidateSource: options.candidateSource,
       providerCalls: 0 as const,
       liveProviderCalls: false as const,
     },
