@@ -84,9 +84,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Verify exact source head and baseline protection
+        if: github.event_name == 'pull_request'
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha }}
+          BASE_COMMIT: ${{ github.event.pull_request.base.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          if git cat-file -e "$BASE_COMMIT:supabase/functions/llm-evals/fixtures.ts" 2>/dev/null; then
+            git diff --quiet "$BASE_COMMIT" HEAD -- supabase/functions/llm-evals/contracts.ts supabase/functions/llm-evals/fixtures.ts
+          fi
       - name: Check all functions
         run: |
           while IFS= read -r entry; do
@@ -105,6 +119,13 @@ jobs:
           deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
           deno test --allow-read supabase/functions/_shared/edge-http.test.ts
           deno test --allow-read supabase/functions/send-batch-nudge/delivery-metrics.test.ts
+      - name: Run deterministic LLM quality gate
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          deno test --allow-read supabase/functions/llm-evals/evaluator.test.ts
+          deno run --allow-read supabase/functions/llm-evals/run.ts --commit "$SOURCE_COMMIT" --candidate synthetic > /tmp/bookgolas-llm-eval-report.json
+          cat /tmp/bookgolas-llm-eval-report.json
 
   governance-contract:
     name: Governance Contract Tests

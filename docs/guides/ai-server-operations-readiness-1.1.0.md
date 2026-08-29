@@ -13,24 +13,25 @@ public claims.
 
 | Surface | Evidence | Current boundary |
 | --- | --- | --- |
-| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `docs/guides/ai-usage-logging-1.1.0.md`, `docs/guides/ai-usage-dashboard-1.1.0.md` | `generate-embedding` has the first privacy-safe cost, token, latency, and outcome contract; BOK-419 adds the authenticated, bounded aggregate dashboard. Remaining AI function coverage is later work. |
+| AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `supabase/functions/llm-evals/`, `docs/guides/ai-quality-evaluation-1.1.0.md` | BOK-427 fixes provider/model/prompt/schema contracts for eight calls and adds a privacy-safe deterministic synthetic gate. BOK-428 and BOK-429 remain the cost-control and observability follow-ons; `reading-insights` and `generate-book-review` are outside BOK-427 coverage. |
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/`, `docs/guides/push-operations-metrics-1.1.0.md` | BOK-420 records bounded delivery outcomes, failure categories, invalid-token cleanup, CTR, and persisted dedupe-hit evidence; outbound alerting remains an approval-gated candidate. |
 | Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
 | Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `docs/guides/supabase-deployment-migration-rollback-1.1.0.md`, `docs/guides/edge-function-wrapper-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope, shared Edge Function HTTP boundary, deployment paths, migration handling, rollback boundaries, and Deno tests are recorded; live environment evidence remains separate. |
 | Observability | `web/src/lib/error-reporting.ts`, `supabase/functions/_shared/edge-http.ts`, `docs/guides/error-observability-1.1.0.md` | BOK-421 establishes provider-neutral Web/Edge error capture, request correlation, masking, and sampling boundaries; Flutter provider activation and hosted sinks remain separately authorized. |
 
-## 1.1.0 scope proposal
+## 1.1.0 scope and active follow-ons
 
-Must-have for readiness: BOK-414 CI gates, BOK-415 deploy/migration runbook,
+Historical foundation: BOK-414 CI gates, BOK-415 deploy/migration runbook,
 BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging,
 BOK-418 common function wrapper, BOK-419's bounded admin aggregate,
 BOK-420's push delivery evidence, and BOK-421's verified Web/Edge error-capture
 path with a cross-surface masking contract.
 
-Follow-up after the core safety/measurement baseline: additional AI surface
-coverage, Flutter provider activation, hosted sink verification, and external
-alert integration. These remain separately approved work, not silently enabled
-scope.
+Owner-approved active follow-ons: BOK-427 quality and regression evaluation,
+BOK-428 cost and usage control, and BOK-429 privacy-safe operational
+observability. These remain source, CI, and evidence work; provider changes,
+hosted sink verification, Flutter activation, and external alert integration
+remain separately approved work.
 
 ## Dependency and execution order
 
@@ -39,6 +40,8 @@ scope.
 3. BOK-417 follows the runbook and migration boundary in BOK-415.
 4. BOK-418 follows BOK-417; BOK-419 follows BOK-417; BOK-420 follows BOK-415.
 5. BOK-421 follows BOK-418.
+6. BOK-427 is the first active follow-on; BOK-428 and BOK-429 follow its
+   quality and evidence baseline.
 
 Each child issue remains one reviewed PR under `operations/1.1.0`; no child
 issue inherits another issue's approval, deployment, or external-action gate.
