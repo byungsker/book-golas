@@ -51,7 +51,7 @@ frontend fallback.
 deno test --allow-read supabase/functions/_shared/ai-cost-control.test.ts supabase/functions/_shared/ai-usage-contract.test.ts supabase/functions/ai-cost-control-contract.test.ts
 deno test --config supabase/functions/deno.json --allow-read supabase/functions/_shared/ai-usage.test.ts
 cd web && npm run test:ai-usage-dashboard
-psql postgresql://postgres:postgres@127.0.0.1:54322/postgres --set ON_ERROR_STOP=1 --file supabase/tests/database/ai_cost_controls.test.sql
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres --set ON_ERROR_STOP=1 --file supabase/functions/ai-cost-control-db.test.sql
 ```
 
 These checks are deterministic and do not call a provider or mutate hosted

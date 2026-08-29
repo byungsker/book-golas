@@ -39,7 +39,7 @@ assert(!migration.includes("OPENAI_API_KEY"));
 assert(!migration.includes("SUPABASE_SERVICE_ROLE_KEY"));
 assertMatch(
   schemaWorkflow,
-  /supabase\/tests\/database\/ai_cost_controls\.test\.sql/,
+  /supabase\/functions\/ai-cost-control-db\.test\.sql/,
 );
 
 console.log("AI cost-control migration contract passed");
