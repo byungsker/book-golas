@@ -1,6 +1,6 @@
 # Bookgolas Product Roadmap
 
-Last updated: 2026-08-21
+Last updated: 2026-08-29
 
 ## Target Delivery Contract
 
@@ -159,8 +159,16 @@ Functions, RAG/AI usage, FCM, 관리자 운영, CI, 보안, 관측성과 runbook
 수 있다. 인증, migration, 관리자 권한, 외부 알림, production 배포와 같은
 변경은 각 issue의 독립 검증과 별도 권한 경계를 유지한다.
 
-Executable issues: BOK-413, BOK-414, BOK-415, BOK-416, BOK-417, BOK-418,
-BOK-419, BOK-420, BOK-421.
+Historical foundation issues: BOK-413, BOK-414, BOK-415, BOK-416, BOK-417,
+BOK-418, BOK-419, BOK-420, BOK-421.
+
+Owner-approved follow-on objective (2026-08-27): the active `operations 1.1.0`
+goals are BOK-427 (LLM quality and regression evaluation), BOK-428 (cost and
+usage control), and BOK-429 (privacy-safe operational observability). These
+issues cover source, CI, and evidence controls; they do not authorize provider
+configuration changes, production deployment, or external notifications.
+
+Executable issues: BOK-427, BOK-428, BOK-429.
 
 ## Current evidence and unknowns
 

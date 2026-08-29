@@ -105,6 +105,11 @@ jobs:
           deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
           deno test --allow-read supabase/functions/_shared/edge-http.test.ts
           deno test --allow-read supabase/functions/send-batch-nudge/delivery-metrics.test.ts
+      - name: Run deterministic LLM quality gate
+        run: |
+          deno test --allow-read supabase/functions/llm-evals/evaluator.test.ts
+          deno run --allow-read supabase/functions/llm-evals/run.ts --commit "$GITHUB_SHA" > /tmp/bookgolas-llm-eval-report.json
+          cat /tmp/bookgolas-llm-eval-report.json
 
   governance-contract:
     name: Governance Contract Tests
