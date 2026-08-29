@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import {
   getDefaultAiUsageRange,
+  type AiUsageControlSummary,
+  type AiUsageDimensionMetric,
+  type AiUsagePolicy,
   type AiUsageSummary,
 } from "@/lib/ai-usage";
 
@@ -21,6 +24,9 @@ type DashboardResponse = AiUsageSummary & {
   range: { from: string; to: string };
   functionFilter: string;
   functionNames: string[];
+  featureModels: AiUsageDimensionMetric[];
+  controls: AiUsageControlSummary;
+  policy: AiUsagePolicy;
   limits: { maxRows: number; truncated: boolean };
 };
 
@@ -215,9 +221,44 @@ export default function AiUsagePage() {
             <MetricCard
               title="예상 비용"
               value={formatCost(summary.totals.estimatedCostUsd)}
-              description="로그에 기록된 추정값 합계"
+              description={`${formatNumber(summary.totals.unpricedCalls)}건은 비용 미확정`}
             />
           </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <MetricCard
+              title="통제 차단"
+              value={formatNumber(summary.controls.blocked)}
+              description="quota·rate·budget·hard cap 등"
+            />
+            <MetricCard
+              title="Provider 오류"
+              value={formatNumber(summary.controls.providerErrors)}
+              description="비용 확정과 분리된 오류 이벤트"
+            />
+            <MetricCard
+              title="Token 거부"
+              value={formatNumber(summary.controls.usageRejected)}
+              description="비정상·불일치 token 이벤트"
+            />
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>비용 통제 정책</CardTitle>
+              <CardDescription>
+                예약 단계에서 provider 호출 전에 적용되는 DB 유효 정책입니다. {summary.policy.policyVersion} · {summary.policy.effectiveFrom}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
+              <p>Rate: {formatNumber(summary.policy.requestsPerMinute)} / minute</p>
+              <p>Quota: {formatNumber(summary.policy.requestsPerDay)} / UTC day</p>
+              <p>Concurrent: {formatNumber(summary.policy.concurrentRequests)}</p>
+              <p>Budget: {formatCost(summary.policy.budgetUsdPerDay)} / day</p>
+              <p>Hard cap: {formatCost(summary.policy.hardCapUsdPerDay)} / day</p>
+              <p>Warning {summary.policy.warningPercent}% · Critical {summary.policy.criticalPercent}%</p>
+            </CardContent>
+          </Card>
 
           {summary.limits.truncated && (
             <p className="text-sm text-orange-600">
@@ -252,6 +293,45 @@ export default function AiUsagePage() {
                           <td className="px-2 py-3 text-right">{formatNumber(metric.calls)}</td>
                           <td className="px-2 py-3 text-right">{formatPercent(metric.failureRate)}</td>
                           <td className="px-2 py-3 text-right">{formatLatency(metric.averageLatencyMs)}</td>
+                          <td className="px-2 py-3 text-right">{formatCost(metric.estimatedCostUsd)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Feature·model별 지표</CardTitle>
+              <CardDescription>사용자 원문 없이 호출 표면과 모델 단위로 집계합니다.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {summary.featureModels.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground">표시할 feature·model 데이터가 없습니다.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border text-left text-muted-foreground">
+                        <th className="px-2 py-3">Feature</th>
+                        <th className="px-2 py-3">Model</th>
+                        <th className="px-2 py-3 text-right">호출</th>
+                        <th className="px-2 py-3 text-right">입력 추정</th>
+                        <th className="px-2 py-3 text-right">미확정 비용</th>
+                        <th className="px-2 py-3 text-right">예상 비용</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {summary.featureModels.map((metric) => (
+                        <tr key={`${metric.feature}-${metric.model}`} className="border-b border-border last:border-0">
+                          <td className="px-2 py-3 font-medium text-foreground">{metric.feature}</td>
+                          <td className="px-2 py-3 text-muted-foreground">{metric.model}</td>
+                          <td className="px-2 py-3 text-right">{formatNumber(metric.calls)}</td>
+                          <td className="px-2 py-3 text-right">{formatNumber(metric.estimatedCalls)}</td>
+                          <td className="px-2 py-3 text-right">{formatNumber(metric.unpricedCalls)}</td>
                           <td className="px-2 py-3 text-right">{formatCost(metric.estimatedCostUsd)}</td>
                         </tr>
                       ))}

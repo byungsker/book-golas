@@ -57,26 +57,26 @@ jobs:
       run:
         working-directory: web
     steps:
-      - if: ${{ !contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ !(contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/')) }}
         working-directory: .
         run: echo "Web quality is not applicable to this delivery unit"
-      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/') }}
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/') }}
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/') }}
         run: npm ci
       - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
         run: npm audit --audit-level=high
-      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/') }}
         run: npm run lint
-      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') }}
+      - if: ${{ contains(github.head_ref || github.ref_name, '/web/') || contains(github.head_ref || github.ref_name, '/operations/') }}
         run: npm run build
 
   edge-functions:
@@ -117,6 +117,9 @@ jobs:
           deno test --allow-net supabase/functions/send-batch-nudge/daily-reminder_test.ts supabase/functions/send-batch-nudge/deadline-reminder_test.ts
           deno test --config supabase/functions/reading-insights/deno.json --allow-env --allow-net supabase/functions/reading-insights/test.ts
           deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
+          deno test --allow-read supabase/functions/_shared/ai-cost-control.test.ts supabase/functions/_shared/ai-usage-contract.test.ts supabase/functions/ai-cost-control-contract.test.ts
+          deno test --config supabase/functions/deno.json --allow-read supabase/functions/_shared/ai-usage.test.ts
+          deno test --config supabase/functions/deno.json --allow-read supabase/functions/recommend-next-books/services/profile-collector.test.ts
           deno test --allow-read supabase/functions/_shared/edge-http.test.ts
           deno test --allow-read supabase/functions/send-batch-nudge/delivery-metrics.test.ts
       - name: Run deterministic LLM quality gate

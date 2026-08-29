@@ -9,7 +9,10 @@ import {
   executeThirdPartyAiOperation,
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
-import { acquireAiBudget, aiUsageErrorResponse } from "../_shared/ai-usage.ts";
+import {
+  aiUsageErrorResponse,
+  createAiProviderRunner,
+} from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -69,13 +72,18 @@ serve(async (req: Request) => {
       config.supabase.url,
       config.supabase.serviceRoleKey,
     );
+    const runAiCall = createAiProviderRunner(
+      authClient,
+      supabase,
+      user.id,
+    );
 
     const profileCollector = new ProfileCollector(supabase);
     const profileOperation = await collectProfileWithConsent(
       authClient,
       user.id,
       profileCollector,
-      (prompt) => acquireAiBudget(authClient, prompt.length),
+      runAiCall,
     );
     if (!profileOperation.allowed) {
       return thirdPartyAiConsentRequiredResponse(corsHeaders);
@@ -98,7 +106,7 @@ serve(async (req: Request) => {
     }
 
     const recommendationService = new RecommendationService(
-      (prompt) => acquireAiBudget(authClient, prompt.length),
+      runAiCall,
       locale,
     );
     const recommendationOperation = await executeThirdPartyAiOperation(

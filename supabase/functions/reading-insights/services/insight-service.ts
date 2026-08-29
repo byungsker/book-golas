@@ -7,6 +7,10 @@ import {
   AI_MAX_OUTPUT_TOKENS,
   AI_PROVIDER_TIMEOUT_MS,
 } from "../../_shared/ai-usage.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 interface MemoryRecord {
   id: string;
@@ -33,18 +37,22 @@ export class InsightService {
   private llm: ChatOpenAI;
   private supabase: SupabaseClient;
   private promptTemplate: PromptTemplate;
-  private readonly beforeProviderCall: (
+  private readonly runProviderCall: <T>(
     input: string,
-  ) => Promise<() => Promise<void>>;
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>;
 
   constructor(
     supabase: SupabaseClient,
-    beforeProviderCall: (
+    runProviderCall: <T>(
       input: string,
-    ) => Promise<() => Promise<void>>,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
   ) {
     this.supabase = supabase;
-    this.beforeProviderCall = beforeProviderCall;
+    this.runProviderCall = runProviderCall;
 
     this.llm = new ChatOpenAI({
       openAIApiKey: config.openai.apiKey,
@@ -121,22 +129,22 @@ export class InsightService {
       yearOverYear: this.formatYearOverYear(patterns),
       memory: memory || "(이전 인사이트 없음)",
     });
-    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
-
-    let response;
-    try {
-      response = await this.llm.invoke(formattedPrompt);
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        (error.message.includes("timeout") || error.name === "AbortError")
-      ) {
-        throw new Error("Insight generation timed out");
-      }
-      throw error;
-    } finally {
-      await releaseProviderLease();
-    }
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "reading-insights",
+        feature: "reading-insights",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "reading-insights-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
 
     const insights = this.parseResponse(response.content as string);
 

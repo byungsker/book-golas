@@ -10,6 +10,10 @@ import {
   AI_MAX_OUTPUT_TOKENS,
   AI_PROVIDER_TIMEOUT_MS,
 } from "../../_shared/ai-usage.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 export interface ContentItem {
   id: string;
@@ -70,17 +74,21 @@ export function remapResolvedConnections(
 
 export class ChainService {
   private llm: ChatOpenAI;
-  private readonly beforeProviderCall: (
+  private readonly runProviderCall: <T>(
     input: string,
-  ) => Promise<() => Promise<void>>;
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>;
 
   constructor(
     apiKey: string,
-    beforeProviderCall: (
+    runProviderCall: <T>(
       input: string,
-    ) => Promise<() => Promise<void>>,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
   ) {
-    this.beforeProviderCall = beforeProviderCall;
+    this.runProviderCall = runProviderCall;
     this.llm = new ChatOpenAI({
       openAIApiKey: apiKey,
       modelName: "gpt-4o-mini",
@@ -152,13 +160,22 @@ export class ChainService {
     contents: string,
   ): Promise<ClassificationResult> {
     const formattedPrompt = await classificationPrompt.format({ contents });
-    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
-    let response;
-    try {
-      response = await this.llm.invoke(formattedPrompt);
-    } finally {
-      await releaseProviderLease();
-    }
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "structure-notes",
+        feature: "structure-notes.classification",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "structure-classification-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
     return this.parseJsonResponse<ClassificationResult>(
       response.content as string,
     );
@@ -190,13 +207,22 @@ export class ChainService {
 
   private async runSummary(clusteredContents: string): Promise<SummaryResult> {
     const formattedPrompt = await summaryPrompt.format({ clusteredContents });
-    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
-    let response;
-    try {
-      response = await this.llm.invoke(formattedPrompt);
-    } finally {
-      await releaseProviderLease();
-    }
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "structure-notes",
+        feature: "structure-notes.summary",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "structure-summary-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
     return this.parseJsonResponse<SummaryResult>(response.content as string);
   }
 
@@ -237,13 +263,22 @@ ${clusterContents}`;
     const formattedPrompt = await connectionPrompt.format({
       summarizedClusters,
     });
-    const releaseProviderLease = await this.beforeProviderCall(formattedPrompt);
-    let response;
-    try {
-      response = await this.llm.invoke(formattedPrompt);
-    } finally {
-      await releaseProviderLease();
-    }
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "structure-notes",
+        feature: "structure-notes.connection",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "structure-connection-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
     return this.parseJsonResponse<ConnectionResult>(response.content as string);
   }
 

@@ -11,15 +11,21 @@ import {
   calculateDailyGoalAchievementRate,
 } from "../utils/analytics-calculator.ts";
 import { extractUserInterests } from "./rag-service.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 export class ProfileCollector {
   constructor(private supabase: SupabaseClient) {}
 
   async collect(
     userId: string,
-    beforeProviderCall: (
+    runProviderCall: <T>(
       input: string,
-    ) => Promise<() => Promise<void>>,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
   ): Promise<UserReadingProfile> {
     const completedBooks = await this.fetchCompletedBooks(userId);
     const booksAnalytics = await this.analyzeBooksInDetail(completedBooks);
@@ -35,7 +41,7 @@ export class ProfileCollector {
     const interests = await extractUserInterests(
       this.supabase,
       userId,
-      beforeProviderCall,
+      runProviderCall,
     );
 
     return {

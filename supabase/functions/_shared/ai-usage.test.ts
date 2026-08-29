@@ -4,6 +4,10 @@ import {
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  AiUsageControlEventRow,
+  AiUsageLogRow,
+} from "./ai-usage-contract.ts";
 import {
   AI_MAX_INPUT_CHARS,
   AiUsageError,
@@ -12,7 +16,37 @@ import {
   consumeAiBudget,
   fetchAiProvider,
   withAiBudget,
+  withTrackedAiBudget,
 } from "./ai-usage.ts";
+
+class MockUsageClient {
+  logs: AiUsageLogRow[] = [];
+  events: AiUsageControlEventRow[] = [];
+
+  from(table: string) {
+    return {
+      insert: (row: AiUsageLogRow | AiUsageControlEventRow) => {
+        if (table === "ai_usage_logs") this.logs.push(row as AiUsageLogRow);
+        if (table === "ai_usage_control_events") {
+          this.events.push(row as AiUsageControlEventRow);
+        }
+        return Promise.resolve({ error: null });
+      },
+    };
+  }
+}
+
+function trackedContext() {
+  return {
+    functionName: "test-function",
+    feature: "test-feature",
+    provider: "open_ai" as const,
+    model: "gpt-4o-mini",
+    promptVersion: "test-v1",
+    maxOutputTokens: 100,
+    requireOutputTokens: true,
+  };
+}
 
 Deno.test("AI input boundary accepts the configured maximum", () => {
   assertAiInputSize(AI_MAX_INPUT_CHARS);
@@ -42,7 +76,7 @@ Deno.test("AI budget releases a lease after a successful provider operation", as
     rpc: (name: string) => {
       calls.push(name);
       return Promise.resolve(
-        name === "consume_ai_usage"
+        name === "reserve_ai_usage"
           ? { data: { allowed: true, leaseId: "lease-success" }, error: null }
           : { data: true, error: null },
       );
@@ -50,7 +84,7 @@ Deno.test("AI budget releases a lease after a successful provider operation", as
   } as unknown as SupabaseClient;
 
   await withAiBudget(client, 10, async () => "ok");
-  assertEquals(calls, ["consume_ai_usage", "release_ai_usage"]);
+  assertEquals(calls, ["reserve_ai_usage", "release_ai_usage"]);
 });
 
 Deno.test("AI budget releases a lease after a failed provider operation", async () => {
@@ -59,7 +93,7 @@ Deno.test("AI budget releases a lease after a failed provider operation", async 
     rpc: (name: string) => {
       calls.push(name);
       return Promise.resolve(
-        name === "consume_ai_usage"
+        name === "reserve_ai_usage"
           ? { data: { allowed: true, leaseId: "lease-failure" }, error: null }
           : { data: true, error: null },
       );
@@ -74,7 +108,119 @@ Deno.test("AI budget releases a lease after a failed provider operation", async 
     Error,
     "provider failed",
   );
-  assertEquals(calls, ["consume_ai_usage", "release_ai_usage"]);
+  assertEquals(calls, ["reserve_ai_usage", "release_ai_usage"]);
+});
+
+Deno.test("blocked reservations do not invoke the provider", async () => {
+  let providerCalls = 0;
+  const client = {
+    rpc: (name: string) =>
+      Promise.resolve(
+        name === "reserve_ai_usage"
+          ? {
+            data: { allowed: false, reason: "hard_cap_exceeded" },
+            error: null,
+          }
+          : { data: true, error: null },
+      ),
+  } as unknown as SupabaseClient;
+  const logClient = new MockUsageClient();
+
+  const error = await assertRejects(
+    () =>
+      withTrackedAiBudget(
+        client,
+        logClient,
+        "user-1",
+        10,
+        trackedContext(),
+        async () => {
+          providerCalls += 1;
+          return {
+            value: "never",
+            usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+          };
+        },
+      ),
+  );
+  assertEquals((error as AiUsageError).code, "hard_cap_exceeded");
+  assertEquals(providerCalls, 0);
+  assertEquals(logClient.logs.length, 0);
+});
+
+Deno.test("successful provider calls record finalized usage", async () => {
+  const client = {
+    rpc: (name: string) =>
+      Promise.resolve(
+        name === "reserve_ai_usage"
+          ? { data: { allowed: true, leaseId: "lease-1" }, error: null }
+          : { data: true, error: null },
+      ),
+  } as unknown as SupabaseClient;
+  const logClient = new MockUsageClient();
+
+  const value = await withTrackedAiBudget(
+    client,
+    logClient,
+    "user-1",
+    10,
+    trackedContext(),
+    async () => ({
+      value: "answer",
+      usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
+    }),
+  );
+  assertEquals(value, "answer");
+  assertEquals(logClient.logs.length, 1);
+  assertEquals(logClient.logs[0].pricing_status, "finalized");
+  assertEquals(logClient.logs[0].token_status, "valid");
+  assertEquals(logClient.events.length, 0);
+});
+
+Deno.test("provider failures and rejected usage record bounded events", async () => {
+  const client = {
+    rpc: (name: string) =>
+      Promise.resolve(
+        name === "reserve_ai_usage"
+          ? { data: { allowed: true, leaseId: "lease-2" }, error: null }
+          : { data: true, error: null },
+      ),
+  } as unknown as SupabaseClient;
+  const providerErrorLogs = new MockUsageClient();
+  const providerError = await assertRejects(
+    () =>
+      withTrackedAiBudget(
+        client,
+        providerErrorLogs,
+        "user-1",
+        10,
+        trackedContext(),
+        async () => {
+          throw new Error("provider payload must not be stored");
+        },
+      ),
+  );
+  assertEquals((providerError as AiUsageError).code, "provider_error");
+  assertEquals(providerErrorLogs.logs[0].pricing_status, "not_finalized");
+  assertEquals(providerErrorLogs.events[0].event_type, "provider_error");
+  assertEquals(providerErrorLogs.events[0].reason, "provider_error");
+
+  const rejectedUsageLogs = new MockUsageClient();
+  const rejectedUsage = await assertRejects(
+    () =>
+      withTrackedAiBudget(
+        client,
+        rejectedUsageLogs,
+        "user-1",
+        10,
+        trackedContext(),
+        async () => ({ value: "invalid", usage: undefined }),
+      ),
+  );
+  assertEquals((rejectedUsage as AiUsageError).code, "invalid_token_usage");
+  assertEquals(rejectedUsageLogs.logs[0].error_code, "invalid_token_usage");
+  assertEquals(rejectedUsageLogs.events[0].event_type, "usage_rejected");
+  assertEquals(rejectedUsageLogs.events[0].reason, "invalid_token_usage");
 });
 
 Deno.test("provider timeout errors return a stable 503 response", async () => {

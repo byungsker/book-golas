@@ -7,9 +7,9 @@ import {
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 import {
-  acquireAiBudget,
   aiUsageErrorResponse,
   assertAiInputSize,
+  createAiProviderRunner,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -83,6 +83,11 @@ serve(async (req: Request) => {
         },
       },
     );
+    const runAiCall = createAiProviderRunner(
+      supabaseClient,
+      serviceClient,
+      user.id,
+    );
 
     const { data: contents, error: fetchError } = await serviceClient
       .from("reading_content_embeddings")
@@ -120,10 +125,7 @@ serve(async (req: Request) => {
     assertAiInputSize(inputChars);
     const chainService = new ChainService(
       OPENAI_API_KEY,
-      (prompt) => {
-        assertAiInputSize(prompt.length);
-        return acquireAiBudget(supabaseClient, prompt.length);
-      },
+      runAiCall,
     );
     const structureOperation = await executeThirdPartyAiOperation(
       supabaseClient,

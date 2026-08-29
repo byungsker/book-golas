@@ -9,9 +9,8 @@ import {
   thirdPartyAiConsentRequiredResponse,
 } from "../_shared/third-party-ai-consent.ts";
 import {
-  acquireAiBudget,
   aiUsageErrorResponse,
-  assertAiInputSize,
+  createAiProviderRunner,
 } from "../_shared/ai-usage.ts";
 
 const corsHeaders = {
@@ -72,14 +71,16 @@ serve(async (req: Request) => {
       config.supabase.url,
       config.supabase.serviceRoleKey,
     );
+    const runAiCall = createAiProviderRunner(
+      authClient,
+      supabase,
+      user.id,
+    );
 
     const patternCollector = new PatternCollector(supabase);
     const insightService = new InsightService(
       supabase,
-      (prompt) => {
-        assertAiInputSize(prompt.length);
-        return acquireAiBudget(authClient, prompt.length);
-      },
+      runAiCall,
     );
 
     const patterns = await patternCollector.collect(userId);

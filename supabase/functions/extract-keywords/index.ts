@@ -7,8 +7,8 @@ import {
 } from "../_shared/third-party-ai-consent.ts";
 import {
   aiUsageErrorResponse,
+  createAiProviderRunner,
   fetchAiProvider,
-  withAiBudget,
 } from "../_shared/ai-usage.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -18,7 +18,10 @@ interface KeywordRequest {
   limit?: number;
 }
 
-async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
+async function extractKeywordsWithGPTUsage(texts: string[]): Promise<{
+  value: string[];
+  usage: unknown;
+}> {
   const combinedText = texts.join("\n---\n");
 
   const response = await fetchAiProvider(
@@ -66,18 +69,28 @@ async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
   try {
     const keywords = JSON.parse(content);
     if (Array.isArray(keywords)) {
-      return keywords.filter((k: string) =>
-        k && k.length >= 2 && k.length <= 10
-      );
+      return {
+        value: keywords.filter((k: string) =>
+          k && k.length >= 2 && k.length <= 10
+        ),
+        usage: data.usage,
+      };
     }
   } catch {
     const matches = content.match(/["']([^"']+)["']/g);
     if (matches) {
-      return matches.map((m: string) => m.replace(/["']/g, "")).slice(0, 8);
+      return {
+        value: matches.map((m: string) => m.replace(/["']/g, "")).slice(0, 8),
+        usage: data.usage,
+      };
     }
   }
 
-  return [];
+  return { value: [], usage: data.usage };
+}
+
+async function extractKeywordsWithGPT(texts: string[]): Promise<string[]> {
+  return (await extractKeywordsWithGPTUsage(texts)).value;
 }
 
 serve(async (req: Request) => {
@@ -139,6 +152,11 @@ serve(async (req: Request) => {
         },
       },
     );
+    const runAiCall = createAiProviderRunner(
+      supabaseClient,
+      serviceClient,
+      user.id,
+    );
 
     const { data: contents, error: fetchError } = await serviceClient
       .from("reading_content_embeddings")
@@ -178,10 +196,18 @@ serve(async (req: Request) => {
       user.id,
       "open_ai",
       async () => {
-        return withAiBudget(
-          supabaseClient,
-          inputChars,
-          () => extractKeywordsWithGPT(texts),
+        return runAiCall(
+          texts.join("\n---\n"),
+          {
+            functionName: "extract-keywords",
+            feature: "extract-keywords",
+            provider: "open_ai",
+            model: "gpt-4o-mini",
+            promptVersion: "keywords-v1",
+            maxOutputTokens: 200,
+            requireOutputTokens: true,
+          },
+          () => extractKeywordsWithGPTUsage(texts),
         );
       },
     );
