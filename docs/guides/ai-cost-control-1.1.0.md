@@ -42,12 +42,16 @@ input-length estimate used by a LangChain embedding path.
 
 The authenticated `/admin/ai-usage` page shows finalized and unpriced calls,
 feature·model dimensions, policy thresholds, and control-event counts without
-returning user IDs, prompts, reading data, or provider payloads.
+returning user IDs, prompts, reading data, or provider payloads. Its policy
+projection is read from the latest effective `ai_usage_policy_versions` row,
+including the policy version and effective timestamp; it does not use a stale
+frontend fallback.
 
 ```bash
 deno test --allow-read supabase/functions/_shared/ai-cost-control.test.ts supabase/functions/_shared/ai-usage-contract.test.ts supabase/functions/ai-cost-control-contract.test.ts
 deno test --config supabase/functions/deno.json --allow-read supabase/functions/_shared/ai-usage.test.ts
 cd web && npm run test:ai-usage-dashboard
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres --set ON_ERROR_STOP=1 --file supabase/tests/database/ai_cost_controls.test.sql
 ```
 
 These checks are deterministic and do not call a provider or mutate hosted

@@ -3,10 +3,11 @@ import {
   aggregateAiUsage,
   aggregateAiUsageByFeatureModel,
   aggregateAiUsageControls,
-  AI_USAGE_POLICY,
   parseAiUsageDateRange,
   type AiUsageControlEventRow,
   type AiUsageLogRow,
+  toAiUsagePolicy,
+  type AiUsagePolicyRow,
 } from "@/lib/ai-usage";
 import { captureWebError } from "@/lib/error-reporting";
 import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabase-server";
@@ -15,6 +16,7 @@ const MAX_ROWS = 10000;
 const FUNCTION_NAME_PATTERN = /^[A-Za-z0-9._:/-]+$/;
 const AI_USAGE_COLUMNS = "function_name, feature, provider, model, latency_ms, status, estimated_cost_usd, pricing_status, token_status, usage_source, created_at";
 const AI_CONTROL_COLUMNS = "function_name, event_type, decision, reason, created_at";
+const AI_USAGE_POLICY_COLUMNS = "policy_version, effective_from, requests_per_minute, requests_per_day, concurrent_requests, budget_usd_per_day, hard_cap_usd_per_day, warning_ratio, critical_ratio";
 
 function serverError(request: NextRequest, errorCode: string, message: string) {
   const requestId = captureWebError(request, {
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const client = createServiceRoleSupabaseClient();
-    const [usageResult, controlResult] = await Promise.all([
+    const [usageResult, controlResult, policyResult] = await Promise.all([
       client
         .from("ai_usage_logs")
         .select(AI_USAGE_COLUMNS)
@@ -68,14 +70,23 @@ export async function GET(request: NextRequest) {
         .lt("created_at", dateRange.toExclusiveTimestamp)
         .order("created_at", { ascending: true })
         .limit(MAX_ROWS),
+      client
+        .from("ai_usage_policy_versions")
+        .select(AI_USAGE_POLICY_COLUMNS)
+        .eq("policy_key", "default")
+        .lte("effective_from", new Date().toISOString())
+        .order("effective_from", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
-    if (usageResult.error || controlResult.error) {
+    if (usageResult.error || controlResult.error || policyResult.error || !policyResult.data) {
       return serverError(request, "ai_usage_query_failed", "Failed to load AI usage summary");
     }
 
     const rows = (usageResult.data ?? []) as AiUsageLogRow[];
     const controlRows = (controlResult.data ?? []) as AiUsageControlEventRow[];
+    const policy = toAiUsagePolicy(policyResult.data as AiUsagePolicyRow);
     const functionNames = Array.from(
       new Set([
         ...rows.map((row) => row.function_name?.trim()),
@@ -97,7 +108,7 @@ export async function GET(request: NextRequest) {
         ...aggregateAiUsage(filteredRows),
         featureModels: aggregateAiUsageByFeatureModel(filteredRows),
         controls: aggregateAiUsageControls(filteredControlRows),
-        policy: AI_USAGE_POLICY,
+        policy,
         limits: {
           maxRows: MAX_ROWS,
           truncated: rows.length === MAX_ROWS || controlRows.length === MAX_ROWS,

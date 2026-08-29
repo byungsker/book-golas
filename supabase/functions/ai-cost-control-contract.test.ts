@@ -6,6 +6,9 @@ import {
 const migrationPath =
   "supabase/migrations/20260829095530_add_ai_cost_controls.sql";
 const migration = await Deno.readTextFile(migrationPath);
+const schemaWorkflow = await Deno.readTextFile(
+  ".github/workflows/schema-check.yml",
+);
 
 assertMatch(
   migration,
@@ -34,5 +37,9 @@ assertMatch(
 );
 assert(!migration.includes("OPENAI_API_KEY"));
 assert(!migration.includes("SUPABASE_SERVICE_ROLE_KEY"));
+assertMatch(
+  schemaWorkflow,
+  /supabase\/tests\/database\/ai_cost_controls\.test\.sql/,
+);
 
 console.log("AI cost-control migration contract passed");

@@ -13,10 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AI_USAGE_POLICY,
   getDefaultAiUsageRange,
   type AiUsageControlSummary,
   type AiUsageDimensionMetric,
+  type AiUsagePolicy,
   type AiUsageSummary,
 } from "@/lib/ai-usage";
 
@@ -26,7 +26,7 @@ type DashboardResponse = AiUsageSummary & {
   functionNames: string[];
   featureModels: AiUsageDimensionMetric[];
   controls: AiUsageControlSummary;
-  policy: typeof AI_USAGE_POLICY;
+  policy: AiUsagePolicy;
   limits: { maxRows: number; truncated: boolean };
 };
 
@@ -246,7 +246,9 @@ export default function AiUsagePage() {
           <Card>
             <CardHeader>
               <CardTitle>비용 통제 정책</CardTitle>
-              <CardDescription>예약 단계에서 provider 호출 전에 적용되는 일일 정책입니다.</CardDescription>
+              <CardDescription>
+                예약 단계에서 provider 호출 전에 적용되는 DB 유효 정책입니다. {summary.policy.policyVersion} · {summary.policy.effectiveFrom}
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
               <p>Rate: {formatNumber(summary.policy.requestsPerMinute)} / minute</p>

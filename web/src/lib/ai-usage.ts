@@ -1,14 +1,43 @@
 export const DEFAULT_AI_USAGE_DAYS = 7;
 export const MAX_AI_USAGE_DAYS = 31;
-export const AI_USAGE_POLICY = {
-  requestsPerMinute: 10,
-  requestsPerDay: 30,
-  concurrentRequests: 3,
-  budgetUsdPerDay: 0.05,
-  hardCapUsdPerDay: 0.1,
-  warningPercent: 80,
-  criticalPercent: 90,
-} as const;
+
+export type AiUsagePolicy = {
+  policyVersion: string;
+  effectiveFrom: string;
+  requestsPerMinute: number;
+  requestsPerDay: number;
+  concurrentRequests: number;
+  budgetUsdPerDay: number;
+  hardCapUsdPerDay: number;
+  warningPercent: number;
+  criticalPercent: number;
+};
+
+export type AiUsagePolicyRow = {
+  policy_version: string;
+  effective_from: string;
+  requests_per_minute: number | string;
+  requests_per_day: number | string;
+  concurrent_requests: number | string;
+  budget_usd_per_day: number | string;
+  hard_cap_usd_per_day: number | string;
+  warning_ratio: number | string;
+  critical_ratio: number | string;
+};
+
+export function toAiUsagePolicy(row: AiUsagePolicyRow): AiUsagePolicy {
+  return {
+    policyVersion: row.policy_version,
+    effectiveFrom: row.effective_from,
+    requestsPerMinute: Number(row.requests_per_minute),
+    requestsPerDay: Number(row.requests_per_day),
+    concurrentRequests: Number(row.concurrent_requests),
+    budgetUsdPerDay: Number(row.budget_usd_per_day),
+    hardCapUsdPerDay: Number(row.hard_cap_usd_per_day),
+    warningPercent: Number(row.warning_ratio) * 100,
+    criticalPercent: Number(row.critical_ratio) * 100,
+  };
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
