@@ -67,6 +67,9 @@ def lexical_path(path: Path) -> Path:
 
 def anchored_path(path: Path, expected: Path) -> bool:
     try:
+        raw_parts = os.fspath(path).replace("\\", "/").split("/")
+        if any(part in {".", ".."} for part in raw_parts):
+            return False
         return lexical_path(path) == expected and path.resolve() == expected
     except (OSError, RuntimeError):
         return False
@@ -74,9 +77,12 @@ def anchored_path(path: Path, expected: Path) -> bool:
 
 def command_path_safe(item: str, repository: Path) -> bool:
     if item.startswith("-") or item.startswith("!") or ("/" not in item and not item.startswith(".")):
-        return True
+        candidate = repository / item
+        if not candidate.exists() and not candidate.is_symlink():
+            return True
     value = Path(item)
-    if ".." in value.parts:
+    raw_parts = item.replace("\\", "/").split("/")
+    if any(part in {".", ".."} for part in raw_parts) or ".." in value.parts:
         return False
     current = repository
     for part in value.parts:

@@ -60,6 +60,14 @@ class HarnessRunnerTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("state path", result.stdout)
 
+    def test_runtime_path_alias_is_rejected(self) -> None:
+        repository = ROOT.parent.parent
+        state_path = repository / "docs/agent-harness/runtime/../runtime/task-state.json"
+        events_path = repository / "docs/agent-harness/runtime/events.jsonl"
+        result = subprocess.run([sys.executable, str(RUNNER), "--state", str(state_path), "--events", str(events_path), "--command-class", "local_verify", "--", "python3", "docs/agent-harness/test_validate.py"], cwd=repository, capture_output=True, text=True, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("state path", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

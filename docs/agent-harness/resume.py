@@ -16,6 +16,9 @@ from validate import load_json, validate
 
 def anchored_path(path: Path, expected: Path) -> bool:
     try:
+        raw_parts = os.fspath(path).replace("\\", "/").split("/")
+        if any(part in {".", ".."} for part in raw_parts):
+            return False
         return Path(os.path.abspath(os.fspath(path))) == expected and path.resolve() == expected
     except (OSError, RuntimeError):
         return False
