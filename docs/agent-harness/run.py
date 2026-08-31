@@ -61,7 +61,35 @@ def next_sequence(path: Path) -> int:
     return sequence + 1
 
 
-def command_allowed(command: list[str], command_class: str, policy: dict[str, Any]) -> tuple[bool, list[str], str]:
+def lexical_path(path: Path) -> Path:
+    return Path(os.path.abspath(os.fspath(path)))
+
+
+def anchored_path(path: Path, expected: Path) -> bool:
+    try:
+        return lexical_path(path) == expected and path.resolve() == expected
+    except (OSError, RuntimeError):
+        return False
+
+
+def command_path_safe(item: str, repository: Path) -> bool:
+    if item.startswith("-") or item.startswith("!") or ("/" not in item and not item.startswith(".")):
+        return True
+    value = Path(item)
+    if ".." in value.parts:
+        return False
+    current = repository
+    for part in value.parts:
+        current /= part
+        if current.is_symlink():
+            return False
+    try:
+        return (repository / value).resolve().is_relative_to(repository)
+    except (OSError, RuntimeError):
+        return False
+
+
+def command_allowed(command: list[str], command_class: str, policy: dict[str, Any], repository: Path) -> tuple[bool, list[str], str]:
     capabilities = policy.get("capabilities", {})
     capability = capabilities.get(command_class, {}) if isinstance(capabilities, dict) else {}
     allowed = capability.get("commands", []) if isinstance(capability, dict) else []
@@ -69,6 +97,8 @@ def command_allowed(command: list[str], command_class: str, policy: dict[str, An
         return False, command, "command is empty"
     if any(not isinstance(item, str) or "\x00" in item or item.startswith("/") for item in command):
         return False, command, "absolute or invalid command argument"
+    if any(not command_path_safe(item, repository) for item in command[1:]):
+        return False, command, "command operand is outside the repository or uses a symlink"
     if any(any(forbidden in item.lower() for forbidden in FORBIDDEN_ARGUMENTS) for item in command):
         return False, command, "mutation-like command argument is denied"
     matched = False
@@ -114,18 +144,21 @@ def main() -> int:
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
-    repository = args.repo.resolve()
-    expected_repository = ROOT.parent.parent.resolve()
-    expected_policy = POLICY_PATH.resolve()
-    expected_state = expected_repository / "docs/agent-harness/runtime/task-state.json"
-    expected_events = expected_repository / "docs/agent-harness/runtime/events.jsonl"
-    if repository != expected_repository:
+    try:
+        repository = args.repo.resolve()
+        expected_repository = ROOT.parent.parent.resolve()
+        expected_policy = POLICY_PATH.resolve()
+        expected_state = expected_repository / "docs/agent-harness/runtime/task-state.json"
+        expected_events = expected_repository / "docs/agent-harness/runtime/events.jsonl"
+    except (OSError, RuntimeError):
+        return fail("harness paths could not be resolved")
+    if not anchored_path(args.repo, expected_repository):
         return fail("repository path is not the harness repository")
-    if args.policy.resolve() != expected_policy:
+    if not anchored_path(args.policy, expected_policy):
         return fail("policy path is not the harness policy")
-    if args.state.resolve() != expected_state:
+    if not anchored_path(args.state, expected_state):
         return fail("state path is not the policy runtime state path")
-    if args.events.resolve() != expected_events:
+    if not anchored_path(args.events, expected_events):
         return fail("event path is not the policy runtime event path")
     try:
         policy = load_json(args.policy)
@@ -145,7 +178,7 @@ def main() -> int:
     initial = validate(args.policy, args.state, args.events, args.repo)
     if initial["status"] != "pass":
         return fail("initial state validation failed")
-    allowed, safe_command, reason = command_allowed(command, args.command_class, policy)
+    allowed, safe_command, reason = command_allowed(command, args.command_class, policy, repository)
     if not allowed:
         return fail(reason)
     limits = policy["limits"]
@@ -166,6 +199,7 @@ def main() -> int:
         return fail("attempt limit exceeded")
     if elapsed > limits["max_wall_minutes"] * 60:
         return fail("wall-time limit exceeded")
+    command_timeout = min(limits["max_command_seconds"], max(0.01, limits["max_wall_minutes"] * 60 - elapsed))
     usage["attempts"] = attempts
     usage["elapsed_seconds"] = elapsed
     state["status"] = "in_progress"
@@ -184,11 +218,11 @@ def main() -> int:
     try:
         process = subprocess.Popen(safe_command, cwd=args.repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
         try:
-            process.communicate(timeout=limits["max_command_seconds"])
+            process.communicate(timeout=command_timeout)
             exit_code = process.returncode
         except subprocess.TimeoutExpired:
             timed_out = True
-            error_class = "timeout"
+            error_class = "wall_timeout" if command_timeout < limits["max_command_seconds"] else "timeout"
             os.killpg(process.pid, signal.SIGKILL)
             process.communicate()
             exit_code = 124
@@ -206,11 +240,12 @@ def main() -> int:
         append_event(args.events, event(state["task_id"], sequence, "command_end", state["step"], result, state["head_sha"], tool=safe_command[0], command_class=args.command_class, exit_code=exit_code, error_class=error_class, duration_seconds=duration, next_action=next_action))
     except (OSError, ValueError, KeyError):
         return fail("command result could not be recorded")
-    state["status"] = "checkpointed"
+    wall_timeout = error_class == "wall_timeout"
+    state["status"] = "blocked" if wall_timeout else "checkpointed"
     state["last_checkpoint_at"] = timestamp()
     state["next_action"] = next_action
     state["blocked_by"] = [] if passed else [error_class or f"exit_{exit_code}"]
-    state["recovery"] = {"mode": "continue" if passed else ("retry_once" if attempts < limits["max_attempts"] else "checkpoint_and_escalate"), "owner": "agent" if passed else "human", "next_action": next_action, "reason": error_class}
+    state["recovery"] = {"mode": "continue" if passed else ("checkpoint_and_escalate" if wall_timeout or attempts >= limits["max_attempts"] else "retry_once"), "owner": "agent" if passed else "human", "next_action": next_action, "reason": error_class}
     write_json(args.state, state)
     final = validate(args.policy, args.state, args.events, args.repo)
     output = {"status": "pass" if passed and final["status"] == "pass" else "fail", "exit_code": exit_code, "duration_seconds": round(duration, 3), "validation": final["status"]}

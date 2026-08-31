@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,13 @@ ROOT = Path(__file__).resolve().parent
 POLICY_PATH = ROOT / "harness-policy.json"
 
 from validate import load_json, validate
+
+
+def anchored_path(path: Path, expected: Path) -> bool:
+    try:
+        return Path(os.path.abspath(os.fspath(path))) == expected and path.resolve() == expected
+    except (OSError, RuntimeError):
+        return False
 
 
 def last_event(path: Path) -> dict[str, Any]:
@@ -27,12 +35,15 @@ def main() -> int:
     parser.add_argument("--events", type=Path, required=True)
     parser.add_argument("--repo", type=Path, default=Path.cwd())
     args = parser.parse_args()
-    repository = args.repo.resolve()
-    expected_repository = ROOT.parent.parent.resolve()
-    expected_policy = POLICY_PATH.resolve()
+    try:
+        expected_repository = ROOT.parent.parent.resolve()
+        expected_policy = POLICY_PATH.resolve()
+    except (OSError, RuntimeError):
+        print(json.dumps({"status": "fail", "error": "harness paths could not be resolved"}, ensure_ascii=False))
+        return 1
     expected_state = expected_repository / "docs/agent-harness/runtime/task-state.json"
     expected_events = expected_repository / "docs/agent-harness/runtime/events.jsonl"
-    if repository != expected_repository or args.policy.resolve() != expected_policy or args.state.resolve() != expected_state or args.events.resolve() != expected_events:
+    if not anchored_path(args.repo, expected_repository) or not anchored_path(args.policy, expected_policy) or not anchored_path(args.state, expected_state) or not anchored_path(args.events, expected_events):
         print(json.dumps({"status": "fail", "error": "resume paths are outside the harness repository"}, ensure_ascii=False))
         return 1
     result = validate(args.policy, args.state, args.events, args.repo)
