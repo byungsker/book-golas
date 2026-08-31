@@ -29,6 +29,7 @@ def main() -> int:
     if status.returncode != 0 or status.stdout.strip():
         print(json.dumps({"status": "fail", "error": "CI checkout is not clean"}, ensure_ascii=False))
         return 1
+    branch = subprocess.run(["git", "branch", "--show-current"], cwd=repository, capture_output=True, text=True, check=False).stdout.strip() or "codex/feature/operations/1.1.0/ci-contract"
     now = timestamp()
     state = {
         "schema_version": 1,
@@ -36,7 +37,7 @@ def main() -> int:
         "objective": "verify the operations agent harness against the CI checkout",
         "status": "planned",
         "scope": {"include": OPERATIONS_ALLOWED_PATHS, "exclude": ["**/.env", "**/secrets/**", "**/node_modules/**"]},
-        "branch": "codex/feature/operations/1.1.0/ci-contract",
+        "branch": branch,
         "base_sha": args.base_sha,
         "head_sha": args.head_sha,
         "head_history": [args.base_sha] if args.base_sha == args.head_sha else [args.base_sha, args.head_sha],
