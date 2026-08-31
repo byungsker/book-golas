@@ -25,8 +25,16 @@ def main() -> int:
     parser.add_argument("--policy", type=Path, default=POLICY_PATH)
     parser.add_argument("--state", type=Path, required=True)
     parser.add_argument("--events", type=Path, required=True)
-    parser.add_argument("--repo", type=Path)
+    parser.add_argument("--repo", type=Path, default=Path.cwd())
     args = parser.parse_args()
+    repository = args.repo.resolve()
+    expected_repository = ROOT.parent.parent.resolve()
+    expected_policy = POLICY_PATH.resolve()
+    expected_state = expected_repository / "docs/agent-harness/runtime/task-state.json"
+    expected_events = expected_repository / "docs/agent-harness/runtime/events.jsonl"
+    if repository != expected_repository or args.policy.resolve() != expected_policy or args.state.resolve() != expected_state or args.events.resolve() != expected_events:
+        print(json.dumps({"status": "fail", "error": "resume paths are outside the harness repository"}, ensure_ascii=False))
+        return 1
     result = validate(args.policy, args.state, args.events, args.repo)
     if result["status"] != "pass":
         print(json.dumps(result, ensure_ascii=False))

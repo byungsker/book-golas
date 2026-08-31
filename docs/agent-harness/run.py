@@ -114,6 +114,19 @@ def main() -> int:
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
+    repository = args.repo.resolve()
+    expected_repository = ROOT.parent.parent.resolve()
+    expected_policy = POLICY_PATH.resolve()
+    expected_state = expected_repository / "docs/agent-harness/runtime/task-state.json"
+    expected_events = expected_repository / "docs/agent-harness/runtime/events.jsonl"
+    if repository != expected_repository:
+        return fail("repository path is not the harness repository")
+    if args.policy.resolve() != expected_policy:
+        return fail("policy path is not the harness policy")
+    if args.state.resolve() != expected_state:
+        return fail("state path is not the policy runtime state path")
+    if args.events.resolve() != expected_events:
+        return fail("event path is not the policy runtime event path")
     try:
         policy = load_json(args.policy)
         state = load_json(args.state)

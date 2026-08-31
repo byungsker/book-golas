@@ -134,6 +134,9 @@ def validate_policy(policy: Any, errors: list[str]) -> None:
         errors.append("event catalog is incomplete")
     if policy.get("execution") != {"shell": False, "capture_output": True, "append_only_events": True}:
         errors.append("execution contract is incomplete")
+    runtime = policy.get("runtime", {})
+    if runtime != {"state_path": "docs/agent-harness/runtime/task-state.json", "event_log_path": "docs/agent-harness/runtime/events.jsonl", "runner": "docs/agent-harness/run.py", "resume": "docs/agent-harness/resume.py"}:
+        errors.append("runtime paths do not match the harness repository")
     if not isinstance(policy.get("read_exclude"), list) or not READ_EXCLUDES.issubset(set(policy["read_exclude"])):
         errors.append("read exclusion contract is incomplete")
     capabilities = policy.get("capabilities", {})
@@ -421,6 +424,9 @@ def validate_repository(repo: Path, state: dict[str, Any], policy: dict[str, Any
             for path_value in status_paths:
                 if not relative_paths([path_value]) or not path_allowed(path_value, state.get("scope", {}), policy):
                     errors.append(f"working tree path is outside the approved boundary: {path_value}")
+            declared_paths = state.get("dirty_paths", [])
+            if isinstance(declared_paths, list) and set(status_paths) != set(declared_paths):
+                errors.append("state dirty_paths do not match repository status")
         result = subprocess.run(["git", "diff", "--name-only", f"{base_sha}..{head_sha}", "--"], cwd=repo, capture_output=True, text=True, check=False)
         if result.returncode != 0:
             errors.append("repository diff could not be read")

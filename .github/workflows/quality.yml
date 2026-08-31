@@ -90,7 +90,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Run harness tests
+        env:
+          HARNESS_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          HARNESS_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
+          python3 docs/agent-harness/ci_verify.py --base-sha "$HARNESS_BASE_SHA" --head-sha "$HARNESS_HEAD_SHA"
           python3 docs/agent-harness/test_validate.py
           python3 docs/agent-harness/test_run.py
           python3 docs/agent-harness/validate.py --state docs/agent-harness/task-state.example.json --events docs/agent-harness/events.example.jsonl
