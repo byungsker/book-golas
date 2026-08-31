@@ -1,0 +1,1 @@
+{"seq":1,"ts":"2026-08-31T00:00:00Z","task_id":"BOK-XXX-or-scope","event":"checkpoint","step":"policy","result":"pass","head_sha":"565d91b2edf293c7e546ede887a857e40485d9cf","paths":["docs/agent-harness/harness-policy.json"],"next_action":"run validator"}

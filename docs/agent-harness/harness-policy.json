@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "delivery": {
+    "delivery_unit": "operations",
+    "target_version": "1.1.0",
+    "delivery_profile": "backend-service",
+    "expected_base_branch": "main",
+    "branch_policy_path": ".byungskerlab/branch-policy.json",
+    "allowed_paths": [
+      ".github/workflows/daily-nudge.yml",
+      ".github/workflows/quality.yml",
+      ".github/workflows/schema-check.yml",
+      "README.md",
+      "docs/**",
+      "web/ADMIN_GUIDE.md",
+      "web/package.json",
+      "web/src/app/admin/**",
+      "web/src/app/api/admin/**",
+      "web/src/lib/**",
+      "web/src/middleware.ts",
+      "supabase/config.toml",
+      "supabase/functions/**",
+      "supabase/migrations/**"
+    ]
+  },
+  "runtime": {
+    "state_path": "docs/agent-harness/runtime/task-state.json",
+    "event_log_path": "docs/agent-harness/runtime/events.jsonl",
+    "runner": "docs/agent-harness/run.py",
+    "resume": "docs/agent-harness/resume.py"
+  },
+  "execution": {
+    "shell": false,
+    "capture_output": true,
+    "append_only_events": true
+  },
+  "capabilities": {
+    "read": {
+      "commands": ["rg", "sed", "git status", "git diff", "git log", "git show", "gh pr view", "gh run view"],
+      "network": false
+    },
+    "scoped_write": {
+      "tool": "apply_patch",
+      "roots": [
+        ".github/workflows/daily-nudge.yml",
+        ".github/workflows/quality.yml",
+        ".github/workflows/schema-check.yml",
+        "README.md",
+        "docs/**",
+        "web/ADMIN_GUIDE.md",
+        "web/package.json",
+        "web/src/app/admin/**",
+        "web/src/app/api/admin/**",
+        "web/src/lib/**",
+        "web/src/middleware.ts",
+        "supabase/config.toml",
+        "supabase/functions/**",
+        "supabase/migrations/**"
+      ],
+      "requires_scope_match": true
+    },
+    "local_verify": {
+      "commands": [
+        "flutter analyze",
+        "flutter test",
+        "npm run lint",
+        "npm run build",
+        "npm test",
+        "deno test",
+        "deno check",
+        "supabase db lint --local",
+        "python3 docs/agent-harness/validate.py",
+        "python3 docs/agent-harness/test_validate.py",
+        "python3 docs/agent-harness/test_run.py",
+        "python3 docs/agent-harness/ci_verify.py",
+        "python3 -m py_compile docs/agent-harness/validate.py docs/agent-harness/test_validate.py"
+      ],
+      "network": false,
+      "production_target": false
+    },
+    "github_status": {
+      "commands": ["git status", "git diff", "git log", "gh pr view", "gh run view"],
+      "network": true,
+      "mutations_require_approval": true
+    }
+  },
+  "read_exclude": [
+    ".env",
+    ".env.*",
+    "**/.env",
+    "**/.env.*",
+    "node_modules/**",
+    "**/node_modules/**",
+    "*password*",
+    "**/*password*",
+    "*token*",
+    "**/*token*",
+    "*credential*",
+    "**/*credential*",
+    "*secret*",
+    "**/*secret*",
+    ".git/**"
+  ],
+  "event_catalog": [
+    "checkpoint",
+    "command_start",
+    "command_end",
+    "retry",
+    "blocked",
+    "escalated",
+    "delete",
+    "external_send",
+    "provider_call",
+    "commit",
+    "push",
+    "pr_create",
+    "pr_merge",
+    "deploy",
+    "release",
+    "credential_change",
+    "signing_change",
+    "hosted_database_change",
+    "production_change",
+    "payment_or_account_change",
+    "workflow_or_policy_change"
+  ],
+  "permissions": {
+    "delete": "disabled",
+    "external_send": "disabled",
+    "provider_calls": "disabled",
+    "hosted_mutation": "disabled",
+    "production_mutation": "disabled",
+    "release": "disabled"
+  },
+  "approval_required": [
+    "delete",
+    "credential_change",
+    "signing_change",
+    "hosted_database_change",
+    "production_change",
+    "provider_call",
+    "external_send",
+    "commit",
+    "push",
+    "pr_create",
+    "pr_merge",
+    "deploy",
+    "release",
+    "payment_or_account_change",
+    "workflow_or_policy_change"
+  ],
+  "limits": {
+    "max_wall_minutes": 45,
+    "max_attempts": 3,
+    "max_llm_usd": 5,
+    "max_provider_calls": 0,
+    "max_external_spend_usd": 0,
+    "max_command_seconds": 300
+  },
+  "statuses": ["planned", "in_progress", "checkpointed", "ready_for_review", "blocked", "done", "aborted"]
+}
