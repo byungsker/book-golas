@@ -23,7 +23,7 @@ void main() {
 
   test('shows ads when paid subscriptions are disabled', () async {
     final viewModel = AdViewModel(
-      SubscriptionService(isEnabled: false),
+      SubscriptionService(),
       adService: await _adService(AgePolicyStatus.age14OrOlder),
     );
 
@@ -35,7 +35,7 @@ void main() {
 
   test('keeps ads hidden when the age policy is unknown', () async {
     final viewModel = AdViewModel(
-      SubscriptionService(isEnabled: false),
+      SubscriptionService(),
       adService: await _adService(AgePolicyStatus.unknown),
     );
 

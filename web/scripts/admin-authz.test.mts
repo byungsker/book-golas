@@ -16,9 +16,14 @@ for (const path of pagePaths) {
 }
 
 const routes = [
+  "src/app/api/admin/ai-usage/route.ts",
   "src/app/api/admin/announcements/route.ts",
+  "src/app/api/admin/fcm-tokens/route.ts",
   "src/app/api/admin/push-logs/route.ts",
   "src/app/api/admin/push-templates/route.ts",
+  "src/app/api/admin/send-bulk-push/route.ts",
+  "src/app/api/admin/send-test-push/route.ts",
+  "src/app/api/admin/users/route.ts",
   "src/app/api/admin/waitlist/route.ts",
 ];
 
@@ -33,10 +38,27 @@ for (const path of routes) {
   const source = await readFile(path, "utf8");
   const executable = source.replace(/^import .*?;$/gm, "");
   const authIndex = executable.indexOf("requireAdminUser");
-  const serviceIndex = executable.indexOf("createServiceRoleSupabaseClient()");
   assert.notEqual(authIndex, -1, `${path} must invoke requireAdminUser`);
-  assert.notEqual(serviceIndex, -1, `${path} must use the server service-role boundary`);
-  assert.ok(authIndex < serviceIndex, `${path} must establish auth before the service-role client`);
+  const usesSharedServiceClient = source.includes("createServiceRoleSupabaseClient()");
+  const usesInlineServiceClient = source.includes("SUPABASE_SERVICE_ROLE_KEY") && (
+    source.includes("createClient(") || source.includes("Authorization: `Bearer ${serviceRoleKey}`")
+  );
+  assert.ok(
+    usesSharedServiceClient || usesInlineServiceClient,
+    `${path} must use a server service-role boundary`,
+  );
+  if (usesSharedServiceClient) {
+    const serviceIndex = executable.indexOf("createServiceRoleSupabaseClient()");
+    assert.ok(authIndex < serviceIndex, `${path} must establish auth before the service-role client`);
+  }
+  if (usesInlineServiceClient && source.includes("getAdminClient")) {
+    const clientCallIndex = executable.indexOf("const supabaseAdmin = getAdminClient()");
+    assert.ok(clientCallIndex > authIndex, `${path} must establish auth before the inline service-role client`);
+  }
+  if (usesInlineServiceClient && source.includes("SUPABASE_SERVICE_ROLE_KEY") && !source.includes("getAdminClient")) {
+    const credentialIndex = executable.indexOf("SUPABASE_SERVICE_ROLE_KEY");
+    assert.ok(credentialIndex > authIndex, `${path} must establish auth before loading service-role credentials`);
+  }
   assert.match(executable, /status:\s*401/);
   assert.match(executable, /status:\s*500/);
 }

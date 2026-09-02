@@ -6,17 +6,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/config/app_config.dart';
 
-import 'package:book_golas/config/feature_flags.dart';
-
 /// Service for managing in-app subscriptions via RevenueCat.
 ///
 /// Provides methods for checking subscription status, presenting paywall,
 /// and managing customer center interactions.
 class SubscriptionService {
-  final bool _isEnabled;
+  final bool _isEnabled = false;
 
-  SubscriptionService({bool? isEnabled})
-    : _isEnabled = isEnabled ?? FeatureFlags.paidSubscriptionsEnabled;
+  SubscriptionService();
 
   bool get isEnabled => _isEnabled;
 
@@ -44,6 +41,8 @@ class SubscriptionService {
   }
 
   Future<bool> ensureConfigured() async {
+    if (!_isEnabled) return false;
+
     try {
       if (await Purchases.isConfigured) return true;
 

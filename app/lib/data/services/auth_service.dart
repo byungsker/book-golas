@@ -293,7 +293,6 @@ class AuthService {
         'id': userId,
         'email': email,
         'nickname': nickname,
-        'revenuecat_user_id': userId,
       });
 
       final newData =
