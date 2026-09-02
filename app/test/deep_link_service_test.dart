@@ -612,6 +612,10 @@ void main() {
       expect(appDelegate, contains('pendingDeepLink'));
       expect(appDelegate, contains('consumePendingDeepLink'));
       expect(appDelegate, contains('acknowledgeDeepLink'));
+      expect(
+        appDelegate,
+        contains('value?.lowercased() == "true"'),
+      );
       expect(appDelegate, contains('launchOptions?[.shortcutItem]'));
       expect(appDelegate, contains('let didFinish = super.application'));
       expect(appDelegate, contains('return didFinish'));
@@ -634,6 +638,66 @@ void main() {
 
       expect(urls, isNotEmpty);
       expect(urls.every((url) => url.contains('homeWidget=true')), isTrue);
+    });
+  });
+
+  group('Android deep link delivery contract', () {
+    test('registers the custom scheme with app_links', () async {
+      final manifest =
+          await File('android/app/src/main/AndroidManifest.xml').readAsString();
+
+      expect(
+        manifest,
+        contains(
+          '<meta-data\n'
+          '                android:name="flutter_deeplinking_enabled"\n'
+          '                android:value="false" />',
+        ),
+      );
+      expect(
+        manifest,
+        matches(
+          RegExp(
+            r'<intent-filter>\s*<action android:name="android.intent.action.VIEW" />\s*'
+            r'<category android:name="android.intent.category.DEFAULT" />\s*'
+            r'<category android:name="android.intent.category.BROWSABLE" />\s*'
+            r'<data android:scheme="bookgolas" />\s*</intent-filter>',
+          ),
+        ),
+      );
+    });
+  });
+
+  group('app_links platform ownership', () {
+    test('keeps iOS custom URLs on the native channel', () {
+      final uri = Uri.parse('bookgolas://book/search');
+
+      expect(
+        DeepLinkService.shouldHandleAppLinksUri(
+          uri,
+          platform: TargetPlatform.iOS,
+        ),
+        isFalse,
+      );
+      expect(
+        DeepLinkService.shouldHandleAppLinksUri(
+          uri,
+          platform: TargetPlatform.android,
+        ),
+        isTrue,
+      );
+    });
+
+    test('keeps non-custom URLs available to app_links on every platform', () {
+      final uri = Uri.parse('https://bookgolas.example/book/search');
+
+      expect(
+        DeepLinkService.shouldHandleAppLinksUri(
+          uri,
+          platform: TargetPlatform.iOS,
+        ),
+        isTrue,
+      );
     });
   });
 

@@ -163,7 +163,7 @@ final class StatusBarFlutterViewController: FlutterViewController {
   private func isHomeWidgetURL(_ url: URL) -> Bool {
     URLComponents(url: url, resolvingAgainstBaseURL: false)?
       .queryItems?
-      .contains(where: { $0.name == "homeWidget" }) == true
+      .contains(where: { $0.name == "homeWidget" && $0.value?.lowercased() == "true" }) == true
   }
 
   private func deepLinkURL(for shortcutItem: UIApplicationShortcutItem) -> String? {
