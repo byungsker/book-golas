@@ -8,6 +8,16 @@ minimum repository quality contract. It runs on pull requests targeting
 source; it does not deploy, rotate secrets, change provider configuration, or
 approve a release.
 
+## Repository-local harness boundary
+
+The former `docs/agent-harness/` contract is retired. Long-running orchestration
+and resume state belong to OMX; repository and delivery rules remain in
+`AGENTS.md`, `.byungskerlab/branch-policy.json`, and
+`.byungskerlab/release-lines.json`. Exact branch, base, version, and PR metadata
+are enforced by the target-version gate. Provider, production, merge, release,
+and external-send actions still require explicit authority, and local Supabase
+work remains development-only.
+
 ## Gate matrix
 
 | Job | Scope | Commands | Failure rule |
