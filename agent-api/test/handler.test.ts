@@ -52,17 +52,6 @@ function dataSource(
       calls.push({ method: "listInsights", userId, token });
       return Promise.resolve(result);
     },
-    getEntitlement: (userId, token) => {
-      calls.push({ method: "getEntitlement", userId, token });
-      return Promise.resolve({
-        tier: "free",
-        source: "bookgolas_account",
-        entitlement_id: "byungskerslab/북골라스 Pro",
-        usage_pool: "shared_bookgolas_account",
-        expires_at: null,
-        activation: "read_only_contract",
-      });
-    },
   };
 }
 

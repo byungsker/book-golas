@@ -30,7 +30,6 @@ Bookgolas Agent API configuration.
 | `progress [--book-id <id>]` | List the user's progress history |
 | `recall [--book-id <id>]` | List stored Recall history |
 | `insights` | List stored reading insights |
-| `entitlement` | Read the account's existing Pro/free state |
 
 Pagination is explicit with `--page` and `--page-size`; the CLI never fetches
 an unbounded collection. Every successful call writes one JSON response to

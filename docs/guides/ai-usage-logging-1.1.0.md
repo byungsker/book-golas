@@ -31,10 +31,11 @@ responses are not copied into `error_code`. RLS is enabled and direct
 `public`, `anon`, and `authenticated` table privileges are revoked. Only the
 server-side `service_role` path can insert or query rows.
 
-The BOK-419 `/api/admin/ai-usage` route is the allowlisted aggregate projection
-for the first dashboard. It queries only operational columns from an
-authenticated server route and never exposes the table directly to clients.
-Retention and aggregate export policy must be approved before production use.
+The BOK-419 `/api/admin/ai-usage` route is the bounded aggregate projection for
+the first dashboard. It queries only operational columns from an authenticated
+server route and never exposes the table directly to clients. Access is
+currently deny-by-default because no administrator allowlist is configured.
+Retention and aggregate export policy must be reviewed before production use.
 
 ## Query candidate
 
@@ -57,6 +58,6 @@ deno test --allow-read supabase/functions/generate-embedding/usage-log.test.ts
 deno check --config supabase/functions/deno.json supabase/functions/generate-embedding/index.ts
 ```
 
-Schema application remains governed by the migration and CI schema-validation
-workflow. No live provider, Supabase project, credential, or production data
-was used for this change.
+Schema application remains governed by the reviewed migration files and local
+schema-validation commands. No live provider, Supabase project, credential, or
+production data was used for this change.

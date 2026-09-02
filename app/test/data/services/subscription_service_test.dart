@@ -7,7 +7,7 @@ void main() {
     late SubscriptionService service;
 
     setUp(() {
-      service = SubscriptionService(isEnabled: false);
+      service = SubscriptionService();
     });
 
     test('does not initialize RevenueCat', () async {

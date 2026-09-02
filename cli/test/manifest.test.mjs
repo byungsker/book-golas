@@ -14,8 +14,8 @@ test("machine-readable manifest and package version agree", async () => {
   assert.equal(manifest.contract_version, packageJson.version);
   assert.equal(manifest.mode, "read_only");
   assert.equal(manifest.writes.enabled, false);
-  assert.equal(manifest.capabilities.length, 6);
-  assert.deepEqual(manifest.capabilities.map((item) => item.method), ["GET", "GET", "GET", "GET", "GET", "GET"]);
+  assert.equal(manifest.capabilities.length, 5);
+  assert.deepEqual(manifest.capabilities.map((item) => item.method), ["GET", "GET", "GET", "GET", "GET"]);
   assert.ok(responseSchema.properties.meta.properties.pagination);
   assert.ok(errorSchema.properties.error.properties.request_id);
   assert.ok(errorSchema.properties.error.properties.details);

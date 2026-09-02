@@ -1,6 +1,5 @@
 import type {
   BookRecord,
-  EntitlementRecord,
   InsightRecord,
   PageResult,
   ProgressRecord,
@@ -107,61 +106,6 @@ export class SupabaseDataSource implements AgentReadDataSource {
       );
     }
     return { rows: body as T[], total: parseTotal(response) };
-  }
-
-  private async single(
-    table: string,
-    accessToken: string,
-    params: Record<string, string>,
-    signal?: AbortSignal,
-  ): Promise<SupabaseRow> {
-    if (!this.supabaseUrl || !this.anonKey) {
-      throw new DataSourceError(
-        "Agent API data access is not configured",
-        503,
-        false,
-      );
-    }
-    const url = new URL(`${this.supabaseUrl}/rest/v1/${table}`);
-    for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, value);
-    }
-    url.searchParams.set("limit", "1");
-    let response: Response;
-    try {
-      response = await this.fetchImpl(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          apikey: this.anonKey,
-          Authorization: `Bearer ${accessToken}`,
-        },
-        signal,
-      });
-    } catch {
-      throw new DataSourceError("Data provider is unavailable", 503, true);
-    }
-    if (!response.ok) {
-      const status = response.status === 401 || response.status === 403
-        ? 403
-        : response.status >= 500
-        ? 503
-        : 502;
-      throw new DataSourceError(
-        "Data provider request failed",
-        status,
-        status === 503,
-      );
-    }
-    const body = await response.json().catch(() => null);
-    if (!Array.isArray(body)) {
-      throw new DataSourceError(
-        "Data provider returned an invalid response",
-        502,
-        false,
-      );
-    }
-    return (body[0] ?? {}) as SupabaseRow;
   }
 
   private book(row: SupabaseRow): BookRecord {
@@ -321,25 +265,4 @@ export class SupabaseDataSource implements AgentReadDataSource {
     }));
   }
 
-  async getEntitlement(
-    userId: string,
-    accessToken: string,
-    signal?: AbortSignal,
-  ): Promise<EntitlementRecord> {
-    const row = await this.single("users", accessToken, {
-      select: "subscription_status,subscription_expires_at",
-      id: `eq.${userId}`,
-    }, signal);
-    const status = asString(row.subscription_status);
-    return {
-      tier: status === "pro_monthly" || status === "pro_yearly"
-        ? "pro"
-        : "free",
-      source: "bookgolas_account",
-      entitlement_id: "byungskerslab/북골라스 Pro",
-      usage_pool: "shared_bookgolas_account",
-      expires_at: asString(row.subscription_expires_at),
-      activation: "read_only_contract",
-    };
-  }
 }

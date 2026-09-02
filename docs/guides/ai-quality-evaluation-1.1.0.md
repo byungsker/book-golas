@@ -37,9 +37,9 @@ pull request 실행은 PR head를 checkout하고 `git rev-parse HEAD`와 제출 
 모든 케이스가 최소 0.80, 전체 가중 점수가 0.90 이상이고 baseline 대비 케이스 및
 전체 회귀가 0.05 이하일 때만 `promotionGate: pass`다. 소스 marker가 없거나
 기준을 충족하지 못하면 `block`으로 종료한다. 운영자는 마지막 통과 SHA로
-rollback하고 원인을 기록한다. 예외 승격은 byungsker의 exact-SHA 승인, 사유,
-평가 보고서, rollback 계획이 모두 있을 때만 별도 승인 기록으로 남기며 코드나
-CI에서 우회하지 않는다.
+rollback하고 원인을 기록한다. 예외 승격은 별도의 exact-SHA 승인, 사유, 평가
+보고서, rollback 계획이 모두 있을 때만 별도 승인 기록으로 남기며 검증을
+우회하지 않는다.
 
 보고서에는 raw fixture, 후보 응답, 사용자 데이터가 포함되지 않으며,
 `providerCalls: 0`, `liveProviderCalls: false`, `candidateSource`,

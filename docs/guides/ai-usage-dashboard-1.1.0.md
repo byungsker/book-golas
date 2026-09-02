@@ -5,7 +5,9 @@
 BOK-419 adds `/admin/ai-usage` and its authenticated
 `/api/admin/ai-usage` summary route. The first version is an operational
 dashboard for the `public.ai_usage_logs` contract; it is intended to surface
-cost, failure, and latency signals rather than provide a billing report.
+cost, failure, and latency signals rather than provide a billing report. The
+route is currently deny-by-default because no administrator allowlist is
+configured.
 
 ## Query contract
 

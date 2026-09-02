@@ -23,7 +23,7 @@ function koTemplate(): Template {
       "",
       `웹 미리보기: ${SITE_URL}`,
       "",
-      "— byungsker (Bookgolas)",
+      "— Bookgolas",
     ].join("\n"),
     html: layout(
       "신청 완료 🎉",
@@ -60,7 +60,7 @@ function enTemplate(): Template {
       "",
       `Web preview: ${SITE_URL}`,
       "",
-      "— byungsker (Bookgolas)",
+      "— Bookgolas",
     ].join("\n"),
     html: layout(
       "You're on the list 🎉",
@@ -116,7 +116,7 @@ function layout(title: string, body: string): string {
             <tr>
               <td style="padding:16px 32px 24px;border-top:1px solid #f3f4f6;">
                 <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">
-                  © 2026 Bookgolas · Made by <a href="https://github.com/byungsker" style="color:#6B8AFF;text-decoration:none;">byungsker</a>
+                  © 2026 Bookgolas
                 </p>
               </td>
             </tr>

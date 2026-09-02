@@ -1,6 +1,5 @@
 import type {
   BookRecord,
-  EntitlementRecord,
   InsightRecord,
   PageResult,
   ProgressRecord,
@@ -46,11 +45,6 @@ export interface AgentReadDataSource {
     pageSize: number,
     signal?: AbortSignal,
   ): Promise<PageResult<InsightRecord>>;
-  getEntitlement(
-    userId: string,
-    accessToken: string,
-    signal?: AbortSignal,
-  ): Promise<EntitlementRecord>;
 }
 
 export class DataSourceError extends Error {

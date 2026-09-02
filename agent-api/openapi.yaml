@@ -85,12 +85,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/AgentResponse'
-  /v1/entitlement:
-    get:
-      operationId: getAccountEntitlement
-      responses:
-        '200':
-          $ref: '#/components/responses/AgentResponse'
 components:
   securitySchemes:
     bearerAuth:

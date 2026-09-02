@@ -23,8 +23,7 @@ void main() {
 
   test('shows ads when paid subscriptions are disabled', () async {
     final viewModel = AdViewModel(
-      SubscriptionService(isEnabled: false),
-      isSuperAdmin: () => false,
+      SubscriptionService(),
       adService: await _adService(AgePolicyStatus.age14OrOlder),
     );
 
@@ -34,23 +33,9 @@ void main() {
     viewModel.dispose();
   });
 
-  test('keeps ads hidden for the super admin', () async {
-    final viewModel = AdViewModel(
-      SubscriptionService(isEnabled: false),
-      isSuperAdmin: () => true,
-      adService: await _adService(AgePolicyStatus.age14OrOlder),
-    );
-
-    await viewModel.refreshAdVisibility();
-
-    expect(viewModel.shouldShowAds, isFalse);
-    viewModel.dispose();
-  });
-
   test('keeps ads hidden when the age policy is unknown', () async {
     final viewModel = AdViewModel(
-      SubscriptionService(isEnabled: false),
-      isSuperAdmin: () => false,
+      SubscriptionService(),
       adService: await _adService(AgePolicyStatus.unknown),
     );
 

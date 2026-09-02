@@ -13,8 +13,7 @@
     { "id": "library.list", "method": "GET", "path": "/v1/library", "cost_units": 1 },
     { "id": "reading_progress.list", "method": "GET", "path": "/v1/reading-progress", "cost_units": 1 },
     { "id": "recall.history", "method": "GET", "path": "/v1/recall", "cost_units": 1 },
-    { "id": "reading_insights.list", "method": "GET", "path": "/v1/insights", "cost_units": 1 },
-    { "id": "account.entitlement", "method": "GET", "path": "/v1/entitlement", "cost_units": 1 }
+    { "id": "reading_insights.list", "method": "GET", "path": "/v1/insights", "cost_units": 1 }
   ],
   "writes": {
     "enabled": false,
