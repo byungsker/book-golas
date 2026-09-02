@@ -25,7 +25,7 @@ OMX enforces every control that the former local harness provided.
 | Former allowlisted roots and scoped `apply_patch` writes | Host tool permissions and `AGENTS.md` guidance | Repository-local enforcement is retired; no CI gate is claimed. |
 | Former path and symlink escape checks | None | Intentionally retired; no equivalent enforcement is claimed. |
 | Former exact repository HEAD/ancestry checks | Edge Function CI exact-source-head step; target-version workflow for delivery metadata | Coverage is limited to those applicable checks; no universal local-harness gate is claimed. |
-| Former dirty-path, diff-scope, and secret-diff checks | None | Intentionally retired; no equivalent enforcement is claimed. |
+| Former dirty-path, diff-scope, secret-diff, and secret/read-exclusion checks | None | Intentionally retired; no equivalent enforcement is claimed. |
 | Former event catalog, append-only state/event, and status-schema checks | None | Intentionally retired; no equivalent enforcement is claimed. |
 | Former disabled-capability, approval-binding, retry/attempt, provider/spend, and command-timeout guards | Explicit owner approval for external authority; otherwise none | The safety controls are not provided by OMX or repository CI. |
 
@@ -41,6 +41,7 @@ fresh evidence. Local Supabase work remains development-only.
 | Flutter Analyze and Test | App PRs and delivery pushes | `flutter pub get`, `flutter gen-l10n`, `flutter analyze --no-fatal-infos`, `flutter test --no-pub` | Analyze errors or any test failure fails the job; info-level findings remain baseline evidence. |
 | Web Audit, Lint, and Build | `/web/` and `/operations/` delivery branches | `npm ci`, `npm run lint`, `npm run build`; `npm audit --audit-level=high` runs on `/web/` only | Dependency audit, lint, or production build failure blocks the applicable gate. Other delivery units record `not applicable` by policy. |
 | Edge Function Type Check | All applicable quality runs | One `edge-functions` job runs `deno check` for every function entrypoint, then the function and deterministic LLM test suite listed below | Any type-check or test failure fails the job. |
+| Target Version Contract | All pull requests | `.github/workflows/target-version-gate.yml` checks branch, base, version, changed paths, and PR metadata from the trusted default-branch policy | Any contract failure blocks the pull request. This is a required check context. |
 | Governance Contract Tests | Branches containing `/governance/` | Target-version contract tests when `.github/scripts/test_validate_target_version_pr.py` exists | Conditional job; failure blocks that governance branch. It is not a universal required-check context. |
 
 The Web scope is intentionally delivery-unit aware: `/web/` branches run the
@@ -48,11 +49,12 @@ dependency audit, while `/operations/` branches run install, lint, and build
 because the operations surface includes Web administration paths. Other
 delivery units receive a stable `not applicable` check context.
 
-The required `edge-functions` check also runs authorization contracts, reminder
-tests, Reading Insights tests, embedding usage-log tests, AI usage and cost
-contracts, profile-collector tests, shared HTTP tests, delivery-metrics tests,
-and the deterministic LLM evaluator plus its synthetic candidate run. The
-workflow's job name is the check context; these are steps within that one job.
+The required `Edge Function Type Check` context (the workflow job ID is
+`edge-functions`) also runs authorization contracts, reminder tests, Reading
+Insights tests, embedding usage-log tests, AI usage and cost contracts,
+profile-collector tests, shared HTTP tests, delivery-metrics tests, and the
+deterministic LLM evaluator plus its synthetic candidate run. These are steps
+within that one job.
 
 ## Current baseline
 
