@@ -249,17 +249,6 @@ async function handleRoute(
         pageSize,
         signal,
       );
-    } else if (url.pathname === "/v1/entitlement") {
-      const entitlement = await dependencies.dataSource.getEntitlement(
-        userId,
-        token,
-        signal,
-      );
-      return withQuotaHeaders(
-        response(requestId, capability, entitlement),
-        quota.reset_at,
-        quota.remaining,
-      );
     }
     if (!result) {
       return errorResponse(

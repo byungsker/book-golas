@@ -2,11 +2,9 @@ import 'package:flutter/foundation.dart';
 
 import 'package:book_golas/data/services/ad_service.dart';
 import 'package:book_golas/data/services/subscription_service.dart';
-import 'package:book_golas/utils/subscription_utils.dart';
 
 class AdViewModel extends ChangeNotifier {
   final SubscriptionService _subscriptionService;
-  final bool Function() _isSuperAdmin;
   final AdService _adService;
   late final Future<bool> Function() _initializeAds;
 
@@ -26,11 +24,9 @@ class AdViewModel extends ChangeNotifier {
 
   AdViewModel(
     this._subscriptionService, {
-    bool Function()? isSuperAdmin,
     Future<bool> Function()? initializeAds,
     AdService? adService,
-  })  : _isSuperAdmin = isSuperAdmin ?? SubscriptionUtils.isSuperAdmin,
-        _adService = adService ?? AdService() {
+  }) : _adService = adService ?? AdService() {
     _initializeAds = initializeAds ?? _adService.initialize;
     _adService.addConsentInvalidationListener(_handleConsentInvalidated);
   }
@@ -109,12 +105,6 @@ class AdViewModel extends ChangeNotifier {
       if (!_adService.canRequestAds) {
         _shouldShowAds = false;
         notifyListeners();
-        return;
-      }
-
-      if (_isSuperAdmin()) {
-        _shouldShowAds = false;
-        if (!_isDisposed) notifyListeners();
         return;
       }
 

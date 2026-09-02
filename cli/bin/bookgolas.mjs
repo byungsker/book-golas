@@ -12,7 +12,6 @@ Commands:
   progress [--book-id <id>]
   recall [--book-id <id>]
   insights
-  entitlement
 
 Environment:
   BOOKGOLAS_API_URL       API origin, default http://127.0.0.1:8787
@@ -57,7 +56,6 @@ function commandPath(args) {
   if (namespace === "progress" && !action) return { path: "/v1/reading-progress", params: { book_id: args.bookId, ...pagination }, auth: true };
   if (namespace === "recall" && !action) return { path: "/v1/recall", params: { book_id: args.bookId, ...pagination }, auth: true };
   if (namespace === "insights" && !action) return { path: "/v1/insights", params: pagination, auth: true };
-  if (namespace === "entitlement" && !action) return { path: "/v1/entitlement", params: {}, auth: true };
   if (["add", "update", "delete", "write"].includes(action) || ["add", "update", "delete", "write"].includes(namespace)) {
     throw new CliError("Write commands are disabled in Bookgolas Agent API 0.1.0", "write_disabled", EXIT_CODES.forbidden);
   }

@@ -1,6 +1,5 @@
 import type {
   BookRecord,
-  EntitlementRecord,
   InsightRecord,
   PageResult,
   ProgressRecord,
@@ -321,25 +320,4 @@ export class SupabaseDataSource implements AgentReadDataSource {
     }));
   }
 
-  async getEntitlement(
-    userId: string,
-    accessToken: string,
-    signal?: AbortSignal,
-  ): Promise<EntitlementRecord> {
-    const row = await this.single("users", accessToken, {
-      select: "subscription_status,subscription_expires_at",
-      id: `eq.${userId}`,
-    }, signal);
-    const status = asString(row.subscription_status);
-    return {
-      tier: status === "pro_monthly" || status === "pro_yearly"
-        ? "pro"
-        : "free",
-      source: "bookgolas_account",
-      entitlement_id: "byungskerslab/북골라스 Pro",
-      usage_pool: "shared_bookgolas_account",
-      expires_at: asString(row.subscription_expires_at),
-      activation: "read_only_contract",
-    };
-  }
 }

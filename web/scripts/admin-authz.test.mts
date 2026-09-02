@@ -22,6 +22,13 @@ const routes = [
   "src/app/api/admin/waitlist/route.ts",
 ];
 
+const serverAuth = await readFile("src/lib/supabase-server.ts", "utf8");
+const proxy = await readFile("src/proxy.ts", "utf8");
+assert.match(serverAuth, /requireAdminUser\(\): Promise<AdminUser \| null>\s*\{\s*return null;/s);
+assert.doesNotMatch(serverAuth, /admin.?email/i);
+assert.match(proxy, /admin_disabled/);
+assert.doesNotMatch(proxy, /admin.?email/i);
+
 for (const path of routes) {
   const source = await readFile(path, "utf8");
   const executable = source.replace(/^import .*?;$/gm, "");

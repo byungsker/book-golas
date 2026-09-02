@@ -22,7 +22,6 @@ outside 0.1.0.
 | `reading_progress.list` | `GET /v1/reading-progress` | `progress` | none | 1 |
 | `recall.history` | `GET /v1/recall` | `recall` | none | 1 |
 | `reading_insights.list` | `GET /v1/insights` | `insights` | none | 1 |
-| `account.entitlement` | `GET /v1/entitlement` | `entitlement` | none | 1 |
 
 Every list is explicitly paginated, capped at 100 rows per page, and returns
 `has_more` plus a nullable total. Partial or unavailable provider results are

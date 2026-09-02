@@ -13,11 +13,10 @@ import 'package:book_golas/config/feature_flags.dart';
 /// Provides methods for checking subscription status, presenting paywall,
 /// and managing customer center interactions.
 class SubscriptionService {
-  static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
   final bool _isEnabled;
 
   SubscriptionService({bool? isEnabled})
-      : _isEnabled = isEnabled ?? FeatureFlags.paidSubscriptionsEnabled;
+    : _isEnabled = isEnabled ?? FeatureFlags.paidSubscriptionsEnabled;
 
   bool get isEnabled => _isEnabled;
 
@@ -35,9 +34,7 @@ class SubscriptionService {
       );
       await Purchases.logIn(userId);
       if (onCustomerInfoUpdated != null) {
-        Purchases.addCustomerInfoUpdateListener(
-          (_) => onCustomerInfoUpdated(),
-        );
+        Purchases.addCustomerInfoUpdateListener((_) => onCustomerInfoUpdated());
       }
       return true;
     } catch (e) {
@@ -89,19 +86,10 @@ class SubscriptionService {
     }
   }
 
-  /// Checks if the current user has Pro entitlement.
+  /// Commercial subscription access is disabled.
   ///
-  /// Returns true if user has active Pro subscription, false otherwise.
   Future<bool> isPro() async {
-    if (!_isEnabled) return false;
-
-    try {
-      final customerInfo = await Purchases.getCustomerInfo();
-      return _hasProEntitlement(customerInfo);
-    } catch (e) {
-      debugPrint('Failed to check Pro status: $e');
-      return false;
-    }
+    return false;
   }
 
   /// Gets available subscription offerings from RevenueCat.
@@ -171,9 +159,9 @@ class SubscriptionService {
     if (!_isEnabled) return false;
 
     try {
-      final customerInfo = await Purchases.restorePurchases();
-      debugPrint('Purchases restored successfully');
-      return _hasProEntitlement(customerInfo);
+      await Purchases.restorePurchases();
+      debugPrint('Purchases restored; subscription access remains unavailable');
+      return false;
     } catch (e) {
       debugPrint('Failed to restore purchases: $e');
       return false;
@@ -234,10 +222,5 @@ class SubscriptionService {
       debugPrint('Failed to purchase yearly: $e');
       return false;
     }
-  }
-
-  /// Checks if the given [CustomerInfo] has Pro entitlement.
-  bool _hasProEntitlement(CustomerInfo info) {
-    return info.entitlements.active.containsKey(_proEntitlementId);
   }
 }

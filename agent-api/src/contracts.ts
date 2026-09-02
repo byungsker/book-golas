@@ -44,14 +44,6 @@ export const CAPABILITY_CATALOG = [
     side_effect: "none",
     cost_units: 1,
   },
-  {
-    id: "account.entitlement",
-    method: "GET",
-    path: "/v1/entitlement",
-    access: "authenticated_user",
-    side_effect: "none",
-    cost_units: 1,
-  },
 ] as const;
 
 export type CapabilityId = (typeof CAPABILITY_CATALOG)[number]["id"];
@@ -154,15 +146,6 @@ export interface InsightRecord {
   insight_metadata: JsonValue;
   created_at: string | null;
   expires_at: string | null;
-}
-
-export interface EntitlementRecord {
-  tier: "free" | "pro";
-  source: "bookgolas_account";
-  entitlement_id: "byungskerslab/북골라스 Pro";
-  usage_pool: "shared_bookgolas_account";
-  expires_at: string | null;
-  activation: "read_only_contract";
 }
 
 export interface CapabilityManifest {
