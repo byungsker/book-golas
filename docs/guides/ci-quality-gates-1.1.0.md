@@ -42,7 +42,7 @@ fresh evidence. Local Supabase work remains development-only.
 | Web Audit, Lint, and Build | `/web/` and `/operations/` delivery branches | `npm ci`, `npm run lint`, `npm run build`; `npm audit --audit-level=high` runs on `/web/` only | Dependency audit, lint, or production build failure blocks the applicable gate. Other delivery units record `not applicable` by policy. |
 | Edge Function Type Check | All applicable quality runs | One `edge-functions` job runs `deno check` for every function entrypoint, then the function and deterministic LLM test suite listed below | Any type-check or test failure fails the job. |
 | Target Version Contract | All pull requests | `.github/workflows/target-version-gate.yml` checks branch, base, version, changed paths, and PR metadata from the trusted default-branch policy | Any contract failure blocks the pull request. This is a required check context. |
-| Governance Contract Tests | Branches containing `/governance/` | Target-version contract tests when `.github/scripts/test_validate_target_version_pr.py` exists | Conditional job; failure blocks that governance branch. It is not a universal required-check context. |
+| Governance Contract Tests | Branches containing `/governance/` | Target-version contract tests when `.github/scripts/test_validate_target_version_pr.py` exists | Conditional job; a missing test file is explicitly non-blocking and reported as not present. The separate `Target Version Contract` remains the required fail-closed check. |
 
 The Web scope is intentionally delivery-unit aware: `/web/` branches run the
 dependency audit, while `/operations/` branches run install, lint, and build
