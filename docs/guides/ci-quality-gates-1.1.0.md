@@ -10,27 +10,37 @@ approve a release.
 
 ## Repository-local harness boundary
 
-The former `docs/agent-harness/` contract is retired. Long-running orchestration
-and resume state belong to OMX; repository and delivery rules remain in
-`AGENTS.md`, `.byungskerlab/branch-policy.json`, and
-`.byungskerlab/release-lines.json`. Exact branch, base, version, and PR metadata
-are enforced by the target-version gate. Provider, production, merge, release,
-and external-send actions still require explicit authority, and local Supabase
-work remains development-only.
+The former `docs/agent-harness/` contract is retired. OMX is the current
+orchestration entrypoint for long-running work; verify the host installation
+with `command -v omx` and `omx version`. This repository does not claim that
+OMX enforces every control that the former local harness provided.
+
+| Concern | Current authority | Status |
+| --- | --- | --- |
+| Orchestration and resume | OMX runtime and its active global operating contract | Host capability; not a repository CI gate. |
+| Branch, base, version, and PR metadata | `AGENTS.md`, `.byungskerlab/branch-policy.json`, `.byungskerlab/release-lines.json`, and the target-version workflow | Fail-closed repository delivery check. |
+| Source quality and exact function-head checks | `.github/workflows/quality.yml` | Required CI checks. |
+| Provider, production, merge, release, and external-send authority | `AGENTS.md` and explicit owner approval | Never inferred from local tests or OMX state. |
+| Former command/path/symlink/payload/time/cost guards | None | Intentionally retired; no equivalent enforcement is claimed. |
+
+After an interruption, inspect the current dirty paths and exact commit, read
+the active repository policy, and rerun the target-version and quality gates
+before delivery. Do not replay or infer success for an external effect without
+fresh evidence. Local Supabase work remains development-only.
 
 ## Gate matrix
 
 | Job | Scope | Commands | Failure rule |
 | --- | --- | --- | --- |
 | Flutter Analyze and Test | App PRs and delivery pushes | `flutter pub get`, `flutter gen-l10n`, `flutter analyze --no-fatal-infos`, `flutter test --no-pub` | Analyze errors or any test failure fails the job; info-level findings remain baseline evidence. |
-| Web Audit, Lint, and Build | Web delivery branches containing `/web/` | `npm ci`, `npm audit --audit-level=high`, `npm run lint`, `npm run build` | Dependency audit, lint, or production build failure blocks the Web gate. Non-Web delivery units record `not applicable` by policy. |
+| Web Audit, Lint, and Build | `/web/` and `/operations/` delivery branches | `npm ci`, `npm run lint`, `npm run build`; `npm audit --audit-level=high` runs on `/web/` only | Dependency audit, lint, or production build failure blocks the applicable gate. Other delivery units record `not applicable` by policy. |
 | Edge Function Type Check | All applicable quality runs | `deno check` for every function entrypoint | Any type-check failure fails the job. |
 | Edge Function Unit Tests | All applicable quality runs | Authorization contract, Reading Insights, and daily/deadline reminder tests | Any Deno test failure fails the job. |
 
-The Web scope is intentionally delivery-unit aware: governance history
-restricts execution of `npm` commands to the Web release train rather than
-running Web code from unrelated mobile or operations branches. The job still
-reports a stable check context for those branches.
+The Web scope is intentionally delivery-unit aware: `/web/` branches run the
+dependency audit, while `/operations/` branches run install, lint, and build
+because the operations surface includes Web administration paths. Other
+delivery units receive a stable `not applicable` check context.
 
 ## Current baseline
 
