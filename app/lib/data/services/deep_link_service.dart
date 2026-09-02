@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:app_links/app_links.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
@@ -394,6 +395,14 @@ class DeepLinkService {
     return uri.pathSegments;
   }
 
+  static bool shouldHandleAppLinksUri(
+    Uri uri, {
+    TargetPlatform? platform,
+  }) {
+    final targetPlatform = platform ?? defaultTargetPlatform;
+    return targetPlatform != TargetPlatform.iOS || uri.scheme != 'bookgolas';
+  }
+
   static Future<void> init({
     GlobalKey<NavigatorState>? navigatorKey,
   }) async {
@@ -490,7 +499,7 @@ class DeepLinkService {
   static Future<void> _initAppLinks() async {
     try {
       final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null && initialUri.scheme != 'bookgolas') {
+      if (initialUri != null && shouldHandleAppLinksUri(initialUri)) {
         await _handleDeepLink(initialUri);
       }
     } catch (e) {
@@ -500,7 +509,7 @@ class DeepLinkService {
     _linkSubscription?.cancel();
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (Uri uri) {
-        if (uri.scheme == 'bookgolas') return;
+        if (!shouldHandleAppLinksUri(uri)) return;
         _handleDeepLink(uri);
       },
       onError: (e) {

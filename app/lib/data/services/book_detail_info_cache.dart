@@ -51,7 +51,10 @@ class BookDetailInfoCache {
   void invalidate(Book book) {
     final identity = _identityFor(book);
     final activeKey = _activeKeyByIdentity.remove(identity);
-    if (activeKey != null) _values.remove(activeKey);
+    if (activeKey != null) {
+      _values.remove(activeKey);
+      _inFlight.remove(activeKey);
+    }
     _generationByIdentity[identity] =
         (_generationByIdentity[identity] ?? 0) + 1;
   }
@@ -95,6 +98,7 @@ class BookDetailInfoCache {
       _normalize(book.publisher),
       _normalize(book.genre),
       _normalize(book.aladinUrl),
+      _normalize(book.imageUrl),
       book.price?.toString() ?? '',
       book.totalPages.toString(),
     ].join('|');

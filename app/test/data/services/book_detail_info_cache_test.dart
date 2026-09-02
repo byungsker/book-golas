@@ -72,6 +72,28 @@ void main() {
     expect(loadCount, 2);
   });
 
+  test('changes the cache entry when the cover URL changes', () async {
+    var loadCount = 0;
+    final updatedBook = _book.copyWith(imageUrl: 'https://example.com/new.jpg');
+    final firstDetail = BookDetailInfo(description: 'old cover');
+    final secondDetail = BookDetailInfo(description: 'new cover');
+
+    final first = await cache.getOrLoad(_book, () async {
+      loadCount++;
+      return firstDetail;
+    });
+    final second = await cache.getOrLoad(updatedBook, () async {
+      loadCount++;
+      return secondDetail;
+    });
+
+    expect(first, same(firstDetail));
+    expect(second, same(secondDetail));
+    expect(cache.read(_book), isNull);
+    expect(cache.read(updatedBook), same(secondDetail));
+    expect(loadCount, 2);
+  });
+
   test('does not cache failures and supports explicit invalidation', () async {
     var loadCount = 0;
     final detail = BookDetailInfo(description: 'fresh description');
@@ -97,6 +119,30 @@ void main() {
       return detail;
     });
     expect(loadCount, 4);
+  });
+
+  test('starts a fresh request after invalidating an in-flight load', () async {
+    final staleCompleter = Completer<BookDetailInfo?>();
+    var loadCount = 0;
+    final staleDetail = BookDetailInfo(description: 'stale description');
+    final freshDetail = BookDetailInfo(description: 'fresh description');
+
+    final staleRequest = cache.getOrLoad(_book, () {
+      loadCount++;
+      return staleCompleter.future;
+    });
+    cache.invalidate(_book);
+
+    final freshRequest = cache.getOrLoad(_book, () {
+      loadCount++;
+      return Future.value(freshDetail);
+    });
+
+    expect(await freshRequest, same(freshDetail));
+    staleCompleter.complete(staleDetail);
+    expect(await staleRequest, same(staleDetail));
+    expect(cache.read(_book), same(freshDetail));
+    expect(loadCount, 2);
   });
 }
 
