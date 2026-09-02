@@ -2,28 +2,6 @@
 
 Last updated: 2026-08-29
 
-## Target Delivery Contract
-
-Target-Delivery-Unit: mobile
-Target-Version: 1.0.2
-Delivery-Profile: mobile-store
-
-Target-Delivery-Unit: web
-Target-Version: 1.0.2
-Delivery-Profile: web-release-train
-
-Target-Delivery-Unit: backend
-Target-Version: 1.0.2
-Delivery-Profile: backend-service
-
-Target-Delivery-Unit: agent_api_cli
-Target-Version: 0.1.0
-Delivery-Profile: package-or-local
-
-Target-Delivery-Unit: operations
-Target-Version: 1.1.0
-Delivery-Profile: backend-service
-
 ## Priority order
 
 Bookgolas follows this release order:
@@ -32,14 +10,13 @@ Bookgolas follows this release order:
 2. Prepare and validate the Android / Google Play release.
 3. Publish the Android release to Google Play after the test and policy gates pass.
 
-The independently delivered web admin has an approved parallel release train:
+The independently delivered web admin has a parallel release track:
 **web 1.0.2**. It does not change the mobile 1.0.2 binary scope.
 
-Owner-approved sequencing override (2026-08-12): byungsker approved starting
-the P4 discovery issue in parallel with unfinished P0–P2 delivery work. This
-changes discovery sequencing only; it does not authorize production
-deployment, public package publication, subscription reactivation, or
-destructive data access.
+Sequencing override (2026-08-12): the P4 discovery issue may proceed in
+parallel with unfinished P0–P2 delivery work. This changes discovery sequencing
+only; it does not authorize production deployment, public package publication,
+subscription reactivation, or destructive data access.
 
 ## P0 — 1.0.2 patch release
 
@@ -49,10 +26,9 @@ complete until the outstanding stability, privacy, metadata, and platform
 verification items are closed with evidence.
 
 The independently deployed Edge Function boundary is a backend-service
-companion delivery line for the same patch. The protected `main` environment,
-approved project ref, and manual-dispatch rejection controls are still pending
-implementation and evidence in BOK-396; opening this line does not authorize
-production execution by itself.
+companion track for the same patch. Its release state requires separate
+environment and runtime verification; repository deployment automation is not
+configured here.
 
 Exit gate:
 
@@ -61,17 +37,16 @@ Exit gate:
   path.
 - Store metadata, privacy disclosures, review notes, and release evidence match
   the shipped binary.
-- Backend-service 1.0.2 remains excluded from production execution until
-  BOK-396 records the approved project ref, protected `main`, manual-dispatch
-  rejection, a verified 1.0.2 source SHA, and explicit deployment authority.
-- byungsker explicitly approves the external release action.
+- Backend-service 1.0.2 remains excluded from production execution until its
+  project, source SHA, runtime checks, and deployment authority are verified.
+- Explicit approval is required before any external release action.
 
 ## P1 — Android / Google Play readiness
 
 - Confirm `com.bookgolas.app` as the Android application ID and register it in
   the authorized Google Play account.
 - Verify Firebase Android configuration, release keystore ownership, and
-  secret-safe CI or local build configuration.
+  secret-safe local build configuration.
 - Produce and inspect a signed Android App Bundle (`.aab`).
 - Run Android device and regression checks, including the camera flow called out
   in the 1.0.2 release audit.
@@ -89,7 +64,7 @@ unverified.
 - Complete any Google Play account-specific tester and production-access
   requirements.
 - Submit the production release for review only after the launch packet is
-  complete and byungsker gives explicit publication authority.
+  complete and explicit publication authority is recorded.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
 
@@ -112,7 +87,7 @@ Exit gate:
 - Missing acquisition, retention, or monetization sources remain explicitly
   unavailable rather than appearing as zero.
 - Admin and non-admin authorization checks, lint, build, and browser smoke
-  checks pass on the approved web release line.
+  checks pass on the selected web release candidate.
 
 ## P4 — Agent access surface discovery and implementation
 
@@ -121,12 +96,11 @@ versioned Agent API and a CLI-first companion surface. The CLI is an
 independently versioned client of the Bookgolas product, not a separate product
 at this stage.
 
-Initial target delivery contract: `agent_api_cli 0.1.0` with the
-`package-or-local` profile. This is a contract-first implementation line for
-BOK-406: the first work package defines and verifies the authenticated,
+Initial target: `agent_api_cli 0.1.0`. This is a contract-first implementation
+line for BOK-406: the first work package defines and verifies the authenticated,
 read-only API and CLI contracts before expanding behavior. Before either
-surface is independently deployed or published, the delivery contract must be
-re-evaluated and split into an API backend unit and a CLI package unit if their
+surface is independently deployed or published, its release path must be
+reviewed and split into an API backend unit and a CLI package unit if their
 promotion paths differ.
 
 Initial scope:
@@ -141,38 +115,37 @@ Initial scope:
   reactivation or public CLI access.
 
 Start gate: P0, P1, P2, and P3 remain the product release priority. The
-owner-approved 2026-08-12 sequencing override permits BOK-406's bounded,
-contract-first implementation in parallel. This lane does not authorize
-production deployment, public package publication, subscription reactivation,
-or destructive data access.
+2026-08-12 sequencing override permits BOK-406's bounded, contract-first
+implementation in parallel. This lane does not authorize production
+deployment, public package publication, subscription reactivation, or
+destructive data access.
 
 Executable issue: BOK-406.
 
 ## Parallel preparation — AI Server Operations Readiness
 
-Bookgolas의 AI 서버 운영 준비는 `operations 1.1.0`과
-`backend-service` continuous profile을 사용한다. 이 line은 Supabase Edge
-Functions, RAG/AI usage, FCM, 관리자 운영, CI, 보안, 관측성과 runbook 증거를
-다루며, 운영 변경은 `main` 기반 검토 PR을 거친다.
+Bookgolas의 AI 서버 운영 준비는 `operations 1.1.0` 목표로 관리한다. 이
+track은 Supabase Edge Functions, RAG/AI usage, FCM, 관리자 운영, 보안,
+관측성과 runbook 증거를 다루며, 운영 변경은 검토 PR을 거친다.
 
-문서화·CI·관측성처럼 제품 동작 위험이 낮은 작업은 P0 안정화와 병렬 진행할
-수 있다. 인증, migration, 관리자 권한, 외부 알림, production 배포와 같은
+문서화·관측성처럼 제품 동작 위험이 낮은 작업은 P0 안정화와 병렬 진행할 수
+있다. 인증, migration, 관리자 권한, 외부 알림, production 배포와 같은
 변경은 각 issue의 독립 검증과 별도 권한 경계를 유지한다.
 
 Historical foundation issues: BOK-413, BOK-414, BOK-415, BOK-416, BOK-417,
 BOK-418, BOK-419, BOK-420, BOK-421.
 
-Owner-approved follow-on objective (2026-08-27): the active `operations 1.1.0`
-goals are BOK-427 (LLM quality and regression evaluation), BOK-428 (cost and
-usage control), and BOK-429 (privacy-safe operational observability). These
-issues cover source, CI, and evidence controls; they do not authorize provider
+Follow-on objective (2026-08-27): the active `operations 1.1.0` goals are
+BOK-427 (LLM quality and regression evaluation), BOK-428 (cost and usage
+control), and BOK-429 (privacy-safe operational observability). These issues
+cover source and evidence controls; they do not authorize provider
 configuration changes, production deployment, or external notifications.
 
 Executable issues: BOK-427, BOK-428, BOK-429.
 
 ## Current evidence and unknowns
 
-- iOS release state is connected in the Company Control Plane.
+- iOS release state requires verification.
 - Google Play public listing is not yet connected or released.
 - Android signing readiness, Play Console app registration, and final Android
   runtime evidence require verification during P1.

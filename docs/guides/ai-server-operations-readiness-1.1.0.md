@@ -15,23 +15,22 @@ public claims.
 | --- | --- | --- |
 | AI/RAG | `supabase/functions/generate-embedding/index.ts`, `recall-search/index.ts`, `reading-insights/`, `recommend-next-books/`, `structure-notes/`, `supabase/functions/llm-evals/`, `docs/guides/ai-quality-evaluation-1.1.0.md`, `docs/guides/ai-cost-control-1.1.0.md` | BOK-427 fixes provider/model/prompt/schema contracts for eight calls and adds a privacy-safe deterministic synthetic gate. BOK-428 adds pricing history, preflight reservation, token provenance, quota/budget/hard-cap decisions, and control-event aggregation; BOK-429 remains the observability follow-on. |
 | Push | `supabase/functions/send-fcm-push/`, `send-batch-nudge/`, `web/src/app/admin/push-logs/`, `docs/guides/push-operations-metrics-1.1.0.md` | BOK-420 records bounded delivery outcomes, failure categories, invalid-token cleanup, CTR, and persisted dedupe-hit evidence; outbound alerting remains an approval-gated candidate. |
-| Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts`, `docs/guides/admin-edge-function-authorization-1.1.0.md` | Admin surface exists; BOK-416 records route-level authorization evidence while hosted runtime and CORS-origin verification remain outside this source contract. |
-| Delivery | `.github/workflows/quality.yml`, `docs/guides/ci-quality-gates-1.1.0.md`, `docs/guides/supabase-deployment-migration-rollback-1.1.0.md`, `docs/guides/edge-function-wrapper-1.1.0.md`, `.github/workflows/deploy-edge-functions.yml`, `supabase/migrations/` | CI quality scope, shared Edge Function HTTP boundary, deployment paths, migration handling, rollback boundaries, and Deno tests are recorded; live environment evidence remains separate. |
+| Admin/API | `web/src/app/admin/`, `web/src/app/api/admin/`, `web/src/proxy.ts` | Admin surface remains in source but is disabled; no repository administrator allowlist is configured, and hosted runtime/CORS verification remain outside this source contract. |
+| Delivery | `docs/guides/edge-function-wrapper-1.1.0.md`, `supabase/migrations/` | Shared Edge Function HTTP boundaries, migration handling, rollback boundaries, and Deno tests are recorded; repository CI and live environment evidence are separate and not configured here. |
 | Observability | `web/src/lib/error-reporting.ts`, `supabase/functions/_shared/edge-http.ts`, `docs/guides/error-observability-1.1.0.md` | BOK-421 establishes provider-neutral Web/Edge error capture, request correlation, masking, and sampling boundaries; Flutter provider activation and hosted sinks remain separately authorized. |
 
 ## 1.1.0 scope and active follow-ons
 
-Historical foundation: BOK-414 CI gates, BOK-415 deploy/migration runbook,
-BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging,
+Historical foundation: BOK-414 quality gates, BOK-415 deployment and migration
+boundary, BOK-416 authorization boundary, BOK-417 privacy-safe AI usage logging,
 BOK-418 common function wrapper, BOK-419's bounded admin aggregate,
 BOK-420's push delivery evidence, and BOK-421's verified Web/Edge error-capture
 path with a cross-surface masking contract.
 
-Owner-approved active follow-ons: BOK-427 quality and regression evaluation,
-BOK-428 cost and usage control, and BOK-429 privacy-safe operational
-observability. These remain source, CI, and evidence work; provider changes,
-hosted sink verification, Flutter activation, and external alert integration
-remain separately approved work.
+Active follow-ons: BOK-427 quality and regression evaluation, BOK-428 cost and
+usage control, and BOK-429 privacy-safe operational observability. These remain
+source and evidence work; provider changes, hosted sink verification, Flutter
+activation, and external alert integration remain separately authorized work.
 
 ## Dependency and execution order
 
