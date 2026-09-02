@@ -21,7 +21,7 @@ OMX enforces every control that the former local harness provided.
 | Branch, base, version, and PR metadata | `AGENTS.md`, `.byungskerlab/branch-policy.json`, `.byungskerlab/release-lines.json`, and the target-version workflow | Fail-closed repository delivery check. |
 | Source quality and exact function-head checks | `.github/workflows/quality.yml` | Required CI checks. |
 | Provider, production, merge, release, and external-send authority | `AGENTS.md` and explicit owner approval | Never inferred from local tests or OMX state. |
-| Former command/path/symlink/payload/time/cost guards | None | Intentionally retired; no equivalent enforcement is claimed. |
+| Former command/path/symlink/payload/time/cost, append-only event/state, secret/read exclusion, disabled-capability, approval-binding, retry/attempt, provider/spend, and command-timeout guards | None | Intentionally retired; they were not moved to OMX or `AGENTS.md`, and no equivalent enforcement is claimed. |
 
 After an interruption, inspect the current dirty paths and exact commit, read
 the active repository policy, and rerun the target-version and quality gates
