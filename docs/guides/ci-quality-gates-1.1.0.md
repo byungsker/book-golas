@@ -38,7 +38,7 @@ fresh evidence. Local Supabase work remains development-only.
 
 | Job | Scope | Commands | Failure rule |
 | --- | --- | --- | --- |
-| Flutter Analyze and Test | App PRs and delivery pushes | `flutter pub get`, `flutter gen-l10n`, `flutter analyze --no-fatal-infos`, `flutter test --no-pub` | Analyze errors or any test failure fails the job; info-level findings remain baseline evidence. |
+| Flutter Analyze and Test | All configured pull requests and delivery pushes | `flutter pub get`, `flutter gen-l10n`, `flutter analyze --no-fatal-infos`, `flutter test --no-pub` | Analyze errors or any test failure fails the job; info-level findings remain baseline evidence. |
 | Web Audit, Lint, and Build | `/web/` and `/operations/` delivery branches | `npm ci`, `npm run lint`, `npm run build`; `npm audit --audit-level=high` runs on `/web/` only | Dependency audit, lint, or production build failure blocks the applicable gate. Other delivery units record `not applicable` by policy. |
 | Edge Function Type Check | All applicable quality runs | One `edge-functions` job runs `deno check` for every function entrypoint, then the function and deterministic LLM test suite listed below | Any type-check or test failure fails the job. |
 | Target Version Contract | All pull requests | `.github/workflows/target-version-gate.yml` checks branch, base, version, changed paths, and PR metadata from the trusted default-branch policy | Any contract failure blocks the pull request. This is a required check context. |
