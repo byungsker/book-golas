@@ -4,7 +4,11 @@
     "strict": true
   },
   "imports": {
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.110.8"
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.110.8",
+    "@langchain/openai": "npm:@langchain/openai@0.3.0",
+    "@langchain/community/vectorstores/supabase": "npm:@langchain/community@0.3.0/vectorstores/supabase",
+    "@langchain/core/documents": "npm:@langchain/core@0.3.0/documents",
+    "@langchain/core/prompts": "npm:@langchain/core@0.3.0/prompts"
   },
   "lock": {
     "path": "deno.lock",

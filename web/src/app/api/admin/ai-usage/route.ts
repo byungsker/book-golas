@@ -4,6 +4,9 @@ import {
   aggregateAiUsageByFeatureModel,
   aggregateAiUsageControls,
   parseAiUsageDateRange,
+  toAiUsageHealth,
+  type AiUsageHealth,
+  type AiUsageHealthRow,
   type AiUsageControlEventRow,
   type AiUsageLogRow,
   toAiUsagePolicy,
@@ -14,8 +17,8 @@ import { createServiceRoleSupabaseClient, requireAdminUser } from "@/lib/supabas
 
 const MAX_ROWS = 10000;
 const FUNCTION_NAME_PATTERN = /^[A-Za-z0-9._:/-]+$/;
-const AI_USAGE_COLUMNS = "function_name, feature, provider, model, latency_ms, status, estimated_cost_usd, pricing_status, token_status, usage_source, created_at";
-const AI_CONTROL_COLUMNS = "function_name, event_type, decision, reason, created_at";
+const AI_USAGE_COLUMNS = "function_name, feature, provider, model, latency_ms, status, outcome, estimated_cost_usd, pricing_status, token_status, usage_source, created_at";
+const AI_CONTROL_COLUMNS = "function_name, event_type, decision, outcome, reason, created_at";
 const AI_USAGE_POLICY_COLUMNS = "policy_version, effective_from, requests_per_minute, requests_per_day, concurrent_requests, budget_usd_per_day, hard_cap_usd_per_day, warning_ratio, critical_ratio";
 
 function serverError(request: NextRequest, errorCode: string, message: string) {
@@ -28,6 +31,26 @@ function serverError(request: NextRequest, errorCode: string, message: string) {
     { error: message },
     { status: 500, headers: { "x-request-id": requestId } },
   );
+}
+
+function unknownAiUsageHealth(windowHours: number): AiUsageHealth {
+  return {
+    eventVersion: 1,
+    windowHours,
+    status: "unknown",
+    coveragePercent: null,
+    allowedReservations: 0,
+    terminalEvents: 0,
+    missingTerminalEvents: 0,
+    p95LatencyMs: null,
+    logCount: 0,
+    controlEventCount: 0,
+    failureCount: 0,
+    timeoutCount: 0,
+    rateLimitedCount: 0,
+    latestEventAt: null,
+    sinkHealthy: false,
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -55,7 +78,11 @@ export async function GET(request: NextRequest) {
 
   try {
     const client = createServiceRoleSupabaseClient();
-    const [usageResult, controlResult, policyResult] = await Promise.all([
+    const healthWindowHours = Math.min(
+      168,
+      Math.max(1, Math.ceil((Date.parse(dateRange.toExclusiveTimestamp) - Date.parse(dateRange.fromTimestamp)) / (60 * 60 * 1000))),
+    );
+    const [usageResult, controlResult, policyResult, healthResult] = await Promise.all([
       client
         .from("ai_usage_logs")
         .select(AI_USAGE_COLUMNS)
@@ -78,6 +105,9 @@ export async function GET(request: NextRequest) {
         .order("effective_from", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      client.rpc("get_ai_observability_health", {
+        p_window_hours: healthWindowHours,
+      }),
     ]);
 
     if (usageResult.error || controlResult.error || policyResult.error || !policyResult.data) {
@@ -87,6 +117,9 @@ export async function GET(request: NextRequest) {
     const rows = (usageResult.data ?? []) as AiUsageLogRow[];
     const controlRows = (controlResult.data ?? []) as AiUsageControlEventRow[];
     const policy = toAiUsagePolicy(policyResult.data as AiUsagePolicyRow);
+    const health = healthResult.error || !healthResult.data
+      ? unknownAiUsageHealth(healthWindowHours)
+      : toAiUsageHealth(healthResult.data as AiUsageHealthRow);
     const functionNames = Array.from(
       new Set([
         ...rows.map((row) => row.function_name?.trim()),
@@ -109,6 +142,7 @@ export async function GET(request: NextRequest) {
         featureModels: aggregateAiUsageByFeatureModel(filteredRows),
         controls: aggregateAiUsageControls(filteredControlRows),
         policy,
+        health,
         limits: {
           maxRows: MAX_ROWS,
           truncated: rows.length === MAX_ROWS || controlRows.length === MAX_ROWS,

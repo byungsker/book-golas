@@ -48,6 +48,8 @@ export interface AiBudgetContext {
   provider?: AiProvider;
   model?: string;
   promptVersion?: string;
+  requestId?: string | null;
+  callId?: string | null;
   maxOutputTokens?: number;
   requireOutputTokens?: boolean;
 }
@@ -58,6 +60,8 @@ export interface AiCallContext {
   provider: AiProvider;
   model: string;
   promptVersion: string;
+  requestId: string | null;
+  callId: string;
   maxOutputTokens: number;
   requireOutputTokens: boolean;
 }
@@ -75,6 +79,8 @@ const DEFAULT_CONTEXT: AiCallContext = {
   provider: "open_ai",
   model: "gpt-4o-mini",
   promptVersion: "unknown-v1",
+  requestId: null,
+  callId: "",
   maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
   requireOutputTokens: true,
 };
@@ -88,6 +94,8 @@ function resolveContext(
     provider: context.provider ?? DEFAULT_CONTEXT.provider,
     model: context.model || DEFAULT_CONTEXT.model,
     promptVersion: context.promptVersion || DEFAULT_CONTEXT.promptVersion,
+    requestId: context.requestId ?? DEFAULT_CONTEXT.requestId,
+    callId: context.callId || crypto.randomUUID(),
     maxOutputTokens: context.maxOutputTokens ?? DEFAULT_CONTEXT.maxOutputTokens,
     requireOutputTokens: context.requireOutputTokens ??
       DEFAULT_CONTEXT.requireOutputTokens,
@@ -151,6 +159,8 @@ export async function consumeAiBudget(
     p_provider: resolved.provider,
     p_model: resolved.model,
     p_prompt_version: resolved.promptVersion,
+    p_request_id: resolved.requestId,
+    p_call_id: resolved.callId,
     p_input_chars: Math.ceil(inputChars),
     p_estimated_input_tokens: preflight.estimate.inputTokens,
     p_estimated_output_tokens: preflight.estimate.outputTokens,
@@ -209,6 +219,8 @@ async function recordTrackedUsage(
   const row = buildAiUsageLogRow({
     context: {
       userId,
+      requestId: context.requestId,
+      callId: context.callId,
       functionName: context.functionName,
       feature: context.feature,
       provider: context.provider,
@@ -239,6 +251,8 @@ async function recordTrackedControlEvent(
   const row = buildAiUsageControlEventRow({
     context: {
       userId,
+      requestId: context.requestId,
+      callId: context.callId,
       functionName: context.functionName,
       feature: context.feature,
       provider: context.provider,
@@ -302,6 +316,8 @@ export async function withTrackedAiBudget<T>(
     const row = buildAiUsageLogRow({
       context: {
         userId,
+        requestId: resolved.requestId,
+        callId: resolved.callId,
         functionName: resolved.functionName,
         feature: resolved.feature,
         provider: resolved.provider,
@@ -348,6 +364,7 @@ export function createAiProviderRunner(
   budgetClient: SupabaseClient,
   logClient: AiUsageLogClient,
   userId: string,
+  requestId: string | null = null,
 ): <T>(
   input: string,
   context: AiBudgetContext,
@@ -363,7 +380,7 @@ export function createAiProviderRunner(
       logClient,
       userId,
       input.length,
-      context,
+      { ...context, requestId },
       operation,
     );
 }

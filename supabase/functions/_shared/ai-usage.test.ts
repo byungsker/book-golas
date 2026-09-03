@@ -1,7 +1,9 @@
 import {
+  assert,
   assertEquals,
   assertRejects,
   assertThrows,
+  assertNotEquals,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
@@ -14,6 +16,7 @@ import {
   aiUsageErrorResponse,
   assertAiInputSize,
   consumeAiBudget,
+  createAiProviderRunner,
   fetchAiProvider,
   withAiBudget,
   withTrackedAiBudget,
@@ -43,6 +46,8 @@ function trackedContext() {
     provider: "open_ai" as const,
     model: "gpt-4o-mini",
     promptVersion: "test-v1",
+    requestId: "request-1",
+    callId: "call-1",
     maxOutputTokens: 100,
     requireOutputTokens: true,
   };
@@ -174,7 +179,39 @@ Deno.test("successful provider calls record finalized usage", async () => {
   assertEquals(logClient.logs.length, 1);
   assertEquals(logClient.logs[0].pricing_status, "finalized");
   assertEquals(logClient.logs[0].token_status, "valid");
+  assertEquals(logClient.logs[0].request_id, "request-1");
+  assertEquals(logClient.logs[0].call_id, "call-1");
   assertEquals(logClient.events.length, 0);
+});
+
+Deno.test("repeated runner calls receive distinct call IDs", async () => {
+  const client = {
+    rpc: (name: string) =>
+      Promise.resolve(
+        name === "reserve_ai_usage"
+          ? { data: { allowed: true, leaseId: "lease-repeat" }, error: null }
+          : { data: true, error: null },
+      ),
+  } as unknown as SupabaseClient;
+  const logClient = new MockUsageClient();
+  const runner = createAiProviderRunner(client, logClient, "user-1", "request-repeat");
+  const context = { ...trackedContext(), callId: undefined };
+
+  await runner("first", context, async () => ({
+    value: "first",
+    usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
+  }));
+  await runner("second", context, async () => ({
+    value: "second",
+    usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
+  }));
+
+  assertEquals(logClient.logs.length, 2);
+  assertEquals(logClient.logs[0].request_id, "request-repeat");
+  assertEquals(logClient.logs[1].request_id, "request-repeat");
+  assert(typeof logClient.logs[0].call_id === "string");
+  assert(typeof logClient.logs[1].call_id === "string");
+  assertNotEquals(logClient.logs[0].call_id, logClient.logs[1].call_id);
 });
 
 Deno.test("provider failures and rejected usage record bounded events", async () => {
@@ -202,7 +239,11 @@ Deno.test("provider failures and rejected usage record bounded events", async ()
   );
   assertEquals((providerError as AiUsageError).code, "provider_error");
   assertEquals(providerErrorLogs.logs[0].pricing_status, "not_finalized");
+  assertEquals(providerErrorLogs.logs[0].request_id, "request-1");
+  assertEquals(providerErrorLogs.logs[0].call_id, "call-1");
   assertEquals(providerErrorLogs.events[0].event_type, "provider_error");
+  assertEquals(providerErrorLogs.events[0].request_id, "request-1");
+  assertEquals(providerErrorLogs.events[0].call_id, "call-1");
   assertEquals(providerErrorLogs.events[0].reason, "provider_error");
 
   const rejectedUsageLogs = new MockUsageClient();

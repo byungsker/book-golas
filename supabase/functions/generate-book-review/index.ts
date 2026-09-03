@@ -10,6 +10,7 @@ import {
   createAiProviderRunner,
   fetchAiProvider,
 } from "../_shared/ai-usage.ts";
+import { requestIdFromRequest } from "../_shared/edge-http.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -201,10 +202,12 @@ serve(async (req: Request) => {
       .order("created_at", { ascending: true })
       .limit(15);
 
+    const requestId = requestIdFromRequest(req);
     const runAiCall = createAiProviderRunner(
       supabaseClient,
       serviceClient,
       user.id,
+      requestId,
     );
 
     const inputChars = [
