@@ -66,6 +66,13 @@ assert.deepEqual(report.featureModels.map(({ feature, provider, model, requests,
   { feature: "note-structure", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 300, costUsd: 0.000045, errors: 1, cancellations: 0 },
   { feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", requests: 1, totalTokens: 2100, costUsd: 0.0075, errors: 1, cancellations: 0 },
 ]);
+assert.deepEqual(report.requestLogs.map(({ eventId, feature, provider, model, outcome, totalTokens, latencyMs, costUsd }) => ({ eventId, feature, provider, model, outcome, totalTokens, latencyMs, costUsd })), [
+  { eventId: "evt-005", feature: "chat", provider: "anthropic", model: "claude-3-5-haiku", outcome: "cancelled", totalTokens: 150, latencyMs: 5000, costUsd: 0.00028 },
+  { eventId: "evt-004", feature: "embedding-labels", provider: "google", model: "gemini-1.5-pro", outcome: "rate_limited", totalTokens: 400, latencyMs: 4000, costUsd: 0.0005 },
+  { eventId: "evt-003", feature: "note-structure", provider: "openai", model: "gpt-4o-mini", outcome: "timeout", totalTokens: 300, latencyMs: 3000, costUsd: 0.000045 },
+  { eventId: "evt-002", feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", outcome: "failure", totalTokens: 2100, latencyMs: 2000, costUsd: 0.0075 },
+  { eventId: "evt-001", feature: "book-summary", provider: "openai", model: "gpt-4o-mini", outcome: "success", totalTokens: 1500, latencyMs: 1000, costUsd: 0.00045 },
+]);
 assert.deepEqual(report.recentErrors.map((error) => error.eventId), ["evt-004", "evt-003"]);
 assert.equal(report.recentErrors[0]?.errorCode, "quota_exceeded");
 assert.equal(report.traces[0]?.eventId, "evt-001");

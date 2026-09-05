@@ -127,6 +127,39 @@ export function FeatureModelTable({ report }: { readonly report: AiMonitorReport
   );
 }
 
+export function RequestLogTable({ report }: { readonly report: AiMonitorReport }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>건별 요청 로그</CardTitle>
+        <CardDescription>집계에 포함된 각 요청의 정규화된 운영 필드입니다. Event ID와 Trace로 원시 입력·출력 없이 수치를 대조할 수 있습니다.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {report.requestLogs.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 요청 로그가 없습니다.</p> : (
+          <Table>
+            <TableCaption>요청별 기능, 모델, 결과, 토큰, latency, 비용과 trace</TableCaption>
+            <TableHeader><TableRow>
+              <TableHead scope="col">시각 / Event</TableHead><TableHead scope="col">기능</TableHead><TableHead scope="col">Provider / Model</TableHead><TableHead scope="col">결과</TableHead><TableHead scope="col" className="text-right">토큰</TableHead><TableHead scope="col" className="text-right">Latency</TableHead><TableHead scope="col" className="text-right">비용</TableHead><TableHead scope="col" className="text-right">Trace</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>{report.requestLogs.map((request) => (
+              <TableRow key={request.eventId}>
+                <TableCell><span className="font-medium">{new Date(request.timestamp).toLocaleString("ko-KR", { timeZone: "UTC" })} UTC</span><br /><span className="font-mono text-xs text-muted-foreground">{request.eventId}</span></TableCell>
+                <TableCell className="font-medium">{request.feature}</TableCell>
+                <TableCell><span className="font-medium">{request.provider}</span><br /><span className="font-mono text-xs text-muted-foreground">{request.model}</span></TableCell>
+                <TableCell><Badge variant={outcomeBadge(request.outcome)}>{request.outcome}</Badge><br /><span className="text-xs text-muted-foreground">{request.status}</span></TableCell>
+                <TableCell className="text-right tabular-nums"><span>{formatNumber(request.totalTokens)}</span><br /><span className="text-xs text-muted-foreground">입력 {formatNumber(request.inputTokens)} · 출력 {formatNumber(request.outputTokens)}</span></TableCell>
+                <TableCell className="text-right tabular-nums"><span>{formatNumber(request.latencyMs)} ms</span><br /><span className="text-xs text-muted-foreground">TTFT {formatNumber(request.ttftMs)} · 재시도 {formatNumber(request.retryCount)}</span></TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(request.costUsd)}</TableCell>
+                <TableCell className="text-right"><TraceDialog trace={request} /></TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function RecentErrorsTable({ report }: { readonly report: AiMonitorReport }) {
   const canGoBack = report.pagination.page > 1;
   const canGoForward = report.pagination.page < report.pagination.totalPages;

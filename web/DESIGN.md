@@ -105,7 +105,7 @@ Use this order so an operator can move from context to action:
 3. Inline error card, when the query fails.
 4. KPI groups: usage totals, health/latency/outcome metrics, and control events.
 5. Cost-control policy card and any row-limit warning.
-6. Function, feature·model, and daily tables.
+6. Function, feature·model, request-log, and daily tables.
 7. Cost/privacy disclosure card.
 
 ### Responsive behavior
@@ -164,6 +164,7 @@ The page uses the shared `ai-monitor/src/core.mjs` normalization and aggregation
 | Totals | requests, successes, failures, cancellations, input/output/total tokens, average and p95 latency/TTFT, estimated cost, and error rate |
 | Provider/model | request, token, latency, error, cancellation, and estimated-cost groups |
 | Feature/model | feature·provider·model combinations with request, token, error, cancellation, and estimated-cost values |
+| Request log | one normalized row per request with event identity, feature/provider/model, outcome, token counts, latency, retry, cost, and trace identifiers |
 | Daily | UTC date groups with request, latency, error, cancellation, and cost values |
 | Recent errors | timeout/rate-limit/provider error type, bounded error code, trace ID, and correlation ID only |
 | Traces | event, trace, correlation, span, provider, model, status, and outcome identifiers only |

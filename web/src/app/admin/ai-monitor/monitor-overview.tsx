@@ -103,8 +103,9 @@ export function MonitorOverview({ report }: { readonly report: AiMonitorReport }
             <Badge variant={report.health.status === "critical" ? "destructive" : "outline"}>{report.health.label}</Badge>
           </div>
           <CardDescription>
-            오류율 또는 p95 latency 중 더 나쁜 기준으로 상태를 결정합니다.
+            p95는 선택한 조건의 latency를 낮은 순으로 놓았을 때 95% 지점입니다. 표본이 적으면 가장 느린 요청과 같을 수 있습니다.
           </CardDescription>
+          <p className="text-xs text-muted-foreground">상태는 오류율 또는 p95 latency 중 더 나쁜 기준으로 결정합니다.</p>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm sm:grid-cols-3">
           <p><span className="font-medium">현재 p95</span><br />{formatNumber(report.totals.p95LatencyMs)} ms</p>

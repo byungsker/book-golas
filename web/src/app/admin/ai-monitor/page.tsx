@@ -20,7 +20,7 @@ import {
 } from "@/lib/ai-monitor";
 import { isAiMonitorDemoRequest } from "@/lib/ai-monitor-access";
 import { MonitorOverview } from "./monitor-overview";
-import { FeatureModelTable, RecentErrorsTable, TrendTable } from "./monitor-tables";
+import { FeatureModelTable, RecentErrorsTable, RequestLogTable, TrendTable } from "./monitor-tables";
 
 type PageProps = {
   readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
@@ -111,8 +111,10 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
       </header>
 
       <Card className="border-chart-4/60 bg-chart-4/5">
-        <CardContent className="pt-6 text-sm">
-          이 화면은 개발 환경의 loopback 또는 보호된 Vercel Preview에서만 fixture를 서버 렌더링합니다. API 인증 경계는 모든 환경에서 401을 유지합니다.
+        <CardContent className="space-y-2 pt-6 text-sm">
+          <p className="font-medium text-foreground">현재 데이터 출처: Preview fixture</p>
+          <p>현재 수치는 <code>ai-monitor/fixtures/events.json</code>의 테스트 이벤트를 서버에서 정규화한 값입니다. 실제 provider 호출이나 운영 DB에서 읽지 않습니다.</p>
+          <p className="text-xs text-muted-foreground">아래 건별 요청 로그와 집계 표는 같은 fixture에서 계산됩니다. API 인증 경계는 모든 환경에서 401을 유지합니다.</p>
         </CardContent>
       </Card>
 
@@ -126,6 +128,7 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
         <>
           <MonitorOverview report={report} />
           <FeatureModelTable report={report} />
+          <RequestLogTable report={report} />
           <TrendTable report={report} />
           <RecentErrorsTable report={report} />
           <Card>

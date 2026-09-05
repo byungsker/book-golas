@@ -78,8 +78,9 @@ also accepts `--since <positive-hours>h`; `costs` also accepts
 `--group-by provider|model|feature`.
 
 `summary` returns aggregate totals, daily/provider/model and feature/model
-groups, recent failures, traces, and pricing versions. `usage` returns
-normalized event rows.
+groups, request-level normalized logs, recent failures, traces, and pricing
+versions. `usage` returns the same normalized event rows shown in the Web
+request log table.
 `errors` returns failure rows only. `costs` returns grouped aggregate cost
 rows. An invalid option, invalid date, unsupported value, or empty result
 writes a concise diagnostic to stderr and exits nonzero.
@@ -93,6 +94,10 @@ version `2026-09-01`; `pricingVersion` pins the rate table that calculated the
 operational `costUsd` estimate. It is not an invoice, quota decision, tax
 record, or proof of provider billing. Unknown provider/model prices are
 rejected rather than silently estimated.
+
+The Web monitor explains p95 as the 95th percentile of the selected request
+latencies and shows a request log with Event ID, feature, provider/model,
+outcome, token counts, latency, retry count, estimated cost, and Trace IDs.
 
 Normalization is a redaction boundary: it emits only this schema and drops
 raw prompt, response, generated output, user, authorization, credential,

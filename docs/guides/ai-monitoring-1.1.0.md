@@ -40,8 +40,9 @@ also accepts `--since <positive-hours>h`; `costs` also accepts
 `--group-by provider|model|feature`.
 
 `summary` returns aggregate totals, daily/provider/model and feature/model
-groups, recent failures, traces, and pricing versions. `usage` returns
-normalized event rows.
+groups, request-level normalized logs, recent failures, traces, and pricing
+versions. `usage` returns the same normalized event rows used by the request
+log table.
 `errors` returns failure rows only. `costs` returns grouped aggregate cost
 rows. An invalid option, invalid date, unsupported value, or empty result
 writes a concise diagnostic to stderr and exits nonzero.
@@ -70,6 +71,16 @@ calculated from input and output tokens at that version's per-million-token
 rates. It is an operational estimate, not an invoice, quota decision, tax
 record, or proof of provider billing. A provider/model without a rate in the
 selected version is rejected rather than silently estimated.
+
+## p95 and request-level evidence
+
+p95 latency is the value at the 95th percentile of the selected requests after
+sorting their latency from fastest to slowest. It means that approximately 95%
+of observed requests are at or below that value; with a small sample, the
+nearest-rank calculation can equal the slowest request. The Preview page shows
+the normalized request log beside the aggregates so an operator can reconcile
+feature, provider, model, outcome, token counts, latency, retry count, cost,
+and trace identifiers per event.
 
 ## Privacy, retention, and availability
 

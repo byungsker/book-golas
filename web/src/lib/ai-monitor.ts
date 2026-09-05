@@ -59,6 +59,29 @@ export type AiMonitorTrace = {
   readonly outcome: string;
 };
 
+export type AiMonitorRequestLog = {
+  readonly eventId: string;
+  readonly timestamp: string;
+  readonly feature: string;
+  readonly provider: string;
+  readonly model: string;
+  readonly status: string;
+  readonly outcome: string;
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  readonly totalTokens: number;
+  readonly latencyMs: number;
+  readonly ttftMs: number;
+  readonly retryCount: number;
+  readonly costUsd: number;
+  readonly errorType: string | null;
+  readonly errorCode: string | null;
+  readonly traceId: string;
+  readonly correlationId: string;
+  readonly spanId: string;
+  readonly pricingVersion: string;
+};
+
 type AiMonitorTotals = {
   readonly requests: number;
   readonly successes: number;
@@ -97,6 +120,7 @@ export type AiMonitorReport = {
   readonly providers: readonly AiMonitorGroup[];
   readonly models: readonly AiMonitorGroup[];
   readonly featureModels: readonly AiMonitorFeatureModelGroup[];
+  readonly requestLogs: readonly AiMonitorRequestLog[];
   readonly recentErrors: readonly AiMonitorError[];
   readonly traces: readonly AiMonitorTrace[];
   readonly pricingVersions: readonly string[];

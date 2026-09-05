@@ -162,6 +162,13 @@ test("aggregates exact totals, performance, usage, errors, and traces", () => {
     { feature: "note-structure", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 300, costUsd: 0.000045, errors: 1, cancellations: 0 },
     { feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", requests: 1, totalTokens: 2100, costUsd: 0.0075, errors: 1, cancellations: 0 },
   ]);
+  assert.deepEqual(report.requestLogs.map(({ eventId, feature, provider, model, outcome, inputTokens, outputTokens, totalTokens, latencyMs, ttftMs, retryCount, costUsd, errorType, errorCode }) => ({ eventId, feature, provider, model, outcome, inputTokens, outputTokens, totalTokens, latencyMs, ttftMs, retryCount, costUsd, errorType, errorCode })), [
+    { eventId: "evt-005", feature: "chat", provider: "anthropic", model: "claude-3-5-haiku", outcome: "cancelled", inputTokens: 100, outputTokens: 50, totalTokens: 150, latencyMs: 5000, ttftMs: 500, retryCount: 0, costUsd: 0.00028, errorType: "cancelled", errorCode: "caller_aborted" },
+    { eventId: "evt-004", feature: "embedding-labels", provider: "google", model: "gemini-1.5-pro", outcome: "rate_limited", inputTokens: 400, outputTokens: 0, totalTokens: 400, latencyMs: 4000, ttftMs: 400, retryCount: 3, costUsd: 0.0005, errorType: "rate_limit", errorCode: "quota_exceeded" },
+    { eventId: "evt-003", feature: "note-structure", provider: "openai", model: "gpt-4o-mini", outcome: "timeout", inputTokens: 300, outputTokens: 0, totalTokens: 300, latencyMs: 3000, ttftMs: 300, retryCount: 2, costUsd: 0.000045, errorType: "timeout", errorCode: "deadline_exceeded" },
+    { eventId: "evt-002", feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", outcome: "failure", inputTokens: 2000, outputTokens: 100, totalTokens: 2100, latencyMs: 2000, ttftMs: 200, retryCount: 1, costUsd: 0.0075, errorType: "provider_error", errorCode: "upstream_500" },
+    { eventId: "evt-001", feature: "book-summary", provider: "openai", model: "gpt-4o-mini", outcome: "success", inputTokens: 1000, outputTokens: 500, totalTokens: 1500, latencyMs: 1000, ttftMs: 100, retryCount: 0, costUsd: 0.00045, errorType: null, errorCode: null },
+  ]);
   assert.deepEqual(report.recentErrors.map(({ eventId, outcome, errorType, errorCode }) => ({ eventId, outcome, errorType, errorCode })), [
     { eventId: "evt-004", outcome: "rate_limited", errorType: "rate_limit", errorCode: "quota_exceeded" },
     { eventId: "evt-003", outcome: "timeout", errorType: "timeout", errorCode: "deadline_exceeded" },
