@@ -9,6 +9,7 @@ const proxy = await readFile("src/proxy.ts", "utf8");
 const monitor = await readFile("src/lib/ai-monitor.ts", "utf8");
 const access = await readFile("src/lib/ai-monitor-access.ts", "utf8");
 const nextConfig = await readFile("next.config.ts", "utf8");
+const dialog = await readFile("src/components/ui/dialog.tsx", "utf8");
 
 assert.match(route, /^import "server-only";/);
 assert.match(page, /^import "server-only";/);
@@ -50,6 +51,7 @@ assert.match(nextConfig, /outputFileTracingRoot/);
 assert.match(nextConfig, /outputFileTracingIncludes/);
 assert.match(nextConfig, /ai-monitor\/src\/core\.mjs/);
 assert.match(nextConfig, /ai-monitor\/fixtures\/events\.json/);
+assert.match(dialog, /bg-background text-foreground/);
 
 assert.throws(
   () => parseAiMonitorFilters(new URLSearchParams({ from: "2026-02-30" })),
