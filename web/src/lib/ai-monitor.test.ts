@@ -8,6 +8,7 @@ const tables = await readFile("src/app/admin/ai-monitor/monitor-tables.tsx", "ut
 const proxy = await readFile("src/proxy.ts", "utf8");
 const monitor = await readFile("src/lib/ai-monitor.ts", "utf8");
 const access = await readFile("src/lib/ai-monitor-access.ts", "utf8");
+const nextConfig = await readFile("next.config.ts", "utf8");
 
 assert.match(route, /^import "server-only";/);
 assert.match(page, /^import "server-only";/);
@@ -45,6 +46,10 @@ assert.match(access, /AI_MONITOR_LOCAL_DEMO/);
 assert.match(access, /AI_MONITOR_PREVIEW_DEMO/);
 assert.match(access, /VERCEL_ENV === "preview"/);
 assert.match(access, /VERCEL_URL/);
+assert.match(nextConfig, /outputFileTracingRoot/);
+assert.match(nextConfig, /outputFileTracingIncludes/);
+assert.match(nextConfig, /ai-monitor\/src\/core\.mjs/);
+assert.match(nextConfig, /ai-monitor\/fixtures\/events\.json/);
 
 assert.throws(
   () => parseAiMonitorFilters(new URLSearchParams({ from: "2026-02-30" })),

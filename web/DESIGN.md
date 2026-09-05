@@ -157,7 +157,7 @@ Issue #395 should compose existing primitives from `web/src/components/ui`, not 
 
 ### Dashboard response contract
 
-The page uses the shared `ai-monitor/src/core.mjs` normalization and aggregation contract over `ai-monitor/fixtures/events.json` for its local, server-rendered demo. The authenticated endpoint `/api/admin/ai-monitor` exposes the same safe report shape to authorized consumers with `Cache-Control: no-store`; it never returns raw event payloads. Filters are UTC dates, default to the deterministic demo range, and may cover at most 31 days. The response contract is:
+The page uses the shared `ai-monitor/src/core.mjs` normalization and aggregation contract over `ai-monitor/fixtures/events.json` for its local and protected Preview server-rendered demo. `web/next.config.ts` sets the repository tracing root and explicitly packages both shared files for the page and API functions. The authenticated endpoint `/api/admin/ai-monitor` exposes the same safe report shape to authorized consumers with `Cache-Control: no-store`; it never returns raw event payloads. Filters are UTC dates, default to the deterministic demo range, and may cover at most 31 days. The response contract is:
 
 | Area | Existing fields / meaning |
 | --- | --- |
