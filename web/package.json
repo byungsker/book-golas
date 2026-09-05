@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npm run test:waitlist-security && npm run test:admin-authz && npm run test:ai-usage-dashboard && npm run test:push-ops && npm run test:error-reporting && eslint",
+    "lint": "npm run test:waitlist-security && npm run test:admin-authz && npm run test:ai-usage-dashboard && npm run test:push-ops && npm run test:error-reporting && npm run test:ai-monitor && eslint",
     "test:waitlist-security": "node --experimental-strip-types scripts/waitlist-security.test.mts",
     "test:admin-authz": "node --experimental-strip-types scripts/admin-authz.test.mts",
     "test:ai-usage-dashboard": "node --experimental-strip-types src/lib/ai-usage.test.ts",
+    "test:ai-monitor": "node --experimental-strip-types src/lib/ai-monitor.test.ts",
     "test:push-ops": "node --experimental-strip-types src/lib/push-ops.test.ts",
     "test:error-reporting": "node --experimental-strip-types src/lib/error-reporting.test.ts"
   },

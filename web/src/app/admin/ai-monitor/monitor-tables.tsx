@@ -1,0 +1,134 @@
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { AiMonitorFilters, AiMonitorReport, AiMonitorTrace } from "@/lib/ai-monitor";
+import { formatCost, formatNumber, formatPercent } from "./monitor-overview";
+
+function outcomeBadge(outcome: string) {
+  if (outcome === "timeout" || outcome === "rate_limited") return "destructive";
+  if (outcome === "success") return "secondary";
+  return "outline";
+}
+
+function pageHref(filters: AiMonitorFilters, page: number): string {
+  const params = new URLSearchParams({
+    from: filters.from,
+    to: filters.to,
+    provider: filters.provider,
+    model: filters.model,
+    status: filters.status,
+    outcome: filters.outcome,
+    errorType: filters.errorType,
+    page: String(page),
+    pageSize: String(filters.pageSize),
+  });
+  return `/admin/ai-monitor?${params.toString()}`;
+}
+
+function TraceDialog({ trace }: { readonly trace: AiMonitorTrace | undefined }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">Trace 보기</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Trace · correlation detail</DialogTitle>
+          <DialogDescription>사용자 입력과 출력 내용 없이 운영 식별자만 표시합니다.</DialogDescription>
+        </DialogHeader>
+        {trace ? (
+          <dl className="grid gap-3 text-sm sm:grid-cols-[8rem_1fr]">
+            <dt className="text-muted-foreground">Event ID</dt><dd className="break-all font-mono">{trace.eventId}</dd>
+            <dt className="text-muted-foreground">Trace ID</dt><dd className="break-all font-mono">{trace.traceId}</dd>
+            <dt className="text-muted-foreground">Correlation ID</dt><dd className="break-all font-mono">{trace.correlationId}</dd>
+            <dt className="text-muted-foreground">Span ID</dt><dd className="break-all font-mono">{trace.spanId}</dd>
+            <dt className="text-muted-foreground">Outcome</dt><dd>{trace.outcome}</dd>
+          </dl>
+        ) : <p className="text-sm text-muted-foreground">연결된 trace가 없습니다.</p>}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function TrendTable({ report }: { readonly report: AiMonitorReport }) {
+  const maxLatency = Math.max(1, ...report.daily.map((day) => day.requests === 0 ? 0 : day.latencyMs / day.requests));
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Latency와 오류 추이</CardTitle>
+        <CardDescription>UTC 일자별 평균 latency와 오류율입니다. 막대 값은 아래 표와 동일합니다.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {report.daily.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 추이 데이터가 없습니다.</p> : (
+          <Table>
+            <TableCaption>일별 요청, 평균 latency, 오류율과 예상 비용</TableCaption>
+            <TableHeader><TableRow>
+              <TableHead scope="col">날짜</TableHead><TableHead scope="col">Latency 추이</TableHead><TableHead scope="col" className="text-right">오류율</TableHead><TableHead scope="col" className="text-right">비용</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>{report.daily.map((day) => {
+              const averageLatency = day.requests === 0 ? 0 : day.latencyMs / day.requests;
+              const errorRate = day.requests === 0 ? 0 : day.errors / day.requests;
+              return <TableRow key={day.key}>
+                <TableCell className="font-medium">{day.key}<span className="ml-2 text-xs text-muted-foreground">{day.requests}건</span></TableCell>
+                <TableCell className="min-w-56">
+                  <div className="flex items-center gap-3"><div className="h-2 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true"><div className="h-full rounded-full bg-chart-2" style={{ width: `${Math.max(3, averageLatency / maxLatency * 100)}%` }} /></div><span className="w-20 text-right tabular-nums">{formatNumber(averageLatency)} ms</span></div>
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{formatPercent(errorRate)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(day.costUsd)}</TableCell>
+              </TableRow>;
+            })}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function RecentErrorsTable({ report }: { readonly report: AiMonitorReport }) {
+  const canGoBack = report.pagination.page > 1;
+  const canGoForward = report.pagination.page < report.pagination.totalPages;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>최근 오류</CardTitle>
+        <CardDescription>Timeout과 rate-limit을 포함한 최신 실패입니다. Trace 상세는 키보드로 열 수 있습니다.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {report.recentErrors.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 오류가 없습니다.</p> : (
+          <Table>
+            <TableCaption>최근 오류 {report.pagination.totalItems}건 중 {report.recentErrors.length}건 표시</TableCaption>
+            <TableHeader><TableRow>
+              <TableHead scope="col">시각</TableHead><TableHead scope="col">Provider / Model</TableHead><TableHead scope="col">상태</TableHead><TableHead scope="col">오류</TableHead><TableHead scope="col" className="text-right">상세</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>{report.recentErrors.map((error) => (
+              <TableRow key={error.eventId}>
+                <TableCell>{new Date(error.timestamp).toLocaleString("ko-KR", { timeZone: "UTC" })} UTC</TableCell>
+                <TableCell><span className="font-medium">{error.provider}</span><br /><span className="text-xs text-muted-foreground">{error.model}</span></TableCell>
+                <TableCell><Badge variant={outcomeBadge(error.outcome)}>{error.outcome}</Badge></TableCell>
+                <TableCell><span className="font-medium">{error.errorType ?? "unknown"}</span><br /><span className="text-xs text-muted-foreground">{error.errorCode ?? "코드 없음"}</span></TableCell>
+                <TableCell className="text-right"><TraceDialog trace={report.traces.find((trace) => trace.eventId === error.eventId)} /></TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+        <nav aria-label="오류 목록 페이지" className="flex items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">{report.pagination.page} / {report.pagination.totalPages} 페이지</p>
+          <div className="flex gap-2">
+            <Button asChild={canGoBack} disabled={!canGoBack} size="sm" variant="outline">{canGoBack ? <Link href={pageHref(report.filters, report.pagination.page - 1)}>이전</Link> : <span>이전</span>}</Button>
+            <Button asChild={canGoForward} disabled={!canGoForward} size="sm" variant="outline">{canGoForward ? <Link href={pageHref(report.filters, report.pagination.page + 1)}>다음</Link> : <span>다음</span>}</Button>
+          </div>
+        </nav>
+      </CardContent>
+    </Card>
+  );
+}

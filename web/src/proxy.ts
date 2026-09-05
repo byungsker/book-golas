@@ -9,6 +9,16 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminRoute) {
     const isLoginPage = request.nextUrl.pathname === "/admin/login";
+    const normalizedHost = request.headers.get("host")?.trim().toLowerCase() ?? "";
+    const hostname = normalizedHost.startsWith("[")
+      ? normalizedHost.slice(1, normalizedHost.indexOf("]"))
+      : normalizedHost.split(":")[0];
+    const isLoopback = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+    const isLocalMonitor = request.nextUrl.pathname === "/admin/ai-monitor"
+      && process.env.NODE_ENV === "development"
+      && isLoopback;
+    if (isLocalMonitor) return NextResponse.next({ request });
+
     if (!isLoginPage) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";

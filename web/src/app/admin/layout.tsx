@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { href: "/admin", label: "대시보드", icon: "📊" },
   { href: "/admin/ai-usage", label: "AI 운영", icon: "🤖" },
+  { href: "/admin/ai-monitor", label: "AI 모니터", icon: "🔎" },
   { href: "/admin/users", label: "유저 관리", icon: "👥" },
   { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
   { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
@@ -51,7 +52,7 @@ export default function AdminLayout({
       <nav className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex">
+            <div className="flex min-w-0">
               <Link href="/admin" className="flex-shrink-0 flex items-center gap-2">
                 <Image
                   src="/logo-bookgolas.png"
@@ -63,13 +64,13 @@ export default function AdminLayout({
                 <span className="text-xl font-bold text-foreground">북골라스</span>
                 <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">Admin</span>
               </Link>
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+              <div className="hidden min-w-0 overflow-x-auto sm:ml-6 sm:flex sm:space-x-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      "inline-flex shrink-0 items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       pathname === item.href
                         ? "bg-accent text-accent-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
