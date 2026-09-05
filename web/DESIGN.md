@@ -201,14 +201,14 @@ Use the existing mixed surface treatment: `Card` provides `bg-card`, `border`, `
 - Tables need semantic headers and a usable reading order at zoom. When horizontal scrolling is required, do not hide the table’s purpose or headers.
 - Test at 200% zoom, keyboard-only navigation, reduced motion, and narrow widths. Long function/model names, dates, and localized Korean/English labels must not clip critical meaning.
 
-### Safe local-only demo mode
+### Safe demo mode for local and protected Preview
 
 A fixture/demo view is permitted only to make the contract inspectable before real data exists. It is not an authentication fallback.
 
-- Gate demo rendering server-side with `NODE_ENV === "development"`, the server-only `AI_MONITOR_LOCAL_DEMO === "true"` flag, and a loopback host allowlist limited to `localhost`, `127.0.0.1`, and `[::1]` (normalize the request host; do not trust an arbitrary client flag or forwarded host without validation).
+- Gate demo rendering server-side through one shared access check. Local access requires `NODE_ENV === "development"`, the server-only `AI_MONITOR_LOCAL_DEMO === "true"` flag, and a loopback host allowlist limited to `localhost`, `127.0.0.1`, and `[::1]`. Preview access requires `VERCEL_ENV === "preview"`, the server-only `AI_MONITOR_PREVIEW_DEMO === "true"` flag, and an exact request-host match with the deployment host in `VERCEL_URL` (normalize the request host; do not trust an arbitrary client flag or forwarded host without validation).
 - Keep the local demo command bound to `127.0.0.1` so the safe fixture cannot be reached from a LAN by default; the API still requires administrator authentication.
 - Keep demo data at the page/view layer. `/api/admin/ai-monitor` must continue to call `requireAdminUser()` first and return `401` for an unauthenticated request in every environment, including local development.
-- Never enable demo mode on production, preview, staging, a LAN hostname, or a public URL. A `demo=1` query parameter or local fixture flag may select the fixture only after the server-side development-and-loopback gate passes.
+- Enable `AI_MONITOR_PREVIEW_DEMO=true` only in the protected Vercel Preview environment. Keep Vercel Deployment Protection enabled, share the exact deployment URL, and keep production disabled because `VERCEL_ENV` must be `preview`.
 - Mark the surface visibly as local demo data and ensure fixture values cannot be sent to provider APIs, persisted to Supabase, or mistaken for live observations.
 
 ### Known deviations & accepted debt

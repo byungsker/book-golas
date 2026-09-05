@@ -35,7 +35,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## AI monitoring local demo
+## AI monitoring local and Preview demo
 
 The reproducible monitor uses `ai-monitor/fixtures/events.json` as its only
 demo input and `ai-monitor/src/core.mjs` as the single normalization,
@@ -63,6 +63,11 @@ npm run dev
 Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
 `dev` script enables the fixture only in development and binds Next.js to
 `127.0.0.1`; a direct API request still requires authentication.
+
+For a shareable review, set `AI_MONITOR_PREVIEW_DEMO=true` only for the Vercel
+Preview environment. The server accepts the exact deployment host from
+`VERCEL_URL` while `VERCEL_ENV` is `preview`; keep Deployment Protection
+enabled and do not set the flag for Production.
 
 `node cli/bin/ai-monitor.mjs` has four commands: `summary`, `usage`,
 `errors`, and `costs`. Every command accepts `--format json|csv` and these
@@ -96,10 +101,11 @@ authorized administrator roles, auditability, and least-privilege access.
 `createSafeEventSink` returns `{ accepted: false }` for validation or write
 failures and never throws into its caller.
 
-The local demo route checks `requireAdminUser`, uses `Cache-Control: no-store`,
-and returns fixture data only when the development-only demo flag and loopback
-host allowlist are both active. The `dev` script binds to `127.0.0.1`; other
-hosts or environments receive an unavailable response instead of demo data.
+The demo route checks `requireAdminUser`, uses `Cache-Control: no-store`, and
+returns fixture data only when either the development-only flag and loopback
+host allowlist or the protected Preview flag and exact `VERCEL_URL` host match
+are active. The `dev` script binds to `127.0.0.1`; other hosts and Production
+receive an unavailable response instead of demo data.
 
 ```bash
 npm run demo:check

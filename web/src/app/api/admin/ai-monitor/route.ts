@@ -6,16 +6,9 @@ import {
   loadAiMonitorReport,
   parseAiMonitorFilters,
 } from "@/lib/ai-monitor";
+import { isAiMonitorDemoRequest } from "@/lib/ai-monitor-access";
 import { captureWebError } from "@/lib/error-reporting";
 import { requireAdminUser } from "@/lib/supabase-server";
-
-function isLoopbackHost(host: string | null): boolean {
-  const normalized = host?.trim().toLowerCase() ?? "";
-  const hostname = normalized.startsWith("[")
-    ? normalized.slice(1, normalized.indexOf("]"))
-    : normalized.split(":")[0];
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-}
 
 function serverError(request: NextRequest) {
   const requestId = captureWebError(request, {
@@ -50,9 +43,7 @@ export async function GET(request: NextRequest) {
     throw error;
   }
 
-  if (process.env.NODE_ENV !== "development"
-    || process.env.AI_MONITOR_LOCAL_DEMO !== "true"
-    || !isLoopbackHost(request.headers.get("host"))) {
+  if (!isAiMonitorDemoRequest(request.headers.get("host"))) {
     return serverError(request);
   }
 

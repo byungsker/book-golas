@@ -88,12 +88,13 @@ The current route checks `requireAdminUser` before loading data, uses
 serving work while recording that monitoring was not accepted; it must not
 treat an unsuccessful sink write as proof that data was retained.
 
-The local demo boundary is deliberate. `/api/admin/ai-monitor` returns fixture
-data only after authentication, only when `NODE_ENV` is `development`, only
-when the server-side demo flag is enabled, and only for a loopback host
-(`localhost`, `127.0.0.1`, or `::1`). The `dev` script binds Next.js to
-`127.0.0.1`; other hosts or environments receive an unavailable response
-instead of demo data.
+The demo boundary is deliberate. `/api/admin/ai-monitor` returns fixture data
+only after authentication. Local access requires `NODE_ENV` to be
+`development`, the server-side demo flag, and a loopback host (`localhost`,
+`127.0.0.1`, or `::1`). Protected Preview access requires `VERCEL_ENV` to be
+`preview`, `AI_MONITOR_PREVIEW_DEMO=true`, and an exact deployment-host match
+with `VERCEL_URL`. Production and other hosts receive an unavailable response
+instead of demo data. The `dev` script still binds Next.js to `127.0.0.1`.
 
 ## Verification
 

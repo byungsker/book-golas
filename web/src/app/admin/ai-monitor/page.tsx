@@ -18,20 +18,13 @@ import {
   type AiMonitorFilters,
   type AiMonitorReport,
 } from "@/lib/ai-monitor";
+import { isAiMonitorDemoRequest } from "@/lib/ai-monitor-access";
 import { MonitorOverview } from "./monitor-overview";
 import { RecentErrorsTable, TrendTable } from "./monitor-tables";
 
 type PageProps = {
   readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
 };
-
-function isLoopbackHost(host: string | null): boolean {
-  const normalized = host?.trim().toLowerCase() ?? "";
-  const hostname = normalized.startsWith("[")
-    ? normalized.slice(1, normalized.indexOf("]"))
-    : normalized.split(":")[0];
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-}
 
 function FilterSelect(props: {
   readonly id: string;
@@ -81,9 +74,7 @@ function FiltersCard({ filters, report }: { readonly filters: AiMonitorFilters; 
 
 export default async function AiMonitorPage({ searchParams }: PageProps) {
   const requestHeaders = await headers();
-  if (process.env.NODE_ENV !== "development"
-    || process.env.AI_MONITOR_LOCAL_DEMO !== "true"
-    || !isLoopbackHost(requestHeaders.get("host"))) {
+  if (!isAiMonitorDemoRequest(requestHeaders.get("host"))) {
     redirect("/admin/login?error=admin_disabled");
   }
 
@@ -112,7 +103,7 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold text-foreground">Web AI Monitoring</h1>
-            <Badge variant="outline">로컬 데모</Badge>
+            <Badge variant="outline">Preview fixture</Badge>
           </div>
           <p className="text-sm text-muted-foreground">AI 요청, 토큰, 비용, 지연과 실패 trace를 한 화면에서 점검합니다.</p>
         </div>
@@ -121,7 +112,7 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
 
       <Card className="border-chart-4/60 bg-chart-4/5">
         <CardContent className="pt-6 text-sm">
-          이 화면은 개발 환경의 loopback 요청에서만 fixture를 서버 렌더링합니다. API 인증 경계는 개발 환경에서도 401을 유지합니다.
+          이 화면은 개발 환경의 loopback 또는 보호된 Vercel Preview에서만 fixture를 서버 렌더링합니다. API 인증 경계는 모든 환경에서 401을 유지합니다.
         </CardContent>
       </Card>
 

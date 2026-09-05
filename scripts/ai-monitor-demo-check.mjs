@@ -25,12 +25,13 @@ function runCli(command) {
 }
 
 try {
-  const [rawFixture, guide, cliReadme, webReadme, route] = await Promise.all([
+  const [rawFixture, guide, cliReadme, webReadme, route, access] = await Promise.all([
     text("ai-monitor/fixtures/events.json"),
     text("docs/guides/ai-monitoring-1.1.0.md"),
     text("cli/README.md"),
     text("web/README.md"),
     text("web/src/app/api/admin/ai-monitor/route.ts"),
+    text("web/src/lib/ai-monitor-access.ts"),
   ]);
   const { aggregateReport, normalizeEvents } = await import(pathToFileURL(resolve(root, "ai-monitor/src/core.mjs")).href);
   const events = normalizeEvents(JSON.parse(rawFixture));
@@ -52,8 +53,11 @@ try {
     ]) requireMarker(source, marker, name);
   }
 
-  for (const marker of ["requireAdminUser", "process.env.NODE_ENV !== \"development\"", "AI_MONITOR_LOCAL_DEMO", "isLoopbackHost", "Cache-Control\": \"no-store"]) {
+  for (const marker of ["requireAdminUser", "isAiMonitorDemoRequest", "Cache-Control\": \"no-store"]) {
     requireMarker(route, marker, "web route");
+  }
+  for (const marker of ["AI_MONITOR_LOCAL_DEMO", "AI_MONITOR_PREVIEW_DEMO", "VERCEL_ENV === \"preview\"", "VERCEL_URL"]) {
+    requireMarker(access, marker, "web access gate");
   }
 } catch (error) {
   process.stderr.write(`demo:check failed: ${error instanceof Error ? error.message : "unexpected error"}\n`);

@@ -7,6 +7,7 @@ const page = await readFile("src/app/admin/ai-monitor/page.tsx", "utf8");
 const tables = await readFile("src/app/admin/ai-monitor/monitor-tables.tsx", "utf8");
 const proxy = await readFile("src/proxy.ts", "utf8");
 const monitor = await readFile("src/lib/ai-monitor.ts", "utf8");
+const access = await readFile("src/lib/ai-monitor-access.ts", "utf8");
 
 assert.match(route, /^import "server-only";/);
 assert.match(page, /^import "server-only";/);
@@ -36,11 +37,14 @@ assert.match(tables, /TableCaption/);
 assert.match(tables, /DialogTitle/);
 assert.match(tables, /DialogDescription/);
 assert.match(page, /pricingVersions/);
-assert.match(page, /로컬 데모/);
+assert.match(page, /Preview fixture/);
 assert.match(proxy, /\/admin\/ai-monitor/);
-assert.match(proxy, /NODE_ENV === "development"/);
-assert.match(proxy, /AI_MONITOR_LOCAL_DEMO === "true"/);
-assert.match(proxy, /localhost|127\.0\.0\.1|\[::1\]/);
+assert.match(proxy, /isAiMonitorDemoRequest/);
+assert.match(route, /isAiMonitorDemoRequest/);
+assert.match(access, /AI_MONITOR_LOCAL_DEMO/);
+assert.match(access, /AI_MONITOR_PREVIEW_DEMO/);
+assert.match(access, /VERCEL_ENV === "preview"/);
+assert.match(access, /VERCEL_URL/);
 
 assert.throws(
   () => parseAiMonitorFilters(new URLSearchParams({ from: "2026-02-30" })),
