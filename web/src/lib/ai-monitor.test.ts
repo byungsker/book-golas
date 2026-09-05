@@ -59,6 +59,13 @@ assert.deepEqual(report.options.models, [
   "gemini-1.5-pro",
   "gpt-4o-mini",
 ]);
+assert.deepEqual(report.featureModels.map(({ feature, provider, model, requests, totalTokens, costUsd, errors, cancellations }) => ({ feature, provider, model, requests, totalTokens, costUsd, errors, cancellations })), [
+  { feature: "book-summary", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 1500, costUsd: 0.00045, errors: 0, cancellations: 0 },
+  { feature: "chat", provider: "anthropic", model: "claude-3-5-haiku", requests: 1, totalTokens: 150, costUsd: 0.00028, errors: 0, cancellations: 1 },
+  { feature: "embedding-labels", provider: "google", model: "gemini-1.5-pro", requests: 1, totalTokens: 400, costUsd: 0.0005, errors: 1, cancellations: 0 },
+  { feature: "note-structure", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 300, costUsd: 0.000045, errors: 1, cancellations: 0 },
+  { feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", requests: 1, totalTokens: 2100, costUsd: 0.0075, errors: 1, cancellations: 0 },
+]);
 assert.deepEqual(report.recentErrors.map((error) => error.eventId), ["evt-004", "evt-003"]);
 assert.equal(report.recentErrors[0]?.errorCode, "quota_exceeded");
 assert.equal(report.traces[0]?.eventId, "evt-001");

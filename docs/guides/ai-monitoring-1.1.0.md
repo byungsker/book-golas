@@ -39,8 +39,9 @@ exact-match or UTC-date filters: `--from YYYY-MM-DD`, `--to YYYY-MM-DD`,
 also accepts `--since <positive-hours>h`; `costs` also accepts
 `--group-by provider|model|feature`.
 
-`summary` returns aggregate totals, daily/provider/model groups, recent
-failures, traces, and pricing versions. `usage` returns normalized event rows.
+`summary` returns aggregate totals, daily/provider/model and feature/model
+groups, recent failures, traces, and pricing versions. `usage` returns
+normalized event rows.
 `errors` returns failure rows only. `costs` returns grouped aggregate cost
 rows. An invalid option, invalid date, unsupported value, or empty result
 writes a concise diagnostic to stderr and exits nonzero.

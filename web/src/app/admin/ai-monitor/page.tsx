@@ -20,7 +20,7 @@ import {
 } from "@/lib/ai-monitor";
 import { isAiMonitorDemoRequest } from "@/lib/ai-monitor-access";
 import { MonitorOverview } from "./monitor-overview";
-import { RecentErrorsTable, TrendTable } from "./monitor-tables";
+import { FeatureModelTable, RecentErrorsTable, TrendTable } from "./monitor-tables";
 
 type PageProps = {
   readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
@@ -125,6 +125,7 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
       ) : report ? (
         <>
           <MonitorOverview report={report} />
+          <FeatureModelTable report={report} />
           <TrendTable report={report} />
           <RecentErrorsTable report={report} />
           <Card>

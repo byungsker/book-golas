@@ -94,6 +94,39 @@ export function TrendTable({ report }: { readonly report: AiMonitorReport }) {
   );
 }
 
+export function FeatureModelTable({ report }: { readonly report: AiMonitorReport }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>기능별 모델 사용량</CardTitle>
+        <CardDescription>기능·provider·model 조합별 요청, 토큰, 오류, 취소와 예상 비용입니다.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {report.featureModels.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 기능별 사용량이 없습니다.</p> : (
+          <Table>
+            <TableCaption>기능과 모델별 요청, 토큰, 오류, 취소와 예상 비용</TableCaption>
+            <TableHeader><TableRow>
+              <TableHead scope="col">기능</TableHead><TableHead scope="col">Provider</TableHead><TableHead scope="col">Model</TableHead><TableHead scope="col" className="text-right">요청</TableHead><TableHead scope="col" className="text-right">토큰</TableHead><TableHead scope="col" className="text-right">오류</TableHead><TableHead scope="col" className="text-right">취소</TableHead><TableHead scope="col" className="text-right">비용</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>{report.featureModels.map((row) => (
+              <TableRow key={`${row.feature}:${row.provider}:${row.model}`}>
+                <TableCell className="font-medium">{row.feature}</TableCell>
+                <TableCell className="text-muted-foreground">{row.provider}</TableCell>
+                <TableCell className="font-mono">{row.model}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(row.requests)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(row.totalTokens)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(row.errors)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(row.cancellations)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(row.costUsd)}</TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function RecentErrorsTable({ report }: { readonly report: AiMonitorReport }) {
   const canGoBack = report.pagination.page > 1;
   const canGoForward = report.pagination.page < report.pagination.totalPages;

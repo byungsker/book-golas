@@ -165,6 +165,34 @@ function groupEvents(events, selectKey) {
   return [...groups.values()].sort((left, right) => left.key < right.key ? -1 : left.key > right.key ? 1 : 0);
 }
 
+function groupFeatureModels(events) {
+  const groups = new Map();
+  for (const event of events) {
+    const key = `${event.feature}\u0000${event.provider}\u0000${event.model}`;
+    const total = groups.get(key) ?? {
+      feature: event.feature,
+      provider: event.provider,
+      model: event.model,
+      requests: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      latencyMs: 0,
+      ttftMs: 0,
+      costUsd: 0,
+      errors: 0,
+      cancellations: 0,
+    };
+    addEvent(total, event);
+    groups.set(key, total);
+  }
+  return [...groups.values()].sort((left, right) => {
+    if (left.feature !== right.feature) return left.feature < right.feature ? -1 : 1;
+    if (left.provider !== right.provider) return left.provider < right.provider ? -1 : 1;
+    return left.model < right.model ? -1 : left.model > right.model ? 1 : 0;
+  });
+}
+
 function percentile(values, percentileRank) {
   if (values.length === 0) return 0;
   const sorted = [...values].sort((left, right) => left - right);
@@ -197,6 +225,7 @@ export function aggregateReport(events, options = {}) {
     daily: groupEvents(events, (event) => event.timestamp.slice(0, 10)),
     providers: groupEvents(events, (event) => event.provider),
     models: groupEvents(events, (event) => event.model),
+    featureModels: groupFeatureModels(events),
     recentErrors: events.filter((event) => event.status === "failure").sort((left, right) => right.timestamp.localeCompare(left.timestamp)).slice(0, recentLimit).map((event) => ({
       eventId: event.eventId,
       timestamp: event.timestamp,

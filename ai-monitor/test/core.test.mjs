@@ -155,6 +155,13 @@ test("aggregates exact totals, performance, usage, errors, and traces", () => {
     { key: "gemini-1.5-pro", requests: 1, totalTokens: 400, costUsd: 0.0005, errors: 1, cancellations: 0 },
     { key: "gpt-4o-mini", requests: 2, totalTokens: 1800, costUsd: 0.000495, errors: 1, cancellations: 0 },
   ]);
+  assert.deepEqual(report.featureModels.map(({ feature, provider, model, requests, totalTokens, costUsd, errors, cancellations }) => ({ feature, provider, model, requests, totalTokens, costUsd, errors, cancellations })), [
+    { feature: "book-summary", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 1500, costUsd: 0.00045, errors: 0, cancellations: 0 },
+    { feature: "chat", provider: "anthropic", model: "claude-3-5-haiku", requests: 1, totalTokens: 150, costUsd: 0.00028, errors: 0, cancellations: 1 },
+    { feature: "embedding-labels", provider: "google", model: "gemini-1.5-pro", requests: 1, totalTokens: 400, costUsd: 0.0005, errors: 1, cancellations: 0 },
+    { feature: "note-structure", provider: "openai", model: "gpt-4o-mini", requests: 1, totalTokens: 300, costUsd: 0.000045, errors: 1, cancellations: 0 },
+    { feature: "recommendations", provider: "anthropic", model: "claude-3-5-sonnet", requests: 1, totalTokens: 2100, costUsd: 0.0075, errors: 1, cancellations: 0 },
+  ]);
   assert.deepEqual(report.recentErrors.map(({ eventId, outcome, errorType, errorCode }) => ({ eventId, outcome, errorType, errorCode })), [
     { eventId: "evt-004", outcome: "rate_limited", errorType: "rate_limit", errorCode: "quota_exceeded" },
     { eventId: "evt-003", outcome: "timeout", errorType: "timeout", errorCode: "deadline_exceeded" },

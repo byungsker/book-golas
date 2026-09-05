@@ -163,6 +163,7 @@ The page uses the shared `ai-monitor/src/core.mjs` normalization and aggregation
 | --- | --- |
 | Totals | requests, successes, failures, cancellations, input/output/total tokens, average and p95 latency/TTFT, estimated cost, and error rate |
 | Provider/model | request, token, latency, error, cancellation, and estimated-cost groups |
+| Feature/model | feature·provider·model combinations with request, token, error, cancellation, and estimated-cost values |
 | Daily | UTC date groups with request, latency, error, cancellation, and cost values |
 | Recent errors | timeout/rate-limit/provider error type, bounded error code, trace ID, and correlation ID only |
 | Traces | event, trace, correlation, span, provider, model, status, and outcome identifiers only |

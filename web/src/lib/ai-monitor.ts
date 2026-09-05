@@ -29,6 +29,12 @@ export type AiMonitorGroup = {
   readonly cancellations: number;
 };
 
+export type AiMonitorFeatureModelGroup = Omit<AiMonitorGroup, "key"> & {
+  readonly feature: string;
+  readonly provider: string;
+  readonly model: string;
+};
+
 export type AiMonitorError = {
   readonly eventId: string;
   readonly timestamp: string;
@@ -90,6 +96,7 @@ export type AiMonitorReport = {
   readonly daily: readonly AiMonitorGroup[];
   readonly providers: readonly AiMonitorGroup[];
   readonly models: readonly AiMonitorGroup[];
+  readonly featureModels: readonly AiMonitorFeatureModelGroup[];
   readonly recentErrors: readonly AiMonitorError[];
   readonly traces: readonly AiMonitorTrace[];
   readonly pricingVersions: readonly string[];
@@ -115,6 +122,7 @@ export type AiMonitorReport = {
 
 type CoreReport = Omit<AiMonitorReport, "range" | "filters" | "options" | "pagination" | "health">;
 type CoreEvent = {
+  readonly feature: string;
   readonly provider: string;
   readonly model: string;
 };
