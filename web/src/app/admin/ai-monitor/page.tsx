@@ -56,7 +56,7 @@ function FiltersCard({ filters, report }: { readonly filters: AiMonitorFilters; 
         <CardDescription>UTC 기준 최대 31일입니다. 조건은 URL에 남아 같은 화면을 다시 열 수 있습니다.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form method="get" className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <form method="get" className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="min-w-0 space-y-2"><Label htmlFor="monitor-from">시작일</Label><Input id="monitor-from" name="from" type="date" defaultValue={filters.from} /></div>
           <div className="min-w-0 space-y-2"><Label htmlFor="monitor-to">종료일</Label><Input id="monitor-to" name="to" type="date" defaultValue={filters.to} /></div>
           <FilterSelect id="monitor-provider" name="provider" label="Provider" value={filters.provider} allLabel="전체 provider" options={report?.options.providers ?? []} />

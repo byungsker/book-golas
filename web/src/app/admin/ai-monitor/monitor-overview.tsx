@@ -83,7 +83,7 @@ export function MonitorOverview({ report }: { readonly report: AiMonitorReport }
     <>
       <section aria-labelledby="monitor-kpis" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="monitor-kpis" className="font-semibold">핵심 운영 지표</h2>
+          <h2 id="monitor-kpis" className="font-semibold text-foreground">핵심 운영 지표</h2>
           <Badge variant="outline" className={healthClass(report.health.status)}>
             상태: {report.health.label}
           </Badge>

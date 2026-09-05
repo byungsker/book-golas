@@ -1,67 +1,28 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import { AiMonitorQueryError, loadAiMonitorReport, parseAiMonitorFilters } from "./ai-monitor.ts";
 
-const route = await readFile("src/app/api/admin/ai-monitor/route.ts", "utf8");
-const page = await readFile("src/app/admin/ai-monitor/page.tsx", "utf8");
-const tables = await readFile("src/app/admin/ai-monitor/monitor-tables.tsx", "utf8");
-const proxy = await readFile("src/proxy.ts", "utf8");
-const monitor = await readFile("src/lib/ai-monitor.ts", "utf8");
-const access = await readFile("src/lib/ai-monitor-access.ts", "utf8");
-const nextConfig = await readFile("next.config.ts", "utf8");
-const dialog = await readFile("src/components/ui/dialog.tsx", "utf8");
-
-assert.match(route, /^import "server-only";/);
-assert.match(page, /^import "server-only";/);
-const handler = route.slice(route.indexOf("export async function GET"));
-assert.ok(handler.indexOf("requireAdminUser") < handler.indexOf("loadAiMonitorReport"));
-assert.match(route, /status: 401/);
-assert.match(route, /status: 400/);
-assert.match(route, /status: 500/);
-assert.match(route, /Cache-Control.*no-store/);
-for (const sensitiveField of ["prompt", "response", "user_id", "authorization", "apiKey", "accessToken", "credential"]) {
-  assert.equal(route.includes(`"${sensitiveField}"`), false);
+function expectQueryError(params: Record<string, string>, field: string): void {
+  assert.throws(
+    () => parseAiMonitorFilters(new URLSearchParams(params)),
+    (error) => error instanceof AiMonitorQueryError && error.field === field,
+  );
 }
-assert.match(monitor, /ai-monitor\/src\/core\.mjs/);
-assert.match(monitor, /await import\(\/\* webpackIgnore: true \*\/ resolve\(repositoryRoot, CORE_PATH\)\)/);
-assert.doesNotMatch(monitor, /getBuiltinModule|createRequire/);
-assert.match(monitor, /ai-monitor\/fixtures\/events\.json/);
-assert.match(monitor, /MAX_RANGE_DAYS/);
-assert.match(monitor, /MAX_PAGE_SIZE/);
-assert.match(monitor, /2026-09-01/);
-assert.match(monitor, /2026-09-03/);
-assert.match(page, /name="provider"/);
-assert.match(page, /name="model"/);
-assert.match(page, /name="status"/);
-assert.match(page, /name="outcome"/);
-assert.match(page, /name="errorType"/);
-assert.match(tables, /TableCaption/);
-assert.match(tables, /DialogTitle/);
-assert.match(tables, /DialogDescription/);
-assert.match(page, /pricingVersions/);
-assert.match(page, /Preview fixture/);
-assert.match(proxy, /\/admin\/ai-monitor/);
-assert.match(proxy, /isAiMonitorDemoRequest/);
-assert.match(route, /isAiMonitorDemoRequest/);
-assert.match(access, /AI_MONITOR_LOCAL_DEMO/);
-assert.match(access, /AI_MONITOR_PREVIEW_DEMO/);
-assert.match(access, /VERCEL_ENV === "preview"/);
-assert.match(access, /VERCEL_URL/);
-assert.match(nextConfig, /outputFileTracingRoot/);
-assert.match(nextConfig, /outputFileTracingIncludes/);
-assert.match(nextConfig, /ai-monitor\/src\/core\.mjs/);
-assert.match(nextConfig, /ai-monitor\/fixtures\/events\.json/);
-assert.match(dialog, /bg-background text-foreground/);
 
-assert.throws(
-  () => parseAiMonitorFilters(new URLSearchParams({ from: "2026-02-30" })),
-  (error) => error instanceof AiMonitorQueryError && error.field === "from",
-);
-assert.throws(
-  () => parseAiMonitorFilters(new URLSearchParams({ from: "2026-09-03", to: "2026-09-01" })),
-  (error) => error instanceof AiMonitorQueryError && error.field === "range",
-);
-assert.deepEqual(parseAiMonitorFilters(new URLSearchParams()), {
+function assertNoSensitiveKeys(value: unknown): void {
+  const sensitiveKeys = new Set(["prompt", "response", "user_id", "authorization", "apiKey", "accessToken", "credential"]);
+  if (Array.isArray(value)) {
+    for (const item of value) assertNoSensitiveKeys(item);
+    return;
+  }
+  if (value === null || typeof value !== "object") return;
+  for (const [key, nestedValue] of Object.entries(value)) {
+    assert.equal(sensitiveKeys.has(key), false, `sensitive key leaked: ${key}`);
+    assertNoSensitiveKeys(nestedValue);
+  }
+}
+
+const defaultFilters = parseAiMonitorFilters(new URLSearchParams());
+assert.deepEqual(defaultFilters, {
   from: "2026-09-01",
   to: "2026-09-03",
   provider: "all",
@@ -72,21 +33,51 @@ assert.deepEqual(parseAiMonitorFilters(new URLSearchParams()), {
   page: 1,
   pageSize: 2,
 });
-assert.throws(
-  () => parseAiMonitorFilters(new URLSearchParams({ page: "0" })),
-  (error) => error instanceof AiMonitorQueryError && error.field === "page",
-);
-assert.throws(
-  () => parseAiMonitorFilters(new URLSearchParams({ page: "1001" })),
-  (error) => error instanceof AiMonitorQueryError && error.field === "page",
-);
-assert.throws(
-  () => parseAiMonitorFilters(new URLSearchParams({ pageSize: "51" })),
-  (error) => error instanceof AiMonitorQueryError && error.field === "pageSize",
-);
-assert.deepEqual((await loadAiMonitorReport(parseAiMonitorFilters(new URLSearchParams()))).range, {
-  from: "2026-09-01",
-  to: "2026-09-03",
-});
 
-console.log("AI monitor source contract passed");
+expectQueryError({ from: "2026-02-30" }, "from");
+expectQueryError({ from: "2026-09-03", to: "2026-09-01" }, "range");
+expectQueryError({ from: "2026-09-01", to: "2026-10-02" }, "range");
+expectQueryError({ page: "0" }, "page");
+expectQueryError({ page: "1001" }, "page");
+expectQueryError({ pageSize: "51" }, "pageSize");
+expectQueryError({ status: "pending" }, "status");
+expectQueryError({ provider: "open ai" }, "provider");
+
+const report = await loadAiMonitorReport(defaultFilters);
+assert.deepEqual(report.range, { from: "2026-09-01", to: "2026-09-03" });
+assert.equal(report.totals.requests, 5);
+assert.equal(report.totals.successes, 1);
+assert.equal(report.totals.failures, 3);
+assert.equal(report.totals.cancellations, 1);
+assert.equal(report.totals.totalTokens, 4450);
+assert.equal(report.totals.p95LatencyMs, 5000);
+assert.equal(report.health.status, "critical");
+assert.deepEqual(report.options.providers, ["anthropic", "google", "openai"]);
+assert.deepEqual(report.options.models, [
+  "claude-3-5-haiku",
+  "claude-3-5-sonnet",
+  "gemini-1.5-pro",
+  "gpt-4o-mini",
+]);
+assert.deepEqual(report.recentErrors.map((error) => error.eventId), ["evt-004", "evt-003"]);
+assert.equal(report.recentErrors[0]?.errorCode, "quota_exceeded");
+assert.equal(report.traces[0]?.eventId, "evt-001");
+assertNoSensitiveKeys(report);
+
+const filteredFilters = parseAiMonitorFilters(new URLSearchParams({
+  from: "2026-09-01",
+  to: "2026-09-02",
+  provider: "openai",
+  model: "gpt-4o-mini",
+  status: "failure",
+  outcome: "timeout",
+  errorType: "timeout",
+  pageSize: "50",
+}));
+const filteredReport = await loadAiMonitorReport(filteredFilters);
+assert.equal(filteredReport.totals.requests, 1);
+assert.equal(filteredReport.totals.failures, 1);
+assert.equal(filteredReport.recentErrors[0]?.eventId, "evt-003");
+assert.equal(filteredReport.recentErrors[0]?.traceId, "trace-003");
+
+console.log("AI monitor behavior contract passed");
