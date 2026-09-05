@@ -50,7 +50,9 @@ export async function GET(request: NextRequest) {
     throw error;
   }
 
-  if (process.env.NODE_ENV !== "development" || !isLoopbackHost(request.headers.get("host"))) {
+  if (process.env.NODE_ENV !== "development"
+    || process.env.AI_MONITOR_LOCAL_DEMO !== "true"
+    || !isLoopbackHost(request.headers.get("host"))) {
     return serverError(request);
   }
 

@@ -52,7 +52,7 @@ try {
     ]) requireMarker(source, marker, name);
   }
 
-  for (const marker of ["requireAdminUser", "process.env.NODE_ENV !== \"development\"", "isLoopbackHost", "Cache-Control\": \"no-store"]) {
+  for (const marker of ["requireAdminUser", "process.env.NODE_ENV !== \"development\"", "AI_MONITOR_LOCAL_DEMO", "isLoopbackHost", "Cache-Control\": \"no-store"]) {
     requireMarker(route, marker, "web route");
   }
 } catch (error) {

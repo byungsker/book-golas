@@ -60,8 +60,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/admin/ai-monitor` with an authenticated local
-administrator session. A direct API request still requires authentication.
+Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
+`dev` script enables the fixture only in development and binds Next.js to
+`127.0.0.1`; a direct API request still requires authentication.
 
 `node cli/bin/ai-monitor.mjs` has four commands: `summary`, `usage`,
 `errors`, and `costs`. Every command accepts `--format json|csv` and these
@@ -96,9 +97,9 @@ authorized administrator roles, auditability, and least-privilege access.
 failures and never throws into its caller.
 
 The local demo route checks `requireAdminUser`, uses `Cache-Control: no-store`,
-and returns fixture data only in `development` on loopback hosts. It preserves
-the authentication boundary; other hosts or environments receive an
-unavailable response instead of demo data.
+and returns fixture data only when the development-only demo flag and loopback
+host allowlist are both active. The `dev` script binds to `127.0.0.1`; other
+hosts or environments receive an unavailable response instead of demo data.
 
 ```bash
 npm run demo:check

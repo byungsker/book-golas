@@ -81,7 +81,9 @@ function FiltersCard({ filters, report }: { readonly filters: AiMonitorFilters; 
 
 export default async function AiMonitorPage({ searchParams }: PageProps) {
   const requestHeaders = await headers();
-  if (process.env.NODE_ENV !== "development" || !isLoopbackHost(requestHeaders.get("host"))) {
+  if (process.env.NODE_ENV !== "development"
+    || process.env.AI_MONITOR_LOCAL_DEMO !== "true"
+    || !isLoopbackHost(requestHeaders.get("host"))) {
     redirect("/admin/login?error=admin_disabled");
   }
 

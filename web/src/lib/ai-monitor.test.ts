@@ -39,6 +39,7 @@ assert.match(page, /pricingVersions/);
 assert.match(page, /로컬 데모/);
 assert.match(proxy, /\/admin\/ai-monitor/);
 assert.match(proxy, /NODE_ENV === "development"/);
+assert.match(proxy, /AI_MONITOR_LOCAL_DEMO === "true"/);
 assert.match(proxy, /localhost|127\.0\.0\.1|\[::1\]/);
 
 assert.throws(

@@ -25,8 +25,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/admin/ai-monitor` with an authenticated local
-administrator session. A direct API request still requires authentication.
+Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
+`dev` script enables the fixture only in development and binds Next.js to
+`127.0.0.1`; a direct API request still requires authentication.
 
 ## CLI contract
 
@@ -88,9 +89,11 @@ serving work while recording that monitoring was not accepted; it must not
 treat an unsuccessful sink write as proof that data was retained.
 
 The local demo boundary is deliberate. `/api/admin/ai-monitor` returns fixture
-data only after authentication, only when `NODE_ENV` is `development`, and
-only for a loopback host (`localhost`, `127.0.0.1`, or `::1`). Other hosts or
-environments receive an unavailable response instead of demo data.
+data only after authentication, only when `NODE_ENV` is `development`, only
+when the server-side demo flag is enabled, and only for a loopback host
+(`localhost`, `127.0.0.1`, or `::1`). The `dev` script binds Next.js to
+`127.0.0.1`; other hosts or environments receive an unavailable response
+instead of demo data.
 
 ## Verification
 

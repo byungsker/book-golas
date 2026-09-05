@@ -16,6 +16,7 @@ export async function proxy(request: NextRequest) {
     const isLoopback = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
     const isLocalMonitor = request.nextUrl.pathname === "/admin/ai-monitor"
       && process.env.NODE_ENV === "development"
+      && process.env.AI_MONITOR_LOCAL_DEMO === "true"
       && isLoopback;
     if (isLocalMonitor) return NextResponse.next({ request });
 

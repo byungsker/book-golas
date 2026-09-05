@@ -205,7 +205,8 @@ Use the existing mixed surface treatment: `Card` provides `bg-card`, `border`, `
 
 A fixture/demo view is permitted only to make the contract inspectable before real data exists. It is not an authentication fallback.
 
-- Gate demo rendering server-side with both `NODE_ENV === "development"` and a loopback host allowlist limited to `localhost`, `127.0.0.1`, and `[::1]` (normalize the request host; do not trust an arbitrary client flag or forwarded host without validation).
+- Gate demo rendering server-side with `NODE_ENV === "development"`, the server-only `AI_MONITOR_LOCAL_DEMO === "true"` flag, and a loopback host allowlist limited to `localhost`, `127.0.0.1`, and `[::1]` (normalize the request host; do not trust an arbitrary client flag or forwarded host without validation).
+- Keep the local demo command bound to `127.0.0.1` so the safe fixture cannot be reached from a LAN by default; the API still requires administrator authentication.
 - Keep demo data at the page/view layer. `/api/admin/ai-monitor` must continue to call `requireAdminUser()` first and return `401` for an unauthenticated request in every environment, including local development.
 - Never enable demo mode on production, preview, staging, a LAN hostname, or a public URL. A `demo=1` query parameter or local fixture flag may select the fixture only after the server-side development-and-loopback gate passes.
 - Mark the surface visibly as local demo data and ensure fixture values cannot be sent to provider APIs, persisted to Supabase, or mistaken for live observations.

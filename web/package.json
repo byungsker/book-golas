@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "AI_MONITOR_LOCAL_DEMO=true next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "npm run test:waitlist-security && npm run test:admin-authz && npm run test:ai-usage-dashboard && npm run test:push-ops && npm run test:error-reporting && npm run test:ai-monitor && eslint",
