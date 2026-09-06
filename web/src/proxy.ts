@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminRoute) {
     const isLoginPage = request.nextUrl.pathname === "/admin/login";
-    const isLocalMonitor = request.nextUrl.pathname === "/admin/ai-monitor"
+    const isLocalMonitor = (request.nextUrl.pathname === "/admin/ai-monitor" || request.nextUrl.pathname.startsWith("/admin/ai-monitor/"))
       && isAiMonitorDemoRequest(request.headers.get("host"));
     if (isLocalMonitor) return NextResponse.next({ request });
 

@@ -64,6 +64,16 @@ Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
 `dev` script enables the fixture only in development and binds Next.js to
 `127.0.0.1`; a direct API request still requires authentication.
 
+The monitor navigation separates the current overview (`/admin/ai-monitor`),
+period reports (`/admin/ai-monitor/reports`), and all request logs
+(`/admin/ai-monitor/logs`). Reports support daily, monthly, quarterly, yearly,
+and custom ranges and include deterministic improvement insights. Cost-bearing
+tables switch between USD and KRW using the shareable `currency` query value;
+KRW is a Preview-only display conversion of `$1 = ₩1,400`. Provider cards state
+that the fixture has no live account or credential and link to the provider's
+developer and usage consoles. The admin shell also includes a persisted
+light/dark theme toggle.
+
 For a shareable review, set `AI_MONITOR_PREVIEW_DEMO=true` only for the Vercel
 Preview environment. The server accepts the exact deployment host from
 `VERCEL_URL` while `VERCEL_ENV` is `preview`; keep Deployment Protection

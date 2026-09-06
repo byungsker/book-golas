@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { AiMonitorFilters, AiMonitorReport, AiMonitorTrace } from "@/lib/ai-monitor";
+import { CostToggle, type CostCurrency } from "./monitor-currency";
 import { formatCost, formatNumber, formatPercent } from "./monitor-overview";
 
 function outcomeBadge(outcome: string) {
@@ -20,7 +21,7 @@ function outcomeBadge(outcome: string) {
   return "outline";
 }
 
-function pageHref(filters: AiMonitorFilters, page: number): string {
+function pageHref(filters: AiMonitorFilters, page: number, currency: CostCurrency): string {
   const params = new URLSearchParams({
     from: filters.from,
     to: filters.to,
@@ -31,6 +32,7 @@ function pageHref(filters: AiMonitorFilters, page: number): string {
     errorType: filters.errorType,
     page: String(page),
     pageSize: String(filters.pageSize),
+    currency,
   });
   return `/admin/ai-monitor?${params.toString()}`;
 }
@@ -60,13 +62,28 @@ function TraceDialog({ trace }: { readonly trace: AiMonitorTrace | undefined }) 
   );
 }
 
-export function TrendTable({ report }: { readonly report: AiMonitorReport }) {
+export function TrendTable({
+  currency,
+  pathname,
+  query,
+  report,
+}: {
+  readonly currency: CostCurrency;
+  readonly pathname: string;
+  readonly query: string;
+  readonly report: AiMonitorReport;
+}) {
   const maxLatency = Math.max(1, ...report.daily.map((day) => day.requests === 0 ? 0 : day.latencyMs / day.requests));
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Latency와 오류 추이</CardTitle>
-        <CardDescription>UTC 일자별 평균 latency와 오류율입니다. 막대 값은 아래 표와 동일합니다.</CardDescription>
+      <CardHeader className="gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <CardTitle>Latency와 오류 추이</CardTitle>
+            <CardDescription>UTC 일자별 평균 latency와 오류율입니다. 막대 값은 아래 표와 동일합니다.</CardDescription>
+          </div>
+          <CostToggle currency={currency} pathname={pathname} query={query} />
+        </div>
       </CardHeader>
       <CardContent>
         {report.daily.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 추이 데이터가 없습니다.</p> : (
@@ -84,7 +101,7 @@ export function TrendTable({ report }: { readonly report: AiMonitorReport }) {
                   <div className="flex items-center gap-3"><div className="h-2 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true"><div className="h-full rounded-full bg-chart-2" style={{ width: `${Math.max(3, averageLatency / maxLatency * 100)}%` }} /></div><span className="w-20 text-right tabular-nums">{formatNumber(averageLatency)} ms</span></div>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{formatPercent(errorRate)}</TableCell>
-                <TableCell className="text-right tabular-nums">{formatCost(day.costUsd)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(day.costUsd, currency)}</TableCell>
               </TableRow>;
             })}</TableBody>
           </Table>
@@ -94,12 +111,27 @@ export function TrendTable({ report }: { readonly report: AiMonitorReport }) {
   );
 }
 
-export function FeatureModelTable({ report }: { readonly report: AiMonitorReport }) {
+export function FeatureModelTable({
+  currency,
+  pathname,
+  query,
+  report,
+}: {
+  readonly currency: CostCurrency;
+  readonly pathname: string;
+  readonly query: string;
+  readonly report: AiMonitorReport;
+}) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>기능별 모델 사용량</CardTitle>
-        <CardDescription>기능·provider·model 조합별 요청, 토큰, 오류, 취소와 예상 비용입니다.</CardDescription>
+      <CardHeader className="gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <CardTitle>기능별 모델 사용량</CardTitle>
+            <CardDescription>기능·provider·model 조합별 요청, 토큰, 오류, 취소와 예상 비용입니다.</CardDescription>
+          </div>
+          <CostToggle currency={currency} pathname={pathname} query={query} />
+        </div>
       </CardHeader>
       <CardContent>
         {report.featureModels.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 기능별 사용량이 없습니다.</p> : (
@@ -117,7 +149,7 @@ export function FeatureModelTable({ report }: { readonly report: AiMonitorReport
                 <TableCell className="text-right tabular-nums">{formatNumber(row.totalTokens)}</TableCell>
                 <TableCell className="text-right tabular-nums">{formatNumber(row.errors)}</TableCell>
                 <TableCell className="text-right tabular-nums">{formatNumber(row.cancellations)}</TableCell>
-                <TableCell className="text-right tabular-nums">{formatCost(row.costUsd)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(row.costUsd, currency)}</TableCell>
               </TableRow>
             ))}</TableBody>
           </Table>
@@ -127,12 +159,31 @@ export function FeatureModelTable({ report }: { readonly report: AiMonitorReport
   );
 }
 
-export function RequestLogTable({ report }: { readonly report: AiMonitorReport }) {
+export function RequestLogTable({
+  currency,
+  description = "집계에 포함된 각 요청의 정규화된 운영 필드입니다. Event ID와 Trace로 원시 입력·출력 없이 수치를 대조할 수 있습니다.",
+  pathname,
+  query,
+  report,
+  title = "건별 요청 로그",
+}: {
+  readonly currency: CostCurrency;
+  readonly description?: string;
+  readonly pathname: string;
+  readonly query: string;
+  readonly report: AiMonitorReport;
+  readonly title?: string;
+}) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>건별 요청 로그</CardTitle>
-        <CardDescription>집계에 포함된 각 요청의 정규화된 운영 필드입니다. Event ID와 Trace로 원시 입력·출력 없이 수치를 대조할 수 있습니다.</CardDescription>
+      <CardHeader className="gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          <CostToggle currency={currency} pathname={pathname} query={query} />
+        </div>
       </CardHeader>
       <CardContent>
         {report.requestLogs.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">선택한 조건의 요청 로그가 없습니다.</p> : (
@@ -149,7 +200,7 @@ export function RequestLogTable({ report }: { readonly report: AiMonitorReport }
                 <TableCell><Badge variant={outcomeBadge(request.outcome)}>{request.outcome}</Badge><br /><span className="text-xs text-muted-foreground">{request.status}</span></TableCell>
                 <TableCell className="text-right tabular-nums"><span>{formatNumber(request.totalTokens)}</span><br /><span className="text-xs text-muted-foreground">입력 {formatNumber(request.inputTokens)} · 출력 {formatNumber(request.outputTokens)}</span></TableCell>
                 <TableCell className="text-right tabular-nums"><span>{formatNumber(request.latencyMs)} ms</span><br /><span className="text-xs text-muted-foreground">TTFT {formatNumber(request.ttftMs)} · 재시도 {formatNumber(request.retryCount)}</span></TableCell>
-                <TableCell className="text-right tabular-nums">{formatCost(request.costUsd)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatCost(request.costUsd, currency)}</TableCell>
                 <TableCell className="text-right"><TraceDialog trace={request} /></TableCell>
               </TableRow>
             ))}</TableBody>
@@ -160,7 +211,7 @@ export function RequestLogTable({ report }: { readonly report: AiMonitorReport }
   );
 }
 
-export function RecentErrorsTable({ report }: { readonly report: AiMonitorReport }) {
+export function RecentErrorsTable({ currency, report }: { readonly currency: CostCurrency; readonly report: AiMonitorReport }) {
   const canGoBack = report.pagination.page > 1;
   const canGoForward = report.pagination.page < report.pagination.totalPages;
   return (
@@ -190,8 +241,8 @@ export function RecentErrorsTable({ report }: { readonly report: AiMonitorReport
         <nav aria-label="오류 목록 페이지" className="flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">{report.pagination.page} / {report.pagination.totalPages} 페이지</p>
           <div className="flex gap-2">
-            <Button asChild={canGoBack} disabled={!canGoBack} size="sm" variant="outline">{canGoBack ? <Link href={pageHref(report.filters, report.pagination.page - 1)}>이전</Link> : <span>이전</span>}</Button>
-            <Button asChild={canGoForward} disabled={!canGoForward} size="sm" variant="outline">{canGoForward ? <Link href={pageHref(report.filters, report.pagination.page + 1)}>다음</Link> : <span>다음</span>}</Button>
+            <Button asChild={canGoBack} disabled={!canGoBack} size="sm" variant="outline">{canGoBack ? <Link href={pageHref(report.filters, report.pagination.page - 1, currency)}>이전</Link> : <span>이전</span>}</Button>
+            <Button asChild={canGoForward} disabled={!canGoForward} size="sm" variant="outline">{canGoForward ? <Link href={pageHref(report.filters, report.pagination.page + 1, currency)}>다음</Link> : <span>다음</span>}</Button>
           </div>
         </nav>
       </CardContent>

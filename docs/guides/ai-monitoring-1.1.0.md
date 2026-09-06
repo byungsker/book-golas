@@ -29,6 +29,15 @@ Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
 `dev` script enables the fixture only in development and binds Next.js to
 `127.0.0.1`; a direct API request still requires authentication.
 
+The monitor has three pages: `/admin/ai-monitor` is the monitoring overview,
+`/admin/ai-monitor/reports` provides daily, monthly, quarterly, yearly, and
+custom reports with deterministic operational insights, and
+`/admin/ai-monitor/logs` shows every request in the selected range. Cost-bearing
+tables can switch between USD and KRW; KRW is a Preview display conversion at
+`$1 = ₩1,400` and does not change the stored `costUsd` estimate. Provider cards
+show that the Preview fixture has no live credential or billing account and
+link to each provider's developer and usage console.
+
 ## CLI contract
 
 `node cli/bin/ai-monitor.mjs` has four commands: `summary`, `usage`,

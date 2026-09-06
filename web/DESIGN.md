@@ -8,7 +8,7 @@ Source of truth inspected: `web/src/app/globals.css`, `web/src/app/layout.tsx`, 
 
 The admin surface is a quiet operational console: neutral, information-dense, and easy to scan when an operator is checking health, failures, latency, quota, and cost. Its signature is semantic evidence in simple layers—`Card` sections, compact metric cards, and readable tables—rather than decorative dashboard chrome. Keep the AI monitoring view calmer and more explicit than the consumer-facing visual utilities in `globals.css`.
 
-Scope for issue #395: the AI monitoring dashboard at `/admin/ai-monitor`, alongside the existing `/admin/ai-usage` view. The existing admin shell, authentication, API contract, and other admin workflows remain in place. Do not turn this document into a second component library or change the shell as part of the dashboard work.
+Scope for issue #395: the AI monitoring surface at `/admin/ai-monitor`, with overview, reports, and all-request-log subroutes, alongside the existing `/admin/ai-usage` view. Existing authentication, API contract, and other admin workflows remain in place. The admin shell now owns the theme toggle and the monitoring surface owns its local navigation.
 
 ## 2. Color
 
@@ -100,13 +100,14 @@ The admin shell establishes the page geometry:
 
 Use this order so an operator can move from context to action:
 
-1. Page title, purpose sentence, and a `Button variant="outline"` refresh action.
-2. `Card` containing the date/function filters and primary 조회 action.
-3. Inline error card, when the query fails.
-4. KPI groups: usage totals, health/latency/outcome metrics, and control events.
-5. Cost-control policy card and any row-limit warning.
-6. Function, feature·model, request-log, and daily tables.
-7. Cost/privacy disclosure card.
+1. Page title, purpose sentence, `Preview fixture` badge, and a `Button variant="outline"` refresh action.
+2. Local monitor navigation: 모니터링 개요, 리포트, 전체 로그.
+3. Source disclosure, then a `Card` containing filters or report-period controls.
+4. Inline error card, when the query fails.
+5. KPI groups: usage totals, health/latency/outcome metrics, and report insights.
+6. Provider/model connection cards with explicit Preview account state and external developer-console links.
+7. Feature·model, request-log, report-period, and daily tables. Every table that contains cost has a shared USD/KRW toggle.
+8. Cost/privacy disclosure card, including the fixed Preview display exchange rate.
 
 ### Responsive behavior
 
@@ -115,7 +116,7 @@ Use this order so an operator can move from context to action:
 - The control-event summary is one column until `sm`, then three. Policy facts are one column until `sm`, then three.
 - Tables may own a local horizontal overflow region (`overflow-x-auto`) when their columns cannot compress. The page itself must remain one readable column with no horizontal scrollbar. Function/model names and unbroken tokens need `min-w-0`/wrapping or deliberate table overflow.
 - Use the layout primitives `stack`, `cluster`, `intrinsic grid`, and `scroll-body-shell` vocabulary when handing implementation details off. There is no nested dashboard scroll container today; document-level scroll remains the owner unless a bounded table region has a named job.
-- Preserve the current admin shell behavior: nav links are hidden below `sm`. This is an existing shell limitation recorded as debt in Section 8; the dashboard must not add another inaccessible navigation path.
+- Preserve the existing admin shell behavior for legacy links below `sm`; the AI monitoring surface provides its own visible local navigation at every width.
 
 ## 5. Components & Operational Data Contract
 
@@ -142,18 +143,18 @@ Issue #395 should compose existing primitives from `web/src/components/ui`, not 
 ### Data table
 
 - **Structure**: prefer the existing `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, and `TableCell` primitives. The current AI usage page has equivalent raw tables inside `overflow-x-auto`; preserve its visual contract while converging new work on the shared primitive.
-- **Variants**: function metrics; feature·model metrics; daily metrics. Right-align numeric columns; keep identifiers left-aligned.
+- **Variants**: function metrics; feature·model metrics; request logs; report periods; daily metrics. Right-align numeric columns; keep identifiers left-aligned.
 - **Spacing**: `text-sm`, header/cell padding equivalent to `px-2 py-3`, `border-b border-border`, and last-row border removal.
 - **States**: default rows; hover (`hover:bg-muted/50` when using `TableRow`); empty centered `py-8` muted message; loading reserved region; error outside the table in the error card; truncated result warning near the affected data.
 - **Accessibility**: use a real table with a caption or adjacent accessible section heading, column headers with `scope="col"`, and no layout-critical information hidden only in hover. Preserve the local overflow container and readable focus order.
 - **Layout**: table container owns horizontal overflow only when required; it never becomes a second vertical page scroll owner without an explicit bounded-height contract.
 
-### Badge / Dialog / Switch
+### Badge / Dialog / Switch / CostToggle / P95Tooltip
 
-- **Structure**: `Badge` for compact labels, Radix `Dialog` for confirmation, and Radix `Switch` for boolean settings in other admin workflows.
+- **Structure**: `Badge` for compact labels, Radix `Dialog` for confirmation, Radix `Switch` for boolean settings in other admin workflows, `CostToggle` for URL-backed USD/KRW display state, and `P95Tooltip` for keyboard/focus and hover explanation.
 - **Variants**: existing badge `default`, `secondary`, `destructive`, and `outline`; use `outline` for neutral identifiers and semantic status styling only when the text repeats the meaning.
 - **States**: badge status; dialog open/closed with overlay and close control; switch checked/unchecked/disabled/focused. Their Radix `data-[state]` behavior is the source of truth.
-- **Accessibility**: dialogs must provide `DialogTitle` and `DialogDescription`, trap focus, return focus to the trigger, and expose a labeled close control. Switches need an associated label and must not be the sole carrier of a dangerous state.
+- **Accessibility**: dialogs must provide `DialogTitle` and `DialogDescription`, trap focus, return focus to the trigger, and expose a labeled close control. Switches need an associated label and must not be the sole carrier of a dangerous state. The currency control exposes the selected state in links and keeps it in the URL. The p95 explanation is available on focus as well as hover and does not rely on color.
 
 ### Dashboard response contract
 
@@ -170,6 +171,9 @@ The page uses the shared `ai-monitor/src/core.mjs` normalization and aggregation
 | Traces | event, trace, correlation, span, provider, model, status, and outcome identifiers only |
 | Health | healthy/warning/critical/unknown based on error-rate and p95 thresholds |
 | Options and pagination | bounded provider/model choices plus page, page size, total items, and total pages |
+| Reports | daily/monthly/quarterly/yearly/custom ranges, period rows, and deterministic operational insights over the same request logs |
+| Provider connections | provider display name, explicit Preview account/credential state, usage totals, and external console/usage links; no secret or account identifier |
+| Cost display | USD source values plus a fixed Preview-only KRW display conversion of `$1 = ₩1,400`; the URL `currency` parameter is shareable and does not change stored estimates |
 
 The dashboard is observational. It does not imply that estimated cost is a bill, that a missing value is zero, or that `unknown` health is healthy. Keep the existing disclosure that estimated provider-token/model-price values are not billing or accounting numbers. Do not expose user original text, input/output content, or user identifiers in the response or presentation.
 
@@ -181,6 +185,10 @@ Interaction is functional and restrained. Existing primitives provide `transitio
 - **Filter validation**: when `from > to`, keep the form usable, show the existing Korean validation message, and do not issue the request.
 - **Health**: status changes are communicated by the visible status label and explanatory detail. Do not pulse or continuously animate a healthy state.
 - **Tables**: row hover is a scan aid only. No row should look clickable unless it has an action and keyboard behavior.
+- **Reports**: period links and custom range submission keep the selected period and currency in the URL; insight cards explain an observed signal and a concrete next action.
+- **Cost display**: `CostToggle` is repeated in cost-bearing table headers so the displayed unit is unambiguous. The conversion is presentation-only and remains disclosed as an estimate.
+- **p95 help**: `P95Tooltip` opens on keyboard focus and pointer hover; its copy explains percentile ordering and small-sample behavior.
+- **Theme**: the admin shell persists the light/dark selection locally and toggles the existing semantic `.dark` variables. It does not change data or provider behavior.
 - **Timing**: keep existing component transitions; if a new transition is necessary, use the architecture defaults of micro 100–150ms and standard 200–300ms, transform/opacity where motion is needed, and no layout-property animation.
 - **Reduced motion**: honor `prefers-reduced-motion: reduce` by removing non-essential enter/exit or emphasis motion. Functional state changes and focus indication remain.
 
@@ -219,9 +227,9 @@ These are observations from the existing Web system, recorded so issue #395 does
 
 | Item | Location | Why accepted | Owner / exit |
 | --- | --- | --- | --- |
-| Admin nav uses emoji characters as icons and hides links below `sm` without a mobile replacement. | `web/src/app/admin/layout.tsx` | Existing shell behavior; changing navigation is outside the issue #395 dashboard contract. | Web UI owner; revisit in an admin-shell accessibility pass. |
+| Legacy admin links remain hidden below `sm` without a global mobile menu. | `web/src/app/admin/layout.tsx` | The monitoring scope now supplies a local navigation, while unrelated admin screens remain unchanged. | Web UI owner; revisit in an admin-shell accessibility pass. |
 | Several existing admin screens use raw `blue-*`, `green-*`, `orange-*`, `red-*`, gray, and inline status colors. | Existing admin pages, including `web/src/app/admin/page.tsx` and `ai-usage/page.tsx` | Preserve current screens while the contract establishes semantic usage for new monitoring work. | Web UI owner; consolidate during the next admin visual cleanup. |
-| Root body sets hard-coded `#0D0F1A`/`#FAFAFA`, while the admin shell uses theme variables. | `web/src/app/layout.tsx` | Existing shared root behavior; no CSS change is authorized here. | Web UI owner; reconcile root theme ownership separately. |
+| The public landing page still has legacy dark-oriented utility styles in `globals.css`. | `web/src/app/globals.css`, `web/src/app/layout.tsx` | Admin theme switching now routes body colors through the existing semantic variables; landing-page utilities are out of scope. | Web UI owner; reconcile root theme ownership after the public visual pass. |
 | `@theme` maps `font-sans`/`font-mono` to Geist variables while the root loads body/display variables. | `web/src/app/globals.css`, `web/src/app/layout.tsx` | Existing alias mismatch; adding another alias would create a parallel typography system. | Web UI owner; resolve after verifying all consumers, including code-like table values. |
 | The AI usage page currently uses raw HTML tables inside `overflow-x-auto` even though shared Table primitives exist. | `web/src/app/admin/ai-usage/page.tsx` | The contract preserves the rendered behavior while directing future dashboard work toward shared primitives. | Web UI owner; converge during implementation only if issue scope allows. |
 

@@ -37,13 +37,14 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
+      suppressHydrationWarning
     >
       <body
         className="antialiased"
         style={{
           fontFamily: "var(--font-body)",
-          backgroundColor: "#0D0F1A",
-          color: "#FAFAFA",
+          backgroundColor: "var(--background)",
+          color: "var(--foreground)",
           WebkitFontSmoothing: "antialiased",
         }}
       >

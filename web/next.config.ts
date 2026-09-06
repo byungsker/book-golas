@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: repositoryRoot,
   outputFileTracingIncludes: {
     "/admin/ai-monitor": aiMonitorFiles,
+    "/admin/ai-monitor/reports": aiMonitorFiles,
+    "/admin/ai-monitor/logs": aiMonitorFiles,
     "/api/admin/ai-monitor": aiMonitorFiles,
   },
   turbopack: {

@@ -7,17 +7,19 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { BarChart3, Bot, ClipboardList, FileText, Mail, Megaphone, Rocket, Search, Users, type LucideIcon } from "lucide-react";
+import { ThemeToggle } from "./theme-toggle";
 
-const navItems = [
-  { href: "/admin", label: "대시보드", icon: "📊" },
-  { href: "/admin/ai-usage", label: "AI 운영", icon: "🤖" },
-  { href: "/admin/ai-monitor", label: "AI 모니터", icon: "🔎" },
-  { href: "/admin/users", label: "유저 관리", icon: "👥" },
-  { href: "/admin/push-templates", label: "푸시 템플릿", icon: "📝" },
-  { href: "/admin/push-logs", label: "발송 로그", icon: "📋" },
-  { href: "/admin/test-push", label: "테스트 발송", icon: "🚀" },
-  { href: "/admin/announcements", label: "공지 발송", icon: "📢" },
-  { href: "/admin/waitlist", label: "출시 알림 명단", icon: "📧" },
+const navItems: readonly { readonly href: string; readonly label: string; readonly icon: LucideIcon }[] = [
+  { href: "/admin", label: "대시보드", icon: BarChart3 },
+  { href: "/admin/ai-usage", label: "AI 운영", icon: Bot },
+  { href: "/admin/ai-monitor", label: "AI 모니터", icon: Search },
+  { href: "/admin/users", label: "유저 관리", icon: Users },
+  { href: "/admin/push-templates", label: "푸시 템플릿", icon: FileText },
+  { href: "/admin/push-logs", label: "발송 로그", icon: ClipboardList },
+  { href: "/admin/test-push", label: "테스트 발송", icon: Rocket },
+  { href: "/admin/announcements", label: "공지 발송", icon: Megaphone },
+  { href: "/admin/waitlist", label: "출시 알림 명단", icon: Mail },
 ];
 
 export default function AdminLayout({
@@ -71,12 +73,12 @@ export default function AdminLayout({
                     href={item.href}
                     className={cn(
                       "inline-flex shrink-0 items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      pathname === item.href
+                      pathname === item.href || (item.href === "/admin/ai-monitor" && pathname.startsWith("/admin/ai-monitor/"))
                         ? "bg-accent text-accent-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                     )}
                   >
-                    <span className="mr-2">{item.icon}</span>
+                    <item.icon aria-hidden="true" className="mr-2 size-4" />
                     {item.label}
                   </Link>
                 ))}
@@ -86,6 +88,7 @@ export default function AdminLayout({
               {userEmail && (
                 <span className="text-sm text-muted-foreground">{userEmail}</span>
               )}
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃
               </Button>
