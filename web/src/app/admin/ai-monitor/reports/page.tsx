@@ -27,6 +27,7 @@ export default async function AiMonitorReportsPage({ searchParams }: PageProps) 
   await requireAiMonitorPreview();
   const params = toSearchParams(await searchParams);
   const currency = parseCostCurrency(params.get("currency"));
+  const query = params.toString();
   let range: MonitorReportRange;
   let report;
   let errorMessage: string | null = null;
@@ -42,8 +43,8 @@ export default async function AiMonitorReportsPage({ searchParams }: PageProps) 
 
   return (
     <div className="space-y-6">
-      <MonitorHeader title="리포트" description="일·월·분기·연간 기준으로 AI 사용량을 비교하고 개선 액션을 찾습니다." refreshHref="/admin/ai-monitor/reports" />
-      <MonitorNavigation active="reports" />
+      <MonitorHeader title="리포트" description="일·월·분기·연간 기준으로 AI 사용량을 비교하고 개선 액션을 찾습니다." refreshHref="/admin/ai-monitor/reports" query={query} />
+      <MonitorNavigation active="reports" query={query} />
       <MonitorSourceCard />
       <ReportPeriodSelector currency={currency} range={range} />
       {errorMessage ? <p role="alert" className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive">{errorMessage}</p> : null}

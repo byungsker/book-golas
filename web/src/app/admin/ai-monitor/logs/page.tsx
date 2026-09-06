@@ -24,6 +24,7 @@ export default async function AiMonitorLogsPage({ searchParams }: PageProps) {
   const params = toSearchParams(await searchParams);
   if (!params.has("pageSize")) params.set("pageSize", String(MAX_PAGE_SIZE));
   const currency = parseCostCurrency(params.get("currency"));
+  const query = params.toString();
   let filters: AiMonitorFilters;
   let report: AiMonitorReport | null = null;
   let errorMessage: string | null = null;
@@ -37,8 +38,8 @@ export default async function AiMonitorLogsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <MonitorHeader title="전체 로그" description="선택한 조건에 포함된 모든 AI 요청을 건별로 확인하고 집계와 대조합니다." refreshHref="/admin/ai-monitor/logs" />
-      <MonitorNavigation active="logs" />
+      <MonitorHeader title="전체 로그" description="선택한 조건에 포함된 모든 AI 요청을 건별로 확인하고 집계와 대조합니다." refreshHref="/admin/ai-monitor/logs" query={query} />
+      <MonitorNavigation active="logs" query={query} />
       <MonitorSourceCard />
       <MonitorFiltersCard filters={filters} report={report} currency={currency} pathname="/admin/ai-monitor/logs" />
       {errorMessage ? <p role="alert" className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive">{errorMessage}</p> : null}

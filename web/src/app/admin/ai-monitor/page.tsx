@@ -46,8 +46,8 @@ export default async function AiMonitorPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <MonitorHeader title="모니터링 개요" description="AI 요청의 상태, latency, 토큰, 비용과 Provider 연결을 한 화면에서 점검합니다." refreshHref="/admin/ai-monitor" />
-      <MonitorNavigation active="overview" />
+      <MonitorHeader title="모니터링 개요" description="AI 요청의 상태, latency, 토큰, 비용과 Provider 연결을 한 화면에서 점검합니다." refreshHref="/admin/ai-monitor" query={query} />
+      <MonitorNavigation active="overview" query={query} />
       <MonitorSourceCard />
       <MonitorFiltersCard filters={filters} report={report} currency={currency} pathname="/admin/ai-monitor" />
 

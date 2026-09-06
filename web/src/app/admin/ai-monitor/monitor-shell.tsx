@@ -13,7 +13,11 @@ const monitorSections = [
   { href: "/admin/ai-monitor/logs", label: "전체 로그", section: "logs" as const, icon: List },
 ];
 
-export function MonitorNavigation({ active }: { readonly active: MonitorSection }) {
+function withQuery(pathname: string, query: string): string {
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export function MonitorNavigation({ active, query = "" }: { readonly active: MonitorSection; readonly query?: string }) {
   return (
     <nav aria-label="AI 모니터 메뉴" className="border-b border-border">
       <div className="flex min-w-0 gap-1 overflow-x-auto">
@@ -23,7 +27,7 @@ export function MonitorNavigation({ active }: { readonly active: MonitorSection 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={withQuery(item.href, query)}
               aria-current={isActive ? "page" : undefined}
               className={isActive
                 ? "inline-flex shrink-0 items-center gap-2 border-b-2 border-foreground px-3 py-3 text-sm font-semibold text-foreground"
@@ -41,10 +45,12 @@ export function MonitorNavigation({ active }: { readonly active: MonitorSection 
 
 export function MonitorHeader({
   description,
+  query = "",
   refreshHref,
   title,
 }: {
   readonly description: string;
+  readonly query?: string;
   readonly refreshHref: string;
   readonly title: string;
 }) {
@@ -58,7 +64,7 @@ export function MonitorHeader({
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       <Button asChild variant="outline">
-        <Link href={refreshHref}><RefreshCw aria-hidden="true" />새로고침</Link>
+        <Link href={withQuery(refreshHref, query)}><RefreshCw aria-hidden="true" />새로고침</Link>
       </Button>
     </header>
   );

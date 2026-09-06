@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type AdminTheme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "bookgolas-admin-theme";
+const THEME_CHANGE_EVENT = "bookgolas-admin-theme-change";
+
+function readTheme(): AdminTheme {
+  return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+}
+
+function subscribe(onChange: () => void): () => void {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(THEME_CHANGE_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(THEME_CHANGE_EVENT, onChange);
+  };
+}
+
+function getServerTheme(): AdminTheme {
+  return "light";
+}
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<AdminTheme>(() => {
-    if (typeof window === "undefined") return "light";
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
-  });
+  const theme = useSyncExternalStore(subscribe, readTheme, getServerTheme);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -20,9 +35,8 @@ export function ThemeToggle() {
 
   function toggleTheme() {
     const nextTheme: AdminTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.classList.toggle("dark", nextTheme === "dark");
     window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }
 
   const isDark = theme === "dark";
