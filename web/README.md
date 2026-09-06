@@ -34,3 +34,99 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## AI monitoring local and Preview demo
+
+The reproducible monitor uses `ai-monitor/fixtures/events.json` as its only
+demo input and `ai-monitor/src/core.mjs` as the single normalization,
+filtering, aggregation, pricing, and fail-safe sink implementation. The CLI
+and the local web report both consume those paths. The local read API is
+`GET /api/admin/ai-monitor`; it projects the same normalized fixture data and
+does not connect to a provider, database, or production service.
+
+Start the local checks from the repository root:
+
+```bash
+npm run demo:check
+node cli/bin/ai-monitor.mjs summary --format json
+node cli/bin/ai-monitor.mjs usage --format json
+```
+
+To view the web page locally, start Next.js and use a loopback URL:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
+`dev` script enables the fixture only in development and binds Next.js to
+`127.0.0.1`; a direct API request still requires authentication.
+
+The monitor navigation separates the current overview (`/admin/ai-monitor`),
+period reports (`/admin/ai-monitor/reports`), and all request logs
+(`/admin/ai-monitor/logs`). Reports support daily, monthly, quarterly, yearly,
+and custom ranges and include deterministic improvement insights. Cost-bearing
+tables switch between USD and KRW using the shareable `currency` query value;
+KRW is a Preview-only display conversion of `$1 = ₩1,400`. Provider cards state
+that the fixture has no live account or credential and link to the provider's
+developer and usage consoles. The admin shell also includes a persisted
+light/dark theme toggle.
+
+For a shareable review, set `AI_MONITOR_PREVIEW_DEMO=true` only for the Vercel
+Preview environment. The server accepts the exact deployment host from
+`VERCEL_URL` while `VERCEL_ENV` is `preview`; keep Deployment Protection
+enabled and do not set the flag for Production.
+
+`node cli/bin/ai-monitor.mjs` has four commands: `summary`, `usage`,
+`errors`, and `costs`. Every command accepts `--format json|csv` and these
+exact-match or UTC-date filters: `--from YYYY-MM-DD`, `--to YYYY-MM-DD`,
+`--provider`, `--model`, `--status`, `--outcome`, and `--error-type`.
+`--from` is inclusive and `--to` is inclusive at the CLI boundary. `errors`
+also accepts `--since <positive-hours>h`; `costs` also accepts
+`--group-by provider|model|feature`.
+
+`summary` returns aggregate totals, daily/provider/model and feature/model
+groups, request-level normalized logs, recent failures, traces, and pricing
+versions. `usage` returns the same normalized event rows shown in the Web
+request log table.
+`errors` returns failure rows only. `costs` returns grouped aggregate cost
+rows. An invalid option, invalid date, unsupported value, or empty result
+writes a concise diagnostic to stderr and exits nonzero.
+
+Each event contains `schemaVersion`, `eventId`, `timestamp`, `provider`,
+`model`, `feature`, `status`, `outcome`, `inputTokens`, `outputTokens`,
+`totalTokens`, `latencyMs`, `ttftMs`, `costUsd`, `retryCount`, `errorType`,
+`errorCode`, `traceId`, `correlationId`, `spanId`, and `pricingVersion`.
+`status`, `totalTokens`, and `costUsd` are derived. The fixture uses pricing
+version `2026-09-01`; `pricingVersion` pins the rate table that calculated the
+operational `costUsd` estimate. It is not an invoice, quota decision, tax
+record, or proof of provider billing. Unknown provider/model prices are
+rejected rather than silently estimated.
+
+The Web monitor explains p95 as the 95th percentile of the selected request
+latencies and shows a request log with Event ID, feature, provider/model,
+outcome, token counts, latency, retry count, estimated cost, and Trace IDs.
+
+Normalization is a redaction boundary: it emits only this schema and drops
+raw prompt, response, generated output, user, authorization, credential,
+API-key, access-token, and secret properties. The fixture is not a retention
+system. A persistent replacement needs documented retention and deletion,
+authorized administrator roles, auditability, and least-privilege access.
+`createSafeEventSink` returns `{ accepted: false }` for validation or write
+failures and never throws into its caller.
+
+The demo route checks `requireAdminUser`, uses `Cache-Control: no-store`, and
+returns fixture data only when either the development-only flag and loopback
+host allowlist or the protected Preview flag and exact `VERCEL_URL` host match
+are active. The `dev` script binds to `127.0.0.1`; other hosts and Production
+receive an unavailable response instead of demo data.
+
+```bash
+npm run demo:check
+cd cli && npm test
+cd ../ai-monitor && npm test
+rg -n -i 'prompt|response|authorization|credential|api[_-]?key|access[_-]?token|secret' \
+  docs/guides/ai-monitoring-1.1.0.md scripts/ai-monitor-demo-check.mjs
+```

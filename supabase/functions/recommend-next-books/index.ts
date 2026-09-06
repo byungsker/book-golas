@@ -13,6 +13,7 @@ import {
   aiUsageErrorResponse,
   createAiProviderRunner,
 } from "../_shared/ai-usage.ts";
+import { requestIdFromRequest } from "../_shared/edge-http.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -72,10 +73,12 @@ serve(async (req: Request) => {
       config.supabase.url,
       config.supabase.serviceRoleKey,
     );
+    const requestId = requestIdFromRequest(req);
     const runAiCall = createAiProviderRunner(
       authClient,
       supabase,
       user.id,
+      requestId,
     );
 
     const profileCollector = new ProfileCollector(supabase);

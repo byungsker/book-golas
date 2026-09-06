@@ -6,6 +6,13 @@ import {
   resolveAiPricing,
 } from "./ai-cost-control.ts";
 
+import {
+  AI_OBSERVABILITY_EVENT_VERSION,
+  type AiOutcome,
+  normalizeAiOutcome,
+  sanitizeAiMetadata,
+} from "./ai-observability.ts";
+
 export type UsageStatus = "success" | "failure";
 export type UsageSource = "provider" | "input_estimate" | "none";
 export type TokenStatus = "valid" | "missing" | "anomalous" | "inconsistent";
@@ -27,6 +34,8 @@ export interface UsageAssessment {
 
 export interface AiUsageContext {
   userId: string | null;
+  requestId?: string | null;
+  callId?: string | null;
   functionName: string;
   feature: string;
   provider: AiProvider;
@@ -35,7 +44,10 @@ export interface AiUsageContext {
 }
 
 export interface AiUsageLogRow {
+  event_version: typeof AI_OBSERVABILITY_EVENT_VERSION;
   user_id: string | null;
+  request_id: string | null;
+  call_id: string | null;
   function_name: string;
   feature: string;
   provider: AiProvider;
@@ -52,6 +64,7 @@ export interface AiUsageLogRow {
   control_status: ControlStatus;
   latency_ms: number;
   status: UsageStatus;
+  outcome: AiOutcome;
   error_code: string | null;
 }
 
@@ -62,7 +75,10 @@ export interface AiUsageLogClient {
 }
 
 export interface AiUsageControlEventRow {
+  event_version: typeof AI_OBSERVABILITY_EVENT_VERSION;
   user_id: string | null;
+  request_id: string | null;
+  call_id: string | null;
   function_name: string;
   feature: string;
   provider: AiProvider;
@@ -70,6 +86,7 @@ export interface AiUsageControlEventRow {
   prompt_version: string;
   event_type: "provider_error" | "usage_rejected";
   decision: "observe" | "block";
+  outcome: AiOutcome;
   reason: string;
   estimated_cost_usd: number | null;
   input_tokens: number | null;
@@ -286,8 +303,14 @@ export function buildAiUsageLogRow(params: {
     model: params.context.model,
     requireOutputTokens: params.requireOutputTokens,
   });
+  const errorCode = params.error === undefined
+    ? null
+    : normalizeAiErrorCode(params.error);
   return {
+    event_version: AI_OBSERVABILITY_EVENT_VERSION,
     user_id: params.context.userId,
+    request_id: params.context.requestId ?? null,
+    call_id: params.context.callId ?? null,
     function_name: params.context.functionName,
     feature: params.context.feature,
     provider: params.context.provider,
@@ -304,9 +327,8 @@ export function buildAiUsageLogRow(params: {
     control_status: params.controlStatus ?? "allowed",
     latency_ms: normalizeLatencyMs(params.latencyMs),
     status: params.status,
-    error_code: params.error === undefined
-      ? null
-      : normalizeAiErrorCode(params.error),
+    outcome: normalizeAiOutcome({ status: params.status, errorCode }),
+    error_code: errorCode,
   };
 }
 
@@ -324,7 +346,10 @@ export function buildAiUsageControlEventRow(params: {
     requireOutputTokens: false,
   });
   return {
+    event_version: AI_OBSERVABILITY_EVENT_VERSION,
     user_id: params.context.userId,
+    request_id: params.context.requestId ?? null,
+    call_id: params.context.callId ?? null,
     function_name: params.context.functionName,
     feature: params.context.feature,
     provider: params.context.provider,
@@ -332,11 +357,14 @@ export function buildAiUsageControlEventRow(params: {
     prompt_version: params.context.promptVersion,
     event_type: params.eventType,
     decision: params.eventType === "usage_rejected" ? "block" : "observe",
+    outcome: params.eventType === "usage_rejected"
+      ? "blocked"
+      : normalizeAiOutcome({ status: "failure", errorCode: params.reason }),
     reason: params.reason,
     estimated_cost_usd: assessment.estimatedCostUsd,
     input_tokens: assessment.usage.inputTokens,
     output_tokens: assessment.usage.outputTokens,
-    metadata: params.metadata ?? {},
+    metadata: sanitizeAiMetadata(params.metadata),
   };
 }
 

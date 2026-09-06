@@ -16,6 +16,7 @@ import {
   getDefaultAiUsageRange,
   type AiUsageControlSummary,
   type AiUsageDimensionMetric,
+  type AiUsageHealth,
   type AiUsagePolicy,
   type AiUsageSummary,
 } from "@/lib/ai-usage";
@@ -27,6 +28,7 @@ type DashboardResponse = AiUsageSummary & {
   featureModels: AiUsageDimensionMetric[];
   controls: AiUsageControlSummary;
   policy: AiUsagePolicy;
+  health: AiUsageHealth;
   limits: { maxRows: number; truncated: boolean };
 };
 
@@ -53,6 +55,36 @@ function formatPercent(value: number): string {
 
 function formatCost(value: number): string {
   return `$${value.toFixed(6)}`;
+}
+
+function formatOptionalLatency(value: number | null): string {
+  return value === null ? "—" : formatLatency(value);
+}
+
+function healthLabel(status: AiUsageHealth["status"]): string {
+  switch (status) {
+    case "healthy":
+      return "정상";
+    case "warning":
+      return "주의";
+    case "critical":
+      return "위험";
+    default:
+      return "확인 필요";
+  }
+}
+
+function healthClass(status: AiUsageHealth["status"]): string {
+  switch (status) {
+    case "healthy":
+      return "border-emerald-500/40 bg-emerald-500/5 text-emerald-700";
+    case "warning":
+      return "border-orange-500/40 bg-orange-500/5 text-orange-700";
+    case "critical":
+      return "border-destructive/50 bg-destructive/5 text-destructive";
+    default:
+      return "border-border bg-muted/30 text-muted-foreground";
+  }
 }
 
 function MetricCard({ title, value, description }: { title: string; value: string; description: string }) {
@@ -131,6 +163,9 @@ export default function AiUsagePage() {
       filters.functionFilter !== "all" ? filters.functionFilter : "",
     ].filter(Boolean))
   );
+
+  const healthStatus = summary?.health.status ?? "unknown";
+  const healthIsCritical = healthStatus === "critical";
 
   return (
     <div className="space-y-6">
@@ -225,6 +260,37 @@ export default function AiUsagePage() {
             />
           </div>
 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              title="p95 latency"
+              value={formatOptionalLatency(summary.health.p95LatencyMs)}
+              description="관측된 AI 호출 latency의 95 percentile"
+            />
+            <MetricCard
+              title="관측 coverage"
+              value={summary.health.coveragePercent === null ? "—" : formatPercent(summary.health.coveragePercent)}
+              description={`${formatNumber(summary.health.terminalEvents)} / ${formatNumber(summary.health.allowedReservations)} terminal events`}
+            />
+            <MetricCard
+              title="Outcome · timeout"
+              value={formatNumber(summary.totals.outcomeCounts.timeout)}
+              description={`rate-limit ${formatNumber(summary.totals.outcomeCounts.rate_limited)}건 · blocked ${formatNumber(summary.totals.outcomeCounts.blocked)}건`}
+            />
+            <Card className={healthClass(healthStatus)}>
+              <CardHeader className="pb-2">
+                <CardDescription className="text-inherit">Sink health</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{healthLabel(healthStatus)}</div>
+                <p className="mt-1 text-xs">
+                  {healthIsCritical
+                    ? `${formatNumber(summary.health.missingTerminalEvents)}건 terminal event 누락`
+                    : summary.health.sinkHealthy ? "관측 이벤트 흐름이 정상입니다." : "health RPC 또는 관측 증거를 확인하세요."}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <MetricCard
               title="통제 차단"
@@ -283,6 +349,7 @@ export default function AiUsagePage() {
                         <th className="px-2 py-3 text-right">호출</th>
                         <th className="px-2 py-3 text-right">실패율</th>
                         <th className="px-2 py-3 text-right">평균 latency</th>
+                        <th className="px-2 py-3 text-right">p95 latency</th>
                         <th className="px-2 py-3 text-right">예상 비용</th>
                       </tr>
                     </thead>
@@ -293,6 +360,7 @@ export default function AiUsagePage() {
                           <td className="px-2 py-3 text-right">{formatNumber(metric.calls)}</td>
                           <td className="px-2 py-3 text-right">{formatPercent(metric.failureRate)}</td>
                           <td className="px-2 py-3 text-right">{formatLatency(metric.averageLatencyMs)}</td>
+                          <td className="px-2 py-3 text-right">{formatLatency(metric.p95LatencyMs)}</td>
                           <td className="px-2 py-3 text-right">{formatCost(metric.estimatedCostUsd)}</td>
                         </tr>
                       ))}
@@ -359,6 +427,7 @@ export default function AiUsagePage() {
                         <th className="px-2 py-3 text-right">호출</th>
                         <th className="px-2 py-3 text-right">실패율</th>
                         <th className="px-2 py-3 text-right">평균 latency</th>
+                        <th className="px-2 py-3 text-right">p95 latency</th>
                         <th className="px-2 py-3 text-right">예상 비용</th>
                       </tr>
                     </thead>
@@ -369,6 +438,7 @@ export default function AiUsagePage() {
                           <td className="px-2 py-3 text-right">{formatNumber(metric.calls)}</td>
                           <td className="px-2 py-3 text-right">{formatPercent(metric.failureRate)}</td>
                           <td className="px-2 py-3 text-right">{formatLatency(metric.averageLatencyMs)}</td>
+                          <td className="px-2 py-3 text-right">{formatLatency(metric.p95LatencyMs)}</td>
                           <td className="px-2 py-3 text-right">{formatCost(metric.estimatedCostUsd)}</td>
                         </tr>
                       ))}

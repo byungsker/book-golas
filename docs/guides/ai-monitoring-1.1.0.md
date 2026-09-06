@@ -1,0 +1,131 @@
+# AI Monitoring — 1.1.0
+
+## Shared local data contract
+
+The reproducible monitor uses `ai-monitor/fixtures/events.json` as its only
+demo input and `ai-monitor/src/core.mjs` as the single normalization,
+filtering, aggregation, pricing, and fail-safe sink implementation. The CLI
+and the local web report both consume those paths. The local read API is
+`GET /api/admin/ai-monitor`; it projects the same normalized fixture data and
+does not connect to a provider, database, or production service.
+
+Start the local checks from the repository root:
+
+```bash
+npm run demo:check
+node cli/bin/ai-monitor.mjs summary --format json
+node cli/bin/ai-monitor.mjs usage --format json
+```
+
+To view the web page locally, start Next.js and use a loopback URL:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000/admin/ai-monitor` from the local dev server. The
+`dev` script enables the fixture only in development and binds Next.js to
+`127.0.0.1`; a direct API request still requires authentication.
+
+The monitor has three pages: `/admin/ai-monitor` is the monitoring overview,
+`/admin/ai-monitor/reports` provides daily, monthly, quarterly, yearly, and
+custom reports with deterministic operational insights, and
+`/admin/ai-monitor/logs` shows every request in the selected range. Cost-bearing
+tables can switch between USD and KRW; KRW is a Preview display conversion at
+`$1 = ₩1,400` and does not change the stored `costUsd` estimate. Provider cards
+show that the Preview fixture has no live credential or billing account and
+link to each provider's developer and usage console.
+
+## CLI contract
+
+`node cli/bin/ai-monitor.mjs` has four commands: `summary`, `usage`,
+`errors`, and `costs`. Every command accepts `--format json|csv` and these
+exact-match or UTC-date filters: `--from YYYY-MM-DD`, `--to YYYY-MM-DD`,
+`--provider`, `--model`, `--status`, `--outcome`, and `--error-type`.
+`--from` is inclusive and `--to` is inclusive at the CLI boundary. `errors`
+also accepts `--since <positive-hours>h`; `costs` also accepts
+`--group-by provider|model|feature`.
+
+`summary` returns aggregate totals, daily/provider/model and feature/model
+groups, request-level normalized logs, recent failures, traces, and pricing
+versions. `usage` returns the same normalized event rows used by the request
+log table.
+`errors` returns failure rows only. `costs` returns grouped aggregate cost
+rows. An invalid option, invalid date, unsupported value, or empty result
+writes a concise diagnostic to stderr and exits nonzero.
+
+## Normalized event schema
+
+Each accepted event has these fields:
+
+| Fields | Meaning |
+| --- | --- |
+| `schemaVersion`, `eventId`, `timestamp` | Schema identity, event identity, and ISO UTC event time. |
+| `provider`, `model`, `feature` | Provider, model, and stable workload dimension. |
+| `status`, `outcome` | Derived status and provider outcome. |
+| `inputTokens`, `outputTokens`, `totalTokens` | Non-negative token counts; total is derived. |
+| `latencyMs`, `ttftMs`, `retryCount` | Non-negative latency, time-to-first-token, and retry metrics. |
+| `costUsd`, `pricingVersion` | Derived USD estimate and the catalog version that produced it. |
+| `errorType`, `errorCode` | Failure classification; `null` for success. |
+| `traceId`, `correlationId`, `spanId` | Correlation identifiers for safe operational joins. |
+
+## Pricing and estimate semantics
+
+The fixture normalizes through pricing catalog version `2026-09-01`. The
+stored `pricingVersion` pins the rate table used for each `costUsd` value, so
+historical reports remain interpretable after a catalog update. `costUsd` is
+calculated from input and output tokens at that version's per-million-token
+rates. It is an operational estimate, not an invoice, quota decision, tax
+record, or proof of provider billing. A provider/model without a rate in the
+selected version is rejected rather than silently estimated.
+
+## p95 and request-level evidence
+
+p95 latency is the value at the 95th percentile of the selected requests after
+sorting their latency from fastest to slowest. It means that approximately 95%
+of observed requests are at or below that value; with a small sample, the
+nearest-rank calculation can equal the slowest request. The Preview page shows
+the normalized request log beside the aggregates so an operator can reconcile
+feature, provider, model, outcome, token counts, latency, retry count, cost,
+and trace identifiers per event.
+
+## Privacy, retention, and availability
+
+Normalization is a redaction boundary: it emits only the listed schema fields
+and drops raw prompt, response, generated output, user, authorization,
+credential, API-key, access-token, and secret properties. Do not add those
+fields to the fixture, CLI output, route response, logs, or error text.
+
+The fixture is local demo data, not a retention system. Before replacing it
+with persisted data, define a documented retention period, deletion process,
+authorized administrator roles, audit trail, and least-privilege read path.
+The current route checks `requireAdminUser` before loading data, uses
+`Cache-Control: no-store`, and is intended only for local development.
+
+`createSafeEventSink` is fail-safe: both validation and writer failures return
+`{ accepted: false }` and never throw into its caller. The caller can continue
+serving work while recording that monitoring was not accepted; it must not
+treat an unsuccessful sink write as proof that data was retained.
+
+The demo boundary is deliberate. `/api/admin/ai-monitor` returns fixture data
+only after authentication. Local access requires `NODE_ENV` to be
+`development`, the server-side demo flag, and a loopback host (`localhost`,
+`127.0.0.1`, or `::1`). Protected Preview access requires `VERCEL_ENV` to be
+`preview`, `AI_MONITOR_PREVIEW_DEMO=true`, and an exact deployment-host match
+with `VERCEL_URL`. Production and other hosts receive an unavailable response
+instead of demo data. The `dev` script still binds Next.js to `127.0.0.1`.
+
+## Verification
+
+```bash
+npm run demo:check
+cd cli && npm test
+cd ../ai-monitor && npm test
+rg -n -i 'prompt|response|authorization|credential|api[_-]?key|access[_-]?token|secret' \
+  docs/guides/ai-monitoring-1.1.0.md scripts/ai-monitor-demo-check.mjs
+```
+
+These commands use Node built-ins and repository fixtures. They do not deploy,
+contact production services, or require provider credentials.

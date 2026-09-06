@@ -1,0 +1,98 @@
+[
+  {
+    "eventId": "evt-001",
+    "timestamp": "2026-09-01T08:00:00.000Z",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "feature": "book-summary",
+    "outcome": "success",
+    "inputTokens": 1000,
+    "outputTokens": 500,
+    "latencyMs": 1000,
+    "ttftMs": 100,
+    "retryCount": 0,
+    "traceId": "trace-001",
+    "correlationId": "corr-001",
+    "spanId": "span-001"
+  },
+  {
+    "eventId": "evt-002",
+    "timestamp": "2026-09-01T09:00:00.000Z",
+    "provider": "anthropic",
+    "model": "claude-3-5-sonnet",
+    "feature": "recommendations",
+    "outcome": "failure",
+    "inputTokens": 2000,
+    "outputTokens": 100,
+    "latencyMs": 2000,
+    "ttftMs": 200,
+    "retryCount": 1,
+    "error": {
+      "type": "provider_error",
+      "code": "upstream_500"
+    },
+    "traceId": "trace-002",
+    "correlationId": "corr-002",
+    "spanId": "span-002"
+  },
+  {
+    "eventId": "evt-003",
+    "timestamp": "2026-09-02T10:00:00.000Z",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "feature": "note-structure",
+    "outcome": "timeout",
+    "inputTokens": 300,
+    "outputTokens": 0,
+    "latencyMs": 3000,
+    "ttftMs": 300,
+    "retryCount": 2,
+    "error": {
+      "type": "timeout",
+      "code": "deadline_exceeded"
+    },
+    "traceId": "trace-003",
+    "correlationId": "corr-003",
+    "spanId": "span-003"
+  },
+  {
+    "eventId": "evt-004",
+    "timestamp": "2026-09-02T11:00:00.000Z",
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "feature": "embedding-labels",
+    "outcome": "rate_limited",
+    "inputTokens": 400,
+    "outputTokens": 0,
+    "latencyMs": 4000,
+    "ttftMs": 400,
+    "retryCount": 3,
+    "error": {
+      "type": "rate_limit",
+      "code": "quota_exceeded"
+    },
+    "traceId": "trace-004",
+    "correlationId": "corr-004",
+    "spanId": "span-004"
+  },
+  {
+    "eventId": "evt-005",
+    "timestamp": "2026-09-03T12:00:00.000Z",
+    "provider": "anthropic",
+    "model": "claude-3-5-haiku",
+    "feature": "chat",
+    "outcome": "cancelled",
+    "inputTokens": 100,
+    "outputTokens": 50,
+    "latencyMs": 5000,
+    "ttftMs": 500,
+    "retryCount": 0,
+    "error": {
+      "type": "cancelled",
+      "code": "caller_aborted"
+    },
+    "traceId": "trace-005",
+    "correlationId": "corr-005",
+    "spanId": "span-005"
+  }
+]

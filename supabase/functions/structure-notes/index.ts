@@ -11,6 +11,7 @@ import {
   assertAiInputSize,
   createAiProviderRunner,
 } from "../_shared/ai-usage.ts";
+import { requestIdFromRequest } from "../_shared/edge-http.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const MIN_CONTENT_COUNT = 5;
@@ -83,10 +84,12 @@ serve(async (req: Request) => {
         },
       },
     );
+    const requestId = requestIdFromRequest(req);
     const runAiCall = createAiProviderRunner(
       supabaseClient,
       serviceClient,
       user.id,
+      requestId,
     );
 
     const { data: contents, error: fetchError } = await serviceClient

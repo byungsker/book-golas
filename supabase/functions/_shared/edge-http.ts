@@ -31,6 +31,10 @@ function resolveRequestId(req: Request): string {
     : crypto.randomUUID();
 }
 
+export function requestIdFromRequest(req: Request): string {
+  return resolveRequestId(req);
+}
+
 function fallbackErrorCode(status: number): string {
   if (status >= 500) {
     return "internal_error";
