@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { requiredEntryIds } from './parity-required-entry-manifest.mjs';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const documentPath = path.resolve(scriptDirectory, '../docs/consumer-parity-matrix.md');
@@ -30,19 +31,6 @@ const allowedDispositions = new Set([
 ]);
 const allowedParity = new Set(['online-core', 'full-parity', 'native-only']);
 const allowedStatus = new Set(['planned', 'blocked', 'disabled', 'unavailable', 'not-started']);
-const requiredEntryIds = [
-  'route-tab-home',
-  'route-tab-library',
-  'route-tab-stats',
-  'route-tab-calendar',
-  'route-tab-account',
-  'capability-ios-widget',
-  'capability-siri-app-shortcuts',
-  'capability-native-push',
-  'capability-camera',
-  'capability-share-sheet',
-  'capability-subscriptions',
-];
 const fixtureIndex = process.argv.indexOf('--fixture');
 const fixture = fixtureIndex === -1 ? null : process.argv[fixtureIndex + 1];
 const errors = [];
@@ -84,6 +72,9 @@ if (ledger && !Array.isArray(ledger.entries)) {
 
 if (ledger && Array.isArray(ledger.entries)) {
   ledger.entries = ledger.entries.map((entry) => ({ ...entry }));
+  if (fixture === 'missing-review-editor') {
+    ledger.entries = ledger.entries.filter((entry) => entry?.id !== 'review-editor');
+  }
   if (fixture === 'missing-disposition' && ledger.entries[0]) {
     ledger.entries[0].disposition = '';
   }
@@ -99,6 +90,7 @@ if (ledger && Array.isArray(ledger.entries)) {
     ledger.entries[0].evidenceOwner = '';
   }
   if (fixture && !new Set([
+    'missing-review-editor',
     'missing-disposition',
     'duplicate-url',
     'missing-error-state',
@@ -110,6 +102,11 @@ if (ledger && Array.isArray(ledger.entries)) {
   const seenIds = new Map();
   const seenUrls = new Map();
   const entryIds = new Set();
+  const manifestIds = new Set(requiredEntryIds);
+
+  if (manifestIds.size !== requiredEntryIds.length) {
+    addError('The required-entry manifest contains duplicate IDs.');
+  }
 
   ledger.entries.forEach((entry, index) => {
     const label = `entries[${index}]`;
@@ -176,9 +173,12 @@ if (ledger && Array.isArray(ledger.entries)) {
 
   requiredEntryIds.forEach((id) => {
     if (!entryIds.has(id)) {
-      addError(`Required native capability or shell entry is missing: ${id}.`);
+      addError(`Required parity ledger entry is missing: ${id}.`);
     }
   });
+  [...entryIds]
+    .filter((id) => hasText(id) && !manifestIds.has(id))
+    .forEach((id) => addError(`Ledger entry is missing from the required-entry manifest: ${id}.`));
 }
 
 if (errors.length > 0) {
