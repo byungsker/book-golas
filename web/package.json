@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npm run test:unit && npm run test:contracts",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:contracts": "node --test tests/contracts/*.test.mjs",
+    "test:e2e": "playwright test",
+    "test:fixtures": "node scripts/fixtures.mjs",
+    "test:evidence-paths": "node scripts/evidence-paths.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -31,6 +37,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@playwright/test": "^1.55.0",
     "eslint": "^9",
     "eslint-config-next": "^16.2.12",
     "tailwindcss": "^4",

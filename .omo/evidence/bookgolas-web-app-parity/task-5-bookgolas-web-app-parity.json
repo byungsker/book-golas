@@ -1,0 +1,66 @@
+{
+  "task": 5,
+  "issue": 414,
+  "status": "implemented",
+  "branch": "codex/feature/web/1.1.0/BOK-414-browser-harness",
+  "target": "codex/feature/web/1.1.0/bookgolas-parity-integration",
+  "red": [
+    {
+      "command": "cd web && npm run test:e2e -- --list",
+      "exitCode": 1,
+      "observation": "The script was missing before the harness was added."
+    },
+    {
+      "command": "cd web && npm run test:fixtures",
+      "exitCode": 1,
+      "observation": "The script was missing before the fixture runner was added."
+    },
+    {
+      "command": "cd web && npm run test:evidence-paths",
+      "exitCode": 1,
+      "observation": "The script was missing before the evidence helper was added."
+    }
+  ],
+  "green": [
+    {
+      "command": "cd web && npm run test:e2e -- --list",
+      "exitCode": 0,
+      "observation": "The Playwright harness resolves chromium, webkit, and firefox projects."
+    },
+    {
+      "command": "cd web && npm run test:fixtures",
+      "exitCode": 0,
+      "observation": "The deterministic manifest and local seed SQL validate as two isolated users, books, and images."
+    },
+    {
+      "command": "cd web && npm run test:evidence-paths",
+      "exitCode": 0,
+      "observation": "The task evidence path and canonical plan footer validate."
+    }
+  ],
+  "surface": {
+    "browserProjects": ["chromium", "webkit", "firefox"],
+    "fixtureUsers": 2,
+    "fixtureBooks": 2,
+    "fixtureImages": 2,
+    "localOnlyLiveFixtures": true,
+    "productionTargeted": false,
+    "credentialPolicy": "Environment variables are required for live local seeding; committed fixtures contain no tokens, routable emails, or service-role keys.",
+    "browserRun": {
+      "command": "PLAYWRIGHT_PORT=3111 npm run test:e2e",
+      "result": "3 passed (6.0s)",
+      "projects": ["chromium", "webkit", "firefox"]
+    }
+  },
+  "cleanup": [
+    "No generated Playwright report or test-results directory is committed.",
+    "No production URL or credential is used by the fixture helper.",
+    "FIXTURES_RESET invokes only supabase db reset --local --no-seed after local URL validation."
+  ],
+  "qa": {
+    "happy": "npm run test:fixtures",
+    "failure": "npm run test:e2e -- --project=chromium --grep missing-session",
+    "failureExpected": "No matching test is registered yet; Playwright exits non-zero for the missing-session grep."
+  },
+  "planFooter": "Plan: .omo/plans/bookgolas-web-app-parity.md"
+}
