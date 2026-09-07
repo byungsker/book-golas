@@ -6,7 +6,8 @@ Status: frozen discovery ledger for GitHub issue #416. This document owns the ro
 
 - The baseline is `online-core`: authenticated reading flows, reading records, search, recall, calendar, statistics, and account settings must have browser-observable routes and data ownership before a route can be marked complete.
 - `full-parity` is a separate gate. It remains blocked until bounded offline behavior, browser storage/sync conflict handling, and cross-surface evidence are approved. The native review note that reading logs may work offline is recorded as a reference, not as an acceptance claim.
-- Paid subscriptions remain disabled. `app/lib/config/feature_flags.dart:1-3` sets `paidSubscriptionsEnabled = false`, so the Web matrix contains no purchase, restore, upgrade, or billing CTA.
+- Paid subscriptions remain disabled. `app/lib/config/feature_flags.dart:2-4` sets `paidSubscriptionsEnabled = false` with `defaultValue: false`, so the Web matrix contains no purchase, restore, upgrade, or billing CTA.
+- The preserved public `/support` route is not a shipped-equivalence claim for stale subscription copy. Its reconciliation is explicitly `blocked-by-evidence` and deferred to Task 36, which owns the copy update and release QA.
 - Existing marketing, legal, and admin routes remain outside the consumer shell. Admin authorization and data boundaries are not widened by this matrix.
 
 ## Canonical URL and state rules
@@ -39,6 +40,8 @@ Every ledger entry carries `states` and `errorStates`. `errorStates` always incl
 | conflict | Preserve user input and require an explicit refresh/merge decision | Concurrent mutation proof |
 | stale | Show freshness context and offer refresh | Stale data proof |
 
+The checker uses a closed vocabulary. Allowed `states` are `ready`, `loading`, `empty`, `error`, `unauthorized`, `consent-required`, `quota`, `offline`, `validation`, `permission-denied`, `unsupported`, `conflict`, `stale`, `running`, `paused`, and `disabled`. Allowed `errorStates` are `error`, `invalid-credentials`, `email-not-confirmed`, `rate-limit`, `consent-declined`, `already-registered`, `password-too-short`, `invalid-email`, `expired-link`, `invalid-callback`, `replayed-callback`, `password-mismatch`, `network-error`, `external-unavailable`, `invalid-input`, `forbidden`, `not-found`, `invalid-query`, `provider-denied`, `provider-error`, `recommendation-error`, `limit-reached`, `save-failed`, `invalid-date-range`, `invalid-month`, `invalid-page`, `content-unavailable`, `session-expired`, `invalid-nickname`, `resend-rate-limit`, `session-save-failed`, `session-clear-failed`, `update-failed`, `record-not-found`, `not-enough-records`, `not-enough-history`, `not-enough-data`, `history-load-failed`, `copy-failed`, `delete-failed`, `ai-error`, `review-load-failed`, `draft-restore-failed`, `generation-error`, `source-not-found`, `ocr-error`, `initialization-failed`, `render-failed`, `upload-failed`, `permission-denied`, `offline`, `unsupported`, `stale`, `conflict`, `sync-failed`, `server-validation`, `invalid-return`, `invalid-link`, `invalid-url`, and `reauth-required`.
+
 ## Native reference coverage
 
 | Native reference | Covered surfaces |
@@ -53,7 +56,7 @@ Every ledger entry carries `states` and `errorStates`. `errorStates` always incl
 | `app/lib/ui/core/widgets/` | Pickers, confirmations, snackbars, extracted text, full text, highlight editing, timer and navigation affordances |
 | `app/lib/data/services/`, `app/lib/domain/models/` | Supabase-owned data, search providers, OCR, timers, recommendations, recall, share, deep links, FCM, widgets, notifications |
 | `app/metadata/review-notes.md:16-59` | Network requirements and the offline note; online-core/full-parity decision boundary |
-| `app/lib/config/feature_flags.dart:1-3` | Subscription disabled guard |
+| `app/lib/config/feature_flags.dart:2-4` | Subscription disabled guard and `defaultValue: false` |
 | `web/src/app/`, `web/src/i18n/routing.ts:3-7` | Existing Web surfaces and locale contract preserved by the consumer route family |
 
 ## Frozen ledger
@@ -358,14 +361,14 @@ The JSON block is the machine-checked source of truth for this task. Each entry 
       "nativeAction": "open support information",
       "canonicalUrl": "/support",
       "webComponent": "SupportRoute",
-      "browserEquivalent": "Existing Web support route",
-      "disposition": "browser-equivalent",
+      "browserEquivalent": "Preserved public /support route; stale subscription copy reconciliation is deferred to Task 36",
+      "disposition": "blocked-by-evidence",
       "parity": "online-core",
-      "status": "planned",
-      "dataOwner": "Versioned support content",
-      "evidenceOwner": "Task 1 matrix QA",
-      "states": ["loading", "ready"],
-      "errorStates": ["error", "content-unavailable"]
+      "status": "blocked",
+      "dataOwner": "Task 36 subscription-copy reconciliation",
+      "evidenceOwner": "Task 36 support-copy release QA",
+      "states": ["loading", "ready", "stale"],
+      "errorStates": ["error", "content-unavailable", "stale"]
     },
     {
       "id": "auth-form-controls",

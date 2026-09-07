@@ -31,6 +31,27 @@ const allowedDispositions = new Set([
 ]);
 const allowedParity = new Set(['online-core', 'full-parity', 'native-only']);
 const allowedStatus = new Set(['planned', 'blocked', 'disabled', 'unavailable', 'not-started']);
+const expectedRequiredEntryCount = 86;
+const allowedStates = new Set('ready loading empty error unauthorized consent-required quota offline validation permission-denied unsupported conflict stale running paused disabled'.split(' '));
+const allowedErrorStates = new Set(
+  (
+    'error invalid-credentials email-not-confirmed rate-limit consent-declined already-registered password-too-short invalid-email expired-link invalid-callback replayed-callback password-mismatch network-error external-unavailable invalid-input forbidden not-found invalid-query provider-denied provider-error recommendation-error ' +
+    'limit-reached save-failed invalid-date-range invalid-month invalid-page content-unavailable session-expired invalid-nickname resend-rate-limit session-save-failed session-clear-failed update-failed record-not-found not-enough-records not-enough-history not-enough-data history-load-failed copy-failed delete-failed ai-error review-load-failed draft-restore-failed generation-error ' +
+    'source-not-found ocr-error initialization-failed render-failed upload-failed permission-denied offline unsupported stale conflict sync-failed server-validation invalid-return invalid-link invalid-url reauth-required'
+  ).trim().split(/\s+/),
+);
+const expectedTopLevelLocks = {
+  schemaVersion: 1,
+  issue: 416,
+  planFooter: 'Plan: .omo/plans/bookgolas-web-app-parity.md',
+  locales: ['ko', 'en'],
+  defaultLocale: 'ko',
+  localePrefix: 'as-needed',
+  parityBaseline: 'online-core',
+  fullParityGate: 'blocked-by-evidence',
+  requiredNativeCapabilities: ['iOS widget', 'Siri/App Shortcuts', 'native push', 'camera', 'share sheet', 'subscriptions'],
+};
+const supportedFixtures = new Set('second-json-ledger invalid-top-level-lock invalid-state invalid-error-state missing-review-editor missing-disposition duplicate-url missing-error-state complete-without-owner'.split(' '));
 const fixtureIndex = process.argv.indexOf('--fixture');
 const fixture = fixtureIndex === -1 ? null : process.argv[fixtureIndex + 1];
 const errors = [];
@@ -54,16 +75,37 @@ try {
   addError(`Cannot read ${documentPath}: ${error.message}`);
 }
 
-const ledgerBlock = documentText.match(/```json\s*\r?\n([\s\S]*?)\r?\n```/);
+if (fixture === 'second-json-ledger') {
+  documentText += '\n```json\n{}\n```\n';
+}
+
+const ledgerBlocks = [...documentText.matchAll(/```json\s*\r?\n([\s\S]*?)\r?\n```/gi)];
 let ledger = null;
-if (!ledgerBlock) {
-  addError('The parity matrix must contain one fenced JSON ledger.');
+if (ledgerBlocks.length !== 1) {
+  addError(`The parity matrix must contain exactly one fenced JSON ledger; found ${ledgerBlocks.length}.`);
 } else {
   try {
-    ledger = JSON.parse(ledgerBlock[1]);
+    ledger = JSON.parse(ledgerBlocks[0][1]);
   } catch (error) {
     addError(`The fenced ledger is not valid JSON: ${error.message}`);
   }
+}
+
+if (ledger && (typeof ledger !== 'object' || Array.isArray(ledger))) {
+  addError('The fenced ledger must be a JSON object.');
+}
+
+if (ledger && typeof ledger === 'object' && !Array.isArray(ledger)) {
+  if (fixture === 'invalid-top-level-lock') {
+    ledger.parityBaseline = 'full-parity';
+  }
+  Object.entries(expectedTopLevelLocks).forEach(([key, expectedValue]) => {
+    if (!Object.hasOwn(ledger, key)) {
+      addError(`The ledger is missing top-level decision lock ${key}.`);
+    } else if (JSON.stringify(ledger[key]) !== JSON.stringify(expectedValue)) {
+      addError(`Top-level decision lock ${key} must equal ${JSON.stringify(expectedValue)}; received ${JSON.stringify(ledger[key])}.`);
+    }
+  });
 }
 
 if (ledger && !Array.isArray(ledger.entries)) {
@@ -72,6 +114,12 @@ if (ledger && !Array.isArray(ledger.entries)) {
 
 if (ledger && Array.isArray(ledger.entries)) {
   ledger.entries = ledger.entries.map((entry) => ({ ...entry }));
+  if (fixture === 'invalid-state' && ledger.entries[0]) {
+    ledger.entries[0].states = [...ledger.entries[0].states, 'invalid-state'];
+  }
+  if (fixture === 'invalid-error-state' && ledger.entries[0]) {
+    ledger.entries[0].errorStates = [...ledger.entries[0].errorStates, 'invalid-error-state'];
+  }
   if (fixture === 'missing-review-editor') {
     ledger.entries = ledger.entries.filter((entry) => entry?.id !== 'review-editor');
   }
@@ -89,13 +137,7 @@ if (ledger && Array.isArray(ledger.entries)) {
     ledger.entries[0].dataOwner = '';
     ledger.entries[0].evidenceOwner = '';
   }
-  if (fixture && !new Set([
-    'missing-review-editor',
-    'missing-disposition',
-    'duplicate-url',
-    'missing-error-state',
-    'complete-without-owner',
-  ]).has(fixture)) {
+  if (fixture && !supportedFixtures.has(fixture)) {
     addError(`Unknown fixture: ${fixture}`);
   }
 
@@ -104,6 +146,9 @@ if (ledger && Array.isArray(ledger.entries)) {
   const entryIds = new Set();
   const manifestIds = new Set(requiredEntryIds);
 
+  if (requiredEntryIds.length !== expectedRequiredEntryCount) {
+    addError(`The required-entry manifest must contain exactly ${expectedRequiredEntryCount} IDs; found ${requiredEntryIds.length}.`);
+  }
   if (manifestIds.size !== requiredEntryIds.length) {
     addError('The required-entry manifest contains duplicate IDs.');
   }
@@ -156,9 +201,21 @@ if (ledger && Array.isArray(ledger.entries)) {
     }
     if (!Array.isArray(entry?.states) || entry.states.length === 0) {
       addError(`${label} has no state disposition.`);
+    } else {
+      entry.states.forEach((state) => {
+        if (!allowedStates.has(state)) {
+          addError(`${label} has unsupported state ${JSON.stringify(state)}; allowed states are ${[...allowedStates].join(', ')}.`);
+        }
+      });
     }
     if (!Array.isArray(entry?.errorStates) || !entry.errorStates.includes('error')) {
       addError(`${label} is missing an error-state entry.`);
+    } else {
+      entry.errorStates.forEach((errorState) => {
+        if (!allowedErrorStates.has(errorState)) {
+          addError(`${label} has unsupported error state ${JSON.stringify(errorState)}; allowed error states are ${[...allowedErrorStates].join(', ')}.`);
+        }
+      });
     }
     if (entry?.status === 'complete' && (!hasText(entry.dataOwner) || !hasText(entry.evidenceOwner))) {
       addError(`${label} is marked complete without both dataOwner and evidenceOwner.`);
