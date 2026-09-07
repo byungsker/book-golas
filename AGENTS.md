@@ -150,6 +150,9 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - 모든 브랜치와 PR은 `.byungskerlab/branch-policy.json`,
   `.byungskerlab/release-lines.json`과 전역 Target Delivery Contract를
   따른다.
+- 릴리즈 태그, 버전 브랜치 수명, 롤백 및 버전 라인 퇴역은
+  `docs/guides/release-and-rollback-policy.md`를 따른다. 버전 브랜치는
+  롤백 보관소가 아니며, 배포 복구 기준점은 불변 태그와 아티팩트다.
 - 기계 검증 가능한 활성 버전 원본은 `release-lines.json`이며, 현재
   승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
