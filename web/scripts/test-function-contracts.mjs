@@ -137,7 +137,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
       eq: (column, value) => { filters[column] = value; return query; },
       neq: () => query,
       is: () => query,
-      or: () => query,
+      or: (value) => { filters.or = value; events.push(`query:${table}:or:${value}`); return query; },
       in: (column, value) => { filters[column] = { in: value }; return query; },
       gte: () => query,
       lte: () => query,
@@ -176,7 +176,25 @@ function makeContractRuntime(request, events, counters, options = {}) {
         if (table === "reading_content_embeddings") {
           return Promise.resolve({ data: Array.from({ length: 5 }, (_, index) => ({ id: `44444444-4444-4444-8444-44444444444${index}`, user_id: principalId, book_id: OWNER_BOOK_ID, content_text: fixtureText, content_type: "note", page_number: 1, source_id: OWNER_SOURCE_ID, created_at: "2026-01-01T00:00:00.000Z" })), error: null }).then(resolve, reject);
         }
-        if (table === "book_images") return Promise.resolve({ data: hasProfile && principalId === fixture.principals.owner.id ? [ownerImage, foreignOwnedRowImage, unboundImage] : [], error: null }).then(resolve, reject);
+        if (table === "book_images") {
+          if (options.exportForeignImageRows && !filters.or) {
+            return Promise.resolve({
+              data: Array.from({ length: 5_001 }, (_, index) => ({
+                id: `foreign-image-${index}`,
+                book_id: OWNER_BOOK_ID,
+                image_url: `https://storage.example/foreign/${index}.jpg`,
+                caption: "Foreign image",
+                extracted_text: null,
+                page_number: null,
+                highlights: [],
+                created_at: "2026-01-01T00:00:00.000Z",
+                user_id: FOREIGN_USER_ID,
+              })),
+              error: null,
+            }).then(resolve, reject);
+          }
+          return Promise.resolve({ data: hasProfile && principalId === fixture.principals.owner.id ? [ownerImage, foreignOwnedRowImage, unboundImage] : [], error: null }).then(resolve, reject);
+        }
         return Promise.resolve({ data: [], error: null }).then(resolve, reject);
       },
     };
@@ -614,6 +632,7 @@ async function executeScenario(contract, scenario) {
     providerFailure: scenario === "providerFailure" && contract.name !== "delete-user",
     serviceFailure: scenario === "providerFailure" && contract.name === "delete-user",
     formulaFixture: contract.name === "export-reading-data" && scenario === "valid",
+    exportForeignImageRows: contract.name === "export-reading-data" && scenario === "valid",
   };
   return executeRequest(contract, request, options);
 }
@@ -998,6 +1017,7 @@ for (const contract of selected) {
         assert(attachment.includes("'@SUM"), "export-reading-data: CSV escapes formula-like note text");
         assert(attachment.includes("'-2+3"), "export-reading-data: CSV escapes formula-like image captions");
         assert(!attachment.includes(",=HYPERLINK"), "export-reading-data: CSV has no unescaped formula field");
+        assert(result.events.includes(`query:book_images:or:user_id.is.null,user_id.eq.${fixture.principals.owner.id}`), "export-reading-data: image query scopes rows before the service-role limit");
       }
       if (contract.name === "delete-user" && scenario === "valid") {
         const imageStorageEvent = result.events.find((event) => event.startsWith("storage:book-images:")) ?? "";

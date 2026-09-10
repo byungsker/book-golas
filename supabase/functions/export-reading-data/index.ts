@@ -231,6 +231,7 @@ serve(async (req: Request) => {
           .from("book_images")
           .select("id, book_id, image_url, caption, extracted_text, page_number, highlights, created_at, user_id")
           .in("book_id", bookIds)
+          .or(`user_id.is.null,user_id.eq.${user.id}`)
           .limit(MAX_EXPORT_IMAGES + 1),
       ]);
       if (contentsError || imagesError) throw new Error("reading_data_lookup_failed");
