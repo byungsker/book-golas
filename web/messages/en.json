@@ -228,6 +228,7 @@
     "nav": {
       "label": "Consumer navigation",
       "library": "Library",
+      "account": "Consent settings",
       "signOut": "Sign out",
       "signOutError": "We could not sign you out. Try again."
     },
@@ -283,6 +284,37 @@
       "errorDescription": "We could not load your books. Refresh the page or try again shortly.",
       "permissionTitle": "Book unavailable",
       "permissionDescription": "This book is not available in your library or you do not have permission to view it."
+    },
+    "account": {
+      "eyebrow": "Account and privacy",
+      "title": "Consent settings",
+      "description": "Manage the consent required for AI, camera, sharing and notifications. Changes are saved to your account.",
+      "unavailableTitle": "We could not load consent settings"
+    },
+    "consent": {
+      "title": "Feature consent",
+      "loading": "Loading consent settings...",
+      "saving": "Saving...",
+      "grant": "Grant consent",
+      "deny": "Withdraw consent",
+      "status": {
+        "required": "Not configured",
+        "granted": "Granted",
+        "denied": "Withdrawn"
+      },
+      "errors": {
+        "load": "We could not load your consent settings. Try again.",
+        "save": "We could not save your consent setting. Try again.",
+        "offline": "You are offline. Reconnect and try again."
+      },
+      "errorTitle": "We could not update consent settings",
+      "kinds": {
+        "ai": { "title": "AI features", "description": "Use reading records for AI search, analysis, recommendations and review drafts." },
+        "notifications": { "title": "Notifications", "description": "Receive reading goal and reminder notifications." },
+        "camera": { "title": "Camera", "description": "Capture book pages and save them as reading records." },
+        "share": { "title": "Sharing", "description": "Use sharing features when sharing reading records." },
+        "ocr": { "title": "Photo text recognition", "description": "Recognize text from photographed book pages." }
+      }
     },
     "auth": {
       "backToSite": "Back to Bookgolas",

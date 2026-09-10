@@ -1,0 +1,646 @@
+{
+  "name": "consumer-function-contracts",
+  "version": "2026-09-10",
+  "negativeFixture": "cross-user",
+  "cases": [
+    {
+      "name": "aladin-books",
+      "source": "supabase/functions/aladin-books/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 401,
+        "code": "unauthorized",
+        "reason": "identity is always taken from the verified JWT",
+        "request": {
+          "auth": "missing",
+          "body": {
+            "query": "foreign user query"
+          }
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 200,
+        "disposition": "not_applicable",
+        "reason": "This endpoint does not process consent-governed AI, OCR, camera, share, or notification data."
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "jwt_only"
+    },
+    {
+      "name": "recall-search",
+      "source": "supabase/functions/recall-search/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "query": "foreign user query",
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book"
+    },
+    {
+      "name": "generate-embedding",
+      "source": "supabase/functions/generate-embedding/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "userId": "99999999-9999-4999-8999-999999999999",
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "contentType": "highlight",
+            "contentText": "foreign source",
+            "sourceId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book_and_source"
+    },
+    {
+      "name": "extract-keywords",
+      "source": "supabase/functions/extract-keywords/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book",
+      "storedProviderInput": {
+        "status": 200,
+        "providerCalls": 0,
+        "disposition": "filter_oversized_rows"
+      }
+    },
+    {
+      "name": "structure-notes",
+      "source": "supabase/functions/structure-notes/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book",
+      "storedProviderInput": {
+        "status": 413,
+        "code": "provider_input_too_large",
+        "providerCalls": 0,
+        "disposition": "reject_before_provider"
+      }
+    },
+    {
+      "name": "reading-insights",
+      "source": "supabase/functions/reading-insights/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "userId": "11111111-1111-4111-8111-111111111111"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "user_id_match"
+    },
+    {
+      "name": "recommend-next-books",
+      "source": "supabase/functions/recommend-next-books/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "userId": "11111111-1111-4111-8111-111111111111",
+            "locale": "ko"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "user_id_match"
+    },
+    {
+      "name": "generate-book-review",
+      "source": "supabase/functions/generate-book-review/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book",
+      "storedProviderInput": {
+        "status": 413,
+        "code": "provider_input_too_large",
+        "providerCalls": 0,
+        "disposition": "reject_before_provider"
+      }
+    },
+    {
+      "name": "vision-ocr",
+      "source": "supabase/functions/vision-ocr/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 403,
+        "code": "cross_user_access",
+        "request": {
+          "auth": "valid",
+          "body": {
+            "bookId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "imageId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            "imageBase64": "aGVsbG8="
+          },
+          "principal": "foreign"
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 403,
+        "code": "consent_required",
+        "disposition": "required"
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "quota_exceeded"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "book_and_source"
+    },
+    {
+      "name": "export-reading-data",
+      "source": "supabase/functions/export-reading-data/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 400,
+        "code": "invalid_request",
+        "reason": "identity fields cannot be supplied by the caller",
+        "request": {
+          "auth": "valid",
+          "principal": "foreign",
+          "body": {
+            "userId": "11111111-1111-4111-8111-111111111111",
+            "email": "owner@example.com",
+            "format": "csv",
+            "includeImages": false
+          }
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 200,
+        "disposition": "not_applicable",
+        "reason": "This endpoint does not process consent-governed AI, OCR, camera, share, or notification data."
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 502,
+        "code": "provider_error"
+      },
+      "ownership": "jwt_only"
+    },
+    {
+      "name": "delete-user",
+      "source": "supabase/functions/delete-user/index.ts",
+      "valid": {
+        "status": 200
+      },
+      "invalid": {
+        "status": 400,
+        "code": "invalid_request"
+      },
+      "unauthenticated": {
+        "status": 401,
+        "code": "unauthorized"
+      },
+      "crossUser": {
+        "status": 401,
+        "code": "unauthorized",
+        "reason": "the target is always the verified JWT subject",
+        "request": {
+          "auth": "missing",
+          "body": {
+            "confirmation": true
+          }
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "serviceMutationCalls": 0
+        }
+      },
+      "consentRequired": {
+        "status": 200,
+        "disposition": "not_applicable",
+        "reason": "This endpoint does not process consent-governed AI, OCR, camera, share, or notification data."
+      },
+      "oversizedInput": {
+        "status": 413,
+        "code": "payload_too_large"
+      },
+      "rateLimit": {
+        "status": 429,
+        "code": "rate_limited"
+      },
+      "providerFailure": {
+        "status": 503,
+        "code": "unavailable"
+      },
+      "ownership": "jwt_only",
+      "idempotent": {
+        "status": 200,
+        "bodyStatus": "already_deleted",
+        "request": {
+          "auth": "valid",
+          "principal": "foreign",
+          "body": {
+            "confirmation": true
+          }
+        },
+        "assertions": {
+          "requestExecuted": true,
+          "providerCalls": 0,
+          "authDeleteAttempted": true
+        }
+      },
+      "resumableRetry": {
+        "status": 200,
+        "bodyStatus": "completed",
+        "rateLimitCalls": 0,
+        "request": {
+          "auth": "valid",
+          "principal": "owner",
+          "token": "owner-refreshed-token",
+          "body": {
+            "confirmation": true
+          }
+        }
+      },
+      "replayAfterAuthDeletion": {
+        "status": 200,
+        "bodyStatus": "already_deleted",
+        "serviceMutationCalls": 0
+      },
+      "revokedReplay": {
+        "status": 200,
+        "bodyStatus": "already_deleted",
+        "serviceMutationCalls": 0,
+        "request": {
+          "auth": "invalid",
+          "principal": "owner",
+          "token": "owner-revoked-token",
+          "body": {
+            "confirmation": true
+          }
+        }
+      },
+      "recoveryAfterCompletionFailure": {
+        "failureStatus": 503,
+        "failureCode": "unavailable",
+        "revokedStatus": 200,
+        "revokedBodyStatus": "already_deleted"
+      },
+      "recoveryAfterAuthFailure": {
+        "failureStatus": 503,
+        "failureCode": "unavailable",
+        "recoveredStatus": 200,
+        "recoveredBodyStatus": "already_deleted"
+      }
+    }
+  ],
+  "principals": {
+    "owner": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "email": "owner@example.com",
+      "token": "owner-verified-token"
+    },
+    "foreign": {
+      "id": "99999999-9999-4999-8999-999999999999",
+      "email": "foreign@example.com",
+      "token": "foreign-verified-token"
+    }
+  }
+}

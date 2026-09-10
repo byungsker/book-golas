@@ -1,79 +1,38 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "@supabase/supabase-js";
 import { ChainService } from "./services/chain-service.ts";
 import type { NoteStructure } from "./types.ts";
+import {
+  ContractError,
+  createServiceClient,
+  enforceFunctionRateLimit,
+  jsonResponse,
+  methodGuard,
+  optionsResponse,
+  parseJsonBody,
+  providerFailure,
+  requireConsent,
+  requireOwnedBook,
+  requireProviderSecret,
+  requireUuid,
+  requireUser,
+  responseForError,
+} from "../_shared/consumer-contract.ts";
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const MIN_CONTENT_COUNT = 5;
 const MAX_CONTENT_COUNT = 50;
 
-interface StructureRequest {
-  bookId: string;
-}
-
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "authorization, x-client-info, apikey, content-type",
-      },
-    });
-  }
+  if (req.method === "OPTIONS") return optionsResponse(req);
 
   try {
-    if (!OPENAI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    const authHeader = req.headers.get("Authorization");
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } },
-    );
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-
-    if (userError || !user) {
-      console.error("Authentication failed:", userError);
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    const { bookId }: StructureRequest = await req.json();
-
-    if (typeof bookId !== "string" || bookId.trim().length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Missing required field: bookId" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      },
-    );
+    methodGuard(req);
+    const { user } = await requireUser(req);
+    const body = await parseJsonBody(req);
+    const bookId = requireUuid(body, "bookId") ?? "";
+    const serviceClient = createServiceClient();
+    await requireOwnedBook(serviceClient, user.id, bookId);
+    await requireConsent(serviceClient, user, "ai");
+    await enforceFunctionRateLimit(serviceClient, user.id, "structure-notes", 10, 60 * 60);
 
     const { data: contents, error: fetchError } = await serviceClient
       .from("reading_content_embeddings")
@@ -82,71 +41,35 @@ serve(async (req: Request) => {
       .eq("book_id", bookId)
       .order("created_at", { ascending: false })
       .limit(MAX_CONTENT_COUNT);
-
-    if (fetchError) {
-      throw fetchError;
-    }
-
+    if (fetchError) throw new Error("content_lookup_failed");
     if (!contents || contents.length < MIN_CONTENT_COUNT) {
-      return new Response(
-        JSON.stringify({
+      return jsonResponse(
+        {
           error: "최소 5개 이상의 독서 기록이 필요합니다",
+          code: "insufficient_content",
           currentCount: contents?.length ?? 0,
           requiredCount: MIN_CONTENT_COUNT,
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
         },
+        req,
+        400,
       );
     }
 
-    const chainService = new ChainService(OPENAI_API_KEY);
-    const structure: NoteStructure = await chainService.generateStructure({
-      bookId,
-      contents,
-    });
-
-    const { error: upsertError } = await serviceClient
-      .from("note_structures")
-      .upsert(
-        {
-          user_id: user.id,
-          book_id: bookId,
-          structure_json: structure,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id,book_id",
-        },
-      );
-
-    if (upsertError) {
-      console.error("Upsert error:", upsertError);
-      throw upsertError;
-    }
-
-    return new Response(JSON.stringify(structure), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+    const chainService = new ChainService(requireProviderSecret("OPENAI_API_KEY"));
+    const structure: NoteStructure = await chainService.generateStructure({ bookId, contents });
+    const { error: upsertError } = await serviceClient.from("note_structures").upsert(
       {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        user_id: user.id,
+        book_id: bookId,
+        structure_json: structure,
+        updated_at: new Date().toISOString(),
       },
+      { onConflict: "user_id,book_id" },
     );
+    if (upsertError) throw new Error("structure_write_failed");
+    return jsonResponse(structure as unknown as Record<string, unknown>, req);
+  } catch (error) {
+    if (error instanceof ContractError) return responseForError(error, req, "structure-notes");
+    return responseForError(providerFailure(error), req, "structure-notes");
   }
 });

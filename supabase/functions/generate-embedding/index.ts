@@ -1,171 +1,99 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  ContractError,
+  MAX_TEXT_BYTES,
+  createServiceClient,
+  enforceFunctionRateLimit,
+  fetchProvider,
+  jsonResponse,
+  methodGuard,
+  optionsResponse,
+  parseJsonBody,
+  providerFailure,
+  requireConsent,
+  requireInteger,
+  requireOwnedBook,
+  requireOwnedSourceForWrite,
+  requireProviderSecret,
+  requireString,
+  requireUuid,
+  requireUser,
+  responseForError,
+} from "../_shared/consumer-contract.ts";
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+const contentTypes = new Set(["highlight", "note", "photo_ocr"]);
 
-interface EmbeddingRequest {
-  userId: string;
-  bookId: string;
-  contentType: "highlight" | "note" | "photo_ocr";
-  contentText: string;
-  pageNumber?: number;
-  sourceId?: string;
-}
-
-async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
+async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
+  const response = await fetchProvider("https://api.openai.com/v1/embeddings", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "text-embedding-3-small",
-      input: text,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: "text-embedding-3-small", input: text }),
+  }, 15_000, 512 * 1024);
+  if (!response.ok) throw new Error(`provider_status:${response.status}`);
+  const payload: unknown = await response.json();
+  const rows = payload && typeof payload === "object" && !Array.isArray(payload)
+    ? (payload as Record<string, unknown>).data
+    : undefined;
+  const embedding = Array.isArray(rows) && rows[0] && typeof rows[0] === "object"
+    ? (rows[0] as Record<string, unknown>).embedding
+    : undefined;
+  if (!Array.isArray(embedding) || embedding.some((value) => typeof value !== "number")) {
+    throw new Error("provider_invalid_response");
   }
-
-  const data = await response.json();
-  return data.data[0].embedding;
+  return embedding as number[];
 }
 
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "authorization, x-client-info, apikey, content-type",
-      },
-    });
-  }
+  if (req.method === "OPTIONS") return optionsResponse(req);
 
   try {
-    if (!OPENAI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
-      );
+    methodGuard(req);
+    const { user } = await requireUser(req);
+    const body = await parseJsonBody(req);
+    const suppliedUserId = requireString(body, "userId", 80) ?? "";
+    const bookId = requireUuid(body, "bookId") ?? "";
+    const contentType = requireString(body, "contentType", 32) ?? "";
+    const contentText = requireString(body, "contentText", MAX_TEXT_BYTES) ?? "";
+    const sourceId = body.sourceId === undefined || body.sourceId === null
+      ? undefined
+      : requireUuid(body, "sourceId");
+    if (suppliedUserId !== user.id) {
+      throw new ContractError(403, "cross_user_access", "userId does not match authenticated user");
     }
-
-    const authHeader = req.headers.get("Authorization");
-    const authClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader ?? "" } } },
-    );
-    const {
-      data: { user },
-      error: userError,
-    } = await authClient.auth.getUser();
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+    if (!contentTypes.has(contentType)) {
+      throw new ContractError(400, "invalid_request", "contentType is invalid");
     }
-
-    const {
-      userId,
-      bookId,
-      contentType,
-      contentText,
-      pageNumber,
-      sourceId,
-    }: EmbeddingRequest = await req.json();
-
-    if (!userId || !bookId || !contentType || !contentText) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        },
-      );
+    if (contentType !== "note" && !sourceId) {
+      throw new ContractError(400, "invalid_request", "sourceId is required");
     }
-
-    if (userId !== user.id) {
-      return new Response(
-        JSON.stringify({ error: "userId does not match authenticated user" }),
-        {
-          status: 403,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        },
-      );
+    const pageNumber = body.pageNumber === undefined
+      ? undefined
+      : requireInteger(body, "pageNumber", 0, 100_000);
+    const serviceClient = createServiceClient();
+    await requireOwnedBook(serviceClient, user.id, bookId);
+    if (sourceId) {
+      await requireOwnedSourceForWrite(serviceClient, user.id, bookId, contentType, sourceId);
     }
+    await requireConsent(serviceClient, user, "ai");
+    await enforceFunctionRateLimit(serviceClient, user.id, "generate-embedding", 120, 60);
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    const embedding = await generateEmbedding(contentText, requireProviderSecret("OPENAI_API_KEY"));
+    const { data, error } = await serviceClient.from("reading_content_embeddings").upsert(
       {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
+        user_id: user.id,
+        book_id: bookId,
+        content_type: contentType,
+        content_text: contentText,
+        page_number: pageNumber,
+        embedding: `[${embedding.join(",")}]`,
+        source_id: sourceId ?? null,
       },
-    );
-
-    const embedding = await generateEmbedding(contentText);
-
-    const embeddingString = `[${embedding.join(",")}]`;
-
-    const { data, error } = await supabaseClient
-      .from("reading_content_embeddings")
-      .upsert(
-        {
-          user_id: userId,
-          book_id: bookId,
-          content_type: contentType,
-          content_text: contentText,
-          page_number: pageNumber,
-          embedding: embeddingString,
-          source_id: sourceId,
-        },
-        {
-          onConflict: "content_type,source_id",
-        },
-      )
-      .select("id")
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return new Response(
-      JSON.stringify({ success: true, embeddingId: data.id }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      },
-    );
+      { onConflict: "content_type,source_id" },
+    ).select("id").single();
+    if (error || !data) throw new Error("embedding_write_failed");
+    return jsonResponse({ success: true, embeddingId: data.id }, req);
   } catch (error) {
-    console.error("Error:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    if (error instanceof ContractError) return responseForError(error, req, "generate-embedding");
+    return responseForError(providerFailure(error), req, "generate-embedding");
   }
 });

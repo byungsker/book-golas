@@ -24,7 +24,8 @@
     "typecheck": "tsc --noEmit",
     "test:rls": "node scripts/test-rls.mjs",
     "test:progress-rpc": "node scripts/test-progress-rpc.mjs",
-    "test:status-migration": "node scripts/test-status-migration.mjs"
+    "test:status-migration": "node scripts/test-status-migration.mjs",
+    "test:function-contracts": "node scripts/test-function-contracts.mjs"
   },
   "dependencies": {
     "@byungsker/blab-design-system": "file:vendor/byungsker-blab-design-system-0.2.0.tgz",

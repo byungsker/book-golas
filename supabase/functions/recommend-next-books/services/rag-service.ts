@@ -4,6 +4,11 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { Document } from "@langchain/core/documents";
 import { config } from "../config.ts";
 import { extractKeywords } from "../utils/keyword-extractor.ts";
+import {
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 interface HighlightWithBook {
   content: string;
@@ -21,6 +26,16 @@ export async function extractUserInterests(
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
+    timeout: PROVIDER_TIMEOUT_MS,
+    maxRetries: 0,
+    configuration: {
+      fetch: (input, init) => fetchProvider(
+        input,
+        init ?? {},
+        PROVIDER_TIMEOUT_MS,
+        MAX_PROVIDER_RESPONSE_BYTES,
+      ),
+    },
   });
 
   const vectorStore = new SupabaseVectorStore(embeddings, {
@@ -48,7 +63,9 @@ export async function extractUserInterests(
   const { data: books } = await supabase
     .from("books")
     .select("id, title")
-    .in("id", bookIds);
+    .in("id", bookIds)
+    .eq("user_id", userId)
+    .is("deleted_at", null);
 
   const bookTitleMap = new Map<string, string>(
     books?.map((b: { id: string; title: string }) => [b.id, b.title]) || []

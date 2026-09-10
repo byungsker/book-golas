@@ -38,6 +38,14 @@ export async function ConsumerHeader({
           >
             {t("nav.library")}
           </Link>
+          {authenticated ? (
+            <Link
+              href={getConsumerPath(locale, "/account")}
+              className="rounded-md px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              {t("nav.account")}
+            </Link>
+          ) : null}
           <Link
             href={getConsumerPath(otherLocale, "/home")}
             className="rounded-md px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"

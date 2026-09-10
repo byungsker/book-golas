@@ -6,6 +6,12 @@ import {
 import { summaryPrompt, SummaryResult } from "../prompts/summary.ts";
 import { connectionPrompt, ConnectionResult } from "../prompts/connection.ts";
 import type { NoteStructure, Cluster, Node, Connection } from "../types.ts";
+import {
+  assertProviderInputSize,
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 interface ContentItem {
   id: string;
@@ -28,6 +34,16 @@ export class ChainService {
       openAIApiKey: apiKey,
       modelName: "gpt-4o-mini",
       temperature: 0.3,
+      timeout: PROVIDER_TIMEOUT_MS,
+      maxRetries: 0,
+      configuration: {
+        fetch: (input, init) => fetchProvider(
+          input,
+          init ?? {},
+          PROVIDER_TIMEOUT_MS,
+          MAX_PROVIDER_RESPONSE_BYTES,
+        ),
+      },
     });
   }
 
@@ -93,6 +109,7 @@ export class ChainService {
     contents: string
   ): Promise<ClassificationResult> {
     const formattedPrompt = await classificationPrompt.format({ contents });
+    assertProviderInputSize(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ClassificationResult>(response.content as string);
   }
@@ -121,6 +138,7 @@ export class ChainService {
 
   private async runSummary(clusteredContents: string): Promise<SummaryResult> {
     const formattedPrompt = await summaryPrompt.format({ clusteredContents });
+    assertProviderInputSize(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<SummaryResult>(response.content as string);
   }
@@ -158,6 +176,7 @@ ${clusterContents}`;
     summarizedClusters: string
   ): Promise<ConnectionResult> {
     const formattedPrompt = await connectionPrompt.format({ summarizedClusters });
+    assertProviderInputSize(formattedPrompt);
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ConnectionResult>(response.content as string);
   }

@@ -157,6 +157,10 @@
 }
 
 @layer utilities {
+  .bookgolas-consumer-blab .blab-error-state__message {
+    word-break: keep-all;
+  }
+
   .glass {
     background: rgba(28, 31, 50, 0.65);
     backdrop-filter: blur(20px);

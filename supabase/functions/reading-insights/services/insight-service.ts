@@ -3,6 +3,12 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ReadingPatterns, ReadingInsight } from "../types.ts";
 import { config } from "../config.ts";
+import {
+  assertProviderInputSize,
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 interface MemoryRecord {
   id: string;
@@ -37,7 +43,16 @@ export class InsightService {
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
       temperature: config.openai.temperature,
-      timeout: config.insights.timeoutSeconds * 1000,
+      timeout: PROVIDER_TIMEOUT_MS,
+      maxRetries: 0,
+      configuration: {
+        fetch: (input, init) => fetchProvider(
+          input,
+          init ?? {},
+          PROVIDER_TIMEOUT_MS,
+          MAX_PROVIDER_RESPONSE_BYTES,
+        ),
+      },
     });
 
     this.promptTemplate = PromptTemplate.fromTemplate(`
@@ -103,6 +118,7 @@ export class InsightService {
       yearOverYear: this.formatYearOverYear(patterns),
       memory: memory || "(이전 인사이트 없음)",
     });
+    assertProviderInputSize(formattedPrompt);
 
     let response;
     try {
