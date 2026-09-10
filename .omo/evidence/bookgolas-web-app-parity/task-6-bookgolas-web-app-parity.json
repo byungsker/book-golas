@@ -1,0 +1,58 @@
+{
+  "issue": 418,
+  "target_delivery_unit": "web",
+  "target_version": "1.1.0",
+  "delivery_profile": "web-release-train",
+  "revision_under_test": "2c7dc5f9bea114c71f7c118523f6b8022d4f7464",
+  "red": {
+    "before": [
+      "Browser and server Supabase clients used placeholder fallbacks instead of failing closed when public configuration was missing.",
+      "The authenticated request path did not refresh PKCE cookies through a shared Proxy boundary.",
+      "The service-role client was not isolated behind a server-only module and the auth-boundary contract was absent."
+    ]
+  },
+  "green": {
+    "commands": [
+      "npm test",
+      "npm run test:auth-boundary",
+      "npm run test:auth-boundary -- --grep missing-env",
+      "npm run lint",
+      "npm run typecheck",
+      "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=local-anon-key SUPABASE_SERVICE_ROLE_KEY=server-test-key npm run build"
+    ],
+    "result": "PASS",
+    "details": [
+      "Vitest: 10 files and 80 tests passed.",
+      "Parity: 20 routes, 53 overlays and 8 capabilities passed; 59 negative fixtures passed.",
+      "BLDS contracts and negative fixture passed; SSR state contract passed.",
+      "Auth boundary: 9 tests passed; missing-env filter passed with 1 test and 8 skipped.",
+      "Lint, TypeScript and production build passed. Authenticated routes rendered as Dynamic in the build output."
+    ]
+  },
+  "surface": {
+    "command": "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:1 NEXT_PUBLIC_SUPABASE_ANON_KEY=local-anon-key SUPABASE_SERVICE_ROLE_KEY=server-test-key npm run test:blab-browser -- --workers=1",
+    "result": "PASS",
+    "details": [
+      "Chromium: ko/en mobile and desktop consumer contracts passed.",
+      "Missing-session consumer home failed closed and the unavailable state passed.",
+      "5 of 5 Playwright tests passed against the running Next application.",
+      "Proxy tests verified refreshed cookies on the request and browser response plus private, no-store caching."
+    ]
+  },
+  "cleanup": {
+    "commands": [
+      "npm run test:auth-boundary",
+      "rg -n SUPABASE_SERVICE_ROLE_KEY .next/static",
+      "git diff --check",
+      "git status --short --branch"
+    ],
+    "result": "PASS",
+    "details": [
+      "Auth-boundary source and static scans passed after the production build.",
+      "No SUPABASE_SERVICE_ROLE_KEY occurrence was found in .next/static.",
+      "The implementation worktree is clean after restoring test-generated screenshots.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not modified."
+    ]
+  },
+  "plan": "Plan: .omo/plans/bookgolas-web-app-parity.md"
+}
