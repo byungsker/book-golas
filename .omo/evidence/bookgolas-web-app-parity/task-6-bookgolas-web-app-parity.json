@@ -3,12 +3,13 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "revision_under_test": "2c7dc5f9bea114c71f7c118523f6b8022d4f7464",
+  "revision_under_test": "f39df6fae116e59b365d800a88621fe511233b5e",
   "red": {
     "before": [
       "Browser and server Supabase clients used placeholder fallbacks instead of failing closed when public configuration was missing.",
       "The authenticated request path did not refresh PKCE cookies through a shared Proxy boundary.",
-      "The service-role client was not isolated behind a server-only module and the auth-boundary contract was absent."
+      "The service-role client was not isolated behind a server-only module and the auth-boundary contract was absent.",
+      "RED: npm run test:auth-boundary -- --grep 'returns to sign-in' failed on the previous implementation because a failed code exchange redirected to /ko/home."
     ]
   },
   "green": {
@@ -22,10 +23,10 @@
     ],
     "result": "PASS",
     "details": [
-      "Vitest: 10 files and 80 tests passed.",
+      "Vitest: 11 files and 82 tests passed.",
       "Parity: 20 routes, 53 overlays and 8 capabilities passed; 59 negative fixtures passed.",
       "BLDS contracts and negative fixture passed; SSR state contract passed.",
-      "Auth boundary: 9 tests passed; missing-env filter passed with 1 test and 8 skipped.",
+      "Auth boundary: 11 tests passed; missing-env filter passed with 1 test and 10 skipped; callback failure regression passed.",
       "Lint, TypeScript and production build passed. Authenticated routes rendered as Dynamic in the build output."
     ]
   },
