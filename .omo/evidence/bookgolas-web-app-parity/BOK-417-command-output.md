@@ -1,87 +1,70 @@
 # BOK-417 verification record
 
-Implementation and final UI source were verified from exact commit `e46a9e7b71c6966e268a0f6b94a821636419cd27` on the isolated branch `codex/feature/web/1.1.0/BOK-417-function-contracts`, targeting `version/web/1.1.0`.
+Implementation and final consumer-function sources were verified from exact commit 826f419282e94fabdb779bae2254f43a7abb5d31 on branch codex/feature/web/1.1.0/BOK-417-function-contracts, targeting version/web/1.1.0.
 
 ## RED
 
-The initial issue state had no `test:function-contracts` npm script, so the setup gate first failed with:
+The initial issue state had no test:function-contracts npm script, so the setup gate first failed with:
 
-```text
 npm --prefix web run test:function-contracts
-Missing script: "test:function-contracts"
-```
+Missing script: test:function-contracts
 
-After the harness and fixture existed, the pre-fix implementation at baseline receipt `d25d93b0a57ebd5da84efe189535fa00d0f3fe21` produced the intended RED result when run with the final cross-user fixture:
+The pre-fix batch baseline at receipt 920935983837e2194c5386087c8575e8cf8f494f, run with the final contract fixture and harness before the hardening commit, produced:
 
-```text
 exit 1
-FAIL 3 contract assertions
-delete-user: valid request rejects foreign row-derived storage paths
-delete-user: valid request rejects foreign profile avatar objects
-delete-user: valid request rejects foreign default avatar objects
-```
+FAIL 13 contract assertions
+- generate-embedding: source-less note is rejected
+- generate-embedding: source-less note returns invalid_request
+- generate-embedding: source-less note stops before provider work
+- shared contract rejects explicit null instead of applying an integer fallback
+- recall-search: databaseFailure status 502 matches 503
+- recall-search: databaseFailure code provider_error matches unavailable
+- reading-insights: databaseFailure status 502 matches 503
+- reading-insights: databaseFailure code provider_error matches unavailable
+- export-reading-data: CSV quotes bare carriage returns
+- export-reading-data: databaseFailure status 502 matches 503
+- export-reading-data: databaseFailure code provider_error matches unavailable
+- delete-user: valid request removes ownerless objects from validated user paths
+- delete-user: resumed deletion consumes its bounded resume budget
 
-The red transcript is recorded outside the repository at `/private/tmp/b417-red-baseline-function-contracts.log`. Review-driven failures then identified durable consent production, stranded Recall reservations, provider I/O bounds, export size bounds, Auth deletion replay, cross-user image deletion, localized unavailable-state presentation, first-note source ownership, stored provider-input bounds, user-scoped deletion receipts, and revoked-token deletion replay. Each was fixed and rechecked.
-
-The final fixture records required consent for AI/OCR consumers and explicit not-applicable consent dispositions for book search, export, and account deletion; the harness executes every consentRequired entry without null skips.
+The complete red transcript is recorded outside the repository at /private/tmp/b417-red-baseline-function-contracts-v5.log.
 
 ## GREEN
 
-At exact final commit `e46a9e7b71c6966e268a0f6b94a821636419cd27`:
+At exact final commit 826f419282e94fabdb779bae2254f43a7abb5d31:
 
-```text
-npm --prefix web run test:function-contracts                    exit 0
+npm --prefix web run test:function-contracts: exit 0
 PASS 11 consumer function contracts with request-level happy and failure coverage
-PASS note first-write, foreign existing-source, and foreign-image-source ownership boundaries
-PASS stored provider-input bound/filter scenarios
-PASS cross-user provider/service mutation guards
-PASS provider timeout and oversized-response boundaries
-PASS delete-user replay after Auth deletion is idempotent
-PASS delete-user rejects foreign legacy storage objects by storage ownership
-PASS refreshed-token delete replay resumes the user receipt without a second rate-limit budget
-PASS revoked-token replay cannot advance a data-deleted receipt or perform a service mutation
-PASS successful Auth deletion precedes the failed completion update and revoked replay returns a safe terminal result
-PASS export-reading-data image query scopes rows before the service-role limit
-PASS Auth deletion failure is recoverable by a verified retry without a second data deletion
+PASS explicit-null integer rejection, source-less note rejection, revoked-token auth modeling
+PASS ownerless Storage deletion, bounded deletion resume budget, foreign path rejection
+PASS export query ownership before limit, CSV formula and bare-carriage-return escaping
+PASS database failures use unavailable while provider failures retain provider_error
+PASS provider timeout, oversized-response and stored-input bounds
 
-npm --prefix web run test:function-contracts -- --grep cross-user exit 0
+npm --prefix web run test:function-contracts -- --grep cross-user: exit 0
 Selected 11 contract cases for cross-user
 PASS 11 consumer function contracts with request-level happy and failure coverage
 
-cd web && npx vitest run src/app/api/consumer/consent/route.test.ts exit 0
-Test Files  1 passed (1)
-Tests       3 passed (3)
+npm --prefix web test: exit 0
+Test Files 9 passed (9)
+Tests 74 passed (74)
 
-npm --prefix web run test:product-contracts       exit 0
-Test Files  2 passed (2)
-Tests       44 passed (44)
-
-npm --prefix web test                             exit 0
-Test Files  9 passed (9)
-Tests       74 passed (74)
-
-npm --prefix web run test:parity-matrix           exit 0
+npm --prefix web run test:parity-matrix: exit 0
 parity matrix passed: 20 routes, 53 overlays, 8 capabilities
 
-npm --prefix web run test:parity-matrix:negative exit 0
+npm --prefix web run test:parity-matrix:negative: exit 0
 parity negative fixtures passed: 59
 
-npm --prefix web run lint                          exit 0
-npm --prefix web run typecheck                     exit 0
-npm --prefix web run build                         exit 0
-TypeScript syntax parse: 40 files, 0 failures
+npm --prefix web run lint: exit 0
+npm --prefix web run typecheck: exit 0
+npm --prefix web run build: exit 0
 
-cd web && PLAYWRIGHT_BASE_URL=http://127.0.0.1:3102 npx playwright test tests/e2e/blab-parity.spec.ts --project=chromium --workers=1 exit 0
-5 passed (28.1s)
-```
-
-The function harness executes the shared contract modules in a TypeScript VM and covers all eleven functions across valid, malformed, unauthenticated, cross-user, consent, oversized input, rate/quota, provider failure, timeout, oversized provider response, export escaping, storage ownership, note first-write, stored provider-input bounds, and deletion replay scenarios.
+The function harness covers all eleven functions across valid, malformed, unauthenticated, cross-user, consent, oversized input, rate/quota, provider failure, database failure, timeout, oversized provider response, export escaping, storage ownership, note first-write/source requirement, stored provider-input bounds, explicit consent dispositions, and deletion replay scenarios.
 
 ## SURFACE
 
-The `byungsker-docker` context applied `20260910125000_scope_account_deletion_operations_per_user.sql` idempotently after `20260910124000_add_account_deletion_operations.sql` to `supabase_db_book-golas-413-review`. The transactional receipt check passed. The redacted receipt is outside the repository at `/private/tmp/bookgolas-web-417-surface-v4.log`:
+The byungsker-docker context applied 20260910125000_scope_account_deletion_operations_per_user.sql idempotently after 20260910124000_add_account_deletion_operations.sql to supabase_db_book-golas-413-review. The transactional receipt check passed and remains applicable because this hardening commit changes no migration:
 
-```text
 == migration apply ==
 DELETE 0
 DROP INDEX
@@ -92,24 +75,15 @@ account_deletion_operations_pkey|CREATE UNIQUE INDEX account_deletion_operations
 account_deletion_operations_user_idx|CREATE UNIQUE INDEX account_deletion_operations_user_idx ON public.account_deletion_operations USING btree (user_id)
 00000000-0000-4000-8000-000000000417|started
 exit 0
-```
 
-The receipt table exists, `authenticated` has no SELECT privilege, `service_role` has the required write privilege, the table has no foreign key so its status survives Auth deletion, and a transactional `started` receipt insert rolled back cleanly after the unique user scope was exercised.
+The redacted receipt is outside the repository at /private/tmp/bookgolas-web-417-surface-v4.log. The receipt table has no Auth foreign key, its user_id uniqueness is enforced, and the transactional insert rolled back cleanly after verification.
 
-The Playwright run built a fresh production Next server on `http://127.0.0.1:3102` and exercised Korean and English BLDS consumer states at mobile and desktop viewports plus missing-session fail-closed behavior. All five Chromium scenarios passed. The four static screenshots and independent visual review are recorded under:
+The four static screenshots and independent visual review remain valid because the UI capture source files were unchanged by this backend, harness, and consent-streaming hardening commit. A fresh production build passed after commit 826f419. The prior Chromium run covered Korean and English BLDS consumer states at mobile and desktop viewports plus missing-session fail-closed behavior.
 
-- `.omo/evidence/bookgolas-web-app-parity/visual-qa/ko-desktop.png`
-- `.omo/evidence/bookgolas-web-app-parity/visual-qa/en-desktop.png`
-- `.omo/evidence/bookgolas-web-app-parity/visual-qa/ko-mobile.png`
-- `.omo/evidence/bookgolas-web-app-parity/visual-qa/en-mobile.png`
-- `.omo/evidence/bookgolas-web-app-parity/BOK-417-visual-review.md`
-
-The visual source files were unchanged between the capture revision `ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e` and final commit `e46a9e7b71c6966e268a0f6b94a821636419cd27`; the fresh Chromium run verified that final build and interaction surface.
-
-Deno HTTP boot was unavailable because the remote Supabase CLI shim lacks `supabase-go`; the request-level Node harness, TypeScript syntax parser, local Next/Chromium surface, and remote Postgres surface provide the available runtime evidence.
+Deno HTTP boot was unavailable because the remote Supabase CLI shim lacks supabase-go; the request-level Node harness, Next production build, and remote Postgres surface provide the available runtime evidence.
 
 ## CLEANUP
 
-The protected `/private/tmp/bookgolas-web-blds-453` path was not modified; it was absent in this host snapshot. The implementation worktree is isolated at `/private/tmp/bookgolas-web-417`. Native app paths and `.omo/plans/**` were removed from the final Web branch diff according to `.byungskerlab/branch-policy.json`. Temporary browser output was restored or removed. No secrets or PII were written to the repository or evidence.
+The protected /private/tmp/bookgolas-web-blds-453 path was not accessed or modified. The implementation worktree is isolated at /private/tmp/bookgolas-web-417. Native app paths and .omo/plans/** remain outside the final Web branch diff according to .byungskerlab/branch-policy.json. Temporary browser output was restored or removed. No secrets or PII were written to the repository or evidence.
 
 Plan: .omo/plans/bookgolas-web-app-parity.md
