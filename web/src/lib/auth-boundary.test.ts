@@ -10,6 +10,8 @@ describe("Supabase environment boundary", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
   });
 
   it("missing-env fails before a browser client can start", async () => {
