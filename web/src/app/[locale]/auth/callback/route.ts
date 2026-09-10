@@ -23,11 +23,9 @@ export async function GET(
 ) {
   const { locale: rawLocale } = await context.params;
   const locale = isConsumerLocale(rawLocale) ? rawLocale : "ko";
+  const nextPath = getSafeNextPath(request, locale, request.nextUrl.searchParams.get("next"));
   const response = NextResponse.redirect(
-    new URL(
-      getSafeNextPath(request, locale, request.nextUrl.searchParams.get("next")),
-      request.url,
-    ),
+    new URL(nextPath, request.url),
   );
   response.headers.set("Cache-Control", "private, no-store");
 
@@ -56,7 +54,18 @@ export async function GET(
 
   const code = request.nextUrl.searchParams.get("code");
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const errorUrl = new URL(getConsumerPath(locale, "/auth/sign-in"), request.url);
+      errorUrl.searchParams.set("error", "auth_callback");
+      errorUrl.searchParams.set("next", nextPath);
+      const errorResponse = NextResponse.redirect(errorUrl);
+      errorResponse.headers.set("Cache-Control", "private, no-store");
+      for (const cookie of response.cookies.getAll()) {
+        errorResponse.cookies.set(cookie);
+      }
+      return errorResponse;
+    }
   }
 
   return response;

@@ -9,6 +9,7 @@ const requestedArgs = process.argv.slice(2);
 const vitestArgs = [
   "run",
   "src/lib/auth-boundary.test.ts",
+  "src/app/[locale]/auth/callback/route.test.ts",
   "src/proxy.test.ts",
 ];
 for (let index = 0; index < requestedArgs.length; index += 1) {
