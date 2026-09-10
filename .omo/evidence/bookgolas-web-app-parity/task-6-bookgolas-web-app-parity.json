@@ -3,13 +3,14 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "revision_under_test": "b26f93f5a046fcd48223f2cb382958db91deec28",
+  "revision_under_test": "7820083609a252fa6e0233a72e311adedef0d953",
   "red": {
     "before": [
       "Browser and server Supabase clients used placeholder fallbacks instead of failing closed when public configuration was missing.",
       "The authenticated request path did not refresh PKCE cookies through a shared Proxy boundary.",
       "The service-role client was not isolated behind a server-only module and the auth-boundary contract was absent.",
-      "RED: npm run test:auth-boundary -- --grep 'returns to sign-in' failed on the previous implementation because a failed code exchange redirected to /ko/home."
+      "RED: npm run test:auth-boundary -- --grep 'returns to sign-in' failed on the previous implementation because a failed code exchange redirected to /ko/home.",
+      "RED: npm run test:auth-boundary -- --grep 'non-loopback HTTP' failed before URL transport validation because http://example.com was accepted."
     ]
   },
   "green": {
@@ -17,16 +18,17 @@
       "npm test",
       "npm run test:auth-boundary",
       "npm run test:auth-boundary -- --grep missing-env",
+      "npm run test:auth-boundary -- --grep 'non-loopback HTTP'",
       "npm run lint",
       "npm run typecheck",
       "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=local-anon-key SUPABASE_SERVICE_ROLE_KEY=server-test-key npm run build"
     ],
     "result": "PASS",
     "details": [
-      "Vitest: 11 files and 82 tests passed.",
+      "Vitest: 11 files and 83 tests passed.",
       "Parity: 20 routes, 53 overlays and 8 capabilities passed; 59 negative fixtures passed.",
       "BLDS contracts and negative fixture passed; SSR state contract passed.",
-      "Auth boundary: 11 tests passed; missing-env filter passed with 1 test and 10 skipped, including with valid inherited public env values; callback failure regression passed.",
+      "Auth boundary: 12 tests passed; missing-env filter passed with 1 test and 10 skipped, including with valid inherited public env values; callback failure and non-loopback HTTP regressions passed.",
       "Lint, TypeScript and production build passed. Authenticated routes rendered as Dynamic in the build output."
     ]
   },
