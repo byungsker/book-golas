@@ -63,7 +63,7 @@ serve(async (req: Request) => {
     if (!contentTypes.has(contentType)) {
       throw new ContractError(400, "invalid_request", "contentType is invalid");
     }
-    if (contentType !== "note" && !sourceId) {
+    if (!sourceId) {
       throw new ContractError(400, "invalid_request", "sourceId is required");
     }
     const pageNumber = body.pageNumber === undefined
@@ -71,9 +71,7 @@ serve(async (req: Request) => {
       : requireInteger(body, "pageNumber", 0, 100_000);
     const serviceClient = createServiceClient();
     await requireOwnedBook(serviceClient, user.id, bookId);
-    if (sourceId) {
-      await requireOwnedSourceForWrite(serviceClient, user.id, bookId, contentType, sourceId);
-    }
+    await requireOwnedSourceForWrite(serviceClient, user.id, bookId, contentType, sourceId);
     await requireConsent(serviceClient, user, "ai");
     await enforceFunctionRateLimit(serviceClient, user.id, "generate-embedding", 120, 60);
 
@@ -90,7 +88,7 @@ serve(async (req: Request) => {
       },
       { onConflict: "content_type,source_id" },
     ).select("id").single();
-    if (error || !data) throw new Error("embedding_write_failed");
+    if (error || !data) throw new ContractError(503, "unavailable", "Reading data is unavailable");
     return jsonResponse({ success: true, embeddingId: data.id }, req);
   } catch (error) {
     if (error instanceof ContractError) return responseForError(error, req, "generate-embedding");

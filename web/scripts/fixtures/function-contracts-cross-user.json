@@ -100,7 +100,11 @@
         "status": 502,
         "code": "provider_error"
       },
-      "ownership": "book"
+      "ownership": "book",
+      "databaseFailure": {
+        "status": 503,
+        "code": "unavailable"
+      }
     },
     {
       "name": "generate-embedding",
@@ -311,7 +315,11 @@
         "status": 502,
         "code": "provider_error"
       },
-      "ownership": "user_id_match"
+      "ownership": "user_id_match",
+      "databaseFailure": {
+        "status": 503,
+        "code": "unavailable"
+      }
     },
     {
       "name": "recommend-next-books",
@@ -416,6 +424,10 @@
         "code": "provider_input_too_large",
         "providerCalls": 0,
         "disposition": "reject_before_provider"
+      },
+      "databaseFailure": {
+        "status": 503,
+        "code": "unavailable"
       }
     },
     {
@@ -520,7 +532,11 @@
         "status": 502,
         "code": "provider_error"
       },
-      "ownership": "jwt_only"
+      "ownership": "jwt_only",
+      "databaseFailure": {
+        "status": 503,
+        "code": "unavailable"
+      }
     },
     {
       "name": "delete-user",
@@ -589,7 +605,7 @@
       "resumableRetry": {
         "status": 200,
         "bodyStatus": "completed",
-        "rateLimitCalls": 0,
+        "rateLimitCalls": 1,
         "request": {
           "auth": "valid",
           "principal": "owner",

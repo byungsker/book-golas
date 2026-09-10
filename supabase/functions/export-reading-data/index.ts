@@ -83,7 +83,7 @@ function escapeCsvField(field: string | number | null | undefined): string {
   const value = typeof field === "string" && /^[=+\-@\t\r\n]/.test(rawValue)
     ? `'${rawValue}`
     : rawValue;
-  return value.includes(",") || value.includes('"') || value.includes("\n")
+  return value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")
     ? `"${value.replace(/"/g, '""')}"`
     : value;
 }
@@ -209,7 +209,7 @@ serve(async (req: Request) => {
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(MAX_EXPORT_BOOKS + 1);
-    if (booksError) throw new Error("book_lookup_failed");
+    if (booksError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
 
     const typedBooks = (books ?? []) as BookData[];
     if (typedBooks.length > MAX_EXPORT_BOOKS) {
@@ -234,7 +234,7 @@ serve(async (req: Request) => {
           .or(`user_id.is.null,user_id.eq.${user.id}`)
           .limit(MAX_EXPORT_IMAGES + 1),
       ]);
-      if (contentsError || imagesError) throw new Error("reading_data_lookup_failed");
+      if (contentsError || imagesError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
       if ((contentRows ?? []).length > MAX_EXPORT_RECORDS) {
         throw new ContractError(413, "export_too_large", "Export contains too many reading records");
       }

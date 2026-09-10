@@ -100,7 +100,8 @@ serve(async (req: Request) => {
       .eq("user_id", user.id)
       .is("deleted_at", null)
       .maybeSingle();
-    if (bookError || !book) throw new ContractError(403, "cross_user_access", "The requested book is not owned by the authenticated user");
+    if (bookError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
+    if (!book) throw new ContractError(403, "cross_user_access", "The requested book is not owned by the authenticated user");
 
     const { data: memos, error: memoError } = await serviceClient
       .from("reading_content_embeddings")
@@ -109,7 +110,7 @@ serve(async (req: Request) => {
       .eq("book_id", bookId)
       .order("created_at", { ascending: true })
       .limit(15);
-    if (memoError) throw new Error("content_lookup_failed");
+    if (memoError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
 
     const draft = await generateReviewWithGPT(
       book as BookData,

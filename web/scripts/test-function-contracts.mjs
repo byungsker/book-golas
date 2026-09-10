@@ -44,6 +44,7 @@ const LEGACY_REPLACEMENT_PATH = `book_images/1720000000000_${OWNER_BOOK_ID}.jpg`
 const FOREIGN_LEGACY_PATH = `book_images/1720000000001_${OWNER_BOOK_ID}.jpg`;
 const FOREIGN_ROW_DERIVED_PATH = `book_images/1720000000002_${OWNER_BOOK_ID}.jpg`;
 const CANONICAL_ORPHAN_PATH = `${fixture.principals.owner.id}/${OWNER_BOOK_ID}/orphan.jpg`;
+const OWNERLESS_ORPHAN_PATH = `${fixture.principals.owner.id}/${OWNER_BOOK_ID}/ownerless.jpg`;
 const FOREIGN_PROFILE_AVATAR_PATH = `${fixture.principals.owner.id}/avatar-2.png`;
 const FOREIGN_DEFAULT_AVATAR_PATH = `${fixture.principals.owner.id}/avatar.png`;
 
@@ -67,6 +68,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
   const storageObjects = [
     { bucket_id: "book-images", name: `${fixture.principals.owner.id}/${OWNER_BOOK_ID}/fixture.jpg`, owner: fixture.principals.owner.id, owner_id: fixture.principals.owner.id },
     { bucket_id: "book-images", name: `${fixture.principals.owner.id}/${OWNER_BOOK_ID}/orphan.jpg`, owner: fixture.principals.owner.id, owner_id: fixture.principals.owner.id },
+    { bucket_id: "book-images", name: OWNERLESS_ORPHAN_PATH, owner: null, owner_id: null },
     { bucket_id: "book-images", name: LEGACY_REPLACEMENT_PATH, owner: fixture.principals.owner.id, owner_id: fixture.principals.owner.id },
     { bucket_id: "book-images", name: FOREIGN_LEGACY_PATH, owner: FOREIGN_USER_ID, owner_id: FOREIGN_USER_ID },
     { bucket_id: "book-images", name: FOREIGN_ROW_DERIVED_PATH, owner: FOREIGN_USER_ID, owner_id: FOREIGN_USER_ID },
@@ -79,7 +81,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
     let pendingAccountMutation = null;
     const matchesBook = () => hasProfile && principalId === fixture.principals.owner.id && (!filters.id || filters.id === OWNER_BOOK_ID) && (!filters.user_id || filters.user_id === principalId);
     const fixtureTitle = options.formulaFixture ? '=HYPERLINK("https://example.test")' : "Fixture book";
-    const fixtureText = options.storedContentText ?? (options.formulaFixture ? "@SUM(1,1)" : "fixture note");
+    const fixtureText = options.storedContentText ?? (options.exportBareCarriageReturn ? "line1\rline2" : options.formulaFixture ? "@SUM(1,1)" : "fixture note");
     const fixtureCaption = options.formulaFixture ? "-2+3" : "Fixture image";
     const ownerImage = {
       id: OWNER_SOURCE_ID,
@@ -144,7 +146,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
       order: () => query,
       limit: () => query,
       maybeSingle: async () => {
-        if (options.serviceFailure && table === "users") return { data: null, error: { message: "service unavailable" } };
+        if (options.serviceFailure && (table === "users" || table === "books")) return { data: null, error: { message: "service unavailable" } };
         if (table === "users") return { data: options.profilePresent === false ? null : { id: principalId, avatar_url: `https://storage.example/storage/v1/object/public/avatars/${principalId}/avatar-2.png` }, error: null };
         if (table === "books") return { data: matchesBook() ? { id: OWNER_BOOK_ID, title: fixtureTitle, author: null, genre: null, rating: null, review: null } : null, error: null };
         if (table === "book_images") {
@@ -174,7 +176,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
         if (options.serviceFailure && table === "books") return Promise.resolve({ data: [], error: { message: "service unavailable" } }).then(resolve, reject);
         if (table === "books") return Promise.resolve({ data: matchesBook() ? [{ id: OWNER_BOOK_ID, title: fixtureTitle, author: null, genre: null, rating: null, review: null, total_pages: 100, created_at: "2026-01-01T00:00:00.000Z", updated_at: "2026-01-01T00:00:00.000Z" }] : [], error: null }).then(resolve, reject);
         if (table === "reading_content_embeddings") {
-          return Promise.resolve({ data: Array.from({ length: 5 }, (_, index) => ({ id: `44444444-4444-4444-8444-44444444444${index}`, user_id: principalId, book_id: OWNER_BOOK_ID, content_text: fixtureText, content_type: "note", page_number: 1, source_id: OWNER_SOURCE_ID, created_at: "2026-01-01T00:00:00.000Z" })), error: null }).then(resolve, reject);
+          return Promise.resolve({ data: Array.from({ length: 5 }, (_, index) => ({ id: `44444444-4444-4444-8444-44444444444${index}`, user_id: principalId, book_id: OWNER_BOOK_ID, content_text: options.formulaFixture && index === 0 ? "@SUM(1,1)" : fixtureText, content_type: "note", page_number: 1, source_id: OWNER_SOURCE_ID, created_at: "2026-01-01T00:00:00.000Z" })), error: null }).then(resolve, reject);
         }
         if (table === "book_images") {
           if (options.exportForeignImageRows && !filters.or) {
@@ -211,7 +213,11 @@ function makeContractRuntime(request, events, counters, options = {}) {
       if (name === "consume_edge_function_budget" && request.name === "delete-user") {
         counters.deletionRateLimitCalls += 1;
       }
-      if (name === "match_reading_content") return { data: [], error: null };
+      if (name === "match_reading_content") {
+        return options.serviceFailure
+          ? { data: null, error: { message: "service unavailable" } }
+          : { data: [], error: null };
+      }
       if (name === "complete_ai_recall_quota") {
         events.push("policy:quota:complete");
         return { data: null, error: null };
@@ -233,7 +239,10 @@ function makeContractRuntime(request, events, counters, options = {}) {
         list: async (prefix, listOptions = {}) => {
           if (bucket === "book-images" && hasProfile && principalId === fixture.principals.owner.id) {
             if (prefix === fixture.principals.owner.id) return { data: [{ name: OWNER_BOOK_ID, id: null, metadata: null }], error: null };
-            if (prefix === `${fixture.principals.owner.id}/${OWNER_BOOK_ID}`) return { data: [{ name: "orphan.jpg", id: "orphan", metadata: {} }], error: null };
+            if (prefix === `${fixture.principals.owner.id}/${OWNER_BOOK_ID}`) return { data: [
+              { name: "orphan.jpg", id: "orphan", metadata: {} },
+              { name: "ownerless.jpg", id: "ownerless", metadata: {} },
+            ], error: null };
             if (prefix === "book_images" && listOptions.search === OWNER_BOOK_ID) return { data: [
               { name: LEGACY_REPLACEMENT_PATH.slice("book_images/".length), id: "legacy", metadata: {} },
               { name: FOREIGN_LEGACY_PATH.slice("book_images/".length), id: "foreign-legacy", metadata: {} },
@@ -282,8 +291,8 @@ function makeContractRuntime(request, events, counters, options = {}) {
 
   const config = {};
   const validateConfig = () => {};
-  const PatternCollector = class { async collect() { return []; } };
-  const InsightService = class { async generate() { if (options.providerFailure) throw new Error("provider_failure"); return []; } };
+  const PatternCollector = class { async collect() { if (options.serviceFailure) throw new Error("Books query failed: service unavailable"); return []; } };
+  const InsightService = class { async generate() { if (options.serviceFailure) throw new Error("Memory load failed: service unavailable"); if (options.rateLimited) throw new Error("Rate limit exceeded. Try again later."); if (options.providerFailure) throw new Error("provider_failure"); return []; } };
   const ProfileCollector = class { async collect() { return { books: options.providerFailure ? [{ id: OWNER_BOOK_ID }] : [], stats: {}, interests: { topHighlights: [], keywords: [] } }; } };
   const RecommendationService = class { async generate() { if (options.providerFailure) throw new Error("provider_failure"); return []; } };
 
@@ -309,9 +318,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
     if (options.providerTimeout) {
       return new Promise((resolve, reject) => {
         const abort = () => {
-          const error = new Error("provider timeout");
-          error.name = "AbortError";
-          reject(error);
+          reject(new DOMException("The operation was aborted.", "AbortError"));
         };
         if (!init.signal) {
           reject(new Error("timeout fixture requires an abort signal"));
@@ -330,7 +337,7 @@ function makeContractRuntime(request, events, counters, options = {}) {
     const payload = options.providerFailure
       ? {}
       : options.providerOversized
-        ? { item: [], data: [{ embedding: [0.1, 0.2] }], choices: [{ message: { content: "[]" } }], responses: [{ textAnnotations: [] }], padding: "x".repeat(2 * 1024 * 1024) }
+        ? { item: [], data: [{ embedding: [0.1, 0.2] }], choices: [{ message: { content: "[]" } }], responses: [{ textAnnotations: [] }], padding: "x".repeat(9 * 1024 * 1024) }
         : { item: [], data: [{ embedding: [0.1, 0.2] }], choices: [{ message: { content: "[]" } }], responses: [{ textAnnotations: [] }] };
     const body = JSON.stringify(payload);
     return new Response(body, {
@@ -365,9 +372,13 @@ function makeContractRuntime(request, events, counters, options = {}) {
     crypto: { randomUUID: () => "44444444-4444-4444-8444-444444444444", subtle: webcrypto.subtle },
     console,
     createClient: (_url, _key, clientOptions = {}) => clientOptions.global?.headers?.Authorization
-      ? { auth: { getUser: async () => options.authDeleted
-        ? { data: { user: null }, error: { message: "User not found" } }
-        : { data: { user: { id: principal.id, email: principal.email, user_metadata: {}, app_metadata: {} } }, error: null } } }
+      ? { auth: { getUser: async () => {
+        const token = clientOptions.global.headers.Authorization.replace(/^Bearer\s+/i, "");
+        const accepted = token === principal.token || (request.principal === "owner" && token === "owner-refreshed-token");
+        return options.authDeleted || request.auth === "invalid" || !accepted
+          ? { data: { user: null }, error: { message: "User not found" } }
+          : { data: { user: { id: principal.id, email: principal.email, user_metadata: {}, app_metadata: {} } }, error: null };
+      } } }
       : serviceClient,
     exports: sharedModule.exports,
     module: sharedModule,
@@ -543,7 +554,7 @@ async function executeDeleteReplay(contract) {
   }, retryState);
   assert(retry.response.status === contract.resumableRetry.status, "delete-user: refreshed-token retry remains successful");
   assert(retry.body.status === contract.resumableRetry.bodyStatus, "delete-user: refreshed-token retry resumes the deletion receipt");
-  assert(retry.counters.deletionRateLimitCalls === contract.resumableRetry.rateLimitCalls, "delete-user: resumed deletion does not consume a second rate-limit budget");
+  assert(retry.counters.deletionRateLimitCalls === contract.resumableRetry.rateLimitCalls, "delete-user: resumed deletion consumes its bounded resume budget");
 
   const revoked = await executeRequest(contract, contract.revokedReplay.request, {
     authDeleted: true,
@@ -630,8 +641,10 @@ async function executeScenario(contract, scenario) {
     rateLimited: scenario === "rateLimit",
     quotaExceeded: contract.name === "vision-ocr" && scenario === "rateLimit",
     providerFailure: scenario === "providerFailure" && contract.name !== "delete-user",
-    serviceFailure: scenario === "providerFailure" && contract.name === "delete-user",
+    serviceFailure: (scenario === "providerFailure" && contract.name === "delete-user")
+      || (scenario === "databaseFailure" && ["export-reading-data", "generate-book-review", "reading-insights", "recall-search"].includes(contract.name)),
     formulaFixture: contract.name === "export-reading-data" && scenario === "valid",
+    exportBareCarriageReturn: contract.name === "export-reading-data" && scenario === "valid",
     exportForeignImageRows: contract.name === "export-reading-data" && scenario === "valid",
   };
   return executeRequest(contract, request, options);
@@ -789,6 +802,20 @@ async function executeNoteEmbeddingBoundary() {
   assert(firstNote.response.status === 200, "generate-embedding: first note write succeeds");
   assert(firstNote.counters.providerCalls === 1, "generate-embedding: first note reaches provider after book ownership");
 
+  const missingNoteSource = await executeRequest(contract, {
+    auth: "valid",
+    principal: "owner",
+    body: {
+      userId: fixture.principals.owner.id,
+      bookId: OWNER_BOOK_ID,
+      contentType: "note",
+      contentText: "source-less note",
+    },
+  });
+  assert(missingNoteSource.response.status === 400, "generate-embedding: source-less note is rejected");
+  assert(missingNoteSource.body.code === "invalid_request", "generate-embedding: source-less note returns invalid_request");
+  assert(missingNoteSource.counters.providerCalls === 0, "generate-embedding: source-less note stops before provider work");
+
   const foreignNote = await executeRequest(contract, {
     auth: "valid",
     principal: "owner",
@@ -870,6 +897,21 @@ async function executeStreamingBodyBoundary() {
   assert(canceled, "shared contract cancels the body reader at the byte limit");
 }
 
+async function executeIntegerBoundary() {
+  const sandbox = makeContractRuntime(
+    { principal: "owner" },
+    [],
+    { providerCalls: 0, serviceMutationCalls: 0, exportAttachments: [] },
+  );
+  let rejected = false;
+  try {
+    sandbox.sharedHelpers.requireInteger({ limit: null }, "limit", 1, 10, 5);
+  } catch (error) {
+    rejected = error?.status === 400 && error?.code === "invalid_request";
+  }
+  assert(rejected, "shared contract rejects explicit null instead of applying an integer fallback");
+}
+
 async function executeProviderTimeoutBoundary() {
   const sandbox = makeContractRuntime(
     { principal: "owner" },
@@ -927,6 +969,7 @@ assert(fs.existsSync(deletionScopeMigrationPath), "deletion replay receipt is sc
 await executeConsentBoundary();
 await executeNoteEmbeddingBoundary();
 await executeStreamingBodyBoundary();
+await executeIntegerBoundary();
 await executeProviderTimeoutBoundary();
 await executeProviderResponseBoundary();
 await executeStoredProviderInputBoundary();
@@ -943,9 +986,10 @@ for (const contract of selected) {
   assert(fs.existsSync(sourcePath), `${contract.name}: source exists`);
   if (!fs.existsSync(sourcePath)) continue;
 
-  const expectations = ["valid", "invalid", "unauthenticated", "crossUser", "consentRequired", "oversizedInput", "rateLimit", "providerFailure"];
+  const expectations = ["valid", "invalid", "unauthenticated", "crossUser", "consentRequired", "oversizedInput", "rateLimit", "providerFailure", "databaseFailure"];
   for (const expectation of expectations) {
     const value = contract[expectation];
+    if (!value) continue;
     const validStatus = expectation === "valid" ? typeof value?.status === "number" : typeof value?.status === "number" || value?.status === null;
     const validCode = expectation === "valid"
       ? (value?.code === undefined || typeof value.code === "string")
@@ -998,8 +1042,8 @@ for (const contract of selected) {
     fail(`${contract.name}: cross-user request harness failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  for (const scenario of ["valid", "invalid", "unauthenticated", "oversizedInput", "consentRequired", "rateLimit", "providerFailure"]) {
-    if (contract[scenario].status === null) continue;
+  for (const scenario of ["valid", "invalid", "unauthenticated", "oversizedInput", "consentRequired", "rateLimit", "providerFailure", "databaseFailure"]) {
+    if (!contract[scenario] || contract[scenario].status === null) continue;
     try {
       const result = await executeScenario(contract, scenario);
       const { response, body } = result;
@@ -1016,6 +1060,7 @@ for (const contract of selected) {
         assert(attachment.includes("'=HYPERLINK"), "export-reading-data: CSV escapes formula-like book titles");
         assert(attachment.includes("'@SUM"), "export-reading-data: CSV escapes formula-like note text");
         assert(attachment.includes("'-2+3"), "export-reading-data: CSV escapes formula-like image captions");
+        assert(attachment.includes('"line1\rline2"'), "export-reading-data: CSV quotes bare carriage returns");
         assert(!attachment.includes(",=HYPERLINK"), "export-reading-data: CSV has no unescaped formula field");
         assert(result.events.includes(`query:book_images:or:user_id.is.null,user_id.eq.${fixture.principals.owner.id}`), "export-reading-data: image query scopes rows before the service-role limit");
       }
@@ -1024,6 +1069,7 @@ for (const contract of selected) {
         assert(imageStorageEvent.includes(`${fixture.principals.owner.id}/${OWNER_BOOK_ID}/fixture.jpg`), "delete-user: valid request removes bound book image objects");
         assert(imageStorageEvent.includes(LEGACY_REPLACEMENT_PATH), "delete-user: valid request removes legacy replacement image objects");
         assert(imageStorageEvent.includes(CANONICAL_ORPHAN_PATH), "delete-user: valid request removes canonical orphan image objects");
+        assert(imageStorageEvent.includes(OWNERLESS_ORPHAN_PATH), "delete-user: valid request removes ownerless objects from validated user paths");
         assert(!imageStorageEvent.includes("other-user-object.jpg"), "delete-user: valid request rejects unbound shared image paths");
         assert(!imageStorageEvent.includes(FOREIGN_LEGACY_PATH), "delete-user: valid request rejects foreign legacy objects with a victim-shaped book UUID");
         assert(!imageStorageEvent.includes(FOREIGN_ROW_DERIVED_PATH), "delete-user: valid request rejects foreign row-derived storage paths");

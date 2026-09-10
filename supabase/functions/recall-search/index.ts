@@ -146,7 +146,7 @@ serve(async (req: Request) => {
       filter_user_id: user.id,
       filter_book_id: bookId ?? null,
     });
-    if (searchError) throw new Error("provider_search_failed");
+    if (searchError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
 
     const searchResults = (data ?? []) as SearchRow[];
     if (searchResults.length === 0) {
@@ -165,7 +165,7 @@ serve(async (req: Request) => {
       .in("id", bookIds)
       .eq("user_id", user.id)
       .is("deleted_at", null);
-    if (booksError) throw new Error("ownership_lookup_failed");
+    if (booksError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
 
     const bookTitleMap: Record<string, string> = {};
     for (const book of books ?? []) {
@@ -209,7 +209,7 @@ serve(async (req: Request) => {
       answer,
       sources,
     });
-    if (historyError) throw new Error("history_write_failed");
+    if (historyError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
     await completeAiRecallQuota(serviceClient, user.id, reservationKey);
     reservationKey = undefined;
     return jsonResponse({ answer, sources, ...(bookId ? {} : { sourcesByBook }) }, req);

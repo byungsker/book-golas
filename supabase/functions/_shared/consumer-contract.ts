@@ -172,7 +172,7 @@ export function requireInteger(
   max: number,
   fallback?: number,
 ): number {
-  const value = body[field] ?? fallback;
+  const value = body[field] === undefined ? fallback : body[field];
   if (!Number.isInteger(value) || Number(value) < min || Number(value) > max) {
     throw new ContractError(400, "invalid_request", `${field} must be an integer in range`);
   }

@@ -52,7 +52,7 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         requests: [{ image: { content: imageBase64 }, features: [{ type: "TEXT_DETECTION", maxResults: 1 }] }],
       }),
-    }, 15_000, 1024 * 1024);
+    }, 15_000, 8 * 1024 * 1024);
     if (!response.ok) throw new Error(`provider_status:${response.status}`);
     const payload: unknown = await response.json();
     const responses = payload && typeof payload === "object" && !Array.isArray(payload)

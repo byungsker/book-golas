@@ -164,7 +164,7 @@ async function filterOwnedStoragePaths(
       if (typeof entry.name !== "string") continue;
       const owners = [entry.owner, entry.owner_id]
         .filter((owner): owner is string => typeof owner === "string" && owner.length > 0);
-      if (owners.length > 0 && owners.every((owner) => owner === userId)) {
+      if (!owners.some((owner) => owner !== userId)) {
         ownedPaths.add(entry.name);
       }
     }
@@ -264,7 +264,6 @@ serve(async (req: Request) => {
     serviceClient ??= createServiceClient();
     const operationHash = await tokenHash(token);
     operation = await findDeletionOperation(serviceClient, "user_id", user.id);
-    const isNewOperation = operation === null;
     if (operation && operation.userId !== user.id) {
       throw new ContractError(401, "unauthorized", "Authentication is required");
     }
@@ -272,6 +271,7 @@ serve(async (req: Request) => {
       return jsonResponse({ status: "already_deleted", acceptedAt: operation.acceptedAt }, req);
     }
     if (!operation) {
+      await enforceFunctionRateLimit(serviceClient, user.id, "delete-user", 2, 24 * 60 * 60);
       const { error: operationError } = await serviceClient
         .from("account_deletion_operations")
         .upsert(
@@ -280,6 +280,8 @@ serve(async (req: Request) => {
         );
       if (operationError) throw new ContractError(503, "unavailable", "Account deletion is unavailable");
       operation = { userId: user.id, status: "started", acceptedAt: new Date().toISOString() };
+    } else if (operation.status === "started") {
+      await enforceFunctionRateLimit(serviceClient, user.id, "delete-user-resume", 10, 24 * 60 * 60);
     }
 
     let existingProfile: unknown = null;
@@ -295,9 +297,6 @@ serve(async (req: Request) => {
       if (profileLookupError) throw new ContractError(503, "unavailable", "Account deletion is unavailable");
       existingProfile = profile;
       profileWasMissing = !existingProfile;
-      if (isNewOperation) {
-        await enforceFunctionRateLimit(serviceClient, user.id, "delete-user", 2, 24 * 60 * 60);
-      }
       const { data: books, error: booksError } = await serviceClient
         .from("books")
         .select("id")

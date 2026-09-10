@@ -6,7 +6,6 @@ import { InsightService } from "./services/insight-service.ts";
 import {
   ContractError,
   createServiceClient,
-  enforceFunctionRateLimit,
   jsonResponse,
   methodGuard,
   optionsResponse,
@@ -33,7 +32,6 @@ serve(async (req: Request) => {
 
     const serviceClient = createServiceClient();
     await requireConsent(serviceClient, user, "ai");
-    await enforceFunctionRateLimit(serviceClient, user.id, "reading-insights", 1, 24 * 60 * 60);
     requireProviderSecret("OPENAI_API_KEY");
     validateConfig();
 
@@ -47,6 +45,9 @@ serve(async (req: Request) => {
     if (error instanceof ContractError) return responseForError(error, req, "reading-insights");
     if (error instanceof Error && /rate limit exceeded/i.test(error.message)) {
       return responseForError(new ContractError(429, "rate_limited", "Usage limit exceeded"), req, "reading-insights");
+    }
+    if (error instanceof Error && /(query failed|load failed|save failed|rate limit (check|update) failed)/i.test(error.message)) {
+      return responseForError(new ContractError(503, "unavailable", "Reading insights are unavailable"), req, "reading-insights");
     }
     return responseForError(providerFailure(error), req, "reading-insights");
   }

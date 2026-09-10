@@ -4,6 +4,51 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const MAX_BODY_BYTES = 64 * 1024;
 
+class PayloadTooLargeError extends Error {}
+
+async function readBodyWithinLimit(request: NextRequest): Promise<string> {
+  const declaredLength = request.headers.get("content-length");
+  if (declaredLength !== null) {
+    const length = Number(declaredLength);
+    if (!Number.isSafeInteger(length) || length < 0 || length > MAX_BODY_BYTES) {
+      throw new PayloadTooLargeError();
+    }
+  }
+
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = value ?? new Uint8Array();
+      totalBytes += chunk.byteLength;
+      if (totalBytes > MAX_BODY_BYTES) {
+        try {
+          await reader.cancel();
+        } catch {
+          // The size error is the useful response even when cancellation races the stream.
+        }
+        throw new PayloadTooLargeError();
+      }
+      chunks.push(chunk);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 async function authenticatedClient() {
   try {
     const supabase = await createServerSupabaseClient();
@@ -48,9 +93,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
-  const body = await request.text();
-  if (new TextEncoder().encode(body).byteLength > MAX_BODY_BYTES) {
-    return NextResponse.json({ error: "payload_too_large" }, { status: 413 });
+  let body: string;
+  try {
+    body = await readBodyWithinLimit(request);
+  } catch (error) {
+    if (error instanceof PayloadTooLargeError) {
+      return NextResponse.json({ error: "payload_too_large" }, { status: 413 });
+    }
+    return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
   let parsedBody: unknown;
