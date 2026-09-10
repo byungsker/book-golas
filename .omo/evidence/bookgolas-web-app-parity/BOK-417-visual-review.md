@@ -3,7 +3,7 @@
 - recommendation: APPROVE
 - visualVerdict: PASS
 - confidence: HIGH
-- reviewedRevision: `6a85337f0d1e1cc93dd8051803887791ab23d2ff` (the visual source is unchanged from `ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e` through this final revision)
+- reviewedRevision: `e46a9e7b71c6966e268a0f6b94a821636419cd27` (the visual source is unchanged from `ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e` through this final revision)
 - originalIntent: Independently inspect the complete fresh four-capture BOK-417 account/consent surface and verify a real BLDS-based DOM implementation, responsive Korean and English layouts, natural CJK wrapping, readable unavailable-state copy, and freedom from clipping, overflow, and navigation collisions.
 - desiredOutcome: The localized account page displays a clear consent-load failure through existing Bookgolas/BLDS components at 1440x900 and 390x844, with intact branding and navigation in Korean and English.
 - blockers: []

@@ -4,7 +4,7 @@
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
   "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
   "generatedAt": "2026-09-10T10:12:00+09:00",
-  "revisionUnderTest": "6a85337f0d1e1cc93dd8051803887791ab23d2ff",
+  "revisionUnderTest": "e46a9e7b71c6966e268a0f6b94a821636419cd27",
   "baseBranch": "version/web/1.1.0",
   "functions": [
     "aladin-books",
@@ -40,7 +40,7 @@
       "npm --prefix web run build"
     ],
     "results": {
-      "functionContracts": "11 contracts passed with valid, invalid, unauthenticated, cross-user, consent, oversized input, rate/quota, provider failure, provider timeout/oversized response, export escaping, storage ownership, note first-write, foreign existing-source/image-source rejection, stored provider-input bounds, explicit required/not-applicable consent dispositions, durable user-scoped deletion replay, revoked-token terminal behavior, successful-Auth-before-failed-receipt-update ordering, and verified Auth-failure recovery.",
+      "functionContracts": "11 contracts passed with valid, invalid, unauthenticated, cross-user, consent, oversized input, rate/quota, provider failure, provider timeout/oversized response, export escaping, storage ownership, note first-write, foreign existing-source/image-source rejection, stored provider-input bounds, explicit required/not-applicable consent dispositions, query-level export image ownership, durable user-scoped deletion replay, revoked-token terminal behavior, successful-Auth-before-failed-receipt-update ordering, and verified Auth-failure recovery.",
       "crossUserNegative": "All 11 User B to User A requests stopped before provider calls and service mutations.",
       "consentRoute": "3 Vitest tests passed, covering authenticated RPC production, malformed input rejection, and unavailable session normalization.",
       "productContracts": "2 files, 44 tests passed.",
@@ -93,7 +93,7 @@
       "browserScenarios": "5 Chromium scenarios passed from the fresh production server."
     },
     "visualQa": {
-      "reviewedRevision": "6a85337f0d1e1cc93dd8051803887791ab23d2ff",
+      "reviewedRevision": "e46a9e7b71c6966e268a0f6b94a821636419cd27",
       "verdict": "PASS from two independent read-only lanes.",
       "captures": [
         {

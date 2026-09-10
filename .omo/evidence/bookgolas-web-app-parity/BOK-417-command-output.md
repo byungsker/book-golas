@@ -1,6 +1,6 @@
 # BOK-417 verification record
 
-Implementation and final UI source were verified from exact commit `6a85337f0d1e1cc93dd8051803887791ab23d2ff` on the isolated branch `codex/feature/web/1.1.0/BOK-417-function-contracts`, targeting `version/web/1.1.0`.
+Implementation and final UI source were verified from exact commit `e46a9e7b71c6966e268a0f6b94a821636419cd27` on the isolated branch `codex/feature/web/1.1.0/BOK-417-function-contracts`, targeting `version/web/1.1.0`.
 
 ## RED
 
@@ -27,7 +27,7 @@ The final fixture records required consent for AI/OCR consumers and explicit not
 
 ## GREEN
 
-At exact final commit `6a85337f0d1e1cc93dd8051803887791ab23d2ff`:
+At exact final commit `e46a9e7b71c6966e268a0f6b94a821636419cd27`:
 
 ```text
 npm --prefix web run test:function-contracts                    exit 0
@@ -41,6 +41,7 @@ PASS delete-user rejects foreign legacy storage objects by storage ownership
 PASS refreshed-token delete replay resumes the user receipt without a second rate-limit budget
 PASS revoked-token replay cannot advance a data-deleted receipt or perform a service mutation
 PASS successful Auth deletion precedes the failed completion update and revoked replay returns a safe terminal result
+PASS export-reading-data image query scopes rows before the service-role limit
 PASS Auth deletion failure is recoverable by a verified retry without a second data deletion
 
 npm --prefix web run test:function-contracts -- --grep cross-user exit 0
@@ -103,7 +104,7 @@ The Playwright run built a fresh production Next server on `http://127.0.0.1:310
 - `.omo/evidence/bookgolas-web-app-parity/visual-qa/en-mobile.png`
 - `.omo/evidence/bookgolas-web-app-parity/BOK-417-visual-review.md`
 
-The visual source files were unchanged between the capture revision `ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e` and final commit `6a85337f0d1e1cc93dd8051803887791ab23d2ff`; the fresh Chromium run verified that final build and interaction surface.
+The visual source files were unchanged between the capture revision `ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e` and final commit `e46a9e7b71c6966e268a0f6b94a821636419cd27`; the fresh Chromium run verified that final build and interaction surface.
 
 Deno HTTP boot was unavailable because the remote Supabase CLI shim lacks `supabase-go`; the request-level Node harness, TypeScript syntax parser, local Next/Chromium surface, and remote Postgres surface provide the available runtime evidence.
 
