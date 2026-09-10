@@ -3,7 +3,7 @@
   "target_delivery_unit": "web",
   "target_version": "1.1.0",
   "delivery_profile": "web-release-train",
-  "revision_under_test": "f39df6fae116e59b365d800a88621fe511233b5e",
+  "revision_under_test": "b26f93f5a046fcd48223f2cb382958db91deec28",
   "red": {
     "before": [
       "Browser and server Supabase clients used placeholder fallbacks instead of failing closed when public configuration was missing.",
@@ -26,7 +26,7 @@
       "Vitest: 11 files and 82 tests passed.",
       "Parity: 20 routes, 53 overlays and 8 capabilities passed; 59 negative fixtures passed.",
       "BLDS contracts and negative fixture passed; SSR state contract passed.",
-      "Auth boundary: 11 tests passed; missing-env filter passed with 1 test and 10 skipped; callback failure regression passed.",
+      "Auth boundary: 11 tests passed; missing-env filter passed with 1 test and 10 skipped, including with valid inherited public env values; callback failure regression passed.",
       "Lint, TypeScript and production build passed. Authenticated routes rendered as Dynamic in the build output."
     ]
   },
