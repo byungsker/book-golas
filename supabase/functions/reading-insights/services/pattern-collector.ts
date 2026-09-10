@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { ContractError } from "../../_shared/consumer-contract.ts";
 import type {
   ReadingPatterns,
   MonthlyReadingCount,
@@ -61,7 +62,7 @@ export class PatternCollector {
       .is("deleted_at", null)
       .order("created_at", { ascending: false });
 
-    if (error) throw new Error(`Books query failed: ${error.message}`);
+    if (error) throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     return (data as BookRecord[]) || [];
   }
 
@@ -72,7 +73,7 @@ export class PatternCollector {
       .eq("user_id", userId)
       .order("created_at", { ascending: true });
 
-    if (error) throw new Error(`Progress query failed: ${error.message}`);
+    if (error) throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     return (data as ProgressRecord[]) || [];
   }
 
@@ -82,7 +83,7 @@ export class PatternCollector {
       .select("id, user_id, book_id, content_type, content_text, page_number, source_id")
       .eq("user_id", userId);
 
-    if (error) throw new Error(`Embeddings query failed: ${error.message}`);
+    if (error) throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     return (data as EmbeddingRecord[]) || [];
   }
 

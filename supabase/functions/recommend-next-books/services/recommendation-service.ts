@@ -6,6 +6,12 @@ import type {
   BookReadingAnalytics,
 } from "../types.ts";
 import { config } from "../config.ts";
+import {
+  assertProviderInputSize,
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 const PROMPT_KO = `
 당신은 독서 추천 전문가입니다. 사용자의 **책별 세부 독서 패턴**을 분석하여 다음 읽을 책 {recommendCount}권을 추천해주세요.
@@ -96,6 +102,16 @@ export class RecommendationService {
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
       temperature: config.openai.temperature,
+      timeout: PROVIDER_TIMEOUT_MS,
+      maxRetries: 0,
+      configuration: {
+        fetch: (input, init) => fetchProvider(
+          input,
+          init ?? {},
+          PROVIDER_TIMEOUT_MS,
+          MAX_PROVIDER_RESPONSE_BYTES,
+        ),
+      },
     });
 
     const promptText = locale === 'ko' ? PROMPT_KO : PROMPT_EN;
@@ -123,6 +139,7 @@ export class RecommendationService {
       highlightsContext: highlightsContext || noneText,
       keywords: profile.interests.keywords.join(", ") || noneText,
     });
+    assertProviderInputSize(formattedPrompt);
 
     const response = await this.llm.invoke(formattedPrompt);
     return this.parseResponse(response.content as string);

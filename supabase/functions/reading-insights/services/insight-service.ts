@@ -3,6 +3,13 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ReadingPatterns, ReadingInsight } from "../types.ts";
 import { config } from "../config.ts";
+import {
+  ContractError,
+  assertProviderInputSize,
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 interface MemoryRecord {
   id: string;
@@ -37,7 +44,16 @@ export class InsightService {
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
       temperature: config.openai.temperature,
-      timeout: config.insights.timeoutSeconds * 1000,
+      timeout: PROVIDER_TIMEOUT_MS,
+      maxRetries: 0,
+      configuration: {
+        fetch: (input, init) => fetchProvider(
+          input,
+          init ?? {},
+          PROVIDER_TIMEOUT_MS,
+          MAX_PROVIDER_RESPONSE_BYTES,
+        ),
+      },
     });
 
     this.promptTemplate = PromptTemplate.fromTemplate(`
@@ -103,6 +119,7 @@ export class InsightService {
       yearOverYear: this.formatYearOverYear(patterns),
       memory: memory || "(이전 인사이트 없음)",
     });
+    assertProviderInputSize(formattedPrompt);
 
     let response;
     try {
@@ -138,7 +155,7 @@ export class InsightService {
       .single();
 
     if (error && error.code !== "PGRST116") {
-      throw new Error(`Rate limit check failed: ${error.message}`);
+      throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     }
 
     if (!data || !data.last_generated_at) {
@@ -154,12 +171,15 @@ export class InsightService {
   }
 
   private async getHoursUntilNextGeneration(userId: string): Promise<number> {
-    const { data } = await this.supabase
+    const { data, error } = await this.supabase
       .from("reading_insights_rate_limit")
       .select("last_generated_at")
       .eq("user_id", userId)
       .single();
 
+    if (error && error.code !== "PGRST116") {
+      throw new ContractError(503, "unavailable", "Reading insights are unavailable");
+    }
     if (!data || !data.last_generated_at) {
       return 0;
     }
@@ -186,7 +206,7 @@ export class InsightService {
       );
 
     if (error) {
-      throw new Error(`Rate limit update failed: ${error.message}`);
+      throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     }
   }
 
@@ -199,7 +219,7 @@ export class InsightService {
       .limit(config.insights.memoryLimit);
 
     if (error) {
-      throw new Error(`Memory load failed: ${error.message}`);
+      throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     }
 
     if (!data || data.length === 0) {
@@ -246,7 +266,7 @@ export class InsightService {
       });
 
     if (error) {
-      throw new Error(`Memory save failed: ${error.message}`);
+      throw new ContractError(503, "unavailable", "Reading insights are unavailable");
     }
   }
 
