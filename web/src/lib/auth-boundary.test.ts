@@ -42,6 +42,15 @@ describe("Supabase environment boundary", () => {
     });
   });
 
+  it("rejects non-loopback HTTP Supabase endpoints", () => {
+    expect(() =>
+      getSupabasePublicConfig({
+        NEXT_PUBLIC_SUPABASE_URL: "http://example.com",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "local-anon-key",
+      }),
+    ).toThrow(SupabaseConfigurationError);
+  });
+
   it("requires the service role key separately", () => {
     return import("./supabase-admin").then(({ getSupabaseAdminConfig }) => {
       expect(() =>

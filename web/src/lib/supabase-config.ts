@@ -43,6 +43,10 @@ function requiredEnvironmentValue(
   return value;
 }
 
+function isLoopbackHostname(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+}
+
 export function getSupabasePublicConfig(
   environment: SupabaseEnvironment = runtimeEnvironment(),
 ): SupabasePublicConfig {
@@ -51,7 +55,11 @@ export function getSupabasePublicConfig(
 
   try {
     const parsedUrl = new URL(url);
-    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+    if (
+      parsedUrl.hostname === "placeholder.supabase.co" ||
+      (parsedUrl.protocol === "http:" && !isLoopbackHostname(parsedUrl.hostname)) ||
+      (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")
+    ) {
       throw new SupabaseConfigurationError("NEXT_PUBLIC_SUPABASE_URL");
     }
   } catch (error) {
