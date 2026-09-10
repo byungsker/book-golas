@@ -30,7 +30,7 @@ async function getAuthContext(): Promise<AuthContext> {
     return {
       supabase,
       user: error ? null : user,
-      unavailable: false,
+      unavailable: Boolean(error),
     };
   } catch {
     return { supabase: null, user: null, unavailable: true };

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render",
     "test:consumer": "vitest run src/lib/consumer/types.test.ts",
+    "test:auth-boundary": "node scripts/test-auth-boundary.mjs",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",
     "test:blab-parity:negative": "node scripts/test-blab-parity.mjs --fixture missing-component",

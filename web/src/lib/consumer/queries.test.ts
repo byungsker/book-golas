@@ -60,4 +60,22 @@ describe("fetchOwnedBook malformed identifiers", () => {
       authenticated: false,
     });
   });
+
+  it("maps an auth provider failure to an unavailable session boundary", async () => {
+    const { supabase, from } = makeSupabase(null);
+    supabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: new Error("auth unavailable"),
+    });
+    vi.mocked(createServerSupabaseClient).mockResolvedValue(supabase as never);
+
+    await expect(
+      fetchOwnedBook("00000000-0000-4000-8000-000000002001"),
+    ).resolves.toEqual({
+      book: null,
+      code: "unavailable",
+      authenticated: false,
+    });
+    expect(from).not.toHaveBeenCalled();
+  });
 });
