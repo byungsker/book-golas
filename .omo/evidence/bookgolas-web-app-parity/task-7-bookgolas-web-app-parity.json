@@ -1,0 +1,69 @@
+{
+  "issue": 419,
+  "title": "Build the user-scoped Web data-access layer and consumer handlers",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-419-product-dal",
+  "revision_under_test": "a6300005e02c9aaab27439c726b0ee1a5263fb76",
+  "red": {
+    "command": "npx vitest run src/lib/product/dal.test.ts src/app/api/app/books/route.test.ts src/app/api/app/books/[bookId]/route.test.ts",
+    "exit_code": 1,
+    "observed": "Before the DAL and handlers existed, Vitest failed during collection with Cannot find module ./dal and Cannot find module ./route."
+  },
+  "green": {
+    "commands": [
+      "npm run test:product-dal",
+      "npm run test:product-dal -- --grep user-b-book",
+      "npm test",
+      "npm run lint",
+      "npm run typecheck",
+      "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=<redacted-local-test-value> SUPABASE_SERVICE_ROLE_KEY=<redacted-local-test-value> npm run build"
+    ],
+    "result": "PASS",
+    "details": [
+      "Product DAL runner: 4 files and 18 tests passed.",
+      "Cross-owner negative filter: the user-b-book test passed; 17 unrelated tests were skipped by the grep.",
+      "Full npm test: 15 Vitest files and 101 tests passed; parity matrix passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
+      "Lint and TypeScript typecheck passed.",
+      "Next production build passed and registered /api/app/books and /api/app/books/[bookId] as dynamic routes."
+    ]
+  },
+  "surface": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-7-http-surface.md",
+    "runtime": "Next production server on 127.0.0.1:3104 with an unreachable loopback Supabase endpoint",
+    "result": "PASS",
+    "scenarios": [
+      {
+        "request": "GET /api/app/books",
+        "observed": "503 with error.code=unavailable and no book data"
+      },
+      {
+        "request": "GET /api/app/books/not-a-book-id",
+        "observed": "404 with error.code=not_found before data access"
+      },
+      {
+        "request": "GET /api/app/books/30000000-0000-4000-8000-000000000003",
+        "observed": "503 with error.code=unavailable and no book data"
+      },
+      {
+        "request": "POST /api/app/books with user_id in the JSON body",
+        "observed": "400 with error.code=validation_error; the DAL was not invoked"
+      }
+    ]
+  },
+  "cleanup": {
+    "result": "PASS",
+    "details": [
+      "The debug journal, temporary server and local verification artifacts were removed or ignored; no debugger port remained.",
+      "The staged diff contained no unsafe casts, debug markers, wildcard book selects or consumer service-role imports.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not modified."
+    ]
+  },
+  "review": {
+    "initial_verdict": "REJECT",
+    "initial_blocker": "Nullable created_at and updated_at sort tails were omitted after non-null cursors.",
+    "fix_commit": "a6300005e02c9aaab27439c726b0ee1a5263fb76",
+    "recheck": "Pending fresh gate review."
+  }
+}
