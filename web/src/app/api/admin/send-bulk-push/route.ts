@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminSupabaseClient, getSupabaseAdminConfig } from "@/lib/supabase-admin";
 import { requireAdminUser } from "@/lib/supabase-server";
 
 export const maxDuration = 60;
@@ -9,22 +9,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  let supabaseAdmin;
+  let supabaseUrl: string;
+  let serviceRoleKey: string;
+  try {
+    supabaseAdmin = createAdminSupabaseClient();
+    ({ url: supabaseUrl, serviceRoleKey } = getSupabaseAdminConfig());
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
-
-  const supabaseAdmin = createClient(supabaseUrl.trim(), serviceRoleKey.trim(), {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
 
   const body = await request.json();
   const { title, body: pushBody } = body;
