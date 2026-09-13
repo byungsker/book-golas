@@ -60,6 +60,17 @@ describe("/api/app/books/[bookId]", () => {
     expect(updateBook).not.toHaveBeenCalled();
   });
 
+  it("returns not_found for a malformed route identifier before parsing the body", async () => {
+    const response = await PATCH(
+      request({ title: "Valid title" }),
+      { params: Promise.resolve({ bookId: "not-a-book-id" }) },
+    );
+
+    expect(response.status).toBe(404);
+    expect(updateBook).not.toHaveBeenCalled();
+    expect((await response.json()).error.code).toBe("not_found");
+  });
+
   it("maps an inaccessible book to not_found without exposing ownership", async () => {
     vi.mocked(getBook).mockResolvedValue({
       ok: false,

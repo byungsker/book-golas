@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { UpdateBookRequestSchema } from "@/lib/product/contracts";
+import { BookIdSchema, UpdateBookRequestSchema } from "@/lib/product/contracts";
 import { deleteBook, getBook, updateBook } from "@/lib/product/dal";
+import { notFoundError, validationError } from "@/lib/product/dal/errors";
 import { productErrorResponse } from "@/lib/product/dal/http";
-import { validationError } from "@/lib/product/dal/errors";
 
 type RouteContext = { params: Promise<{ bookId: string }> };
 
@@ -20,6 +20,10 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const { bookId } = await context.params;
+  if (!BookIdSchema.safeParse(bookId).success) {
+    return productErrorResponse(notFoundError());
+  }
+
   let body: unknown;
   try {
     body = await request.json();
