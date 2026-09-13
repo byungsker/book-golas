@@ -10,6 +10,8 @@ export const ImageIdSchema = z.string().uuid().brand<"ImageId">();
 export const RecordIdSchema = z.string().uuid().brand<"RecordId">();
 export const RequestIdSchema = z.string().uuid().brand<"RequestId">();
 export const IsoDateSchema = z.string().datetime({ offset: true });
+export type UserId = z.infer<typeof UserIdSchema>;
+export type BookId = z.infer<typeof BookIdSchema>;
 
 export const PaginationSchema = z
   .object({

@@ -11,6 +11,7 @@
     "test:consumer": "vitest run src/lib/consumer/types.test.ts",
     "test:auth-boundary": "node scripts/test-auth-boundary.mjs",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
+    "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",
     "test:blab-parity:negative": "node scripts/test-blab-parity.mjs --fixture missing-component",
     "test:blab-render": "node scripts/test-blab-render.mjs",
