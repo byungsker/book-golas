@@ -5,7 +5,7 @@
   "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
   "base_branch": "version/web/1.1.0",
   "implementation_branch": "codex/feature/web/1.1.0/BOK-419-product-dal",
-  "revision_under_test": "a6300005e02c9aaab27439c726b0ee1a5263fb76",
+  "revision_under_test": "452aa248866ec67bb6c687105883806a00ddd683",
   "red": {
     "command": "npx vitest run src/lib/product/dal.test.ts src/app/api/app/books/route.test.ts src/app/api/app/books/[bookId]/route.test.ts",
     "exit_code": 1,
@@ -22,9 +22,9 @@
     ],
     "result": "PASS",
     "details": [
-      "Product DAL runner: 4 files and 18 tests passed.",
-      "Cross-owner negative filter: the user-b-book test passed; 17 unrelated tests were skipped by the grep.",
-      "Full npm test: 15 Vitest files and 101 tests passed; parity matrix passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
+      "Product DAL runner: 4 files and 19 tests passed.",
+      "Cross-owner negative filter: the user-b-book test passed; 18 unrelated tests were skipped by the grep.",
+      "Full npm test: 15 Vitest files and 102 tests passed; parity matrix passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
       "Lint and TypeScript typecheck passed.",
       "Next production build passed and registered /api/app/books and /api/app/books/[bookId] as dynamic routes."
     ]
@@ -41,6 +41,10 @@
       {
         "request": "GET /api/app/books/not-a-book-id",
         "observed": "404 with error.code=not_found before data access"
+      },
+      {
+        "request": "PATCH /api/app/books/not-a-book-id with a valid title body",
+        "observed": "404 with error.code=not_found before body/DAL processing"
       },
       {
         "request": "GET /api/app/books/30000000-0000-4000-8000-000000000003",
@@ -63,7 +67,7 @@
   "review": {
     "initial_verdict": "REJECT",
     "initial_blocker": "Nullable created_at and updated_at sort tails were omitted after non-null cursors.",
-    "fix_commit": "a6300005e02c9aaab27439c726b0ee1a5263fb76",
+    "fix_commit": "452aa248866ec67bb6c687105883806a00ddd683",
     "recheck": "Pending fresh gate review."
   }
 }
