@@ -68,6 +68,9 @@
     "initial_verdict": "REJECT",
     "initial_blocker": "Nullable created_at and updated_at sort tails were omitted after non-null cursors.",
     "fix_commit": "452aa248866ec67bb6c687105883806a00ddd683",
-    "recheck": "Pending fresh gate review."
+    "recheck": "APPROVE",
+    "confidence": "HIGH",
+    "reviewed_commit": "c370e3b0f3500927599f167fcc4d102daef0de9c",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-7-gate-review.md"
   }
 }
