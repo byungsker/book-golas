@@ -140,8 +140,31 @@ describe("user-scoped product DAL", () => {
 
     expect(result).toMatchObject({ ok: true });
     expect(query.or).toHaveBeenCalledWith(
-      'updated_at.lt."2026-08-02T00:00:00.000Z",and(updated_at.eq."2026-08-02T00:00:00.000Z",id.lt.30000000-0000-4000-8000-000000000003)',
+      'updated_at.lt."2026-08-02T00:00:00.000Z",and(updated_at.eq."2026-08-02T00:00:00.000Z",id.lt.30000000-0000-4000-8000-000000000003),updated_at.is.null',
     );
+  });
+
+  it("keeps null sort values in the tail after a non-null cursor", async () => {
+    const cursor = encodeBookCursor({
+      version: 1,
+      field: "created_at",
+      direction: "asc",
+      value: "2026-08-02T00:00:00.000Z",
+      id: cursorBookId,
+    });
+    const query = makeQuery({ data: [], error: null });
+    const supabase = makeSupabase(query);
+
+    const result = await listBooks(
+      {
+        pagination: { cursor, limit: 25 },
+        sort: { field: "created_at", direction: "asc" },
+      },
+      () => Promise.resolve(supabase as never),
+    );
+
+    expect(result).toMatchObject({ ok: true });
+    expect(query.or).toHaveBeenCalledWith(expect.stringContaining("created_at.is.null"));
   });
 
   it("rejects a cursor that belongs to a different sort contract", async () => {

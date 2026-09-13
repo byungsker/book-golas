@@ -92,7 +92,9 @@ export async function listBooks(
           comparison +
           "." +
           cursor.id +
-          ")";
+          ")," +
+          requestData.sort.field +
+          ".is.null";
     query = query.or(cursorFilter);
   }
 
