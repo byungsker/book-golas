@@ -231,6 +231,7 @@ export const ConsumerRequestSchemas = {
 } as const;
 
 export type BookListRequest = z.infer<typeof BookListRequestSchema>;
+export type BookSearchRequest = z.infer<typeof BookSearchRequestSchema>;
 export type CreateBookRequest = z.infer<typeof CreateBookRequestSchema>;
 export type UpdateBookRequest = z.infer<typeof UpdateBookRequestSchema>;
 export type ProgressUpdateRequest = z.infer<typeof ProgressUpdateRequestSchema>;

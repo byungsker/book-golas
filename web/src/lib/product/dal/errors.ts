@@ -23,12 +23,84 @@ export function validationError(message = "Invalid request."): ProductError {
   };
 }
 
+export function payloadTooLargeError(message = "The request payload is too large."): ProductError {
+  return {
+    code: "payload_too_large",
+    status: 413,
+    message,
+    retryable: false,
+  };
+}
+
 export function unauthorizedError(): ProductError {
   return {
     code: "unauthorized",
     status: 401,
     message: "Sign-in required.",
     retryable: false,
+  };
+}
+
+export function forbiddenError(message = "You do not have access to this resource."): ProductError {
+  return {
+    code: "forbidden",
+    status: 403,
+    message,
+    retryable: false,
+  };
+}
+
+export function consentRequiredError(message = "Consent is required for this action."): ProductError {
+  return {
+    code: "consent_required",
+    status: 403,
+    message,
+    retryable: false,
+  };
+}
+
+export function quotaExceededError(message = "Usage quota exceeded."): ProductError {
+  return {
+    code: "quota_exceeded",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function rateLimitedError(message = "Too many requests."): ProductError {
+  return {
+    code: "rate_limited",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function providerError(message = "The provider is unavailable."): ProductError {
+  return {
+    code: "provider_error",
+    status: 502,
+    message,
+    retryable: true,
+  };
+}
+
+export function configurationError(message = "Service configuration is unavailable."): ProductError {
+  return {
+    code: "configuration_error",
+    status: 503,
+    message,
+    retryable: false,
+  };
+}
+
+export function timeoutError(message = "The provider request timed out."): ProductError {
+  return {
+    code: "timeout",
+    status: 504,
+    message,
+    retryable: true,
   };
 }
 
@@ -50,11 +122,11 @@ export function conflictError(): ProductError {
   };
 }
 
-export function offlineError(): ProductError {
+export function offlineError(message = "The network is unavailable."): ProductError {
   return {
     code: "offline",
     status: 503,
-    message: "The network is unavailable.",
+    message,
     retryable: true,
   };
 }

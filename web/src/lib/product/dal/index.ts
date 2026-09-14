@@ -7,11 +7,18 @@ export {
 export { decodeBookCursor, encodeBookCursor, type BookCursor } from "./cursor";
 export {
   conflictError,
+  configurationError,
   failure,
+  forbiddenError,
   mapDatabaseError,
   notFoundError,
   offlineError,
+  payloadTooLargeError,
+  providerError,
+  quotaExceededError,
+  rateLimitedError,
   success,
+  timeoutError,
   unauthorizedError,
   unavailableError,
   validationError,

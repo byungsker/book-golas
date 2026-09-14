@@ -211,7 +211,7 @@ export function createServiceClient(): SupabaseClient {
 export function requireProviderSecret(name: string): string {
   const value = Deno.env.get(name);
   if (!value) {
-    throw new ContractError(503, "provider_error", "Provider is unavailable");
+    throw new ContractError(503, "configuration_error", "Provider configuration is unavailable");
   }
   return value;
 }
@@ -231,7 +231,7 @@ export function providerFailure(error: unknown): ContractError {
     return new ContractError(429, "rate_limited", "Provider rate limit exceeded");
   }
   if (/provider_timeout|timed?\s*out|timeout/i.test(message)) {
-    return new ContractError(504, "provider_error", "Provider request timed out");
+    return new ContractError(504, "timeout", "Provider request timed out");
   }
   return new ContractError(502, "provider_error", "Provider request failed");
 }
