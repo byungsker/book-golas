@@ -230,6 +230,12 @@ export const ConsumerRequestSchemas = {
   deleteAccount: DeleteAccountRequestSchema,
 } as const;
 
+export type BookListRequest = z.infer<typeof BookListRequestSchema>;
+export type CreateBookRequest = z.infer<typeof CreateBookRequestSchema>;
+export type UpdateBookRequest = z.infer<typeof UpdateBookRequestSchema>;
+export type ProgressUpdateRequest = z.infer<typeof ProgressUpdateRequestSchema>;
+export type ReadingSessionCommand = z.infer<typeof ReadingSessionCommandSchema>;
+export type GoalUpsertRequest = z.infer<typeof GoalUpsertRequestSchema>;
 export type ConsumerRequest = {
   [Key in keyof typeof ConsumerRequestSchemas]: z.infer<(typeof ConsumerRequestSchemas)[Key]>;
 }[keyof typeof ConsumerRequestSchemas];

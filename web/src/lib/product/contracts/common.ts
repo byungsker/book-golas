@@ -10,17 +10,20 @@ export const ImageIdSchema = z.string().uuid().brand<"ImageId">();
 export const RecordIdSchema = z.string().uuid().brand<"RecordId">();
 export const RequestIdSchema = z.string().uuid().brand<"RequestId">();
 export const IsoDateSchema = z.string().datetime({ offset: true });
+export type UserId = z.infer<typeof UserIdSchema>;
+export type BookId = z.infer<typeof BookIdSchema>;
+export const paginationCursorMaxLength = 4096;
 
 export const PaginationSchema = z
   .object({
-    cursor: z.string().trim().min(1).max(256).optional(),
+    cursor: z.string().trim().min(1).max(paginationCursorMaxLength).optional(),
     limit: z.number().int().min(1).max(100).default(25),
   })
   .strict();
 
 export const PageInfoSchema = z
   .object({
-    nextCursor: z.string().trim().min(1).max(256).nullable(),
+    nextCursor: z.string().trim().min(1).max(paginationCursorMaxLength).nullable(),
     hasMore: z.boolean(),
   })
   .strict();
