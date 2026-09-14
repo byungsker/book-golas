@@ -5,7 +5,7 @@
   "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
   "base_branch": "version/web/1.1.0",
   "implementation_branch": "codex/feature/web/1.1.0/BOK-419-product-dal",
-  "revision_under_test": "452aa248866ec67bb6c687105883806a00ddd683",
+  "revision_under_test": "3490a06a77b0cbce7f7fe76673210d7c229be6d9",
   "red": {
     "command": "npx vitest run src/lib/product/dal.test.ts src/app/api/app/books/route.test.ts src/app/api/app/books/[bookId]/route.test.ts",
     "exit_code": 1,
@@ -22,9 +22,9 @@
     ],
     "result": "PASS",
     "details": [
-      "Product DAL runner: 4 files and 19 tests passed.",
-      "Cross-owner negative filter: the user-b-book test passed; 18 unrelated tests were skipped by the grep.",
-      "Full npm test: 15 Vitest files and 102 tests passed; parity matrix passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
+      "Product DAL runner: 4 files and 20 tests passed, including the maximum-length title cursor boundary.",
+      "Cross-owner negative filter: the user-b-book test passed; 19 unrelated tests were skipped by the grep.",
+      "Full npm test: 15 Vitest files and 103 tests passed; parity matrix passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
       "Lint and TypeScript typecheck passed.",
       "Next production build passed and registered /api/app/books and /api/app/books/[bookId] as dynamic routes."
     ]
@@ -71,6 +71,13 @@
     "recheck": "APPROVE",
     "confidence": "HIGH",
     "reviewed_commit": "c370e3b0f3500927599f167fcc4d102daef0de9c",
-    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-7-gate-review.md"
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-7-gate-review.md",
+    "follow_up": {
+      "reviewer": "CodeRabbit",
+      "finding": "A maximum-length title could produce an encoded cursor longer than the shared 256-character limit.",
+      "fix_commit": "3490a06a77b0cbce7f7fe76673210d7c229be6d9",
+      "local_verification": "20 product DAL tests passed, including the maximum-length Korean-title cursor boundary.",
+      "remote_recheck": "PENDING"
+    }
   }
 }

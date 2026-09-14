@@ -19,3 +19,7 @@ Reproduced checks:
 Blocking issues: none.
 
 The review worktree was removed after the terminal verdict. No protected worktree was modified.
+
+## Follow-up review
+
+CodeRabbit identified that the encoded cursor length could exceed the shared 256-character request and response limit for a maximum-length title. Commit `3490a06` aligns the request, decoder, encoder and response limits at 4096 characters and adds a 500-character Korean-title regression test. The follow-up is locally verified; the remote CodeRabbit recheck remains pending.
