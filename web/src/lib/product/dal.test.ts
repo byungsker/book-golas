@@ -167,6 +167,33 @@ describe("user-scoped product DAL", () => {
     expect(query.or).toHaveBeenCalledWith(expect.stringContaining("created_at.is.null"));
   });
 
+  it("keeps a maximum-length title cursor in the page response", async () => {
+    const maximumLengthTitle = "가".repeat(500);
+    const query = makeQuery({
+      data: [makeBookRow({ title: maximumLengthTitle }), makeBookRow({ title: "Another book" })],
+      error: null,
+    });
+    const supabase = makeSupabase(query);
+
+    const result = await listBooks(
+      {
+        pagination: { limit: 1 },
+        sort: { field: "title", direction: "asc" },
+      },
+      () => Promise.resolve(supabase as never),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.pageInfo.hasMore).toBe(true);
+    expect(result.value.pageInfo.nextCursor).toBeTruthy();
+    expect(result.value.pageInfo.nextCursor?.length).toBeGreaterThan(256);
+    expect(decodeBookCursor(result.value.pageInfo.nextCursor ?? "")).toMatchObject({
+      ok: true,
+      value: { field: "title", value: maximumLengthTitle },
+    });
+  });
+
   it("rejects a cursor that belongs to a different sort contract", async () => {
     const cursor = encodeBookCursor({
       version: 1,

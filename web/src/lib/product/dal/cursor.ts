@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { BookIdSchema, sortFieldValues, sortDirectionValues } from "@/lib/product/contracts";
+import {
+  BookIdSchema,
+  paginationCursorMaxLength,
+  sortFieldValues,
+  sortDirectionValues,
+} from "@/lib/product/contracts";
 import { failure, success, validationError, type ProductResult } from "./errors";
 
 const BookCursorSchema = z
@@ -16,11 +21,15 @@ export type BookCursor = z.infer<typeof BookCursorSchema>;
 
 export function encodeBookCursor(cursor: BookCursor): string {
   const parsed = BookCursorSchema.parse(cursor);
-  return Buffer.from(JSON.stringify(parsed), "utf8").toString("base64url");
+  const encoded = Buffer.from(JSON.stringify(parsed), "utf8").toString("base64url");
+  if (encoded.length > paginationCursorMaxLength) {
+    throw new Error("The pagination cursor exceeds the maximum length.");
+  }
+  return encoded;
 }
 
 export function decodeBookCursor(value: string): ProductResult<BookCursor> {
-  if (value.length === 0 || value.length > 256) {
+  if (value.length === 0 || value.length > paginationCursorMaxLength) {
     return failure(validationError("The pagination cursor is invalid."));
   }
 
