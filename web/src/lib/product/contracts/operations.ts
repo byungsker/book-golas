@@ -8,6 +8,7 @@ import {
   SortSchema,
 } from "./common";
 import { BookPrioritySchema, BookStatusSchema } from "./books";
+import { LongReviewTextSchema, ReviewLinkSchema, ReviewTextSchema } from "./review-share";
 
 export const exportFormatValues = ["json", "csv"] as const;
 export const exportStatusValues = ["queued", "ready", "failed"] as const;
@@ -140,7 +141,10 @@ export const UpdateBookRequestSchema = z
     pausedAt: IsoDateSchema.nullable().optional(),
     dailyTargetPages: z.number().int().min(1).nullable().optional(),
     priority: BookPrioritySchema.nullable().optional(),
-    review: z.string().nullable().optional(),
+    rating: z.number().int().min(0).max(5).nullable().optional(),
+    review: ReviewTextSchema.nullable().optional(),
+    reviewLink: ReviewLinkSchema.nullable().optional(),
+    longReview: LongReviewTextSchema.nullable().optional(),
   })
   .strict()
   .refine((request) => Object.keys(request).length > 1, "at least one book field is required")

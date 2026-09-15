@@ -642,7 +642,8 @@
       },
       "review": {
         "title": "리뷰",
-        "open": "리뷰 열기"
+        "open": "참고 리뷰 열기",
+        "edit": "리뷰 편집"
       },
       "links": {
         "store": "서점 열기"
@@ -663,6 +664,62 @@
         "offline": "오프라인 상태입니다. 이 작업을 저장하기 전에 다시 연결하세요.",
         "conflict": "다른 곳에서 책이 변경되었어요. 새로고침 후 다시 시도하세요.",
         "generic": "이 작업을 저장하지 못했어요. 다시 시도하세요."
+      }
+    },
+    "reviewEditor": {
+      "eyebrow": "독서 리뷰",
+      "title": "리뷰 작성",
+      "description": "짧은 리뷰와 긴 독후감, 참고 링크를 이 책과 함께 저장하세요.",
+      "bookLabel": "리뷰 작성 중",
+      "rating": "별점",
+      "noRating": "별점 없음",
+      "review": "한줄평",
+      "reviewPlaceholder": "읽고 나서 무엇이 남았나요?",
+      "longReview": "긴 독후감",
+      "longReviewPlaceholder": "기억하고 싶은 생각과 장면, 질문을 적어보세요.",
+      "reviewLink": "참고 링크 (선택)",
+      "reviewLinkPlaceholder": "https://example.com/review",
+      "save": "리뷰 저장",
+      "saving": "리뷰 저장 중...",
+      "saved": "리뷰를 저장했어요.",
+      "draftSaved": "작성 중인 리뷰를 이 기기에 저장하고 있어요.",
+      "draftRestored": "이 기기에 남아 있던 작성 중인 리뷰를 복원했어요.",
+      "clearDraft": "기기 내 임시 내용 지우기",
+      "aiTitle": "AI 초안",
+      "aiDescription": "저장한 독서 기록으로 시작 문장을 만들어요. 저장하기 전에 내용을 확인하세요.",
+      "aiConsent": "저장한 독서 기록을 AI 리뷰 초안에 사용하도록 허용합니다.",
+      "generate": "초안 만들기",
+      "generating": "초안 만드는 중...",
+      "draftLabel": "생성된 초안",
+      "draftEmptyTitle": "초안이 돌아오지 않았어요",
+      "draftEmptyDescription": "먼저 메모나 하이라이트를 저장한 뒤 다시 시도해보세요.",
+      "useDraft": "이 초안 사용",
+      "draftUsed": "초안을 긴 독후감 입력란에 넣었어요.",
+      "shareTitle": "리뷰 공유",
+      "shareDescription": "Web Share, 클립보드 또는 다운로드 카드로 표준 리뷰 링크를 공유하세요.",
+      "share": "공유",
+      "copy": "링크 복사",
+      "download": "공유 카드 다운로드",
+      "shareNative": "브라우저 공유 창으로 공유했어요.",
+      "shareCopied": "리뷰 링크를 복사했어요.",
+      "shareDownloaded": "공유 카드를 다운로드했어요.",
+      "shareCancelled": "공유를 취소했어요.",
+      "states": {
+        "loading": "리뷰 편집기를 불러오는 중이에요...",
+        "empty": "아직 저장한 리뷰가 없는 책이에요.",
+        "error": "리뷰 편집기를 불러오지 못했어요. 다시 시도해보세요.",
+        "unauthorized": "비공개 리뷰를 편집하려면 로그인하세요."
+      },
+      "errors": {
+        "validation": "리뷰 입력값을 확인한 뒤 다시 시도하세요.",
+        "unauthorized": "리뷰를 저장하려면 로그인하세요.",
+        "notFound": "이 책은 더 이상 내 서재에 없어요.",
+        "consent": "AI 초안을 만들려면 AI 사용 동의가 필요해요.",
+        "quota": "AI 리뷰 사용량을 모두 사용했어요.",
+        "timeout": "AI 초안 생성 시간이 초과됐어요. 작성한 내용은 그대로 있어요.",
+        "provider": "AI 서비스를 사용할 수 없어요. 작성한 내용은 그대로 있어요.",
+        "offline": "오프라인 상태예요. 작성한 리뷰는 이 기기에 남아 있어요.",
+        "generic": "리뷰를 저장하지 못했어요. 작성한 내용은 그대로 있어요."
       }
     },
     "timer": {

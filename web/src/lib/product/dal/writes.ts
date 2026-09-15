@@ -61,6 +61,9 @@ type BookUpdateRow = {
   daily_target_pages?: number | null;
   priority?: number | null;
   review?: string | null;
+  rating?: number | null;
+  review_link?: string | null;
+  long_review?: string | null;
 };
 
 const CurrentBookStateSchema = z
@@ -196,7 +199,10 @@ export async function updateBook(
     updates.paused_at = null;
   }
   if (input.priority !== undefined) updates.priority = input.priority;
+  if (input.rating !== undefined) updates.rating = input.rating;
   if (input.review !== undefined) updates.review = input.review;
+  if (input.reviewLink !== undefined) updates.review_link = input.reviewLink;
+  if (input.longReview !== undefined) updates.long_review = input.longReview;
   if (Object.keys(updates).length === 0) return failure(validationError());
 
   const { data, error } = await session.value.supabase

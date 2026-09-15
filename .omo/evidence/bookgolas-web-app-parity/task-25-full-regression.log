@@ -1,0 +1,11 @@
+Full regression — 2026-09-16
+
+Command:
+npm test
+
+Observed result:
+PASS
+- 50 Vitest files / 300 tests
+- parity matrix and 59 negative fixtures
+- BLDS React/SSR and UI primitive contracts
+- progress, timer and notes-highlights contracts plus negative fixtures

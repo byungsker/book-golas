@@ -642,7 +642,8 @@
       },
       "review": {
         "title": "Review",
-        "open": "Open review"
+        "open": "Open reference review",
+        "edit": "Edit review"
       },
       "links": {
         "store": "Open book store"
@@ -663,6 +664,62 @@
         "offline": "You are offline. Reconnect before saving this action.",
         "conflict": "This book changed elsewhere. Refresh and try again.",
         "generic": "We could not save this action. Try again."
+      }
+    },
+    "reviewEditor": {
+      "eyebrow": "Reading review",
+      "title": "Write your review",
+      "description": "Keep a short review, a longer reflection and an optional reference link with this book.",
+      "bookLabel": "Reviewing",
+      "rating": "Rating",
+      "noRating": "No rating",
+      "review": "Short review",
+      "reviewPlaceholder": "What stayed with you?",
+      "longReview": "Long review",
+      "longReviewPlaceholder": "Write the ideas, moments and questions you want to remember.",
+      "reviewLink": "Reference link (optional)",
+      "reviewLinkPlaceholder": "https://example.com/review",
+      "save": "Save review",
+      "saving": "Saving review...",
+      "saved": "Review saved.",
+      "draftSaved": "Your unfinished review is saved on this device.",
+      "draftRestored": "An unfinished review was restored from this device.",
+      "clearDraft": "Clear local draft",
+      "aiTitle": "AI draft",
+      "aiDescription": "Generate a starting point from your saved reading records. Review it before saving.",
+      "aiConsent": "Allow saved reading records to be used for an AI review draft.",
+      "generate": "Generate draft",
+      "generating": "Generating draft...",
+      "draftLabel": "Generated draft",
+      "draftEmptyTitle": "No draft was returned",
+      "draftEmptyDescription": "Add a note or highlight first, then try generating again.",
+      "useDraft": "Use this draft",
+      "draftUsed": "The draft was placed in the long review field.",
+      "shareTitle": "Share this review",
+      "shareDescription": "Share the canonical review link with Web Share, the clipboard or a downloaded card.",
+      "share": "Share",
+      "copy": "Copy link",
+      "download": "Download share card",
+      "shareNative": "Shared using the browser share dialog.",
+      "shareCopied": "Review link copied.",
+      "shareDownloaded": "Share card downloaded.",
+      "shareCancelled": "Sharing was cancelled.",
+      "states": {
+        "loading": "Loading the review editor...",
+        "empty": "This book does not have a saved review yet.",
+        "error": "We could not load the review editor. Try again.",
+        "unauthorized": "Sign in to edit this private review."
+      },
+      "errors": {
+        "validation": "Check the review fields and try again.",
+        "unauthorized": "Sign in before saving a review.",
+        "notFound": "This book is no longer available in your library.",
+        "consent": "AI consent is required before generating a draft.",
+        "quota": "Your AI review quota has been reached.",
+        "timeout": "The AI draft took too long. Your review is still here.",
+        "provider": "The AI provider is unavailable. Your review is still here.",
+        "offline": "You are offline. Your review is still saved locally.",
+        "generic": "We could not save the review. Your unfinished text is still here."
       }
     },
     "timer": {

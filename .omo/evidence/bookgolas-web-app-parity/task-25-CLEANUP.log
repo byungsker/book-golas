@@ -1,0 +1,24 @@
+CLEANUP — 2026-09-16
+
+Branch:
+codex/feature/web/1.1.0/BOK-437-review-share
+
+Base:
+c4094ebd3536e91b58bc50dd19bc3b448c4e6195 (version/web/1.1.0 after PR #481)
+
+Checks:
+- git diff --check: PASS
+- npm run typecheck: PASS
+- npm run lint -- --no-cache: PASS, 0 errors and 2 existing/new no-img-element warnings in the prior images/OCR surface
+- npm run build: PASS
+- npm test: PASS
+- npm run test:fixtures: PASS
+
+Scope/security review:
+- Review mutations validate strict typed input and reject caller ownership fields.
+- Reads and writes use the authenticated owner-scoped product DAL.
+- AI generation is consent-gated and uses generateBookReview; provider/timeout/quota outcomes remain typed.
+- Failed generation leaves the local unsaved review intact.
+- Share output uses a localized canonical URL and Web Share → clipboard → download fallback.
+- Native share sheet and billing affordances remain documented boundaries.
+- No unrelated dirty worktree or protected #453 worktree was touched.

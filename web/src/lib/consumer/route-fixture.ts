@@ -86,6 +86,18 @@ export type ConsumerRouteFixture =
   | "images-ocr-unauthorized"
   | "images-ocr-unsupported"
   | "images-ocr-wrong-mime"
+  | "review-share-consent"
+  | "review-share-deleted"
+  | "review-share-empty"
+  | "review-share-error"
+  | "review-share-foreign"
+  | "review-share-happy"
+  | "review-share-no-memos"
+  | "review-share-offline"
+  | "review-share-provider"
+  | "review-share-quota"
+  | "review-share-timeout"
+  | "review-share-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -216,6 +228,18 @@ export function getConsumerRouteFixture(
     "images-ocr-unauthorized",
     "images-ocr-unsupported",
     "images-ocr-wrong-mime",
+    "review-share-consent",
+    "review-share-deleted",
+    "review-share-empty",
+    "review-share-error",
+    "review-share-foreign",
+    "review-share-happy",
+    "review-share-no-memos",
+    "review-share-offline",
+    "review-share-provider",
+    "review-share-quota",
+    "review-share-timeout",
+    "review-share-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

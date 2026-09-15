@@ -11,6 +11,7 @@ import {
 import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
 import { getBookDetailFixture, getBookDetailFixtureConsumerBook } from "@/lib/consumer/book-detail-fixtures";
+import { getReviewShareFixtureBook } from "@/lib/consumer/review-share-fixtures";
 import { getProgressFixtureSnapshot } from "@/lib/consumer/progress-fixtures";
 import { getTimerFixtureBook } from "@/lib/consumer/timer-fixtures";
 import {
@@ -132,6 +133,14 @@ async function getAuthContext(): Promise<AuthContext> {
   }
 
   if (routeFixture?.startsWith("images-ocr-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
+  if (routeFixture?.startsWith("review-share-")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,
@@ -330,6 +339,16 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       ? { book: detail.value, code: "ok", authenticated: true }
       : { book: null, code: "not_found", authenticated: true };
   }
+  if (routeFixture?.startsWith("review-share-")) {
+    const detail = getReviewShareFixtureBook(routeFixture, bookId);
+    return detail.ok
+      ? { book: detail.value, code: "ok", authenticated: true }
+      : {
+          book: null,
+          code: detail.error.code === "not_found" ? "not_found" : detail.error.code === "unauthorized" ? "unauthenticated" : "unavailable",
+          authenticated: true,
+        };
+  }
 
   if (context.unavailable || !context.supabase) {
     if (context.user) return { book: null, code: "not_found", authenticated: true };
@@ -398,6 +417,12 @@ export async function fetchOwnedProgressHistory(bookId: string): Promise<{
   }
   if (routeFixture?.startsWith("images-ocr-")) {
     const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
+      ? { history: [], code: "ok", authenticated: true }
+      : { history: [], code: "not_found", authenticated: true };
+  }
+  if (routeFixture?.startsWith("review-share-")) {
+    const detail = getReviewShareFixtureBook(routeFixture, bookId);
     return detail.ok
       ? { history: [], code: "ok", authenticated: true }
       : { history: [], code: "not_found", authenticated: true };
