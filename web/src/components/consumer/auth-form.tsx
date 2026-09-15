@@ -6,10 +6,16 @@ import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import { ConsumerButton, ConsumerTextField } from "@/components/consumer/blab-primitives";
 import {
+  getEmailValidationError,
+  getNicknameValidationError,
   getPasswordValidationError,
+  getSignInErrorKey,
+  isAccountExistenceError,
+  readSavedEmail,
   signInWithPassword,
   signOutUser,
   type AuthMode,
+  writeSavedEmail,
 } from "@/lib/consumer/auth";
 import { getConsumerPath } from "@/lib/consumer/paths";
 
@@ -24,13 +30,31 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [saveEmail, setSaveEmail] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [successKey, setSuccessKey] = useState<string | null>(null);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (mode !== "sign-in") return;
+    const savedEmail = readSavedEmail(window.localStorage);
+    if (!savedEmail) return;
+    setEmail(savedEmail);
+    setSaveEmail(true);
+  }, [mode]);
 
   useEffect(() => {
     if (mode !== "reset-password") return;
+
+    if (new URLSearchParams(window.location.search).get("recovery") === "1") {
+      void supabase.auth.getSession().then(({ data }) => {
+        if (data.session) setIsRecovery(true);
+      });
+    }
 
     const {
       data: { subscription },
@@ -41,20 +65,33 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
     return () => subscription.unsubscribe();
   }, [mode]);
 
-  function getAuthErrorKey(message: string): string {
-    const normalized = message.toLowerCase();
-    if (normalized.includes("invalid login credentials")) {
-      return "errors.invalidCredentials";
-    }
-    if (normalized.includes("already registered")) return "errors.emailInUse";
-    if (normalized.includes("password")) return "errors.passwordRejected";
-    return "errors.generic";
-  }
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setTimeout(() => setResendCooldown((seconds) => seconds - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCooldown]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorKey(null);
     setSuccessKey(null);
+    setUnconfirmedEmail(null);
+
+    const emailValidationError = getEmailValidationError(email);
+    if ((mode !== "reset-password" || !isRecovery) && emailValidationError) {
+      setErrorKey(emailValidationError === "required" ? "errors.emailRequired" : "errors.emailInvalid");
+      return;
+    }
+
+    if (mode === "sign-up" && getNicknameValidationError(nickname)) {
+      setErrorKey("errors.nicknameRequired");
+      return;
+    }
+
+    if ((mode !== "reset-password" || isRecovery) && !password) {
+      setErrorKey("errors.passwordRequired");
+      return;
+    }
 
     const passwordValidationError = getPasswordValidationError(mode, isRecovery, password, confirmation);
     if (passwordValidationError) {
@@ -63,28 +100,39 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
     }
 
     setIsPending(true);
+    const normalizedEmail = email.trim();
 
     try {
       if (mode === "sign-in") {
-        const { error } = await signInWithPassword(supabase.auth, email, password);
+        const { error } = await signInWithPassword(supabase.auth, normalizedEmail, password);
         if (error) {
-          setErrorKey(getAuthErrorKey(error.message));
+          const nextErrorKey = getSignInErrorKey(error.message);
+          setErrorKey(nextErrorKey);
+          if (nextErrorKey === "errors.emailUnconfirmed") {
+            setUnconfirmedEmail(normalizedEmail);
+          }
           return;
         }
+        writeSavedEmail(window.localStorage, normalizedEmail, saveEmail);
         window.location.assign(nextPath);
         return;
       }
 
       if (mode === "sign-up") {
         const { data, error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}${getConsumerPath(locale, "/auth/sign-in")}`,
+            data: { name: nickname.trim() },
           },
         });
         if (error) {
-          setErrorKey(getAuthErrorKey(error.message));
+          if (isAccountExistenceError(error.message)) {
+            setSuccessKey("confirmationSent");
+            return;
+          }
+          setErrorKey("errors.generic");
           return;
         }
         if (data.session) {
@@ -98,7 +146,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
       if (isRecovery) {
         const { error } = await supabase.auth.updateUser({ password });
         if (error) {
-          setErrorKey(getAuthErrorKey(error.message));
+          setErrorKey(error.message.toLowerCase().includes("password") ? "errors.passwordRejected" : "errors.generic");
           return;
         }
         const signedOut = await signOutUser(supabase.auth);
@@ -110,14 +158,42 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
         return;
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}${getConsumerPath(locale, "/auth/reset-password")}`,
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: `${window.location.origin}${getConsumerPath(locale, "/auth/reset-password")}?recovery=1`,
       });
       if (error) {
-        setErrorKey(getAuthErrorKey(error.message));
+        if (isAccountExistenceError(error.message)) {
+          setSuccessKey("resetSent");
+          return;
+        }
+        setErrorKey("errors.generic");
         return;
       }
       setSuccessKey("resetSent");
+    } catch {
+      setErrorKey("errors.generic");
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  async function resendVerification() {
+    if (!unconfirmedEmail || resendCooldown > 0 || isPending) return;
+    setErrorKey(null);
+    setSuccessKey(null);
+    setIsPending(true);
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: unconfirmedEmail,
+      });
+      if (error && !isAccountExistenceError(error.message)) {
+        setErrorKey("errors.generic");
+        return;
+      }
+      setSuccessKey("verificationSent");
+      setResendCooldown(60);
     } catch {
       setErrorKey("errors.generic");
     } finally {
@@ -147,17 +223,18 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
       <div className="mb-8 text-center">
         <Link
           href={getConsumerPath(locale, "")}
-          className="text-sm text-white/55 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+          className="text-sm text-[var(--blab-text-tertiary)] transition hover:text-[var(--blab-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
         >
           {t("backToSite")}
         </Link>
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">{title}</h1>
-        <p className="mt-3 text-sm leading-6 text-white/60">{description}</p>
+        <h1 className="mt-6 text-3xl font-semibold tracking-tight text-[var(--blab-text-primary)]">{title}</h1>
+        <p className="mt-3 text-sm leading-6 text-[var(--blab-text-tertiary)]">{description}</p>
       </div>
 
       <form
         onSubmit={submit}
-        className="rounded-3xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/20 sm:p-8"
+        noValidate
+        className="rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-[var(--blab-space-xxl)] shadow-[var(--blab-elevation-surface)] sm:p-8"
         aria-busy={isPending}
       >
         {isEmailForm ? (
@@ -188,6 +265,19 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           </div>
         ) : null}
 
+        {mode === "sign-up" ? (
+          <div className="mt-5 space-y-2">
+            <ConsumerTextField
+              id="consumer-nickname"
+              label={t("nickname")}
+              autoComplete="nickname"
+              value={nickname}
+              onChange={(event) => setNickname(event.target.value)}
+              required
+            />
+          </div>
+        ) : null}
+
         {mode === "reset-password" && isRecovery ? (
           <div className="mt-5 space-y-2">
             <ConsumerTextField
@@ -202,15 +292,48 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           </div>
         ) : null}
 
+        {mode === "sign-in" ? (
+          <label className="mt-5 flex min-h-11 cursor-pointer items-center gap-3 text-sm text-[var(--blab-text-secondary)]">
+            <input
+              type="checkbox"
+              checked={saveEmail}
+              onChange={(event) => setSaveEmail(event.target.checked)}
+              className="size-5 rounded border-[var(--blab-glass-border)] accent-[var(--blab-color-primary)]"
+            />
+            <span>{t("saveEmail")}</span>
+          </label>
+        ) : null}
+
         {errorKey ? (
-          <p className="mt-5 text-sm leading-6 text-rose-200" role="alert">
+          <p className="mt-5 text-sm leading-6 text-[var(--blab-color-error)]" role="alert">
             {t(errorKey as never)}
           </p>
         ) : null}
         {successKey ? (
-          <p className="mt-5 text-sm leading-6 text-emerald-200" role="status">
+          <p className="mt-5 text-sm leading-6 text-[var(--blab-color-success)]" role="status">
             {t(successKey as never)}
           </p>
+        ) : null}
+
+        {unconfirmedEmail ? (
+          <div className="mt-5 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-glass-fill)] p-[var(--blab-space-lg)]">
+            <p className="text-sm leading-6 text-[var(--blab-text-secondary)]">
+              {t("emailUnconfirmedDescription")}
+            </p>
+            <ConsumerButton
+              type="button"
+              variant="secondary"
+              disabled={isPending || resendCooldown > 0}
+              loading={isPending}
+              loadingLabel={t("processing")}
+              onClick={resendVerification}
+              className="mt-3"
+            >
+              {resendCooldown > 0
+                ? t("resendCooldown", { seconds: resendCooldown })
+                : t("resendVerification")}
+            </ConsumerButton>
+          </div>
         ) : null}
 
         <ConsumerButton
@@ -236,13 +359,13 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
             <Link
               href={getConsumerPath(locale, "/auth/reset-password")}
-              className="text-indigo-200 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
             >
               {t("forgotPassword")}
             </Link>
             <Link
               href={getConsumerPath(locale, "/auth/sign-up")}
-              className="text-white/60 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="text-[var(--blab-text-tertiary)] underline-offset-4 hover:text-[var(--blab-text-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
             >
               {t("createAccount")}
             </Link>
@@ -250,22 +373,22 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
         ) : null}
 
         {mode === "sign-up" ? (
-          <p className="mt-5 text-center text-sm text-white/60">
+          <p className="mt-5 text-center text-sm text-[var(--blab-text-tertiary)]">
             {t("hasAccount")} {" "}
             <Link
               href={getConsumerPath(locale, "/auth/sign-in")}
-              className="text-indigo-200 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
             >
               {t("signInLink")}
             </Link>
           </p>
         ) : null}
 
-        {mode === "reset-password" && !isRecovery ? (
-          <p className="mt-5 text-center text-sm text-white/60">
+        {mode === "reset-password" && (!isRecovery || successKey === "passwordUpdated") ? (
+          <p className="mt-5 text-center text-sm text-[var(--blab-text-tertiary)]">
             <Link
               href={getConsumerPath(locale, "/auth/sign-in")}
-              className="text-indigo-200 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
             >
               {t("backToSignIn")}
             </Link>
