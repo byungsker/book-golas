@@ -19,3 +19,8 @@ git diff --check
   PASS
 
 Protected /private/tmp/bookgolas-web-blds-453 was not reset, checked out, deleted, or modified.
+
+Follow-up after CodeRabbit fixes
+  consumer-shell Chromium 5/5, expired-session 1/1, full regression and production build PASS
+  CodeRabbit CLI committed follow-up review: 0 issues
+  no listeners or task-local processes remain

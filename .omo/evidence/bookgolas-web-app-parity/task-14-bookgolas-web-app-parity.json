@@ -61,7 +61,8 @@
     "result": "PASS",
     "invocation": "npm run typecheck && npm run lint && npm test && npm run build",
     "observable": "TypeScript, ESLint, 23 Vitest files and 182 tests, parity matrix, 59 negative fixtures, BLDS/UI contracts, and the Next production build pass after the feature commit.",
-    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-regression-orchestrator.log"
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-regression-orchestrator.log",
+    "follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-regression.log"
   },
   "surface": {
     "result": "PASS",
@@ -71,12 +72,18 @@
       ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-mobile-five-tabs.png",
       ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-pending.png",
       ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-error.png"
+    ],
+    "follow_up_artifacts": [
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-chromium.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log"
     ]
   },
   "review": {
     "result": "APPROVE",
     "tool": "CodeRabbit CLI 0.7.6",
     "initial_issues": 2,
+    "final_issues": 0,
+    "final_invocation": "coderabbit review --agent -t committed --base version/web/1.1.0",
     "resolved_issues": [
       "Preserve the current query string when switching locales.",
       "Use the project dialog primitive with focus trap, Escape handling, and trigger focus restoration."

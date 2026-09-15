@@ -51,6 +51,8 @@ test("desktop shell exposes exactly five tabs, deep-link state, search modes and
   await expect(dialog.getByRole("button", { name: /^Recall/ })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(dialog.getByRole("button", { name: "Close search modes" })).toBeFocused();
+  await expect(dialog).toBeVisible();
+  await page.waitForTimeout(300);
   await capture(page, "task-14-bookgolas-web-app-parity.png");
 
   await page.getByRole("button", { name: /^Book search/ }).click();
