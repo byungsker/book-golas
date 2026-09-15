@@ -69,6 +69,23 @@ export type ConsumerRouteFixture =
   | "notes-highlights-offline"
   | "notes-highlights-quota"
   | "notes-highlights-unauthorized"
+  | "images-ocr-consent"
+  | "images-ocr-corrupt"
+  | "images-ocr-denied"
+  | "images-ocr-deleted"
+  | "images-ocr-empty"
+  | "images-ocr-error"
+  | "images-ocr-expired-url"
+  | "images-ocr-foreign"
+  | "images-ocr-happy"
+  | "images-ocr-insecure"
+  | "images-ocr-offline"
+  | "images-ocr-oversize"
+  | "images-ocr-provider-failure"
+  | "images-ocr-quota"
+  | "images-ocr-unauthorized"
+  | "images-ocr-unsupported"
+  | "images-ocr-wrong-mime"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -182,6 +199,23 @@ export function getConsumerRouteFixture(
     "notes-highlights-offline",
     "notes-highlights-quota",
     "notes-highlights-unauthorized",
+    "images-ocr-consent",
+    "images-ocr-corrupt",
+    "images-ocr-denied",
+    "images-ocr-deleted",
+    "images-ocr-empty",
+    "images-ocr-error",
+    "images-ocr-expired-url",
+    "images-ocr-foreign",
+    "images-ocr-happy",
+    "images-ocr-insecure",
+    "images-ocr-offline",
+    "images-ocr-oversize",
+    "images-ocr-provider-failure",
+    "images-ocr-quota",
+    "images-ocr-unauthorized",
+    "images-ocr-unsupported",
+    "images-ocr-wrong-mime",
     "deleted-book",
     "expired-session",
     "home-book-list",

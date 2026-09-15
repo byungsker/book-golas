@@ -760,6 +760,74 @@
         "generic": "We could not save this record. Try again."
       }
     },
+    "imagesOcr": {
+      "eyebrow": "Private page images",
+      "title": "Capture a page and read it later",
+      "description": "Images stay in your private book space. OCR is optional and a manual text path remains available.",
+      "loading": "Loading your private images...",
+      "retryLoad": "Reload images",
+      "camera": "Use camera",
+      "chooseFile": "Choose image",
+      "capture": "Capture frame",
+      "cancelCamera": "Close camera",
+      "fileFallback": "Camera capture is unavailable here. Choose an image file instead.",
+      "upload": "Upload image",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "previewAlt": "Private page capture preview",
+      "page": "Page {page}",
+      "pageUnknown": "Page not set",
+      "delete": "Delete image",
+      "manualPlaceholder": "Enter the text manually if OCR is unavailable.",
+      "saveManual": "Save manual text",
+      "retryOcr": "Retry OCR",
+      "captureStates": {
+        "idle": "Ready for a page image.",
+        "camera_ready": "Camera is ready.",
+        "camera_unavailable": "Camera is unavailable.",
+        "insecure_context": "Camera needs a secure connection.",
+        "permission_denied": "Camera permission was denied.",
+        "unsupported": "This browser does not support camera capture.",
+        "file_ready": "Image ready to upload.",
+        "uploading": "Uploading image...",
+        "saved": "Image saved.",
+        "error": "Image capture failed."
+      },
+      "ocrStatus": {
+        "not_requested": "OCR not requested",
+        "pending": "OCR in progress",
+        "ready": "OCR complete",
+        "failed": "OCR failed",
+        "manual": "Manual text saved"
+      },
+      "empty": {
+        "title": "No private page images yet",
+        "description": "Capture or choose a page image to keep it with this book."
+      },
+      "form": {
+        "page": "Page number",
+        "caption": "Caption",
+        "ocrConsent": "Allow this image to be sent to OCR."
+      },
+      "validation": {
+        "page": "Enter a page number within this book.",
+        "oversize": "Images must be 8 MiB or smaller.",
+        "mime": "Choose a JPEG, PNG or WebP image.",
+        "corrupt": "This image is unreadable or does not match its file type."
+      },
+      "errors": {
+        "title": "We could not load these images",
+        "unauthorizedTitle": "Sign in to view private images",
+        "unauthorized": "Sign in before managing private page images.",
+        "consent": "OCR consent is required before OCR can run.",
+        "quota": "The OCR quota has been reached.",
+        "provider": "The OCR provider is unavailable. You can enter the text manually.",
+        "oversize": "This image is larger than the 8 MiB limit.",
+        "offline": "You are offline. Reconnect and try again.",
+        "notFound": "This image is no longer available in your library.",
+        "generic": "We could not save this image. Try again."
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",

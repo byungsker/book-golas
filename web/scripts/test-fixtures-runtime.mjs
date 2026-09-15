@@ -5,13 +5,14 @@ import { createClient } from "@supabase/supabase-js";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
 const resetScript = path.join(repositoryRoot, "web/scripts/reset-local-fixtures.mjs");
-const asset = fs.readFileSync(
-  path.join(repositoryRoot, "web/fixtures/supabase/assets/cover.png"),
-);
-const expectedObjects = [
-  ["user-a", "book-a.png"],
-  ["user-b", "book-b.png"],
-];
+const manifest = JSON.parse(fs.readFileSync(
+  path.join(repositoryRoot, "web/fixtures/supabase/consumer-fixtures.json"),
+  "utf8",
+));
+const expectedObjects = manifest.images.map((image) => ({
+  path: image.storage_path,
+  asset: fs.readFileSync(path.resolve(repositoryRoot, image.asset_path)),
+}));
 
 const reset = spawnSync(process.execPath, [resetScript], {
   cwd: repositoryRoot,
@@ -56,7 +57,9 @@ const supabaseAdmin = createClient(apiUrl, serviceRoleKey, {
 });
 const bucket = supabaseAdmin.storage.from("book-images");
 
-for (const [directory, filename] of expectedObjects) {
+for (const expected of expectedObjects) {
+  const directory = expected.path.slice(0, expected.path.lastIndexOf("/"));
+  const filename = expected.path.slice(expected.path.lastIndexOf("/") + 1);
   const { data: entries, error: listError } = await bucket.list(directory, {
     limit: 10,
     search: filename,
@@ -76,7 +79,7 @@ for (const [directory, filename] of expectedObjects) {
     process.exit(1);
   }
   const contents = Buffer.from(await downloaded.arrayBuffer());
-  if (!contents.equals(asset)) {
+  if (!contents.equals(expected.asset)) {
     console.error(`fixture runtime storage bytes differ for ${directory}/${filename}`);
     process.exit(1);
   }
@@ -84,6 +87,6 @@ for (const [directory, filename] of expectedObjects) {
 
 console.log(
   `fixture runtime contract passed: verified_objects=${expectedObjects
-    .map(([directory, filename]) => `${directory}/${filename}`)
-    .join(",")} bytes=${asset.length}`,
+    .map((expected) => expected.path)
+    .join(",")} bytes=${expectedObjects[0]?.asset.length ?? 0}`,
 );

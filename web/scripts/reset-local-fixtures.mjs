@@ -4,6 +4,10 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
+const fixtureManifest = JSON.parse(fs.readFileSync(
+  path.join(repositoryRoot, "web/fixtures/supabase/consumer-fixtures.json"),
+  "utf8",
+));
 const projectConfig = fs.readFileSync(
   path.join(repositoryRoot, "supabase/config.toml"),
   "utf8",
@@ -83,10 +87,9 @@ const createLocalAdminClient = ({ apiUrl, serviceRoleKey }) => createClient(apiU
 
 let localEnv = readLocalEnv();
 let supabaseAdmin = createLocalAdminClient(localEnv);
-const asset = fs.readFileSync(
-  path.resolve(repositoryRoot, "web/fixtures/supabase/assets/cover.png"),
-);
-for (const storagePath of ["user-a/book-a.png", "user-b/book-b.png"]) {
+for (const image of fixtureManifest.images) {
+  const asset = fs.readFileSync(path.resolve(repositoryRoot, image.asset_path));
+  const storagePath = image.storage_path;
   let uploaded = false;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const { error } = await supabaseAdmin.storage.from("book-images").upload(storagePath, asset, {

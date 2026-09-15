@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   assertOwnedBookImagePath,
+  downloadOwnedBookImage,
   getBookImageUrl,
+  listOwnedBookImagePaths,
   ownedBookImagePath,
+  removeOwnedBookImagePaths,
   uploadBookImage,
 } from "./adapters";
 
@@ -24,7 +27,17 @@ function makeSupabase() {
   const createSignedUrl = vi.fn()
     .mockResolvedValueOnce({ data: { signedUrl: "https://storage.example.invalid/signed-1" }, error: null })
     .mockResolvedValueOnce({ data: { signedUrl: "https://storage.example.invalid/signed-2" }, error: null });
-  const storageFile = { upload, createSignedUrl };
+  const list = vi.fn().mockResolvedValue({
+    data: [
+      { name: "page.jpg", id: "object-id" },
+      { name: "nested", id: null },
+      { name: "../foreign.jpg", id: "foreign-object" },
+    ],
+    error: null,
+  });
+  const remove = vi.fn().mockResolvedValue({ data: [{ name: "page.jpg" }], error: null });
+  const download = vi.fn().mockResolvedValue({ data: new Blob([new Uint8Array([1, 2, 3])], { type: "image/jpeg" }), error: null });
+  const storageFile = { upload, createSignedUrl, list, remove, download };
   const supabase = {
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: { id: userId } }, error: null }),
@@ -32,7 +45,7 @@ function makeSupabase() {
     },
     storage: { from: vi.fn().mockReturnValue(storageFile) },
   };
-  return { supabase, upload, createSignedUrl, storageFile };
+  return { supabase, upload, createSignedUrl, list, remove, download, storageFile };
 }
 
 function factoryFor(supabase: unknown) {
@@ -136,5 +149,36 @@ describe("private book image adapter", () => {
       factoryFor(supabase),
     );
     expect(result).toMatchObject({ ok: false, error: { code: "forbidden", status: 403 } });
+  });
+
+  it("lists only file paths under the authenticated book prefix", async () => {
+    const { supabase, list } = makeSupabase();
+    const result = await listOwnedBookImagePaths(bookId, factoryFor(supabase));
+
+    expect(result).toEqual({ ok: true, value: [`${userId}/${bookId}/page.jpg`] });
+    expect(list).toHaveBeenCalledWith(`${userId}/${bookId}`, expect.objectContaining({ limit: 100, offset: 0 }));
+  });
+
+  it("removes unique owned paths and rejects a foreign path before storage access", async () => {
+    const { supabase, remove } = makeSupabase();
+    const ownedPath = `${userId}/${bookId}/page.jpg`;
+    const removed = await removeOwnedBookImagePaths(bookId, [ownedPath, ownedPath], factoryFor(supabase));
+
+    expect(removed).toEqual({ ok: true, value: [ownedPath] });
+    expect(remove).toHaveBeenCalledWith([ownedPath]);
+
+    remove.mockClear();
+    const denied = await removeOwnedBookImagePaths(bookId, [`${foreignUserId}/${bookId}/page.jpg`], factoryFor(supabase));
+    expect(denied).toMatchObject({ ok: false, error: { code: "forbidden", status: 403 } });
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("downloads owned bytes through the private bucket", async () => {
+    const { supabase, download } = makeSupabase();
+    const path = `${userId}/${bookId}/page.jpg`;
+    const result = await downloadOwnedBookImage(bookId, path, factoryFor(supabase));
+
+    expect(result).toEqual({ ok: true, value: { path, bytes: new Uint8Array([1, 2, 3]) } });
+    expect(download).toHaveBeenCalledWith(path);
   });
 });

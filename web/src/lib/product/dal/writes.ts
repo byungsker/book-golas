@@ -24,6 +24,7 @@ import {
   type ProductResult,
 } from "./errors";
 import { resolveProductSession, type ProductClientFactory } from "./context";
+import { deleteOwnedBookImages } from "./consumer-images";
 
 type BookInsertRow = {
   readonly user_id: string;
@@ -220,6 +221,15 @@ export async function deleteBook(
 
   const session = await resolveProductSession(factory);
   if (!session.ok) return failure(session.error);
+
+  const storage = (session.value.supabase as unknown as { storage?: { from?: unknown } }).storage;
+  if (storage && typeof storage.from === "function") {
+    const cleaned = await deleteOwnedBookImages(
+      parsedBookId.data,
+      () => Promise.resolve(session.value.supabase),
+    );
+    if (!cleaned.ok) return failure(cleaned.error);
+  }
 
   const { data, error } = await session.value.supabase
     .from("books")

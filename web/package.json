@@ -33,6 +33,8 @@
     "test:timer:negative": "node scripts/test-timer.mjs --fixture minimum && node scripts/test-timer.mjs --fixture duplicate && node scripts/test-timer.mjs --fixture logout && node scripts/test-timer.mjs --fixture over-max",
     "test:notes-highlights": "node scripts/test-notes-highlights.mjs && vitest run src/lib/product/contracts/notes-highlights.test.ts src/lib/product/dal.consumer-records.test.ts src/app/api/consumer/notes-highlights/route.test.ts",
     "test:notes-highlights:negative": "node scripts/test-notes-highlights.mjs --fixture invalid-page && node scripts/test-notes-highlights.mjs --fixture invalid-rectangle && node scripts/test-notes-highlights.mjs --fixture index-failure && node scripts/test-notes-highlights.mjs --fixture foreign-record && node scripts/test-notes-highlights.mjs --fixture duplicate-retry",
+    "test:images-ocr": "node scripts/test-images-ocr.mjs && vitest run src/lib/product/contracts/images-ocr.test.ts src/lib/product/adapters.storage.test.ts src/lib/product/dal.consumer-images.test.ts src/app/api/consumer/images-ocr/route.test.ts",
+    "test:images-ocr:negative": "node scripts/test-images-ocr.mjs --fixture oversize && node scripts/test-images-ocr.mjs --fixture wrong-mime && node scripts/test-images-ocr.mjs --fixture insecure && node scripts/test-images-ocr.mjs --fixture denied && node scripts/test-images-ocr.mjs --fixture expired-url && node scripts/test-images-ocr.mjs --fixture provider-failure",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",

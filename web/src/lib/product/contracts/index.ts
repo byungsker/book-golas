@@ -5,6 +5,7 @@ export * from "./book-discovery";
 export * from "./book-detail";
 export * from "./book-lifecycle";
 export * from "./identity";
+export * from "./images-ocr";
 export * from "./library";
 export * from "./notes-highlights";
 export * from "./operations";
