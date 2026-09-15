@@ -1,0 +1,73 @@
+{
+  "issue": 420,
+  "title": "[Bookgolas Web Parity 08] Add typed book, AI, storage and provider adapters",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-420-function-adapters",
+  "revision_under_test": "efec48c",
+  "red": {
+    "command": "npm run test:function-adapters",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:function-adapters."
+  },
+  "green": {
+    "commands": [
+      "npm run test:function-adapters",
+      "npm run test:function-adapters -- --grep expired-signed-url",
+      "npm test",
+      "npm run test:function-contracts",
+      "npm run lint",
+      "npx tsc --noEmit",
+      "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=<redacted-local-test-value> SUPABASE_SERVICE_ROLE_KEY=<redacted-local-test-value> npm run build"
+    ],
+    "result": "PASS",
+    "details": [
+      "Function adapter runner passed 4 test files and 22 tests.",
+      "The expired-signed-url negative scenario selected 1 test and passed; 21 unrelated tests were skipped.",
+      "Full npm test passed 19 Vitest files and 125 tests; parity passed 20 routes, 53 overlays and 8 capabilities; 59 parity negative fixtures passed; BLDS parity and SSR state contracts passed.",
+      "Consumer function contract checks passed for 11 functions and their auth, ownership, consent, quota, provider and failure fixtures.",
+      "Lint and TypeScript checks passed.",
+      "The Next production build passed and registered /api/app/books/search as a dynamic route."
+    ]
+  },
+  "surface": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-8-http-surface.md",
+    "runtime": "Next production server on 127.0.0.1:3105 with synthetic local values and an unreachable loopback Supabase endpoint",
+    "result": "PASS",
+    "scenarios": [
+      {
+        "request": "POST /api/app/books/search with user_id in the JSON body",
+        "observed": "400 with error.code=validation_error before the adapter was invoked"
+      },
+      {
+        "request": "POST /api/app/books/search with an empty query",
+        "observed": "400 with error.code=validation_error"
+      },
+      {
+        "request": "POST /api/app/books/search with a valid Korean query and no reachable Supabase session",
+        "observed": "503 with error.code=unavailable and no book data"
+      }
+    ]
+  },
+  "cleanup": {
+    "result": "PASS",
+    "details": [
+      "git diff --check passed before the implementation commit.",
+      "Browser source and .next/static scans found no provider or service-role secret and no direct provider URL.",
+      "The temporary production server was stopped after surface verification.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not modified."
+    ]
+  },
+  "review": {
+    "initial_verdict": "APPROVE",
+    "reviewer": "manual code review",
+    "reviewed_commit": "efec48c",
+    "details": [
+      "Verified server-only boundaries for function, table, storage, provider and search adapters.",
+      "Verified authenticated session token forwarding, caller identity derivation, private storage path ownership and signed URL renewal.",
+      "Verified consent, quota, timeout, provider, configuration and offline errors retain typed code/status mappings.",
+      "Resolved a review finding where Google Books network failures were reported as unavailable instead of offline."
+    ]
+  }
+}

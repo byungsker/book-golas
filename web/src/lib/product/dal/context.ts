@@ -2,8 +2,10 @@ import "server-only";
 
 import type { User } from "@supabase/supabase-js";
 import { UserIdSchema, type UserId } from "@/lib/product/contracts";
+import { SupabaseConfigurationError } from "@/lib/supabase-config";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import {
+  configurationError,
   failure,
   success,
   unauthorizedError,
@@ -30,14 +32,22 @@ function readStatus(error: unknown): number | undefined {
   return typeof status === "number" ? status : undefined;
 }
 
+function isUnauthorized(error: unknown): boolean {
+  if (readStatus(error) === 401) return true;
+  const message = error instanceof Error ? error.message : "";
+  return /jwt|token.*expired|invalid.*token|not authenticated|unauthorized/i.test(message);
+}
+
 export async function resolveProductSession(
   factory: ProductClientFactory = createServerSupabaseClient,
 ): Promise<ProductResult<ProductSession>> {
   let supabase: ProductSupabaseClient;
   try {
     supabase = await factory();
-  } catch {
-    return failure(unavailableError());
+  } catch (error) {
+    return failure(
+      error instanceof SupabaseConfigurationError ? configurationError() : unavailableError(),
+    );
   }
 
   try {
@@ -46,9 +56,7 @@ export async function resolveProductSession(
       error,
     } = await supabase.auth.getUser();
 
-    if (error) {
-      return failure(readStatus(error) === 401 ? unauthorizedError() : unavailableError());
-    }
+    if (error) return failure(isUnauthorized(error) ? unauthorizedError() : unavailableError());
     if (!user) return failure(unauthorizedError());
 
     const userId = UserIdSchema.safeParse(user.id);
