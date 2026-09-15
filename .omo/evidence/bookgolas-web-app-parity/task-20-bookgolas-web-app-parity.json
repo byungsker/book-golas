@@ -1,0 +1,83 @@
+{
+  "issue": 433,
+  "title": "[Bookgolas Web Parity 20] Implement book detail core and soft-delete actions",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-433-book-detail",
+  "base_revision": "2c9f1731758479f263dd1a97c327cd231a6d23d4",
+  "red": {
+    "command": "npm run test:book-detail",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:book-detail.",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-20-RED-test-book-detail.log"
+  },
+  "green": {
+    "commands": [
+      "npm run test:book-detail",
+      "npm run test:book-detail:negative",
+      "node scripts/test-book-detail.mjs --fixture deleted-book",
+      "node scripts/test-book-detail.mjs --fixture invalid-transition",
+      "node scripts/test-book-detail.mjs --fixture delete-without-confirmation"
+    ],
+    "result": "PASS",
+    "details": [
+      "Focused contract/API/DAL suite passed 3 Vitest files and 13 tests.",
+      "Foreign, deleted, invalid-transition, and delete-confirmation negative modes passed.",
+      "The API enforces owner-scoped active reads, the native status action matrix, soft-delete, and localized dependent-path invalidation."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-20-GREEN-green.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-GREEN-negative-foreign-book.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-GREEN-negative-deleted-book.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-GREEN-negative-invalid-transition.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-GREEN-negative-delete-confirmation.log"
+    ]
+  },
+  "surface": {
+    "commands": [
+      "npx playwright test tests/e2e/book-detail.spec.ts --project=chromium --grep \"detail|complete|delete\"",
+      "npx playwright test tests/e2e/book-detail.spec.ts --project=chromium --grep \"foreign|deleted|invalid-transition\""
+    ],
+    "result": "PASS",
+    "details": [
+      "The happy flow loaded owned metadata, completed the book, cancelled delete, then confirmed delete.",
+      "The action flow covered planned start and paused resume with attempt-count increment.",
+      "Foreign and soft-deleted detail IDs resolved to safe not-found states; an invalid resume returned validation_error."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-20-SURFACE-detail-complete-delete.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-SURFACE-foreign-deleted-invalid-transition.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-bookgolas-web-app-parity.png"
+    ]
+  },
+  "cleanup": {
+    "commands": ["npm run lint", "npm run typecheck", "npm run build", "git diff --check"],
+    "result": "PASS",
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-20-CLEANUP-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-CLEANUP-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-CLEANUP-build.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-20-CLEANUP-full-regression-post-commit.log"
+    ]
+  },
+  "full_regression": {
+    "command": "npm test",
+    "result": "PASS",
+    "details": [
+      "Vitest passed 35 files and 237 tests.",
+      "Parity matrix passed 20 routes, 53 overlays and 8 capabilities; all 59 parity negative fixtures passed.",
+      "BLDS parity, BLDS negative, SSR state, UI primitive and UI primitive negative contracts passed."
+    ],
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-20-CLEANUP-full-regression-post-commit.log"
+  },
+  "review": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-20-review.md",
+    "verdict": "APPROVE",
+    "reviewer": "manual code review",
+    "blocking_findings": []
+  },
+  "blockers": [
+    "The referenced .omo/plans/bookgolas-web-app-parity.md file is not present in this checkout; the required reference is retained in the contract and PR footer."
+  ]
+}

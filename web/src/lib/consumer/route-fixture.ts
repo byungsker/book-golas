@@ -21,6 +21,16 @@ export type ConsumerRouteFixture =
   | "book-lifecycle-quota"
   | "book-lifecycle-success"
   | "book-lifecycle-unauthorized"
+  | "book-detail-completed"
+  | "book-detail-conflict"
+  | "book-detail-deleted"
+  | "book-detail-delete"
+  | "book-detail-foreign"
+  | "book-detail-invalid-transition"
+  | "book-detail-paused"
+  | "book-detail-planned"
+  | "book-detail-reading"
+  | "book-detail-success"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -86,6 +96,16 @@ export function getConsumerRouteFixture(
     "book-lifecycle-quota",
     "book-lifecycle-success",
     "book-lifecycle-unauthorized",
+    "book-detail-completed",
+    "book-detail-conflict",
+    "book-detail-deleted",
+    "book-detail-delete",
+    "book-detail-foreign",
+    "book-detail-invalid-transition",
+    "book-detail-paused",
+    "book-detail-planned",
+    "book-detail-reading",
+    "book-detail-success",
     "deleted-book",
     "expired-session",
     "home-book-list",

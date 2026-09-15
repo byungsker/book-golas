@@ -39,6 +39,7 @@ type BookInsertRow = {
   readonly daily_target_pages: number | null;
   readonly priority: number | null;
   readonly planned_start_date: string | null;
+  readonly paused_at: string | null;
   readonly deleted_at: null;
   readonly genre: string | null;
   readonly publisher: string | null;
@@ -53,6 +54,8 @@ type BookUpdateRow = {
   start_date?: string;
   target_date?: string;
   planned_start_date?: string | null;
+  paused_at?: string | null;
+  attempt_count?: number;
   status?: UpdateBookRequest["status"];
   daily_target_pages?: number | null;
   priority?: number | null;
@@ -65,6 +68,8 @@ const CurrentBookStateSchema = z
     start_date: IsoDateSchema,
     target_date: IsoDateSchema,
     planned_start_date: IsoDateSchema.nullable(),
+    paused_at: IsoDateSchema.nullable(),
+    attempt_count: z.number().int().min(1),
     total_pages: z.number().int().min(0),
   })
   .passthrough();
@@ -98,6 +103,7 @@ export async function createBook(
     daily_target_pages: input.dailyTargetPages,
     priority: input.priority,
     planned_start_date: input.plannedStartDate ? normalizeIsoDate(input.plannedStartDate) : null,
+    paused_at: null,
     deleted_at: null,
     genre: input.genre,
     publisher: input.publisher,
@@ -131,7 +137,7 @@ export async function updateBook(
   const input = parsedRequest.data;
   const { data: currentData, error: currentError } = await session.value.supabase
     .from("books")
-    .select("status,start_date,target_date,planned_start_date,total_pages")
+    .select("status,start_date,target_date,planned_start_date,paused_at,attempt_count,total_pages")
     .eq("id", parsedBookId.data)
     .eq("user_id", session.value.userId)
     .is("deleted_at", null)
@@ -154,6 +160,12 @@ export async function updateBook(
     : input.plannedStartDate === null
       ? null
       : normalizeIsoDate(input.plannedStartDate);
+  if (
+    input.attemptCount !== undefined &&
+    (input.attemptCount < current.data.attempt_count || input.attemptCount > current.data.attempt_count + 1)
+  ) {
+    return failure(validationError("The attempt count can only stay the same or increase by one."));
+  }
   const effectiveStartDate = nextStatus === "planned" && nextPlannedStartDate
     ? nextPlannedStartDate
     : nextStartDate;
@@ -173,6 +185,14 @@ export async function updateBook(
   }
   if (input.dailyTargetPages !== undefined) {
     updates.daily_target_pages = input.dailyTargetPages;
+  }
+  if (input.attemptCount !== undefined) updates.attempt_count = input.attemptCount;
+  if (input.pausedAt !== undefined) updates.paused_at = input.pausedAt;
+  if (nextStatus === "will_retry" && input.pausedAt === undefined && current.data.paused_at === null) {
+    updates.paused_at = new Date().toISOString();
+  }
+  if (["planned", "reading", "completed"].includes(nextStatus) && input.pausedAt === undefined && current.data.paused_at !== null) {
+    updates.paused_at = null;
   }
   if (input.priority !== undefined) updates.priority = input.priority;
   if (input.review !== undefined) updates.review = input.review;

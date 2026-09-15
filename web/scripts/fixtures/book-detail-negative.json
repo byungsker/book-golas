@@ -1,0 +1,34 @@
+{
+  "issue": 433,
+  "fixtures": [
+    {
+      "name": "foreign-book",
+      "routeFixture": "book-detail-foreign",
+      "bookId": "00000000-0000-4000-8000-000000004331",
+      "expected": "safe-not-found",
+      "guard": "owner-scoped active-row query"
+    },
+    {
+      "name": "deleted-book",
+      "routeFixture": "book-detail-deleted",
+      "bookId": "00000000-0000-4000-8000-000000004331",
+      "expected": "safe-not-found",
+      "guard": "deleted_at is null"
+    },
+    {
+      "name": "invalid-transition",
+      "routeFixture": "book-detail-invalid-transition",
+      "bookId": "00000000-0000-4000-8000-000000004331",
+      "action": "resume",
+      "expected": "validation_error",
+      "guard": "status action matrix"
+    },
+    {
+      "name": "delete-without-confirmation",
+      "routeFixture": "book-detail-delete",
+      "bookId": "00000000-0000-4000-8000-000000004331",
+      "expected": "dialog-required",
+      "guard": "cancel leaves detail visible"
+    }
+  ]
+}

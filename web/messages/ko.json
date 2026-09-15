@@ -601,6 +601,69 @@
         "openSettings": "계정 설정 열기"
       }
     },
+    "bookDetail": {
+      "eyebrow": "책 상세",
+      "status": {
+        "planned": "읽을 예정",
+        "reading": "읽는 중",
+        "completed": "완독",
+        "will_retry": "잠시 멈춤",
+        "help": {
+          "planned": "준비가 되면 이 책의 독서를 시작하세요.",
+          "reading": "페이지를 기록하거나 나중을 위해 잠시 멈출 수 있어요.",
+          "completed": "이미 완독한 책으로 표시되어 있어요.",
+          "will_retry": "준비가 되면 멈춘 독서를 다시 시작하세요."
+        },
+        "completedHelp": "완독한 책의 독서 기록과 리뷰 링크는 유지됩니다."
+      },
+      "actions": {
+        "title": "독서 작업",
+        "start": "독서 시작",
+        "resume": "독서 재개",
+        "pause": "독서 잠시 멈추기",
+        "complete": "완독으로 표시",
+        "delete": "책 삭제"
+      },
+      "pending": "저장 중...",
+      "success": "{action} 작업을 저장했어요.",
+      "retry": "다시 시도",
+      "attempt": "{count}번째 독서",
+      "metadata": {
+        "title": "책 정보",
+        "genre": "장르",
+        "publisher": "출판사",
+        "isbn": "ISBN",
+        "price": "가격",
+        "createdAt": "추가일",
+        "updatedAt": "수정일",
+        "pausedAt": "멈춘 날짜",
+        "notAvailable": "정보 없음"
+      },
+      "review": {
+        "title": "리뷰",
+        "open": "리뷰 열기"
+      },
+      "links": {
+        "store": "서점 열기"
+      },
+      "delete": {
+        "title": "이 책을 삭제할까요?",
+        "description": "책이 내 서재에서 사라지고 관련 독서 화면에서도 더 이상 표시되지 않아요.",
+        "cancel": "책 유지",
+        "confirm": "책 삭제",
+        "deletedTitle": "책을 삭제했어요",
+        "deletedDescription": "이 책을 내 서재에서 삭제했습니다."
+      },
+      "home": "내 서재로",
+      "errors": {
+        "invalidTransition": "현재 독서 상태에서는 이 작업을 사용할 수 없어요.",
+        "notFound": "이 책을 더 이상 내 서재에서 찾을 수 없어요.",
+        "unauthorized": "책을 변경하려면 로그인하세요.",
+        "offline": "오프라인 상태입니다. 이 작업을 저장하기 전에 다시 연결하세요.",
+        "conflict": "다른 곳에서 책이 변경되었어요. 새로고침 후 다시 시도하세요.",
+        "generic": "이 작업을 저장하지 못했어요. 다시 시도하세요."
+      }
+    },
     "book": {
       "status": {
         "planned": "읽을 예정",

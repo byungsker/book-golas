@@ -3,10 +3,11 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
+import { BookDetailClient } from "@/components/consumer/book-detail-client";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
-import { fetchOwnedBook } from "@/lib/consumer/queries";
+import { fetchOwnedBookDetail } from "@/lib/consumer/queries";
 import { formatBookDate, getBookProgress } from "@/lib/consumer/types";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export default async function BookDetailPage({
   const { locale, bookId } = await params;
   if (!isConsumerLocale(locale)) redirect("/ko/auth/sign-in");
 
-  const result = await fetchOwnedBook(bookId);
+  const result = await fetchOwnedBookDetail(bookId);
   if (result.code === "unauthenticated") {
     redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, `/books/${bookId}`)));
   }
@@ -86,7 +87,11 @@ export default async function BookDetailPage({
           {t("book.backHome")}
         </Link>
 
-        <article className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+        <article
+          className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8"
+          data-testid="book-detail"
+          data-book-status={book.status}
+        >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div
               aria-hidden="true"
@@ -143,6 +148,8 @@ export default async function BookDetailPage({
               </p>
             </div>
           </div>
+
+          <BookDetailClient locale={locale} initialBook={book} />
 
           <div className="mt-8">
             <div className="mb-4">

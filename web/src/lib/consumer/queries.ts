@@ -10,6 +10,9 @@ import {
 } from "@/lib/consumer/types";
 import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
+import { getBookDetailFixture, getBookDetailFixtureConsumerBook } from "@/lib/consumer/book-detail-fixtures";
+import { bookDtoSelect, parseBookRow } from "@/lib/product/dal/codec";
+import type { Book } from "@/lib/product/contracts";
 
 type AuthContext = {
   supabase: SupabaseClient | null;
@@ -87,6 +90,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("book-detail-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -137,6 +148,10 @@ export async function fetchOwnedBooks(): Promise<{
     }
     if (routeFixture?.startsWith("book-lifecycle-")) {
       return { books: [getBookLifecycleFixtureConsumerBook()], code: "ok" };
+    }
+    if (routeFixture?.startsWith("book-detail-")) {
+      const book = getBookDetailFixtureConsumerBook({ fixture: routeFixture, bookId: "" });
+      return { books: book ? [book] : [], code: "ok" };
     }
     return { books: [], code: "ok" };
   }
@@ -212,6 +227,65 @@ export async function fetchOwnedBook(bookId: string): Promise<{
     return book
       ? { book, code: "ok", authenticated: true }
       : { book: null, code: "not_found", authenticated: true };
+  } catch {
+    return { book: null, code: "unavailable", authenticated: true };
+  }
+}
+
+export async function fetchOwnedBookDetail(bookId: string): Promise<{
+  book: Book | null;
+  code: ConsumerQueryCode;
+  authenticated: boolean;
+}> {
+  const context = await getAuthContext();
+  if (!isBookId(bookId)) {
+    return {
+      book: null,
+      code: context.unavailable ? "unavailable" : "not_found",
+      authenticated: Boolean(context.user),
+    };
+  }
+
+  let routeFixture = null;
+  try {
+    routeFixture = getConsumerRouteFixture(
+      (await cookies()).get("bookgolas-route-fixture")?.value,
+    );
+  } catch {
+    routeFixture = null;
+  }
+  if (routeFixture?.startsWith("book-detail-")) {
+    const result = getBookDetailFixture({ fixture: routeFixture, bookId });
+    if (!result.ok) {
+      return {
+        book: null,
+        code: result.error.code === "not_found" ? "not_found" : "unavailable",
+        authenticated: true,
+      };
+    }
+    return { book: result.value, code: "ok", authenticated: true };
+  }
+
+  if (context.unavailable || !context.supabase) {
+    if (context.user) return { book: null, code: "not_found", authenticated: true };
+    return { book: null, code: "unavailable", authenticated: false };
+  }
+  if (!context.user) return { book: null, code: "unauthenticated", authenticated: false };
+
+  try {
+    const { data, error } = await context.supabase
+      .from("books")
+      .select(bookDtoSelect)
+      .eq("id", bookId)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (error) return { book: null, code: "unavailable", authenticated: true };
+    if (!data || typeof data !== "object") return { book: null, code: "not_found", authenticated: true };
+    const result = parseBookRow(data);
+    return result.ok
+      ? { book: result.value, code: "ok", authenticated: true }
+      : { book: null, code: "unavailable", authenticated: true };
   } catch {
     return { book: null, code: "unavailable", authenticated: true };
   }

@@ -601,6 +601,69 @@
         "openSettings": "Open account settings"
       }
     },
+    "bookDetail": {
+      "eyebrow": "Book detail",
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "help": {
+          "planned": "Start this planned book when you are ready.",
+          "reading": "Keep recording pages or pause this book for later.",
+          "completed": "This book is already marked as finished.",
+          "will_retry": "Resume this paused book when you are ready."
+        },
+        "completedHelp": "Finished books keep their reading history and review links."
+      },
+      "actions": {
+        "title": "Reading actions",
+        "start": "Start reading",
+        "resume": "Resume reading",
+        "pause": "Pause reading",
+        "complete": "Mark as finished",
+        "delete": "Delete book"
+      },
+      "pending": "Saving...",
+      "success": "{action} saved.",
+      "retry": "Try again",
+      "attempt": "Attempt {count}",
+      "metadata": {
+        "title": "Book information",
+        "genre": "Genre",
+        "publisher": "Publisher",
+        "isbn": "ISBN",
+        "price": "Price",
+        "createdAt": "Added",
+        "updatedAt": "Updated",
+        "pausedAt": "Paused",
+        "notAvailable": "Not available"
+      },
+      "review": {
+        "title": "Review",
+        "open": "Open review"
+      },
+      "links": {
+        "store": "Open book store"
+      },
+      "delete": {
+        "title": "Delete this book?",
+        "description": "The book will leave your library and its dependent reading views will no longer show it.",
+        "cancel": "Keep book",
+        "confirm": "Delete book",
+        "deletedTitle": "Book deleted",
+        "deletedDescription": "This book was removed from your library."
+      },
+      "home": "Back to library",
+      "errors": {
+        "invalidTransition": "That action is not available for the current reading status.",
+        "notFound": "This book is no longer available in your library.",
+        "unauthorized": "Sign in before changing this book.",
+        "offline": "You are offline. Reconnect before saving this action.",
+        "conflict": "This book changed elsewhere. Refresh and try again.",
+        "generic": "We could not save this action. Try again."
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",
