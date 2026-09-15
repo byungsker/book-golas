@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Space_Grotesk, Plus_Jakarta_Sans } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "@byungsker/blab-design-system/styles.css";
@@ -46,6 +47,20 @@ export default async function RootLayout({
       className={`${spaceGrotesk.variable} ${plusJakarta.variable}`}
     >
       <head>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="https://unpkg.com/react-scan/dist/auto.global.js"
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
         <script
           id="blab-theme-bootstrap"
           dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}

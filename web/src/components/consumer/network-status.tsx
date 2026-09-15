@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ConsumerSnackbar } from "@/components/consumer/blab-primitives";
 
 export function NetworkStatus() {
   const t = useTranslations("consumer");
@@ -21,12 +22,5 @@ export function NetworkStatus() {
 
   if (isOnline) return null;
 
-  return (
-    <p
-      className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"
-      role="alert"
-    >
-      {t("reading.offline")}
-    </p>
-  );
+  return <ConsumerSnackbar message={t("reading.offline")} type="warning" role="alert" />;
 }
