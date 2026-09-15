@@ -42,6 +42,15 @@ export {
   updateOwnedConsumerRecord,
 } from "./consumer-records";
 export {
+  deleteOwnedBookImage,
+  deleteOwnedBookImages,
+  listOwnedBookImagesWithSignedUrls,
+  retryOwnedBookImageOcr,
+  updateOwnedBookImageManualText,
+  uploadOwnedBookImage,
+  type UploadOwnedBookImageInput,
+} from "./consumer-images";
+export {
   decodeReadingRecordCursor,
   encodeReadingRecordCursor,
   type ReadingRecordCursor,

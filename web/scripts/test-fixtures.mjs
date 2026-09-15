@@ -35,6 +35,7 @@ requireCondition(manifest.users.length === 2, "fixture must contain User A and U
 requireCondition(manifest.books.length === 2, "fixture must contain two books");
 requireCondition(manifest.images.length === 2, "fixture must contain two images");
 requireCondition(seed.includes("INSERT INTO storage.buckets"), "seed is missing the book-images bucket");
+requireCondition(/VALUES \('book-images', 'book-images', false\)/.test(normalizedSeed), "book-images bucket must be private");
 requireCondition(
   !/\b(?:delete|update|insert\s+into)\s+storage\.objects\b/i.test(seed),
   "seed must not mutate storage.objects directly",
@@ -89,7 +90,7 @@ for (const book of manifest.books) {
         sqlLiteral(book.author),
         sqlLiteral(toSeedTimestamp(book.start_date)),
         sqlLiteral(toSeedTimestamp(book.target_date)),
-        sqlLiteral(`/storage/v1/object/public/book-images/${book.image_path}`),
+        "NULL",
         book.current_page,
         book.total_pages,
         sqlLiteral(owner.id),
@@ -124,10 +125,16 @@ for (const image of manifest.images) {
       containsSeedRow([
         sqlLiteral(image.id),
         sqlLiteral(book.id),
-        sqlLiteral(`/storage/v1/object/public/book-images/${image.storage_path}`),
+        "NULL",
         sqlLiteral(`Fixture image ${imageLabel}`),
         sqlLiteral(owner.id),
         image.page_number,
+        sqlLiteral("book-images"),
+        sqlLiteral(image.storage_path),
+        sqlLiteral(image.mime_type),
+        68,
+        sqlLiteral("not_requested"),
+        "NULL",
       ]),
       `seed is missing the exact image relationship for ${image.key}`,
     );

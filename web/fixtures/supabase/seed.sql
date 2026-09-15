@@ -2,7 +2,7 @@
 -- The .invalid addresses and fixed UUIDs are synthetic and must never be used remotely.
 
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('book-images', 'book-images', true)
+VALUES ('book-images', 'book-images', false)
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
 
 DELETE FROM public.book_images
@@ -114,7 +114,7 @@ VALUES
     'Fixture Author A',
     '2026-01-01T00:00:00Z',
     '2026-01-31T00:00:00Z',
-    '/storage/v1/object/public/book-images/user-a/book-a.png',
+    NULL,
     12,
     240,
     '00000000-0000-4000-8000-000000000041',
@@ -127,7 +127,7 @@ VALUES
     'Fixture Author B',
     '2026-02-01T00:00:00Z',
     '2026-02-28T00:00:00Z',
-    '/storage/v1/object/public/book-images/user-b/book-b.png',
+    NULL,
     24,
     320,
     '00000000-0000-4000-8000-000000000042',
@@ -152,28 +152,52 @@ INSERT INTO public.book_images (
   image_url,
   caption,
   user_id,
-  page_number
+  page_number,
+  storage_bucket,
+  storage_path,
+  mime_type,
+  byte_size,
+  ocr_status,
+  ocr_error
 )
 VALUES
   (
     '00000000-0000-4000-8000-000000000201',
     '00000000-0000-4000-8000-000000000101',
-    '/storage/v1/object/public/book-images/user-a/book-a.png',
+    NULL,
     'Fixture image A',
     '00000000-0000-4000-8000-000000000041',
-    1
+    1,
+    'book-images',
+    '00000000-0000-4000-8000-000000000041/00000000-0000-4000-8000-000000000101/book-a.png',
+    'image/png',
+    68,
+    'not_requested',
+    NULL
   ),
   (
     '00000000-0000-4000-8000-000000000202',
     '00000000-0000-4000-8000-000000000102',
-    '/storage/v1/object/public/book-images/user-b/book-b.png',
+    NULL,
     'Fixture image B',
     '00000000-0000-4000-8000-000000000042',
-    1
+    1,
+    'book-images',
+    '00000000-0000-4000-8000-000000000042/00000000-0000-4000-8000-000000000102/book-b.png',
+    'image/png',
+    68,
+    'not_requested',
+    NULL
   )
 ON CONFLICT (id) DO UPDATE SET
   book_id = EXCLUDED.book_id,
   image_url = EXCLUDED.image_url,
   caption = EXCLUDED.caption,
   user_id = EXCLUDED.user_id,
-  page_number = EXCLUDED.page_number;
+  page_number = EXCLUDED.page_number,
+  storage_bucket = EXCLUDED.storage_bucket,
+  storage_path = EXCLUDED.storage_path,
+  mime_type = EXCLUDED.mime_type,
+  byte_size = EXCLUDED.byte_size,
+  ocr_status = EXCLUDED.ocr_status,
+  ocr_error = EXCLUDED.ocr_error;

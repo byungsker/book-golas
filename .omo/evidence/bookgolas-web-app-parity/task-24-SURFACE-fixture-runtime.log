@@ -1,0 +1,7 @@
+
+> web@0.1.0 test:fixtures:runtime
+> node scripts/test-fixtures-runtime.mjs
+
+WARN: config section [inbucket] is deprecated. Please use [local_smtp] instead.
+failed to inspect service: Cannot connect to the Docker daemon at http://docker.example.com. Is the docker daemon running?
+Docker Desktop is a prerequisite for local development. Follow the official docs to install: https://docs.docker.com/desktop

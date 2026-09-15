@@ -1,6 +1,6 @@
 import "server-only";
 
-import { BookIdSchema } from "@/lib/product/contracts";
+import { BookIdSchema, isPrivateBookImagePath } from "@/lib/product/contracts";
 import {
   failure,
   success,
@@ -40,6 +40,11 @@ export type SignedBookImageUrl = BookImagePathResult &
 
 export type SignedUrlCache = Map<string, SignedBookImageUrl>;
 
+export type PrivateBookImageBytes = Readonly<{
+  path: string;
+  bytes: Uint8Array;
+}>;
+
 const defaultSignedUrlCache: SignedUrlCache = new Map();
 
 function safeFileName(fileName: string): boolean {
@@ -76,7 +81,6 @@ function validatePathSegments(
   return success({ bucket: privateBookImagesBucket, path });
 }
 
-/** Build the only object layout accepted by the private book-images adapter. */
 export function ownedBookImagePath(
   userId: string,
   bookId: string,
@@ -210,5 +214,94 @@ export async function getBookImageUrl(
   }
 }
 
+export async function listOwnedBookImagePaths(
+  bookId: string,
+  factory?: ProductClientFactory,
+): Promise<ProductResult<string[]>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  if (!parsedBookId.success) return failure(validationError("The book image path is invalid."));
+  const session = await resolveProductSession(factory);
+  if (!session.ok) return failure(session.error);
+
+  const prefix = `${session.value.userId}/${parsedBookId.data}`;
+  const paths: string[] = [];
+  try {
+    for (let offset = 0; ; offset += 100) {
+      const { data, error } = await session.value.supabase.storage
+        .from(privateBookImagesBucket)
+        .list(prefix, { limit: 100, offset, sortBy: { column: "name", order: "asc" } });
+      if (error) return failure(mapAdapterError(error));
+      const entries = Array.isArray(data) ? data : [];
+      for (const entry of entries) {
+        if (!entry || typeof entry.name !== "string" || entry.id === null) continue;
+        const candidate = `${prefix}/${entry.name}`;
+        if (isPrivateBookImagePath(candidate, session.value.userId, parsedBookId.data)) paths.push(candidate);
+      }
+      if (entries.length < 100) break;
+    }
+    return success([...new Set(paths)]);
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
+export async function removeOwnedBookImagePaths(
+  bookId: string,
+  paths: readonly string[],
+  factory?: ProductClientFactory,
+): Promise<ProductResult<string[]>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  if (!parsedBookId.success) return failure(validationError("The book image path is invalid."));
+  const session = await resolveProductSession(factory);
+  if (!session.ok) return failure(session.error);
+
+  const requestedPaths = [...new Set(paths)];
+  if (requestedPaths.some((path) => !isPrivateBookImagePath(path, session.value.userId, parsedBookId.data))) return failure({
+    code: "forbidden",
+    status: 403,
+    message: "The storage object is outside the authenticated book scope.",
+    retryable: false,
+  });
+
+  try {
+    for (let index = 0; index < requestedPaths.length; index += 100) {
+      const { error } = await session.value.supabase.storage
+        .from(privateBookImagesBucket)
+      .remove(requestedPaths.slice(index, index + 100));
+      if (error) return failure(mapAdapterError(error));
+    }
+    return success(requestedPaths);
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
+export async function downloadOwnedBookImage(
+  bookId: string,
+  path: string,
+  factory?: ProductClientFactory,
+): Promise<ProductResult<PrivateBookImageBytes>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  if (!parsedBookId.success) return failure(validationError("The book image path is invalid."));
+  const session = await resolveProductSession(factory);
+  if (!session.ok) return failure(session.error);
+  const ownedPath = assertOwnedBookImagePath(session.value.userId, parsedBookId.data, path);
+  if (!ownedPath.ok) return failure(ownedPath.error);
+
+  try {
+    const { data, error } = await session.value.supabase.storage
+      .from(privateBookImagesBucket)
+      .download(ownedPath.value.path);
+    if (error) return failure(mapAdapterError(error));
+    if (!data || typeof data.arrayBuffer !== "function") return failure(validationError("The storage provider returned no image bytes."));
+    return success({ path: ownedPath.value.path, bytes: new Uint8Array(await data.arrayBuffer()) });
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
 export const refreshBookImageUrl = getBookImageUrl;
 export const uploadPrivateBookImage = uploadBookImage;
+export const listPrivateBookImagePaths = listOwnedBookImagePaths;
+export const removePrivateBookImagePaths = removeOwnedBookImagePaths;
+export const downloadPrivateBookImage = downloadOwnedBookImage;

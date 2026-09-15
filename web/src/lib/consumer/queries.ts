@@ -131,6 +131,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("images-ocr-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -316,6 +324,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       ? { book: detail.value, code: "ok", authenticated: true }
       : { book: null, code: "not_found", authenticated: true };
   }
+  if (routeFixture?.startsWith("images-ocr-")) {
+    const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
+      ? { book: detail.value, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
+  }
 
   if (context.unavailable || !context.supabase) {
     if (context.user) return { book: null, code: "not_found", authenticated: true };
@@ -377,6 +391,12 @@ export async function fetchOwnedProgressHistory(bookId: string): Promise<{
       : { history: [], code: "not_found", authenticated: true };
   }
   if (routeFixture?.startsWith("notes-highlights-")) {
+    const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
+      ? { history: [], code: "ok", authenticated: true }
+      : { history: [], code: "not_found", authenticated: true };
+  }
+  if (routeFixture?.startsWith("images-ocr-")) {
     const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
     return detail.ok
       ? { history: [], code: "ok", authenticated: true }

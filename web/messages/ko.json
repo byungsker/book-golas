@@ -760,6 +760,74 @@
         "generic": "기록을 저장하지 못했어요. 다시 시도하세요."
       }
     },
+    "imagesOcr": {
+      "eyebrow": "비공개 페이지 이미지",
+      "title": "페이지를 촬영하고 다시 읽어보세요",
+      "description": "이미지는 내 책의 비공개 공간에 보관돼요. OCR은 선택 사항이며, 실패하면 직접 입력할 수 있어요.",
+      "loading": "비공개 이미지를 불러오는 중...",
+      "retryLoad": "이미지 다시 불러오기",
+      "camera": "카메라 사용",
+      "chooseFile": "이미지 선택",
+      "capture": "현재 화면 촬영",
+      "cancelCamera": "카메라 닫기",
+      "fileFallback": "이 환경에서는 카메라를 사용할 수 없어요. 이미지 파일을 선택하세요.",
+      "upload": "이미지 업로드",
+      "saving": "저장 중...",
+      "cancel": "취소",
+      "previewAlt": "비공개 페이지 촬영 미리보기",
+      "page": "{page}페이지",
+      "pageUnknown": "페이지 미지정",
+      "delete": "이미지 삭제",
+      "manualPlaceholder": "OCR을 사용할 수 없으면 텍스트를 직접 입력하세요.",
+      "saveManual": "직접 입력 저장",
+      "retryOcr": "OCR 다시 시도",
+      "captureStates": {
+        "idle": "페이지 이미지를 준비하세요.",
+        "camera_ready": "카메라를 사용할 수 있어요.",
+        "camera_unavailable": "카메라를 사용할 수 없어요.",
+        "insecure_context": "카메라는 보안 연결에서만 사용할 수 있어요.",
+        "permission_denied": "카메라 권한이 거부됐어요.",
+        "unsupported": "이 브라우저는 카메라 촬영을 지원하지 않아요.",
+        "file_ready": "업로드할 이미지가 준비됐어요.",
+        "uploading": "이미지를 업로드하는 중...",
+        "saved": "이미지를 저장했어요.",
+        "error": "이미지 촬영에 실패했어요."
+      },
+      "ocrStatus": {
+        "not_requested": "OCR 사용 안 함",
+        "pending": "OCR 처리 중",
+        "ready": "OCR 완료",
+        "failed": "OCR 실패",
+        "manual": "직접 입력 저장됨"
+      },
+      "empty": {
+        "title": "저장한 비공개 페이지 이미지가 없어요",
+        "description": "페이지를 촬영하거나 이미지를 선택해 이 책과 함께 보관하세요."
+      },
+      "form": {
+        "page": "페이지 번호",
+        "caption": "캡션",
+        "ocrConsent": "이 이미지를 OCR에 보내는 것을 허용합니다."
+      },
+      "validation": {
+        "page": "이 책의 페이지 범위 안에서 입력하세요.",
+        "oversize": "이미지는 8MiB 이하여야 해요.",
+        "mime": "JPEG, PNG 또는 WebP 이미지를 선택하세요.",
+        "corrupt": "읽을 수 없거나 파일 형식과 내용이 다른 이미지예요."
+      },
+      "errors": {
+        "title": "이미지를 불러오지 못했어요",
+        "unauthorizedTitle": "로그인 후 비공개 이미지를 확인하세요",
+        "unauthorized": "비공개 페이지 이미지를 관리하려면 로그인하세요.",
+        "consent": "OCR을 실행하려면 동의가 필요해요.",
+        "quota": "OCR 사용 한도에 도달했어요.",
+        "provider": "OCR 제공자를 사용할 수 없어요. 텍스트를 직접 입력할 수 있어요.",
+        "oversize": "이미지가 8MiB 제한을 초과했어요.",
+        "offline": "오프라인 상태예요. 연결 후 다시 시도하세요.",
+        "notFound": "이 이미지를 서재에서 찾을 수 없어요.",
+        "generic": "이미지를 저장하지 못했어요. 다시 시도하세요."
+      }
+    },
     "book": {
       "status": {
         "planned": "읽을 예정",

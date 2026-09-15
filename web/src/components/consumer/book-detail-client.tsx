@@ -19,6 +19,7 @@ import {
 } from "@/components/consumer/blab-primitives";
 import { ReadingTimerControl } from "@/components/consumer/reading-timer-control";
 import { NotesHighlightsClient } from "@/components/consumer/notes-highlights-client";
+import { BookImageCaptureClient } from "@/components/consumer/book-image-capture-client";
 import {
   Dialog,
   DialogClose,
@@ -324,6 +325,12 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
       <ReadingTimerControl book={book} />
 
       <NotesHighlightsClient
+        locale={locale}
+        bookId={book.id}
+        totalPages={book.totalPages}
+      />
+
+      <BookImageCaptureClient
         locale={locale}
         bookId={book.id}
         totalPages={book.totalPages}
