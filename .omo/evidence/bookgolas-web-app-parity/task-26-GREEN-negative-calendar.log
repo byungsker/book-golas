@@ -1,0 +1,8 @@
+
+> web@0.1.0 test:calendar:negative
+> node scripts/test-calendar.mjs --fixture timezone && node scripts/test-calendar.mjs --fixture foreign && node scripts/test-calendar.mjs --fixture deleted && node scripts/test-calendar.mjs --fixture unauthorized
+
+calendar contract passed (timezone)
+calendar contract passed (foreign)
+calendar contract passed (deleted)
+calendar contract passed (unauthorized)

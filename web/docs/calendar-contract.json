@@ -1,0 +1,51 @@
+{
+  "issue": 439,
+  "task": 26,
+  "title": "Implement Calendar and day-detail reading activity",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "target": {
+    "deliveryUnit": "web",
+    "version": "1.1.0",
+    "profile": "web-release-train",
+    "mergeTarget": "version/web/1.1.0"
+  },
+  "native": {
+    "screen": "app/lib/ui/calendar/widgets/calendar_screen.dart:12-19",
+    "dayDetail": "app/lib/ui/calendar/widgets/calendar_day_detail_sheet.dart:220+",
+    "model": "app/lib/domain/models/calendar_reading_data.dart:1-110",
+    "service": "app/lib/data/services/reading_progress_service.dart:300-609",
+    "filterValues": ["all", "reading", "completed"],
+    "actions": ["previous_month", "next_month", "month_picker", "filter", "open_day_detail", "open_book_detail"],
+    "states": ["initial_loading", "month_loading", "empty", "error", "unauthorized", "completed", "paused", "planned"]
+  },
+  "web": {
+    "route": "/[locale]/calendar",
+    "component": "src/components/consumer/calendar-client.tsx",
+    "dataSources": ["reading_progress_history", "reading_sessions", "books"],
+    "timeZone": "Asia/Seoul",
+    "browserDisposition": {
+      "month_navigation": "query navigation with year/month/filter",
+      "day_detail": "accessible responsive dialog panel",
+      "book_navigation": "canonical localized /{locale}/books/{bookId} link",
+      "native_only": ["calendar platform widget", "push notification scheduling"]
+    }
+  },
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "foreign", "completed", "paused", "planned", "timezone", "day-detail"],
+  "operations": ["month_navigation", "month_picker", "filter", "kst_day_assignment", "stable_progress_events", "stable_session_events", "day_detail", "owned_books_only", "canonical_book_navigation", "planned_marker_non_historical"],
+  "invariants": [
+    "all database reads are scoped by the authenticated user id",
+    "deleted books are excluded before event aggregation",
+    "progress events use created_at and sessions use started_at as stable activity timestamps",
+    "UTC timestamps are assigned to calendar days in Asia/Seoul",
+    "planned_start_date is rendered as an explicit planned marker and never as a historical reading event",
+    "current completed status is displayed without synthesizing a completed_at event",
+    "the browser does not claim native calendar widgets or push notification parity"
+  ],
+  "acceptance": {
+    "command": "npm run test:calendar",
+    "negativeCommand": "npm run test:calendar:negative",
+    "happyQa": "npx playwright test tests/e2e/calendar.spec.ts --project=chromium --grep \"month|day-detail|timezone\"",
+    "failureQa": "npx playwright test tests/e2e/calendar.spec.ts --project=chromium --grep \"empty|network|foreign\"",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-26-bookgolas-web-app-parity.png"
+  }
+}

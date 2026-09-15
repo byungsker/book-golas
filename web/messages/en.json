@@ -346,6 +346,63 @@
         "unknown": "No target date"
       }
     },
+    "calendar": {
+      "eyebrow": "Reading activity",
+      "title": "Reading calendar",
+      "description": "See the progress and reading sessions recorded for your books. Dates follow Korea Standard Time.",
+      "timezoneLabel": "Display time zone",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "dayWithActivity": "{date}, {count, plural, one {# book with activity} other {# books with activity}}",
+      "dayWithoutActivity": "{date}, no reading activity",
+      "moreBooks": "+{count} more",
+      "plannedMarker": "Planned start",
+      "activeMarker": "Reading activity",
+      "noActivityShort": "No activity",
+      "dayDetailEyebrow": "Day detail",
+      "daySummary": "{books, plural, one {# book} other {# books}} · {pages} pages recorded",
+      "closeDetail": "Close day detail",
+      "authorUnknown": "Unknown author",
+      "pagesRead": "Pages",
+      "sessionMinutes": "Session minutes",
+      "eventCount": "Events",
+      "plannedDescription": "Planned start marker from your book settings. It is not a historical reading event.",
+      "progressEvent": "+{pages} pages",
+      "sessionEvent": "{minutes} min session",
+      "openBook": "Open book",
+      "filters": {
+        "all": "All",
+        "reading": "Reading",
+        "completed": "Finished"
+      },
+      "filterLabel": "Calendar filters",
+      "gridLabel": "Monthly reading activity",
+      "bookCount": "{count, plural, =0 {No books} one {# book} other {# books}}",
+      "activeDayCount": "{count, plural, =0 {No active days} one {# active day} other {# active days}}",
+      "emptyTitle": "No reading activity yet",
+      "emptyDescription": "Progress updates and reading sessions from your books will appear here.",
+      "monthPickerTitle": "Choose a month",
+      "cancelMonthPicker": "Close month picker",
+      "monthPickerLabel": "Month",
+      "cancel": "Cancel",
+      "confirm": "Show month",
+      "loading": "Loading your reading calendar...",
+      "retry": "Try again",
+      "errorTitle": "We could not load your reading calendar",
+      "errors": {
+        "offline": "You are offline. Reconnect to load reading activity.",
+        "consent_required": "Calendar consent is required in account settings.",
+        "quota_exceeded": "Reading history is temporarily unavailable because the quota was reached.",
+        "unavailable": "We could not load reading activity. Try again shortly."
+      },
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "unknown": "Reading"
+      }
+    },
     "library": {
       "eyebrow": "My reading space",
       "title": "My library",
