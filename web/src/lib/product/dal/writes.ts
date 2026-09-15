@@ -1,9 +1,14 @@
 import "server-only";
 
+import { z } from "zod";
 import {
   BookIdSchema,
+  BookStatusSchema,
   CreateBookRequestSchema,
+  IsoDateSchema,
   UpdateBookRequestSchema,
+  canTransitionBookStatus,
+  normalizeIsoDate,
   type Book,
   type CreateBookRequest,
   type UpdateBookRequest,
@@ -33,6 +38,7 @@ type BookInsertRow = {
   readonly attempt_count: number;
   readonly daily_target_pages: number | null;
   readonly priority: number | null;
+  readonly planned_start_date: string | null;
   readonly deleted_at: null;
   readonly genre: string | null;
   readonly publisher: string | null;
@@ -44,12 +50,24 @@ type BookInsertRow = {
 type BookUpdateRow = {
   title?: string;
   author?: string | null;
+  start_date?: string;
   target_date?: string;
+  planned_start_date?: string | null;
   status?: UpdateBookRequest["status"];
   daily_target_pages?: number | null;
   priority?: number | null;
   review?: string | null;
 };
+
+const CurrentBookStateSchema = z
+  .object({
+    status: BookStatusSchema,
+    start_date: IsoDateSchema,
+    target_date: IsoDateSchema,
+    planned_start_date: IsoDateSchema.nullable(),
+    total_pages: z.number().int().min(0),
+  })
+  .passthrough();
 
 function parseReturnedBook(value: unknown): ProductResult<Book> {
   return parseBookRow(value);
@@ -70,8 +88,8 @@ export async function createBook(
     user_id: session.value.userId,
     title: input.title,
     author: input.author,
-    start_date: input.startDate,
-    target_date: input.targetDate,
+    start_date: normalizeIsoDate(input.startDate),
+    target_date: normalizeIsoDate(input.targetDate),
     image_url: input.imageUrl,
     current_page: 0,
     total_pages: input.totalPages,
@@ -79,6 +97,7 @@ export async function createBook(
     attempt_count: 1,
     daily_target_pages: input.dailyTargetPages,
     priority: input.priority,
+    planned_start_date: input.plannedStartDate ? normalizeIsoDate(input.plannedStartDate) : null,
     deleted_at: null,
     genre: input.genre,
     publisher: input.publisher,
@@ -110,11 +129,48 @@ export async function updateBook(
   if (!session.ok) return failure(session.error);
 
   const input = parsedRequest.data;
+  const { data: currentData, error: currentError } = await session.value.supabase
+    .from("books")
+    .select("status,start_date,target_date,planned_start_date,total_pages")
+    .eq("id", parsedBookId.data)
+    .eq("user_id", session.value.userId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (currentError) return failure(mapDatabaseError(currentError));
+  if (!currentData) return failure(notFoundError());
+
+  const current = CurrentBookStateSchema.safeParse(currentData);
+  if (!current.success) return failure(validationError("The saved book data is invalid."));
+
+  const nextStatus = input.status ?? current.data.status;
+  if (input.status && !canTransitionBookStatus(current.data.status, input.status)) {
+    return failure(validationError("The book status transition is not allowed."));
+  }
+
+  const nextStartDate = input.startDate ? normalizeIsoDate(input.startDate) : current.data.start_date;
+  const nextTargetDate = input.targetDate ? normalizeIsoDate(input.targetDate) : current.data.target_date;
+  const nextPlannedStartDate = input.plannedStartDate === undefined
+    ? current.data.planned_start_date
+    : input.plannedStartDate === null
+      ? null
+      : normalizeIsoDate(input.plannedStartDate);
+  const effectiveStartDate = nextStatus === "planned" && nextPlannedStartDate
+    ? nextPlannedStartDate
+    : nextStartDate;
+  if (Date.parse(nextTargetDate) < Date.parse(nextStartDate) || Date.parse(nextTargetDate) < Date.parse(effectiveStartDate)) {
+    return failure(validationError("The target date must be on or after the effective start date."));
+  }
+
   const updates: BookUpdateRow = {};
   if (input.title !== undefined) updates.title = input.title;
   if (input.author !== undefined) updates.author = input.author;
-  if (input.targetDate !== undefined) updates.target_date = input.targetDate;
+  if (input.startDate !== undefined) updates.start_date = nextStartDate;
+  if (input.targetDate !== undefined) updates.target_date = nextTargetDate;
+  if (input.plannedStartDate !== undefined) updates.planned_start_date = nextPlannedStartDate;
   if (input.status !== undefined) updates.status = input.status;
+  if (nextStatus === "reading" && current.data.planned_start_date !== null && input.plannedStartDate === undefined) {
+    updates.planned_start_date = null;
+  }
   if (input.dailyTargetPages !== undefined) {
     updates.daily_target_pages = input.dailyTargetPages;
   }

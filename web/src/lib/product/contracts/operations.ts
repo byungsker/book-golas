@@ -7,7 +7,7 @@ import {
   RecordIdSchema,
   SortSchema,
 } from "./common";
-import { BookStatusSchema } from "./books";
+import { BookPrioritySchema, BookStatusSchema } from "./books";
 
 export const exportFormatValues = ["json", "csv"] as const;
 export const exportStatusValues = ["queued", "ready", "failed"] as const;
@@ -101,6 +101,7 @@ export const CreateBookRequestSchema = z
     targetDate: IsoDateSchema,
     totalPages: z.number().int().min(0),
     status: BookStatusSchema,
+    plannedStartDate: IsoDateSchema.nullable().optional(),
     imageUrl: z.string().trim().min(1).nullable(),
     genre: z.string().trim().min(1).max(120).nullable(),
     publisher: z.string().trim().min(1).max(200).nullable(),
@@ -108,23 +109,50 @@ export const CreateBookRequestSchema = z
     aladinUrl: z.string().trim().min(1).nullable(),
     price: z.number().int().min(0).nullable(),
     dailyTargetPages: z.number().int().min(1).nullable(),
-    priority: z.number().int().min(0).max(5).nullable(),
+    priority: BookPrioritySchema.nullable(),
   })
-  .strict();
+  .strict()
+  .superRefine((request, context) => {
+    const start = Date.parse(request.startDate);
+    const target = Date.parse(request.targetDate);
+    const plannedStart = request.plannedStartDate ? Date.parse(request.plannedStartDate) : null;
+    if (target < start) {
+      context.addIssue({ code: "custom", path: ["targetDate"], message: "targetDate must be on or after startDate" });
+    }
+    if (request.status === "reading" && plannedStart !== null) {
+      context.addIssue({ code: "custom", path: ["plannedStartDate"], message: "reading books cannot keep a planned start date" });
+    }
+    if (plannedStart !== null && target < plannedStart) {
+      context.addIssue({ code: "custom", path: ["targetDate"], message: "targetDate must be on or after plannedStartDate" });
+    }
+  });
 
 export const UpdateBookRequestSchema = z
   .object({
     bookId: BookIdSchema,
     title: z.string().trim().min(1).max(500).optional(),
     author: z.string().trim().min(1).max(500).nullable().optional(),
+    startDate: IsoDateSchema.optional(),
     targetDate: IsoDateSchema.optional(),
+    plannedStartDate: IsoDateSchema.nullable().optional(),
     status: BookStatusSchema.optional(),
     dailyTargetPages: z.number().int().min(1).nullable().optional(),
-    priority: z.number().int().min(0).max(5).nullable().optional(),
+    priority: BookPrioritySchema.nullable().optional(),
     review: z.string().nullable().optional(),
   })
   .strict()
-  .refine((request) => Object.keys(request).length > 1, "at least one book field is required");
+  .refine((request) => Object.keys(request).length > 1, "at least one book field is required")
+  .superRefine((request, context) => {
+    if (request.startDate && request.targetDate && Date.parse(request.targetDate) < Date.parse(request.startDate)) {
+      context.addIssue({ code: "custom", path: ["targetDate"], message: "targetDate must be on or after startDate" });
+    }
+    if (request.status === "reading" && request.plannedStartDate) {
+      context.addIssue({ code: "custom", path: ["plannedStartDate"], message: "reading books cannot keep a planned start date" });
+    }
+    if (request.plannedStartDate && request.targetDate && Date.parse(request.targetDate) < Date.parse(request.plannedStartDate)) {
+      context.addIssue({ code: "custom", path: ["targetDate"], message: "targetDate must be on or after plannedStartDate" });
+    }
+  });
 
 export const ProgressUpdateRequestSchema = z
   .object({

@@ -11,6 +11,16 @@ export type ConsumerRouteFixture =
   | "book-discovery-results"
   | "book-discovery-unauthorized"
   | "book-discovery-upstream"
+  | "book-lifecycle-conflict"
+  | "book-lifecycle-consent"
+  | "book-lifecycle-duplicate"
+  | "book-lifecycle-error"
+  | "book-lifecycle-foreign"
+  | "book-lifecycle-invalid"
+  | "book-lifecycle-offline"
+  | "book-lifecycle-quota"
+  | "book-lifecycle-success"
+  | "book-lifecycle-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -66,6 +76,16 @@ export function getConsumerRouteFixture(
     "book-discovery-results",
     "book-discovery-unauthorized",
     "book-discovery-upstream",
+    "book-lifecycle-conflict",
+    "book-lifecycle-consent",
+    "book-lifecycle-duplicate",
+    "book-lifecycle-error",
+    "book-lifecycle-foreign",
+    "book-lifecycle-invalid",
+    "book-lifecycle-offline",
+    "book-lifecycle-quota",
+    "book-lifecycle-success",
+    "book-lifecycle-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

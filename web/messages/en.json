@@ -517,6 +517,90 @@
         "offline": "You are offline. Reconnect before searching or loading recommendations."
       }
     },
+    "bookLifecycle": {
+      "eyebrow": "Reading setup",
+      "title": "Set your reading plan",
+      "editTitle": "Edit your reading plan",
+      "description": "Choose when to read, how much to read each day, and the priority for this book.",
+      "metadata": {
+        "title": "Book details",
+        "bookTitle": "Title",
+        "author": "Author",
+        "authorUnknown": "Unknown author",
+        "totalPages": "Total pages",
+        "isbn": "ISBN"
+      },
+      "status": {
+        "label": "Reading status",
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "help": {
+          "planned": "Keep this book for a planned start.",
+          "reading": "Start tracking pages now.",
+          "completed": "Mark this book as finished.",
+          "will_retry": "Pause it and come back later."
+        }
+      },
+      "schedule": {
+        "title": "Reading schedule",
+        "startDate": "Start date",
+        "targetDate": "Target date",
+        "plannedStartDate": "Planned start date",
+        "usePlannedDate": "Use a planned start date",
+        "preview": "Schedule preview",
+        "targetDays": "Reading days",
+        "days": "days",
+        "dailyGoal": "Daily goal",
+        "pagesPerDay": "pages/day",
+        "edit": "Edit goal",
+        "dialogTitle": "Adjust daily goal",
+        "dialogDescription": "Set a positive page target. The preview updates before you save the book.",
+        "dailyTarget": "Pages per day",
+        "cancel": "Cancel",
+        "save": "Apply goal",
+        "previewUnavailable": "Enter valid dates to preview the schedule."
+      },
+      "priority": {
+        "label": "Priority",
+        "none": "No priority",
+        "values": {
+          "1": "Urgent",
+          "2": "High",
+          "3": "Medium",
+          "4": "Low"
+        }
+      },
+      "save": "Save book",
+      "saveChanges": "Save changes",
+      "saving": "Saving book...",
+      "saved": "Book saved",
+      "edit": "Edit schedule",
+      "home": "View my books",
+      "retry": "Try again",
+      "validation": {
+        "title": "Enter a book title.",
+        "pages": "Total pages must be a non-negative whole number.",
+        "datesRequired": "Choose both a start date and a target date.",
+        "plannedDate": "Choose a planned start date or turn it off.",
+        "dateRange": "The target date must be on or after the effective start date.",
+        "dailyTarget": "Daily pages must be a positive whole number.",
+        "priority": "Choose a priority from 1 to 4."
+      },
+      "errors": {
+        "generic": "We could not save this book. Try again.",
+        "malformed": "The saved book response was invalid. Try again.",
+        "offline": "You are offline. Reconnect before saving this book.",
+        "conflict": "This book changed or is already being saved. Try again.",
+        "notFound": "This book is no longer available in your library.",
+        "unauthorized": "Sign in before saving a book.",
+        "consent": "Book saving consent is required in account settings.",
+        "quota": "Your book limit has been reached.",
+        "signIn": "Sign in",
+        "openSettings": "Open account settings"
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",

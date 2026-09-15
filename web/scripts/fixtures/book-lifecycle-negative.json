@@ -1,0 +1,28 @@
+{
+  "issue": 431,
+  "fixtures": [
+    {
+      "name": "negative-pages-or-target",
+      "invalidInputs": ["totalPages < 0", "dailyTargetPages <= 0", "targetDate before effective start date"]
+    },
+    {
+      "name": "invalid-status-transition",
+      "invalidInputs": ["planned -> completed", "completed -> reading"]
+    },
+    {
+      "name": "foreign-book-write",
+      "invalidInputs": ["update a book outside the verified user scope"]
+    },
+    {
+      "name": "duplicate-submit",
+      "requiredRecovery": ["save button disabled while pending", "retry action remains visible after conflict"]
+    }
+  ],
+  "requiredGuards": [
+    "BookLifecycleRequestSchema",
+    "canTransitionBookStatus",
+    ".eq(\"user_id\", session.value.userId)",
+    "disabled={saveState === \"saving\"}",
+    "data-testid=\"book-lifecycle-retry\""
+  ]
+}

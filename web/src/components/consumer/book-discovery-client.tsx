@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
+import { BookLifecycleClient } from "@/components/consumer/book-lifecycle-client";
 import {
   ConsumerButton,
   ConsumerCard,
@@ -526,7 +527,7 @@ export function BookDiscoveryClient({
           </ConsumerCard>
 
           <div className="mt-6" data-testid="book-discovery-search-content">{renderSearchContent()}</div>
-          {selectedBook ? <ConsumerCard className="mt-5" data-testid="book-discovery-selected"><div className="flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("bookDiscovery.selected.eyebrow")}</p><h2 className="mt-1 text-xl font-semibold">{selectedBook.title}</h2><p className="mt-1 text-sm text-[var(--blab-text-tertiary)]">{selectedBook.author}</p>{selectedBook.isbn ? <p className="mt-2 text-xs text-[var(--blab-text-tertiary)]">{t("bookDiscovery.result.isbn")}: {selectedBook.isbn}</p> : null}</div><Check aria-hidden="true" className="text-[var(--blab-color-success)]" size={22} /></div><p className="mt-4 text-sm leading-6 text-[var(--blab-text-secondary)]">{t("bookDiscovery.selected.description")}</p></ConsumerCard> : null}
+          {selectedBook ? <><ConsumerCard className="mt-5" data-testid="book-discovery-selected"><div className="flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("bookDiscovery.selected.eyebrow")}</p><h2 className="mt-1 text-xl font-semibold">{selectedBook.title}</h2><p className="mt-1 text-sm text-[var(--blab-text-tertiary)]">{selectedBook.author}</p>{selectedBook.isbn ? <p className="mt-2 text-xs text-[var(--blab-text-tertiary)]">{t("bookDiscovery.result.isbn")}: {selectedBook.isbn}</p> : null}</div><Check aria-hidden="true" className="text-[var(--blab-color-success)]" size={22} /></div><p className="mt-4 text-sm leading-6 text-[var(--blab-text-secondary)]">{t("bookDiscovery.selected.description")}</p></ConsumerCard><BookLifecycleClient locale={locale} selectedBook={selectedBook} /></> : null}
         </section>
 
         <aside className="lg:pt-12" aria-labelledby="book-discovery-recommendation-heading">

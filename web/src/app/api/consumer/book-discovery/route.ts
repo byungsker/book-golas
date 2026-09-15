@@ -57,8 +57,9 @@ export async function POST(request: NextRequest) {
       return privateError(validationError("A valid ISBN-13 is required."));
     }
 
-    if (fixture?.startsWith("book-discovery-")) {
-      const result = await getBookDiscoveryFixture({ fixture, action: "search", query });
+    if (fixture?.startsWith("book-discovery-") || fixture?.startsWith("book-lifecycle-")) {
+      const discoveryFixture = fixture.startsWith("book-lifecycle-") ? "book-discovery-results" : fixture;
+      const result = await getBookDiscoveryFixture({ fixture: discoveryFixture, action: "search", query });
       if ("error" in result) return privateError(result.error);
       return privateJson(result);
     }
@@ -72,8 +73,9 @@ export async function POST(request: NextRequest) {
       : privateError(result.error);
   }
 
-  if (fixture?.startsWith("book-discovery-")) {
-    const result = await getBookDiscoveryFixture({ fixture, action: "recommendations", query: "" });
+  if (fixture?.startsWith("book-discovery-") || fixture?.startsWith("book-lifecycle-")) {
+    const discoveryFixture = fixture.startsWith("book-lifecycle-") ? "book-discovery-results" : fixture;
+    const result = await getBookDiscoveryFixture({ fixture: discoveryFixture, action: "recommendations", query: "" });
     if ("error" in result) return privateError(result.error);
     return privateJson(result);
   }

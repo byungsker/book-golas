@@ -12,7 +12,7 @@ type QueryResponse = {
 const userId = "10000000-0000-4000-8000-000000000001";
 const bookId = BookIdSchema.parse("30000000-0000-4000-8000-000000000003");
 
-function makeBookRow() {
+function makeBookRow(overrides: Record<string, unknown> = {}) {
   return {
     id: bookId,
     title: "Created book",
@@ -40,6 +40,7 @@ function makeBookRow() {
     price: null,
     created_at: "2026-08-01T00:00:00.000Z",
     updated_at: "2026-08-01T00:00:00.000Z",
+    ...overrides,
   };
 }
 
@@ -105,6 +106,30 @@ describe("user-scoped product DAL writes", () => {
     );
   });
 
+  it("normalizes lifecycle dates and persists the planned start separately", async () => {
+    const query = makeQuery({ data: makeBookRow(), error: null });
+    const supabase = makeSupabase(query);
+
+    const result = await createBook(
+      {
+        ...createRequest,
+        startDate: "2026-08-01T09:00:00+09:00",
+        targetDate: "2026-08-31T09:00:00+09:00",
+        plannedStartDate: "2026-08-02T09:00:00+09:00",
+        priority: 4,
+      },
+      () => Promise.resolve(supabase as never),
+    );
+
+    expect(result).toMatchObject({ ok: true });
+    expect(query.insert).toHaveBeenCalledWith(expect.objectContaining({
+      start_date: "2026-08-01T00:00:00.000Z",
+      target_date: "2026-08-31T00:00:00.000Z",
+      planned_start_date: "2026-08-02T00:00:00.000Z",
+      priority: 4,
+    }));
+  });
+
   it("updates only an active book owned by the verified session", async () => {
     const query = makeQuery({ data: makeBookRow(), error: null });
     const supabase = makeSupabase(query);
@@ -119,6 +144,32 @@ describe("user-scoped product DAL writes", () => {
     expect(query.eq).toHaveBeenCalledWith("id", bookId);
     expect(query.eq).toHaveBeenCalledWith("user_id", userId);
     expect(query.is).toHaveBeenCalledWith("deleted_at", null);
+  });
+
+  it("rejects a non-canonical status transition before writing", async () => {
+    const query = makeQuery({ data: makeBookRow(), error: null });
+    const supabase = makeSupabase(query);
+
+    const result = await updateBook(
+      { bookId, status: "completed" },
+      () => Promise.resolve(supabase as never),
+    );
+
+    expect(result).toMatchObject({ ok: false, error: { code: "validation_error" } });
+    expect(query.update).not.toHaveBeenCalled();
+  });
+
+  it("clears a planned date when a planned book starts reading", async () => {
+    const query = makeQuery({ data: makeBookRow({ planned_start_date: "2026-08-02T00:00:00.000Z" }), error: null });
+    const supabase = makeSupabase(query);
+
+    const result = await updateBook(
+      { bookId, status: "reading" },
+      () => Promise.resolve(supabase as never),
+    );
+
+    expect(result).toMatchObject({ ok: true });
+    expect(query.update).toHaveBeenCalledWith({ status: "reading", planned_start_date: null });
   });
 
   it("soft-deletes an owned book through the same scoped update", async () => {

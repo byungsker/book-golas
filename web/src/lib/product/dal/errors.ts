@@ -113,11 +113,11 @@ export function notFoundError(): ProductError {
   };
 }
 
-export function conflictError(): ProductError {
+export function conflictError(message = "The book changed. Retry the operation."): ProductError {
   return {
     code: "conflict",
     status: 409,
-    message: "The book changed. Retry the operation.",
+    message,
     retryable: true,
   };
 }

@@ -8,6 +8,8 @@ import {
 
 export const bookStatusValues = ["planned", "reading", "completed", "will_retry"] as const;
 export const BookStatusSchema = z.enum(bookStatusValues);
+export const bookPriorityValues = [1, 2, 3, 4] as const;
+export const BookPrioritySchema = z.number().int().min(1).max(4);
 
 const nullableDate = IsoDateSchema.nullable();
 const nullableText = z.string().min(1).nullable();
@@ -25,7 +27,7 @@ export const BookSchema = z
     status: BookStatusSchema,
     attemptCount: z.number().int().min(1),
     dailyTargetPages: z.number().int().min(1).nullable(),
-    priority: z.number().int().min(0).max(5).nullable(),
+    priority: BookPrioritySchema.nullable(),
     pausedAt: nullableDate,
     plannedStartDate: nullableDate,
     deletedAt: nullableDate,
@@ -153,6 +155,8 @@ export const NoteSchema = z
   .strict();
 
 export type Book = z.infer<typeof BookSchema>;
+export type BookStatus = z.infer<typeof BookStatusSchema>;
+export type BookPriority = z.infer<typeof BookPrioritySchema>;
 export type BookSearchResult = z.infer<typeof BookSearchResultSchema>;
 export type ProgressEvent = z.infer<typeof ProgressEventSchema>;
 export type ReadingSession = z.infer<typeof ReadingSessionSchema>;
