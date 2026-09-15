@@ -3,6 +3,7 @@ export * from "./books";
 export * from "./common";
 export * from "./book-discovery";
 export * from "./book-detail";
+export * from "./calendar";
 export * from "./book-lifecycle";
 export * from "./identity";
 export * from "./images-ocr";

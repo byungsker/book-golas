@@ -1,0 +1,33 @@
+{
+  "issue": 439,
+  "task": 26,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "fixtures": [
+    {
+      "name": "timezone-boundary",
+      "beforeUtc": "2026-09-01T14:59:59.000Z",
+      "afterUtc": "2026-09-01T15:00:00.000Z",
+      "expectedKstDays": ["2026-09-01", "2026-09-02"]
+    },
+    {
+      "name": "foreign-event",
+      "foreignBookId": "00000000-0000-4000-8000-000000004398",
+      "expected": "foreign event is discarded before day detail"
+    },
+    {
+      "name": "deleted-book",
+      "expected": "deleted or missing owned book is discarded before day detail"
+    },
+    {
+      "name": "unauthorized",
+      "expected": "calendar route redirects through the shared sign-in boundary"
+    },
+    {
+      "name": "status-preservation",
+      "expectedStatuses": ["planned", "reading", "completed", "will_retry"],
+      "expected": "current book status is displayed without inferring a historical completion event"
+    }
+  ],
+  "privateDataMarkers": ["Foreign Private title", "Deleted Private title"],
+  "requiredSources": ["reading_progress_history", "reading_sessions", "books"]
+}

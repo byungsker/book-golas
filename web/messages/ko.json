@@ -346,6 +346,63 @@
         "unknown": "목표일 없음"
       }
     },
+    "calendar": {
+      "eyebrow": "독서 활동",
+      "title": "독서 캘린더",
+      "description": "책별 진행 기록과 독서 세션을 한눈에 확인하세요. 날짜는 한국 표준시를 기준으로 표시합니다.",
+      "timezoneLabel": "표시 시간대",
+      "previousMonth": "이전 달",
+      "nextMonth": "다음 달",
+      "dayWithActivity": "{date}, 활동한 책 {count}권",
+      "dayWithoutActivity": "{date}, 독서 활동 없음",
+      "moreBooks": "외 {count}권",
+      "plannedMarker": "읽기 예정",
+      "activeMarker": "독서 활동",
+      "noActivityShort": "활동 없음",
+      "dayDetailEyebrow": "일별 상세",
+      "daySummary": "{books}권 · {pages}페이지 기록",
+      "closeDetail": "일별 상세 닫기",
+      "authorUnknown": "저자 미상",
+      "pagesRead": "페이지",
+      "sessionMinutes": "세션(분)",
+      "eventCount": "이벤트",
+      "plannedDescription": "책 설정에서 가져온 읽기 예정 표시입니다. 과거 독서 이벤트가 아닙니다.",
+      "progressEvent": "+{pages}페이지",
+      "sessionEvent": "{minutes}분 세션",
+      "openBook": "책 열기",
+      "filters": {
+        "all": "전체",
+        "reading": "읽는 중",
+        "completed": "완독"
+      },
+      "filterLabel": "캘린더 필터",
+      "gridLabel": "월별 독서 활동",
+      "bookCount": "{count}권",
+      "activeDayCount": "활동한 날 {count}일",
+      "emptyTitle": "아직 독서 활동이 없어요",
+      "emptyDescription": "책의 진행률과 독서 세션을 기록하면 이곳에 표시됩니다.",
+      "monthPickerTitle": "달 선택",
+      "cancelMonthPicker": "달 선택 닫기",
+      "monthPickerLabel": "달",
+      "cancel": "취소",
+      "confirm": "이 달 보기",
+      "loading": "독서 캘린더를 불러오는 중...",
+      "retry": "다시 시도",
+      "errorTitle": "독서 캘린더를 불러오지 못했어요",
+      "errors": {
+        "offline": "오프라인 상태입니다. 연결 후 독서 활동을 불러오세요.",
+        "consent_required": "계정 설정에서 캘린더 동의가 필요합니다.",
+        "quota_exceeded": "독서 기록 할당량에 도달해 잠시 사용할 수 없어요.",
+        "unavailable": "독서 활동을 불러오지 못했어요. 잠시 후 다시 시도하세요."
+      },
+      "status": {
+        "planned": "읽을 책",
+        "reading": "읽는 중",
+        "completed": "완독",
+        "will_retry": "다시 읽기",
+        "unknown": "읽는 중"
+      }
+    },
     "library": {
       "eyebrow": "나의 독서 공간",
       "title": "내 서재",

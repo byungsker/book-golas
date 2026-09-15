@@ -98,6 +98,15 @@ export type ConsumerRouteFixture =
   | "review-share-quota"
   | "review-share-timeout"
   | "review-share-unauthorized"
+  | "calendar-consent"
+  | "calendar-empty"
+  | "calendar-error"
+  | "calendar-foreign"
+  | "calendar-happy"
+  | "calendar-network"
+  | "calendar-offline"
+  | "calendar-quota"
+  | "calendar-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -240,6 +249,15 @@ export function getConsumerRouteFixture(
     "review-share-quota",
     "review-share-timeout",
     "review-share-unauthorized",
+    "calendar-consent",
+    "calendar-empty",
+    "calendar-error",
+    "calendar-foreign",
+    "calendar-happy",
+    "calendar-network",
+    "calendar-offline",
+    "calendar-quota",
+    "calendar-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",
