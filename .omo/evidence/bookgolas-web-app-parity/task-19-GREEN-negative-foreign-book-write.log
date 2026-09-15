@@ -1,0 +1,5 @@
+
+> web@0.1.0 test:book-lifecycle:negative
+> node scripts/test-book-lifecycle.mjs --fixture foreign-book-write
+
+book-lifecycle contract passed (foreign-book-write)

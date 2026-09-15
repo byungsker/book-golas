@@ -9,6 +9,7 @@ import {
   type ConsumerBook,
 } from "@/lib/consumer/types";
 import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
+import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
 
 type AuthContext = {
   supabase: SupabaseClient | null;
@@ -78,6 +79,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("book-lifecycle-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -125,6 +134,9 @@ export async function fetchOwnedBooks(): Promise<{
   if (context.user && !context.supabase) {
     if (routeFixture === "home-book-list") {
       return { books: getHomeBookListFixtureBooks(), code: "ok" };
+    }
+    if (routeFixture?.startsWith("book-lifecycle-")) {
+      return { books: [getBookLifecycleFixtureConsumerBook()], code: "ok" };
     }
     return { books: [], code: "ok" };
   }

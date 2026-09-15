@@ -55,7 +55,7 @@ const BookRowSchema = z
     status: z.enum(["planned", "reading", "completed", "will_retry"]),
     attempt_count: z.number().int().min(1),
     daily_target_pages: z.number().int().min(1).nullable(),
-    priority: z.number().int().min(0).max(5).nullable(),
+    priority: z.number().int().min(1).max(4).nullable(),
     paused_at: nullableDate,
     planned_start_date: nullableDate,
     deleted_at: nullableDate,
