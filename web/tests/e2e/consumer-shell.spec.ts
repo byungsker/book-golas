@@ -40,6 +40,17 @@ test("desktop shell exposes exactly five tabs, deep-link state, search modes and
   await navigation.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("button", { name: /^Book search/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Recall/ })).toBeVisible();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(navigation.getByRole("button", { name: "Search" })).toBeFocused();
+  await navigation.getByRole("button", { name: "Search" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Close search modes" }).focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(dialog.getByRole("button", { name: /^Recall/ })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog.getByRole("button", { name: "Close search modes" })).toBeFocused();
   await capture(page, "task-14-bookgolas-web-app-parity.png");
 
   await page.getByRole("button", { name: /^Book search/ }).click();
@@ -52,6 +63,10 @@ test("desktop shell exposes exactly five tabs, deep-link state, search modes and
   await page.reload({ waitUntil: "networkidle" });
   await expect(page).toHaveURL(/\/en\/library\?view=records&search=recall$/);
   await expect(page.getByTestId("consumer-shell")).toHaveAttribute("data-active-tab", "library");
+
+  await page.goto("/en/home?view=planned&filter=mine", { waitUntil: "networkidle" });
+  await navigation.getByRole("link", { name: "KO" }).click();
+  await expect(page).toHaveURL(/\/ko\/home\?view=planned&filter=mine$/);
 });
 
 test("mobile shell keeps five tabs and cycles home and chart re-taps in the URL", async ({ context, page }) => {

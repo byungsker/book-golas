@@ -247,6 +247,7 @@
         "close": "Close search modes",
         "eyebrow": "Global search",
         "title": "What do you want to find?",
+        "description": "Choose a search mode.",
         "bookTitle": "Book search",
         "bookDescription": "Find a book to add to your reading list.",
         "recallTitle": "Recall",

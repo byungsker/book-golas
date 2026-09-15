@@ -247,6 +247,7 @@
         "close": "검색 모드 닫기",
         "eyebrow": "통합 검색",
         "title": "무엇을 찾고 있나요?",
+        "description": "검색 모드를 선택하세요.",
         "bookTitle": "책 검색",
         "bookDescription": "읽을 책을 찾아 독서 목록에 추가하세요.",
         "recallTitle": "Recall",
