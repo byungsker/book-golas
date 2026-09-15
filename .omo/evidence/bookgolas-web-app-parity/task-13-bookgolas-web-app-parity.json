@@ -1,0 +1,105 @@
+{
+  "issue": 426,
+  "title": "[Bookgolas Web Parity 13] Reproduce onboarding and age-policy persistence",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "origin/version/web/1.1.0",
+  "base_revision": "868f6f511c5319023397e589c99453834e6bcf73",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-426-onboarding",
+  "declared_commit": "feat(onboarding): add localized first-run and age policy flow",
+  "red": {
+    "result": "PASS",
+    "scenario": "The exact onboarding acceptance command fails before the contract exists.",
+    "invocation": "cd web && npm run test:onboarding",
+    "observable": "Exit 1 with npm error Missing script: test:onboarding.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-13-RED-test-onboarding.log"
+  },
+  "criteria": [
+    {
+      "scenario": "Authenticated Korean and English users see all three native-aligned pages, can use next/start or skip, choose an age policy, and return to the localized consumer home.",
+      "invocation": "npx playwright test tests/e2e/onboarding.spec.ts --project=chromium",
+      "observable": "Exit 0 with 4 passed; both locales cover page 1, page 2, page 3, progress indicators, start and skip age-policy entry, stored completion and age choice, reload persistence, and localized home handoff.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-orchestrator.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-1.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-2.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-3.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-age-policy-skip.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-1.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-2.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-3.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-age-policy-start.png"
+      ]
+    },
+    {
+      "scenario": "Corrupt local completion and age-policy values are cleared so an authenticated user can restart onboarding and complete it.",
+      "invocation": "npx playwright test tests/e2e/onboarding.spec.ts --project=chromium --grep corrupt-storage",
+      "observable": "Exit 0 with 1 passed; invalid local values are removed, the first page is visible, and the flow can be completed afterward.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-orchestrator-corrupt-storage.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-corrupt-storage-recovered.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-corrupt-storage.log"
+      ]
+    },
+    {
+      "scenario": "Anonymous onboarding uses a localized safe authentication handoff and does not bypass the authenticated consumer boundary.",
+      "invocation": "npx playwright test tests/e2e/onboarding.spec.ts --project=chromium",
+      "observable": "Exit 0; the anonymous case redirects to `/ko/auth/sign-in?returnTo=%2Fko%2Fonboarding`, and the authenticated case renders the first onboarding page.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-orchestrator.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-auth-handoff-sign-in.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-auth-handoff.png"
+      ]
+    },
+    {
+      "scenario": "The machine-checkable contract and negative fixture cover native-compatible keys, three pages, both locales, resettable persistence, and unsafe handoff values.",
+      "invocation": "cd web && npm run test:onboarding",
+      "observable": "Exit 0; onboarding contract PASS, onboarding state tests 3/3 and existing path tests 27/27 pass.",
+      "artifacts": [
+        "web/docs/onboarding-contract.json",
+        "web/scripts/fixtures/onboarding-negative.json",
+        ".omo/evidence/bookgolas-web-app-parity/task-13-GREEN-orchestrator-onboarding.log"
+      ]
+    }
+  ],
+  "green": {
+    "result": "PASS",
+    "invocation": "cd web && npm run test:onboarding",
+    "observable": "Exit 0; contract PASS, 2 Vitest files and 30 tests passed.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-13-GREEN-orchestrator-onboarding.log"
+  },
+  "verification": {
+    "result": "PASS",
+    "invocation": "npm run typecheck && npm run lint && npm test && npm run build; npm run test:auth-boundary && npm run test:auth-email && npm run test:auth-oauth",
+    "observable": "TypeScript, ESLint, 22 Vitest files and 174 tests, parity matrix and 59 negative fixtures, BLDS/UI contracts, auth boundary 23 tests, auth email 35 tests, OAuth 12 tests, and the Next production build all pass.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-13-GREEN-regression-orchestrator.log"
+  },
+  "surface": {
+    "result": "PASS",
+    "observable": "Fresh Chromium captures at 390x844 cover Korean dark and English light onboarding pages, page indicators, skip/start age-policy entry, stored completion, corrupt-storage recovery, and anonymous auth handoff.",
+    "artifacts": [
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-orchestrator.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-orchestrator-corrupt-storage.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-1.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-2.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-page-3.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-ko-age-policy-skip.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-1.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-2.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-page-3.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-en-age-policy-start.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-corrupt-storage-recovered.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-13-SURFACE-auth-handoff-sign-in.png"
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "observable": "Manual review approved the issue-scoped implementation, native alignment, localized states, protected handoff, keyboard age-policy activation, and unchanged admin/legal/marketing/native-only boundaries.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-13-diff-review.md"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "observable": "Ports 3000 and 54329 have no listeners, no task-local Next/Playwright/onboarding/fixture process remains, task-13 evidence logs contain no terminal control bytes, and the staged diff passes git diff --cached --check.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-13-CLEANUP.log"
+  }
+}

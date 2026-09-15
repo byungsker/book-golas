@@ -225,6 +225,44 @@
   },
   "consumer": {
     "brand": "Bookgolas",
+    "onboarding": {
+      "loading": "Checking your onboarding settings...",
+      "eyebrow": "Get started with Bookgolas",
+      "pages": [
+        {
+          "title": "Track Your Reading",
+          "description": "Set daily reading goals and track your progress"
+        },
+        {
+          "title": "Save Memorable Moments",
+          "description": "Capture highlights and thoughts from your books"
+        },
+        {
+          "title": "Achieve Your Goals",
+          "description": "Complete books and celebrate your achievements"
+        }
+      ],
+      "skip": "Skip",
+      "next": "Next",
+      "start": "Start",
+      "pageProgress": "Onboarding progress",
+      "pageIndicator": "Page {current} of {total}",
+      "agePolicy": {
+        "eyebrow": "One last step",
+        "title": "Age and advertising",
+        "description": "Choose your age group. This setting is stored only in this browser on this device and controls whether ads can be requested.",
+        "under14": {
+          "title": "Under 14",
+          "description": "Ads remain disabled."
+        },
+        "age14OrOlder": {
+          "title": "14 or older",
+          "description": "Ads may be requested after consent and tracking authorization."
+        },
+        "saveFailed": "We could not save the age setting in this browser. Try again.",
+        "back": "Back to onboarding"
+      }
+    },
     "nav": {
       "label": "Consumer navigation",
       "library": "Library",
