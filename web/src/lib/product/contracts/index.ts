@@ -10,5 +10,6 @@ export * from "./library";
 export * from "./notes-highlights";
 export * from "./operations";
 export * from "./progress-ui";
+export * from "./review-share";
 export * from "./routes";
 export * from "./timer";

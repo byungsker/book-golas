@@ -359,7 +359,10 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
             <h3 className="text-base font-semibold text-[var(--blab-text-primary)]">{t("review.title")}</h3>
             {book.review ? <p className="mt-2 text-sm leading-6 text-[var(--blab-text-secondary)]">{book.review}</p> : null}
             {book.longReview ? <p className="mt-2 text-sm leading-6 text-[var(--blab-text-secondary)]">{book.longReview}</p> : null}
-            {reviewHref ? <a className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[var(--blab-color-primary)] underline-offset-4 hover:underline" href={reviewHref} target="_blank" rel="noreferrer" data-testid="book-detail-review-link">{t("review.open")}<ExternalLink aria-hidden="true" size={15} /></a> : null}
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <Link className="inline-flex items-center gap-2 text-sm font-medium text-[var(--blab-color-primary)] underline-offset-4 hover:underline" href={`/${locale}/books/${book.id}/review`} data-testid="book-detail-review-editor-link">{t("review.edit")}</Link>
+              {reviewHref ? <a className="inline-flex items-center gap-2 text-sm font-medium text-[var(--blab-color-primary)] underline-offset-4 hover:underline" href={reviewHref} target="_blank" rel="noreferrer" data-testid="book-detail-review-link">{t("review.open")}<ExternalLink aria-hidden="true" size={15} /></a> : null}
+            </div>
           </div>
         ) : null}
 
