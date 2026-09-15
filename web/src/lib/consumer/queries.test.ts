@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cookies } from "next/headers";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { fetchOwnedBook } from "./queries";
+import { fetchOwnedBook, fetchOwnedBooks } from "./queries";
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
 
 vi.mock("@/lib/supabase-server", () => ({
   createServerSupabaseClient: vi.fn(),
@@ -24,6 +29,7 @@ function makeSupabase(user: { id: string } | null) {
 describe("fetchOwnedBook malformed identifiers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(cookies).mockResolvedValue({ get: vi.fn() } as never);
   });
 
   it("preserves authenticated header state without querying books", async () => {
@@ -101,5 +107,22 @@ describe("fetchOwnedBook malformed identifiers", () => {
       authenticated: true,
     });
     expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
+  });
+
+  it("reports an unavailable collection fixture before the synthetic user branch", async () => {
+    const previousMode = process.env.BOOKGOLAS_ROUTE_TEST_MODE;
+    const previousUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    process.env.BOOKGOLAS_ROUTE_TEST_MODE = "enabled";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
+    vi.mocked(cookies).mockResolvedValue({
+      get: vi.fn().mockReturnValue({ value: "unavailable" }),
+    } as never);
+
+    await expect(fetchOwnedBooks()).resolves.toEqual({ books: [], code: "unavailable" });
+
+    if (previousMode === undefined) delete process.env.BOOKGOLAS_ROUTE_TEST_MODE;
+    else process.env.BOOKGOLAS_ROUTE_TEST_MODE = previousMode;
+    if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = previousUrl;
   });
 });

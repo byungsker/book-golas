@@ -83,7 +83,7 @@ export function ConsumerShell({
     setSearchOpen(false);
     router.push(mode === "book"
       ? `/${locale}/books/new?mode=search`
-      : `/${locale}/library?view=records&search=recall`);
+      : `/${locale}/library?view=records&mode=recall`);
   }
 
   function toggleSearch() {

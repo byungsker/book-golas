@@ -89,8 +89,11 @@ export async function fetchOwnedBooks(): Promise<{
     await new Promise((resolve) => setTimeout(resolve, 1_200));
   }
   const context = await getAuthContext();
+  if (context.unavailable) {
+    return { books: [], code: "unavailable" };
+  }
   if (context.user && !context.supabase) return { books: [], code: "ok" };
-  if (context.unavailable || !context.supabase) {
+  if (!context.supabase) {
     return { books: [], code: "unavailable" };
   }
   if (!context.user) return { books: [], code: "unauthenticated" };

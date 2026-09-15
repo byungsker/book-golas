@@ -60,10 +60,10 @@ test("desktop shell exposes exactly five tabs, deep-link state, search modes and
   await page.goto("/en/home?view=planned", { waitUntil: "networkidle" });
   await navigation.getByRole("button", { name: "Search" }).click();
   await page.getByRole("button", { name: /^Recall/ }).click();
-  await expect(page).toHaveURL(/\/en\/library\?view=records&search=recall$/);
+  await expect(page).toHaveURL(/\/en\/library\?view=records&mode=recall$/);
   await expect(page.getByTestId("consumer-shell")).toHaveAttribute("data-active-tab", "library");
   await page.reload({ waitUntil: "networkidle" });
-  await expect(page).toHaveURL(/\/en\/library\?view=records&search=recall$/);
+  await expect(page).toHaveURL(/\/en\/library\?view=records&mode=recall$/);
   await expect(page.getByTestId("consumer-shell")).toHaveAttribute("data-active-tab", "library");
 
   await page.goto("/en/home?view=planned&filter=mine", { waitUntil: "networkidle" });

@@ -19,9 +19,10 @@
     "invocation": "cd web && npm run test:consumer-shell",
     "observable": "Exit 0; the machine-checkable shell contract passes and 3 Vitest files with 28 tests pass.",
     "artifacts": [
-      "web/docs/consumer-shell-contract.json",
-      "web/scripts/fixtures/consumer-shell-negative.json",
-      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-test-consumer-shell.log"
+        "web/docs/consumer-shell-contract.json",
+        "web/scripts/fixtures/consumer-shell-negative.json",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-test-consumer-shell.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-consumer-contract.log"
     ]
   },
   "criteria": [
@@ -32,6 +33,7 @@
       "artifacts": [
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-chromium.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-chromium.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-bookgolas-web-app-parity.png",
         ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-pending.png",
         ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-error.png"
@@ -53,7 +55,8 @@
       "observable": "Exit 0 with 1 passed; `/en/library?view=records` redirects to `/en/auth/sign-in?returnTo=%2Fen%2Flibrary%3Fview%3Drecords` and does not mount the shell.",
       "artifacts": [
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-expired-session.log",
-        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log"
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-expired-session.log"
       ]
     }
   ],
@@ -62,7 +65,8 @@
     "invocation": "npm run typecheck && npm run lint && npm test && npm run build",
     "observable": "TypeScript, ESLint, 23 Vitest files and 182 tests, parity matrix, 59 negative fixtures, BLDS/UI contracts, and the Next production build pass after the feature commit.",
     "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-regression-orchestrator.log",
-    "follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-regression.log"
+    "follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-regression.log",
+    "latest_follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-regression.log"
   },
   "surface": {
     "result": "PASS",
@@ -82,11 +86,14 @@
     "result": "APPROVE",
     "tool": "CodeRabbit CLI 0.7.6",
     "initial_issues": 2,
-    "final_issues": 0,
-    "final_invocation": "coderabbit review --agent -t committed --base version/web/1.1.0",
+    "local_follow_up_issues": 0,
+    "github_actionable_issues": 3,
+    "github_status_after_fixes": "pass; review rate limited",
     "resolved_issues": [
       "Preserve the current query string when switching locales.",
-      "Use the project dialog primitive with focus trap, Escape handling, and trigger focus restoration."
+      "Use the project dialog primitive with focus trap, Escape handling, and trigger focus restoration.",
+      "Use mode=recall for the contract-defined Recall destination.",
+      "Return unavailable before the synthetic user branch while preserving pending synthetic fixture behavior."
     ],
     "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-diff-review.md"
   },
