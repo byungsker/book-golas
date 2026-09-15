@@ -131,6 +131,17 @@ export function offlineError(message = "The network is unavailable."): ProductEr
   };
 }
 
+export function historyUnavailableError(
+  message = "Reading history could not be recorded.",
+): ProductError {
+  return {
+    code: "history_unavailable",
+    status: 503,
+    message,
+    retryable: true,
+  };
+}
+
 export function unavailableError(message = "Book data is temporarily unavailable."): ProductError {
   return {
     code: "unavailable",

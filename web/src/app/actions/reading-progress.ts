@@ -20,7 +20,7 @@ type UpdateReadingProgressInput = {
   readingTime?: number;
 };
 
-type UpdateReadingProgressResult =
+export type UpdateReadingProgressResult =
   | { ok: true; book: ConsumerBook; historyRecorded: boolean }
   | {
       ok: false;
@@ -29,6 +29,7 @@ type UpdateReadingProgressResult =
         | "unauthenticated"
         | "not_found"
         | "conflict"
+        | "history_unavailable"
         | "unavailable";
     };
 
@@ -97,6 +98,10 @@ export async function updateReadingProgress(
     if (!book) return { ok: false, code: "unavailable" };
 
     revalidateReadingProgressPaths(input);
+
+    if (input.currentPage > input.expectedCurrentPage && !progressResult.history_recorded) {
+      return { ok: false, code: "history_unavailable" };
+    }
 
     return {
       ok: true,

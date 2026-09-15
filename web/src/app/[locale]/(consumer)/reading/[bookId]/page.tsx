@@ -6,7 +6,7 @@ import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
-import { fetchOwnedBook } from "@/lib/consumer/queries";
+import { fetchOwnedBook, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +63,10 @@ export default async function ReadingPage({
   }
 
   const { book } = result;
+  const historyResult = await fetchOwnedProgressHistory(book.id);
+  if (historyResult.code === "unauthenticated") {
+    redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, `/reading/${bookId}`)));
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0f1a] text-white" data-blab-theme="dark">
@@ -93,6 +97,9 @@ export default async function ReadingPage({
               bookId={book.id}
               currentPage={book.currentPage}
               totalPages={book.totalPages}
+              status={book.status}
+              initialHistory={historyResult.history}
+              initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
             />
           </div>
         </section>

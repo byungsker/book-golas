@@ -11,8 +11,16 @@ import {
 import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
 import { getBookDetailFixture, getBookDetailFixtureConsumerBook } from "@/lib/consumer/book-detail-fixtures";
-import { bookDtoSelect, parseBookRow } from "@/lib/product/dal/codec";
-import type { Book } from "@/lib/product/contracts";
+import { getProgressFixtureSnapshot } from "@/lib/consumer/progress-fixtures";
+import {
+  bookDtoSelect,
+  parseBookRow,
+} from "@/lib/product/dal/codec";
+import {
+  ProgressEventSchema,
+  type Book,
+  type ProgressEvent,
+} from "@/lib/product/contracts";
 
 type AuthContext = {
   supabase: SupabaseClient | null;
@@ -91,6 +99,14 @@ async function getAuthContext(): Promise<AuthContext> {
   }
 
   if (routeFixture?.startsWith("book-detail-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
+  if (routeFixture?.startsWith("progress-")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,
@@ -265,6 +281,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
     }
     return { book: result.value, code: "ok", authenticated: true };
   }
+  if (routeFixture?.startsWith("progress-")) {
+    const snapshot = getProgressFixtureSnapshot({ fixture: routeFixture, bookId });
+    return snapshot
+      ? { book: snapshot.book, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
+  }
 
   if (context.unavailable || !context.supabase) {
     if (context.user) return { book: null, code: "not_found", authenticated: true };
@@ -288,5 +310,87 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       : { book: null, code: "unavailable", authenticated: true };
   } catch {
     return { book: null, code: "unavailable", authenticated: true };
+  }
+}
+
+export async function fetchOwnedProgressHistory(bookId: string): Promise<{
+  history: ProgressEvent[];
+  code: ConsumerQueryCode;
+  authenticated: boolean;
+}> {
+  const context = await getAuthContext();
+  if (!isBookId(bookId)) {
+    return {
+      history: [],
+      code: context.unavailable ? "unavailable" : "not_found",
+      authenticated: Boolean(context.user),
+    };
+  }
+
+  let routeFixture = null;
+  try {
+    routeFixture = getConsumerRouteFixture(
+      (await cookies()).get("bookgolas-route-fixture")?.value,
+    );
+  } catch {
+    routeFixture = null;
+  }
+  if (routeFixture?.startsWith("progress-")) {
+    const snapshot = getProgressFixtureSnapshot({ fixture: routeFixture, bookId });
+    return snapshot
+      ? { history: snapshot.history, code: "ok", authenticated: true }
+      : { history: [], code: "not_found", authenticated: true };
+  }
+
+  if (context.unavailable || !context.supabase) {
+    return context.user
+      ? { history: [], code: "unavailable", authenticated: true }
+      : { history: [], code: "unavailable", authenticated: false };
+  }
+  if (!context.user) {
+    return { history: [], code: "unauthenticated", authenticated: false };
+  }
+
+  try {
+    const ownedBook = await context.supabase
+      .from("books")
+      .select("id")
+      .eq("id", bookId)
+      .eq("user_id", context.user.id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (ownedBook.error) return { history: [], code: "unavailable", authenticated: true };
+    if (!ownedBook.data) return { history: [], code: "not_found", authenticated: true };
+
+    const { data, error } = await context.supabase
+      .from("reading_progress_history")
+      .select("id,book_id,page,previous_page,reading_time,created_at")
+      .eq("book_id", bookId)
+      .eq("user_id", context.user.id)
+      .order("created_at", { ascending: true });
+    if (error || !Array.isArray(data)) {
+      return { history: [], code: "unavailable", authenticated: true };
+    }
+
+    const history: ProgressEvent[] = [];
+    for (const row of data) {
+      if (!row || typeof row !== "object") {
+        return { history: [], code: "unavailable", authenticated: true };
+      }
+      const value = row as Record<string, unknown>;
+      const parsed = ProgressEventSchema.safeParse({
+        id: value.id,
+        bookId: value.book_id,
+        page: value.page,
+        previousPage: value.previous_page ?? 0,
+        ...(typeof value.reading_time === "number" ? { readingTime: value.reading_time } : {}),
+        createdAt: value.created_at,
+      });
+      if (!parsed.success) return { history: [], code: "unavailable", authenticated: true };
+      history.push(parsed.data);
+    }
+    return { history, code: "ok", authenticated: true };
+  } catch {
+    return { history: [], code: "unavailable", authenticated: true };
   }
 }

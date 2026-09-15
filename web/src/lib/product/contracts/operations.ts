@@ -165,6 +165,7 @@ export const ProgressUpdateRequestSchema = z
     currentPage: z.number().int().min(0),
     expectedCurrentPage: z.number().int().min(0),
     idempotencyKey: z.string().uuid(),
+    readingTime: z.number().int().min(0).max(28_800).optional(),
   })
   .strict();
 

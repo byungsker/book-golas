@@ -74,6 +74,7 @@ export const ProgressEventSchema = z
     bookId: BookIdSchema,
     page: z.number().int().min(0),
     previousPage: z.number().int().min(0),
+    readingTime: z.number().int().min(0).max(28_800).optional(),
     createdAt: IsoDateSchema,
   })
   .strict()

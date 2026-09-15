@@ -7,7 +7,7 @@ import { BookDetailClient } from "@/components/consumer/book-detail-client";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
-import { fetchOwnedBookDetail } from "@/lib/consumer/queries";
+import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
 import { formatBookDate, getBookProgress } from "@/lib/consumer/types";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +65,10 @@ export default async function BookDetailPage({
   }
 
   const { book } = result;
+  const historyResult = await fetchOwnedProgressHistory(book.id);
+  if (historyResult.code === "unauthenticated") {
+    redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, `/books/${bookId}`)));
+  }
   const statusKey = book.status;
   const statusLabel =
     {
@@ -163,6 +167,11 @@ export default async function BookDetailPage({
                 bookId={book.id}
                 currentPage={book.currentPage}
                 totalPages={book.totalPages}
+                status={book.status}
+                attemptCount={book.attemptCount}
+                initialBook={book}
+                initialHistory={historyResult.history}
+                initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
               />
             </div>
           </div>

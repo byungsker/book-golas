@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   ExternalLink,
@@ -113,6 +113,36 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
   const [successAction, setSuccessAction] = useState<BookDetailAction | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
+
+  useEffect(() => {
+    function handleProgressUpdate(event: Event) {
+      const value = (event as CustomEvent<unknown>).detail;
+      if (!isRecord(value) || value.id !== initialBook.id) return;
+      const nextCurrentPage = value.currentPage;
+      const nextTotalPages = value.totalPages;
+      const nextStatus = value.status;
+      if (
+        typeof nextCurrentPage !== "number" ||
+        typeof nextTotalPages !== "number" ||
+        typeof nextStatus !== "string" ||
+        !["planned", "reading", "completed", "will_retry"].includes(nextStatus)
+      ) {
+        return;
+      }
+      setBook((previous) => ({
+        ...previous,
+        currentPage: nextCurrentPage,
+        totalPages: nextTotalPages,
+        status: nextStatus as Book["status"],
+        attemptCount: typeof value.attemptCount === "number" ? value.attemptCount : previous.attemptCount,
+        pausedAt: typeof value.pausedAt === "string" || value.pausedAt === null ? value.pausedAt : previous.pausedAt,
+        updatedAt: typeof value.updatedAt === "string" || value.updatedAt === null ? value.updatedAt : previous.updatedAt,
+      }));
+    }
+
+    window.addEventListener("bookgolas:progress-updated", handleProgressUpdate);
+    return () => window.removeEventListener("bookgolas:progress-updated", handleProgressUpdate);
+  }, [initialBook.id]);
 
   const status = book.status;
   const transitionActions = actionOrder.filter((action) => canApplyBookDetailAction(status, action));

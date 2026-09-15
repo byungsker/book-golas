@@ -11,6 +11,7 @@ export {
   configurationError,
   failure,
   forbiddenError,
+  historyUnavailableError,
   mapDatabaseError,
   notFoundError,
   offlineError,
