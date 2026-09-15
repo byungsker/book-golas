@@ -4,7 +4,7 @@ import { BookCard } from "@/components/consumer/book-card";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { RefreshButton } from "@/components/consumer/refresh-button";
-import { getConsumerPath, isConsumerLocale } from "@/lib/consumer/paths";
+import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBooks, getCurrentConsumerUser } from "@/lib/consumer/queries";
 import { isConsumerBookStatus } from "@/lib/consumer/types";
 
@@ -20,9 +20,7 @@ export default async function ConsumerHomePage({
 
   const { user, unavailable: authUnavailable } = await getCurrentConsumerUser();
   if (!user && !authUnavailable) {
-    redirect(
-      `${getConsumerPath(locale, "/auth/sign-in")}?next=${encodeURIComponent(getConsumerPath(locale, "/home"))}`,
-    );
+    redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, "/home")));
   }
 
   const t = await getTranslations("consumer");

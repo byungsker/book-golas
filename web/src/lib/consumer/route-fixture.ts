@@ -1,7 +1,10 @@
 export type ConsumerRouteFixture =
   | "anonymous"
   | "authenticated-not-found"
+  | "bootstrap-network"
+  | "deleted-book"
   | "expired-session"
+  | "invalid-session"
   | "unauthorized-private-data"
   | "pending"
   | "unavailable"
@@ -24,7 +27,10 @@ export function getConsumerRouteFixture(
 
   return [
     "authenticated-not-found",
+    "bootstrap-network",
+    "deleted-book",
     "expired-session",
+    "invalid-session",
     "unauthorized-private-data",
     "pending",
     "unavailable",

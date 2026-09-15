@@ -3,6 +3,7 @@ import negativeFixtures from "../../../scripts/fixtures/consumer-routes-negative
 import authEmailNegativeFixtures from "../../../scripts/fixtures/auth-email-negative.json";
 import {
   getSafeNextPath,
+  getConsumerSignInRedirectPath,
   isConsumerRoutePath,
   isProtectedConsumerRoutePath,
   isUnprefixedConsumerRoutePath,
@@ -14,6 +15,17 @@ describe("consumer next paths", () => {
   it("keeps a locale-preserving consumer path", () => {
     expect(getSafeNextPath("ko", `/ko/books/${bookId}?tab=history`)).toBe(
       `/ko/books/${bookId}?tab=history`,
+    );
+  });
+
+  it("serializes one safe return target for the session handoff", () => {
+    expect(
+      getConsumerSignInRedirectPath("en", "/en/books/00000000-0000-4000-8000-000000002001?tab=history"),
+    ).toBe(
+      "/en/auth/sign-in?returnTo=%2Fen%2Fbooks%2F00000000-0000-4000-8000-000000002001%3Ftab%3Dhistory",
+    );
+    expect(getConsumerSignInRedirectPath("ko", "https://evil.example/private")).toBe(
+      "/ko/auth/sign-in?returnTo=%2Fko%2Fhome",
     );
   });
 

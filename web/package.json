@@ -15,6 +15,8 @@
     "test:auth-email": "node scripts/test-auth-email.mjs && vitest run src/lib/consumer/auth.test.ts src/lib/consumer/paths.test.ts",
     "test:auth-oauth": "node scripts/test-auth-oauth.mjs && vitest run src/lib/consumer/oauth.test.ts 'src/app/[locale]/(auth)/auth/callback/route.test.ts'",
     "test:onboarding": "node scripts/test-onboarding.mjs && vitest run src/lib/consumer/onboarding.test.ts src/lib/consumer/paths.test.ts",
+    "test:session-lifecycle": "node scripts/test-session-lifecycle.mjs && vitest run src/lib/consumer/session-lifecycle.test.ts src/lib/consumer/paths.test.ts src/proxy.test.ts",
+    "test:session-lifecycle:negative": "node scripts/test-session-lifecycle.mjs --fixture unsafe-return",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",
