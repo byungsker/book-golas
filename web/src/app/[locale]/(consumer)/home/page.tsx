@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { BookCard } from "@/components/consumer/book-card";
-import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { RefreshButton } from "@/components/consumer/refresh-button";
@@ -30,8 +29,7 @@ export default async function ConsumerHomePage({
   const result = user ? await fetchOwnedBooks() : { books: [], code: "unavailable" as const };
 
   return (
-    <div className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] text-[var(--blab-text-primary)]">
-      <ConsumerHeader locale={locale} authenticated={Boolean(user)} />
+    <div className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] text-[var(--blab-text-primary)]" data-route-state={authUnavailable || result.code === "unavailable" ? "error" : "ready"}>
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>

@@ -225,6 +225,35 @@
   },
   "consumer": {
     "brand": "Bookgolas",
+    "shell": {
+      "brand": "Bookgolas",
+      "navigationLabel": "Main reading navigation",
+      "tabs": {
+        "home": "Home",
+        "library": "My Library",
+        "chart": "Reading Chart",
+        "calendar": "Calendar",
+        "account": "My Page"
+      },
+      "mobileTabs": {
+        "home": "Home",
+        "library": "Library",
+        "chart": "Stats",
+        "calendar": "Calendar",
+        "account": "MY"
+      },
+      "search": {
+        "open": "Search",
+        "close": "Close search modes",
+        "eyebrow": "Global search",
+        "title": "What do you want to find?",
+        "bookTitle": "Book search",
+        "bookDescription": "Find a book to add to your reading list.",
+        "recallTitle": "Recall",
+        "recallDescription": "Search your own reading records by meaning."
+      },
+      "timerMount": "Reading timer"
+    },
     "onboarding": {
       "loading": "Checking your onboarding settings...",
       "eyebrow": "Get started with Bookgolas",

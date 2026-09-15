@@ -24,4 +24,18 @@ describe("consumer route fixture boundary", () => {
       }),
     ).toBeNull();
   });
+
+  it.each([
+    "expired-session",
+    "unauthorized-private-data",
+    "pending",
+    "unavailable",
+  ] as const)("accepts the loopback-only %s state", (fixture) => {
+    expect(
+      getConsumerRouteFixture(fixture, {
+        BOOKGOLAS_ROUTE_TEST_MODE: "enabled",
+        NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
+      }),
+    ).toBe(fixture);
+  });
 });

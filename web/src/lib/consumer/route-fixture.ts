@@ -1,4 +1,11 @@
-export type ConsumerRouteFixture = "anonymous" | "authenticated-not-found" | null;
+export type ConsumerRouteFixture =
+  | "anonymous"
+  | "authenticated-not-found"
+  | "expired-session"
+  | "unauthorized-private-data"
+  | "pending"
+  | "unavailable"
+  | null;
 
 type RouteFixtureEnvironment = Readonly<Record<string, string | undefined>>;
 
@@ -15,7 +22,13 @@ export function getConsumerRouteFixture(
     return null;
   }
 
-  return cookieValue === "authenticated-not-found"
-    ? "authenticated-not-found"
+  return [
+    "authenticated-not-found",
+    "expired-session",
+    "unauthorized-private-data",
+    "pending",
+    "unavailable",
+  ].includes(cookieValue ?? "")
+    ? cookieValue as Exclude<ConsumerRouteFixture, "anonymous" | null>
     : "anonymous";
 }

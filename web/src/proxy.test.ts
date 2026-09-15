@@ -132,6 +132,20 @@ describe("consumer locale proxy", () => {
     expect(new URL(response.headers.get("location")!).pathname).toBe("/admin/login");
   });
 
+  it("treats an expired fixture session as unauthenticated", async () => {
+    process.env.BOOKGOLAS_ROUTE_TEST_MODE = "enabled";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54329";
+    const request = new NextRequest("https://bookgolas.test/en/library", {
+      headers: { cookie: "bookgolas-route-fixture=expired-session" },
+    });
+    const response = await proxy(request);
+
+    expect(response.status).toBe(307);
+    expect(new URL(response.headers.get("location")!).pathname).toBe("/en/auth/sign-in");
+    delete process.env.BOOKGOLAS_ROUTE_TEST_MODE;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+  });
+
   it.each(["/ko/privacy", "/en/terms", "/support"])(
     "leaves marketing and legal routing outside the consumer auth gate: %s",
     async (pathname) => {

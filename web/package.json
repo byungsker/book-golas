@@ -10,6 +10,7 @@
     "test": "vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative",
     "test:consumer": "vitest run src/lib/consumer/types.test.ts",
     "test:consumer-routes": "node scripts/test-consumer-routes.mjs",
+    "test:consumer-shell": "node scripts/test-consumer-shell.mjs",
     "test:auth-boundary": "node scripts/test-auth-boundary.mjs",
     "test:auth-email": "node scripts/test-auth-email.mjs && vitest run src/lib/consumer/auth.test.ts src/lib/consumer/paths.test.ts",
     "test:auth-oauth": "node scripts/test-auth-oauth.mjs && vitest run src/lib/consumer/oauth.test.ts 'src/app/[locale]/(auth)/auth/callback/route.test.ts'",

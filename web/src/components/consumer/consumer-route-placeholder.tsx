@@ -26,10 +26,11 @@ export async function ConsumerRoutePlaceholder({
   titleKey: PlaceholderKey;
 }) {
   const t = await getTranslations("consumer.routes");
+  const isShellTab = titleKey === "library" || titleKey === "stats" || titleKey === "calendar";
 
   return (
     <div className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] text-[var(--blab-text-primary)]">
-      <ConsumerHeader locale={locale} authenticated />
+      {isShellTab ? null : <ConsumerHeader locale={locale} authenticated />}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <ConsumerCard data-testid={`consumer-route-${titleKey}`}>
           <ConsumerEmptyState
