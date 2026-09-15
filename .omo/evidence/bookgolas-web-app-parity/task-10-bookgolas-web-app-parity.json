@@ -63,10 +63,13 @@
     ]
   },
   "review": {
-    "result": "PENDING",
+    "result": "APPROVE",
+    "reviewed_revision": "34beb1120d3b31c3b969f7ef4b634cc3c2d152a2",
+    "code_review": ".omo/evidence/bookgolas-web-app-parity/task-10-code-review.md",
     "details": [
       "Local review verified route group moves preserve existing auth, home, account, detail and reading source content except for the intended returnTo and typed detail-state changes.",
-      "The final GitHub PR review is required before merge."
+      "The admin and consumer proxy boundaries, returnTo allowlist, owner-scoped lookup and loopback-only fixture were reviewed at the committed revision; no blocking findings were found.",
+      "The final GitHub PR review remains a separate repository review gate."
     ]
   }
 }
