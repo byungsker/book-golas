@@ -14,6 +14,14 @@ if (
 if (!parsedBaseURL.port) parsedBaseURL.port = "3000";
 const baseURL = parsedBaseURL.toString().replace(/\/$/, "");
 const port = parsedBaseURL.port;
+const webServerEnvironment = {
+  ...process.env,
+  NEXT_PUBLIC_SUPABASE_URL:
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54329",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY:
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "bookgolas-local-e2e-anon-key",
+  BOOKGOLAS_ROUTE_TEST_MODE: "enabled",
+};
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -39,6 +47,7 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npm run start -- --hostname 127.0.0.1 --port ${port}`,
     url: baseURL,
+    env: webServerEnvironment,
     reuseExistingServer: false,
     timeout: 120_000,
   },

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import negativeFixtures from "../../../scripts/fixtures/consumer-routes-negative.json";
+import authEmailNegativeFixtures from "../../../scripts/fixtures/auth-email-negative.json";
 import {
   getSafeNextPath,
   isConsumerRoutePath,
@@ -25,6 +26,13 @@ describe("consumer next paths", () => {
 
   it.each(negativeFixtures.crossBoundaryTargets)(
     "rejects non-consumer and cross-locale targets: %s",
+    (candidate) => {
+      expect(getSafeNextPath("ko", candidate)).toBe("/ko/home");
+    },
+  );
+
+  it.each(authEmailNegativeFixtures.unsafeReturnTargets)(
+    "rejects auth-email return target: %s",
     (candidate) => {
       expect(getSafeNextPath("ko", candidate)).toBe("/ko/home");
     },
