@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   getConsent,
   invokeProductRpc,
+  listGlobalRecallHistory,
   listRecallHistory,
 } from "./adapters";
 
@@ -19,6 +20,7 @@ function makeQuery(data: unknown, error: unknown = null) {
     eq: vi.fn(() => query),
     order: vi.fn(() => query),
     limit: vi.fn(() => query),
+    is: vi.fn(() => query),
     maybeSingle: vi.fn().mockResolvedValue({ data, error }),
     then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data, error }).then(resolve),
   };
@@ -73,6 +75,22 @@ describe("typed Supabase table and RPC adapters", () => {
     const absent = makeQuery(null);
     const absentSupabase = makeSupabase(absent);
     expect(await getConsent("ai", { factory: factoryFor(absentSupabase.supabase) })).toEqual({ ok: true, value: null });
+  });
+
+  it("limits global Recall history to owner rows with no book", async () => {
+    const query = makeQuery([{
+      id: "60000000-0000-4000-8000-000000000006",
+      book_id: null,
+      query: "What did I save globally?",
+      answer: "A global answer",
+      sources: [],
+      created_at: generatedAt,
+    }]);
+    const { supabase } = makeSupabase(query);
+    const result = await listGlobalRecallHistory({ limit: 10, factory: factoryFor(supabase) });
+    expect(result).toMatchObject({ ok: true, value: [{ query: "What did I save globally?" }] });
+    expect(query.eq).toHaveBeenCalledWith("user_id", userId);
+    expect(query.is).toHaveBeenCalledWith("book_id", null);
   });
 
   it("validates RPC output and rejects caller-selected ownership parameters", async () => {

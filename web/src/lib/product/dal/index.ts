@@ -7,6 +7,7 @@ export {
 export { decodeBookCursor, encodeBookCursor, type BookCursor } from "./cursor";
 export {
   conflictError,
+  consentRequiredError,
   configurationError,
   failure,
   forbiddenError,
@@ -27,4 +28,14 @@ export {
 } from "./errors";
 export { resolveProductSession, type ProductClientFactory, type ProductSession } from "./context";
 export { getBook, listBooks, type BookListData } from "./reads";
+export {
+  listOwnedReadingRecords,
+  type ReadingRecordListData,
+  type ReadingRecordListRequest,
+} from "./records";
+export {
+  decodeReadingRecordCursor,
+  encodeReadingRecordCursor,
+  type ReadingRecordCursor,
+} from "./record-cursor";
 export { createBook, deleteBook, updateBook } from "./writes";

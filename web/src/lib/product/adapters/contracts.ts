@@ -157,6 +157,7 @@ export type RecallSearchResponse = z.infer<typeof RecallSearchResponseSchema>;
 export const RecallHistoryRowSchema = z
   .object({
     id: RecordIdSchema,
+    book_id: BookIdSchema.nullable().optional(),
     query: z.string().trim().min(1).max(500),
     answer: z.string(),
     sources: z.array(RecallSourceSchema),

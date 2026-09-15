@@ -346,6 +346,87 @@
         "unknown": "No target date"
       }
     },
+    "library": {
+      "eyebrow": "My reading space",
+      "title": "My library",
+      "description": "Search your reading list, reviews and saved records in one private space.",
+      "tabs": {
+        "label": "My library tabs",
+        "reading": "Reading",
+        "review": "Review",
+        "records": "Records"
+      },
+      "searchLabel": "Search by title or author",
+      "searchPlaceholder": "Search title or author",
+      "recordSearchPlaceholder": "Filter records by type",
+      "recallOpen": "Search my records with Recall",
+      "recallClose": "Close Recall",
+      "addBook": "Add a book",
+      "authorUnknown": "Unknown author",
+      "openBook": "Open book",
+      "loadMore": "Load more",
+      "loading": "Loading your library...",
+      "loadingMore": "Loading more...",
+      "empty": {
+        "readingTitle": "No books match your search",
+        "readingDescription": "Books you add to your reading list will appear here.",
+        "reviewTitle": "No reviews match your search",
+        "reviewDescription": "Books with a saved review will appear here.",
+        "recordsTitle": "No reading records yet",
+        "recordsDescription": "Highlights, memos and photo records will appear here.",
+        "recallTitle": "No Recall history yet",
+        "recallDescription": "Ask Recall about a saved reading moment."
+      },
+      "error": {
+        "title": "We could not load this library view",
+        "description": "Try again in a moment.",
+        "retry": "Try again"
+      },
+      "unauthorized": {
+        "title": "Sign in to view your library",
+        "description": "Your books and reading records are private.",
+        "action": "Sign in"
+      },
+      "consent": {
+        "title": "Recall consent is required",
+        "description": "Grant AI consent in account settings before searching your records.",
+        "action": "Open consent settings"
+      },
+      "quota": {
+        "title": "Recall quota reached",
+        "description": "You have used this period’s AI Recall allowance.",
+        "action": "View account settings"
+      },
+      "records": {
+        "all": "All",
+        "highlight": "Highlights",
+        "note": "Memos",
+        "photo_ocr": "Photos",
+        "count": "{count, plural, =0 {No records} one {# record} other {# records}}",
+        "detailTitle": "Reading record",
+        "goToBook": "Go to book",
+        "close": "Close"
+      },
+      "recall": {
+        "eyebrow": "AI Recall",
+        "title": "Search all my reading records",
+        "description": "Recall searches your saved highlights, memos and photo text.",
+        "inputLabel": "Ask Recall",
+        "inputPlaceholder": "What did I save about...?",
+        "submit": "Search Recall",
+        "searching": "Searching your records...",
+        "answer": "Recall answer",
+        "sources": "Referenced records",
+        "history": "Recent global searches",
+        "empty": "No matching records",
+        "emptyDescription": "Try another question or save more reading records.",
+        "newSearch": "New search",
+        "loadHistory": "Load search"
+      },
+      "states": {
+        "offline": "You are offline. Reconnect to search or load your library."
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",

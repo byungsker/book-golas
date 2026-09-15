@@ -19,6 +19,8 @@
     "test:session-lifecycle:negative": "node scripts/test-session-lifecycle.mjs --fixture unsafe-return",
     "test:home-book-list": "node scripts/test-home-book-list.mjs && vitest run src/lib/consumer/home-book-list.test.ts src/lib/consumer/queries.test.ts",
     "test:home-book-list:negative": "node scripts/test-home-book-list.mjs --fixture hard-coded-landing",
+    "test:library": "node scripts/test-library.mjs && vitest run src/lib/consumer/library.test.ts src/lib/product/adapters.tables.test.ts src/lib/product/dal.test.ts src/lib/product/dal.records.test.ts",
+    "test:library:negative": "node scripts/test-library.mjs --fixture foreign-private-data",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",

@@ -68,6 +68,16 @@ export async function listBooks(
     query = query.eq("status", requestData.status);
   }
 
+  const filters: string[] = [];
+  if (requestData.query !== undefined) {
+    const searchTerm = requestData.query.replace(/[\\"%*(),]/g, " ").trim();
+    if (searchTerm.length === 0) return failure(validationError());
+    filters.push(`or(title.ilike."*${searchTerm}*",author.ilike."*${searchTerm}*")`);
+  }
+  if (requestData.reviewOnly) {
+    filters.push('or(review.neq."",long_review.neq."")');
+  }
+  let filterExpression = filters.length === 1 ? filters[0] : filters.length > 1 ? `and(${filters.join(",")})` : null;
   if (cursor !== undefined) {
     const comparison = requestData.sort.direction === "asc" ? "gt" : "lt";
     const cursorFilter =
@@ -95,8 +105,9 @@ export async function listBooks(
           ")," +
           requestData.sort.field +
           ".is.null";
-    query = query.or(cursorFilter);
+    filterExpression = filterExpression ? `and(${filterExpression},${cursorFilter})` : cursorFilter;
   }
+  if (filterExpression) query = query.or(filterExpression);
 
   const ascending = requestData.sort.direction === "asc";
   query = query

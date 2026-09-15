@@ -60,6 +60,7 @@ export {
   getLatestRecommendation,
   getNoteStructure,
   invokeProductRpc,
+  listGlobalRecallHistory,
   listOwnedBookImages,
   listRecallHistory,
   readBookImages,

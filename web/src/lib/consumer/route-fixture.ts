@@ -10,6 +10,21 @@ export type ConsumerRouteFixture =
   | "home-empty-planned"
   | "home-empty-reading"
   | "invalid-session"
+  | "library-book-list"
+  | "library-cancellation"
+  | "library-consent"
+  | "library-empty"
+  | "library-empty-reading"
+  | "library-empty-records"
+  | "library-empty-review"
+  | "library-error"
+  | "library-foreign"
+  | "library-network"
+  | "library-pending"
+  | "library-quota"
+  | "library-recall"
+  | "library-recall-empty"
+  | "library-unauthorized"
   | "unauthorized-private-data"
   | "pending"
   | "unavailable"
@@ -41,6 +56,21 @@ export function getConsumerRouteFixture(
     "home-empty-planned",
     "home-empty-reading",
     "invalid-session",
+    "library-book-list",
+    "library-cancellation",
+    "library-consent",
+    "library-empty",
+    "library-empty-reading",
+    "library-empty-records",
+    "library-empty-review",
+    "library-error",
+    "library-foreign",
+    "library-network",
+    "library-pending",
+    "library-quota",
+    "library-recall",
+    "library-recall-empty",
+    "library-unauthorized",
     "unauthorized-private-data",
     "pending",
     "unavailable",

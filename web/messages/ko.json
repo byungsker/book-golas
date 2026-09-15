@@ -346,6 +346,87 @@
         "unknown": "목표일 없음"
       }
     },
+    "library": {
+      "eyebrow": "나의 독서 공간",
+      "title": "내 서재",
+      "description": "읽은 책, 리뷰, 저장한 기록을 하나의 비공개 공간에서 검색하세요.",
+      "tabs": {
+        "label": "내 서재 탭",
+        "reading": "읽는 중",
+        "review": "리뷰",
+        "records": "기록"
+      },
+      "searchLabel": "제목 또는 저자로 검색",
+      "searchPlaceholder": "제목 또는 저자 검색",
+      "recordSearchPlaceholder": "기록 유형으로 필터",
+      "recallOpen": "Recall로 내 기록 검색",
+      "recallClose": "Recall 닫기",
+      "addBook": "책 추가",
+      "authorUnknown": "저자 미상",
+      "openBook": "책 열기",
+      "loadMore": "더 불러오기",
+      "loading": "서재를 불러오는 중...",
+      "loadingMore": "더 불러오는 중...",
+      "empty": {
+        "readingTitle": "검색 결과가 없어요",
+        "readingDescription": "읽을 책을 추가하면 여기에 표시됩니다.",
+        "reviewTitle": "검색에 맞는 리뷰가 없어요",
+        "reviewDescription": "저장한 리뷰가 있는 책이 여기에 표시됩니다.",
+        "recordsTitle": "아직 독서 기록이 없어요",
+        "recordsDescription": "하이라이트, 메모, 사진 기록이 여기에 표시됩니다.",
+        "recallTitle": "아직 Recall 기록이 없어요",
+        "recallDescription": "저장한 독서 순간에 대해 Recall에게 질문해 보세요."
+      },
+      "error": {
+        "title": "서재를 불러오지 못했어요",
+        "description": "잠시 후 다시 시도하세요.",
+        "retry": "다시 시도"
+      },
+      "unauthorized": {
+        "title": "로그인 후 서재를 확인하세요",
+        "description": "책과 독서 기록은 비공개로 보호됩니다.",
+        "action": "로그인"
+      },
+      "consent": {
+        "title": "Recall 동의가 필요해요",
+        "description": "기록을 검색하기 전에 계정 설정에서 AI 동의를 허용하세요.",
+        "action": "동의 설정 열기"
+      },
+      "quota": {
+        "title": "Recall 사용량을 모두 사용했어요",
+        "description": "이번 기간의 AI Recall 사용량을 모두 사용했습니다.",
+        "action": "계정 설정 보기"
+      },
+      "records": {
+        "all": "전체",
+        "highlight": "하이라이트",
+        "note": "메모",
+        "photo_ocr": "사진",
+        "count": "{count, plural, =0 {기록 없음} other {#개 기록}}",
+        "detailTitle": "독서 기록",
+        "goToBook": "책으로 이동",
+        "close": "닫기"
+      },
+      "recall": {
+        "eyebrow": "AI Recall",
+        "title": "내 독서 기록 전체 검색",
+        "description": "저장한 하이라이트, 메모, 사진 속 텍스트를 검색합니다.",
+        "inputLabel": "Recall에게 질문",
+        "inputPlaceholder": "무엇에 대해 저장했지...?",
+        "submit": "Recall 검색",
+        "searching": "기록을 검색하는 중...",
+        "answer": "Recall 답변",
+        "sources": "참조한 기록",
+        "history": "최근 전체 검색",
+        "empty": "일치하는 기록이 없어요",
+        "emptyDescription": "다른 질문을 입력하거나 독서 기록을 더 저장해 보세요.",
+        "newSearch": "새 검색",
+        "loadHistory": "검색 불러오기"
+      },
+      "states": {
+        "offline": "오프라인 상태입니다. 서재를 불러오거나 검색하려면 다시 연결하세요."
+      }
+    },
     "book": {
       "status": {
         "planned": "읽을 예정",
