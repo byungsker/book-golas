@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:notes-highlights
+> node scripts/test-notes-highlights.mjs && vitest run src/lib/product/contracts/notes-highlights.test.ts src/lib/product/dal.consumer-records.test.ts src/app/api/consumer/notes-highlights/route.test.ts
+
+notes-highlights contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-432/web
+
+ ✓ src/lib/product/contracts/notes-highlights.test.ts (4 tests) 6ms
+ ✓ src/app/api/consumer/notes-highlights/route.test.ts (4 tests) 15ms
+ ✓ src/lib/product/dal.consumer-records.test.ts (3 tests) 13ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  06:54:18
+   Duration  1.21s (transform 411ms, setup 0ms, collect 1.38s, tests 35ms, environment 0ms, prepare 598ms)

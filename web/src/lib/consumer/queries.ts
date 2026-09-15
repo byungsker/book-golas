@@ -123,6 +123,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("notes-highlights-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -302,6 +310,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       ? { book: timerBook.value, code: "ok", authenticated: true }
       : { book: null, code: "not_found", authenticated: true };
   }
+  if (routeFixture?.startsWith("notes-highlights-")) {
+    const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
+      ? { book: detail.value, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
+  }
 
   if (context.unavailable || !context.supabase) {
     if (context.user) return { book: null, code: "not_found", authenticated: true };
@@ -359,6 +373,12 @@ export async function fetchOwnedProgressHistory(bookId: string): Promise<{
   if (routeFixture?.startsWith("timer-")) {
     const timerBook = getTimerFixtureBook(routeFixture, bookId);
     return timerBook.ok
+      ? { history: [], code: "ok", authenticated: true }
+      : { history: [], code: "not_found", authenticated: true };
+  }
+  if (routeFixture?.startsWith("notes-highlights-")) {
+    const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
       ? { history: [], code: "ok", authenticated: true }
       : { history: [], code: "not_found", authenticated: true };
   }

@@ -57,6 +57,18 @@ export type ConsumerRouteFixture =
   | "timer-offline"
   | "timer-over-max"
   | "timer-unauthorized"
+  | "notes-highlights-conflict"
+  | "notes-highlights-consent"
+  | "notes-highlights-deleted"
+  | "notes-highlights-empty"
+  | "notes-highlights-error"
+  | "notes-highlights-foreign"
+  | "notes-highlights-happy"
+  | "notes-highlights-index-failure"
+  | "notes-highlights-invalid"
+  | "notes-highlights-offline"
+  | "notes-highlights-quota"
+  | "notes-highlights-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -158,6 +170,18 @@ export function getConsumerRouteFixture(
     "timer-offline",
     "timer-over-max",
     "timer-unauthorized",
+    "notes-highlights-conflict",
+    "notes-highlights-consent",
+    "notes-highlights-deleted",
+    "notes-highlights-empty",
+    "notes-highlights-error",
+    "notes-highlights-foreign",
+    "notes-highlights-happy",
+    "notes-highlights-index-failure",
+    "notes-highlights-invalid",
+    "notes-highlights-offline",
+    "notes-highlights-quota",
+    "notes-highlights-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

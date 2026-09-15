@@ -6,6 +6,7 @@ export * from "./book-detail";
 export * from "./book-lifecycle";
 export * from "./identity";
 export * from "./library";
+export * from "./notes-highlights";
 export * from "./operations";
 export * from "./progress-ui";
 export * from "./routes";

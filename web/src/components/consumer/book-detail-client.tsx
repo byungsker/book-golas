@@ -18,6 +18,7 @@ import {
   ConsumerCard,
 } from "@/components/consumer/blab-primitives";
 import { ReadingTimerControl } from "@/components/consumer/reading-timer-control";
+import { NotesHighlightsClient } from "@/components/consumer/notes-highlights-client";
 import {
   Dialog,
   DialogClose,
@@ -321,6 +322,12 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
       </ConsumerCard>
 
       <ReadingTimerControl book={book} />
+
+      <NotesHighlightsClient
+        locale={locale}
+        bookId={book.id}
+        totalPages={book.totalPages}
+      />
 
       <ConsumerCard className="mt-6" data-testid="book-detail-metadata">
         <div className="flex items-center justify-between gap-3">
