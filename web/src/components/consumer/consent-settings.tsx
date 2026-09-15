@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CircleAlert } from "lucide-react";
 import {
   ConsumerButton,
   ConsumerCard,
@@ -99,7 +100,11 @@ export function ConsentSettings() {
     <div className="space-y-4" aria-busy={pendingKind !== null}>
       {errorKey ? (
         <ConsumerCard role="alert">
-          <ConsumerErrorState title={t("errorTitle")} message={t(`errors.${errorKey}`)} icon="⚠️" />
+          <ConsumerErrorState
+            title={t("errorTitle")}
+            message={t(`errors.${errorKey}`)}
+            icon={<CircleAlert aria-hidden="true" />}
+          />
         </ConsumerCard>
       ) : null}
       {consentKinds.map((kind) => {

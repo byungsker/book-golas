@@ -309,11 +309,26 @@
       },
       "errorTitle": "동의 설정을 처리할 수 없어요",
       "kinds": {
-        "ai": { "title": "AI 기능", "description": "독서 기록을 AI 검색, 분석, 추천과 독후감 생성에 사용합니다." },
-        "notifications": { "title": "알림", "description": "독서 목표와 리마인더 알림을 받습니다." },
-        "camera": { "title": "카메라", "description": "책 페이지를 촬영해 독서 기록으로 저장합니다." },
-        "share": { "title": "공유", "description": "독서 기록을 공유할 때 공유 기능을 사용합니다." },
-        "ocr": { "title": "사진 속 텍스트 인식", "description": "촬영한 책 페이지에서 텍스트를 인식합니다." }
+        "ai": {
+          "title": "AI 기능",
+          "description": "독서 기록을 AI 검색, 분석, 추천과 독후감 생성에 사용합니다."
+        },
+        "notifications": {
+          "title": "알림",
+          "description": "독서 목표와 리마인더 알림을 받습니다."
+        },
+        "camera": {
+          "title": "카메라",
+          "description": "책 페이지를 촬영해 독서 기록으로 저장합니다."
+        },
+        "share": {
+          "title": "공유",
+          "description": "독서 기록을 공유할 때 공유 기능을 사용합니다."
+        },
+        "ocr": {
+          "title": "사진 속 텍스트 인식",
+          "description": "촬영한 책 페이지에서 텍스트를 인식합니다."
+        }
       }
     },
     "auth": {
@@ -352,6 +367,96 @@
         "signOutFailed": "비밀번호는 변경했지만 로그아웃하지 못했습니다. 다시 시도하세요.",
         "generic": "요청을 완료하지 못했습니다. 잠시 후 다시 시도하세요."
       }
+    },
+    "uiPrimitives": {
+      "eyebrow": "BLab 소비자 UI",
+      "title": "공통 UI 프리미티브",
+      "description": "Flutter 기준과 같은 토큰, 상태, 키보드 동작을 사용하는 Web 공통 컴포넌트입니다.",
+      "viewportNote": "한국어 · 라이트/다크 · 390×844 / 1440×900",
+      "button": {
+        "heading": "버튼",
+        "primary": "기본 동작",
+        "secondary": "보조 동작",
+        "destructive": "삭제 동작",
+        "loading": "저장 중",
+        "disabled": "사용할 수 없음",
+        "activated": "버튼을 눌렀습니다."
+      },
+      "card": {
+        "heading": "카드와 누를 수 있는 표면",
+        "staticTitle": "정적 카드",
+        "staticMessage": "읽기 진행률과 상태 메시지를 담는 표면입니다.",
+        "interactiveTitle": "상호작용 카드",
+        "interactiveMessage": "Enter 또는 Space로도 열 수 있습니다.",
+        "disabledTitle": "비활성화된 카드",
+        "activated": "카드를 열었습니다."
+      },
+      "field": {
+        "heading": "텍스트 필드",
+        "label": "책 제목",
+        "placeholder": "책 제목을 입력하세요",
+        "value": "읽기의 기술",
+        "errorLabel": "페이지",
+        "errorPlaceholder": "페이지를 입력하세요",
+        "error": "총 페이지 수보다 작거나 같은 값을 입력하세요.",
+        "passwordLabel": "비밀번호",
+        "passwordPlaceholder": "비밀번호를 입력하세요",
+        "multilineLabel": "메모",
+        "multilinePlaceholder": "독서 메모를 입력하세요"
+      },
+      "feedback": {
+        "heading": "로딩·빈 상태·오류",
+        "loading": "서재를 불러오는 중...",
+        "emptyTitle": "아직 책이 없습니다",
+        "emptyMessage": "앱에서 책을 추가하면 이곳에 표시됩니다.",
+        "emptyAction": "책 추가 안내",
+        "errorTitle": "서재를 불러올 수 없어요",
+        "errorMessage": "잠시 후 다시 시도하세요.",
+        "retry": "다시 시도",
+        "retried": "다시 시도했습니다.",
+        "snackbar": "변경사항을 저장했습니다.",
+        "dismiss": "알림 닫기"
+      },
+      "navigation": {
+        "heading": "탭·세그먼트·내비게이션",
+        "tabs": [
+          "읽는 중",
+          "읽을 책",
+          "완독"
+        ],
+        "tabLabel": "독서 상태 탭",
+        "segments": [
+          "전체",
+          "기록",
+          "메모"
+        ],
+        "segmentLabel": "기록 필터",
+        "bottomBarLabel": "소비자 내비게이션",
+        "selected": "선택됨",
+        "calendar": "캘린더",
+        "account": "마이"
+      },
+      "boundaries": {
+        "heading": "상태 경계",
+        "unauthorizedTitle": "로그인이 필요합니다",
+        "unauthorizedMessage": "내 서재를 보려면 로그인하세요.",
+        "signIn": "로그인으로 이동",
+        "consentTitle": "동의가 필요합니다",
+        "consentMessage": "AI와 알림 기능을 사용하려면 동의를 선택하세요.",
+        "consent": "동의 설정",
+        "quotaTitle": "이번 달 AI 사용량을 모두 사용했습니다",
+        "quotaMessage": "다음 기간에 다시 사용할 수 있습니다.",
+        "quota": "사용량 확인",
+        "offlineTitle": "오프라인 상태입니다",
+        "offlineMessage": "연결한 뒤 저장을 다시 시도하세요.",
+        "reconnect": "다시 연결"
+      },
+      "pressable": {
+        "heading": "누르기 피드백",
+        "label": "누를 수 있는 영역",
+        "activated": "영역을 눌렀습니다."
+      },
+      "boundariesFootnote": "iOS 위젯, Siri/App Shortcuts, 네이티브 푸시, 카메라/OCR, 공유 시트, RevenueCat 구독은 Web에서 네이티브 기능으로 제공하지 않습니다."
     }
   }
 }

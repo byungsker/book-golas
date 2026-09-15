@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BookOpen, CircleAlert } from "lucide-react";
 import {
   ConsumerCard,
   ConsumerEmptyState,
@@ -25,7 +26,11 @@ export function ConsumerNotice({
       className="text-center"
       role="status"
     >
-      <State title={title} message={description} icon="📚" />
+      <State
+        title={title}
+        message={description}
+        icon={tone === "error" ? <CircleAlert aria-hidden="true" /> : <BookOpen aria-hidden="true" />}
+      />
       {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </ConsumerCard>
   );

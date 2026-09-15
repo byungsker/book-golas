@@ -309,11 +309,26 @@
       },
       "errorTitle": "We could not update consent settings",
       "kinds": {
-        "ai": { "title": "AI features", "description": "Use reading records for AI search, analysis, recommendations and review drafts." },
-        "notifications": { "title": "Notifications", "description": "Receive reading goal and reminder notifications." },
-        "camera": { "title": "Camera", "description": "Capture book pages and save them as reading records." },
-        "share": { "title": "Sharing", "description": "Use sharing features when sharing reading records." },
-        "ocr": { "title": "Photo text recognition", "description": "Recognize text from photographed book pages." }
+        "ai": {
+          "title": "AI features",
+          "description": "Use reading records for AI search, analysis, recommendations and review drafts."
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Receive reading goal and reminder notifications."
+        },
+        "camera": {
+          "title": "Camera",
+          "description": "Capture book pages and save them as reading records."
+        },
+        "share": {
+          "title": "Sharing",
+          "description": "Use sharing features when sharing reading records."
+        },
+        "ocr": {
+          "title": "Photo text recognition",
+          "description": "Recognize text from photographed book pages."
+        }
       }
     },
     "auth": {
@@ -352,6 +367,96 @@
         "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
         "generic": "We could not complete that request. Try again shortly."
       }
+    },
+    "uiPrimitives": {
+      "eyebrow": "BLab consumer UI",
+      "title": "Shared UI primitives",
+      "description": "Shared Web components use the same tokens, states and keyboard behavior as the Flutter reference.",
+      "viewportNote": "English · light/dark · 390×844 / 1440×900",
+      "button": {
+        "heading": "Buttons",
+        "primary": "Primary action",
+        "secondary": "Secondary action",
+        "destructive": "Destructive action",
+        "loading": "Saving",
+        "disabled": "Unavailable",
+        "activated": "Button activated."
+      },
+      "card": {
+        "heading": "Cards and pressable surfaces",
+        "staticTitle": "Static card",
+        "staticMessage": "A surface for reading progress and state messages.",
+        "interactiveTitle": "Interactive card",
+        "interactiveMessage": "Enter or Space also opens this card.",
+        "disabledTitle": "Disabled card",
+        "activated": "Card opened."
+      },
+      "field": {
+        "heading": "Text fields",
+        "label": "Book title",
+        "placeholder": "Enter a book title",
+        "value": "The Art of Reading",
+        "errorLabel": "Page",
+        "errorPlaceholder": "Enter a page",
+        "error": "Enter a value no greater than the total page count.",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter a password",
+        "multilineLabel": "Note",
+        "multilinePlaceholder": "Write a reading note"
+      },
+      "feedback": {
+        "heading": "Loading, empty and error",
+        "loading": "Loading your library...",
+        "emptyTitle": "Your library is empty",
+        "emptyMessage": "Add a book in the app to see it here.",
+        "emptyAction": "How to add a book",
+        "errorTitle": "The library is unavailable",
+        "errorMessage": "Try again shortly.",
+        "retry": "Try again",
+        "retried": "Retry requested.",
+        "snackbar": "Changes saved.",
+        "dismiss": "Dismiss notification"
+      },
+      "navigation": {
+        "heading": "Tabs, segments and navigation",
+        "tabs": [
+          "Reading",
+          "To read",
+          "Finished"
+        ],
+        "tabLabel": "Reading status tabs",
+        "segments": [
+          "All",
+          "Records",
+          "Notes"
+        ],
+        "segmentLabel": "Record filter",
+        "bottomBarLabel": "Consumer navigation",
+        "selected": "selected",
+        "calendar": "Calendar",
+        "account": "My page"
+      },
+      "boundaries": {
+        "heading": "State boundaries",
+        "unauthorizedTitle": "Sign-in required",
+        "unauthorizedMessage": "Sign in to view your library.",
+        "signIn": "Go to sign in",
+        "consentTitle": "Consent required",
+        "consentMessage": "Choose consent before using AI and notification features.",
+        "consent": "Open consent settings",
+        "quotaTitle": "This month’s AI quota is used",
+        "quotaMessage": "You can use this feature again in the next period.",
+        "quota": "View usage",
+        "offlineTitle": "You are offline",
+        "offlineMessage": "Reconnect before trying to save again.",
+        "reconnect": "Reconnect"
+      },
+      "pressable": {
+        "heading": "Pressable feedback",
+        "label": "Pressable region",
+        "activated": "Region activated."
+      },
+      "boundariesFootnote": "iOS widgets, Siri/App Shortcuts, native push, camera/OCR, the native share sheet and RevenueCat subscriptions remain native-only Web boundaries."
     }
   }
 }
