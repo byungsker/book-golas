@@ -136,6 +136,16 @@ All consumer spacing derives from BLDS 4px increments.
 - **Motion**: BLDS indicator and press timings; reduced motion removes non-essential transitions.
 - **Layout**: shell navigation owns its fixed/persistent position; route content owns the main scroll region.
 
+### ConsumerOnboarding
+
+- **Structure**: a centered three-page feature panel composed from `ConsumerButton` and `ConsumerCard`, followed by an age-policy dialog with two card choices.
+- **Variants**: Korean and English copy; reading, capture and goals pages; under-14 and 14-or-older age choices.
+- **Spacing**: BLDS spacing variables, 120px feature icon surface and the existing 390px mobile gutter contract.
+- **States**: loading local state, pages 1-3, age choice, persistence error and completed handoff.
+- **Accessibility**: one page heading at a time, named progress indicators, native buttons, modal semantics, visible focus and a live persistence error.
+- **Motion**: the current page fades with the BLDS navigation timing; reduced motion removes the transition.
+- **Layout**: the onboarding page owns viewport scrolling and keeps controls reachable at 390x844 without horizontal overflow.
+
 ### Primitive Showcase Gate
 
 `/[locale]/ui-primitives` is an unlinked, authenticated-free verification surface for the shared contract. It renders every BLDS adapter in Korean and English and exposes loading, empty, error/retry, unauthorized, consent, quota and offline examples. It is covered at 390x844 and 1440x900 with light/dark color schemes, keyboard actions, focus rings and reduced motion before later consumer screens compose new primitives.

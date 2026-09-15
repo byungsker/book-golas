@@ -1,0 +1,16 @@
+{
+  "issue": 426,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "locales": ["ko", "en"],
+  "pageCount": 3,
+  "authOrder": "authenticated-before-onboarding",
+  "storageScope": "browser-device-localStorage",
+  "storageKeys": {
+    "completed": "hasSeenOnboarding_v1",
+    "agePolicy": "age_policy_status"
+  },
+  "agePolicies": ["under14", "age14OrOlder"],
+  "controls": ["skip", "next", "start"],
+  "recovery": "clear-invalid-onboarding-values-and-restart-flow",
+  "handoff": "localized-protected-route"
+}

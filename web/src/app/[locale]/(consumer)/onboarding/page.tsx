@@ -1,7 +1,20 @@
-import { ConsumerRoutePlaceholder } from "@/components/consumer/consumer-route-placeholder";
-import type { ConsumerLocale } from "@/lib/consumer/paths";
+import { redirect } from "next/navigation";
+import { OnboardingFlow } from "@/components/consumer/onboarding-flow";
+import { getSafeNextPath, isConsumerLocale } from "@/lib/consumer/paths";
 
-export default async function OnboardingPage({ params }: { params: Promise<{ locale: ConsumerLocale }> }) {
+export default async function OnboardingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
   const { locale } = await params;
-  return <ConsumerRoutePlaceholder locale={locale} titleKey="onboarding" />;
+  if (!isConsumerLocale(locale)) redirect("/ko/auth/sign-in");
+
+  const query = await searchParams;
+  const rawNext = query.next;
+  const next = Array.isArray(rawNext) ? rawNext[0] : rawNext;
+
+  return <OnboardingFlow nextPath={getSafeNextPath(locale, next)} />;
 }
