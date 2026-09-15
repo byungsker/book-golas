@@ -52,7 +52,22 @@ const copy = {
     segmentSecond: "Records",
     pressable: "Pressable region",
     pressableActivated: "Region activated.",
+    retry: "Try again",
+    retried: "Retry requested.",
     dismiss: "Dismiss notification",
+    selected: "selected",
+    boundaryActions: {
+      "unauthorized-state": "Go to sign in",
+      "consent-state": "Open consent settings",
+      "quota-state": "View usage",
+      "offline-state": "Reconnect",
+    },
+    boundaryOutcomes: {
+      "unauthorized-state": "Sign in to view your library.",
+      "consent-state": "Choose consent before using AI and notification features.",
+      "quota-state": "You can use this feature again in the next period.",
+      "offline-state": "Reconnect before trying to save again.",
+    },
   },
 } as const;
 
@@ -138,6 +153,19 @@ test("keyboard activation and focus contract", async ({ page }) => {
   await expect(pressable).toBeFocused();
   await pressable.press("Enter");
   await expect(page.getByTestId("pressable-feedback")).toHaveText("Region activated.");
+
+  await page.getByTestId("error-state").getByRole("button", { name: copy.en.retry }).click();
+  await expect(page.getByTestId("retry-feedback")).toHaveText(`${copy.en.retried} (1)`);
+
+  for (const [state, action] of Object.entries(copy.en.boundaryActions)) {
+    await page.getByTestId(state).getByRole("button", { name: action }).click();
+    await expect(page.getByTestId(`${state}-feedback`)).toHaveText(`${action} · ${copy.en.boundaryOutcomes[state as keyof typeof copy.en.boundaryOutcomes]}`);
+  }
+
+  await page.screenshot({
+    path: path.join(evidenceDirectory, "task-9-ui-primitives-en-action-feedback.png"),
+    fullPage: true,
+  });
 
   await page.getByTestId("snackbar").getByRole("button", { name: "Dismiss notification" }).click();
   await expect(page.getByTestId("snackbar")).toBeHidden();

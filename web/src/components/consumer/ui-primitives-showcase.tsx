@@ -24,6 +24,7 @@ import {
 } from "@/components/consumer/blab-primitives";
 
 type NavigationMode = "all" | "records" | "notes";
+type BoundaryStateId = "unauthorized-state" | "consent-state" | "quota-state" | "offline-state";
 
 export function UiPrimitivesShowcase() {
   const t = useTranslations("consumer.uiPrimitives");
@@ -34,6 +35,7 @@ export function UiPrimitivesShowcase() {
   const [selectedMode, setSelectedMode] = useState<NavigationMode>("all");
   const [selectedNavigation, setSelectedNavigation] = useState(0);
   const [pressableFeedback, setPressableFeedback] = useState(false);
+  const [selectedBoundary, setSelectedBoundary] = useState<BoundaryStateId | null>(null);
   const [snackbarVisible, setSnackbarVisible] = useState(true);
   const [bookTitle, setBookTitle] = useState(t("field.value"));
   const [page, setPage] = useState("512");
@@ -271,24 +273,32 @@ export function UiPrimitivesShowcase() {
                     title={t("boundaries.unauthorizedTitle")}
                     message={t("boundaries.unauthorizedMessage")}
                     action={t("boundaries.signIn")}
+                    onAction={() => setSelectedBoundary("unauthorized-state")}
+                    actionOutcome={selectedBoundary === "unauthorized-state" ? t("boundaries.unauthorizedMessage") : undefined}
                   />
                   <BoundaryState
                     data-testid="consent-state"
                     title={t("boundaries.consentTitle")}
                     message={t("boundaries.consentMessage")}
                     action={t("boundaries.consent")}
+                    onAction={() => setSelectedBoundary("consent-state")}
+                    actionOutcome={selectedBoundary === "consent-state" ? t("boundaries.consentMessage") : undefined}
                   />
                   <BoundaryState
                     data-testid="quota-state"
                     title={t("boundaries.quotaTitle")}
                     message={t("boundaries.quotaMessage")}
                     action={t("boundaries.quota")}
+                    onAction={() => setSelectedBoundary("quota-state")}
+                    actionOutcome={selectedBoundary === "quota-state" ? t("boundaries.quotaMessage") : undefined}
                   />
                   <BoundaryState
                     data-testid="offline-state"
                     title={t("boundaries.offlineTitle")}
                     message={t("boundaries.offlineMessage")}
                     action={t("boundaries.reconnect")}
+                    onAction={() => setSelectedBoundary("offline-state")}
+                    actionOutcome={selectedBoundary === "offline-state" ? t("boundaries.offlineMessage") : undefined}
                   />
                 </div>
                 <p className="bookgolas-ui-showcase__boundary-footnote">{t("boundariesFootnote")}</p>
@@ -305,18 +315,27 @@ function BoundaryState({
   title,
   message,
   action,
+  onAction,
+  actionOutcome,
   ...props
 }: {
   title: string;
   message: string;
   action: string;
+  onAction: () => void;
+  actionOutcome?: string;
   "data-testid"?: string;
 }) {
   return (
     <div className="bookgolas-ui-showcase__boundary" role="status" {...props}>
       <h3>{title}</h3>
       <p>{message}</p>
-      <ConsumerButton text={action} variant="secondary" />
+      <ConsumerButton text={action} variant="secondary" onClick={onAction} />
+      {actionOutcome ? (
+        <p className="bookgolas-ui-showcase__feedback" data-testid={`${props["data-testid"]}-feedback`} role="status">
+          {action} · {actionOutcome}
+        </p>
+      ) : null}
     </div>
   );
 }

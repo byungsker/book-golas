@@ -12,6 +12,18 @@
     "exit_code": 1,
     "observed": "At the pre-implementation revision d6e3b2d, the project had no test:ui-primitives script and npm reported Missing script: test:ui-primitives."
   },
+  "code_rabbit_follow_up": {
+    "red_proof": ".omo/evidence/bookgolas-web-app-parity/task-9-code-rabbit-red.md",
+    "red_command": "npm run build && npm run start -- --hostname 127.0.0.1 --port 3100 && node /tmp/bookgolas-web-421-red-proof.cjs",
+    "red_exit_code": 1,
+    "red_observed": "AST assertions found an inert BoundaryState ConsumerButton and no error-state retry interaction in the named Chromium snackbar scenario; Chromium clicks left all four boundary states unchanged.",
+    "green_commands": [
+      "npm run test:ui-primitives",
+      "npm run test:ui-primitives:negative",
+      "npm run test:ui-primitives:browser"
+    ],
+    "green_result": "PASS: 9 Chromium tests, including retry feedback before snackbar dismissal and all four boundary action outcomes."
+  },
   "green": {
     "result": "PASS",
     "commands": [
@@ -48,13 +60,15 @@
       ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-mobile-dark.png",
       ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-mobile-light.png",
       ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-dark.png",
-      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-light.png"
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-light.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-action-feedback.png"
     ],
     "capture_dimensions": {
       "ko_mobile": "390x3331 full-page PNG",
       "ko_desktop": "1440x2020 full-page PNG",
       "en_mobile": "390x3496 full-page PNG",
       "en_desktop": "1440x2040 full-page PNG",
+      "en_action_feedback": "390x3634 full-page PNG",
       "issue_path_duplicate": "task-9-bookgolas-web-app-parity.png duplicates ko mobile dark"
     },
     "assertions": [
@@ -64,9 +78,17 @@
       "localized accessible names, invalid field and described error",
       "Enter/Space activation for button, card and pressable",
       "ArrowRight selection for tab and segmented navigation",
-      "snackbar dismissal and observable retry feedback",
+      "localized retry feedback before snackbar dismissal",
+      "four boundary actions with localized action · selected outcomes",
       "reduced-motion browser context and package-level motion contract",
       "native-only boundaries for iOS widgets, Siri/App Shortcuts, native push, camera/OCR, share sheet and RevenueCat subscriptions"
+    ],
+    "action_log": [
+      "Clicked Try again in the English error state and observed Retry requested. (1) before dismissing Changes saved.",
+      "Clicked Go to sign in and observed Go to sign in · selected.",
+      "Clicked Open consent settings and observed Open consent settings · selected.",
+      "Clicked View usage and observed View usage · selected.",
+      "Clicked Reconnect and observed Reconnect · selected."
     ],
     "production_smoke": {
       "request": "GET /ko/ui-primitives",
