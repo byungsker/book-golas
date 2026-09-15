@@ -17,6 +17,22 @@ export function getConsumerPath(
   return `/${locale}${normalizedPath}`;
 }
 
+/**
+ * Build the only consumer auth handoff used for a private route.
+ *
+ * The destination is normalized before it is serialized so a stale session
+ * can never turn the sign-in page into an open redirect or a cross-locale
+ * handoff.
+ */
+export function getConsumerSignInRedirectPath(
+  locale: ConsumerLocale | string,
+  candidate: string | undefined,
+): string {
+  const signInPath = getConsumerPath(locale, "/auth/sign-in");
+  const safeTarget = getSafeNextPath(locale, candidate);
+  return `${signInPath}?returnTo=${encodeURIComponent(safeTarget)}`;
+}
+
 export function isConsumerRoutePath(pathname: string): boolean {
   const match = pathname.match(/^\/(ko|en)(\/.*)$/i);
   return Boolean(match && consumerRoutePattern.test(match[2]));

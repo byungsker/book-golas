@@ -26,7 +26,10 @@ describe("consumer route fixture boundary", () => {
   });
 
   it.each([
+    "bootstrap-network",
+    "deleted-book",
     "expired-session",
+    "invalid-session",
     "unauthorized-private-data",
     "pending",
     "unavailable",

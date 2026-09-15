@@ -146,6 +146,23 @@ describe("consumer locale proxy", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
   });
 
+  it("treats an invalid fixture session as unauthenticated without looping", async () => {
+    process.env.BOOKGOLAS_ROUTE_TEST_MODE = "enabled";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54329";
+    const request = new NextRequest("https://bookgolas.test/en/books/00000000-0000-4000-8000-000000002001");
+    request.cookies.set("bookgolas-route-fixture", "invalid-session");
+    const response = await proxy(request);
+    const location = new URL(response.headers.get("location")!);
+
+    expect(response.status).toBe(307);
+    expect(location.pathname).toBe("/en/auth/sign-in");
+    expect(location.searchParams.get("returnTo")).toBe(
+      "/en/books/00000000-0000-4000-8000-000000002001",
+    );
+    delete process.env.BOOKGOLAS_ROUTE_TEST_MODE;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+  });
+
   it.each(["/ko/privacy", "/en/terms", "/support"])(
     "leaves marketing and legal routing outside the consumer auth gate: %s",
     async (pathname) => {

@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
 import { isAdminEmail } from "./lib/admin-auth";
 import {
+  getConsumerSignInRedirectPath,
   isConsumerRoutePath,
   isProtectedConsumerRoutePath,
   isUnprefixedConsumerRoutePath,
@@ -77,18 +78,20 @@ export async function proxy(request: NextRequest) {
   );
 
   if (
-    ["authenticated-not-found", "unauthorized-private-data", "pending", "unavailable"].includes(routeFixture ?? "") &&
+    ["authenticated-not-found", "bootstrap-network", "deleted-book", "unauthorized-private-data", "pending", "unavailable"].includes(routeFixture ?? "") &&
     isConsumerRoute
   ) {
     hasVerifiedClaims = true;
-  } else if (["anonymous", "expired-session"].includes(routeFixture ?? "") && isConsumerRoute) {
+  } else if (["anonymous", "expired-session", "invalid-session"].includes(routeFixture ?? "") && isConsumerRoute) {
     hasVerifiedClaims = false;
   } else if (sessionClient) {
     try {
       const { data } = await sessionClient.supabase.auth.getClaims();
       hasVerifiedClaims = Boolean(data?.claims);
-    } catch (error) {
-      if (!(error instanceof Error)) throw error;
+    } catch {
+      // A failed or expired session is always treated as anonymous. The
+      // private route must not render while the auth provider is unavailable.
+      hasVerifiedClaims = false;
     }
   }
 
@@ -150,9 +153,10 @@ export async function proxy(request: NextRequest) {
       const locale = request.nextUrl.pathname.split("/")[1];
       const url = request.nextUrl.clone();
       const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-      url.pathname = `/${locale}/auth/sign-in`;
-      url.search = "";
-      url.searchParams.set("returnTo", returnTo);
+      const signInRedirect = getConsumerSignInRedirectPath(locale, returnTo);
+      const safeSignInUrl = new URL(signInRedirect, request.url);
+      url.pathname = safeSignInUrl.pathname;
+      url.search = safeSignInUrl.search;
       return finishAuthenticatedResponse(
         sessionClient?.getResponse() ?? NextResponse.next({ request }),
         NextResponse.redirect(url),

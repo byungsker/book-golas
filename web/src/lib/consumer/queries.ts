@@ -40,7 +40,10 @@ async function getAuthContext(): Promise<AuthContext> {
       unavailable: true,
     };
   }
-  if (["authenticated-not-found", "unauthorized-private-data", "pending"].includes(routeFixture ?? "")) {
+  if (routeFixture === "bootstrap-network") {
+    return { supabase: null, user: null, unavailable: true };
+  }
+  if (["authenticated-not-found", "deleted-book", "unauthorized-private-data", "pending"].includes(routeFixture ?? "")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,

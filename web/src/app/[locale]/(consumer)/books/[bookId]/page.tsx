@@ -5,7 +5,7 @@ import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
-import { getConsumerPath, isConsumerLocale } from "@/lib/consumer/paths";
+import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBook } from "@/lib/consumer/queries";
 import { formatBookDate, getBookProgress } from "@/lib/consumer/types";
 
@@ -21,9 +21,7 @@ export default async function BookDetailPage({
 
   const result = await fetchOwnedBook(bookId);
   if (result.code === "unauthenticated") {
-    redirect(
-      `${getConsumerPath(locale, "/auth/sign-in")}?next=${encodeURIComponent(getConsumerPath(locale, `/books/${bookId}`))}`,
-    );
+    redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, `/books/${bookId}`)));
   }
 
   const t = await getTranslations("consumer");
@@ -31,6 +29,7 @@ export default async function BookDetailPage({
     return (
       <div
         className="min-h-screen bg-[#0d0f1a] text-white"
+        data-blab-theme="dark"
         data-route-state={result.code === "unavailable" ? "unavailable" : "not-found-or-forbidden"}
       >
         <ConsumerHeader
@@ -77,7 +76,7 @@ export default async function BookDetailPage({
   const progress = getBookProgress(book);
 
   return (
-    <div className="min-h-screen bg-[#0d0f1a] text-white">
+    <div className="min-h-screen bg-[#0d0f1a] text-white" data-blab-theme="dark">
       <ConsumerHeader locale={locale} authenticated />
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
         <Link

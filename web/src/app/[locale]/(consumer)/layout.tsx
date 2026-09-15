@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ConsumerCard, ConsumerErrorState } from "@/components/consumer/blab-primitives";
 import { ConsumerShell } from "@/components/consumer/consumer-shell";
-import { getConsumerPath, isConsumerLocale } from "@/lib/consumer/paths";
+import { getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { getCurrentConsumerUser } from "@/lib/consumer/queries";
 
 export const dynamic = "force-dynamic";
@@ -19,15 +19,13 @@ export default async function AuthenticatedConsumerLayout({
 
   const { user, unavailable } = await getCurrentConsumerUser();
   if (!user && !unavailable) {
-    redirect(
-      `${getConsumerPath(locale, "/auth/sign-in")}?returnTo=${encodeURIComponent(getConsumerPath(locale, "/home"))}`,
-    );
+    redirect(getConsumerSignInRedirectPath(locale, `/${locale}/home`));
   }
 
   if (!user) {
     const t = await getTranslations("consumer");
     return (
-      <main className="bookgolas-consumer-page flex min-h-screen items-center justify-center bg-[var(--blab-surface-scaffold)] px-[var(--blab-space-lg)] text-[var(--blab-text-primary)]">
+      <main className="bookgolas-consumer-page flex min-h-screen items-center justify-center bg-[var(--blab-surface-scaffold)] px-[var(--blab-space-lg)] text-[var(--blab-text-primary)]" data-route-state="unavailable">
         <ConsumerCard className="max-w-lg">
           <ConsumerErrorState
             title={t("states.errorTitle")}

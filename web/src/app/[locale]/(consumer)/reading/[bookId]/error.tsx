@@ -12,7 +12,7 @@ export default function ReadingError({
   const t = useTranslations("consumer");
 
   return (
-    <main className="mesh-gradient flex min-h-screen items-center justify-center px-4">
+    <main className="mesh-gradient flex min-h-screen items-center justify-center px-4" data-route-state="error">
       <ConsumerErrorState
         className="max-w-md text-center"
         title={t("states.errorTitle")}

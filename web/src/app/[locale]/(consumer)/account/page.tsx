@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ConsentSettings } from "@/components/consumer/consent-settings";
 import { ConsumerCard, ConsumerErrorState } from "@/components/consumer/blab-primitives";
-import { getConsumerPath, isConsumerLocale } from "@/lib/consumer/paths";
+import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { getCurrentConsumerUser } from "@/lib/consumer/queries";
 
 export const dynamic = "force-dynamic";
@@ -17,9 +17,7 @@ export default async function ConsumerAccountPage({
 
   const { user, unavailable } = await getCurrentConsumerUser();
   if (!user && !unavailable) {
-    redirect(
-      `${getConsumerPath(locale, "/auth/sign-in")}?next=${encodeURIComponent(getConsumerPath(locale, "/account"))}`,
-    );
+    redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, "/account")));
   }
 
   const t = await getTranslations("consumer");
