@@ -7,6 +7,7 @@
   "base_revision": "e9718339dea4c1b751b3963bb7059055f4d6921f",
   "implementation_branch": "codex/feature/web/1.1.0/BOK-427-session-lifecycle",
   "declared_commit": "fix(auth): harden consumer session and deep-link lifecycle",
+  "feature_commit": "17ee612",
   "red": {
     "result": "PASS",
     "scenario": "The exact session lifecycle acceptance command and return-to browser spec fail before the contract and implementation exist.",
@@ -85,7 +86,7 @@
     "artifact": ".omo/evidence/bookgolas-web-app-parity/task-15-diff-review.md"
   },
   "verification": {
-    "result": "PENDING-CLEAN-COMMIT",
+    "result": "PASS",
     "invocations": [
       "cd web && npm run typecheck",
       "cd web && npm run lint",
@@ -93,11 +94,16 @@
       "cd web && npm run build"
     ],
     "artifacts": [
-      ".omo/evidence/bookgolas-web-app-parity/task-15-GREEN-full-regression.log"
-    ]
+      ".omo/evidence/bookgolas-web-app-parity/task-15-GREEN-full-regression.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-15-GREEN-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-15-GREEN-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-15-GREEN-build.log"
+    ],
+    "observable": "The clean feature commit passes the full Vitest/parity/BLDS/UI contract suite, TypeScript, ESLint and Next production build; parity negative fixtures pass 59/59."
   },
   "cleanup": {
-    "result": "PENDING-COMMIT",
-    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-15-CLEANUP.log"
+    "result": "PASS",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-15-CLEANUP.log",
+    "observable": "The protected BLDS worktree and unrelated dirty worktree were preserved; task-local Playwright and Next processes terminate after each run."
   }
 }

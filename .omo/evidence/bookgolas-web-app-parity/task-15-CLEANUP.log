@@ -18,4 +18,11 @@ unrelated dirty worktree
 feature worktree
   /private/tmp/bookgolas-web-427 is the only worktree edited for issue #427; final clean status is recorded after commit.
 
+feature commit
+  17ee612 fix(auth): harden consumer session and deep-link lifecycle
+
+post-commit verification
+  npm test PASS: 24 Vitest files / 195 tests, parity matrix, 59 negative fixtures, BLDS/UI and UI primitive contracts.
+  npm run typecheck PASS; npm run lint PASS; npm run build PASS.
+
 Plan: .omo/plans/bookgolas-web-app-parity.md
