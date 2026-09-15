@@ -76,9 +76,12 @@ export async function proxy(request: NextRequest) {
     request.cookies.get("bookgolas-route-fixture")?.value,
   );
 
-  if (routeFixture === "authenticated-not-found" && isConsumerRoute) {
+  if (
+    ["authenticated-not-found", "unauthorized-private-data", "pending", "unavailable"].includes(routeFixture ?? "") &&
+    isConsumerRoute
+  ) {
     hasVerifiedClaims = true;
-  } else if (routeFixture === "anonymous" && isConsumerRoute) {
+  } else if (["anonymous", "expired-session"].includes(routeFixture ?? "") && isConsumerRoute) {
     hasVerifiedClaims = false;
   } else if (sessionClient) {
     try {

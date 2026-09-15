@@ -30,10 +30,17 @@ async function getAuthContext(): Promise<AuthContext> {
   } catch {
     routeFixture = null;
   }
-  if (routeFixture === "anonymous") {
+  if (routeFixture === "anonymous" || routeFixture === "expired-session") {
     return { supabase: null, user: null, unavailable: false };
   }
-  if (routeFixture === "authenticated-not-found") {
+  if (routeFixture === "unavailable") {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: true,
+    };
+  }
+  if (["authenticated-not-found", "unauthorized-private-data", "pending"].includes(routeFixture ?? "")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,
@@ -70,9 +77,23 @@ export async function fetchOwnedBooks(): Promise<{
   books: ConsumerBook[];
   code: ConsumerQueryCode;
 }> {
+  let routeFixture = null;
+  try {
+    routeFixture = getConsumerRouteFixture(
+      (await cookies()).get("bookgolas-route-fixture")?.value,
+    );
+  } catch {
+    routeFixture = null;
+  }
+  if (routeFixture === "pending") {
+    await new Promise((resolve) => setTimeout(resolve, 1_200));
+  }
   const context = await getAuthContext();
+  if (context.unavailable) {
+    return { books: [], code: "unavailable" };
+  }
   if (context.user && !context.supabase) return { books: [], code: "ok" };
-  if (context.unavailable || !context.supabase) {
+  if (!context.supabase) {
     return { books: [], code: "unavailable" };
   }
   if (!context.user) return { books: [], code: "unauthenticated" };

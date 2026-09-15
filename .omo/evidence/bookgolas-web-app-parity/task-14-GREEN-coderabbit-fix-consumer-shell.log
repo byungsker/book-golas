@@ -1,0 +1,17 @@
+
+> web@0.1.0 test:consumer-shell
+> node scripts/test-consumer-shell.mjs
+
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-425/web
+
+ ✓ src/lib/consumer/shell.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/route-fixture.test.ts (6 tests) 2ms
+ ✓ src/proxy.test.ts (19 tests) 12ms
+
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+   Start at  01:28:33
+   Duration  330ms (transform 101ms, setup 0ms, collect 168ms, tests 16ms, environment 0ms, prepare 172ms)
+
+consumer shell contract: PASS

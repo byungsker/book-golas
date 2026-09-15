@@ -1,0 +1,31 @@
+Task 14 cleanup verification
+
+git status --short
+  only the post-commit GREEN regression evidence log is untracked before staging
+
+log hygiene
+  all task-14 *.log files are LF-only and end with one newline
+
+lsof -nP -iTCP:3000 -sTCP:LISTEN
+  no listener
+
+lsof -nP -iTCP:54329 -sTCP:LISTEN
+  no listener
+
+task-local process scan
+  no Next, Playwright, consumer-shell, or fixture process remains
+
+git diff --check
+  PASS
+
+Protected /private/tmp/bookgolas-web-blds-453 was not reset, checked out, deleted, or modified.
+
+Follow-up after CodeRabbit fixes
+  consumer-shell Chromium 5/5, expired-session 1/1, full regression and production build PASS
+  CodeRabbit CLI committed follow-up review: 0 issues
+  no listeners or task-local processes remain
+
+Latest contract follow-up
+  Recall mode contract, unavailable collection ordering, and pending synthetic state verified
+  23 Vitest files / 183 tests, 5 Chromium tests, and 1 expired-session test PASS
+  latest regression log is LF-only and ends with one newline

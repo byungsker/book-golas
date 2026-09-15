@@ -136,6 +136,14 @@ All consumer spacing derives from BLDS 4px increments.
 - **Motion**: BLDS indicator and press timings; reduced motion removes non-essential transitions.
 - **Layout**: shell navigation owns its fixed/persistent position; route content owns the main scroll region.
 
+### ConsumerShell
+
+- **Structure**: exactly five product destinations compose the authenticated shell: Home, My Library, Reading Chart, Calendar and My Page. Desktop uses a persistent side rail; mobile uses the public `BLabBottomBar` with the native compact labels and a utility header.
+- **Route state**: the localized URL owns the active tab and Home or Reading Chart subview. Re-tapping those active tabs advances the native-equivalent cycle and writes the next `view` query value so refresh and deep links recover the same state.
+- **Global actions**: the centered search action opens a modal choice between Book search and Recall. A fixed `bookgolas-floating-timer-root` slot reserves the timer integration point above navigation.
+- **Boundaries**: pending and error UI render inside the shell. Onboarding and pushed detail routes remain outside the five-tab frame, while marketing, legal and admin route families never mount it.
+- **Accessibility**: desktop destinations are links with `aria-current`; mobile destinations retain BLDS button semantics; the search chooser is a named modal dialog with native buttons and visible focus.
+
 ### ConsumerOnboarding
 
 - **Structure**: a centered three-page feature panel composed from `ConsumerButton` and `ConsumerCard`, followed by an age-policy dialog with two card choices.

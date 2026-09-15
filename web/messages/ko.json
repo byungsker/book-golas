@@ -225,6 +225,36 @@
   },
   "consumer": {
     "brand": "북골라스",
+    "shell": {
+      "brand": "북골라스",
+      "navigationLabel": "주요 독서 메뉴",
+      "tabs": {
+        "home": "홈",
+        "library": "내 서재",
+        "chart": "독서 차트",
+        "calendar": "캘린더",
+        "account": "마이 페이지"
+      },
+      "mobileTabs": {
+        "home": "홈",
+        "library": "서재",
+        "chart": "상태",
+        "calendar": "캘린더",
+        "account": "MY"
+      },
+      "search": {
+        "open": "검색",
+        "close": "검색 모드 닫기",
+        "eyebrow": "통합 검색",
+        "title": "무엇을 찾고 있나요?",
+        "description": "검색 모드를 선택하세요.",
+        "bookTitle": "책 검색",
+        "bookDescription": "읽을 책을 찾아 독서 목록에 추가하세요.",
+        "recallTitle": "Recall",
+        "recallDescription": "내 독서 기록을 의미로 검색하세요."
+      },
+      "timerMount": "독서 타이머"
+    },
     "onboarding": {
       "loading": "온보딩 설정을 확인하는 중...",
       "eyebrow": "북골라스 시작하기",
