@@ -80,6 +80,8 @@ export const BookListRequestSchema = z
     pagination: PaginationSchema,
     sort: SortSchema,
     status: BookStatusSchema.optional(),
+    query: z.string().trim().min(1).max(200).optional(),
+    reviewOnly: z.boolean().optional(),
   })
   .strict();
 

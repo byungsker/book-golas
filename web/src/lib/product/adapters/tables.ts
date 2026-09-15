@@ -73,6 +73,46 @@ export async function listRecallHistory(
   }
 }
 
+export async function listGlobalRecallHistory(
+  options: ListRecallHistoryOptions = {},
+): Promise<ProductResult<RecallSearchHistory[]>> {
+  const limit = options.limit ?? 10;
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) return failure(validationError());
+  const session = await resolveTableSession(options);
+  if (!session.ok) return failure(session.error);
+
+  try {
+    const { data, error } = await session.value.supabase
+      .from("recall_search_history")
+      .select("id,book_id,query,answer,sources,created_at")
+      .eq("user_id", session.value.userId)
+      .is("book_id", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) return failure(mapAdapterError(error));
+
+    const history: RecallSearchHistory[] = [];
+    for (const row of Array.isArray(data) ? data : []) {
+      const parsed = RecallHistoryRowSchema.safeParse(row);
+      if (!parsed.success || parsed.data.book_id !== null) {
+        return failure(unavailableError("Global Recall history is malformed."));
+      }
+      const item = RecallSearchHistorySchema.safeParse({
+        id: parsed.data.id,
+        query: parsed.data.query,
+        answer: parsed.data.answer,
+        sources: parsed.data.sources,
+        createdAt: parsed.data.created_at,
+      });
+      if (!item.success) return failure(unavailableError("Global Recall history is invalid."));
+      history.push(item.data);
+    }
+    return success(history);
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
 export async function getNoteStructure(
   bookId: string,
   options: TableOptions = {},

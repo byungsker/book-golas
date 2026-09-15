@@ -1,0 +1,56 @@
+{
+  "issue": 430,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "red": {
+    "commands": [
+      "npm run test:library",
+      "npx playwright test tests/e2e/library.spec.ts --project=chromium"
+    ],
+    "result": "expected failure before implementation: missing npm script and missing Playwright spec"
+  },
+  "green": {
+    "commands": [
+      "npm run test:library",
+      "npm run test:library:negative",
+      "npx playwright test tests/e2e/library.spec.ts --project=chromium"
+    ],
+    "result": "library contract, foreign-private-data negative fixture, 19 focused tests and 5 Chromium scenarios passed"
+  },
+  "surface": {
+    "screenshots": [
+      ".omo/evidence/bookgolas-web-app-parity/task-17-bookgolas-web-app-parity.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-17-SURFACE-recall.png"
+    ],
+    "viewport": "1440x900",
+    "locales": ["en", "ko"],
+    "states": ["ready", "loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+    "result": "visually reviewed; native three-tab library, record detail modal, global Recall answer/source surface and controls are legible"
+  },
+  "cleanup": {
+    "commands": [
+      "git diff --check",
+      "npm run typecheck",
+      "npm run lint",
+      "npx playwright test tests/e2e/library.spec.ts --project=chromium --grep \"foreign|cancellation|empty\"",
+      "npm run build",
+      "npm test"
+    ],
+    "result": "passed; full npm test passed on clean HEAD with 27 test files/208 tests, parity matrix and 59 negative fixtures, BLDS/UI contracts, and the production build"
+  },
+  "dataGuards": {
+    "bookScope": "listBooks derives user_id from the verified session and keeps deleted_at null",
+    "recordScope": "reading_content_embeddings uses the verified user_id and a stable created_at/id cursor",
+    "recallScope": "global Recall history uses user_id plus book_id IS NULL; function search uses the verified session",
+    "requestSafety": "caller-selected user_id/userId/p_user_id/owner_id query parameters are rejected",
+    "cancellation": "AbortController plus request sequence prevents stale debounced responses from winning",
+    "fixtureBoundary": "library fixtures require the loopback route-test mode and are unreachable in production"
+  },
+  "nativeOnly": [
+    "iOS widget",
+    "Siri/App Shortcuts",
+    "native push",
+    "camera/OCR",
+    "share sheet",
+    "RevenueCat subscription"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "foreign-private-data",
+  "issue": 430,
+  "forbiddenMarkers": ["Foreign private title", "User A recall history", "foreign-user-id"],
+  "requiredGuards": ["user_id", "listGlobalRecallHistory", "listOwnedReadingRecords", "AbortController", "Cache-Control"]
+}
