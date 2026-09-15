@@ -21,8 +21,9 @@
     "artifacts": [
         "web/docs/consumer-shell-contract.json",
         "web/scripts/fixtures/consumer-shell-negative.json",
-      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-test-consumer-shell.log",
-      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-consumer-contract.log"
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-test-consumer-shell.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-consumer-contract.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-contract.log"
     ]
   },
   "criteria": [
@@ -34,6 +35,7 @@
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-chromium.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-chromium.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-chromium.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-bookgolas-web-app-parity.png",
         ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-pending.png",
         ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-error.png"
@@ -56,7 +58,8 @@
       "artifacts": [
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-expired-session.log",
         ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log",
-        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-expired-session.log"
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-expired-session.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-expired-session.log"
       ]
     }
   ],
@@ -66,7 +69,7 @@
     "observable": "TypeScript, ESLint, 23 Vitest files and 182 tests, parity matrix, 59 negative fixtures, BLDS/UI contracts, and the Next production build pass after the feature commit.",
     "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-regression-orchestrator.log",
     "follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-regression.log",
-    "latest_follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-regression.log"
+    "latest_follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-final-regression.log"
   },
   "surface": {
     "result": "PASS",
@@ -89,11 +92,15 @@
     "local_follow_up_issues": 0,
     "github_actionable_issues": 3,
     "github_status_after_fixes": "pass; review rate limited",
+    "latest_local_review_issues": 1,
+    "latest_local_review_resolution": "Restored query fixture environment variables in finally and preserved modified-click browser behavior.",
     "resolved_issues": [
       "Preserve the current query string when switching locales.",
       "Use the project dialog primitive with focus trap, Escape handling, and trigger focus restoration.",
       "Use mode=recall for the contract-defined Recall destination.",
-      "Return unavailable before the synthetic user branch while preserving pending synthetic fixture behavior."
+      "Return unavailable before the synthetic user branch while preserving pending synthetic fixture behavior.",
+      "Restore query fixture environment variables in finally even when the assertion fails.",
+      "Preserve modified-click browser behavior for tab links."
     ],
     "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-diff-review.md"
   },

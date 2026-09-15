@@ -124,6 +124,7 @@ export function ConsumerShell({
                 href={`/${locale}${tab.path}`}
                 aria-current={selected ? "page" : undefined}
                 onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                   event.preventDefault();
                   navigateToTab(tab.id);
                 }}
