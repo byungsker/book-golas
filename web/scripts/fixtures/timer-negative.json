@@ -1,0 +1,41 @@
+{
+  "issue": 436,
+  "fixtures": [
+    {
+      "name": "minimum",
+      "routeFixture": "timer-minimum",
+      "expected": "discarded",
+      "condition": "durationSeconds < 30"
+    },
+    {
+      "name": "duplicate",
+      "routeFixture": "timer-duplicate",
+      "expected": "duplicate=true on replay",
+      "condition": "same idempotencyKey"
+    },
+    {
+      "name": "logout",
+      "routeFixture": "timer-logout",
+      "expected": "local timer cleared",
+      "condition": "SIGNED_OUT or bookgolas:logout"
+    },
+    {
+      "name": "over-max",
+      "routeFixture": "timer-over-max",
+      "expected": "durationSeconds=28800",
+      "condition": "durationSeconds > 28800"
+    },
+    {
+      "name": "foreign",
+      "routeFixture": "timer-foreign",
+      "expected": "not_found",
+      "condition": "book is outside the verified owner scope"
+    },
+    {
+      "name": "offline",
+      "routeFixture": "timer-offline",
+      "expected": "offline",
+      "condition": "network unavailable"
+    }
+  ]
+}

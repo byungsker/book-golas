@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import { ConsumerButton } from "@/components/consumer/blab-primitives";
 import { signOutUser } from "@/lib/consumer/auth";
+import { broadcastBrowserLogout } from "@/lib/consumer/timer-state";
 
 export function SignOutButton({ locale }: { locale: string }) {
   const t = useTranslations("consumer");
@@ -17,6 +18,7 @@ export function SignOutButton({ locale }: { locale: string }) {
 
     const succeeded = await signOutUser(supabase.auth);
     if (succeeded) {
+      broadcastBrowserLogout();
       window.location.assign(`/${locale}/auth/sign-in`);
     } else {
       setHasError(true);

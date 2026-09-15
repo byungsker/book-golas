@@ -25,6 +25,7 @@ import {
   type OAuthProvider,
 } from "@/lib/consumer/oauth";
 import { getConsumerPath } from "@/lib/consumer/paths";
+import { broadcastBrowserLogout } from "@/lib/consumer/timer-state";
 
 type AuthFormProps = {
   mode: AuthMode;
@@ -162,6 +163,7 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
           setErrorKey("errors.signOutFailed");
           return;
         }
+        broadcastBrowserLogout();
         setSuccessKey("passwordUpdated");
         return;
       }

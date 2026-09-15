@@ -1,0 +1,17 @@
+
+> web@0.1.0 test:timer
+> node scripts/test-timer.mjs && vitest run src/lib/product/contracts/timer.test.ts src/lib/consumer/timer-state.test.ts src/lib/consumer/timer-fixtures.test.ts src/app/api/consumer/timer/route.test.ts
+
+timer contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-436/web
+
+ ✓ src/lib/product/contracts/timer.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/timer-state.test.ts (4 tests) 4ms
+ ✓ src/lib/consumer/timer-fixtures.test.ts (3 tests) 4ms
+ ✓ src/app/api/consumer/timer/route.test.ts (4 tests) 13ms
+
+ Test Files  4 passed (4)
+      Tests  14 passed (14)
+   Start at  06:09:06
+   Duration  498ms (transform 195ms, setup 0ms, collect 549ms, tests 28ms, environment 0ms, prepare 263ms)

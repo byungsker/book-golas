@@ -24,6 +24,7 @@ export const BookSchema = z
     imageUrl: nullableText,
     currentPage: z.number().int().min(0),
     totalPages: z.number().int().min(0),
+    totalReadingSeconds: z.number().int().min(0).optional(),
     status: BookStatusSchema,
     attemptCount: z.number().int().min(1),
     dailyTargetPages: z.number().int().min(1).nullable(),

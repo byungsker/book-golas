@@ -17,6 +17,7 @@ import {
   ConsumerButton,
   ConsumerCard,
 } from "@/components/consumer/blab-primitives";
+import { ReadingTimerControl } from "@/components/consumer/reading-timer-control";
 import {
   Dialog,
   DialogClose,
@@ -27,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
+import { formatTimerDuration } from "@/lib/consumer/timer-state";
 import { formatBookDate } from "@/lib/consumer/types";
 import {
   BookDetailResponseSchema,
@@ -140,8 +142,23 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
       }));
     }
 
+    function handleTimerSaved(event: Event) {
+      const value = (event as CustomEvent<unknown>).detail;
+      if (!isRecord(value) || !isRecord(value.book) || value.book.id !== initialBook.id) return;
+      const nextTotalReadingSeconds = value.totalReadingSeconds;
+      if (typeof nextTotalReadingSeconds !== "number") return;
+      setBook((previous) => ({
+        ...previous,
+        totalReadingSeconds: nextTotalReadingSeconds,
+      }));
+    }
+
     window.addEventListener("bookgolas:progress-updated", handleProgressUpdate);
-    return () => window.removeEventListener("bookgolas:progress-updated", handleProgressUpdate);
+    window.addEventListener("bookgolas:timer-saved", handleTimerSaved);
+    return () => {
+      window.removeEventListener("bookgolas:progress-updated", handleProgressUpdate);
+      window.removeEventListener("bookgolas:timer-saved", handleTimerSaved);
+    };
   }, [initialBook.id]);
 
   const status = book.status;
@@ -303,6 +320,8 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
         ) : null}
       </ConsumerCard>
 
+      <ReadingTimerControl book={book} />
+
       <ConsumerCard className="mt-6" data-testid="book-detail-metadata">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-[var(--blab-text-primary)]">{t("metadata.title")}</h2>
@@ -317,6 +336,7 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
           <div><dt className="text-[var(--blab-text-tertiary)]">{t("metadata.price")}</dt><dd className="mt-1 font-medium text-[var(--blab-text-primary)]">{book.price === null ? t("metadata.notAvailable") : new Intl.NumberFormat(locale).format(book.price)}</dd></div>
           <div><dt className="text-[var(--blab-text-tertiary)]">{t("metadata.createdAt")}</dt><dd className="mt-1 font-medium text-[var(--blab-text-primary)]">{formatBookDate(book.createdAt, locale)}</dd></div>
           <div><dt className="text-[var(--blab-text-tertiary)]">{t("metadata.updatedAt")}</dt><dd className="mt-1 font-medium text-[var(--blab-text-primary)]">{formatBookDate(book.updatedAt, locale)}</dd></div>
+          <div><dt className="text-[var(--blab-text-tertiary)]">{t("metadata.totalReadingTime")}</dt><dd className="mt-1 font-mono font-medium text-[var(--blab-text-primary)]" data-testid="book-detail-total-reading-time">{formatTimerDuration((book.totalReadingSeconds ?? 0) * 1000)}</dd></div>
           {book.pausedAt ? <div><dt className="text-[var(--blab-text-tertiary)]">{t("metadata.pausedAt")}</dt><dd className="mt-1 font-medium text-[var(--blab-text-primary)]">{formatBookDate(book.pausedAt, locale)}</dd></div> : null}
         </dl>
 
