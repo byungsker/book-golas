@@ -12,9 +12,6 @@ bad8b03686af7c9793b81c89bb23ef5b59a2869feb0dec565fc32399d0dcbef6  .omo/evidence/
 f33b81b18958ee28d9036c2fa075936d4ffff26626eca362d3de040018d2c7f7  .omo/evidence/bookgolas-web-app-parity/visual-qa/en-mobile.png
 bf6e696528cc2e02df51987fbafe45158c722733c746f205ff7207e5e046ddd5  .omo/evidence/bookgolas-web-app-parity/visual-qa/ko-desktop.png
 9fd37891f5875b3da9d70162cbed1e3f3076e211013122909304bbc493bf6a37  .omo/evidence/bookgolas-web-app-parity/visual-qa/ko-mobile.png
-346f38c7378aeb63c7344ece11dadce2e77483995db2344411514b54e3ec3c62  .omo/evidence/bookgolas-web-app-parity/task-9-bookgolas-web-app-parity.json
-6d4724710d05b43a1bd25ea3fce5b1da33fdb8be96b08fec0f321191d585be34  .omo/evidence/bookgolas-web-app-parity/task-9-gate-review.md
-f3366e7f562a4093c9cb7b14670d93655b6ad84f2b44b11162f802bc74f26a8d  .omo/evidence/bookgolas-web-app-parity/task-9-http-surface.md
 71a5faef9ceaf2d97b1ecfd90af78b723226d71c394bc1b8f9782f15533094da  .omo/evidence/bookgolas-web-app-parity/task-9-bookgolas-web-app-parity.png
 71a5faef9ceaf2d97b1ecfd90af78b723226d71c394bc1b8f9782f15533094da  .omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-mobile-dark.png
 f22f0b525812ee738358ec7de06c4a278b1c66358d1d8aae6a7291d275ed46a1  .omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-mobile-light.png
@@ -24,4 +21,7 @@ f22f0b525812ee738358ec7de06c4a278b1c66358d1d8aae6a7291d275ed46a1  .omo/evidence/
 b34fd39d125d9068baf20c8f5c02230540e358694d6789ad9174d6d5c42f53d7  .omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-mobile-light.png
 55c6c08d6dd228ba03ff19a16052a60621157b0598ff29b2ba60fde0222543c2  .omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-dark.png
 67723938c11969f6a480b85ecb6573ac606c281694b58be9eae5cc63d36d18ee  .omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-light.png
-ec9b8ab28c2360c8b3fe1e5dc73cc2bd0cbc17e8f5fc67a2369343d8411d6cd6  .omo/evidence/bookgolas-web-app-parity/task-9-code-review.md
+5d2f88818654bee04d7b7a60041c3bf98c11dde376fa2fd52a95ab20eb715fe1  .omo/evidence/bookgolas-web-app-parity/task-9-bookgolas-web-app-parity.json
+2a56d72ba10435bdef3c2c1ac329d64c0560a0c334808ec76d64d0e71f5a6a58  .omo/evidence/bookgolas-web-app-parity/task-9-code-review.md
+baefd98cd0c9bc7c00beaf63b3f21794b4d10d79600f950b0b4d1a331ea0c259  .omo/evidence/bookgolas-web-app-parity/task-9-gate-review.md
+581853bf52a8e5d3be9d93cdbaab63c0d4ebb2b3d42760a375cef828aac483af  .omo/evidence/bookgolas-web-app-parity/task-9-http-surface.md

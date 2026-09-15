@@ -6,6 +6,7 @@
   "base_branch": "version/web/1.1.0",
   "implementation_branch": "codex/feature/web/1.1.0/BOK-421-ui-primitives",
   "implementation_revision": "8ebde66",
+  "final_revision": "4319062",
   "red": {
     "command": "npm run test:ui-primitives",
     "exit_code": 1,
@@ -27,6 +28,7 @@
     "details": [
       "npm ci reproduced the dependency tree without changing package-lock.json.",
       "npm test passed 19 Vitest files and 125 tests, parity matrix 20 routes/53 overlays/8 capabilities, 59 parity negative fixtures, BLDS parity/negative contracts, BLDS SSR rendering, and UI primitive positive/negative contracts.",
+      "The final delivery-unit follow-up commit moved the design contract into web/ so the target-version gate accepts the complete Web delivery unit.",
       "The final UI browser run passed 9 Chromium tests: 8 ko/en x 390/1440 x dark/light captures plus the reduced-motion keyboard/focus scenario.",
       "The keyboard regression scenario selected by --grep keyboard passed 1 test.",
       "lint, TypeScript, and the production Next build passed; the build registered /[locale]/ui-primitives.",

@@ -45,7 +45,7 @@ The existing review reports explicitly discuss both remove-ai-slops/programming 
 
 ## Evidence trace
 
-- Contract: `DESIGN.md:79-85,91-158,179-188`; `web/docs/blab-react-parity-contract.json`.
+- Contract: `web/DESIGN.md:79-85,91-158,179-188`; `web/docs/blab-react-parity-contract.json`.
 - Live composition and all required states: `web/src/components/consumer/ui-primitives-showcase.tsx:51-322`.
 - Public typed BLDS adapter boundary: `web/src/components/consumer/blab-primitives.tsx:1-85`.
 - Token-driven layout, glass surfaces, CJK wrapping, focus, and responsive breakpoint: `web/src/app/globals.css:156-359`.
@@ -56,7 +56,7 @@ The existing review reports explicitly discuss both remove-ai-slops/programming 
 
 ## Checked artifact paths
 
-- `DESIGN.md`
+- `web/DESIGN.md`
 - `web/docs/blab-react-parity-contract.json`
 - `web/docs/blab-react-native-comparison.md`
 - `web/src/components/consumer/ui-primitives-showcase.tsx`

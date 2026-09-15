@@ -1,6 +1,6 @@
 # BOK-421 browser surface verification
 
-Revision: `8ebde66`
+Revision: `4319062`
 
 The final browser run used Playwright's production web server (`npm run build` followed by `next start`) on a credential-free loopback URL. The route returned a live BLDS-backed DOM and no development-only React Scan or React Grab strings were present in the production HTML. The temporary server was stopped after the request.
 

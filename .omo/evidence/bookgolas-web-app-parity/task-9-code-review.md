@@ -1,6 +1,6 @@
 # BOK-421 code review
 
-Reviewed revision: `8ebde66` (`feat(ui): establish cross-platform BLab parity primitives`)
+Reviewed revision: `4319062` (`feat(ui): establish cross-platform BLab parity primitives`)
 
 ## Result
 
