@@ -118,11 +118,13 @@ describe("fetchOwnedBook malformed identifiers", () => {
       get: vi.fn().mockReturnValue({ value: "unavailable" }),
     } as never);
 
-    await expect(fetchOwnedBooks()).resolves.toEqual({ books: [], code: "unavailable" });
-
-    if (previousMode === undefined) delete process.env.BOOKGOLAS_ROUTE_TEST_MODE;
-    else process.env.BOOKGOLAS_ROUTE_TEST_MODE = previousMode;
-    if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-    else process.env.NEXT_PUBLIC_SUPABASE_URL = previousUrl;
+    try {
+      await expect(fetchOwnedBooks()).resolves.toEqual({ books: [], code: "unavailable" });
+    } finally {
+      if (previousMode === undefined) delete process.env.BOOKGOLAS_ROUTE_TEST_MODE;
+      else process.env.BOOKGOLAS_ROUTE_TEST_MODE = previousMode;
+      if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      else process.env.NEXT_PUBLIC_SUPABASE_URL = previousUrl;
+    }
   });
 });
