@@ -2,6 +2,15 @@ export type ConsumerRouteFixture =
   | "anonymous"
   | "authenticated-not-found"
   | "bootstrap-network"
+  | "book-discovery-cancellation"
+  | "book-discovery-consent"
+  | "book-discovery-empty"
+  | "book-discovery-offline"
+  | "book-discovery-quota"
+  | "book-discovery-recommendations"
+  | "book-discovery-results"
+  | "book-discovery-unauthorized"
+  | "book-discovery-upstream"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -48,6 +57,15 @@ export function getConsumerRouteFixture(
   return [
     "authenticated-not-found",
     "bootstrap-network",
+    "book-discovery-cancellation",
+    "book-discovery-consent",
+    "book-discovery-empty",
+    "book-discovery-offline",
+    "book-discovery-quota",
+    "book-discovery-recommendations",
+    "book-discovery-results",
+    "book-discovery-unauthorized",
+    "book-discovery-upstream",
     "deleted-book",
     "expired-session",
     "home-book-list",

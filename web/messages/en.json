@@ -427,6 +427,96 @@
         "offline": "You are offline. Reconnect to search or load your library."
       }
     },
+    "bookDiscovery": {
+      "eyebrow": "Find your next book",
+      "title": "Start a new reading journey",
+      "description": "Search by title or author, scan an ISBN-13, or begin with a recommendation from your reading history.",
+      "search": {
+        "formLabel": "Search books",
+        "label": "Search by title or author",
+        "hint": "Search is sent securely through Bookgolas.",
+        "clear": "Clear book search",
+        "action": "Search books",
+        "loading": "Searching books...",
+        "emptyTitle": "No matching books",
+        "emptyDescription": "Try a different title, author or ISBN-13.",
+        "invalidTitle": "Check the search value",
+        "invalidDescription": "Enter a title, author or valid ISBN-13 and try again.",
+        "upstreamTitle": "Book search is temporarily unavailable",
+        "upstreamDescription": "The book provider did not respond. Try again shortly.",
+        "unauthorizedTitle": "Sign in to search for books",
+        "unauthorizedDescription": "Book discovery is available inside your private reading space.",
+        "consentTitle": "Book search consent is required",
+        "consentDescription": "Allow the required data use in account settings before searching.",
+        "quotaTitle": "Book search limit reached",
+        "quotaDescription": "Try again after the provider limit resets.",
+        "offlineTitle": "You are offline",
+        "offlineDescription": "Reconnect before searching for a book."
+      },
+      "isbn": {
+        "formLabel": "Search by ISBN-13",
+        "label": "ISBN-13",
+        "hint": "Spaces and hyphens are accepted.",
+        "invalid": "Enter a valid 13-digit ISBN-13 beginning with 978 or 979.",
+        "action": "Search ISBN",
+        "fallback": "Manual entry is always available."
+      },
+      "scanner": {
+        "open": "Scan ISBN",
+        "title": "Scan an ISBN barcode",
+        "description": "Camera access is optional. You can choose an image or enter the ISBN-13 manually at any time.",
+        "checking": "Checking camera support",
+        "videoLabel": "ISBN barcode camera preview",
+        "insecure": "Camera scanning needs a secure HTTPS connection.",
+        "denied": "Camera permission was denied. Choose an image or enter the ISBN-13 manually.",
+        "unsupported": "This browser does not support barcode scanning.",
+        "manualFallback": "Use the image or file button below, or enter the ISBN-13 in the form.",
+        "fileAction": "Choose ISBN image",
+        "fileReading": "Checking the selected image...",
+        "detected": "ISBN found. Searching now...",
+        "fileFallback": "No valid ISBN-13 was found. Enter it manually instead.",
+        "close": "Close scanner"
+      },
+      "result": {
+        "authorUnknown": "Unknown author",
+        "selected": "Selected",
+        "select": "Use this book",
+        "isbn": "ISBN",
+        "pages": "pages",
+        "openProvider": "Open provider details"
+      },
+      "selected": {
+        "eyebrow": "Book selected",
+        "description": "This match is ready for the next reading setup step."
+      },
+      "recommendations": {
+        "eyebrow": "For your next read",
+        "title": "Recommended for you",
+        "description": "The same recommendation entry as the native reading-start flow.",
+        "loading": "Loading recommendations...",
+        "emptyTitle": "Recommendations are not ready yet",
+        "emptyDescription": "Finish a book to give recommendations more context.",
+        "actionEyebrow": "Recommendation",
+        "viewDetails": "Find book details",
+        "startReading": "Start with this book",
+        "upstreamTitle": "Recommendations are temporarily unavailable",
+        "upstreamDescription": "Try again later or search for a book directly.",
+        "unauthorizedTitle": "Sign in to see recommendations",
+        "unauthorizedDescription": "Recommendations use your private reading history.",
+        "consentTitle": "Recommendation consent is required",
+        "consentDescription": "Allow AI features in account settings to use recommendations.",
+        "quotaTitle": "Recommendation limit reached",
+        "quotaDescription": "Try again after the recommendation limit resets.",
+        "offlineTitle": "Recommendations are offline",
+        "offlineDescription": "Reconnect before loading recommendations."
+      },
+      "states": {
+        "signIn": "Sign in",
+        "openSettings": "Open account settings",
+        "retry": "Try again",
+        "offline": "You are offline. Reconnect before searching or loading recommendations."
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",

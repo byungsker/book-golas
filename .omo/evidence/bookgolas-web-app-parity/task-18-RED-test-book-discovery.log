@@ -1,0 +1,13 @@
+# RED: npm run test:book-discovery
+$ npm run test:book-discovery
+
+> web@0.1.0 test:book-discovery
+> node scripts/test-book-discovery.mjs && vitest run src/lib/consumer/isbn.test.ts src/lib/product/contracts/book-discovery.test.ts src/lib/product/adapters.book-search.test.ts src/app/api/consumer/book-discovery/route.test.ts
+
+book-discovery contract failed with 4 error(s)
+- missing book-discovery client: src/components/consumer/book-discovery-client.tsx
+- missing book-discovery api: src/app/api/consumer/book-discovery/route.ts
+- missing book-discovery fixtures: src/lib/consumer/book-discovery-fixtures.ts
+- missing book-discovery e2e: tests/e2e/book-discovery.spec.ts
+
+exit=1
