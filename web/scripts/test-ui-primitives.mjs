@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 const webRoot = path.resolve(import.meta.dirname, "..");
 const fixtureName = process.argv[2] === "--fixture" ? process.argv[3] : null;
 const paths = {
-  design: path.join(webRoot, "../DESIGN.md"),
+  design: path.join(webRoot, "DESIGN.md"),
   package: path.join(webRoot, "package.json"),
   layout: path.join(webRoot, "src/app/layout.tsx"),
   css: path.join(webRoot, "src/app/globals.css"),
