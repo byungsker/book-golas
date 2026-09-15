@@ -31,6 +31,21 @@ export type ConsumerRouteFixture =
   | "book-detail-planned"
   | "book-detail-reading"
   | "book-detail-success"
+  | "progress-complete"
+  | "progress-consent"
+  | "progress-deleted"
+  | "progress-duplicate"
+  | "progress-empty"
+  | "progress-forward"
+  | "progress-foreign"
+  | "progress-invalid"
+  | "progress-offline"
+  | "progress-quota"
+  | "progress-retry"
+  | "progress-server-error"
+  | "progress-stale"
+  | "progress-unauthorized"
+  | "progress-unavailable"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -106,6 +121,21 @@ export function getConsumerRouteFixture(
     "book-detail-planned",
     "book-detail-reading",
     "book-detail-success",
+    "progress-complete",
+    "progress-consent",
+    "progress-deleted",
+    "progress-duplicate",
+    "progress-empty",
+    "progress-forward",
+    "progress-foreign",
+    "progress-invalid",
+    "progress-offline",
+    "progress-quota",
+    "progress-retry",
+    "progress-server-error",
+    "progress-stale",
+    "progress-unauthorized",
+    "progress-unavailable",
     "deleted-book",
     "expired-session",
     "home-book-list",

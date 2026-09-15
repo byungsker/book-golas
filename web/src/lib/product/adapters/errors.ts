@@ -111,6 +111,7 @@ function acceptedCode(value: string | undefined): ErrorCode | undefined {
     case "configuration_error":
     case "timeout":
     case "offline":
+    case "history_unavailable":
     case "cancelled":
     case "unavailable":
       return value;
@@ -147,6 +148,13 @@ function defaultForCode(code: ErrorCode, message?: string): ProductError {
       return timeoutError(message);
     case "offline":
       return offlineError();
+    case "history_unavailable":
+      return {
+        code,
+        status: 503,
+        message: boundedMessage(message, "Reading history could not be recorded."),
+        retryable: true,
+      };
     case "cancelled":
       return { code, status: 409, message: boundedMessage(message, "The request was cancelled."), retryable: false };
     case "unavailable":
@@ -169,6 +177,7 @@ function statusForCode(code: ErrorCode, status: number | undefined): ProductErro
     configuration_error: [503],
     timeout: [504],
     offline: [503],
+    history_unavailable: [503],
     cancelled: [409],
     unavailable: [500, 502, 503, 504],
   };

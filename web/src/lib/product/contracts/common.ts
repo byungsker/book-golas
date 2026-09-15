@@ -52,6 +52,7 @@ export const errorCodeValues = [
   "timeout",
   "offline",
   "cancelled",
+  "history_unavailable",
   "unavailable",
 ] as const;
 export const ErrorCodeSchema = z.enum(errorCodeValues);
@@ -75,6 +76,7 @@ const errorStatusByCode = {
   timeout: [504],
   offline: [503],
   cancelled: [409],
+  history_unavailable: [503],
   unavailable: [500, 502, 503, 504],
 } as const;
 

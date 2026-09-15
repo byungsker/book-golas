@@ -1,0 +1,11 @@
+{
+  "issue": 434,
+  "fixtures": [
+    { "name": "stale expected page", "mode": "progress-stale", "assertion": "conflict and refetch" },
+    { "name": "duplicate idempotency key", "mode": "progress-duplicate", "assertion": "one history event" },
+    { "name": "failed history write", "mode": "progress-server-error", "assertion": "no false success" },
+    { "name": "page bounds", "mode": "progress-invalid", "assertion": "total page validation" },
+    { "name": "foreign book", "mode": "progress-foreign", "assertion": "private not-found" },
+    { "name": "deleted book", "mode": "progress-deleted", "assertion": "private not-found" }
+  ]
+}
