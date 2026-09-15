@@ -136,6 +136,8 @@ export const UpdateBookRequestSchema = z
     targetDate: IsoDateSchema.optional(),
     plannedStartDate: IsoDateSchema.nullable().optional(),
     status: BookStatusSchema.optional(),
+    attemptCount: z.number().int().min(1).optional(),
+    pausedAt: IsoDateSchema.nullable().optional(),
     dailyTargetPages: z.number().int().min(1).nullable().optional(),
     priority: BookPrioritySchema.nullable().optional(),
     review: z.string().nullable().optional(),
@@ -148,6 +150,9 @@ export const UpdateBookRequestSchema = z
     }
     if (request.status === "reading" && request.plannedStartDate) {
       context.addIssue({ code: "custom", path: ["plannedStartDate"], message: "reading books cannot keep a planned start date" });
+    }
+    if (request.status && request.status !== "will_retry" && request.pausedAt) {
+      context.addIssue({ code: "custom", path: ["pausedAt"], message: "only paused books can keep a paused timestamp" });
     }
     if (request.plannedStartDate && request.targetDate && Date.parse(request.targetDate) < Date.parse(request.plannedStartDate)) {
       context.addIssue({ code: "custom", path: ["targetDate"], message: "targetDate must be on or after plannedStartDate" });

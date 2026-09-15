@@ -1,0 +1,77 @@
+{
+  "issue": 433,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "native": {
+    "sources": [
+      "app/lib/ui/book_detail/book_detail_screen.dart:58",
+      "app/lib/ui/book_detail/widgets/tabs/detail_tab.dart",
+      "app/lib/domain/models/book.dart:88",
+      "app/lib/data/services/book_service.dart:10",
+      "supabase/migrations/20260113022313_add_reading_status_management.sql:1"
+    ],
+    "screens": ["book-detail", "reading-progress", "review", "mind-map"],
+    "modals": ["pause-reading-confirmation", "delete-confirmation", "book-completion"],
+    "actions": ["start", "resume", "pause", "complete", "delete"],
+    "statuses": ["planned", "reading", "completed", "will_retry"]
+  },
+  "web": {
+    "route": "/{locale}/books/{bookId}",
+    "api": "/api/consumer/book-detail",
+    "component": "BookDetailClient",
+    "browserDisposition": {
+      "detail": "route-and-component",
+      "pauseAndDeleteConfirmation": "browser-dialog",
+      "externalReviewAndStoreLinks": "https-allowlisted-browser-link",
+      "nativeShare": "browser-share-or-explicitly-unavailable",
+      "camera": "explicitly-unavailable-on-detail; use browser discovery fallback",
+      "subscription": "explicitly-unavailable"
+    }
+  },
+  "locales": ["ko", "en"],
+  "states": [
+    "loading",
+    "ready",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "not-found",
+    "foreign",
+    "deleted",
+    "invalid-transition",
+    "updated",
+    "delete-confirmation",
+    "retry"
+  ],
+  "statusActions": {
+    "planned": ["start", "delete"],
+    "reading": ["pause", "complete", "delete"],
+    "completed": ["delete"],
+    "will_retry": ["resume", "delete"]
+  },
+  "ownership": {
+    "read": "verified session user plus id match plus deleted_at is null",
+    "write": "verified session user plus id match plus deleted_at is null",
+    "softDelete": "set deleted_at and hide aggregate/dependent reads",
+    "callerIdentity": "never accepted from request payload"
+  },
+  "cacheInvalidation": [
+    "/{locale}/home",
+    "/{locale}/library",
+    "/{locale}/books/{bookId}",
+    "/{locale}/reading/{bookId}",
+    "/{locale}/books/{bookId}/review",
+    "/{locale}/books/{bookId}/mind-map"
+  ],
+  "nativeOnly": [
+    { "capability": "ios-widget", "browserDisposition": "explicit-unavailability" },
+    { "capability": "siri-app-shortcuts", "browserDisposition": "explicit-unavailability" },
+    { "capability": "native-push", "browserDisposition": "explicit-unavailability" },
+    { "capability": "camera", "browserDisposition": "explicit-unavailability" },
+    { "capability": "share-sheet", "browserDisposition": "browser-share-or-explicitly-unavailable" },
+    { "capability": "subscription", "browserDisposition": "explicit-unavailability" }
+  ],
+  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-20-bookgolas-web-app-parity.json"
+}

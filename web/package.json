@@ -25,6 +25,8 @@
     "test:book-discovery:negative": "node scripts/test-book-discovery.mjs --fixture provider-secret-leak",
     "test:book-lifecycle": "node scripts/test-book-lifecycle.mjs && vitest run src/lib/product/contracts/book-lifecycle.test.ts src/lib/product/dal.writes.test.ts src/app/api/consumer/book-lifecycle/route.test.ts",
     "test:book-lifecycle:negative": "node scripts/test-book-lifecycle.mjs --fixture foreign-book-write",
+    "test:book-detail": "node scripts/test-book-detail.mjs && vitest run src/lib/product/contracts/book-detail.test.ts src/app/api/consumer/book-detail/route.test.ts src/lib/product/dal.writes.test.ts",
+    "test:book-detail:negative": "node scripts/test-book-detail.mjs --fixture foreign-book",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",
