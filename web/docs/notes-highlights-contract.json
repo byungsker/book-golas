@@ -1,0 +1,116 @@
+{
+  "issue": 432,
+  "task": 23,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "locales": ["ko", "en"],
+  "native": {
+    "surfaces": ["detail_tab", "memorable_pages_tab", "record_detail_modal", "delete_confirmation"],
+    "recordTypes": ["note", "highlight", "memorable_page"],
+    "fields": ["page_number", "caption", "text", "source_navigation", "normalized_rectangles"],
+    "actions": ["create", "edit", "delete", "retry_index"],
+    "nativeOnly": ["camera_capture", "share_sheet", "native_push", "ios_widget", "siri_app_shortcuts", "subscription"],
+    "references": [
+      "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+      "app/lib/ui/book_detail/widgets/tabs/detail_tab.dart",
+      "app/lib/domain/models/highlight_data.dart",
+      "app/lib/domain/models/note_structure_models.dart",
+      "app/lib/data/services/note_structure_service.dart",
+      "app/lib/data/services/recall_service.dart",
+      "supabase/migrations/20260127082134_create_note_structures.sql",
+      "supabase/migrations/20260123_add_highlights_to_book_images.sql"
+    ]
+  },
+  "web": {
+    "route": "/{locale}/books/{bookId}",
+    "api": "/api/consumer/notes-highlights",
+    "component": "src/components/consumer/notes-highlights-client.tsx",
+    "browserDisposition": "supported_with_web_forms_and_page_navigation",
+    "storage": "consumer_reading_records",
+    "indexing": "separate_side_effect_after_owner_save",
+    "ownership": "verified_session_user_and_active_owned_book"
+  },
+  "parityRows": [
+    {
+      "nativeFlutter": "MemorablePagesTab",
+      "nativeSurface": "book_detail/widgets/tabs/memorable_pages_tab.dart",
+      "nativeActions": ["create", "edit", "delete", "page_number", "caption", "source_navigation"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "NotesHighlightsClient",
+      "browserDisposition": "web_form_with_page_link_and_delete_dialog"
+    },
+    {
+      "nativeFlutter": "DetailTab",
+      "nativeSurface": "book_detail/widgets/tabs/detail_tab.dart",
+      "nativeActions": ["open_records", "edit", "delete"],
+      "nativeStates": ["ready", "empty", "error", "consent", "quota"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "BookDetailClient -> NotesHighlightsClient",
+      "browserDisposition": "embedded_private_record_panel"
+    },
+    {
+      "nativeFlutter": "HighlightData",
+      "nativeSurface": "domain/models/highlight_data.dart",
+      "nativeActions": ["create", "edit", "delete", "normalized_coordinates"],
+      "nativeStates": ["pending", "ready", "failed", "retry"],
+      "webRoute": "/api/consumer/notes-highlights",
+      "webComponent": "NormalizedHighlightRectangleSchema",
+      "browserDisposition": "validated_rectangle_fields"
+    },
+    {
+      "nativeFlutter": "CameraCapture, ShareSheet, NativePush, IOSWidget, SiriAppShortcuts, Subscription",
+      "nativeSurface": "native_only_capabilities",
+      "nativeActions": ["camera_capture", "share", "push", "widget", "shortcut", "subscription"],
+      "nativeStates": ["native_only"],
+      "webRoute": null,
+      "webComponent": null,
+      "browserDisposition": "native_only_or_explicitly_unavailable"
+    }
+  ],
+  "states": [
+    "loading",
+    "ready",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "pending",
+    "failed",
+    "retry",
+    "duplicate",
+    "invalid",
+    "foreign",
+    "deleted"
+  ],
+  "invariants": [
+    "page_number_is_null_or_within_book_bounds",
+    "rectangle_coordinates_are_normalized_0_to_1",
+    "x_plus_width_and_y_plus_height_are_at_most_1",
+    "owner_record_is_saved_before_indexing",
+    "failed_indexing_keeps_the_saved_record",
+    "retry_is_idempotent",
+    "ai_indexing_requires_explicit_consent",
+    "caller_identity_is_never_accepted",
+    "foreign_records_are_not_found"
+  ],
+  "negativeFixtures": [
+    "invalid-page",
+    "invalid-rectangle",
+    "index-failure",
+    "foreign-record",
+    "duplicate-retry",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline"
+  ],
+  "acceptance": {
+    "command": "npm run test:notes-highlights",
+    "negativeCommand": "npm run test:notes-highlights:negative",
+    "happyBrowser": "npx playwright test tests/e2e/notes-highlights.spec.ts --project=chromium --grep \"create|edit|delete\"",
+    "failureBrowser": "npx playwright test tests/e2e/notes-highlights.spec.ts --project=chromium --grep \"invalid|index-failure|foreign\"",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-23-bookgolas-web-app-parity.png"
+  }
+}

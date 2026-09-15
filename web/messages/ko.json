@@ -691,6 +691,75 @@
         "activeOther": "다른 책의 타이머가 실행 중이에요."
       }
     },
+    "notesHighlights": {
+      "eyebrow": "저장한 독서 순간",
+      "title": "메모, 하이라이트와 기억할 페이지",
+      "description": "읽은 페이지에 나만의 독서 기록을 남겨보세요.",
+      "loading": "저장한 기록을 불러오는 중...",
+      "retryLoad": "기록 다시 불러오기",
+      "createTitle": "독서 기록 저장",
+      "editTitle": "독서 기록 수정",
+      "formDescription": "기록을 먼저 저장한 뒤 선택한 경우에만 AI 색인을 별도로 실행하며, 실패하면 다시 시도할 수 있어요.",
+      "create": {
+        "note": "메모 추가",
+        "highlight": "하이라이트 추가",
+        "memorable_page": "기억할 페이지 추가"
+      },
+      "tabs": {
+        "label": "독서 기록 유형",
+        "all": "전체"
+      },
+      "recordTypes": {
+        "note": "메모",
+        "highlight": "하이라이트",
+        "memorable_page": "기억할 페이지"
+      },
+      "indexStatus": {
+        "pending": "색인 중",
+        "ready": "색인 완료",
+        "failed": "색인 실패",
+        "skipped": "색인 안 함"
+      },
+      "empty": {
+        "title": "저장한 기록이 아직 없어요",
+        "description": "읽으면서 메모, 하이라이트 또는 기억할 페이지를 저장해보세요."
+      },
+      "form": {
+        "type": "기록 유형",
+        "page": "페이지 번호",
+        "text": "본문",
+        "caption": "캡션",
+        "imageUrl": "이미지 URL",
+        "rectangle": "정규화한 하이라이트 영역 (0~1)",
+        "aiConsent": "이 기록의 텍스트를 선택적 AI 색인에 사용하도록 허용합니다."
+      },
+      "validation": {
+        "page": "이 책의 페이지 범위 안에서 입력하세요.",
+        "rectangle": "영역은 0~1 안에 있어야 하고 너비와 높이가 양수여야 해요."
+      },
+      "rectangleCount": "{count, plural, =0 {영역 없음} one {#개 영역} other {#개 영역}}",
+      "sourceNavigation": "페이지 열기",
+      "retryIndex": "색인 다시 시도",
+      "edit": "수정",
+      "delete": "삭제",
+      "deleteTitle": "이 기록을 삭제할까요?",
+      "deleteDescription": "저장된 기록과 선택적 색인이 삭제됩니다.",
+      "deleteConfirm": "기록 삭제",
+      "save": "기록 저장",
+      "saveChanges": "변경사항 저장",
+      "saving": "저장 중...",
+      "cancel": "취소",
+      "errors": {
+        "title": "기록을 불러오지 못했어요",
+        "unauthorizedTitle": "로그인 후 기록을 확인하세요",
+        "unauthorized": "비공개 독서 기록을 관리하려면 로그인하세요.",
+        "consent": "기록을 색인하려면 AI 동의가 필요해요.",
+        "quota": "기록 저장 한도에 도달했어요.",
+        "offline": "오프라인 상태입니다. 연결 후 다시 시도하세요.",
+        "notFound": "이 기록을 서재에서 찾을 수 없어요.",
+        "generic": "기록을 저장하지 못했어요. 다시 시도하세요."
+      }
+    },
     "book": {
       "status": {
         "planned": "읽을 예정",

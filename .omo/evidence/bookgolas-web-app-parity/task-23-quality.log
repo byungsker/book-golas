@@ -1,0 +1,7 @@
+
+> web@0.1.0 typecheck
+> tsc --noEmit
+
+
+> web@0.1.0 lint
+> eslint --no-cache

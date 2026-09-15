@@ -691,6 +691,75 @@
         "activeOther": "A timer for another book is running."
       }
     },
+    "notesHighlights": {
+      "eyebrow": "Saved reading moments",
+      "title": "Notes, highlights and memorable pages",
+      "description": "Keep your own reading records attached to the page where you found them.",
+      "loading": "Loading your saved records...",
+      "retryLoad": "Reload records",
+      "createTitle": "Save a reading record",
+      "editTitle": "Edit reading record",
+      "formDescription": "Your record is saved first. Optional AI indexing runs separately and can be retried.",
+      "create": {
+        "note": "Add note",
+        "highlight": "Add highlight",
+        "memorable_page": "Add memorable page"
+      },
+      "tabs": {
+        "label": "Reading record types",
+        "all": "All"
+      },
+      "recordTypes": {
+        "note": "Note",
+        "highlight": "Highlight",
+        "memorable_page": "Memorable page"
+      },
+      "indexStatus": {
+        "pending": "Indexing",
+        "ready": "Indexed",
+        "failed": "Index failed",
+        "skipped": "Not indexed"
+      },
+      "empty": {
+        "title": "No saved records yet",
+        "description": "Save a note, highlight or memorable page while you read."
+      },
+      "form": {
+        "type": "Record type",
+        "page": "Page number",
+        "text": "Text",
+        "caption": "Caption",
+        "imageUrl": "Image URL",
+        "rectangle": "Normalized highlight rectangle (0 to 1)",
+        "aiConsent": "Allow this record's text to be used for optional AI indexing."
+      },
+      "validation": {
+        "page": "Enter a page number within this book.",
+        "rectangle": "Each rectangle must stay inside the 0 to 1 bounds and have a positive size."
+      },
+      "rectangleCount": "{count, plural, =0 {No rectangles} one {# rectangle} other {# rectangles}}",
+      "sourceNavigation": "Open page",
+      "retryIndex": "Retry indexing",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete this record?",
+      "deleteDescription": "The saved record and its optional index will be removed.",
+      "deleteConfirm": "Delete record",
+      "save": "Save record",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "errors": {
+        "title": "We could not load these records",
+        "unauthorizedTitle": "Sign in to view your records",
+        "unauthorized": "Sign in before managing private reading records.",
+        "consent": "AI consent is required before indexing this record.",
+        "quota": "Your record quota has been reached.",
+        "offline": "You are offline. Reconnect and try again.",
+        "notFound": "This record is no longer available in your library.",
+        "generic": "We could not save this record. Try again."
+      }
+    },
     "book": {
       "status": {
         "planned": "To read",

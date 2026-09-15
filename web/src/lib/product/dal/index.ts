@@ -35,6 +35,13 @@ export {
   type ReadingRecordListRequest,
 } from "./records";
 export {
+  createOwnedConsumerRecord,
+  deleteOwnedConsumerRecord,
+  listOwnedConsumerRecords,
+  retryOwnedConsumerRecordIndex,
+  updateOwnedConsumerRecord,
+} from "./consumer-records";
+export {
   decodeReadingRecordCursor,
   encodeReadingRecordCursor,
   type ReadingRecordCursor,
