@@ -55,5 +55,72 @@ describe("Supabase auth callback", () => {
     expect(location.searchParams.get("error")).toBe("auth_callback");
     expect(location.searchParams.get("next")).toBe("/ko/home");
     expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(location.search).not.toContain("replayed-code");
+    expect(location.search).not.toContain("invalid code");
+  });
+
+  it("returns the same safe error when the exchange throws", async () => {
+    exchangeCodeForSessionMock.mockRejectedValue(new Error("private network detail"));
+
+    const response = await GET(makeRequest("code=expired-code&returnTo=%2Fko%2Fhome"), {
+      params: Promise.resolve({ locale: "ko" }),
+    });
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.pathname).toBe("/ko/auth/sign-in");
+    expect(location.searchParams.get("error")).toBe("auth_callback");
+    expect(location.search).not.toContain("private network detail");
+  });
+
+  it("returns a safe localized error when the provider denies or cancels", async () => {
+    const response = await GET(
+      makeRequest("error=access_denied&error_description=private-provider-detail&error_code=secret-code&returnTo=%2Fko%2Fhome"),
+      { params: Promise.resolve({ locale: "ko" }) },
+    );
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.pathname).toBe("/ko/auth/sign-in");
+    expect(location.searchParams.get("error")).toBe("oauth_cancelled");
+    expect(location.searchParams.get("next")).toBe("/ko/home");
+    expect(location.search).not.toContain("private-provider-detail");
+    expect(location.search).not.toContain("secret-code");
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("normalizes provider failures without forwarding provider error data", async () => {
+    const response = await GET(
+      makeRequest("error=server_error&error_description=private-provider-detail&error_code=secret-code"),
+      { params: Promise.resolve({ locale: "ko" }) },
+    );
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.pathname).toBe("/ko/auth/sign-in");
+    expect(location.searchParams.get("error")).toBe("oauth_provider");
+    expect(location.search).not.toContain("private-provider-detail");
+    expect(location.search).not.toContain("secret-code");
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects an external return target after a successful exchange", async () => {
+    const response = await GET(
+      makeRequest("code=valid-code&returnTo=https%3A%2F%2Fevil.example%2Faccount"),
+      { params: Promise.resolve({ locale: "ko" }) },
+    );
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.origin).toBe("https://bookgolas.test");
+    expect(location.pathname).toBe("/ko/home");
+    expect(exchangeCodeForSessionMock).toHaveBeenCalledWith("valid-code");
+  });
+
+  it("does not treat a missing callback code as success", async () => {
+    const response = await GET(makeRequest("returnTo=%2Fko%2Fhome"), {
+      params: Promise.resolve({ locale: "ko" }),
+    });
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.pathname).toBe("/ko/auth/sign-in");
+    expect(location.searchParams.get("error")).toBe("auth_callback");
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
   });
 });

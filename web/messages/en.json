@@ -351,6 +351,9 @@
       "sendReset": "Send reset link",
       "updatePassword": "Update password",
       "processing": "Processing...",
+      "or": "or",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple",
       "saveEmail": "Save email on this device",
       "forgotPassword": "Forgot password?",
       "createAccount": "Create an account",
@@ -377,6 +380,9 @@
         "passwordShort": "Use at least 6 characters for your password.",
         "passwordMismatch": "The passwords do not match.",
         "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
+        "oauthCancelled": "Sign-in was cancelled. You can try again when you are ready.",
+        "oauthProvider": "The provider could not complete sign-in. Try again.",
+        "authCallback": "The sign-in link is invalid or expired. Start sign-in again.",
         "generic": "We could not complete that request. Try again shortly."
       }
     },

@@ -1,0 +1,94 @@
+{
+  "issue": 424,
+  "title": "[Bookgolas Web Parity 12] Implement supported Google/Apple OAuth callbacks and safe return flow",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "origin/version/web/1.1.0",
+  "base_revision": "aa9285330af23acd68beaaca36a9d1d5186eb46d",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-424-auth-oauth",
+  "declared_commit": "feat(auth): add provider callback boundary",
+  "red": {
+    "result": "PASS",
+    "scenario": "The exact OAuth acceptance command fails before the provider boundary is implemented.",
+    "invocation": "cd web && npm run test:auth-oauth",
+    "observable": "Exit 1 with Error: auth form must start Supabase OAuth.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-12-RED-test-auth-oauth.log"
+  },
+  "criteria": [
+    {
+      "scenario": "Google and Apple each complete a local PKCE authorization redirect, exchange a code into a Supabase session cookie, and return to /en/home.",
+      "invocation": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep success",
+      "observable": "Exit 0 with 2 passed; each authorization URL names the expected provider and has a code_challenge, and each completed browser context contains an sb-* auth-token cookie.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-happy.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-google-success.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-apple-success.png"
+      ]
+    },
+    {
+      "scenario": "An expired code returns to Korean sign-in with a generic localized error and removes the code from the visible URL.",
+      "invocation": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep \"invalid|external\"",
+      "observable": "Exit 0; the invalid-code case displays auth_callback copy and the final URL contains neither the expired code nor provider detail.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-failure.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-code.png"
+      ]
+    },
+    {
+      "scenario": "Redirect cancellation and provider failure use separate generic localized messages without forwarding error_description or error_code.",
+      "invocation": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep \"invalid|external\"",
+      "observable": "Exit 0; the cancellation and provider-error cases display oauth_cancelled or oauth_provider while private fixture details are absent from the final URLs.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-failure.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-cancellation.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-provider.png"
+      ]
+    },
+    {
+      "scenario": "An external returnTo is rejected before authorization and the completed callback remains on the same origin at /ko/home.",
+      "invocation": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep \"invalid|external\"",
+      "observable": "Exit 0; the external-return case ends at /ko/home and the browser URL does not contain evil.example.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-failure.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-external-return-rejected.png"
+      ]
+    }
+  ],
+  "green": {
+    "result": "PASS",
+    "scenario": "The machine-checkable contract allows only Google and Apple, requires PKCE, validates negative fixtures, and exercises callback/start logic.",
+    "invocation": "cd web && npm run test:auth-oauth",
+    "observable": "Exit 0; auth-oauth contract PASS, 2 files and 12 tests passed.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-12-GREEN-test-auth-oauth.log",
+    "contract": "web/docs/auth-oauth-contract.json",
+    "negative_fixture": "web/scripts/fixtures/auth-oauth-negative.json"
+  },
+  "verification": {
+    "result": "PASS",
+    "invocation": "npm run typecheck && npm run lint && npm test && npm run test:auth-boundary && npm run test:auth-email && npm run test:auth-oauth && npm run build",
+    "observable": "Exit 0; TypeScript and ESLint pass, the main suite reports 21 files and 171 tests, auth boundary reports 23 tests, auth email reports 35 tests, OAuth reports 12 tests, and the Next production build emits all existing route families.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-12-GREEN-full-verification.log"
+  },
+  "surface": {
+    "result": "PASS",
+    "observable": "Fresh 1280px Chromium captures show the existing BLab auth layout with only Google and Apple actions, readable Korean/English generic errors, and localized success destinations without clipping.",
+    "artifacts": [
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-google-success.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-apple-success.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-code.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-cancellation.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-invalid-provider.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-12-SURFACE-external-return-rejected.png"
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "observable": "The final diff is limited to issue #424 OAuth/auth evidence plus the stale auth-boundary route-group checker correction; no Kakao, onboarding, shell, billing, admin, legal, marketing, or native-only product behavior changed.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-12-diff-review.md"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "observable": "Ports 3000 and 54329 have no listeners, no task-local Next/Playwright/fixture process remains, evidence logs contain no terminal control bytes, and the staged diff passes git diff --cached --check.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-12-CLEANUP.log"
+  }
+}
