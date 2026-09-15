@@ -78,7 +78,7 @@ export async function proxy(request: NextRequest) {
   );
 
   if (
-    ["authenticated-not-found", "bootstrap-network", "deleted-book", "unauthorized-private-data", "pending", "unavailable"].includes(routeFixture ?? "") &&
+    ["authenticated-not-found", "bootstrap-network", "deleted-book", "home-book-list", "home-empty-completed", "home-empty-paused", "home-empty-planned", "home-empty-reading", "unauthorized-private-data", "pending", "unavailable"].includes(routeFixture ?? "") &&
     isConsumerRoute
   ) {
     hasVerifiedClaims = true;

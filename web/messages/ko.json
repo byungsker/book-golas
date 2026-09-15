@@ -308,8 +308,43 @@
       "bookCount": "{count, plural, =0 {책 없음} other {#권}}",
       "openBook": "책 열기",
       "refresh": "새로고침",
+      "addBook": "책 추가",
+      "currentReading": "지금 읽는 중",
+      "plannedStart": "읽기 예정일",
       "emptyTitle": "서재가 비어 있어요",
-      "emptyDescription": "북골라스 앱에서 책을 추가하면 여기에서 독서 진행률을 확인할 수 있어요."
+      "emptyDescription": "북골라스 앱에서 책을 추가하면 여기에서 독서 진행률을 확인할 수 있어요.",
+      "statusTabs": {
+        "label": "독서 상태 목록",
+        "reading": "읽는 중",
+        "planned": "읽을 책",
+        "completed": "완독",
+        "paused": "다시 읽기",
+        "all": "전체"
+      },
+      "statusEmpty": {
+        "reading": {
+          "title": "읽는 중인 책이 없어요",
+          "description": "책을 추가하고 오늘의 독서를 시작해 보세요."
+        },
+        "planned": {
+          "title": "읽을 책이 없어요",
+          "description": "읽고 싶은 책을 목록에 추가해 보세요."
+        },
+        "completed": {
+          "title": "완독한 책이 없어요",
+          "description": "첫 책을 끝까지 읽으면 이곳에 기록됩니다."
+        },
+        "paused": {
+          "title": "다시 읽을 책이 없어요",
+          "description": "잠시 멈춘 책은 다시 읽기 목록에서 관리할 수 있어요."
+        }
+      },
+      "dday": {
+        "before": "D-{days}",
+        "today": "D-Day",
+        "overdue": "D+{days}",
+        "unknown": "목표일 없음"
+      }
     },
     "book": {
       "status": {

@@ -1,0 +1,16 @@
+{
+  "fixture_id": "bookgolas-web-429-home-book-list-negative",
+  "purpose": "Reject landing-page fixture data from the production Home route.",
+  "forbiddenLandingMarkers": [
+    "The Reading Atlas",
+    "Finished Signals",
+    "Deleted private fixture"
+  ],
+  "requiredGuards": [
+    "BOOKGOLAS_ROUTE_TEST_MODE",
+    "127.0.0.1",
+    "user_id",
+    "deleted_at"
+  ],
+  "unsafeScenario": "Hard-code seeded phone mock books directly into ConsumerHomePage instead of reading the authenticated collection."
+}

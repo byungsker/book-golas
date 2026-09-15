@@ -1,5 +1,5 @@
 export const consumerBookSelect =
-  "id,title,author,start_date,target_date,image_url,current_page,total_pages,status,created_at,updated_at,deleted_at";
+  "id,title,author,start_date,target_date,planned_start_date,image_url,current_page,total_pages,status,created_at,updated_at,deleted_at,paused_at";
 
 export type ConsumerBookStatus =
   | "planned"
@@ -14,12 +14,14 @@ export type ConsumerBook = {
   author: string | null;
   startDate: string;
   targetDate: string;
+  plannedStartDate: string | null;
   imageUrl: string | null;
   currentPage: number;
   totalPages: number;
   status: ConsumerBookStatus;
   createdAt: string | null;
   updatedAt: string | null;
+  pausedAt: string | null;
 };
 
 export function parseConsumerBook(
@@ -48,12 +50,15 @@ export function parseConsumerBook(
     author: typeof value.author === "string" ? value.author : null,
     startDate: value.start_date,
     targetDate: value.target_date,
+    plannedStartDate:
+      typeof value.planned_start_date === "string" ? value.planned_start_date : null,
     imageUrl: typeof value.image_url === "string" ? value.image_url : null,
     currentPage,
     totalPages,
     status: isConsumerBookStatus(rawStatus) ? rawStatus : "unknown",
     createdAt: typeof value.created_at === "string" ? value.created_at : null,
     updatedAt: typeof value.updated_at === "string" ? value.updated_at : null,
+    pausedAt: typeof value.paused_at === "string" ? value.paused_at : null,
   };
 }
 

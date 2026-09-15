@@ -8,6 +8,7 @@ import {
   parseConsumerBook,
   type ConsumerBook,
 } from "@/lib/consumer/types";
+import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 
 type AuthContext = {
   supabase: SupabaseClient | null;
@@ -43,7 +44,17 @@ async function getAuthContext(): Promise<AuthContext> {
   if (routeFixture === "bootstrap-network") {
     return { supabase: null, user: null, unavailable: true };
   }
-  if (["authenticated-not-found", "deleted-book", "unauthorized-private-data", "pending"].includes(routeFixture ?? "")) {
+  if ([
+    "authenticated-not-found",
+    "deleted-book",
+    "home-book-list",
+    "home-empty-completed",
+    "home-empty-paused",
+    "home-empty-planned",
+    "home-empty-reading",
+    "unauthorized-private-data",
+    "pending",
+  ].includes(routeFixture ?? "")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,
@@ -95,7 +106,12 @@ export async function fetchOwnedBooks(): Promise<{
   if (context.unavailable) {
     return { books: [], code: "unavailable" };
   }
-  if (context.user && !context.supabase) return { books: [], code: "ok" };
+  if (context.user && !context.supabase) {
+    if (routeFixture === "home-book-list") {
+      return { books: getHomeBookListFixtureBooks(), code: "ok" };
+    }
+    return { books: [], code: "ok" };
+  }
   if (!context.supabase) {
     return { books: [], code: "unavailable" };
   }
@@ -107,13 +123,16 @@ export async function fetchOwnedBooks(): Promise<{
       .select(consumerBookSelect)
       .eq("user_id", context.user.id)
       .is("deleted_at", null)
-      .order("updated_at", { ascending: false });
+      .order("updated_at", { ascending: false, nullsFirst: false })
+      .order("id", { ascending: false });
 
     if (error) return { books: [], code: "unavailable" };
 
     const books = (Array.isArray(data) ? data : []).flatMap((row) => {
       if (!row || typeof row !== "object") return [];
-      const book = parseConsumerBook(row as Record<string, unknown>);
+      const rowValue = row as Record<string, unknown>;
+      if (rowValue.deleted_at !== null && rowValue.deleted_at !== undefined) return [];
+      const book = parseConsumerBook(rowValue);
       return book ? [book] : [];
     });
 

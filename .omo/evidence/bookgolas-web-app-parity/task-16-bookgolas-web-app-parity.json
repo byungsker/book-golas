@@ -1,0 +1,42 @@
+{
+  "issue": 429,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "red": {
+    "commands": [
+      "npm run test:home-book-list",
+      "npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium"
+    ],
+    "result": "expected failure before implementation: missing npm script and missing Playwright spec"
+  },
+  "green": {
+    "commands": [
+      "npm run test:home-book-list",
+      "npm run test:home-book-list:negative",
+      "npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium"
+    ],
+    "result": "contract, negative fixture, 12 focused tests and 4 Chromium scenarios passed"
+  },
+  "surface": {
+    "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-16-bookgolas-web-app-parity.png",
+    "viewport": "1440x900",
+    "locale": "en",
+    "states": ["ready", "loading", "empty", "error", "offline"],
+    "result": "visually reviewed; status tabs, current-reading section, cards, progress, dates, D-day, refresh and add-entry are legible"
+  },
+  "cleanup": {
+    "review": ".omo/evidence/bookgolas-web-app-parity/task-16-review.md",
+    "commands": [
+      "git diff --check",
+      "npm run typecheck",
+      "npm run lint",
+      "npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium --grep \"empty|network\""
+    ],
+    "result": "passed; no unresolved implementation findings"
+  },
+  "dataGuards": {
+    "ownerScope": "eq(user_id, authenticated user id)",
+    "softDelete": "is(deleted_at, null) plus defensive row filter",
+    "ordering": "updated_at desc, id desc on the server; status-aware stable ordering in the surface",
+    "fixtureBoundary": "route fixtures require enabled test mode and loopback Supabase"
+  }
+}
