@@ -12,6 +12,7 @@
     "test:consumer-routes": "node scripts/test-consumer-routes.mjs",
     "test:auth-boundary": "node scripts/test-auth-boundary.mjs",
     "test:auth-email": "node scripts/test-auth-email.mjs && vitest run src/lib/consumer/auth.test.ts src/lib/consumer/paths.test.ts",
+    "test:auth-oauth": "node scripts/test-auth-oauth.mjs && vitest run src/lib/consumer/oauth.test.ts 'src/app/[locale]/(auth)/auth/callback/route.test.ts'",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",

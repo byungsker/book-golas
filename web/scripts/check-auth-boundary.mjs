@@ -22,10 +22,10 @@ for (const marker of ["placeholder.supabase.co", "placeholder-key"]) {
 }
 
 for (const relativePath of [
-  "src/app/[locale]/home/page.tsx",
-  "src/app/[locale]/account/page.tsx",
-  "src/app/[locale]/books/[bookId]/page.tsx",
-  "src/app/[locale]/reading/[bookId]/page.tsx",
+  "src/app/[locale]/(consumer)/home/page.tsx",
+  "src/app/[locale]/(consumer)/account/page.tsx",
+  "src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+  "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
 ]) {
   const page = fs.readFileSync(path.join(webRoot, relativePath), "utf8");
   if (!page.includes('export const dynamic = "force-dynamic"')) {

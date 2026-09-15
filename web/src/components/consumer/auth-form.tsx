@@ -17,15 +17,23 @@ import {
   type AuthMode,
   writeSavedEmail,
 } from "@/lib/consumer/auth";
+import {
+  getOAuthStartErrorKey,
+  oauthProviders,
+  signInWithOAuth,
+  type OAuthErrorKey,
+  type OAuthProvider,
+} from "@/lib/consumer/oauth";
 import { getConsumerPath } from "@/lib/consumer/paths";
 
 type AuthFormProps = {
   mode: AuthMode;
   locale: "ko" | "en";
   nextPath: string;
+  initialErrorKey?: OAuthErrorKey | null;
 };
 
-export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
+export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: AuthFormProps) {
   const t = useTranslations("consumer.auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,7 +42,7 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
   const [saveEmail, setSaveEmail] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(initialErrorKey);
   const [successKey, setSuccessKey] = useState<string | null>(null);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -201,6 +209,33 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
     }
   }
 
+  async function startOAuth(provider: OAuthProvider) {
+    setErrorKey(null);
+    setSuccessKey(null);
+    setIsPending(true);
+
+    try {
+      const { data, error } = await signInWithOAuth(supabase.auth, provider, {
+        origin: window.location.origin,
+        locale,
+        returnTo: nextPath,
+      });
+      if (error) {
+        setErrorKey(getOAuthStartErrorKey(error));
+        return;
+      }
+      if (!data.url) {
+        setErrorKey("errors.oauthProvider");
+        return;
+      }
+      window.location.assign(data.url);
+    } catch (error) {
+      setErrorKey(getOAuthStartErrorKey(error));
+    } finally {
+      setIsPending(false);
+    }
+  }
+
   const title =
     mode === "sign-in"
       ? t("signInTitle")
@@ -356,19 +391,40 @@ export function AuthForm({ mode, locale, nextPath }: AuthFormProps) {
         </ConsumerButton>
 
         {mode === "sign-in" ? (
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
-            <Link
-              href={getConsumerPath(locale, "/auth/reset-password")}
-              className="text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
-            >
-              {t("forgotPassword")}
-            </Link>
-            <Link
-              href={getConsumerPath(locale, "/auth/sign-up")}
-              className="text-[var(--blab-text-tertiary)] underline-offset-4 hover:text-[var(--blab-text-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
-            >
-              {t("createAccount")}
-            </Link>
+          <div className="mt-5">
+            <div className="flex items-center gap-3" aria-hidden="true">
+              <span className="h-px flex-1 bg-[var(--blab-glass-border)]" />
+              <span className="text-sm text-[var(--blab-text-tertiary)]">{t("or")}</span>
+              <span className="h-px flex-1 bg-[var(--blab-glass-border)]" />
+            </div>
+            <div className="mt-5 grid gap-3">
+              {oauthProviders.map((provider) => (
+                <ConsumerButton
+                  key={provider}
+                  type="button"
+                  variant="secondary"
+                  isFullWidth
+                  disabled={isPending}
+                  onClick={() => startOAuth(provider)}
+                >
+                  {provider === "google" ? t("continueWithGoogle") : t("continueWithApple")}
+                </ConsumerButton>
+              ))}
+            </div>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+              <Link
+                href={getConsumerPath(locale, "/auth/reset-password")}
+                className="text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
+              >
+                {t("forgotPassword")}
+              </Link>
+              <Link
+                href={getConsumerPath(locale, "/auth/sign-up")}
+                className="text-[var(--blab-text-tertiary)] underline-offset-4 hover:text-[var(--blab-text-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
+              >
+                {t("createAccount")}
+              </Link>
+            </div>
           </div>
         ) : null}
 
