@@ -3,6 +3,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
 import { isAdminEmail } from "./lib/admin-auth";
+import {
+  isConsumerRoutePath,
+  isProtectedConsumerRoutePath,
+  isUnprefixedConsumerRoutePath,
+} from "./lib/consumer/paths";
+import { getConsumerRouteFixture } from "./lib/consumer/route-fixture";
 import { getSupabasePublicConfig } from "./lib/supabase-config";
 
 const intlMiddleware = createIntlMiddleware(routing);
@@ -10,8 +16,6 @@ const consumerIntlMiddleware = createIntlMiddleware({
   ...routing,
   localePrefix: "always",
 });
-const consumerRoutePattern = /^\/(ko|en)\/(auth|home|books|reading)(?:\/|$)/;
-const unprefixedConsumerRoutePattern = /^\/(auth|home|books|reading)(?:\/|$)/;
 
 function createSessionClient(request: NextRequest) {
   const { url, anonKey } = getSupabasePublicConfig();
@@ -64,12 +68,19 @@ function finishAuthenticatedResponse(
 export async function proxy(request: NextRequest) {
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
   const isConsumerRoute =
-    consumerRoutePattern.test(request.nextUrl.pathname) ||
-    unprefixedConsumerRoutePattern.test(request.nextUrl.pathname);
+    isConsumerRoutePath(request.nextUrl.pathname) ||
+    isUnprefixedConsumerRoutePath(request.nextUrl.pathname);
   const sessionClient = isAdminRoute || isConsumerRoute ? createSessionClient(request) : null;
   let hasVerifiedClaims = false;
+  const routeFixture = getConsumerRouteFixture(
+    request.cookies.get("bookgolas-route-fixture")?.value,
+  );
 
-  if (sessionClient) {
+  if (routeFixture === "authenticated-not-found" && isConsumerRoute) {
+    hasVerifiedClaims = true;
+  } else if (routeFixture === "anonymous" && isConsumerRoute) {
+    hasVerifiedClaims = false;
+  } else if (sessionClient) {
     try {
       const { data } = await sessionClient.supabase.auth.getClaims();
       hasVerifiedClaims = Boolean(data?.claims);
@@ -122,7 +133,7 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  if (unprefixedConsumerRoutePattern.test(request.nextUrl.pathname)) {
+  if (isUnprefixedConsumerRoutePath(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${request.nextUrl.pathname}`;
     return finishAuthenticatedResponse(
@@ -131,7 +142,20 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  if (consumerRoutePattern.test(request.nextUrl.pathname)) {
+  if (isConsumerRoutePath(request.nextUrl.pathname)) {
+    if (isProtectedConsumerRoutePath(request.nextUrl.pathname) && !hasVerifiedClaims) {
+      const locale = request.nextUrl.pathname.split("/")[1];
+      const url = request.nextUrl.clone();
+      const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+      url.pathname = `/${locale}/auth/sign-in`;
+      url.search = "";
+      url.searchParams.set("returnTo", returnTo);
+      return finishAuthenticatedResponse(
+        sessionClient?.getResponse() ?? NextResponse.next({ request }),
+        NextResponse.redirect(url),
+      );
+    }
+
     return finishAuthenticatedResponse(
       sessionClient?.getResponse() ?? NextResponse.next({ request }),
       consumerIntlMiddleware(request),

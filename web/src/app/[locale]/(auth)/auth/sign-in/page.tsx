@@ -4,7 +4,10 @@ import { getSafeNextPath } from "@/lib/consumer/paths";
 
 type SignInPageProps = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ next?: string | string[] }>;
+  searchParams: Promise<{
+    next?: string | string[];
+    returnTo?: string | string[];
+  }>;
 };
 
 export default async function SignInPage({
@@ -15,7 +18,8 @@ export default async function SignInPage({
   if (locale !== "ko" && locale !== "en") redirect("/ko/auth/sign-in");
 
   const query = await searchParams;
-  const candidate = Array.isArray(query.next) ? query.next[0] : query.next;
+  const rawCandidate = query.returnTo ?? query.next;
+  const candidate = Array.isArray(rawCandidate) ? rawCandidate[0] : rawCandidate;
 
   return (
     <AuthForm

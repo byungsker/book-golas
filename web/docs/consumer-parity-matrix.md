@@ -39,21 +39,21 @@ All consumer routes support the ko and en locale contract. Existing Web files ar
 
 | Native surface | Canonical Web URL | Current Web evidence | Status | Owner |
 | --- | --- | --- | --- | --- |
-| Sign in | /{locale}/auth/sign-in | web/src/app/[locale]/auth/sign-in/page.tsx | partial | #423 |
-| Account creation | /{locale}/auth/sign-up | web/src/app/[locale]/auth/sign-up/page.tsx | partial | #423 |
-| Password recovery | /{locale}/auth/reset-password | web/src/app/[locale]/auth/reset-password/page.tsx | partial | #423 |
+| Sign in | /{locale}/auth/sign-in | web/src/app/[locale]/(auth)/auth/sign-in/page.tsx | partial | #423 |
+| Account creation | /{locale}/auth/sign-up | web/src/app/[locale]/(auth)/auth/sign-up/page.tsx | partial | #423 |
+| Password recovery | /{locale}/auth/reset-password | web/src/app/[locale]/(auth)/auth/reset-password/page.tsx | partial | #423 |
 | Terms WebView | /{locale}/terms | web/src/app/[locale]/terms/page.tsx | partial | #444 |
 | Announcements WebView | /{locale}/announcements | not implemented | planned | #444 |
 | Onboarding | /{locale}/onboarding | not implemented | planned | #426 |
-| Home and reading status | /{locale}/home | web/src/app/[locale]/home/page.tsx | partial | #429 |
+| Home and reading status | /{locale}/home | web/src/app/[locale]/(consumer)/home/page.tsx | partial | #429 |
 | My Library | /{locale}/library | not implemented | planned | #430 |
 | Reading statistics | /{locale}/stats | not implemented | planned | #440 |
 | Calendar | /{locale}/calendar | not implemented | planned | #439 |
 | My Page and settings | /{locale}/account | not implemented | planned | #444 |
 | Native book-list route | /{locale}/book-list | not implemented | planned | #430 |
 | Search and add book | /{locale}/books/new | not implemented | planned | #428/#431 |
-| Book detail | /{locale}/books/{bookId} | web/src/app/[locale]/books/[bookId]/page.tsx | partial | #433 |
-| Reading progress | /{locale}/reading/{bookId} | web/src/app/[locale]/reading/[bookId]/page.tsx | partial | #434 |
+| Book detail | /{locale}/books/{bookId} | web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx | partial | #433 |
+| Reading progress | /{locale}/reading/{bookId} | web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx | partial | #434 |
 | Book review editor | /{locale}/books/{bookId}/review | not implemented | planned | #437 |
 | Note-structure mind map | /{locale}/books/{bookId}/mind-map | not implemented | planned | #442 |
 | Barcode scanner | /{locale}/books/scan | not implemented | planned browser equivalent | #428 |

@@ -8,7 +8,9 @@ import {
 
 describe("consumer route and book contracts", () => {
   it("keeps next redirects inside the current locale consumer surface", () => {
-    expect(getSafeNextPath("ko", "/ko/books/book-id")).toBe("/ko/books/book-id");
+    expect(getSafeNextPath("ko", "/ko/books/00000000-0000-4000-8000-000000002001")).toBe(
+      "/ko/books/00000000-0000-4000-8000-000000002001",
+    );
     expect(getSafeNextPath("ko", "/en/home")).toBe("/ko/home");
     expect(getSafeNextPath("ko", "//example.com")).toBe("/ko/home");
   });

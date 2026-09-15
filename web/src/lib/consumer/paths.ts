@@ -2,6 +2,9 @@ export const consumerLocales = ["ko", "en"] as const;
 
 export type ConsumerLocale = (typeof consumerLocales)[number];
 
+const consumerRoutePattern = /^\/(?:auth\/(?:sign-in|sign-up|reset-password|callback)|announcements|onboarding|home|library|stats|calendar|account(?:\/notifications)?|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
+const protectedConsumerRoutePattern = /^\/(?:announcements|onboarding|home|library|stats|calendar|account(?:\/notifications)?|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
+
 export function isConsumerLocale(value: string): value is ConsumerLocale {
   return consumerLocales.includes(value as ConsumerLocale);
 }
@@ -12,6 +15,20 @@ export function getConsumerPath(
 ): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `/${locale}${normalizedPath}`;
+}
+
+export function isConsumerRoutePath(pathname: string): boolean {
+  const match = pathname.match(/^\/(ko|en)(\/.*)$/i);
+  return Boolean(match && consumerRoutePattern.test(match[2]));
+}
+
+export function isProtectedConsumerRoutePath(pathname: string): boolean {
+  const match = pathname.match(/^\/(ko|en)(\/.*)$/i);
+  return Boolean(match && protectedConsumerRoutePattern.test(match[2]));
+}
+
+export function isUnprefixedConsumerRoutePath(pathname: string): boolean {
+  return consumerRoutePattern.test(pathname);
 }
 
 function hasUnsafePathSegments(value: string): boolean {
@@ -56,6 +73,7 @@ export function getSafeNextPath(
 
   if (!candidate || candidate.startsWith("//") || hasUnsafePathSegments(candidate)) return fallback;
   if (!candidate.startsWith(`/${locale}/`)) return fallback;
+  if (!isProtectedConsumerRoutePath(candidate)) return fallback;
 
   return candidate;
 }

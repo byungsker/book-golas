@@ -17,10 +17,11 @@ type ProxyClientOptions = Readonly<{
   }>;
 }>;
 
-const { middlewareCalls, createServerClientMock, observedRequestCookies } = vi.hoisted(() => ({
+const { middlewareCalls, createServerClientMock, observedRequestCookies, claimsState } = vi.hoisted(() => ({
   middlewareCalls: vi.fn(),
   createServerClientMock: vi.fn(),
   observedRequestCookies: [] as Array<string | null>,
+  claimsState: { value: { sub: "user-a" } as { sub: string } | null },
 }));
 
 process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
@@ -60,7 +61,7 @@ createServerClientMock.mockImplementation(
             options: { httpOnly: true, path: "/" },
           },
         ]);
-        return { data: { claims: { sub: "user-a" } }, error: null };
+        return { data: { claims: claimsState.value }, error: null };
       }),
       getUser: vi.fn(async () => ({ data: { user: null }, error: null })),
     },
@@ -102,4 +103,44 @@ describe("consumer locale proxy", () => {
     expect(observedRequestCookies.at(-1)).toBe("refreshed");
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
+
+  it.each([
+    "/ko/home",
+    "/en/library",
+    "/ko/stats",
+    "/en/calendar",
+    "/ko/account/notifications",
+    "/en/book-list",
+    "/ko/books/new",
+    "/en/books/scan",
+    "/ko/subscription",
+  ])("redirects an unauthorized protected route with an allowlisted return target: %s", async (pathname) => {
+    claimsState.value = null;
+    const response = await proxy(new NextRequest(`https://bookgolas.test${pathname}?view=all`));
+    const location = new URL(response.headers.get("location")!);
+
+    expect(response.status).toBe(307);
+    expect(location.pathname).toBe(`/${pathname.split("/")[1]}/auth/sign-in`);
+    expect(location.searchParams.get("returnTo")).toBe(`${pathname}?view=all`);
+    claimsState.value = { sub: "user-a" };
+  });
+
+  it("keeps admin authentication separate from consumer claims", async () => {
+    const response = await proxy(new NextRequest("https://bookgolas.test/admin/users"));
+
+    expect(response.status).toBe(307);
+    expect(new URL(response.headers.get("location")!).pathname).toBe("/admin/login");
+  });
+
+  it.each(["/ko/privacy", "/en/terms", "/support"])(
+    "leaves marketing and legal routing outside the consumer auth gate: %s",
+    async (pathname) => {
+      claimsState.value = null;
+      const response = await proxy(new NextRequest(`https://bookgolas.test${pathname}`));
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("location")).toBeNull();
+      claimsState.value = { sub: "user-a" };
+    },
+  );
 });
