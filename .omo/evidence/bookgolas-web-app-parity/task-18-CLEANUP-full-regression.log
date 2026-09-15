@@ -1,0 +1,56 @@
+
+> web@0.1.0 test
+> vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative
+
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-428/web
+
+ ✓ src/lib/consumer/queries.test.ts (6 tests) 5ms
+ ✓ src/app/[locale]/(auth)/auth/callback/route.test.ts (7 tests) 8ms
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 5ms
+ ✓ src/proxy.test.ts (20 tests) 15ms
+ ✓ src/lib/product/contracts/contracts.test.ts (26 tests) 17ms
+ ✓ src/lib/product/adapters.storage.test.ts (4 tests) 7ms
+ ✓ src/lib/product/adapters.tables.test.ts (4 tests) 9ms
+ ✓ src/lib/product/dal.test.ts (9 tests) 17ms
+ ✓ src/lib/product/adapters.test.ts (13 tests) 22ms
+ ✓ src/lib/consumer/home-book-list.test.ts (6 tests) 3ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 5ms
+ ✓ src/lib/product/contracts/requests.test.ts (18 tests) 12ms
+ ✓ src/lib/product/dal.writes.test.ts (3 tests) 17ms
+ ✓ src/lib/product/dal.records.test.ts (2 tests) 15ms
+ ✓ src/lib/consumer/paths.test.ts (28 tests) 5ms
+ ✓ src/lib/consumer/oauth.test.ts (5 tests) 6ms
+ ✓ src/app/api/consumer/consent/route.test.ts (3 tests) 12ms
+ ✓ src/lib/product/contracts/book-discovery.test.ts (4 tests) 5ms
+ ✓ src/app/api/app/books/route.test.ts (4 tests) 13ms
+ ✓ src/app/api/app/books/[bookId]/route.test.ts (4 tests) 10ms
+ ✓ src/lib/auth-boundary.test.ts (5 tests) 58ms
+ ✓ src/app/api/consumer/book-discovery/route.test.ts (4 tests) 14ms
+ ✓ src/lib/consumer/onboarding.test.ts (3 tests) 9ms
+ ✓ src/lib/consumer/types.test.ts (2 tests) 3ms
+ ✓ src/lib/consumer/library.test.ts (4 tests) 6ms
+ ✓ src/lib/consumer/route-fixture.test.ts (9 tests) 2ms
+ ✓ src/lib/consumer/session-lifecycle.test.ts (7 tests) 3ms
+ ✓ src/lib/consumer/shell.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/isbn.test.ts (2 tests) 2ms
+ ✓ src/app/api/app/books/search/route.test.ts (2 tests) 8ms
+ ✓ src/lib/product/adapters.book-search.test.ts (1 test) 5ms
+
+ Test Files  31 passed (31)
+      Tests  219 passed (219)
+   Start at  03:50:35
+   Duration  1.39s (transform 992ms, setup 0ms, collect 4.21s, tests 319ms, environment 3ms, prepare 1.99s)
+
+
+> web@0.1.0 test:parity-matrix
+> node scripts/test-parity-matrix.mjs
+
+parity matrix passed: 20 routes, 53 overlays, 8 capabilities
+
+> web@0.1.0 test:parity-matrix:negative
+> node scripts/test-parity-matrix.mjs --assert-fixtures
+
+parity matrix failed with 2 error(s)
+- negative fixture unexpectedly passed: complete-with-aliased-evidence (unexpected exit 1)
+- negative fixture unexpectedly passed: complete-with-cross-role-alias (unexpected exit 1)

@@ -1,0 +1,51 @@
+{
+  "issue": 428,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "nativeSources": [
+    "app/lib/ui/reading_start/widgets/reading_start_screen.dart",
+    "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+    "app/lib/data/services/book_search_service.dart",
+    "app/lib/data/services/aladin_api_service.dart"
+  ],
+  "routes": {
+    "entry": "/{locale}/books/new",
+    "search": "/api/consumer/book-discovery",
+    "method": "POST"
+  },
+  "actions": ["search", "recommendations"],
+  "searchModes": ["text", "isbn"],
+  "states": [
+    "idle",
+    "loading",
+    "ready",
+    "empty",
+    "invalid",
+    "upstream",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "camera-checking",
+    "camera-ready",
+    "camera-unsupported",
+    "camera-insecure",
+    "camera-denied",
+    "file-fallback",
+    "manual-fallback"
+  ],
+  "locales": ["ko", "en"],
+  "capabilities": {
+    "camera": "best-effort browser BarcodeDetector plus getUserMedia; manual and image/file input always remain available",
+    "providerCredentials": "server-only aladin-books invocation; no provider key or direct provider API request in browser assets",
+    "providerLinks": "https-only allowlisted provider hosts"
+  },
+  "privacy": {
+    "ownerScope": "adapter verifies the current session and the request has no caller-selected user id",
+    "providerBoundary": "browser calls the same-origin route and never receives ALADIN_TTB_KEY"
+  },
+  "qa": {
+    "happy": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"search|manual-isbn\"",
+    "failure": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"unsupported|invalid|upstream\"",
+    "negative": "npm run test:book-discovery:negative"
+  }
+}

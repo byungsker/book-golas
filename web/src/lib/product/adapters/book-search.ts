@@ -3,6 +3,9 @@ import "server-only";
 import {
   BookSearchRequestSchema,
   BookSearchResultSchema,
+  sanitizeTrustedProviderUrl,
+  trustedBookImageHosts,
+  trustedBookLinkHosts,
   type BookSearchRequest,
   type BookSearchResult,
 } from "@/lib/product/contracts";
@@ -50,7 +53,10 @@ function normalizeGoogleBook(item: {
   if (!title) return undefined;
 
   const author = volume.authors?.filter(Boolean).join(", ").trim() || "Unknown author";
-  const imageUrl = volume.imageLinks?.thumbnail ?? volume.imageLinks?.smallThumbnail ?? null;
+  const imageUrl = sanitizeTrustedProviderUrl(
+    volume.imageLinks?.thumbnail ?? volume.imageLinks?.smallThumbnail,
+    trustedBookImageHosts,
+  );
   const isbn =
     volume.industryIdentifiers?.find((identifier) => identifier.type === "ISBN_13")?.identifier ??
     volume.industryIdentifiers?.find((identifier) => identifier.type === "ISBN_10")?.identifier ??
@@ -64,7 +70,7 @@ function normalizeGoogleBook(item: {
     isbn,
     genre: volume.categories?.find(Boolean) ?? null,
     publisher: volume.publisher?.trim() || null,
-    aladinUrl: item.selfLink ?? null,
+    aladinUrl: sanitizeTrustedProviderUrl(item.selfLink, trustedBookLinkHosts),
     price: null,
   });
   return result.success ? result.data : undefined;
@@ -165,12 +171,12 @@ export async function searchAladinBooks(
     .map((book) => normalizeAladinBook({
       title: book.title,
       author: book.author.trim() || "Unknown author",
-      imageUrl: book.cover,
+      imageUrl: sanitizeTrustedProviderUrl(book.cover, trustedBookImageHosts),
       totalPages: book.totalPages,
       isbn: book.isbn,
       genre: book.genre,
       publisher: book.publisher,
-      aladinUrl: book.link,
+      aladinUrl: sanitizeTrustedProviderUrl(book.link, trustedBookLinkHosts),
       price: book.price,
     }))
     .filter((book): book is BookSearchResult => book !== undefined);
