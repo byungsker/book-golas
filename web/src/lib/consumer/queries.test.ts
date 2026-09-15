@@ -78,4 +78,28 @@ describe("fetchOwnedBook malformed identifiers", () => {
     });
     expect(from).not.toHaveBeenCalled();
   });
+
+  it("returns a typed owner-scoped miss without exposing a foreign book", async () => {
+    const { supabase, from } = makeSupabase({ id: "user-1" });
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      is: vi.fn(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+    query.is.mockReturnValue(query);
+    from.mockReturnValue(query);
+    vi.mocked(createServerSupabaseClient).mockResolvedValue(supabase as never);
+
+    await expect(
+      fetchOwnedBook("00000000-0000-4000-8000-000000002001"),
+    ).resolves.toEqual({
+      book: null,
+      code: "not_found",
+      authenticated: true,
+    });
+    expect(query.eq).toHaveBeenCalledWith("user_id", "user-1");
+  });
 });

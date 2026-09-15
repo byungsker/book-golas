@@ -23,14 +23,20 @@ const themeBootstrapScript = `
   root.dataset.blabTheme = prefersLight ? "light" : "dark";
 `;
 
-export const metadata: Metadata = {
-  title: {
-    default: "북골라스",
-    template: "%s | 북골라스",
-  },
-  description:
-    "읽고 싶은 책을 목표로 만들고, 매일의 독서를 기록하세요. 북골라스와 함께라면 독서 습관이 달라집니다.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const english = locale === "en";
+
+  return {
+    title: {
+      default: english ? "Bookgolas" : "북골라스",
+      template: english ? "%s | Bookgolas" : "%s | 북골라스",
+    },
+    description: english
+      ? "Set goals for the books you want to read and record your reading every day."
+      : "읽고 싶은 책을 목표로 만들고, 매일의 독서를 기록하세요. 북골라스와 함께라면 독서 습관이 달라집니다.",
+  };
+}
 
 export default async function RootLayout({
   children,

@@ -1,21 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getConsumerPath, isConsumerLocale } from "@/lib/consumer/paths";
+import { getConsumerPath, getSafeNextPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { getSupabasePublicConfig } from "@/lib/supabase-config";
-
-function getSafeNextPath(request: NextRequest, locale: string, value: string | null): string {
-  const fallback = getConsumerPath(locale, "/home");
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
-
-  try {
-    const candidate = new URL(value, request.url);
-    if (candidate.origin !== request.nextUrl.origin) return fallback;
-    return `${candidate.pathname}${candidate.search}${candidate.hash}`;
-  } catch (error) {
-    if (!(error instanceof TypeError)) throw error;
-    return fallback;
-  }
-}
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +9,12 @@ export async function GET(
 ) {
   const { locale: rawLocale } = await context.params;
   const locale = isConsumerLocale(rawLocale) ? rawLocale : "ko";
-  const nextPath = getSafeNextPath(request, locale, request.nextUrl.searchParams.get("next"));
+  const nextPath = getSafeNextPath(
+    locale,
+    request.nextUrl.searchParams.get("returnTo") ??
+      request.nextUrl.searchParams.get("next") ??
+      undefined,
+  );
   const response = NextResponse.redirect(
     new URL(nextPath, request.url),
   );

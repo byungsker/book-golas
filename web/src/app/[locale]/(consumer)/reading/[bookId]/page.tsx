@@ -28,7 +28,10 @@ export default async function ReadingPage({
   const t = await getTranslations("consumer");
   if (result.code !== "ok" || !result.book) {
     return (
-      <div className="min-h-screen bg-[#0d0f1a] text-white">
+      <div
+        className="min-h-screen bg-[#0d0f1a] text-white"
+        data-route-state={result.code === "unavailable" ? "unavailable" : "not-found-or-forbidden"}
+      >
         <ConsumerHeader
           locale={locale}
           authenticated={result.authenticated}

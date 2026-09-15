@@ -1,5 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { getConsumerRouteFixture } from "@/lib/consumer/route-fixture";
 import {
   consumerBookSelect,
   isBookId,
@@ -20,6 +22,25 @@ export type ConsumerQueryCode =
   | "not_found";
 
 async function getAuthContext(): Promise<AuthContext> {
+  let routeFixture = null;
+  try {
+    routeFixture = getConsumerRouteFixture(
+      (await cookies()).get("bookgolas-route-fixture")?.value,
+    );
+  } catch {
+    routeFixture = null;
+  }
+  if (routeFixture === "anonymous") {
+    return { supabase: null, user: null, unavailable: false };
+  }
+  if (routeFixture === "authenticated-not-found") {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -50,6 +71,7 @@ export async function fetchOwnedBooks(): Promise<{
   code: ConsumerQueryCode;
 }> {
   const context = await getAuthContext();
+  if (context.user && !context.supabase) return { books: [], code: "ok" };
   if (context.unavailable || !context.supabase) {
     return { books: [], code: "unavailable" };
   }
@@ -92,6 +114,9 @@ export async function fetchOwnedBook(bookId: string): Promise<{
   }
 
   if (context.unavailable || !context.supabase) {
+    if (context.user) {
+      return { book: null, code: "not_found", authenticated: true };
+    }
     return { book: null, code: "unavailable", authenticated: false };
   }
   if (!context.user) {

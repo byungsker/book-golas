@@ -358,7 +358,9 @@
       "confirmationSent": "Check your email to confirm your account before signing in.",
       "resetSent": "If an account exists for this email, a reset link has been sent.",
       "passwordUpdated": "Your password was updated. Sign in again with the new password.",
+      "retry": "Try again",
       "errors": {
+        "title": "We could not load the authentication page",
         "invalidCredentials": "The email or password is incorrect.",
         "emailInUse": "This email is already registered. Try signing in.",
         "passwordRejected": "Use a password that meets the account requirements.",
@@ -366,6 +368,61 @@
         "passwordMismatch": "The passwords do not match.",
         "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
         "generic": "We could not complete that request. Try again shortly."
+      }
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you requested does not exist or has moved.",
+      "back": "Back to Bookgolas home"
+    },
+    "routes": {
+      "announcements": {
+        "title": "Announcements",
+        "description": "Announcements arrive in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "onboarding": {
+        "title": "Onboarding",
+        "description": "Onboarding arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "library": {
+        "title": "My library",
+        "description": "The library arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "stats": {
+        "title": "Reading statistics",
+        "description": "Statistics arrive in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "calendar": {
+        "title": "Reading calendar",
+        "description": "The calendar arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "accountNotifications": {
+        "title": "Notification settings",
+        "description": "Notification settings arrive in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "bookList": {
+        "title": "All books",
+        "description": "The book list arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "newBook": {
+        "title": "Add a book",
+        "description": "Book creation arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "review": {
+        "title": "Reading review",
+        "description": "Reviews arrive in a later feature task. Only an ownership-verified book can open this route."
+      },
+      "mindMap": {
+        "title": "Mind map",
+        "description": "Mind maps arrive in a later feature task. Only an ownership-verified book can open this route."
+      },
+      "scan": {
+        "title": "Scan a book",
+        "description": "Browser book scanning arrives in a later feature task. This route does not request camera access yet."
+      },
+      "subscription": {
+        "title": "Subscription",
+        "description": "Web subscriptions and billing are unavailable. This page does not expose payment controls."
       }
     },
     "uiPrimitives": {

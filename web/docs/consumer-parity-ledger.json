@@ -99,11 +99,11 @@
       "web": {
         "canonical_url": "/{locale}/auth/sign-in",
         "current": [
-          "web/src/app/[locale]/auth/sign-in/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/sign-in/page.tsx",
           "web/src/components/consumer/auth-form.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/auth/sign-in/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/sign-in/page.tsx",
           "BLDS React/Next auth primitives"
         ],
         "disposition": "route",
@@ -164,11 +164,11 @@
       "web": {
         "canonical_url": "/{locale}/auth/sign-up",
         "current": [
-          "web/src/app/[locale]/auth/sign-up/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/sign-up/page.tsx",
           "web/src/components/consumer/auth-form.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/auth/sign-up/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/sign-up/page.tsx",
           "BLDS React/Next auth primitives"
         ],
         "disposition": "route",
@@ -217,11 +217,11 @@
       "web": {
         "canonical_url": "/{locale}/auth/reset-password",
         "current": [
-          "web/src/app/[locale]/auth/reset-password/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/reset-password/page.tsx",
           "web/src/components/consumer/auth-form.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/auth/reset-password/page.tsx",
+          "web/src/app/[locale]/(auth)/auth/reset-password/page.tsx",
           "BLDS React/Next auth primitives"
         ],
         "disposition": "route",
@@ -384,11 +384,11 @@
       "web": {
         "canonical_url": "/{locale}/home",
         "current": [
-          "web/src/app/[locale]/home/page.tsx",
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
           "web/src/components/consumer/book-card.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/home/page.tsx",
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
           "BLDS React/Next product shell and book primitives"
         ],
         "disposition": "route",
@@ -857,12 +857,12 @@
       "web": {
         "canonical_url": "/{locale}/books/{bookId}",
         "current": [
-          "web/src/app/[locale]/books/[bookId]/page.tsx",
-          "web/src/app/[locale]/books/[bookId]/loading.tsx",
-          "web/src/app/[locale]/books/[bookId]/error.tsx"
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/loading.tsx",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/error.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/books/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
           "BLDS React/Next tabs, cards, progress and overlay primitives"
         ],
         "disposition": "route",
@@ -966,13 +966,13 @@
       "web": {
         "canonical_url": "/{locale}/reading/{bookId}",
         "current": [
-          "web/src/app/[locale]/reading/[bookId]/page.tsx",
-          "web/src/app/[locale]/reading/[bookId]/loading.tsx",
-          "web/src/app/[locale]/reading/[bookId]/error.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/loading.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/error.tsx",
           "web/src/components/consumer/progress-updater.tsx"
         ],
         "target": [
-          "web/src/app/[locale]/reading/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
           "BLDS React/Next reading controls and timer primitives"
         ],
         "disposition": "route",
@@ -3472,8 +3472,8 @@
         "canonical_url": "/{locale}/books/{bookId}",
         "current": [
           "web/src/lib/consumer/paths.ts",
-          "web/src/app/[locale]/books/[bookId]/page.tsx",
-          "web/src/app/[locale]/reading/[bookId]/page.tsx"
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx"
         ],
         "target": [
           "Locale-preserving HTTPS routes with safe next-path validation"
