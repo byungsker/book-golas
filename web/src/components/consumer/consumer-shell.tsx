@@ -8,7 +8,6 @@ import {
   BarChart3,
   BookOpen,
   CalendarDays,
-  Clock3,
   Home,
   LibraryBig,
   Search,
@@ -159,11 +158,6 @@ export function ConsumerShell({
           </Link>
         </header>
         {children}
-      </div>
-
-      <div id="bookgolas-floating-timer-root" data-testid="consumer-timer-mount" className="fixed bottom-28 right-[var(--blab-space-lg)] z-30 flex min-h-11 items-center gap-2 rounded-full border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] px-4 text-sm text-[var(--blab-text-secondary)] shadow-[var(--blab-elevation-surface)] lg:bottom-[var(--blab-space-xxl)] lg:right-[var(--blab-space-xxl)]">
-        <Clock3 aria-hidden="true" size={18} />
-        <span>{t("timerMount")}</span>
       </div>
 
       <div data-testid="consumer-mobile-navigation" className="fixed inset-x-0 bottom-0 z-40 lg:hidden">

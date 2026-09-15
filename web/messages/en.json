@@ -636,6 +636,7 @@
         "price": "Price",
         "createdAt": "Added",
         "updatedAt": "Updated",
+        "totalReadingTime": "Total reading time",
         "pausedAt": "Paused",
         "notAvailable": "Not available"
       },
@@ -662,6 +663,32 @@
         "offline": "You are offline. Reconnect before saving this action.",
         "conflict": "This book changed elsewhere. Refresh and try again.",
         "generic": "We could not save this action. Try again."
+      }
+    },
+    "timer": {
+      "mount": "Preparing your reading timer",
+      "title": "Reading timer",
+      "description": "Record reading time and add it to this book's total.",
+      "idle": "Ready",
+      "running": "Recording",
+      "paused": "Paused",
+      "open": "Open timer",
+      "start": "Start timer",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Save and stop",
+      "stopSaving": "Saving...",
+      "saved": "Reading time saved.",
+      "discarded": "Sessions shorter than 30 seconds are not saved.",
+      "activeOther": "A timer for another book is running. Stop it before starting this book.",
+      "close": "Close",
+      "errors": {
+        "unauthorized": "Sign in before saving reading time.",
+        "notFound": "This book is no longer available in your library.",
+        "conflict": "The reading session was already processed. Check the timer state.",
+        "offline": "You are offline. Reconnect and try saving again.",
+        "generic": "We could not save reading time. The timer is still running.",
+        "activeOther": "A timer for another book is running."
       }
     },
     "book": {

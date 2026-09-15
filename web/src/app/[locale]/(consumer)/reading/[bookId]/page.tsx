@@ -6,7 +6,7 @@ import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
-import { fetchOwnedBook, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
+import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,7 @@ export default async function ReadingPage({
   const { locale, bookId } = await params;
   if (!isConsumerLocale(locale)) redirect("/ko/auth/sign-in");
 
-  const result = await fetchOwnedBook(bookId);
+  const result = await fetchOwnedBookDetail(bookId);
   if (result.code === "unauthenticated") {
     redirect(getConsumerSignInRedirectPath(locale, getConsumerPath(locale, `/reading/${bookId}`)));
   }
@@ -98,6 +98,8 @@ export default async function ReadingPage({
               currentPage={book.currentPage}
               totalPages={book.totalPages}
               status={book.status}
+              attemptCount={book.attemptCount}
+              initialBook={book}
               initialHistory={historyResult.history}
               initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
             />

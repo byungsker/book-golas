@@ -46,6 +46,17 @@ export type ConsumerRouteFixture =
   | "progress-stale"
   | "progress-unauthorized"
   | "progress-unavailable"
+  | "timer-conflict"
+  | "timer-deleted"
+  | "timer-duplicate"
+  | "timer-error"
+  | "timer-foreign"
+  | "timer-happy"
+  | "timer-logout"
+  | "timer-minimum"
+  | "timer-offline"
+  | "timer-over-max"
+  | "timer-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -136,6 +147,17 @@ export function getConsumerRouteFixture(
     "progress-stale",
     "progress-unauthorized",
     "progress-unavailable",
+    "timer-conflict",
+    "timer-deleted",
+    "timer-duplicate",
+    "timer-error",
+    "timer-foreign",
+    "timer-happy",
+    "timer-logout",
+    "timer-minimum",
+    "timer-offline",
+    "timer-over-max",
+    "timer-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

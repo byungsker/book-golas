@@ -12,6 +12,7 @@ import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtu
 import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
 import { getBookDetailFixture, getBookDetailFixtureConsumerBook } from "@/lib/consumer/book-detail-fixtures";
 import { getProgressFixtureSnapshot } from "@/lib/consumer/progress-fixtures";
+import { getTimerFixtureBook } from "@/lib/consumer/timer-fixtures";
 import {
   bookDtoSelect,
   parseBookRow,
@@ -107,6 +108,14 @@ async function getAuthContext(): Promise<AuthContext> {
   }
 
   if (routeFixture?.startsWith("progress-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
+  if (routeFixture?.startsWith("timer-")) {
     return {
       supabase: null,
       user: { id: "00000000-0000-4000-8000-000000000001" } as User,
@@ -287,6 +296,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       ? { book: snapshot.book, code: "ok", authenticated: true }
       : { book: null, code: "not_found", authenticated: true };
   }
+  if (routeFixture?.startsWith("timer-")) {
+    const timerBook = getTimerFixtureBook(routeFixture, bookId);
+    return timerBook.ok
+      ? { book: timerBook.value, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
+  }
 
   if (context.unavailable || !context.supabase) {
     if (context.user) return { book: null, code: "not_found", authenticated: true };
@@ -339,6 +354,12 @@ export async function fetchOwnedProgressHistory(bookId: string): Promise<{
     const snapshot = getProgressFixtureSnapshot({ fixture: routeFixture, bookId });
     return snapshot
       ? { history: snapshot.history, code: "ok", authenticated: true }
+      : { history: [], code: "not_found", authenticated: true };
+  }
+  if (routeFixture?.startsWith("timer-")) {
+    const timerBook = getTimerFixtureBook(routeFixture, bookId);
+    return timerBook.ok
+      ? { history: [], code: "ok", authenticated: true }
       : { history: [], code: "not_found", authenticated: true };
   }
 

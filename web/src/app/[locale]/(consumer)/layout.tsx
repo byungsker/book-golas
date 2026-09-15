@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ConsumerCard, ConsumerErrorState } from "@/components/consumer/blab-primitives";
 import { ConsumerShell } from "@/components/consumer/consumer-shell";
+import { ConsumerTimerProvider } from "@/components/consumer/consumer-timer-provider";
 import { getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { getCurrentConsumerUser } from "@/lib/consumer/queries";
 
@@ -36,5 +37,9 @@ export default async function AuthenticatedConsumerLayout({
     );
   }
 
-  return <ConsumerShell locale={locale}>{children}</ConsumerShell>;
+  return (
+    <ConsumerTimerProvider locale={locale}>
+      <ConsumerShell locale={locale}>{children}</ConsumerShell>
+    </ConsumerTimerProvider>
+  );
 }
