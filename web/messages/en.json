@@ -308,8 +308,43 @@
       "bookCount": "{count, plural, =0 {No books} one {# book} other {# books}}",
       "openBook": "Open book",
       "refresh": "Refresh",
+      "addBook": "Add a book",
+      "currentReading": "Currently reading",
+      "plannedStart": "Planned start",
       "emptyTitle": "Your library is empty",
-      "emptyDescription": "Add a book in the Bookgolas app to see your reading progress here."
+      "emptyDescription": "Add a book in the Bookgolas app to see your reading progress here.",
+      "statusTabs": {
+        "label": "Reading status lists",
+        "reading": "Reading",
+        "planned": "To read",
+        "completed": "Finished",
+        "paused": "Paused",
+        "all": "All"
+      },
+      "statusEmpty": {
+        "reading": {
+          "title": "Nothing is in progress",
+          "description": "Add a book and start today's reading."
+        },
+        "planned": {
+          "title": "No books are planned",
+          "description": "Add a book you want to read next."
+        },
+        "completed": {
+          "title": "No finished books yet",
+          "description": "Books you finish will be recorded here."
+        },
+        "paused": {
+          "title": "No paused books",
+          "description": "Books you pause can be managed in this list."
+        }
+      },
+      "dday": {
+        "before": "D-{days}",
+        "today": "D-Day",
+        "overdue": "D+{days}",
+        "unknown": "No target date"
+      }
     },
     "book": {
       "status": {

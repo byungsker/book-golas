@@ -4,6 +4,11 @@ export type ConsumerRouteFixture =
   | "bootstrap-network"
   | "deleted-book"
   | "expired-session"
+  | "home-book-list"
+  | "home-empty-completed"
+  | "home-empty-paused"
+  | "home-empty-planned"
+  | "home-empty-reading"
   | "invalid-session"
   | "unauthorized-private-data"
   | "pending"
@@ -30,6 +35,11 @@ export function getConsumerRouteFixture(
     "bootstrap-network",
     "deleted-book",
     "expired-session",
+    "home-book-list",
+    "home-empty-completed",
+    "home-empty-paused",
+    "home-empty-planned",
+    "home-empty-reading",
     "invalid-session",
     "unauthorized-private-data",
     "pending",

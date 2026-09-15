@@ -1,0 +1,26 @@
+$ npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium --grep empty|network
+exit=1
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+[WebServer] (node:6648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] node:events:485
+[WebServer]       throw er; // Unhandled 'error' event
+[WebServer]       ^
+[WebServer]
+[WebServer] Error: listen EADDRINUSE: address already in use 127.0.0.1:54329
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+[WebServer]     at listenInCluster (node:net:1994:12)
+[WebServer]     at node:net:2203:7
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[WebServer] Emitted 'error' event on Server instance at:
+[WebServer]     at emitErrorNT (node:net:1973:8)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '127.0.0.1',
+[WebServer]   port: 54329
+[WebServer] }
+[WebServer]
+[WebServer] Node.js v23.7.0

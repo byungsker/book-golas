@@ -17,6 +17,8 @@
     "test:onboarding": "node scripts/test-onboarding.mjs && vitest run src/lib/consumer/onboarding.test.ts src/lib/consumer/paths.test.ts",
     "test:session-lifecycle": "node scripts/test-session-lifecycle.mjs && vitest run src/lib/consumer/session-lifecycle.test.ts src/lib/consumer/paths.test.ts src/proxy.test.ts",
     "test:session-lifecycle:negative": "node scripts/test-session-lifecycle.mjs --fixture unsafe-return",
+    "test:home-book-list": "node scripts/test-home-book-list.mjs && vitest run src/lib/consumer/home-book-list.test.ts src/lib/consumer/queries.test.ts",
+    "test:home-book-list:negative": "node scripts/test-home-book-list.mjs --fixture hard-coded-landing",
     "test:product-contracts": "node scripts/test-product-contracts.mjs",
     "test:product-dal": "node scripts/test-product-dal.mjs",
     "test:blab-parity": "node scripts/test-blab-parity.mjs",
