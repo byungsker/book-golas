@@ -24,3 +24,8 @@ Follow-up after CodeRabbit fixes
   consumer-shell Chromium 5/5, expired-session 1/1, full regression and production build PASS
   CodeRabbit CLI committed follow-up review: 0 issues
   no listeners or task-local processes remain
+
+Latest contract follow-up
+  Recall mode contract, unavailable collection ordering, and pending synthetic state verified
+  23 Vitest files / 183 tests, 5 Chromium tests, and 1 expired-session test PASS
+  latest regression log is LF-only and ends with one newline
