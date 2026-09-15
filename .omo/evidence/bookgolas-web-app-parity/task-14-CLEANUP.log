@@ -1,0 +1,21 @@
+Task 14 cleanup verification
+
+git status --short
+  only the post-commit GREEN regression evidence log is untracked before staging
+
+log hygiene
+  all task-14 *.log files are LF-only and end with one newline
+
+lsof -nP -iTCP:3000 -sTCP:LISTEN
+  no listener
+
+lsof -nP -iTCP:54329 -sTCP:LISTEN
+  no listener
+
+task-local process scan
+  no Next, Playwright, consumer-shell, or fixture process remains
+
+git diff --check
+  PASS
+
+Protected /private/tmp/bookgolas-web-blds-453 was not reset, checked out, deleted, or modified.
