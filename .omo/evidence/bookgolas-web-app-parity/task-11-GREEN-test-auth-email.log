@@ -1,24 +1,22 @@
-^D
+
 > web@0.1.0 test:auth-email
 > node scripts/test-auth-email.mjs && vitest run src/lib/consumer/auth.test.ts src/lib/consumer/paths.test.ts
 
 auth-email contract: PASS
-[?25l
+
  RUN  v3.2.7 /private/tmp/bookgolas-web-423/web
 
-[?2026h
+
  ❯ src/lib/consumer/auth.test.ts [queued]
 
  Test Files 0 passed (2)
       Tests 0 passed (0)
    Start at 00:11:18
    Duration 201ms
-[?2026l[K ✓ src/lib/consumer/auth.test.ts (8 tests) 5ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 5ms
  ✓ src/lib/consumer/paths.test.ts (27 tests) 3ms
 
  Test Files  2 passed (2)
       Tests  35 passed (35)
    Start at  00:11:18
    Duration  390ms (transform 51ms, setup 0ms, collect 61ms, tests 8ms, environment 0ms, prepare 160ms)
-
-[?25h

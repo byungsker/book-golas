@@ -1,4 +1,4 @@
-^D
+
 > web@0.1.0 typecheck
 > tsc --noEmit
 
@@ -10,17 +10,17 @@
 > web@0.1.0 test
 > vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative
 
-[?25l
+
  RUN  v3.2.7 /private/tmp/bookgolas-web-423/web
 
-[?2026h
+
  ❯ src/proxy.test.ts [queued]
 
  Test Files 0 passed (20)
       Tests 0 passed (0)
    Start at 00:11:30
    Duration 100ms
-[?2026l[?2026h[K ✓ src/lib/consumer/auth.test.ts (8 tests) 8ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 8ms
 
  ❯ src/app/actions/reading-progress.test.ts 0/3
  ❯ src/lib/consumer/auth.test.ts 8/8
@@ -36,7 +36,7 @@
       Tests 8 passed (11)
    Start at 00:11:30
    Duration 304ms
-[?2026l[?2026h[K ✓ src/app/actions/reading-progress.test.ts (3 tests) 4ms
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 4ms
  ✓ src/proxy.test.ts (18 tests) 14ms
  ✓ src/lib/product/contracts/requests.test.ts (18 tests) 12ms
  ✓ src/lib/product/contracts/contracts.test.ts (26 tests) 18ms
@@ -55,7 +55,7 @@
       Tests 73 passed (73)
    Start at 00:11:30
    Duration 406ms
-[?2026l[?2026h[K ✓ src/lib/product/dal.writes.test.ts (3 tests) 23ms
+ ✓ src/lib/product/dal.writes.test.ts (3 tests) 23ms
  ✓ src/lib/product/dal.test.ts (9 tests) 30ms
 
  ❯ src/app/api/app/books/[bookId]/route.test.ts [queued]
@@ -72,7 +72,7 @@
       Tests 85 passed (102)
    Start at 00:11:30
    Duration 507ms
-[?2026l[?2026h[K ✓ src/lib/product/adapters.storage.test.ts (4 tests) 8ms
+ ✓ src/lib/product/adapters.storage.test.ts (4 tests) 8ms
  ✓ src/lib/product/adapters.test.ts (13 tests) 22ms
  ✓ src/lib/consumer/queries.test.ts (5 tests) 4ms
  ✓ src/lib/product/adapters.tables.test.ts (3 tests) 7ms
@@ -90,7 +90,7 @@
       Tests 110 passed (113)
    Start at 00:11:30
    Duration 607ms
-[?2026l[?2026h[K ✓ src/app/api/app/books/route.test.ts (4 tests) 14ms
+ ✓ src/app/api/app/books/route.test.ts (4 tests) 14ms
  ✓ src/app/api/consumer/consent/route.test.ts (3 tests) 16ms
  ✓ src/app/api/app/books/[bookId]/route.test.ts (4 tests) 12ms
 
@@ -104,7 +104,7 @@
       Tests 121 passed (153)
    Start at 00:11:30
    Duration 811ms
-[?2026l[?2026h[K ✓ src/lib/consumer/paths.test.ts (27 tests) 6ms
+ ✓ src/lib/consumer/paths.test.ts (27 tests) 6ms
  ✓ src/app/[locale]/(auth)/auth/callback/route.test.ts (2 tests) 6ms
  ✓ src/lib/consumer/types.test.ts (2 tests) 3ms
  ✓ src/lib/auth-boundary.test.ts (5 tests) 100ms
@@ -116,14 +116,14 @@
       Tests 159 passed (161)
    Start at 00:11:30
    Duration 913ms
-[?2026l[K ✓ src/app/api/app/books/search/route.test.ts (2 tests) 9ms
+ ✓ src/app/api/app/books/search/route.test.ts (2 tests) 9ms
 
  Test Files  20 passed (20)
       Tests  161 passed (161)
    Start at  00:11:30
    Duration  1.04s (transform 767ms, setup 0ms, collect 3.16s, tests 316ms, environment 3ms, prepare 1.36s)
 
-[?25h
+
 > web@0.1.0 test:parity-matrix
 > node scripts/test-parity-matrix.mjs
 
@@ -167,10 +167,10 @@ UI primitive negative fixture passed: consumer showcase focus ring rule is missi
 
   Creating an optimized production build ...
 ✓ Compiled successfully in 3.7s
-  Finished TypeScript in 3.9s    ✓ Finished TypeScript in 3.9s 
-  Collecting page data using 9 workers in 517ms    ✓ Collecting page data using 9 workers in 517ms 
+  Finished TypeScript in 3.9s    ✓ Finished TypeScript in 3.9s
+  Collecting page data using 9 workers in 517ms    ✓ Collecting page data using 9 workers in 517ms
 ✓ Generating static pages using 9 workers (22/22) in 243ms
-  Finalizing page optimization in 13ms    ✓ Finalizing page optimization in 13ms 
+  Finalizing page optimization in 13ms    ✓ Finalizing page optimization in 13ms
 
 Route (app)
 ┌ ƒ /
@@ -226,4 +226,3 @@ Route (app)
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
-

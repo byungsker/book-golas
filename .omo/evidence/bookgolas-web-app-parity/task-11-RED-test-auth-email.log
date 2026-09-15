@@ -1,4 +1,4 @@
-^Dnpm error Missing script: "test:auth-email"
+npm error Missing script: "test:auth-email"
 npm error
 npm error To see a list of scripts, run:
 npm error   npm run

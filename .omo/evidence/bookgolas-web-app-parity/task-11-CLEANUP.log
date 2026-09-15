@@ -1,4 +1,4 @@
-^DPASS no listener on port 3000
+PASS no listener on port 3000
 PASS no listener on port 54329
 PASS no task-scoped Next or Playwright process
 PASS git diff --check
