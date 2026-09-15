@@ -1,0 +1,104 @@
+{
+  "issue": 421,
+  "title": "[Bookgolas Web Parity 09] Create shared responsive UI, accessibility and state primitives",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-421-ui-primitives",
+  "implementation_revision": "8ebde66",
+  "red": {
+    "command": "npm run test:ui-primitives",
+    "exit_code": 1,
+    "observed": "At the pre-implementation revision d6e3b2d, the project had no test:ui-primitives script and npm reported Missing script: test:ui-primitives."
+  },
+  "green": {
+    "result": "PASS",
+    "commands": [
+      "npm ci --ignore-scripts --no-audit --no-fund",
+      "npm test",
+      "npm run lint",
+      "npm run typecheck",
+      "npm run test:ui-primitives",
+      "npm run test:ui-primitives:negative",
+      "npm run test:ui-primitives:browser",
+      "npx playwright test tests/e2e/ui-primitives.spec.ts --project=chromium --grep keyboard",
+      "npm run build"
+    ],
+    "details": [
+      "npm ci reproduced the dependency tree without changing package-lock.json.",
+      "npm test passed 19 Vitest files and 125 tests, parity matrix 20 routes/53 overlays/8 capabilities, 59 parity negative fixtures, BLDS parity/negative contracts, BLDS SSR rendering, and UI primitive positive/negative contracts.",
+      "The final UI browser run passed 9 Chromium tests: 8 ko/en x 390/1440 x dark/light captures plus the reduced-motion keyboard/focus scenario.",
+      "The keyboard regression scenario selected by --grep keyboard passed 1 test.",
+      "lint, TypeScript, and the production Next build passed; the build registered /[locale]/ui-primitives.",
+      "react-doctor was run with --verbose --scope changed. It reported only existing auth/consent/progress/legal and Zod diagnostics; no new showcase or adapter diagnostic was reported."
+    ]
+  },
+  "surface": {
+    "result": "PASS",
+    "route": "/{locale}/ui-primitives",
+    "runtime": "Playwright production webServer: npm run build followed by next start on a credential-free loopback URL",
+    "screenshots": [
+      ".omo/evidence/bookgolas-web-app-parity/task-9-bookgolas-web-app-parity.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-mobile-dark.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-mobile-light.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-desktop-dark.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-ko-desktop-light.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-mobile-dark.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-mobile-light.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-dark.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-9-ui-primitives-en-desktop-light.png"
+    ],
+    "capture_dimensions": {
+      "ko_mobile": "390x3331 full-page PNG",
+      "ko_desktop": "1440x2020 full-page PNG",
+      "en_mobile": "390x3496 full-page PNG",
+      "en_desktop": "1440x2040 full-page PNG",
+      "issue_path_duplicate": "task-9-bookgolas-web-app-parity.png duplicates ko mobile dark"
+    },
+    "assertions": [
+      "BLDS light/dark theme selection",
+      "390px and 1440px document widths without horizontal overflow",
+      "loading, empty, error, unauthorized, consent, quota and offline semantics",
+      "localized accessible names, invalid field and described error",
+      "Enter/Space activation for button, card and pressable",
+      "ArrowRight selection for tab and segmented navigation",
+      "snackbar dismissal and observable retry feedback",
+      "reduced-motion browser context and package-level motion contract",
+      "native-only boundaries for iOS widgets, Siri/App Shortcuts, native push, camera/OCR, share sheet and RevenueCat subscriptions"
+    ],
+    "production_smoke": {
+      "request": "GET /ko/ui-primitives",
+      "status": 200,
+      "dev_tool_leak": false,
+      "checked_strings": ["react-grab", "react-scan"]
+    },
+    "iteration": {
+      "initial_visual_review": "REVISE: Korean desktop quota title had a lone final syllable and light-theme captures were absent.",
+      "resolution": "Added word-break: keep-all, added light-theme capture/assertion coverage for both locales and viewports, strengthened the focus negative fixture, localized the Korean pressable heading, and reran the complete browser matrix."
+    }
+  },
+  "cleanup": {
+    "result": "PASS",
+    "details": [
+      "git diff --check passed before the implementation commit and after the evidence files were prepared.",
+      "Generated react-doctor skill directories were removed from the worktree; no unrelated generated files are included.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not reset, checked out, deleted, or modified.",
+      "Production HTML contains no react-grab or react-scan script strings; the temporary server was stopped after verification.",
+      "No secrets, caller identifiers, provider credentials, or cross-owner data were added to source or evidence."
+    ]
+  },
+  "review": {
+    "code_review": ".omo/evidence/bookgolas-web-app-parity/task-9-code-review.md",
+    "visual_review": ".omo/evidence/bookgolas-web-app-parity/task-9-gate-review.md",
+    "independent_visual_verdicts": [
+      "PASS/HIGH: design-system and functional integrity gate review",
+      "PASS/HIGH: visual fidelity and CJK precision gate review"
+    ],
+    "blocking_findings": []
+  },
+  "known_baseline": {
+    "command": "npm audit --audit-level=high",
+    "result": "BASELINE ADVISORIES",
+    "observed": "The unchanged base lockfile also reports 10 advisories (4 high, 6 moderate), including js-yaml and sharp. Fixing them requires a separate dependency upgrade and is outside issue #421."
+  }
+}
