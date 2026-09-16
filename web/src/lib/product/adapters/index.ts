@@ -99,3 +99,16 @@ export {
   type UploadBookImageInput,
   type UploadedBookImage,
 } from "./storage";
+export {
+  assertOwnedAvatarPath,
+  avatarSignedUrlTtlSeconds,
+  getOwnedAvatarUrl,
+  ownedAvatarPath,
+  privateAvatarsBucket,
+  uploadOwnedAvatar,
+  uploadOwnedAvatarForSession,
+  type AvatarPathResult,
+  type AvatarUploadInput,
+  type SignedAvatarUrl,
+  type UploadedAvatar,
+} from "./avatar-storage";

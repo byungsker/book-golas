@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AiConsentSettings } from "@/components/consumer/ai-consent-settings";
+import { AccountSettingsClient } from "@/components/consumer/account-settings-client";
 import { ConsentSettings } from "@/components/consumer/consent-settings";
 import { ConsumerCard, ConsumerErrorState } from "@/components/consumer/blab-primitives";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
@@ -42,6 +43,10 @@ export default async function ConsumerAccountPage({
           </section>
         ) : (
           <>
+            <section className="mt-8" aria-labelledby="consumer-account-settings-heading">
+              <h2 id="consumer-account-settings-heading" className="sr-only">{t("account.title")}</h2>
+              <AccountSettingsClient locale={locale} />
+            </section>
             <section className="mt-8" aria-labelledby="consumer-ai-consent-heading">
               <h2 id="consumer-ai-consent-heading" className="text-xl font-semibold tracking-tight">{t("aiConsent.title")}</h2>
               <p className="mt-2 max-w-2xl break-keep text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("aiConsent.description")}</p>

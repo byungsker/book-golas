@@ -1,0 +1,41 @@
+{
+  "issue": 444,
+  "task": 31,
+  "parentIssue": 412,
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-444-account-settings",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "status": "ready-for-pr",
+  "red": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-31-RED-test-account-settings.log",
+    "detail": "Acceptance command failed before implementation because the script was missing."
+  },
+  "green": {
+    "status": "pass",
+    "commands": [
+      "npm run test:account-settings",
+      "npm run test:account-settings:negative"
+    ],
+    "detail": "6 Vitest files and 12 tests passed; 9 negative fixtures passed."
+  },
+  "surface": {
+    "status": "pass",
+    "commands": [
+      "npm test",
+      "npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep \"profile|avatar|theme|language\"",
+      "npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep \"foreign|password|subscription\"",
+      "npx playwright test tests/e2e/account-settings.spec.ts --project=chromium",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run build"
+    ],
+    "detail": "Full npm test passed with 71 files and 363 tests; browser lanes passed 2/2, 3/3, and 5/5."
+  },
+  "cleanup": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-31-CLEANUP.log",
+    "detail": "Diff, JSON, ownership, disabled billing, localization, and evidence checks passed."
+  },
+  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-31-bookgolas-web-app-parity.png"
+}

@@ -1,5 +1,6 @@
 export * from "./ai";
 export * from "./ai-artifacts";
+export * from "./account-settings";
 export * from "./ai-consent";
 export * from "./books";
 export * from "./common";

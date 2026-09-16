@@ -36,6 +36,12 @@ export {
   type ProductResult,
 } from "./errors";
 export { resolveProductSession, type ProductClientFactory, type ProductSession } from "./context";
+export {
+  accountProfileColumns,
+  readOwnedAccountSettings,
+  updateOwnedAccountProfile,
+  uploadOwnedAccountAvatar,
+} from "./account-settings";
 export { getBook, listBooks, type BookListData } from "./reads";
 export {
   isAiArtifactKind,
