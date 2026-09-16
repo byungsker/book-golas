@@ -28,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const english = locale === "en";
 
   return {
+    metadataBase: new URL("https://bookgolas.com"),
     title: {
       default: english ? "Bookgolas" : "북골라스",
       template: english ? "%s | Bookgolas" : "%s | 북골라스",

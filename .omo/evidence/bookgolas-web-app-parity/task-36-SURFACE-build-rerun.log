@@ -1,0 +1,98 @@
+
+> web@0.1.0 build
+> npm run test:release-config && next build
+
+
+> web@0.1.0 test:release-config
+> node scripts/test-release-config.mjs
+
+consumer web release config passed
+▲ Next.js 16.3.0-preview.8 (Turbopack)
+✓ Running next.config.ts took 2.3s
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.4s
+  Running TypeScript ...
+  Finished TypeScript in 5.6s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/41) ...
+  Generating static pages using 9 workers (10/41)
+  Generating static pages using 9 workers (20/41)
+  Generating static pages using 9 workers (30/41)
+✓ Generating static pages using 9 workers (41/41) in 194ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/account
+├ ƒ /[locale]/account/notifications
+├ ƒ /[locale]/announcements
+├ ƒ /[locale]/auth/callback
+├ ƒ /[locale]/auth/reset-password
+├ ƒ /[locale]/auth/sign-in
+├ ƒ /[locale]/auth/sign-up
+├ ƒ /[locale]/book-list
+├ ƒ /[locale]/books/[bookId]
+├ ƒ /[locale]/books/[bookId]/mind-map
+├ ƒ /[locale]/books/[bookId]/review
+├ ƒ /[locale]/books/new
+├ ƒ /[locale]/books/scan
+├ ƒ /[locale]/calendar
+├ ƒ /[locale]/home
+├ ƒ /[locale]/library
+├ ƒ /[locale]/onboarding
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/reading-insights
+├ ƒ /[locale]/reading/[bookId]
+├ ƒ /[locale]/stats
+├ ƒ /[locale]/subscription
+├ ƒ /[locale]/support
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/ui-primitives
+├ ƒ /admin
+├ ƒ /admin/announcements
+├ ƒ /admin/login
+├ ƒ /admin/push-logs
+├ ƒ /admin/push-templates
+├ ƒ /admin/test-push
+├ ƒ /admin/users
+├ ƒ /admin/waitlist
+├ ƒ /api/admin/fcm-tokens
+├ ƒ /api/admin/send-bulk-push
+├ ƒ /api/admin/send-test-push
+├ ƒ /api/admin/users
+├ ƒ /api/app/books
+├ ƒ /api/app/books/[bookId]
+├ ƒ /api/app/books/search
+├ ƒ /api/consumer/account
+├ ƒ /api/consumer/account/avatar
+├ ƒ /api/consumer/ai-artifacts
+├ ƒ /api/consumer/ai-consent
+├ ƒ /api/consumer/book-detail
+├ ƒ /api/consumer/book-discovery
+├ ƒ /api/consumer/book-lifecycle
+├ ƒ /api/consumer/charts-goals
+├ ƒ /api/consumer/consent
+├ ƒ /api/consumer/export
+├ ƒ /api/consumer/images-ocr
+├ ƒ /api/consumer/library
+├ ƒ /api/consumer/notes-highlights
+├ ƒ /api/consumer/notifications
+├ ƒ /api/consumer/progress
+├ ƒ /api/consumer/push
+├ ƒ /api/consumer/recall
+├ ƒ /api/consumer/recall/source
+├ ƒ /api/consumer/review-share
+├ ƒ /api/consumer/timer
+├ ○ /icon.png
+├ ƒ /privacy
+├ ƒ /support
+└ ƒ /terms
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
