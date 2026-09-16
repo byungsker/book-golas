@@ -188,7 +188,7 @@ const schemaFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
     NotificationSettingsSchema,
     { notificationEnabled: true, dailyReminderEnabled: true, dailyReminderHour: 18, dailyReminderMinute: 0, goalAlarmEnabled: true, goalAlarmHour: 20, goalAlarmMinute: 0, eventNudgeEnabled: true, announcementsEnabled: true },
   ],
-  ["export-result", ExportReadingDataResultSchema, { exportId: ids.record, format: "json", status: "ready", downloadUrl: "/api/export/fixture", expiresAt: dates.updated }],
+  ["export-result", ExportReadingDataResultSchema, { exportId: ids.record, year: 2026, format: "json", status: "ready", bookCount: 1, recordCount: 3, downloadUrl: "/api/export/fixture", expiresAt: dates.updated }],
   ["delete-result", DeleteAccountResultSchema, { status: "accepted", acceptedAt: dates.updated }],
 ];
 

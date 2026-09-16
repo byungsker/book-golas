@@ -15,8 +15,11 @@ export const exportStatusValues = ["queued", "ready", "failed"] as const;
 export const ExportReadingDataResultSchema = z
   .object({
     exportId: RecordIdSchema,
+    year: z.number().int().min(2000).max(2100),
     format: z.enum(exportFormatValues),
     status: z.enum(exportStatusValues),
+    bookCount: z.number().int().nonnegative(),
+    recordCount: z.number().int().nonnegative(),
     downloadUrl: z.string().trim().min(1).nullable(),
     expiresAt: IsoDateSchema.nullable(),
   })
@@ -247,7 +250,12 @@ export const NotificationSettingsUpdateRequestSchema = z
   .refine((request) => Object.keys(request).length > 0, "at least one notification setting is required");
 
 export const ExportReadingDataRequestSchema = z
-  .object({ format: z.enum(exportFormatValues), includeImages: z.boolean() })
+  .object({
+    year: z.number().int().min(2000).max(2100),
+    email: z.string().trim().email(),
+    format: z.enum(exportFormatValues),
+    includeImages: z.boolean(),
+  })
   .strict();
 
 export const DeleteAccountRequestSchema = z.object({ confirmation: z.literal(true) }).strict();
@@ -281,4 +289,5 @@ export type ConsumerRequest = {
   [Key in keyof typeof ConsumerRequestSchemas]: z.infer<(typeof ConsumerRequestSchemas)[Key]>;
 }[keyof typeof ConsumerRequestSchemas];
 export type ExportReadingDataResult = z.infer<typeof ExportReadingDataResultSchema>;
+export type ExportReadingDataRequest = z.infer<typeof ExportReadingDataRequestSchema>;
 export type DeleteAccountResult = z.infer<typeof DeleteAccountResultSchema>;

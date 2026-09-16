@@ -1,0 +1,101 @@
+{
+  "issue": 443,
+  "task": 33,
+  "parentIssue": 412,
+  "wave": 6,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "locales": ["ko", "en"],
+  "route": "/{locale}/account",
+  "apiRoute": "/api/consumer/export",
+  "states": [
+    "loading",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "ready",
+    "delivery-retryable",
+    "download-retryable"
+  ],
+  "request": {
+    "fields": {
+      "year": "integer 2000..current UTC year",
+      "email": "trimmed authenticated account email",
+      "format": "json | csv",
+      "includeImages": "boolean"
+    },
+    "ownership": "user_id is derived from the verified session; caller identity fields are rejected",
+    "yearBoundary": "books and every graph source use the selected UTC calendar-year range",
+    "delivery": "Resend failure is returned as retryable provider_error; no direct download URL is claimed"
+  },
+  "sourceTables": [
+    "books",
+    "reading_progress_history",
+    "reading_sessions",
+    "reading_content_embeddings",
+    "book_images",
+    "reading_goals",
+    "recall_search_history",
+    "note_structures",
+    "reading_insights_memory",
+    "book_recommendations",
+    "ai_recall_usage"
+  ],
+  "parityRows": [
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::privacy and data export action",
+      "nativeActions": ["open export", "select year", "confirm account email", "choose JSON or CSV", "include page images", "send export"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/reading-data-export-client.tsx::ReadingDataExportClient",
+      "browserDisposition": "Localized account action with selected-year and format controls; loading, empty and recoverable failure states are exposed through data attributes"
+    },
+    {
+      "nativeFlutter": "app/lib/data/services/auth_service.dart::authenticated account identity",
+      "nativeActions": ["resolve current user", "send to verified email"],
+      "nativeStates": ["unauthorized", "error"],
+      "webRoute": "/api/consumer/export",
+      "webComponent": "web/src/lib/product/adapters/functions-adapters.ts::exportReadingData",
+      "browserDisposition": "Server compares the submitted email to the verified session and rejects caller-selected identity or another user's email"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::reading graph export",
+      "nativeActions": ["export books", "export progress", "export sessions", "export notes and highlights", "export images and OCR", "export goals and AI artifacts"],
+      "nativeStates": ["loading", "empty", "error", "quota", "offline"],
+      "webRoute": "/api/consumer/export",
+      "webComponent": "supabase/functions/export-reading-data/index.ts::ExportGraph",
+      "browserDisposition": "Current schema tables are selected by owner and year; obsolete memos query is forbidden; User B rows cannot enter the graph"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::export delivery feedback",
+      "nativeActions": ["show sending progress", "show sent confirmation", "retry delivery"],
+      "nativeStates": ["loading", "error", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/reading-data-export-client.tsx::error and retry states",
+      "browserDisposition": "Provider and download failures keep a retry action; hosted delivery and a downloadable URL remain unclaimed until verified"
+    }
+  ],
+  "nativeOnly": [
+    {"feature": "iOS widget", "nativeEvidence": "WidgetDataService and HomeWidget", "webDisposition": "unavailable; ordinary HTTPS deep links remain supported"},
+    {"feature": "Siri/App Shortcuts", "nativeEvidence": "BookgolasShortcuts.swift and AppDelegate.swift", "webDisposition": "unavailable; ordinary HTTPS destinations remain supported"},
+    {"feature": "native push", "nativeEvidence": "FCMService and local notification scheduling", "webDisposition": "owned by #445; browser registration is separate and hosted delivery remains unverified"},
+    {"feature": "camera capture", "nativeEvidence": "scanner, document scan and OCR utilities", "webDisposition": "owned by #428/#435; browser permission and upload fallback are separate"},
+    {"feature": "share sheet", "nativeEvidence": "BookShareService and share cards", "webDisposition": "Web Share API or clipboard fallback is a separate capability"},
+    {"feature": "subscription and in-app purchase", "nativeEvidence": "RevenueCat service", "webDisposition": "disabled on Web and does not affect export availability"}
+  ],
+  "security": {
+    "ownerFilter": "every source query filters user_id from the verified session",
+    "bookBoundary": "child records are constrained to the selected owner book ids",
+    "identity": "email is compared case-insensitively and user_id/userId/owner_id/p_user_id are rejected",
+    "obsoleteTable": "memos is absent from the export query plan"
+  },
+  "evidence": {
+    "requiredScreenshot": ".omo/evidence/bookgolas-web-app-parity/task-33-bookgolas-web-app-parity.png",
+    "happyCommand": "npx playwright test tests/e2e/export.spec.ts --project=chromium --grep \"export|success\"",
+    "failureCommand": "npx playwright test tests/e2e/export.spec.ts --project=chromium --grep \"mismatch|invalid-year|delivery\""
+  }
+}

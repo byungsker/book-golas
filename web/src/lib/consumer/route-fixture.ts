@@ -157,6 +157,19 @@ export type ConsumerRouteFixture =
   | "web-push-registered"
   | "web-push-unauthorized"
   | "web-push-unsupported"
+  | "export-consent"
+  | "export-delivery"
+  | "export-download"
+  | "export-empty"
+  | "export-error"
+  | "export-invalid-email"
+  | "export-invalid-year"
+  | "export-mismatch"
+  | "export-offline"
+  | "export-quota"
+  | "export-success"
+  | "export-unauthorized"
+  | "export-user-mismatch"
   | "ai-consent-budget"
   | "ai-consent-configuration"
   | "ai-consent-concurrency"
@@ -387,6 +400,19 @@ export function getConsumerRouteFixture(
     "web-push-registered",
     "web-push-unauthorized",
     "web-push-unsupported",
+    "export-consent",
+    "export-delivery",
+    "export-download",
+    "export-empty",
+    "export-error",
+    "export-invalid-email",
+    "export-invalid-year",
+    "export-mismatch",
+    "export-offline",
+    "export-quota",
+    "export-success",
+    "export-unauthorized",
+    "export-user-mismatch",
     "ai-consent-budget",
     "ai-consent-configuration",
     "ai-consent-concurrency",

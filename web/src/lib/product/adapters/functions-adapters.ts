@@ -3,6 +3,8 @@ import "server-only";
 import { z } from "zod";
 import {
   BookIdSchema,
+  ExportReadingDataRequestSchema,
+  ExportReadingDataResultSchema,
   ImageIdSchema,
   InsightSchema,
   RecallSearchResultSchema,
@@ -13,9 +15,12 @@ import {
   type RecallSearchResult,
   type RecallSource,
   type RecommendationResult,
+  type ExportReadingDataRequest,
+  type ExportReadingDataResult,
 } from "@/lib/product/contracts";
 import {
   failure,
+  forbiddenError,
   success,
   unavailableError,
   validationError,
@@ -150,6 +155,30 @@ export async function runVisionOcr(
     return failure(validationError());
   }
   return invokeForSession("vision-ocr", { ...input }, VisionOcrResponseSchema, options);
+}
+
+export async function exportReadingData(
+  input: ExportReadingDataRequest,
+  options: AdapterOptions = {},
+): Promise<ProductResult<ExportReadingDataResult>> {
+  const parsed = ExportReadingDataRequestSchema.safeParse(input);
+  if (!parsed.success) return failure(validationError());
+
+  const session = await resolveProductSession(options.factory);
+  if (!session.ok) return failure(session.error);
+
+  const authenticatedEmail = session.value.user.email?.trim();
+  if (!authenticatedEmail || authenticatedEmail.toLowerCase() !== parsed.data.email.toLowerCase()) {
+    return failure(forbiddenError("The export email must match the authenticated account."));
+  }
+
+  return invokeProductFunctionForSession(
+    session.value,
+    "export-reading-data",
+    parsed.data,
+    ExportReadingDataResultSchema,
+    options,
+  );
 }
 
 export function normalizeRecallResponse(value: unknown): ProductResult<RecallSearchResult> {
