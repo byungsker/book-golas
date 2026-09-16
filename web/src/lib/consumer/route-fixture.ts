@@ -120,6 +120,26 @@ export type ConsumerRouteFixture =
   | "charts-goals-quota"
   | "charts-goals-stale"
   | "charts-goals-unauthorized"
+  | "ai-consent-budget"
+  | "ai-consent-configuration"
+  | "ai-consent-concurrency"
+  | "ai-consent-consent"
+  | "ai-consent-daily-rate-limit"
+  | "ai-consent-foreign"
+  | "ai-consent-happy"
+  | "ai-consent-hard-cap"
+  | "ai-consent-input-too-large"
+  | "ai-consent-insufficient-data"
+  | "ai-consent-offline"
+  | "ai-consent-provider"
+  | "ai-consent-quota"
+  | "ai-consent-receipt"
+  | "ai-consent-server-error"
+  | "ai-consent-state"
+  | "ai-consent-status-unavailable"
+  | "ai-consent-timeout"
+  | "ai-consent-unknown"
+  | "ai-consent-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -284,6 +304,26 @@ export function getConsumerRouteFixture(
     "charts-goals-quota",
     "charts-goals-stale",
     "charts-goals-unauthorized",
+    "ai-consent-budget",
+    "ai-consent-configuration",
+    "ai-consent-concurrency",
+    "ai-consent-consent",
+    "ai-consent-daily-rate-limit",
+    "ai-consent-foreign",
+    "ai-consent-happy",
+    "ai-consent-hard-cap",
+    "ai-consent-input-too-large",
+    "ai-consent-insufficient-data",
+    "ai-consent-offline",
+    "ai-consent-provider",
+    "ai-consent-quota",
+    "ai-consent-receipt",
+    "ai-consent-server-error",
+    "ai-consent-state",
+    "ai-consent-status-unavailable",
+    "ai-consent-timeout",
+    "ai-consent-unknown",
+    "ai-consent-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",
