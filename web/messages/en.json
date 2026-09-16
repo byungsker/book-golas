@@ -1153,6 +1153,62 @@
         }
       }
     },
+    "aiConsent": {
+      "title": "Provider-specific AI consent",
+      "description": "Choose separately whether OpenAI or Google Cloud Vision may process the data needed for the AI feature you start. Each choice records the policy version and receipt.",
+      "loading": "Loading provider consent...",
+      "errorTitle": "We could not load AI provider consent",
+      "retry": "Check again",
+      "saving": "Saving consent...",
+      "grant": "Allow provider",
+      "withdraw": "Withdraw consent",
+      "statusLabel": "Status",
+      "policyLabel": "Policy version",
+      "receiptLabel": "Receipt",
+      "notRecorded": "Not recorded",
+      "details": "View data and transfer details",
+      "actionLabel": "When it runs",
+      "dataLabel": "Data used",
+      "recipientLabel": "Recipient",
+      "sendBlocked": "New requests to this provider stay blocked until consent is confirmed.",
+      "failClosed": "The status could not be confirmed, so no new data is sent.",
+      "success": {
+        "grant": "Provider consent saved.",
+        "withdraw": "Provider consent withdrawn. New requests are blocked."
+      },
+      "states": {
+        "allowed": "Allowed",
+        "not_allowed": "Not allowed",
+        "unknown": "Confirmation needed",
+        "unavailable": "Unavailable"
+      },
+      "errors": {
+        "unknown": "Consent status is unknown. Try checking again.",
+        "unauthorized": "Sign in before changing provider consent.",
+        "consent_required": "Consent is required before this provider can be used.",
+        "insufficient_data": "More information is needed before this action can run.",
+        "input_too_large": "The AI input is too large. Shorten the request and try again.",
+        "rate_limit_exceeded": "The AI request rate limit was reached. Try again later.",
+        "quota_exceeded": "The operational AI quota was reached. Try again later.",
+        "concurrency_exceeded": "Too many AI requests are running. Try again when one finishes.",
+        "budget_exceeded": "The operational AI budget was reached. Try again later.",
+        "hard_cap_exceeded": "The operational AI safety cap was reached. Try again later.",
+        "provider_timeout": "The AI provider timed out. Try again later.",
+        "provider_error": "The AI provider returned an error. Try again later.",
+        "configuration_error": "The AI provider is not configured. No new data is sent.",
+        "offline": "You are offline. Reconnect and try again."
+      },
+      "providers": {
+        "google_cloud_vision": {
+          "title": "Google Cloud Vision OCR",
+          "description": "Allow the selected page image and language hints to be sent for text recognition."
+        },
+        "open_ai": {
+          "title": "OpenAI-powered features",
+          "description": "Allow the reading data needed for the OpenAI feature you choose to be processed."
+        }
+      }
+    },
     "auth": {
       "backToSite": "Back to Bookgolas",
       "signInTitle": "Sign in to Bookgolas",

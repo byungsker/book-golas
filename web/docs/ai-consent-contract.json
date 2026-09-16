@@ -1,0 +1,104 @@
+{
+  "issue": 438,
+  "task": 28,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "policyVersion": 2,
+  "locales": ["ko", "en"],
+  "providers": [
+    {
+      "id": "google_cloud_vision",
+      "nativeService": "GoogleVisionOcrService",
+      "webLabelKey": "consumer.aiConsent.providers.google_cloud_vision",
+      "disclosureLocale": {"ko": "ko-KR", "en": "en-US"},
+      "recipient": {"ko": "Google Cloud Vision · 미국", "en": "Google Cloud Vision · United States"},
+      "trigger": "OCR text extraction from a selected book page image",
+      "data": "Selected, captured, or cropped page image plus Korean/English language hints"
+    },
+    {
+      "id": "open_ai",
+      "nativeService": "ReadingInsightsService and provider-wide AI features",
+      "webLabelKey": "consumer.aiConsent.providers.open_ai",
+      "disclosureLocale": {"ko": "ko-KR", "en": "en-US"},
+      "recipient": {"ko": "OpenAI OpCo, LLC · 미국", "en": "OpenAI OpCo, LLC · United States"},
+      "trigger": "A requested AI search, summary, insight, recommendation, writing, or embedding operation",
+      "data": "Only the book details, reading records, OCR text, statistics, and question needed for that operation"
+    }
+  ],
+  "consentStates": ["allowed", "not_allowed", "unknown", "unavailable"],
+  "operationalStates": [
+    "idle",
+    "loading",
+    "success",
+    "unknown",
+    "unauthorized",
+    "consent_required",
+    "insufficient_data",
+    "input_too_large",
+    "rate_limit_exceeded",
+    "quota_exceeded",
+    "concurrency_exceeded",
+    "budget_exceeded",
+    "hard_cap_exceeded",
+    "provider_timeout",
+    "provider_error",
+    "configuration_error",
+    "offline"
+  ],
+  "consumerRouteStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+  "errorMatrix": [
+    {"code": "validation_error", "status": 400, "uiState": "insufficient_data"},
+    {"code": "insufficient_data", "status": 400, "uiState": "insufficient_data"},
+    {"code": "unauthorized", "status": 401, "uiState": "unauthorized"},
+    {"code": "consent_required", "status": 403, "uiState": "consent_required"},
+    {"code": "forbidden", "status": 403, "uiState": "consent_required"},
+    {"code": "input_too_large", "status": 413, "uiState": "input_too_large"},
+    {"code": "rate_limit_exceeded", "status": 429, "uiState": "rate_limit_exceeded"},
+    {"code": "quota_exceeded", "status": 429, "uiState": "quota_exceeded"},
+    {"code": "concurrency_exceeded", "status": 429, "uiState": "concurrency_exceeded"},
+    {"code": "budget_exceeded", "status": 429, "uiState": "budget_exceeded"},
+    {"code": "hard_cap_exceeded", "status": 429, "uiState": "hard_cap_exceeded"},
+    {"code": "provider_error", "status": 500, "uiState": "provider_error"},
+    {"code": "provider_error", "status": 502, "uiState": "provider_error"},
+    {"code": "configuration_error", "status": 503, "uiState": "configuration_error"},
+    {"code": "offline", "status": 503, "uiState": "offline"},
+    {"code": "consent_status_unknown", "status": 503, "uiState": "unknown"},
+    {"code": "provider_timeout", "status": 504, "uiState": "provider_timeout"}
+  ],
+  "operations": ["read", "grant", "withdraw", "receipt-readback", "policy-readback", "provider-send-gate"],
+  "invariants": [
+    "The request schema accepts only a provider, action, locale and policy version; caller ownership is derived from the authenticated session.",
+    "Every provider uses policy version 2 and a provider-specific canonical disclosure snapshot.",
+    "A successful grant and withdrawal are read back from the owner-scoped consent tables before the Web response is returned.",
+    "The append-only consent event id is returned as the receipt and is never accepted from the client.",
+    "Unknown, unavailable, withdrawn, stale-policy and failed-read states all make canSend false.",
+    "Withdrawal blocks new provider sends after confirmation and does not delete unrelated reading records.",
+    "Operational quota, rate, concurrency, budget and safety-cap errors remain operational states and never become billing or paywall prompts.",
+    "The consumer page contains no upgrade, purchase or subscription call to action for these states.",
+    "Offline, timeout, provider and configuration failures have distinct retry semantics and status codes."
+  ],
+  "nativeReferences": [
+    "app/lib/data/services/third_party_ai_consent_service.dart",
+    "app/lib/data/services/reading_insights_service.dart:32-56",
+    "app/lib/data/services/google_vision_ocr_service.dart:59-79",
+    "app/lib/l10n/app_ko.arb:4131-4284",
+    "supabase/migrations/20260731120950_create_third_party_ai_consents.sql:1-170",
+    "supabase/functions/_shared/third-party-ai-consent.ts",
+    "supabase/functions/_shared/ai-usage.ts",
+    "supabase/functions/_shared/ai-usage-contract.ts",
+    "app/lib/config/feature_flags.dart:1-3"
+  ],
+  "browser": {
+    "route": "/{locale}/account",
+    "component": "src/components/consumer/ai-consent-settings.tsx",
+    "api": "/api/consumer/ai-consent",
+    "fixtures": "ai-consent-*",
+    "selectors": ["ai-consent-provider-google_cloud_vision", "ai-consent-provider-open_ai", "ai-consent-policy-open_ai", "ai-consent-receipt-open_ai", "ai-consent-blocked-open_ai", "data-ai-operational-state"],
+    "qaCommands": [
+      "npx playwright test tests/e2e/ai-consent.spec.ts --project=chromium --grep \"grant|withdraw|state\"",
+      "npx playwright test tests/e2e/ai-consent.spec.ts --project=chromium --grep \"unknown|quota|budget|provider\""
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 export * from "./ai";
+export * from "./ai-consent";
 export * from "./books";
 export * from "./common";
 export * from "./book-discovery";

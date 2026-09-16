@@ -1,15 +1,23 @@
 import { HttpStatusSchema, type ErrorCode } from "@/lib/product/contracts";
 import {
+  budgetExceededError,
   configurationError,
+  consentStatusUnknownError,
   consentRequiredError,
+  concurrencyExceededError,
   conflictError,
   forbiddenError,
+  hardCapExceededError,
+  inputTooLargeError,
+  insufficientDataError,
   notFoundError,
   offlineError,
   payloadTooLargeError,
   providerError,
+  providerTimeoutError,
   quotaExceededError,
   rateLimitedError,
+  rateLimitExceededError,
   timeoutError,
   unauthorizedError,
   unavailableError,
@@ -107,7 +115,15 @@ function acceptedCode(value: string | undefined): ErrorCode | undefined {
     case "rate_limited":
     case "provider_error":
     case "consent_required":
+    case "insufficient_data":
     case "quota_exceeded":
+    case "input_too_large":
+    case "rate_limit_exceeded":
+    case "concurrency_exceeded":
+    case "budget_exceeded":
+    case "hard_cap_exceeded":
+    case "provider_timeout":
+    case "consent_status_unknown":
     case "configuration_error":
     case "timeout":
     case "offline":
@@ -140,8 +156,24 @@ function defaultForCode(code: ErrorCode, message?: string): ProductError {
       return providerError(message);
     case "consent_required":
       return consentRequiredError(message);
+    case "insufficient_data":
+      return insufficientDataError(message);
     case "quota_exceeded":
       return quotaExceededError(message);
+    case "input_too_large":
+      return inputTooLargeError(message);
+    case "rate_limit_exceeded":
+      return rateLimitExceededError(message);
+    case "concurrency_exceeded":
+      return concurrencyExceededError(message);
+    case "budget_exceeded":
+      return budgetExceededError(message);
+    case "hard_cap_exceeded":
+      return hardCapExceededError(message);
+    case "provider_timeout":
+      return providerTimeoutError(message);
+    case "consent_status_unknown":
+      return consentStatusUnknownError(message);
     case "configuration_error":
       return configurationError(message);
     case "timeout":
@@ -173,7 +205,15 @@ function statusForCode(code: ErrorCode, status: number | undefined): ProductErro
     rate_limited: [429],
     provider_error: [500, 502, 503, 504],
     consent_required: [403],
+    insufficient_data: [400],
     quota_exceeded: [429],
+    input_too_large: [413],
+    rate_limit_exceeded: [429],
+    concurrency_exceeded: [429],
+    budget_exceeded: [429],
+    hard_cap_exceeded: [429],
+    provider_timeout: [504],
+    consent_status_unknown: [503],
     configuration_error: [503],
     timeout: [504],
     offline: [503],
@@ -202,7 +242,7 @@ export function mapAdapterError(
     payload.status === 504 ||
     /timed?\s*out|timeout|provider_timeout/i.test(message ?? "")
   ) {
-    const normalized = timeoutError(message);
+    const normalized = rawCode === "provider_timeout" ? providerTimeoutError(message) : timeoutError(message);
     return payload.status === 504 ? normalized : { ...normalized, status: 504 };
   }
   if (isNetworkFailure(error) || rawCode === "offline") return offlineError(message);

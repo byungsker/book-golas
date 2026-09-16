@@ -59,10 +59,82 @@ export function consentRequiredError(message = "Consent is required for this act
   };
 }
 
+export function insufficientDataError(message = "More reading data is required for this action."): ProductError {
+  return {
+    code: "insufficient_data",
+    status: 400,
+    message,
+    retryable: false,
+  };
+}
+
 export function quotaExceededError(message = "Usage quota exceeded."): ProductError {
   return {
     code: "quota_exceeded",
     status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function inputTooLargeError(message = "The AI input is too large."): ProductError {
+  return {
+    code: "input_too_large",
+    status: 413,
+    message,
+    retryable: false,
+  };
+}
+
+export function rateLimitExceededError(message = "The AI request rate limit was reached."): ProductError {
+  return {
+    code: "rate_limit_exceeded",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function concurrencyExceededError(message = "Too many AI requests are running."): ProductError {
+  return {
+    code: "concurrency_exceeded",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function budgetExceededError(message = "The AI daily budget was reached."): ProductError {
+  return {
+    code: "budget_exceeded",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function hardCapExceededError(message = "The AI daily safety cap was reached."): ProductError {
+  return {
+    code: "hard_cap_exceeded",
+    status: 429,
+    message,
+    retryable: true,
+  };
+}
+
+export function providerTimeoutError(message = "The AI provider request timed out."): ProductError {
+  return {
+    code: "provider_timeout",
+    status: 504,
+    message,
+    retryable: true,
+  };
+}
+
+export function consentStatusUnknownError(message = "The consent status could not be confirmed."): ProductError {
+  return {
+    code: "consent_status_unknown",
+    status: 503,
     message,
     retryable: true,
   };

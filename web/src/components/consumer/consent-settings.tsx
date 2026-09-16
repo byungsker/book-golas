@@ -10,14 +10,13 @@ import {
   ConsumerLoadingState,
 } from "@/components/consumer/blab-primitives";
 
-const consentKinds = ["ai", "notifications", "camera", "share", "ocr"] as const;
+const consentKinds = ["notifications", "camera", "share", "ocr"] as const;
 type ConsentKind = (typeof consentKinds)[number];
 type ConsentStatus = "required" | "granted" | "denied";
 
 type ConsentState = Record<ConsentKind, ConsentStatus>;
 
 const initialState: ConsentState = {
-  ai: "required",
   notifications: "required",
   camera: "required",
   share: "required",
