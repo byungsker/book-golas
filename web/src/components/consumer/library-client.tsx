@@ -3,12 +3,10 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
 import {
   BookOpen,
   ChevronDown,
   ChevronRight,
-  History,
   LoaderCircle,
   RefreshCw,
   Search,
@@ -17,6 +15,7 @@ import {
 } from "lucide-react";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { NetworkStatus } from "@/components/consumer/network-status";
+import { RecallClient } from "@/components/consumer/recall-client";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import {
   buildLibraryApiUrl,
@@ -84,8 +83,6 @@ export function LibraryClient({
   const [activeTab, setActiveTab] = useState<LibraryPayload["tab"]>(initialRecall ? "recall" : getLibraryTab(initialTab));
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [recallInput, setRecallInput] = useState("");
-  const [submittedRecall, setSubmittedRecall] = useState("");
   const [recordType, setRecordType] = useState<"highlight" | "note" | "photo_ocr" | null>(null);
   const [payload, setPayload] = useState<LibraryPayload>(() => emptyPayload(initialRecall ? "recall" : getLibraryTab(initialTab)));
   const [loadState, setLoadState] = useState<LoadState>({ phase: "loading" });
@@ -121,7 +118,7 @@ export function LibraryClient({
     else setLoadState({ phase: "loading" });
 
     try {
-      const requestQuery = activeTab === "recall" ? submittedRecall : debouncedSearch;
+      const requestQuery = debouncedSearch;
       const result = await fetch(buildLibraryApiUrl({
         locale,
         tab: activeTab,
@@ -147,20 +144,19 @@ export function LibraryClient({
       const typed = error as Error & { code?: string };
       setLoadState({ phase: "error", code: typed.code ?? "offline", message: typed.message });
     }
-  }, [activeTab, debouncedSearch, locale, recordType, submittedRecall]);
+  }, [activeTab, debouncedSearch, locale, recordType]);
 
   useEffect(() => {
+    if (activeTab === "recall") return;
     void loadPage(null, false);
     return () => activeRequest.current?.abort();
-  }, [loadPage, retryKey]);
+  }, [activeTab, loadPage, retryKey]);
 
   function selectTab(tab: LibraryViewTab) {
     activeRequest.current?.abort();
     setActiveTab(tab);
     setSearch("");
     setDebouncedSearch("");
-    setRecallInput("");
-    setSubmittedRecall("");
     setRecordType(null);
     setPayload(emptyPayload(tab));
     setLoadState({ phase: "loading" });
@@ -170,22 +166,9 @@ export function LibraryClient({
   function openRecall() {
     activeRequest.current?.abort();
     setActiveTab("recall");
-    setRecallInput("");
-    setSubmittedRecall("");
     setPayload(emptyPayload("recall"));
     setLoadState({ phase: "loading" });
     replaceUrl("recall");
-  }
-
-  function closeRecall() {
-    selectTab("reading");
-  }
-
-  function submitRecall(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const next = recallInput.trim();
-    if (!next) return;
-    setSubmittedRecall(next);
   }
 
   const recordGroups = useMemo(() => groupRecordsByBook(payload.records), [payload.records]);
@@ -260,43 +243,7 @@ export function LibraryClient({
   }
 
   function renderRecall() {
-    const result = payload.recall;
-    const sourceGroups = result ? Object.entries(result.sourcesByBook ?? {}) : [];
-    const fallbackSources = result && sourceGroups.length === 0 ? result.sources : [];
-    return (
-      <section data-testid="library-recall-panel" className="grid gap-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("library.recall.eyebrow")}</p>
-            <h2 className="mt-2 text-2xl font-semibold">{t("library.recall.title")}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("library.recall.description")}</p>
-          </div>
-          <button type="button" onClick={closeRecall} data-testid="library-recall-close" aria-label={t("library.recallClose")} className="grid min-h-11 min-w-11 place-items-center rounded-full border border-[var(--blab-glass-border)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><X aria-hidden="true" size={20} /></button>
-        </div>
-        <form onSubmit={submitRecall} className="flex gap-2">
-          <label className="sr-only" htmlFor="library-recall-input">{t("library.recall.inputLabel")}</label>
-          <div className="relative min-w-0 flex-1">
-            <Sparkles aria-hidden="true" size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--blab-color-primary)]" />
-            <input id="library-recall-input" data-testid="library-recall-input" value={recallInput} onChange={(event) => setRecallInput(event.target.value)} placeholder={t("library.recall.inputPlaceholder")} className="min-h-12 w-full rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] pl-11 pr-4 text-sm outline-none focus:border-[var(--blab-color-primary)] focus:ring-2 focus:ring-[var(--blab-color-primary)]" />
-          </div>
-          <button type="submit" data-testid="library-recall-submit" disabled={!recallInput.trim() || loadState.phase === "loading"} className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl bg-[var(--blab-color-primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><Search aria-hidden="true" size={17} />{t("library.recall.submit")}</button>
-        </form>
-        {loadState.phase === "loading" ? <div data-testid="library-recall-loading" className="grid min-h-52 place-items-center rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)]"><span className="inline-flex items-center gap-2 text-sm text-[var(--blab-text-tertiary)]"><LoaderCircle aria-hidden="true" className="animate-spin" size={18} />{t("library.recall.searching")}</span></div> : null}
-        {loadState.phase === "error" ? renderError(loadState) : null}
-        {loadState.phase === "ready" && result ? (
-          <div className="grid gap-5" data-testid="library-recall-result">
-            <article data-testid="library-recall-answer" className="rounded-2xl border border-[var(--blab-color-primary)]/30 bg-[var(--blab-color-primary)]/10 p-5">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[var(--blab-color-primary)]"><Sparkles aria-hidden="true" size={17} />{t("library.recall.answer")}</div>
-              <p className="mt-3 text-sm leading-7">{result.answer || t("library.recall.empty")}</p>
-            </article>
-            {sourceGroups.length > 0 ? <section data-testid="library-recall-sources" className="grid gap-3"><h3 className="text-sm font-semibold">{t("library.recall.sources")}</h3>{sourceGroups.map(([bookId, sources]) => <div key={bookId} data-testid="library-recall-source-group" className="rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-4"><div className="flex items-center justify-between gap-3"><span className="font-medium">{sources[0]?.bookTitle ?? t("library.openBook")}</span>{sources[0]?.bookId ? <Link href={`/${locale}/books/${sources[0].bookId}`} className="text-xs text-[var(--blab-color-primary)]">{t("library.openBook")}</Link> : null}</div><div className="mt-3 grid gap-2">{sources.map((source, index) => <p key={`${source.sourceId ?? "source"}-${index}`} className="rounded-xl bg-[var(--blab-glass-fill)] p-3 text-sm leading-6">{source.content}{source.pageNumber ? <span className="ml-2 text-xs text-[var(--blab-text-tertiary)]">p.{source.pageNumber}</span> : null}</p>)}</div></div>)}</section> : null}
-            {fallbackSources.length > 0 ? <section data-testid="library-recall-sources" className="grid gap-3"><h3 className="text-sm font-semibold">{t("library.recall.sources")}</h3>{fallbackSources.map((source, index) => <p key={`${source.sourceId ?? "source"}-${index}`} className="rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-4 text-sm leading-6">{source.content}</p>)}</section> : null}
-            {sourceGroups.length === 0 && fallbackSources.length === 0 ? <div data-testid="library-recall-empty"><ConsumerNotice title={t("library.recall.empty")} description={t("library.recall.emptyDescription")} /></div> : null}
-          </div>
-        ) : null}
-        {loadState.phase === "ready" && !result ? <div data-testid="library-recall-history" className="grid gap-3"><h3 className="text-sm font-semibold">{t("library.recall.history")}</h3>{payload.history.length > 0 ? payload.history.map((history) => <button key={history.id} type="button" data-testid="library-recall-history-item" onClick={() => { setRecallInput(history.query); setSubmittedRecall(history.query); }} className="flex min-h-14 items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-4 text-left hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><History aria-hidden="true" size={18} className="text-[var(--blab-text-tertiary)]" /><span className="min-w-0 flex-1 truncate text-sm">{history.query}</span><ChevronRight aria-hidden="true" size={16} className="text-[var(--blab-text-tertiary)]" /></button>) : <ConsumerNotice title={t("library.empty.recallTitle")} description={t("library.empty.recallDescription")} />}</div> : null}
-      </section>
-    );
+    return <RecallClient locale={locale} onClose={() => selectTab("reading")} />;
   }
 
   function renderError(error: Extract<LoadState, { phase: "error" }>) {
@@ -313,11 +260,11 @@ export function LibraryClient({
   }
 
   function renderMainContent() {
+    if (activeTab === "recall") return renderRecall();
     if (loadState.phase === "error") return renderError(loadState);
     if (loadState.phase === "loading" && payload.books.length === 0 && payload.records.length === 0 && !payload.recall) {
       return <div data-testid="library-loading" className="grid min-h-64 place-items-center rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)]"><span className="inline-flex items-center gap-2 text-sm text-[var(--blab-text-tertiary)]"><LoaderCircle aria-hidden="true" className="animate-spin" size={18} />{t("library.loading")}</span></div>;
     }
-    if (activeTab === "recall") return renderRecall();
     if (activeTab === "records") {
       if (payload.records.length === 0 && loadState.phase === "ready") return <div data-testid="library-empty"><ConsumerNotice title={t("library.empty.recordsTitle")} description={t("library.empty.recordsDescription")} /></div>;
       return <>{renderRecords()}{payload.pageInfo.hasMore ? <button type="button" data-testid="library-load-more" onClick={() => void loadPage(payload.pageInfo.nextCursor, true)} disabled={loadState.phase === "loading-more"} className="mx-auto mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--blab-glass-border)] px-4 text-sm font-semibold hover:bg-[var(--blab-glass-fill)] disabled:opacity-50">{loadState.phase === "loading-more" ? <LoaderCircle aria-hidden="true" className="animate-spin" size={16} /> : null}{loadState.phase === "loading-more" ? t("library.loadingMore") : t("library.loadMore")}</button> : null}</>;

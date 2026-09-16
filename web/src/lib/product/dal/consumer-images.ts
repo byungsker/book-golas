@@ -249,6 +249,22 @@ export async function listOwnedBookImagesWithSignedUrls(
   }
 }
 
+export async function getOwnedBookImageWithSignedUrl(
+  bookId: string,
+  imageId: string,
+  factory: ProductClientFactory = createServerSupabaseClient,
+): Promise<ProductResult<BookImage>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  const parsedImageId = ImageIdSchema.safeParse(imageId);
+  if (!parsedBookId.success || !parsedImageId.success) return failure(validationError());
+  const session = await resolveProductSession(factory);
+  if (!session.ok) return failure(session.error);
+  const book = await ownedBook(session.value, parsedBookId.data);
+  if (!book.ok) return failure(book.error);
+  const image = await fetchOwnedImage(session.value, parsedBookId.data, parsedImageId.data);
+  return image.ok ? success(image.value.image) : failure(image.error);
+}
+
 export async function uploadOwnedBookImage(
   input: UploadOwnedBookImageInput,
   factory: ProductClientFactory = createServerSupabaseClient,

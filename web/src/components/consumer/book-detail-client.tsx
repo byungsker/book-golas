@@ -20,6 +20,7 @@ import {
 import { ReadingTimerControl } from "@/components/consumer/reading-timer-control";
 import { NotesHighlightsClient } from "@/components/consumer/notes-highlights-client";
 import { BookImageCaptureClient } from "@/components/consumer/book-image-capture-client";
+import { RecallClient } from "@/components/consumer/recall-client";
 import {
   Dialog,
   DialogClose,
@@ -335,6 +336,10 @@ export function BookDetailClient({ locale, initialBook }: BookDetailClientProps)
         bookId={book.id}
         totalPages={book.totalPages}
       />
+
+      <div className="mt-6">
+        <RecallClient locale={locale} bookId={book.id} />
+      </div>
 
       <ConsumerCard className="mt-6" data-testid="book-detail-metadata">
         <div className="flex items-center justify-between gap-3">

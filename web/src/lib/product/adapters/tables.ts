@@ -3,6 +3,8 @@ import "server-only";
 import {
   BookIdSchema,
   ImageSchema,
+  PageInfoSchema,
+  RecordIdSchema,
   RecallSearchHistorySchema,
   RecommendationResultSchema,
   type Image,
@@ -35,6 +37,13 @@ async function resolveTableSession(options: TableOptions) {
 }
 
 export type ListRecallHistoryOptions = TableOptions & Readonly<{ limit?: number }>;
+
+export type RecallHistoryPageOptions = TableOptions & Readonly<{ cursor?: string | null; limit?: number }>;
+
+export type RecallHistoryPageData = Readonly<{
+  history: RecallSearchHistory[];
+  pageInfo: { nextCursor: string | null; hasMore: boolean };
+}>;
 
 export async function listRecallHistory(
   options: ListRecallHistoryOptions = {},
@@ -111,6 +120,155 @@ export async function listGlobalRecallHistory(
   } catch (error) {
     return failure(mapAdapterError(error));
   }
+}
+
+export async function listBookRecallHistory(
+  bookId: string,
+  options: ListRecallHistoryOptions = {},
+): Promise<ProductResult<RecallSearchHistory[]>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  const limit = options.limit ?? 10;
+  if (!parsedBookId.success || !Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return failure(validationError());
+  }
+  const session = await resolveTableSession(options);
+  if (!session.ok) return failure(session.error);
+
+  try {
+    const { data, error } = await session.value.supabase
+      .from("recall_search_history")
+      .select("id,book_id,query,answer,sources,created_at")
+      .eq("user_id", session.value.userId)
+      .eq("book_id", parsedBookId.data)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) return failure(mapAdapterError(error));
+
+    const history: RecallSearchHistory[] = [];
+    for (const row of Array.isArray(data) ? data : []) {
+      const parsed = RecallHistoryRowSchema.safeParse(row);
+      if (!parsed.success || parsed.data.book_id !== parsedBookId.data) {
+        return failure(unavailableError("Book Recall history is malformed."));
+      }
+      const item = RecallSearchHistorySchema.safeParse({
+        id: parsed.data.id,
+        query: parsed.data.query,
+        answer: parsed.data.answer,
+        sources: parsed.data.sources,
+        createdAt: parsed.data.created_at,
+      });
+      if (!item.success) return failure(unavailableError("Book Recall history is invalid."));
+      history.push(item.data);
+    }
+    return success(history);
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
+export async function deleteRecallHistory(
+  historyId: string,
+  options: TableOptions = {},
+): Promise<ProductResult<{ historyId: string; deleted: boolean }>> {
+  const parsedHistoryId = RecordIdSchema.safeParse(historyId);
+  if (!parsedHistoryId.success) return failure(validationError());
+  const session = await resolveTableSession(options);
+  if (!session.ok) return failure(session.error);
+
+  try {
+    const { error } = await session.value.supabase
+      .from("recall_search_history")
+      .delete()
+      .eq("id", parsedHistoryId.data)
+      .eq("user_id", session.value.userId);
+    if (error) return failure(mapAdapterError(error));
+    return success({ historyId: parsedHistoryId.data, deleted: true });
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
+function recallOffset(cursor: string | null | undefined): ProductResult<number> {
+  if (cursor === null || cursor === undefined) return success(0);
+  if (!/^\d{1,8}$/.test(cursor)) return failure(validationError("The Recall history cursor is invalid."));
+  const offset = Number(cursor);
+  return Number.isSafeInteger(offset) ? success(offset) : failure(validationError("The Recall history cursor is invalid."));
+}
+
+function parseRecallHistoryPageRows(data: unknown, expectedBookId: string | null): ProductResult<RecallSearchHistory[]> {
+  const history: RecallSearchHistory[] = [];
+  for (const row of Array.isArray(data) ? data : []) {
+    const parsed = RecallHistoryRowSchema.safeParse(row);
+    if (!parsed.success || parsed.data.book_id !== expectedBookId) {
+      return failure(unavailableError("Recall history is outside the requested scope."));
+    }
+    const item = RecallSearchHistorySchema.safeParse({
+      id: parsed.data.id,
+      query: parsed.data.query,
+      answer: parsed.data.answer,
+      sources: parsed.data.sources,
+      createdAt: parsed.data.created_at,
+    });
+    if (!item.success) return failure(unavailableError("Recall history is invalid."));
+    history.push(item.data);
+  }
+  return success(history);
+}
+
+async function listRecallHistoryPage(
+  expectedBookId: string | null,
+  options: RecallHistoryPageOptions = {},
+): Promise<ProductResult<RecallHistoryPageData>> {
+  const limit = options.limit ?? 10;
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) return failure(validationError());
+  const offset = recallOffset(options.cursor);
+  if (!offset.ok) return failure(offset.error);
+  const session = await resolveTableSession(options);
+  if (!session.ok) return failure(session.error);
+
+  try {
+    let query = session.value.supabase
+      .from("recall_search_history")
+      .select("id,book_id,query,answer,sources,created_at")
+      .eq("user_id", session.value.userId);
+    query = expectedBookId === null
+      ? query.is("book_id", null)
+      : query.eq("book_id", expectedBookId);
+    const { data, error } = await query
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(offset.value, offset.value + limit);
+    if (error) return failure(mapAdapterError(error));
+    const rows = Array.isArray(data) ? data : [];
+    const hasMore = rows.length > limit;
+    const parsed = parseRecallHistoryPageRows(rows.slice(0, limit), expectedBookId);
+    if (!parsed.ok) return failure(parsed.error);
+    const pageInfo = PageInfoSchema.safeParse({
+      nextCursor: hasMore ? String(offset.value + limit) : null,
+      hasMore,
+    });
+    return pageInfo.success
+      ? success({ history: parsed.value, pageInfo: pageInfo.data })
+      : failure(unavailableError("Recall history pagination is invalid."));
+  } catch (error) {
+    return failure(mapAdapterError(error));
+  }
+}
+
+export async function listGlobalRecallHistoryPage(
+  options: RecallHistoryPageOptions = {},
+): Promise<ProductResult<RecallHistoryPageData>> {
+  return listRecallHistoryPage(null, options);
+}
+
+export async function listBookRecallHistoryPage(
+  bookId: string,
+  options: RecallHistoryPageOptions = {},
+): Promise<ProductResult<RecallHistoryPageData>> {
+  const parsedBookId = BookIdSchema.safeParse(bookId);
+  return parsedBookId.success
+    ? listRecallHistoryPage(parsedBookId.data, options)
+    : failure(validationError());
 }
 
 export async function getNoteStructure(

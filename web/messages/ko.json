@@ -595,6 +595,34 @@
         "offline": "오프라인 상태입니다. 서재를 불러오거나 검색하려면 다시 연결하세요."
       }
     },
+    "recall": {
+      "bookTitle": "이 책의 기록 검색",
+      "bookDescription": "이 책에 저장한 하이라이트, 메모, 사진 속 텍스트를 검색합니다.",
+      "bookHistory": "이 책의 최근 검색",
+      "suggestions": "최근 질문으로 검색해 보세요",
+      "copy": "복사",
+      "copied": "복사했어요",
+      "deleteHistory": "검색 기록 삭제",
+      "closeDetail": "기록 상세 닫기",
+      "recordDetail": "독서 기록",
+      "goToBook": "책으로 이동",
+      "imageAlt": "비공개 독서 기록 이미지",
+      "imageUnavailable": "비공개 이미지를 불러올 수 없어요. 저장한 텍스트는 확인할 수 있어요.",
+      "sourceTypes": {
+        "highlight": "하이라이트",
+        "note": "메모",
+        "photo_ocr": "사진 속 텍스트"
+      },
+      "states": {
+        "consent": "기록을 검색하려면 계정 설정에서 AI 동의를 허용하세요.",
+        "quota": "이번 기간의 AI Recall 사용량을 모두 사용했어요.",
+        "providerTitle": "Recall 제공자를 사용할 수 없어요",
+        "provider": "AI 제공자가 응답하지 않았어요. 잠시 후 다시 시도하세요.",
+        "offlineTitle": "Recall이 오프라인이에요",
+        "offline": "비공개 독서 기록을 검색하려면 네트워크를 연결하세요.",
+        "error": "Recall 요청을 완료하지 못했어요. 잠시 후 다시 시도하세요."
+      }
+    },
     "bookDiscovery": {
       "eyebrow": "다음 책 찾기",
       "title": "새로운 독서를 시작하세요",

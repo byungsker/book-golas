@@ -595,6 +595,34 @@
         "offline": "You are offline. Reconnect to search or load your library."
       }
     },
+    "recall": {
+      "bookTitle": "Search this book's records",
+      "bookDescription": "Recall searches highlights, memos and photo text saved in this book.",
+      "bookHistory": "Recent searches in this book",
+      "suggestions": "Try a recent question",
+      "copy": "Copy",
+      "copied": "Copied",
+      "deleteHistory": "Delete search history",
+      "closeDetail": "Close record detail",
+      "recordDetail": "Reading record",
+      "goToBook": "Go to book",
+      "imageAlt": "Private reading record image",
+      "imageUnavailable": "The private image is unavailable. The saved text is still available.",
+      "sourceTypes": {
+        "highlight": "Highlight",
+        "note": "Memo",
+        "photo_ocr": "Photo text"
+      },
+      "states": {
+        "consent": "Grant AI consent in account settings before searching your records.",
+        "quota": "Your AI Recall allowance has been reached for this period.",
+        "providerTitle": "Recall provider unavailable",
+        "provider": "The AI provider did not respond. Try again shortly.",
+        "offlineTitle": "Recall is offline",
+        "offline": "Reconnect to search your private reading records.",
+        "error": "Recall could not complete this request. Try again shortly."
+      }
+    },
     "bookDiscovery": {
       "eyebrow": "Find your next book",
       "title": "Start a new reading journey",

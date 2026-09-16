@@ -3,6 +3,9 @@ import { z } from "zod";
 import {
   getConsent,
   invokeProductRpc,
+  deleteRecallHistory,
+  listBookRecallHistory,
+  listBookRecallHistoryPage,
   listGlobalRecallHistory,
   listRecallHistory,
 } from "./adapters";
@@ -17,9 +20,11 @@ const generatedAt = "2026-09-14T00:00:00.000Z";
 function makeQuery(data: unknown, error: unknown = null) {
   const query = {
     select: vi.fn(() => query),
+    delete: vi.fn(() => query),
     eq: vi.fn(() => query),
     order: vi.fn(() => query),
     limit: vi.fn(() => query),
+    range: vi.fn(() => query),
     is: vi.fn(() => query),
     maybeSingle: vi.fn().mockResolvedValue({ data, error }),
     then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data, error }).then(resolve),
@@ -91,6 +96,57 @@ describe("typed Supabase table and RPC adapters", () => {
     expect(result).toMatchObject({ ok: true, value: [{ query: "What did I save globally?" }] });
     expect(query.eq).toHaveBeenCalledWith("user_id", userId);
     expect(query.is).toHaveBeenCalledWith("book_id", null);
+  });
+
+  it("limits book Recall history to the verified owner and requested book", async () => {
+    const query = makeQuery([{
+      id: "60000000-0000-4000-8000-000000000006",
+      book_id: bookId,
+      query: "What did I save in this book?",
+      answer: "A book answer",
+      sources: [],
+      created_at: generatedAt,
+    }]);
+    const { supabase } = makeSupabase(query);
+    const result = await listBookRecallHistory(bookId, { limit: 10, factory: factoryFor(supabase) });
+    expect(result).toMatchObject({ ok: true, value: [{ query: "What did I save in this book?" }] });
+    expect(query.eq).toHaveBeenCalledWith("user_id", userId);
+    expect(query.eq).toHaveBeenCalledWith("book_id", bookId);
+  });
+
+  it("deletes Recall history idempotently inside the verified owner scope", async () => {
+    const query = makeQuery([]);
+    const { supabase } = makeSupabase(query);
+    const result = await deleteRecallHistory("60000000-0000-4000-8000-000000000006", { factory: factoryFor(supabase) });
+    expect(result).toMatchObject({ ok: true, value: { deleted: true } });
+    expect(query.delete).toHaveBeenCalledTimes(1);
+    expect(query.eq).toHaveBeenCalledWith("user_id", userId);
+  });
+
+  it("returns a typed book history page with a stable next cursor", async () => {
+    const query = makeQuery([
+      {
+        id: "60000000-0000-4000-8000-000000000006",
+        book_id: bookId,
+        query: "first",
+        answer: "First answer",
+        sources: [],
+        created_at: generatedAt,
+      },
+      {
+        id: "60000000-0000-4000-8000-000000000007",
+        book_id: bookId,
+        query: "second",
+        answer: "Second answer",
+        sources: [],
+        created_at: "2026-09-13T00:00:00.000Z",
+      },
+    ]);
+    const { supabase } = makeSupabase(query);
+    const result = await listBookRecallHistoryPage(bookId, { limit: 1, factory: factoryFor(supabase) });
+    expect(result).toMatchObject({ ok: true, value: { history: [{ query: "first" }], pageInfo: { nextCursor: "1", hasMore: true } } });
+    expect(query.range).toHaveBeenCalledWith(0, 1);
+    expect(query.eq).toHaveBeenCalledWith("book_id", bookId);
   });
 
   it("validates RPC output and rejects caller-selected ownership parameters", async () => {

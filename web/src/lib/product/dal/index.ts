@@ -52,6 +52,7 @@ export {
 export {
   deleteOwnedBookImage,
   deleteOwnedBookImages,
+  getOwnedBookImageWithSignedUrl,
   listOwnedBookImagesWithSignedUrls,
   retryOwnedBookImageOcr,
   updateOwnedBookImageManualText,

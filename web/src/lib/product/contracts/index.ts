@@ -14,5 +14,6 @@ export * from "./notes-highlights";
 export * from "./operations";
 export * from "./progress-ui";
 export * from "./review-share";
+export * from "./recall";
 export * from "./routes";
 export * from "./timer";

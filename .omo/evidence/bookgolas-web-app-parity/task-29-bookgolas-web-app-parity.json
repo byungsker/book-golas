@@ -1,0 +1,66 @@
+{
+  "issue": 441,
+  "title": "[Bookgolas Web Parity 29] Implement global/per-book AI Recall, history and sources",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-441-recall",
+  "base_revision": "9525b774d830cc392341e58732cacdf46382035a",
+  "red": {
+    "command": "npm run test:recall",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:recall."
+  },
+  "green": {
+    "result": "PASS",
+    "commands": [
+      "npm run test:recall",
+      "npm run test:recall:negative",
+      "npm run typecheck",
+      "npm run lint -- --no-cache",
+      "npm run build",
+      "npm test",
+      "npm run test:library",
+      "npm run test:library:negative"
+    ],
+    "details": [
+      "Recall acceptance passed 5 Vitest files and 23 tests, including strict contracts, fixture boundaries, route responses, owner/book filters, pagination and signed-image DAL verification.",
+      "All 8 Recall negative fixtures passed: unauthorized, consent, quota, provider, offline, empty, foreign and signed-image.",
+      "Full regression passed 61 Vitest files and 341 tests, parity 20 routes/53 overlays/8 capabilities, 59 parity negative fixtures and the existing BLDS/UI/progress/timer/notes contract suites.",
+      "Library contract and foreign-private-data negative regression passed 20 unit tests plus both static checks.",
+      "Lint and typecheck passed; lint emitted 3 advisory Next image warnings and 0 errors. The production build passed and registered both Recall API routes."
+    ]
+  },
+  "surface": {
+    "result": "PASS",
+    "runtime": "Playwright production webServer with Next build/start and credential-free loopback fixtures",
+    "commands": [
+      "npx playwright test tests/e2e/recall.spec.ts --project=chromium --grep \"global|book|source|history\"",
+      "npx playwright test tests/e2e/recall.spec.ts --project=chromium --grep \"consent|quota|foreign|empty\"",
+      "npx playwright test tests/e2e/library.spec.ts --project=chromium"
+    ],
+    "details": [
+      "Recall happy/source/history suite passed 3 Chromium tests, including global and book search, grouped source expansion, copy feedback, source detail, signed image navigation and idempotent deletion.",
+      "Recall failure suite passed 1 Chromium test covering consent, quota, foreign privacy, empty, provider, offline and unauthorized states.",
+      "The required screenshot was captured at .omo/evidence/bookgolas-web-app-parity/task-29-bookgolas-web-app-parity.png and visually inspected at desktop resolution."
+    ],
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-29-bookgolas-web-app-parity.png"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-29-CLEANUP.log",
+    "details": [
+      "git diff --check passed.",
+      "Historical task-17 screenshots overwritten by the library regression were restored before delivery.",
+      "No Playwright, Next server or OAuth fixture process remained after browser verification.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not modified and no child agents remained running."
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-29-review.md",
+    "reviewer": "manual code review",
+    "blocking_findings": [],
+    "known_workflow_blocker": ".omo/plans/bookgolas-web-app-parity.md is absent from the clean checkout; the plan footer is retained in the contract and PR body."
+  }
+}
