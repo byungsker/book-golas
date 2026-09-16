@@ -26,8 +26,12 @@ serve(async (req: Request) => {
     const { user } = await requireUser(req);
     const body = await parseJsonBody(req);
     const suppliedUserId = requireString(body, "userId", 80) ?? "";
+    const locale = body.locale === undefined ? "ko" : requireString(body, "locale", 8);
     if (suppliedUserId !== user.id) {
       throw new ContractError(403, "cross_user_access", "userId does not match authenticated user");
+    }
+    if (locale !== "ko" && locale !== "en") {
+      throw new ContractError(400, "invalid_request", "locale must be ko or en");
     }
 
     const serviceClient = createServiceClient();
@@ -38,7 +42,7 @@ serve(async (req: Request) => {
     const patternCollector = new PatternCollector(serviceClient);
     const insightService = new InsightService(serviceClient);
     const patterns = await patternCollector.collect(user.id);
-    const insights = await insightService.generate(user.id, patterns);
+    const insights = await insightService.generate(user.id, patterns, locale);
     const response: ReadingInsightResponse = { success: true, insights };
     return jsonResponse(response as unknown as Record<string, unknown>, req);
   } catch (error) {

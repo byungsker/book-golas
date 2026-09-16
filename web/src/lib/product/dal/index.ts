@@ -38,6 +38,15 @@ export {
 export { resolveProductSession, type ProductClientFactory, type ProductSession } from "./context";
 export { getBook, listBooks, type BookListData } from "./reads";
 export {
+  isAiArtifactKind,
+  readAiArtifact,
+  readMindMapArtifact,
+  readReadingInsightsArtifact,
+  readRecommendationsArtifact,
+  type AiArtifactRead,
+  type AiArtifactTableOptions,
+} from "./ai-artifacts";
+export {
   listOwnedReadingRecords,
   type ReadingRecordListData,
   type ReadingRecordListRequest,

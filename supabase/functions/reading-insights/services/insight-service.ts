@@ -92,13 +92,15 @@ export class InsightService {
 - 3-5개의 인사이트 생성
 - 구체적 수치 포함 (예: "작년 대비 30% 증가")
 - 이전 인사이트와 연결 (있을 경우)
+- {localeInstruction}
 - JSON만 출력
     `);
   }
 
   async generate(
     userId: string,
-    patterns: ReadingPatterns
+    patterns: ReadingPatterns,
+    locale: "ko" | "en" = "ko",
   ): Promise<ReadingInsight[]> {
     const canGenerate = await this.checkRateLimit(userId);
     if (!canGenerate) {
@@ -118,6 +120,7 @@ export class InsightService {
       highlightStats: this.formatHighlightStats(patterns),
       yearOverYear: this.formatYearOverYear(patterns),
       memory: memory || "(이전 인사이트 없음)",
+      localeInstruction: locale === "en" ? "Write all titles and descriptions in English." : "모든 제목과 설명을 한국어로 작성하세요.",
     });
     assertProviderInputSize(formattedPrompt);
 

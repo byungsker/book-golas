@@ -120,6 +120,18 @@ export type ConsumerRouteFixture =
   | "charts-goals-quota"
   | "charts-goals-stale"
   | "charts-goals-unauthorized"
+  | "ai-artifacts-consent"
+  | "ai-artifacts-empty"
+  | "ai-artifacts-expired"
+  | "ai-artifacts-foreign"
+  | "ai-artifacts-happy"
+  | "ai-artifacts-missing"
+  | "ai-artifacts-offline"
+  | "ai-artifacts-provider"
+  | "ai-artifacts-quota"
+  | "ai-artifacts-rate-limit"
+  | "ai-artifacts-source-changed"
+  | "ai-artifacts-unauthorized"
   | "ai-consent-budget"
   | "ai-consent-configuration"
   | "ai-consent-concurrency"
@@ -313,6 +325,18 @@ export function getConsumerRouteFixture(
     "charts-goals-quota",
     "charts-goals-stale",
     "charts-goals-unauthorized",
+    "ai-artifacts-consent",
+    "ai-artifacts-empty",
+    "ai-artifacts-expired",
+    "ai-artifacts-foreign",
+    "ai-artifacts-happy",
+    "ai-artifacts-missing",
+    "ai-artifacts-offline",
+    "ai-artifacts-provider",
+    "ai-artifacts-quota",
+    "ai-artifacts-rate-limit",
+    "ai-artifacts-source-changed",
+    "ai-artifacts-unauthorized",
     "ai-consent-budget",
     "ai-consent-configuration",
     "ai-consent-concurrency",
