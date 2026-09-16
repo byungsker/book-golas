@@ -10,6 +10,7 @@ import {
   AccountAvatarResponseSchema,
   AccountProfileUpdateRequestSchema,
   AccountSettingsResponseSchema,
+  DeleteAccountResultSchema,
   type AccountSettingsResponse,
 } from "@/lib/product/contracts";
 import {
@@ -22,6 +23,10 @@ import {
 } from "@/components/consumer/blab-primitives";
 import { SignOutButton } from "@/components/consumer/sign-out-button";
 import { getPasswordValidationError, getNicknameValidationError } from "@/lib/consumer/auth";
+import {
+  clearAccountDeletionClientState,
+  isAccountDeletionConfirmationValid,
+} from "@/lib/consumer/account-deletion";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import { supabase } from "@/lib/supabase";
 import {
@@ -113,6 +118,12 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordSaved, setPasswordSaved] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [requiresPassword, setRequiresPassword] = useState(true);
 
   const load = useCallback(async () => {
     setState("loading");
@@ -145,6 +156,31 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       : themeFromDocument();
     setTheme(nextTheme);
     applyTheme(nextTheme);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    async function loadAuthMethod() {
+      if (fixtureFromCookie()?.startsWith("account-deletion-")) {
+        setRequiresPassword(true);
+        return;
+      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!active) return;
+        const providers = [
+          ...(user?.identities ?? []).map((identity) => identity.provider),
+          typeof user?.app_metadata?.provider === "string" ? user.app_metadata.provider : null,
+        ];
+        setRequiresPassword(providers.includes("email") || providers.includes("password"));
+      } catch {
+        if (active) setRequiresPassword(true);
+      }
+    }
+    void loadAuthMethod();
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -272,6 +308,61 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
     }
   }
 
+  async function deleteAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setDeleteError(null);
+    const expected = t("deleteConfirmationWord");
+    if (!isAccountDeletionConfirmationValid(deleteConfirmation, expected)) {
+      setDeleteError(t("deleteConfirmationRequired"));
+      return;
+    }
+    if (requiresPassword && !deletePassword) {
+      setDeleteError(t("deletePasswordRequired"));
+      return;
+    }
+
+    setDeletingAccount(true);
+    try {
+      const fixture = fixtureFromCookie();
+      const response = await fetch("/api/consumer/account/deletion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          confirmation: true,
+          confirmationText: expected,
+          ...(requiresPassword ? { currentPassword: deletePassword } : {}),
+        }),
+      });
+      const payload = await readJson(response);
+      if (!response.ok) throw errorFromResponse(response.status, payload);
+      const parsed = DeleteAccountResultSchema.safeParse(payload);
+      if (!parsed.success) throw new Error("The account deletion response is malformed.");
+      if (!fixture?.startsWith("account-deletion-")) {
+        try {
+          await supabase.auth.signOut();
+        } catch {}
+      }
+      clearAccountDeletionClientState();
+      window.location.assign(`/${locale}/account-deleted`);
+    } catch (caught) {
+      const error = (caught instanceof Error ? caught : new Error("The account deletion request failed.")) as RequestError;
+      if (error.code === "unauthorized") setDeleteError(t("deleteReauthError"));
+      else if (error.code === "offline" || typeof navigator !== "undefined" && !navigator.onLine) setDeleteError(t("deleteOffline"));
+      else setDeleteError(t("deleteError"));
+    } finally {
+      setDeletingAccount(false);
+    }
+  }
+
+  function closeDeleteDialog() {
+    if (deletingAccount) return;
+    setDeleteOpen(false);
+    setDeleteConfirmation("");
+    setDeletePassword("");
+    setDeleteError(null);
+  }
+
   function confirmLanguage() {
     if (!languageToConfirm) return;
     router.push(`/${languageToConfirm}/account`);
@@ -387,6 +478,25 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       </ConsumerCard>
 
       <ConsumerCard>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-rose-200">{t("deleteTitle")}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("deleteDescription")}</p>
+          </div>
+          <ConsumerButton
+            type="button"
+            variant="secondary"
+            text={t("deleteOpen")}
+            onClick={() => {
+              setDeleteError(null);
+              setDeleteOpen(true);
+            }}
+            data-testid="account-delete-open"
+          />
+        </div>
+      </ConsumerCard>
+
+      <ConsumerCard>
         <div data-testid="account-sign-out"><SignOutButton locale={locale} /></div>
       </ConsumerCard>
 
@@ -409,6 +519,45 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
             <ConsumerTextField id="account-confirm-password" data-testid="account-confirm-password" label={t("confirmPassword")} obscureText autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required />
             {passwordError ? <p role="alert" className="text-sm text-rose-200" data-testid="account-password-error">{passwordError}</p> : null}
             <DialogFooter><DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("cancel")} /></DialogClose><ConsumerButton type="submit" variant="primary" text={t("passwordSave")} loading={savingPassword} loadingLabel={t("saving")} data-testid="account-password-save" /></DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteOpen} onOpenChange={(open) => { if (!open) closeDeleteDialog(); }}>
+        <DialogContent className="border-rose-400/40 bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-delete-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-rose-200">{t("deleteDialogTitle")}</DialogTitle>
+            <DialogDescription>{t("deleteDialogDescription")}</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(event) => void deleteAccount(event)} noValidate className="grid gap-4" data-testid="account-delete-form">
+            {requiresPassword ? (
+              <ConsumerTextField
+                id="account-delete-password"
+                data-testid="account-delete-password"
+                label={t("deletePasswordLabel")}
+                hintText={t("deletePasswordHint")}
+                obscureText
+                autoComplete="current-password"
+                value={deletePassword}
+                onChange={(event) => setDeletePassword(event.target.value)}
+                required
+              />
+            ) : null}
+            <ConsumerTextField
+              id="account-delete-confirmation"
+              data-testid="account-delete-confirmation"
+              label={t("deleteConfirmationLabel")}
+              hintText={t("deleteConfirmationHint")}
+              autoComplete="off"
+              value={deleteConfirmation}
+              onChange={(event) => setDeleteConfirmation(event.target.value)}
+              required
+            />
+            {deleteError ? <p role="alert" className="text-sm text-rose-200" data-testid="account-delete-error">{deleteError}</p> : null}
+            <DialogFooter>
+              <ConsumerButton type="button" variant="secondary" text={t("deleteCancel")} onClick={closeDeleteDialog} data-testid="account-delete-cancel" />
+              <ConsumerButton type="submit" variant="secondary" text={deletingAccount ? t("deleteWorking") : t("deleteConfirm")} loading={deletingAccount} loadingLabel={t("deleteWorking")} data-testid="account-delete-confirm" />
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

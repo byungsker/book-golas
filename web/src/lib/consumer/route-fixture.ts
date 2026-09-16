@@ -145,6 +145,13 @@ export type ConsumerRouteFixture =
   | "account-settings-quota"
   | "account-settings-subscription-disabled"
   | "account-settings-unauthorized"
+  | "account-deletion-cancel-or-retry"
+  | "account-deletion-consent"
+  | "account-deletion-error"
+  | "account-deletion-offline"
+  | "account-deletion-quota"
+  | "account-deletion-success"
+  | "account-deletion-unauthorized"
   | "web-push-consent"
   | "web-push-denied"
   | "web-push-error"
@@ -388,6 +395,13 @@ export function getConsumerRouteFixture(
     "account-settings-quota",
     "account-settings-subscription-disabled",
     "account-settings-unauthorized",
+    "account-deletion-cancel-or-retry",
+    "account-deletion-consent",
+    "account-deletion-error",
+    "account-deletion-offline",
+    "account-deletion-quota",
+    "account-deletion-success",
+    "account-deletion-unauthorized",
     "web-push-consent",
     "web-push-denied",
     "web-push-error",

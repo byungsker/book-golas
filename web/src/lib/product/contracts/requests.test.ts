@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  AccountDeletionRequestSchema,
   AuthRequestSchema,
   BookListRequestSchema,
   BookSearchRequestSchema,
@@ -58,6 +59,7 @@ const requestFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
   ["consent", ConsentUpdateRequestSchema, { kind: "ai", status: "granted", version: "2026-01" }],
   ["notification-settings", NotificationSettingsUpdateRequestSchema, { dailyReminderEnabled: false }],
   ["export", ExportReadingDataRequestSchema, { year: 2026, email: "reader@example.com", format: "json", includeImages: true }],
+  ["account-deletion", AccountDeletionRequestSchema, { confirmation: true, confirmationText: "DELETE", currentPassword: "current-password" }],
   ["delete-account", DeleteAccountRequestSchema, { confirmation: true }],
 ];
 

@@ -33,7 +33,7 @@ function fixtureFor(request: NextRequest): string | null {
 }
 
 function isAccountSettingsFixture(fixture: string | null): boolean {
-  return fixture?.startsWith("account-settings-") || fixture?.startsWith("export-") || false;
+  return fixture?.startsWith("account-settings-") || fixture?.startsWith("account-deletion-") || fixture?.startsWith("export-") || false;
 }
 
 function hasCallerIdentity(value: unknown): boolean {
