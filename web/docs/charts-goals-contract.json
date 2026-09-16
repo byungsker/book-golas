@@ -1,0 +1,58 @@
+{
+  "issue": 440,
+  "task": 27,
+  "parent": 412,
+  "wave": 5,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "timeZone": "Asia/Seoul",
+  "native": {
+    "route": "reading-stats",
+    "sourceFiles": [
+      "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart",
+      "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart",
+      "app/lib/data/services/reading_progress_service.dart",
+      "app/lib/data/services/reading_goal_service.dart"
+    ],
+    "tabs": ["overview", "analysis", "activity"],
+    "periods": ["annual", "monthly", "weekly", "custom"],
+    "statusFilters": ["all", "reading", "completed"],
+    "metrics": ["completion-rate", "streak", "heatmap", "genre-count", "monthly-completions", "daily-pages", "daily-seconds", "annual-goal"],
+    "semantics": {
+      "chartPages": "For each period and book, keep the maximum recorded page, then sum books.",
+      "pagesRead": "For heatmap and daily activity, sum max(0, page - previous_page).",
+      "readingSeconds": "Sum reading_sessions.duration_seconds by started_at in KST.",
+      "completedBooks": "Count owned, non-deleted books where status=completed and updated_at belongs to the selected year.",
+      "genre": "Count completed books by the first segment before >; empty values are Uncategorized.",
+      "goal": "Read the owner-scoped reading_goals row and calculate progress from completed books in the selected year."
+    }
+  },
+  "web": {
+    "route": "/{locale}/stats",
+    "component": "src/components/consumer/reading-analytics-client.tsx",
+    "contract": "src/lib/product/contracts/charts-goals.ts",
+    "query": "src/lib/consumer/queries.ts:fetchOwnedReadingAnalyticsData",
+    "goalMutation": "/api/consumer/charts-goals",
+    "browserDisposition": "browser-equivalent",
+    "sourceTables": ["books", "reading_progress_history", "reading_sessions", "reading_goals"],
+    "ownerScope": ["books.user_id", "reading_progress_history.user_id", "reading_sessions.user_id", "reading_goals.user_id"],
+    "activeBookScope": "books.deleted_at IS NULL"
+  },
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "stale", "invalid-range", "foreign", "deleted"],
+  "operations": ["select-tab", "select-period", "navigate-period", "select-status", "choose-custom-range", "save-goal", "refresh-after-goal", "share-card", "clipboard-fallback", "download-fallback", "owner-scope", "kst-boundary"],
+  "fixtures": ["charts-goals-happy", "charts-goals-empty", "charts-goals-stale", "charts-goals-invalid-range", "charts-goals-foreign", "charts-goals-deleted", "charts-goals-unauthorized", "charts-goals-consent", "charts-goals-quota", "charts-goals-offline", "charts-goals-network"],
+  "nativeOnly": {
+    "ios-widget": "explicitly unavailable on Web",
+    "siri-app-shortcuts": "explicitly unavailable on Web",
+    "native-push": "browser notification equivalent remains a separate capability",
+    "camera": "camera/OCR remains a separate browser capability",
+    "share-sheet": "Web Share API with clipboard/download fallback",
+    "subscription": "native RevenueCat billing remains disabled on Web"
+  },
+  "acceptance": {
+    "command": "npm run test:charts-goals",
+    "negativeCommand": "npm run test:charts-goals:negative",
+    "happyBrowser": "npx playwright test tests/e2e/charts-goals.spec.ts --project=chromium --grep \"metrics|goal|share\"",
+    "failureBrowser": "npx playwright test tests/e2e/charts-goals.spec.ts --project=chromium --grep \"empty|invalid-range|stale\""
+  },
+  "evidenceStages": ["RED", "GREEN", "SURFACE", "CLEANUP"]
+}
