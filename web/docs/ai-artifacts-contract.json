@@ -1,0 +1,70 @@
+{
+  "issue": 442,
+  "task": 30,
+  "parentIssue": 412,
+  "wave": 5,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "locales": ["ko", "en"],
+  "artifacts": ["mindmap", "insights", "recommendations"],
+  "states": ["loading", "missing", "expired", "empty", "error", "unauthorized", "consent_required", "insufficient_data", "rate_limit_exceeded", "quota_exceeded", "provider_timeout", "provider_error", "configuration_error", "offline"],
+  "invariants": [
+    "owner_is_derived_from_verified_session",
+    "caller_identity_fields_are_rejected",
+    "request_key_is_scoped_to_user_artifact_and_locale",
+    "missing_or_expired_cache_generates_at_most_once_per_request_key",
+    "source_changes_invalidate_cached_artifacts",
+    "locale_is_forwarded_to_insight_and_recommendation_generation",
+    "consent_quota_rate_limit_provider_and_offline_states_are_distinct",
+    "operational_limits_do_not_render_billing_walls"
+  ],
+  "nativeReferences": [
+    "app/lib/ui/book_detail/widgets/mindmap_screen.dart",
+    "app/lib/data/services/note_structure_service.dart",
+    "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart",
+    "app/lib/data/services/reading_insights_service.dart",
+    "app/lib/ui/reading_start/widgets/reading_start_screen.dart",
+    "app/lib/data/services/recommendation_service.dart",
+    "supabase/functions/structure-notes/index.ts",
+    "supabase/functions/reading-insights/index.ts",
+    "supabase/functions/recommend-next-books/index.ts"
+  ],
+  "parityRows": [
+    {
+      "id": "mindmap",
+      "nativeFlutter": "MindmapScreen",
+      "nativeActions": ["load cached structure", "regenerate", "inspect cluster", "inspect node", "inspect connection"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+      "webRoute": "/{locale}/books/{bookId}/mind-map",
+      "webComponent": "AiArtifactsClient(kind=mindmap)",
+      "browserDisposition": "owned route with a typed cache read, generated graph cards and retry action"
+    },
+    {
+      "id": "insights",
+      "nativeFlutter": "ReadingChartScreen + AiInsightCard",
+      "nativeActions": ["load memory", "generate insight", "clear memory", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+      "webRoute": "/{locale}/reading-insights",
+      "webComponent": "AiArtifactsClient(kind=insights)",
+      "browserDisposition": "localized page with owner scoped cached cards, generation and operational state notices"
+    },
+    {
+      "id": "recommendations",
+      "nativeFlutter": "ReadingStartScreen recommendation section",
+      "nativeActions": ["load cache", "generate recommendations", "open action sheet", "view details", "start reading"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+      "webRoute": "/{locale}/book-list",
+      "webComponent": "AiArtifactsClient(kind=recommendations)",
+      "browserDisposition": "localized recommendation cards with a browser dialog and book search handoff"
+    }
+  ],
+  "nativeOnly": [
+    { "feature": "iOS widget", "webDisposition": "native-only; Web provides a route link to current reading data" },
+    { "feature": "Siri/App Shortcuts", "webDisposition": "native-only; no browser voice intent is claimed" },
+    { "feature": "native push", "webDisposition": "native-only; Web shows in-page operational states" },
+    { "feature": "camera capture", "webDisposition": "handled by the separate browser scan/OCR boundary" },
+    { "feature": "share sheet", "webDisposition": "native-only; Web uses browser dialog, clipboard or download where applicable" },
+    { "feature": "subscription and in-app purchase", "webDisposition": "native-only; no payment control or billing wall is rendered" }
+  ]
+}

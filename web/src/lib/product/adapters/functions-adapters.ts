@@ -272,14 +272,18 @@ async function normalizeInsights(
 }
 
 export async function generateReadingInsights(
-  options: AdapterOptions = {},
+  localeOrOptions: "ko" | "en" | AdapterOptions = "ko",
+  maybeOptions: AdapterOptions = {},
 ): Promise<ProductResult<Insight[]>> {
+  const locale = typeof localeOrOptions === "string" ? localeOrOptions : "ko";
+  const options = typeof localeOrOptions === "string" ? maybeOptions : localeOrOptions;
+  if (locale !== "ko" && locale !== "en") return failure(validationError());
   const session = await resolveProductSession(options.factory);
   if (!session.ok) return failure(session.error);
   const wire = await invokeProductFunctionForSession(
     session.value,
     "reading-insights",
-    { userId: session.value.userId },
+    { userId: session.value.userId, locale },
     ReadingInsightsResponseSchema,
     options,
   );

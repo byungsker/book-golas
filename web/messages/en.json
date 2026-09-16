@@ -797,6 +797,60 @@
         "openSettings": "Open account settings"
       }
     },
+    "aiArtifacts": {
+      "eyebrow": "AI reading artifacts",
+      "states": {
+        "loading": "Loading your reading data...",
+        "generating": "Generating a private artifact...",
+        "emptyTitle": "Nothing to show yet",
+        "emptyDescription": "Save more reading records or finish a book, then try again.",
+        "retry": "Try again",
+        "regenerate": "Generate again",
+        "signIn": "Sign in",
+        "openSettings": "Open AI consent settings"
+      },
+      "mindmap": {
+        "title": "Mind map",
+        "description": "See how your highlights, memos and photo text connect around this book.",
+        "back": "Back to book",
+        "connections": "Connections",
+        "page": "Page {page}",
+        "nodeTypes": {
+          "highlight": "Highlight",
+          "note": "Memo",
+          "photo_ocr": "Photo text"
+        }
+      },
+      "insights": {
+        "eyebrow": "Reading insights",
+        "title": "Your reading patterns",
+        "description": "Review cached and newly generated patterns from your own reading history.",
+        "categories": {
+          "pattern": "Pattern",
+          "milestone": "Milestone",
+          "reflection": "Reflection"
+        }
+      },
+      "recommendations": {
+        "eyebrow": "Next reading",
+        "title": "Books chosen for your rhythm",
+        "description": "Recommendations use your completed reading history and remain available without a billing wall.",
+        "viewDetails": "Find this book",
+        "startReading": "Start reading"
+      },
+      "errors": {
+        "unauthorized": "Sign in to view your private reading artifact.",
+        "consent_required": "AI consent is required before reading data can be sent to the provider.",
+        "insufficient_data": "More reading records are needed before this artifact can be generated.",
+        "rate_limit_exceeded": "This artifact was generated recently. Try again after the operational limit resets.",
+        "quota_exceeded": "The operational AI quota has been reached for this period.",
+        "provider_timeout": "The AI provider took too long to respond. Try again.",
+        "provider_error": "The AI provider is temporarily unavailable.",
+        "configuration_error": "The AI service is not configured right now.",
+        "offline": "You are offline. Reconnect before loading this artifact.",
+        "generic": "We could not load this artifact. Try again."
+      }
+    },
     "bookDetail": {
       "eyebrow": "Book detail",
       "status": {

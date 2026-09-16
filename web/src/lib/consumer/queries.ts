@@ -151,6 +151,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("ai-artifacts-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   if (routeFixture?.startsWith("ai-consent-")) {
     return {
       supabase: null,
@@ -405,6 +413,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
           code: detail.error.code === "not_found" ? "not_found" : detail.error.code === "unauthorized" ? "unauthenticated" : "unavailable",
           authenticated: true,
         };
+  }
+  if (routeFixture?.startsWith("ai-artifacts-")) {
+    const detail = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return detail.ok
+      ? { book: detail.value, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
   }
 
   if (context.unavailable || !context.supabase) {

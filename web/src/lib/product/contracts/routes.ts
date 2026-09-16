@@ -13,6 +13,7 @@ export const consumerRoutes = {
   onboarding: (locale: Locale) => `/${localeSegment(locale)}/onboarding`,
   library: (locale: Locale) => `/${localeSegment(locale)}/library`,
   stats: (locale: Locale) => `/${localeSegment(locale)}/stats`,
+  readingInsights: (locale: Locale) => `/${localeSegment(locale)}/reading-insights`,
   calendar: (locale: Locale) => `/${localeSegment(locale)}/calendar`,
   account: (locale: Locale) => `/${localeSegment(locale)}/account`,
   bookList: (locale: Locale) => `/${localeSegment(locale)}/book-list`,
