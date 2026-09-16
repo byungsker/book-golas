@@ -3,6 +3,7 @@ import { BookIdSchema, ImageIdSchema } from "@/lib/product/contracts";
 import { providerError, success } from "./dal/errors";
 import {
   deleteOwnedBookImages,
+  getOwnedBookImageWithSignedUrl,
   retryOwnedBookImageOcr,
   updateOwnedBookImageManualText,
   uploadOwnedBookImage,
@@ -197,6 +198,19 @@ describe("private book image and OCR DAL", () => {
     expect(result).toMatchObject({ ok: false, error: { code: "not_found", status: 404 } });
     expect(uploadBookImage).not.toHaveBeenCalled();
     expect(setup.from).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a signed URL only after verifying the owned book and image", async () => {
+    const setup = makeSupabase([
+      makeQuery({ data: { id: bookId, total_pages: 240 }, error: null }),
+      makeQuery({ data: imageRow(), error: null }),
+    ]);
+
+    const result = await getOwnedBookImageWithSignedUrl(bookId, imageId, factoryFor(setup.supabase));
+
+    expect(result).toMatchObject({ ok: true, value: { id: imageId, bookId, signedUrl: `https://storage.example.invalid/sign/${imageId}.png` } });
+    expect(getBookImageUrl).toHaveBeenCalledWith(bookId, `${userId}/${bookId}/${imageId}.png`, {}, expect.any(Function));
+    expect(setup.from).toHaveBeenCalledTimes(2);
   });
 
   it("deletes database rows and both recorded and orphaned private objects", async () => {

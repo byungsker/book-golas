@@ -140,6 +140,15 @@ export type ConsumerRouteFixture =
   | "ai-consent-timeout"
   | "ai-consent-unknown"
   | "ai-consent-unauthorized"
+  | "recall-consent"
+  | "recall-empty"
+  | "recall-foreign"
+  | "recall-happy"
+  | "recall-image"
+  | "recall-offline"
+  | "recall-provider"
+  | "recall-quota"
+  | "recall-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -324,6 +333,15 @@ export function getConsumerRouteFixture(
     "ai-consent-timeout",
     "ai-consent-unknown",
     "ai-consent-unauthorized",
+    "recall-consent",
+    "recall-empty",
+    "recall-foreign",
+    "recall-happy",
+    "recall-image",
+    "recall-offline",
+    "recall-provider",
+    "recall-quota",
+    "recall-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

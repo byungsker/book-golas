@@ -159,6 +159,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("recall-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-4000-8000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   if (routeFixture?.startsWith("timer-")) {
     return {
       supabase: null,
@@ -357,6 +365,12 @@ export async function fetchOwnedBookDetail(bookId: string): Promise<{
       };
     }
     return { book: result.value, code: "ok", authenticated: true };
+  }
+  if (routeFixture?.startsWith("recall-")) {
+    const result = getBookDetailFixture({ fixture: "book-detail-reading", bookId });
+    return result.ok
+      ? { book: result.value, code: "ok", authenticated: true }
+      : { book: null, code: "not_found", authenticated: true };
   }
   if (routeFixture?.startsWith("progress-")) {
     const snapshot = getProgressFixtureSnapshot({ fixture: routeFixture, bookId });

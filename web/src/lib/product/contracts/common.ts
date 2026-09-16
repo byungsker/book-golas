@@ -13,6 +13,7 @@ export const IsoDateSchema = z.string().datetime({ offset: true });
 export type UserId = z.infer<typeof UserIdSchema>;
 export type BookId = z.infer<typeof BookIdSchema>;
 export type ImageId = z.infer<typeof ImageIdSchema>;
+export type RecordId = z.infer<typeof RecordIdSchema>;
 export const paginationCursorMaxLength = 4096;
 
 export const PaginationSchema = z

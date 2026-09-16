@@ -10,6 +10,7 @@ const paths = {
   page: path.join(root, "src/app/[locale]/(consumer)/library/page.tsx"),
   api: path.join(root, "src/app/api/consumer/library/route.ts"),
   component: path.join(root, "src/components/consumer/library-client.tsx"),
+  recall: path.join(root, "src/components/consumer/recall-client.tsx"),
   library: path.join(root, "src/lib/consumer/library.ts"),
   fixtures: path.join(root, "src/lib/consumer/library-fixtures.ts"),
   records: path.join(root, "src/lib/product/dal/records.ts"),
@@ -48,7 +49,7 @@ requireCondition(source.api.includes("user_id") && source.api.includes("Ownershi
 requireCondition(source.api.includes("listOwnedReadingRecords") && source.api.includes("reviewOnly") && source.api.includes("Cache-Control"), "library API must use owner-scoped books/records and private caching");
 requireCondition(source.component.includes("AbortController") && source.component.includes("requestSequence") && source.component.includes("mergeById"), "library client must cancel stale requests and deduplicate pages");
 requireCondition(source.component.includes("data-testid={`library-tab-${tab}`}") && source.component.includes('role="tab"'), "library tabs must be machine-checkable");
-for (const marker of ["library-loading", "library-empty", "library-error", "library-unauthorized", "library-consent", "library-quota", "library-recall-panel"]) requireCondition(source.component.includes(marker), `library component must expose ${marker}`);
+for (const marker of ["library-loading", "library-empty", "library-error", "library-unauthorized", "library-consent", "library-quota", "library-recall-panel"]) requireCondition(source.component.includes(marker) || source.recall.includes(marker), `library component must expose ${marker}`);
 requireCondition(source.records.includes('.from("reading_content_embeddings")') && source.records.includes('.eq("user_id", session.value.userId)') && source.records.includes("created_at") && source.records.includes("id"), "reading records must use owner scope and stable cursor ordering");
 requireCondition(source.tables.includes('.eq("user_id", session.value.userId)') && source.tables.includes('.is("book_id", null)'), "global Recall history must be owner scoped and book-less");
 requireCondition(source.library.includes("groupRecordsByBook") && source.library.includes("mergeById") && source.library.includes("AbortError"), "library client helpers must preserve group and cancellation invariants");
