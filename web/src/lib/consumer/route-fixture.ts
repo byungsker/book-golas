@@ -132,6 +132,19 @@ export type ConsumerRouteFixture =
   | "ai-artifacts-rate-limit"
   | "ai-artifacts-source-changed"
   | "ai-artifacts-unauthorized"
+  | "account-settings-avatar-failure"
+  | "account-settings-consent"
+  | "account-settings-empty"
+  | "account-settings-error"
+  | "account-settings-foreign"
+  | "account-settings-happy"
+  | "account-settings-language"
+  | "account-settings-network"
+  | "account-settings-offline"
+  | "account-settings-password-failure"
+  | "account-settings-quota"
+  | "account-settings-subscription-disabled"
+  | "account-settings-unauthorized"
   | "ai-consent-budget"
   | "ai-consent-configuration"
   | "ai-consent-concurrency"
@@ -337,6 +350,19 @@ export function getConsumerRouteFixture(
     "ai-artifacts-rate-limit",
     "ai-artifacts-source-changed",
     "ai-artifacts-unauthorized",
+    "account-settings-avatar-failure",
+    "account-settings-consent",
+    "account-settings-empty",
+    "account-settings-error",
+    "account-settings-foreign",
+    "account-settings-happy",
+    "account-settings-language",
+    "account-settings-network",
+    "account-settings-offline",
+    "account-settings-password-failure",
+    "account-settings-quota",
+    "account-settings-subscription-disabled",
+    "account-settings-unauthorized",
     "ai-consent-budget",
     "ai-consent-configuration",
     "ai-consent-concurrency",
