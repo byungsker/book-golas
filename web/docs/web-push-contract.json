@@ -1,0 +1,67 @@
+{
+  "issue": 445,
+  "task": 32,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "locales": ["ko", "en"],
+  "route": "/{locale}/account/notifications",
+  "states": [
+    "loading",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "permission-required",
+    "granted",
+    "registered",
+    "denied",
+    "unsupported",
+    "foreign",
+    "registration-only",
+    "delivery-unverified"
+  ],
+  "parityRows": [
+    {
+      "nativeFlutter": "app/lib/data/services/notification_settings_service.dart",
+      "nativeActions": ["read settings", "toggle notification_enabled", "toggle daily_reminder_enabled", "toggle goal_alarm_enabled", "toggle event_nudge_enabled", "set reminder and goal times"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+      "webRoute": "/{locale}/account/notifications",
+      "webComponent": "web/src/components/consumer/web-push-settings-client.tsx",
+      "browserDisposition": "Web Push permission and subscription registration; hosted delivery remains unverified"
+    },
+    {
+      "nativeFlutter": "app/lib/data/services/fcm_service.dart",
+      "nativeActions": ["register device token", "remove device token", "open notification destination"],
+      "nativeStates": ["loading", "error", "unauthorized", "offline"],
+      "webRoute": "/api/consumer/push and /push-sw.js",
+      "webComponent": "web/src/lib/consumer/web-push.ts",
+      "browserDisposition": "Browser Push API registration with same-origin canonical detail navigation; no delivery claim"
+    },
+    {
+      "nativeFlutter": "app/lib/main.dart notification deep-link handler",
+      "nativeActions": ["resolve bookId", "open owned book detail"],
+      "nativeStates": ["unauthorized", "error", "foreign"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "web/public/push-sw.js",
+      "browserDisposition": "Accept UUID bookId only, preserve locale, let authenticated Web route enforce ownership"
+    }
+  ],
+  "nativeOnly": [
+    {"feature": "iOS widget", "nativeEvidence": "WidgetDataService and HomeWidget", "webDisposition": "unavailable; HTTPS deep links remain available"},
+    {"feature": "Siri/App Shortcuts", "nativeEvidence": "BookgolasShortcuts.swift and AppDelegate.swift", "webDisposition": "unavailable; ordinary HTTPS destinations remain available"},
+    {"feature": "native push", "nativeEvidence": "FCMService and local notification scheduling", "webDisposition": "browser registration only; hosted delivery unverified"},
+    {"feature": "camera capture", "nativeEvidence": "scanner and document scan utilities", "webDisposition": "separate browser permission and upload fallback"},
+    {"feature": "share sheet", "nativeEvidence": "BookShareService and share cards", "webDisposition": "separate Web Share API or clipboard fallback"},
+    {"feature": "subscription and in-app purchase", "nativeEvidence": "RevenueCat service", "webDisposition": "disabled on Web"}
+  ],
+  "security": {
+    "ownership": "derive user_id from the verified session",
+    "subscriptionStorage": "dedicated web_push_subscriptions table with one web row per user",
+    "publicServiceWorker": "same-origin canonical routes only; no token or credential",
+    "delivery": "registration-only / unavailable until hosted delivery is verified"
+  }
+}

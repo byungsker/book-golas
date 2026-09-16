@@ -145,6 +145,18 @@ export type ConsumerRouteFixture =
   | "account-settings-quota"
   | "account-settings-subscription-disabled"
   | "account-settings-unauthorized"
+  | "web-push-consent"
+  | "web-push-denied"
+  | "web-push-error"
+  | "web-push-foreign"
+  | "web-push-happy"
+  | "web-push-network"
+  | "web-push-offline"
+  | "web-push-provider"
+  | "web-push-quota"
+  | "web-push-registered"
+  | "web-push-unauthorized"
+  | "web-push-unsupported"
   | "ai-consent-budget"
   | "ai-consent-configuration"
   | "ai-consent-concurrency"
@@ -363,6 +375,18 @@ export function getConsumerRouteFixture(
     "account-settings-quota",
     "account-settings-subscription-disabled",
     "account-settings-unauthorized",
+    "web-push-consent",
+    "web-push-denied",
+    "web-push-error",
+    "web-push-foreign",
+    "web-push-happy",
+    "web-push-network",
+    "web-push-offline",
+    "web-push-provider",
+    "web-push-quota",
+    "web-push-registered",
+    "web-push-unauthorized",
+    "web-push-unsupported",
     "ai-consent-budget",
     "ai-consent-configuration",
     "ai-consent-concurrency",

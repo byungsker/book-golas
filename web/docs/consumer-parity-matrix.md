@@ -103,7 +103,7 @@ Reading Statistics also records the quota-gated AI insight generate and retry ac
 | --- | --- | --- | --- | --- |
 | iOS home widgets | WidgetDataService, HomeWidget and widget deep links | No Web OS widget; ordinary HTTPS deep links remain supported | unavailable | #445 |
 | Siri and App Shortcuts | BookgolasShortcuts.swift, AppDelegate.swift and Info.plist implement three native shortcuts | No Web OS shortcut; ordinary HTTPS destinations remain supported | unavailable | #416 |
-| FCM and local notifications | fcm_service.dart and notification settings | Browser Push API with permission and delivery differences | planned equivalent | #445 |
+| FCM and local notifications | fcm_service.dart and notification settings | Browser Push API registration, permission recovery and account preferences; hosted delivery is unverified | registration-only / delivery unverified | #445 |
 | Camera, barcode, document scan and OCR | scanner, document scan and OCR utilities | Browser permission plus input/upload fallback | planned equivalent | #428/#435 |
 | Native share sheet | BookShareService and share cards | Web Share API plus clipboard/download fallback | planned equivalent | #443 |
 | RevenueCat subscriptions | Native service exists; paid flag defaults off | Purchase, restore, upgrade and customer center disabled | disabled | #444 |
