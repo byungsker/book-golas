@@ -403,6 +403,117 @@
         "unknown": "Reading"
       }
     },
+    "stats": {
+      "eyebrow": "Reading patterns",
+      "title": "Reading statistics",
+      "description": "See your pages, time, streaks and completed books from server recorded activity.",
+      "timezoneLabel": "Display time zone",
+      "timezoneValue": "Asia/Seoul",
+      "share": "Share stats",
+      "shareCopied": "Stats copied to clipboard",
+      "shareDownloaded": "Stats card downloaded",
+      "shareCancelled": "Share cancelled",
+      "shareFailed": "Could not share stats",
+      "shareCardTitle": "My Bookgolas reading stats",
+      "shareCardDescription": "A private summary generated from recorded reading activity.",
+      "tabs": {
+        "label": "Reading statistics sections",
+        "overview": "Overview",
+        "analysis": "Analysis",
+        "activity": "Activity"
+      },
+      "views": {
+        "label": "Statistics period",
+        "annual": "Annual",
+        "monthly": "Monthly",
+        "weekly": "Weekly",
+        "custom": "Custom"
+      },
+      "status": {
+        "label": "Book status",
+        "all": "All",
+        "reading": "Reading",
+        "completed": "Finished"
+      },
+      "period": {
+        "previous": "Previous period",
+        "next": "Next period",
+        "chooseRange": "Choose date range",
+        "rangeLabel": "Date range",
+        "start": "Start date",
+        "end": "End date",
+        "apply": "Apply range",
+        "cancel": "Cancel"
+      },
+      "metrics": {
+        "totalPages": "Chart pages",
+        "pagesRead": "Pages read",
+        "averageDaily": "Daily average",
+        "maxDaily": "Best day",
+        "minDaily": "Lightest day",
+        "readingTime": "Reading time",
+        "activeDays": "Active days",
+        "streak": "Current streak",
+        "completionRate": "Completion rate",
+        "started": "Started",
+        "completed": "Finished",
+        "inProgress": "In progress",
+        "abandoned": "Paused"
+      },
+      "goal": {
+        "title": "Annual reading goal",
+        "set": "Set goal",
+        "edit": "Edit goal",
+        "target": "Target",
+        "completed": "Completed",
+        "remaining": "Remaining",
+        "daysLeft": "Days left",
+        "perMonth": "Books/month",
+        "onTrack": "You are on track",
+        "offTrack": "A little more reading will keep you on track",
+        "dialogTitle": "Set your {year} goal",
+        "dialogDescription": "Choose how many completed books you want to reach.",
+        "inputLabel": "Books to finish",
+        "inputPlaceholder": "For example, 24",
+        "cancel": "Cancel",
+        "save": "Save goal",
+        "saving": "Saving...",
+        "saved": "Goal saved",
+        "error": "Could not save the goal. Try again."
+      },
+      "analysis": {
+        "completionTitle": "Book status",
+        "completionDescription": "Completion uses owned, active books recorded by the app.",
+        "genreTitle": "Genres completed",
+        "genreEmpty": "No completed books with genre data yet.",
+        "monthlyTitle": "Finished books by month",
+        "month": "Month {month}",
+        "count": "{count} books"
+      },
+      "activity": {
+        "heatmapTitle": "Reading heatmap {year}",
+        "heatmapDescription": "Intensity is based on pages read from progress history.",
+        "legendLess": "Less",
+        "legendMore": "More",
+        "seriesTitle": "Recorded activity",
+        "day": "{day}",
+        "pages": "{pages} pages",
+        "minutes": "{minutes} min"
+      },
+      "emptyTitle": "No reading data yet",
+      "emptyDescription": "Record progress or finish a book in the app to build your statistics.",
+      "loading": "Loading your reading statistics...",
+      "stale": "Showing the last available statistics. Refresh when you are online.",
+      "invalidRange": "Choose an ordered date range from 2020 through today.",
+      "errorTitle": "We could not load your reading statistics",
+      "retry": "Try again",
+      "errors": {
+        "offline": "You are offline. Reconnect to load reading statistics.",
+        "consent_required": "Statistics consent is required in account settings.",
+        "quota_exceeded": "Reading history quota is unavailable right now.",
+        "unavailable": "We could not load reading statistics. Try again shortly."
+      }
+    },
     "library": {
       "eyebrow": "My reading space",
       "title": "My library",

@@ -403,6 +403,117 @@
         "unknown": "읽는 중"
       }
     },
+    "stats": {
+      "eyebrow": "독서 패턴",
+      "title": "독서 통계",
+      "description": "서버에 기록된 독서 활동으로 페이지, 시간, 스트릭과 완독 책을 확인하세요.",
+      "timezoneLabel": "표시 시간대",
+      "timezoneValue": "Asia/Seoul",
+      "share": "통계 공유",
+      "shareCopied": "통계를 클립보드에 복사했어요",
+      "shareDownloaded": "통계 카드를 다운로드했어요",
+      "shareCancelled": "공유를 취소했어요",
+      "shareFailed": "통계를 공유하지 못했어요",
+      "shareCardTitle": "나의 북골라스 독서 통계",
+      "shareCardDescription": "기록된 독서 활동으로 만든 비공개 요약입니다.",
+      "tabs": {
+        "label": "독서 통계 섹션",
+        "overview": "요약",
+        "analysis": "분석",
+        "activity": "활동"
+      },
+      "views": {
+        "label": "통계 기간",
+        "annual": "연간",
+        "monthly": "월간",
+        "weekly": "주간",
+        "custom": "직접 선택"
+      },
+      "status": {
+        "label": "책 상태",
+        "all": "전체",
+        "reading": "읽는 중",
+        "completed": "완독"
+      },
+      "period": {
+        "previous": "이전 기간",
+        "next": "다음 기간",
+        "chooseRange": "기간 선택",
+        "rangeLabel": "날짜 범위",
+        "start": "시작일",
+        "end": "종료일",
+        "apply": "기간 적용",
+        "cancel": "취소"
+      },
+      "metrics": {
+        "totalPages": "차트 페이지",
+        "pagesRead": "읽은 페이지",
+        "averageDaily": "일평균",
+        "maxDaily": "가장 많이 읽은 날",
+        "minDaily": "가장 적게 읽은 날",
+        "readingTime": "독서 시간",
+        "activeDays": "활동한 날",
+        "streak": "현재 스트릭",
+        "completionRate": "완독률",
+        "started": "시작한 책",
+        "completed": "완독",
+        "inProgress": "읽는 중",
+        "abandoned": "멈춘 책"
+      },
+      "goal": {
+        "title": "연간 독서 목표",
+        "set": "목표 설정",
+        "edit": "목표 수정",
+        "target": "목표",
+        "completed": "완독",
+        "remaining": "남은 책",
+        "daysLeft": "남은 날",
+        "perMonth": "월 목표",
+        "onTrack": "목표 흐름을 잘 지키고 있어요",
+        "offTrack": "조금 더 읽으면 목표 흐름을 따라갈 수 있어요",
+        "dialogTitle": "{year}년 목표 설정",
+        "dialogDescription": "완독하고 싶은 책 수를 선택하세요.",
+        "inputLabel": "완독할 책 수",
+        "inputPlaceholder": "예: 24",
+        "cancel": "취소",
+        "save": "목표 저장",
+        "saving": "저장 중...",
+        "saved": "목표를 저장했어요",
+        "error": "목표를 저장하지 못했어요. 다시 시도하세요."
+      },
+      "analysis": {
+        "completionTitle": "책 상태",
+        "completionDescription": "완독률은 앱에 기록된 내 소유 활성 책으로 계산합니다.",
+        "genreTitle": "완독 장르",
+        "genreEmpty": "장르가 등록된 완독 책이 아직 없어요.",
+        "monthlyTitle": "월별 완독 책",
+        "month": "{month}월",
+        "count": "{count}권"
+      },
+      "activity": {
+        "heatmapTitle": "{year}년 독서 히트맵",
+        "heatmapDescription": "진행 기록의 실제 읽은 페이지를 기준으로 강도를 표시합니다.",
+        "legendLess": "적음",
+        "legendMore": "많음",
+        "seriesTitle": "기록된 활동",
+        "day": "{day}",
+        "pages": "{pages}페이지",
+        "minutes": "{minutes}분"
+      },
+      "emptyTitle": "아직 독서 데이터가 없어요",
+      "emptyDescription": "앱에서 진행률을 기록하거나 책을 완독하면 통계가 쌓입니다.",
+      "loading": "독서 통계를 불러오는 중...",
+      "stale": "마지막으로 확인된 통계를 표시하고 있어요. 온라인에서 새로고침하세요.",
+      "invalidRange": "2020년부터 오늘까지의 날짜를 순서대로 선택하세요.",
+      "errorTitle": "독서 통계를 불러오지 못했어요",
+      "retry": "다시 시도",
+      "errors": {
+        "offline": "오프라인 상태입니다. 연결 후 독서 통계를 불러오세요.",
+        "consent_required": "계정 설정에서 통계 동의가 필요합니다.",
+        "quota_exceeded": "독서 기록 할당량을 지금 사용할 수 없어요.",
+        "unavailable": "독서 통계를 불러오지 못했어요. 잠시 후 다시 시도하세요."
+      }
+    },
     "library": {
       "eyebrow": "나의 독서 공간",
       "title": "내 서재",

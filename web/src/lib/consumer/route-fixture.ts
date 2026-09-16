@@ -107,6 +107,19 @@ export type ConsumerRouteFixture =
   | "calendar-offline"
   | "calendar-quota"
   | "calendar-unauthorized"
+  | "charts-goals-consent"
+  | "charts-goals-deleted"
+  | "charts-goals-empty"
+  | "charts-goals-error"
+  | "charts-goals-foreign"
+  | "charts-goals-goal"
+  | "charts-goals-happy"
+  | "charts-goals-invalid-range"
+  | "charts-goals-network"
+  | "charts-goals-offline"
+  | "charts-goals-quota"
+  | "charts-goals-stale"
+  | "charts-goals-unauthorized"
   | "deleted-book"
   | "expired-session"
   | "home-book-list"
@@ -258,6 +271,19 @@ export function getConsumerRouteFixture(
     "calendar-offline",
     "calendar-quota",
     "calendar-unauthorized",
+    "charts-goals-consent",
+    "charts-goals-deleted",
+    "charts-goals-empty",
+    "charts-goals-error",
+    "charts-goals-foreign",
+    "charts-goals-goal",
+    "charts-goals-happy",
+    "charts-goals-invalid-range",
+    "charts-goals-network",
+    "charts-goals-offline",
+    "charts-goals-quota",
+    "charts-goals-stale",
+    "charts-goals-unauthorized",
     "deleted-book",
     "expired-session",
     "home-book-list",

@@ -111,6 +111,23 @@ const fixtureSessions: CalendarSourceSession[] = [
   }),
 ];
 
+/**
+ * Analytics and calendar fixtures deliberately read the same source events.
+ * The stats fixture adds only book metadata (genre/attempt count) around these
+ * rows so the two consumer surfaces cannot silently drift at a timezone edge.
+ */
+export function getCalendarFixtureSources(): {
+  readonly books: readonly (typeof fixtureBooks)[number][];
+  readonly progress: readonly CalendarSourceProgress[];
+  readonly sessions: readonly CalendarSourceSession[];
+} {
+  return {
+    books: fixtureBooks,
+    progress: fixtureProgress,
+    sessions: fixtureSessions,
+  };
+}
+
 const foreignProgress = CalendarSourceProgressSchema.parse({
   id: "00000000-0000-4000-8000-000000004397",
   bookId: "00000000-0000-4000-8000-000000004398",
