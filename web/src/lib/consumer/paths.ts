@@ -2,7 +2,7 @@ export const consumerLocales = ["ko", "en"] as const;
 
 export type ConsumerLocale = (typeof consumerLocales)[number];
 
-const consumerRoutePattern = /^\/(?:auth\/(?:sign-in|sign-up|reset-password|callback)|announcements|onboarding|home|library|stats|reading-insights|calendar|account(?:\/notifications)?|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
+const consumerRoutePattern = /^\/(?:auth\/(?:sign-in|sign-up|reset-password|callback)|announcements|onboarding|home|library|stats|reading-insights|calendar|account(?:\/notifications)?|account-deleted|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
 const protectedConsumerRoutePattern = /^\/(?:announcements|onboarding|home|library|stats|reading-insights|calendar|account(?:\/notifications)?|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
 
 export function isConsumerLocale(value: string): value is ConsumerLocale {

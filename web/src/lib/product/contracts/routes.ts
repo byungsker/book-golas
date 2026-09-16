@@ -16,6 +16,7 @@ export const consumerRoutes = {
   readingInsights: (locale: Locale) => `/${localeSegment(locale)}/reading-insights`,
   calendar: (locale: Locale) => `/${localeSegment(locale)}/calendar`,
   account: (locale: Locale) => `/${localeSegment(locale)}/account`,
+  accountDeleted: (locale: Locale) => `/${localeSegment(locale)}/account-deleted`,
   bookList: (locale: Locale) => `/${localeSegment(locale)}/book-list`,
   newBook: (locale: Locale) => `/${localeSegment(locale)}/books/new`,
   book: (locale: Locale, bookId: string) => `/${localeSegment(locale)}/books/${bookIdSegment(bookId)}`,

@@ -260,6 +260,15 @@ export const ExportReadingDataRequestSchema = z
 
 export const DeleteAccountRequestSchema = z.object({ confirmation: z.literal(true) }).strict();
 
+export const deleteAccountConfirmationValues = ["DELETE", "삭제"] as const;
+export const AccountDeletionRequestSchema = z
+  .object({
+    confirmation: z.literal(true),
+    confirmationText: z.string().trim().min(1).max(32),
+    currentPassword: z.string().min(1).max(256).optional(),
+  })
+  .strict();
+
 export const ConsumerRequestSchemas = {
   auth: AuthRequestSchema,
   bookList: BookListRequestSchema,
@@ -275,6 +284,7 @@ export const ConsumerRequestSchemas = {
   consent: ConsentUpdateRequestSchema,
   notificationSettings: NotificationSettingsUpdateRequestSchema,
   exportReadingData: ExportReadingDataRequestSchema,
+  accountDeletion: AccountDeletionRequestSchema,
   deleteAccount: DeleteAccountRequestSchema,
 } as const;
 
@@ -290,4 +300,5 @@ export type ConsumerRequest = {
 }[keyof typeof ConsumerRequestSchemas];
 export type ExportReadingDataResult = z.infer<typeof ExportReadingDataResultSchema>;
 export type ExportReadingDataRequest = z.infer<typeof ExportReadingDataRequestSchema>;
+export type AccountDeletionRequest = z.infer<typeof AccountDeletionRequestSchema>;
 export type DeleteAccountResult = z.infer<typeof DeleteAccountResultSchema>;
