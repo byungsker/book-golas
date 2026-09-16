@@ -300,6 +300,11 @@
       "signOut": "Sign out",
       "signOutError": "We could not sign you out. Try again."
     },
+    "network": {
+      "offline": "You are offline. Online-only changes are not queued. Reconnect before saving progress.",
+      "reconnected": "You are back online. Retry the interrupted action.",
+      "dismiss": "Dismiss network status"
+    },
     "home": {
       "eyebrow": "Your reading space",
       "title": "Keep every page in view",

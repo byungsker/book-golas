@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ConsumerBottomBar } from "@/components/consumer/blab-primitives";
+import { NetworkStatus } from "@/components/consumer/network-status";
 import { SignOutButton } from "@/components/consumer/sign-out-button";
 import {
   Dialog,
@@ -148,6 +149,7 @@ export function ConsumerShell({
       </aside>
 
       <div className="min-w-0 pb-32 lg:pb-0">
+        <NetworkStatus />
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[var(--blab-glass-border)] bg-[var(--blab-surface)]/90 px-[var(--blab-space-lg)] py-[var(--blab-space-md)] backdrop-blur lg:hidden">
           <Link href={`/${locale}/home`} className="flex items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">
             <Image src="/logo-bookgolas.png" alt="" width={36} height={36} className="rounded-xl" />

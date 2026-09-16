@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
-import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
@@ -88,9 +87,6 @@ export default async function ReadingPage({
             {book.currentPage} / {book.totalPages} {t("book.pages")}
           </p>
 
-          <div className="mt-8">
-            <NetworkStatus />
-          </div>
           <div className="mt-4">
             <ProgressUpdater
               locale={locale}
