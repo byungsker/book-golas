@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:book-lifecycle
+> node scripts/test-book-lifecycle.mjs && vitest run src/lib/product/contracts/book-lifecycle.test.ts src/lib/product/dal.writes.test.ts src/app/api/consumer/book-lifecycle/route.test.ts
+
+book-lifecycle contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-431/web
+
+ ✓ src/lib/product/contracts/book-lifecycle.test.ts (5 tests) 8ms
+ ✓ src/app/api/consumer/book-lifecycle/route.test.ts (3 tests) 9ms
+ ✓ src/lib/product/dal.writes.test.ts (6 tests) 12ms
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  04:24:46
+   Duration  551ms (transform 183ms, setup 0ms, collect 492ms, tests 29ms, environment 0ms, prepare 168ms)

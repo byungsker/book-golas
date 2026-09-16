@@ -1,0 +1,17 @@
+
+> web@0.1.0 test:images-ocr
+> node scripts/test-images-ocr.mjs && vitest run src/lib/product/contracts/images-ocr.test.ts src/lib/product/adapters.storage.test.ts src/lib/product/dal.consumer-images.test.ts src/app/api/consumer/images-ocr/route.test.ts
+
+images-ocr contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-435/web
+
+ ✓ src/lib/product/contracts/images-ocr.test.ts (5 tests) 6ms
+ ✓ src/app/api/consumer/images-ocr/route.test.ts (4 tests) 19ms
+ ✓ src/lib/product/adapters.storage.test.ts (7 tests) 8ms
+ ✓ src/lib/product/dal.consumer-images.test.ts (6 tests) 13ms
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  07:40:03
+   Duration  609ms (transform 274ms, setup 0ms, collect 858ms, tests 46ms, environment 0ms, prepare 201ms)

@@ -1,0 +1,20 @@
+{
+  "issue": 443,
+  "task": 33,
+  "parentIssue": 412,
+  "fixtures": [
+    {"name": "invalid-year", "routeFixture": "export-invalid-year", "expected": {"status": 400, "code": "validation_error"}},
+    {"name": "invalid-email", "routeFixture": "export-invalid-email", "expected": {"status": 400, "code": "validation_error"}},
+    {"name": "caller-identity", "routeFixture": "export-user-mismatch", "expected": {"status": 400, "code": "validation_error"}},
+    {"name": "email-mismatch", "routeFixture": "export-mismatch", "expected": {"status": 403, "code": "forbidden"}},
+    {"name": "delivery", "routeFixture": "export-delivery", "expected": {"status": 502, "code": "provider_error", "retryable": true}},
+    {"name": "download", "routeFixture": "export-download", "expected": {"status": 502, "code": "provider_error", "retryable": true}},
+    {"name": "unauthorized", "routeFixture": "export-unauthorized", "expected": {"status": 401, "code": "unauthorized"}},
+    {"name": "consent", "routeFixture": "export-consent", "expected": {"status": 403, "code": "consent_required"}},
+    {"name": "quota", "routeFixture": "export-quota", "expected": {"status": 429, "code": "quota_exceeded"}},
+    {"name": "offline", "routeFixture": "export-offline", "expected": {"status": 503, "code": "offline"}},
+    {"name": "empty", "routeFixture": "export-empty", "expected": {"status": 200, "state": "empty"}}
+  ],
+  "forbiddenQueryMarkers": [".from(\"memos\")", ".from('memos')"],
+  "forbiddenPublicMarkers": ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SERVICE_ROLE", "RESEND_API_KEY"]
+}

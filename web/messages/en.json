@@ -18,7 +18,7 @@
     "stat2Value": "AI",
     "stat2Label": "remember · recall · analyze",
     "stat3Value": "Free",
-    "stat3Label": "forever",
+    "stat3Label": "free to start",
     "appStore": "App Store",
     "appStoreSubtitle": "Download on the",
     "androidComingSoon": "Coming Soon",
@@ -96,13 +96,96 @@
   },
   "terms": {
     "title": "Terms of Service",
-    "lastUpdated": "Last updated: February 2026",
-    "backHome": "← Back to Home"
+    "lastUpdated": "Last updated: September 2026",
+    "backHome": "← Back to Home",
+    "purposeTitle": "Article 1 (Purpose)",
+    "purposeBody": "These terms define the conditions of use and the rights, duties and responsibilities of the operator and users of the Bookgolas service operated by Byungwoo Lee.",
+    "definitionTitle": "Article 2 (Definitions)",
+    "definitionService": "\"Service\" means the Bookgolas Web experience and related mobile app services provided by the operator.",
+    "definitionUser": "\"User\" means a person who agrees to these terms and uses the service.",
+    "definitionMember": "\"Member\" means a user who has registered for the service.",
+    "changeTitle": "Article 3 (Effect and Changes)",
+    "changeNotice": "These terms take effect when posted on the service screen or otherwise notified to users.",
+    "changeLaw": "The operator may change these terms within the limits of applicable law.",
+    "usageTitle": "Article 4 (Use of the Service)",
+    "usageAvailability": "Web features depend on network access, provider availability and the operating status described in the release documentation.",
+    "usageMembership": "Use of the service is limited to users who complete the membership process.",
+    "signupTitle": "Article 5 (Registration)",
+    "signupBody": "A user applies for membership by entering information in the registration form provided by the service. The operator may reject registration when the submitted information is false.",
+    "privacyTitle": "Article 6 (Privacy)",
+    "privacyBody": "The operator protects users' personal information under applicable privacy law. Collection, use and provision of personal information are governed by the separate Privacy Policy.",
+    "paidTitle": "Article 7 (Web Payment Scope)",
+    "paidItem1": "The Web experience currently provides account and reading features without payment or subscription controls.",
+    "paidItem2": "In-app purchases and subscriptions are native app capabilities and cannot be started or managed on the Web.",
+    "paidItem3": "The Web does not display a billing wall or claim an active subscription.",
+    "refundTitle": "Article 8 (Native App Purchases)",
+    "refundItem1": "The Web has no payment, subscription-change or cancellation screen.",
+    "refundItem2": "Purchases and refunds made in a native app follow the policy of the relevant app store.",
+    "liabilityTitle": "Article 9 (Disclaimer)",
+    "liabilityItem1": "The operator is not responsible for service interruptions caused by force majeure, including natural disasters, war or telecommunications provider outages.",
+    "liabilityItem2": "The operator is not responsible for losses caused when a user does not obtain an expected benefit from the service or relies on information obtained through it.",
+    "lawTitle": "Article 10 (Governing Law and Jurisdiction)",
+    "lawBody": "These terms are governed by and interpreted under the laws of the Republic of Korea. The Seoul Central District Court has jurisdiction over first-instance disputes concerning use of the service.",
+    "operatorTitle": "Article 11 (Operator Information)",
+    "operatorNameLabel": "Name",
+    "operatorName": "Byungwoo Lee",
+    "operatorEmailLabel": "Email",
+    "note": "The Web experience currently provides no payment controls. Native app purchases, if enabled there, follow the relevant platform policy.",
+    "copyright": "© 2026 Bookgolas. All rights reserved."
   },
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: February 2026",
-    "backHome": "← Back to Home"
+    "lastUpdated": "Last updated: September 2026",
+    "backHome": "← Back to Home",
+    "collectionTitle": "1. Purpose of Collection and Use",
+    "collectionBody": "Bookgolas collects the following personal information to provide its reading management service.",
+    "collectionHeading": "Personal Information Collected",
+    "collectionEmail": "Email address: registration, sign-in and service delivery",
+    "collectionName": "User name: identification and personalization within the service",
+    "collectionReading": "Reading record data: reading goals and progress tracking",
+    "collectionDevice": "Device information: app stability and performance optimization",
+    "methodTitle": "2. Collection Methods",
+    "methodDirect": "Entered directly during Web or in-app registration",
+    "methodAutomatic": "Collected automatically while using the service",
+    "methodSupport": "Provided when contacting customer support",
+    "thirdPartyTitle": "3. Provision to Third Parties",
+    "thirdPartyBody": "Bookgolas does not provide users' personal information to third parties, except with prior consent or when required by law.",
+    "entrustTitle": "4. Processing Delegation",
+    "entrustBody": "Bookgolas delegates personal information processing to the following providers to deliver the service:",
+    "entrustSupabase": "Supabase: data storage and management",
+    "entrustRevenueCat": "RevenueCat: native app purchase management; Web billing is not enabled",
+    "entrustFirebase": "Firebase: native app push notifications",
+    "officerTitle": "5. Privacy Officer",
+    "officerNameLabel": "Name",
+    "officerName": "Byungwoo Lee",
+    "officerEmailLabel": "Email",
+    "contactTitle": "6. Contact",
+    "contactBody": "Please contact us at any time if you have questions about this Privacy Policy.",
+    "contactEmailLabel": "Email",
+    "copyright": "© 2026 Bookgolas. All rights reserved."
+  },
+  "support": {
+    "title": "Support",
+    "lastUpdated": "Last updated: September 2026",
+    "backHome": "← Back to Home",
+    "contactTitle": "Contact Us",
+    "contactBody": "If you experience a problem or have a question while using Bookgolas, email us below. We will respond as soon as possible.",
+    "emailLabel": "Email",
+    "faqTitle": "Frequently Asked Questions (FAQ)",
+    "accountQuestion": "Q. How do I create an account?",
+    "accountAnswer": "Create an account with email or Apple sign-in from the Web or the mobile app.",
+    "proQuestion": "Q. Can I manage a Pro subscription on the Web?",
+    "proAnswer": "Web subscription and billing controls are unavailable. Purchases made in a native app are managed through the relevant Apple or Google app-store settings.",
+    "recallQuestion": "Q. AI Recall is not working.",
+    "recallAnswer": "AI Recall requires an internet connection. Check your Wi-Fi or cellular data connection. If the problem continues, contact us at the email above.",
+    "backupQuestion": "Q. Can I back up my data?",
+    "backupAnswer": "Your reading records and notes synchronize through your account when you are connected. Sign in with the same account on another device to access them.",
+    "deleteQuestion": "Q. I want to delete my account.",
+    "deleteAnswer": "You can delete your account from Account settings on the Web or in the app. Deleted data cannot be recovered, so please decide carefully. Contact support@bookgolas.app if you need additional help.",
+    "relatedTitle": "Related Links",
+    "privacyLink": "Privacy Policy",
+    "termsLink": "Terms of Service",
+    "copyright": "© 2026 Bookgolas. All rights reserved."
   },
   "mockup": {
     "headerTitle": "Reading List",
@@ -113,8 +196,8 @@
     "tabReading": "Reading",
     "tabToRead": "To Read",
     "tabDone": "Finished",
-    "proTitle": "Upgrade to Pro",
-    "proSub": "AI Recall & Insights, unlimited",
+    "proTitle": "AI Recall & Insights",
+    "proSub": "Semantic search and reading insights",
     "addSession": "Add reading session",
     "typingBook": "What was matrix multiplication?",
     "pagesRead": "pages",
@@ -138,6 +221,1443 @@
     "stats": {
       "title": "Reading Streak",
       "desc": "See your consistency, visualized"
+    }
+  },
+  "consumer": {
+    "brand": "Bookgolas",
+    "shell": {
+      "brand": "Bookgolas",
+      "navigationLabel": "Main reading navigation",
+      "tabs": {
+        "home": "Home",
+        "library": "My Library",
+        "chart": "Reading Chart",
+        "calendar": "Calendar",
+        "account": "My Page"
+      },
+      "mobileTabs": {
+        "home": "Home",
+        "library": "Library",
+        "chart": "Stats",
+        "calendar": "Calendar",
+        "account": "MY"
+      },
+      "search": {
+        "open": "Search",
+        "close": "Close search modes",
+        "eyebrow": "Global search",
+        "title": "What do you want to find?",
+        "description": "Choose a search mode.",
+        "bookTitle": "Book search",
+        "bookDescription": "Find a book to add to your reading list.",
+        "recallTitle": "Recall",
+        "recallDescription": "Search your own reading records by meaning."
+      },
+      "timerMount": "Reading timer"
+    },
+    "onboarding": {
+      "loading": "Checking your onboarding settings...",
+      "eyebrow": "Get started with Bookgolas",
+      "pages": [
+        {
+          "title": "Track Your Reading",
+          "description": "Set daily reading goals and track your progress"
+        },
+        {
+          "title": "Save Memorable Moments",
+          "description": "Capture highlights and thoughts from your books"
+        },
+        {
+          "title": "Achieve Your Goals",
+          "description": "Complete books and celebrate your achievements"
+        }
+      ],
+      "skip": "Skip",
+      "next": "Next",
+      "start": "Start",
+      "pageProgress": "Onboarding progress",
+      "pageIndicator": "Page {current} of {total}",
+      "agePolicy": {
+        "eyebrow": "One last step",
+        "title": "Age and advertising",
+        "description": "Choose your age group. This setting is stored only in this browser on this device and controls whether ads can be requested.",
+        "under14": {
+          "title": "Under 14",
+          "description": "Ads remain disabled."
+        },
+        "age14OrOlder": {
+          "title": "14 or older",
+          "description": "Ads may be requested after consent and tracking authorization."
+        },
+        "saveFailed": "We could not save the age setting in this browser. Try again.",
+        "back": "Back to onboarding"
+      }
+    },
+    "nav": {
+      "label": "Consumer navigation",
+      "library": "Library",
+      "account": "My Page",
+      "signOut": "Sign out",
+      "signOutError": "We could not sign you out. Try again."
+    },
+    "network": {
+      "offline": "You are offline. Online-only changes are not queued. Reconnect before saving progress.",
+      "reconnected": "You are back online. Retry the interrupted action.",
+      "dismiss": "Dismiss network status"
+    },
+    "home": {
+      "eyebrow": "Your reading space",
+      "title": "Keep every page in view",
+      "description": "Your reading progress stays available across the Bookgolas app and web.",
+      "booksHeading": "My books",
+      "bookCount": "{count, plural, =0 {No books} one {# book} other {# books}}",
+      "openBook": "Open book",
+      "refresh": "Refresh",
+      "addBook": "Add a book",
+      "currentReading": "Currently reading",
+      "plannedStart": "Planned start",
+      "emptyTitle": "Your library is empty",
+      "emptyDescription": "Add a book in the Bookgolas app to see your reading progress here.",
+      "statusTabs": {
+        "label": "Reading status lists",
+        "reading": "Reading",
+        "planned": "To read",
+        "completed": "Finished",
+        "paused": "Paused",
+        "all": "All"
+      },
+      "statusEmpty": {
+        "reading": {
+          "title": "Nothing is in progress",
+          "description": "Add a book and start today's reading."
+        },
+        "planned": {
+          "title": "No books are planned",
+          "description": "Add a book you want to read next."
+        },
+        "completed": {
+          "title": "No finished books yet",
+          "description": "Books you finish will be recorded here."
+        },
+        "paused": {
+          "title": "No paused books",
+          "description": "Books you pause can be managed in this list."
+        }
+      },
+      "dday": {
+        "before": "D-{days}",
+        "today": "D-Day",
+        "overdue": "D+{days}",
+        "unknown": "No target date"
+      }
+    },
+    "calendar": {
+      "eyebrow": "Reading activity",
+      "title": "Reading calendar",
+      "description": "See the progress and reading sessions recorded for your books. Dates follow Korea Standard Time.",
+      "timezoneLabel": "Display time zone",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "dayWithActivity": "{date}, {count, plural, one {# book with activity} other {# books with activity}}",
+      "dayWithoutActivity": "{date}, no reading activity",
+      "moreBooks": "+{count} more",
+      "plannedMarker": "Planned start",
+      "activeMarker": "Reading activity",
+      "noActivityShort": "No activity",
+      "dayDetailEyebrow": "Day detail",
+      "daySummary": "{books, plural, one {# book} other {# books}} · {pages} pages recorded",
+      "closeDetail": "Close day detail",
+      "authorUnknown": "Unknown author",
+      "pagesRead": "Pages",
+      "sessionMinutes": "Session minutes",
+      "eventCount": "Events",
+      "plannedDescription": "Planned start marker from your book settings. It is not a historical reading event.",
+      "progressEvent": "+{pages} pages",
+      "sessionEvent": "{minutes} min session",
+      "openBook": "Open book",
+      "filters": {
+        "all": "All",
+        "reading": "Reading",
+        "completed": "Finished"
+      },
+      "filterLabel": "Calendar filters",
+      "gridLabel": "Monthly reading activity",
+      "bookCount": "{count, plural, =0 {No books} one {# book} other {# books}}",
+      "activeDayCount": "{count, plural, =0 {No active days} one {# active day} other {# active days}}",
+      "emptyTitle": "No reading activity yet",
+      "emptyDescription": "Progress updates and reading sessions from your books will appear here.",
+      "monthPickerTitle": "Choose a month",
+      "cancelMonthPicker": "Close month picker",
+      "monthPickerLabel": "Month",
+      "cancel": "Cancel",
+      "confirm": "Show month",
+      "loading": "Loading your reading calendar...",
+      "retry": "Try again",
+      "errorTitle": "We could not load your reading calendar",
+      "errors": {
+        "offline": "You are offline. Reconnect to load reading activity.",
+        "consent_required": "Calendar consent is required in account settings.",
+        "quota_exceeded": "Reading history is temporarily unavailable because the quota was reached.",
+        "unavailable": "We could not load reading activity. Try again shortly."
+      },
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "unknown": "Reading"
+      }
+    },
+    "stats": {
+      "eyebrow": "Reading patterns",
+      "title": "Reading statistics",
+      "description": "See your pages, time, streaks and completed books from server recorded activity.",
+      "timezoneLabel": "Display time zone",
+      "timezoneValue": "Asia/Seoul",
+      "share": "Share stats",
+      "shareCopied": "Stats copied to clipboard",
+      "shareDownloaded": "Stats card downloaded",
+      "shareCancelled": "Share cancelled",
+      "shareFailed": "Could not share stats",
+      "shareCardTitle": "My Bookgolas reading stats",
+      "shareCardDescription": "A private summary generated from recorded reading activity.",
+      "tabs": {
+        "label": "Reading statistics sections",
+        "overview": "Overview",
+        "analysis": "Analysis",
+        "activity": "Activity"
+      },
+      "views": {
+        "label": "Statistics period",
+        "annual": "Annual",
+        "monthly": "Monthly",
+        "weekly": "Weekly",
+        "custom": "Custom"
+      },
+      "status": {
+        "label": "Book status",
+        "all": "All",
+        "reading": "Reading",
+        "completed": "Finished"
+      },
+      "period": {
+        "previous": "Previous period",
+        "next": "Next period",
+        "chooseRange": "Choose date range",
+        "rangeLabel": "Date range",
+        "start": "Start date",
+        "end": "End date",
+        "apply": "Apply range",
+        "cancel": "Cancel"
+      },
+      "metrics": {
+        "totalPages": "Chart pages",
+        "pagesRead": "Pages read",
+        "averageDaily": "Daily average",
+        "maxDaily": "Best day",
+        "minDaily": "Lightest day",
+        "readingTime": "Reading time",
+        "activeDays": "Active days",
+        "streak": "Current streak",
+        "completionRate": "Completion rate",
+        "started": "Started",
+        "completed": "Finished",
+        "inProgress": "In progress",
+        "abandoned": "Paused"
+      },
+      "goal": {
+        "title": "Annual reading goal",
+        "set": "Set goal",
+        "edit": "Edit goal",
+        "target": "Target",
+        "completed": "Completed",
+        "remaining": "Remaining",
+        "daysLeft": "Days left",
+        "perMonth": "Books/month",
+        "onTrack": "You are on track",
+        "offTrack": "A little more reading will keep you on track",
+        "dialogTitle": "Set your {year} goal",
+        "dialogDescription": "Choose how many completed books you want to reach.",
+        "inputLabel": "Books to finish",
+        "inputPlaceholder": "For example, 24",
+        "cancel": "Cancel",
+        "save": "Save goal",
+        "saving": "Saving...",
+        "saved": "Goal saved",
+        "error": "Could not save the goal. Try again."
+      },
+      "analysis": {
+        "completionTitle": "Book status",
+        "completionDescription": "Completion uses owned, active books recorded by the app.",
+        "genreTitle": "Genres completed",
+        "genreEmpty": "No completed books with genre data yet.",
+        "monthlyTitle": "Finished books by month",
+        "month": "Month {month}",
+        "count": "{count} books"
+      },
+      "activity": {
+        "heatmapTitle": "Reading heatmap {year}",
+        "heatmapDescription": "Intensity is based on pages read from progress history.",
+        "legendLess": "Less",
+        "legendMore": "More",
+        "seriesTitle": "Recorded activity",
+        "day": "{day}",
+        "pages": "{pages} pages",
+        "minutes": "{minutes} min"
+      },
+      "emptyTitle": "No reading data yet",
+      "emptyDescription": "Record progress or finish a book in the app to build your statistics.",
+      "loading": "Loading your reading statistics...",
+      "stale": "Showing the last available statistics. Refresh when you are online.",
+      "invalidRange": "Choose an ordered date range from 2020 through today.",
+      "errorTitle": "We could not load your reading statistics",
+      "retry": "Try again",
+      "errors": {
+        "offline": "You are offline. Reconnect to load reading statistics.",
+        "consent_required": "Statistics consent is required in account settings.",
+        "quota_exceeded": "Reading history quota is unavailable right now.",
+        "unavailable": "We could not load reading statistics. Try again shortly."
+      }
+    },
+    "library": {
+      "eyebrow": "My reading space",
+      "title": "My library",
+      "description": "Search your reading list, reviews and saved records in one private space.",
+      "tabs": {
+        "label": "My library tabs",
+        "reading": "Reading",
+        "review": "Review",
+        "records": "Records"
+      },
+      "searchLabel": "Search by title or author",
+      "searchPlaceholder": "Search title or author",
+      "recordSearchPlaceholder": "Filter records by type",
+      "recallOpen": "Search my records with Recall",
+      "recallClose": "Close Recall",
+      "addBook": "Add a book",
+      "authorUnknown": "Unknown author",
+      "openBook": "Open book",
+      "loadMore": "Load more",
+      "loading": "Loading your library...",
+      "loadingMore": "Loading more...",
+      "empty": {
+        "readingTitle": "No books match your search",
+        "readingDescription": "Books you add to your reading list will appear here.",
+        "reviewTitle": "No reviews match your search",
+        "reviewDescription": "Books with a saved review will appear here.",
+        "recordsTitle": "No reading records yet",
+        "recordsDescription": "Highlights, memos and photo records will appear here.",
+        "recallTitle": "No Recall history yet",
+        "recallDescription": "Ask Recall about a saved reading moment."
+      },
+      "error": {
+        "title": "We could not load this library view",
+        "description": "Try again in a moment.",
+        "retry": "Try again"
+      },
+      "unauthorized": {
+        "title": "Sign in to view your library",
+        "description": "Your books and reading records are private.",
+        "action": "Sign in"
+      },
+      "consent": {
+        "title": "Recall consent is required",
+        "description": "Grant AI consent in account settings before searching your records.",
+        "action": "Open consent settings"
+      },
+      "quota": {
+        "title": "Recall quota reached",
+        "description": "You have used this period’s AI Recall allowance.",
+        "action": "View account settings"
+      },
+      "records": {
+        "all": "All",
+        "highlight": "Highlights",
+        "note": "Memos",
+        "photo_ocr": "Photos",
+        "count": "{count, plural, =0 {No records} one {# record} other {# records}}",
+        "detailTitle": "Reading record",
+        "goToBook": "Go to book",
+        "close": "Close"
+      },
+      "recall": {
+        "eyebrow": "AI Recall",
+        "title": "Search all my reading records",
+        "description": "Recall searches your saved highlights, memos and photo text.",
+        "inputLabel": "Ask Recall",
+        "inputPlaceholder": "What did I save about...?",
+        "submit": "Search Recall",
+        "searching": "Searching your records...",
+        "answer": "Recall answer",
+        "sources": "Referenced records",
+        "history": "Recent global searches",
+        "empty": "No matching records",
+        "emptyDescription": "Try another question or save more reading records.",
+        "newSearch": "New search",
+        "loadHistory": "Load search"
+      },
+      "states": {
+        "offline": "You are offline. Reconnect to search or load your library."
+      }
+    },
+    "recall": {
+      "bookTitle": "Search this book's records",
+      "bookDescription": "Recall searches highlights, memos and photo text saved in this book.",
+      "bookHistory": "Recent searches in this book",
+      "suggestions": "Try a recent question",
+      "copy": "Copy",
+      "copied": "Copied",
+      "deleteHistory": "Delete search history",
+      "closeDetail": "Close record detail",
+      "recordDetail": "Reading record",
+      "goToBook": "Go to book",
+      "imageAlt": "Private reading record image",
+      "imageUnavailable": "The private image is unavailable. The saved text is still available.",
+      "sourceTypes": {
+        "highlight": "Highlight",
+        "note": "Memo",
+        "photo_ocr": "Photo text"
+      },
+      "states": {
+        "consent": "Grant AI consent in account settings before searching your records.",
+        "quota": "Your AI Recall allowance has been reached for this period.",
+        "providerTitle": "Recall provider unavailable",
+        "provider": "The AI provider did not respond. Try again shortly.",
+        "offlineTitle": "Recall is offline",
+        "offline": "Reconnect to search your private reading records.",
+        "error": "Recall could not complete this request. Try again shortly."
+      }
+    },
+    "bookDiscovery": {
+      "eyebrow": "Find your next book",
+      "title": "Start a new reading journey",
+      "description": "Search by title or author, scan an ISBN-13, or begin with a recommendation from your reading history.",
+      "search": {
+        "formLabel": "Search books",
+        "label": "Search by title or author",
+        "hint": "Search is sent securely through Bookgolas.",
+        "clear": "Clear book search",
+        "action": "Search books",
+        "loading": "Searching books...",
+        "emptyTitle": "No matching books",
+        "emptyDescription": "Try a different title, author or ISBN-13.",
+        "invalidTitle": "Check the search value",
+        "invalidDescription": "Enter a title, author or valid ISBN-13 and try again.",
+        "upstreamTitle": "Book search is temporarily unavailable",
+        "upstreamDescription": "The book provider did not respond. Try again shortly.",
+        "unauthorizedTitle": "Sign in to search for books",
+        "unauthorizedDescription": "Book discovery is available inside your private reading space.",
+        "consentTitle": "Book search consent is required",
+        "consentDescription": "Allow the required data use in account settings before searching.",
+        "quotaTitle": "Book search limit reached",
+        "quotaDescription": "Try again after the provider limit resets.",
+        "offlineTitle": "You are offline",
+        "offlineDescription": "Reconnect before searching for a book."
+      },
+      "isbn": {
+        "formLabel": "Search by ISBN-13",
+        "label": "ISBN-13",
+        "hint": "Spaces and hyphens are accepted.",
+        "invalid": "Enter a valid 13-digit ISBN-13 beginning with 978 or 979.",
+        "action": "Search ISBN",
+        "fallback": "Manual entry is always available."
+      },
+      "scanner": {
+        "open": "Scan ISBN",
+        "title": "Scan an ISBN barcode",
+        "description": "Camera access is optional. You can choose an image or enter the ISBN-13 manually at any time.",
+        "checking": "Checking camera support",
+        "videoLabel": "ISBN barcode camera preview",
+        "insecure": "Camera scanning needs a secure HTTPS connection.",
+        "denied": "Camera permission was denied. Choose an image or enter the ISBN-13 manually.",
+        "unsupported": "This browser does not support barcode scanning.",
+        "manualFallback": "Use the image or file button below, or enter the ISBN-13 in the form.",
+        "fileAction": "Choose ISBN image",
+        "fileReading": "Checking the selected image...",
+        "detected": "ISBN found. Searching now...",
+        "fileFallback": "No valid ISBN-13 was found. Enter it manually instead.",
+        "close": "Close scanner"
+      },
+      "result": {
+        "authorUnknown": "Unknown author",
+        "selected": "Selected",
+        "select": "Use this book",
+        "isbn": "ISBN",
+        "pages": "pages",
+        "openProvider": "Open provider details"
+      },
+      "selected": {
+        "eyebrow": "Book selected",
+        "description": "This match is ready for the next reading setup step."
+      },
+      "recommendations": {
+        "eyebrow": "For your next read",
+        "title": "Recommended for you",
+        "description": "The same recommendation entry as the native reading-start flow.",
+        "loading": "Loading recommendations...",
+        "emptyTitle": "Recommendations are not ready yet",
+        "emptyDescription": "Finish a book to give recommendations more context.",
+        "actionEyebrow": "Recommendation",
+        "viewDetails": "Find book details",
+        "startReading": "Start with this book",
+        "upstreamTitle": "Recommendations are temporarily unavailable",
+        "upstreamDescription": "Try again later or search for a book directly.",
+        "unauthorizedTitle": "Sign in to see recommendations",
+        "unauthorizedDescription": "Recommendations use your private reading history.",
+        "consentTitle": "Recommendation consent is required",
+        "consentDescription": "Allow AI features in account settings to use recommendations.",
+        "quotaTitle": "Recommendation limit reached",
+        "quotaDescription": "Try again after the recommendation limit resets.",
+        "offlineTitle": "Recommendations are offline",
+        "offlineDescription": "Reconnect before loading recommendations."
+      },
+      "states": {
+        "signIn": "Sign in",
+        "openSettings": "Open account settings",
+        "retry": "Try again",
+        "offline": "You are offline. Reconnect before searching or loading recommendations."
+      }
+    },
+    "bookLifecycle": {
+      "eyebrow": "Reading setup",
+      "title": "Set your reading plan",
+      "editTitle": "Edit your reading plan",
+      "description": "Choose when to read, how much to read each day, and the priority for this book.",
+      "metadata": {
+        "title": "Book details",
+        "bookTitle": "Title",
+        "author": "Author",
+        "authorUnknown": "Unknown author",
+        "totalPages": "Total pages",
+        "isbn": "ISBN"
+      },
+      "status": {
+        "label": "Reading status",
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "help": {
+          "planned": "Keep this book for a planned start.",
+          "reading": "Start tracking pages now.",
+          "completed": "Mark this book as finished.",
+          "will_retry": "Pause it and come back later."
+        }
+      },
+      "schedule": {
+        "title": "Reading schedule",
+        "startDate": "Start date",
+        "targetDate": "Target date",
+        "plannedStartDate": "Planned start date",
+        "usePlannedDate": "Use a planned start date",
+        "preview": "Schedule preview",
+        "targetDays": "Reading days",
+        "days": "days",
+        "dailyGoal": "Daily goal",
+        "pagesPerDay": "pages/day",
+        "edit": "Edit goal",
+        "dialogTitle": "Adjust daily goal",
+        "dialogDescription": "Set a positive page target. The preview updates before you save the book.",
+        "dailyTarget": "Pages per day",
+        "cancel": "Cancel",
+        "save": "Apply goal",
+        "previewUnavailable": "Enter valid dates to preview the schedule."
+      },
+      "priority": {
+        "label": "Priority",
+        "none": "No priority",
+        "values": {
+          "1": "Urgent",
+          "2": "High",
+          "3": "Medium",
+          "4": "Low"
+        }
+      },
+      "save": "Save book",
+      "saveChanges": "Save changes",
+      "saving": "Saving book...",
+      "saved": "Book saved",
+      "edit": "Edit schedule",
+      "home": "View my books",
+      "retry": "Try again",
+      "validation": {
+        "title": "Enter a book title.",
+        "pages": "Total pages must be a non-negative whole number.",
+        "datesRequired": "Choose both a start date and a target date.",
+        "plannedDate": "Choose a planned start date or turn it off.",
+        "dateRange": "The target date must be on or after the effective start date.",
+        "dailyTarget": "Daily pages must be a positive whole number.",
+        "priority": "Choose a priority from 1 to 4."
+      },
+      "errors": {
+        "generic": "We could not save this book. Try again.",
+        "malformed": "The saved book response was invalid. Try again.",
+        "offline": "You are offline. Reconnect before saving this book.",
+        "conflict": "This book changed or is already being saved. Try again.",
+        "notFound": "This book is no longer available in your library.",
+        "unauthorized": "Sign in before saving a book.",
+        "consent": "Book saving consent is required in account settings.",
+        "quota": "Your book limit has been reached.",
+        "signIn": "Sign in",
+        "openSettings": "Open account settings"
+      }
+    },
+    "aiArtifacts": {
+      "eyebrow": "AI reading artifacts",
+      "states": {
+        "loading": "Loading your reading data...",
+        "generating": "Generating a private artifact...",
+        "emptyTitle": "Nothing to show yet",
+        "emptyDescription": "Save more reading records or finish a book, then try again.",
+        "retry": "Try again",
+        "regenerate": "Generate again",
+        "signIn": "Sign in",
+        "openSettings": "Open AI consent settings"
+      },
+      "mindmap": {
+        "title": "Mind map",
+        "description": "See how your highlights, memos and photo text connect around this book.",
+        "back": "Back to book",
+        "connections": "Connections",
+        "page": "Page {page}",
+        "nodeTypes": {
+          "highlight": "Highlight",
+          "note": "Memo",
+          "photo_ocr": "Photo text"
+        }
+      },
+      "insights": {
+        "eyebrow": "Reading insights",
+        "title": "Your reading patterns",
+        "description": "Review cached and newly generated patterns from your own reading history.",
+        "categories": {
+          "pattern": "Pattern",
+          "milestone": "Milestone",
+          "reflection": "Reflection"
+        }
+      },
+      "recommendations": {
+        "eyebrow": "Next reading",
+        "title": "Books chosen for your rhythm",
+        "description": "Recommendations use your completed reading history and remain available without a billing wall.",
+        "viewDetails": "Find this book",
+        "startReading": "Start reading"
+      },
+      "errors": {
+        "unauthorized": "Sign in to view your private reading artifact.",
+        "consent_required": "AI consent is required before reading data can be sent to the provider.",
+        "insufficient_data": "More reading records are needed before this artifact can be generated.",
+        "rate_limit_exceeded": "This artifact was generated recently. Try again after the operational limit resets.",
+        "quota_exceeded": "The operational AI quota has been reached for this period.",
+        "provider_timeout": "The AI provider took too long to respond. Try again.",
+        "provider_error": "The AI provider is temporarily unavailable.",
+        "configuration_error": "The AI service is not configured right now.",
+        "offline": "You are offline. Reconnect before loading this artifact.",
+        "generic": "We could not load this artifact. Try again."
+      }
+    },
+    "bookDetail": {
+      "eyebrow": "Book detail",
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "help": {
+          "planned": "Start this planned book when you are ready.",
+          "reading": "Keep recording pages or pause this book for later.",
+          "completed": "This book is already marked as finished.",
+          "will_retry": "Resume this paused book when you are ready."
+        },
+        "completedHelp": "Finished books keep their reading history and review links."
+      },
+      "actions": {
+        "title": "Reading actions",
+        "start": "Start reading",
+        "resume": "Resume reading",
+        "pause": "Pause reading",
+        "complete": "Mark as finished",
+        "delete": "Delete book"
+      },
+      "pending": "Saving...",
+      "success": "{action} saved.",
+      "retry": "Try again",
+      "attempt": "Attempt {count}",
+      "metadata": {
+        "title": "Book information",
+        "genre": "Genre",
+        "publisher": "Publisher",
+        "isbn": "ISBN",
+        "price": "Price",
+        "createdAt": "Added",
+        "updatedAt": "Updated",
+        "totalReadingTime": "Total reading time",
+        "pausedAt": "Paused",
+        "notAvailable": "Not available"
+      },
+      "review": {
+        "title": "Review",
+        "open": "Open reference review",
+        "edit": "Edit review"
+      },
+      "links": {
+        "store": "Open book store"
+      },
+      "delete": {
+        "title": "Delete this book?",
+        "description": "The book will leave your library and its dependent reading views will no longer show it.",
+        "cancel": "Keep book",
+        "confirm": "Delete book",
+        "deletedTitle": "Book deleted",
+        "deletedDescription": "This book was removed from your library."
+      },
+      "home": "Back to library",
+      "errors": {
+        "invalidTransition": "That action is not available for the current reading status.",
+        "notFound": "This book is no longer available in your library.",
+        "unauthorized": "Sign in before changing this book.",
+        "offline": "You are offline. Reconnect before saving this action.",
+        "conflict": "This book changed elsewhere. Refresh and try again.",
+        "generic": "We could not save this action. Try again."
+      }
+    },
+    "reviewEditor": {
+      "eyebrow": "Reading review",
+      "title": "Write your review",
+      "description": "Keep a short review, a longer reflection and an optional reference link with this book.",
+      "bookLabel": "Reviewing",
+      "rating": "Rating",
+      "noRating": "No rating",
+      "review": "Short review",
+      "reviewPlaceholder": "What stayed with you?",
+      "longReview": "Long review",
+      "longReviewPlaceholder": "Write the ideas, moments and questions you want to remember.",
+      "reviewLink": "Reference link (optional)",
+      "reviewLinkPlaceholder": "https://example.com/review",
+      "save": "Save review",
+      "saving": "Saving review...",
+      "saved": "Review saved.",
+      "draftSaved": "Your unfinished review is saved on this device.",
+      "draftRestored": "An unfinished review was restored from this device.",
+      "clearDraft": "Clear local draft",
+      "aiTitle": "AI draft",
+      "aiDescription": "Generate a starting point from your saved reading records. Review it before saving.",
+      "aiConsent": "Allow saved reading records to be used for an AI review draft.",
+      "generate": "Generate draft",
+      "generating": "Generating draft...",
+      "draftLabel": "Generated draft",
+      "draftEmptyTitle": "No draft was returned",
+      "draftEmptyDescription": "Add a note or highlight first, then try generating again.",
+      "useDraft": "Use this draft",
+      "draftUsed": "The draft was placed in the long review field.",
+      "shareTitle": "Share this review",
+      "shareDescription": "Share the canonical review link with Web Share, the clipboard or a downloaded card.",
+      "share": "Share",
+      "copy": "Copy link",
+      "download": "Download share card",
+      "shareNative": "Shared using the browser share dialog.",
+      "shareCopied": "Review link copied.",
+      "shareDownloaded": "Share card downloaded.",
+      "shareCancelled": "Sharing was cancelled.",
+      "states": {
+        "loading": "Loading the review editor...",
+        "empty": "This book does not have a saved review yet.",
+        "error": "We could not load the review editor. Try again.",
+        "unauthorized": "Sign in to edit this private review."
+      },
+      "errors": {
+        "validation": "Check the review fields and try again.",
+        "unauthorized": "Sign in before saving a review.",
+        "notFound": "This book is no longer available in your library.",
+        "consent": "AI consent is required before generating a draft.",
+        "quota": "Your AI review quota has been reached.",
+        "timeout": "The AI draft took too long. Your review is still here.",
+        "provider": "The AI provider is unavailable. Your review is still here.",
+        "offline": "You are offline. Your review is still saved locally.",
+        "generic": "We could not save the review. Your unfinished text is still here."
+      }
+    },
+    "timer": {
+      "mount": "Preparing your reading timer",
+      "title": "Reading timer",
+      "description": "Record reading time and add it to this book's total.",
+      "idle": "Ready",
+      "running": "Recording",
+      "paused": "Paused",
+      "open": "Open timer",
+      "start": "Start timer",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Save and stop",
+      "stopSaving": "Saving...",
+      "saved": "Reading time saved.",
+      "discarded": "Sessions shorter than 30 seconds are not saved.",
+      "activeOther": "A timer for another book is running. Stop it before starting this book.",
+      "close": "Close",
+      "errors": {
+        "unauthorized": "Sign in before saving reading time.",
+        "notFound": "This book is no longer available in your library.",
+        "conflict": "The reading session was already processed. Check the timer state.",
+        "offline": "You are offline. Reconnect and try saving again.",
+        "generic": "We could not save reading time. The timer is still running.",
+        "activeOther": "A timer for another book is running."
+      }
+    },
+    "notesHighlights": {
+      "eyebrow": "Saved reading moments",
+      "title": "Notes, highlights and memorable pages",
+      "description": "Keep your own reading records attached to the page where you found them.",
+      "loading": "Loading your saved records...",
+      "retryLoad": "Reload records",
+      "createTitle": "Save a reading record",
+      "editTitle": "Edit reading record",
+      "formDescription": "Your record is saved first. Optional AI indexing runs separately and can be retried.",
+      "create": {
+        "note": "Add note",
+        "highlight": "Add highlight",
+        "memorable_page": "Add memorable page"
+      },
+      "tabs": {
+        "label": "Reading record types",
+        "all": "All"
+      },
+      "recordTypes": {
+        "note": "Note",
+        "highlight": "Highlight",
+        "memorable_page": "Memorable page"
+      },
+      "indexStatus": {
+        "pending": "Indexing",
+        "ready": "Indexed",
+        "failed": "Index failed",
+        "skipped": "Not indexed"
+      },
+      "empty": {
+        "title": "No saved records yet",
+        "description": "Save a note, highlight or memorable page while you read."
+      },
+      "form": {
+        "type": "Record type",
+        "page": "Page number",
+        "text": "Text",
+        "caption": "Caption",
+        "imageUrl": "Image URL",
+        "rectangle": "Normalized highlight rectangle (0 to 1)",
+        "aiConsent": "Allow this record's text to be used for optional AI indexing."
+      },
+      "validation": {
+        "page": "Enter a page number within this book.",
+        "rectangle": "Each rectangle must stay inside the 0 to 1 bounds and have a positive size."
+      },
+      "rectangleCount": "{count, plural, =0 {No rectangles} one {# rectangle} other {# rectangles}}",
+      "sourceNavigation": "Open page",
+      "retryIndex": "Retry indexing",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete this record?",
+      "deleteDescription": "The saved record and its optional index will be removed.",
+      "deleteConfirm": "Delete record",
+      "save": "Save record",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "errors": {
+        "title": "We could not load these records",
+        "unauthorizedTitle": "Sign in to view your records",
+        "unauthorized": "Sign in before managing private reading records.",
+        "consent": "AI consent is required before indexing this record.",
+        "quota": "Your record quota has been reached.",
+        "offline": "You are offline. Reconnect and try again.",
+        "notFound": "This record is no longer available in your library.",
+        "generic": "We could not save this record. Try again."
+      }
+    },
+    "imagesOcr": {
+      "eyebrow": "Private page images",
+      "title": "Capture a page and read it later",
+      "description": "Images stay in your private book space. OCR is optional and a manual text path remains available.",
+      "loading": "Loading your private images...",
+      "retryLoad": "Reload images",
+      "camera": "Use camera",
+      "chooseFile": "Choose image",
+      "capture": "Capture frame",
+      "cancelCamera": "Close camera",
+      "fileFallback": "Camera capture is unavailable here. Choose an image file instead.",
+      "upload": "Upload image",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "previewAlt": "Private page capture preview",
+      "page": "Page {page}",
+      "pageUnknown": "Page not set",
+      "delete": "Delete image",
+      "manualPlaceholder": "Enter the text manually if OCR is unavailable.",
+      "saveManual": "Save manual text",
+      "retryOcr": "Retry OCR",
+      "captureStates": {
+        "idle": "Ready for a page image.",
+        "camera_ready": "Camera is ready.",
+        "camera_unavailable": "Camera is unavailable.",
+        "insecure_context": "Camera needs a secure connection.",
+        "permission_denied": "Camera permission was denied.",
+        "unsupported": "This browser does not support camera capture.",
+        "file_ready": "Image ready to upload.",
+        "uploading": "Uploading image...",
+        "saved": "Image saved.",
+        "error": "Image capture failed."
+      },
+      "ocrStatus": {
+        "not_requested": "OCR not requested",
+        "pending": "OCR in progress",
+        "ready": "OCR complete",
+        "failed": "OCR failed",
+        "manual": "Manual text saved"
+      },
+      "empty": {
+        "title": "No private page images yet",
+        "description": "Capture or choose a page image to keep it with this book."
+      },
+      "form": {
+        "page": "Page number",
+        "caption": "Caption",
+        "ocrConsent": "Allow this image to be sent to OCR."
+      },
+      "validation": {
+        "page": "Enter a page number within this book.",
+        "oversize": "Images must be 8 MiB or smaller.",
+        "mime": "Choose a JPEG, PNG or WebP image.",
+        "corrupt": "This image is unreadable or does not match its file type."
+      },
+      "errors": {
+        "title": "We could not load these images",
+        "unauthorizedTitle": "Sign in to view private images",
+        "unauthorized": "Sign in before managing private page images.",
+        "consent": "OCR consent is required before OCR can run.",
+        "quota": "The OCR quota has been reached.",
+        "provider": "The OCR provider is unavailable. You can enter the text manually.",
+        "oversize": "This image is larger than the 8 MiB limit.",
+        "offline": "You are offline. Reconnect and try again.",
+        "notFound": "This image is no longer available in your library.",
+        "generic": "We could not save this image. Try again."
+      }
+    },
+    "book": {
+      "status": {
+        "planned": "To read",
+        "reading": "Reading",
+        "completed": "Finished",
+        "will_retry": "Paused",
+        "unknown": "Reading"
+      },
+      "progressLabel": "Reading progress",
+      "pages": "pages",
+      "authorUnknown": "Unknown author",
+      "backHome": "Back to library",
+      "startDate": "Started",
+      "targetDate": "Target date"
+    },
+    "reading": {
+      "eyebrow": "Reading update",
+      "title": "Update reading progress",
+      "description": "Save the page you reached. The next view will read the latest value from your account.",
+      "progressSummary": "Live progress",
+      "currentPage": "Current page",
+      "save": "Save progress",
+      "saving": "Saving...",
+      "saved": "Progress saved",
+      "completed": "You finished this book.",
+      "attempt": "Reading attempt {count}",
+      "historyTitle": "Progress history",
+      "historyLoading": "Loading progress history...",
+      "historyEmpty": "No progress records yet.",
+      "historyEntry": "Page {from} → {to}",
+      "refetch": "Refresh latest progress",
+      "retry": "Try again",
+      "backToBook": "Back to book",
+      "offline": "You are offline. Reconnect before saving progress.",
+      "errors": {
+        "invalid_input": "Enter a page between 0 and the total page count.",
+        "unauthenticated": "Your session expired. Sign in again.",
+        "not_found": "This book is no longer available in your library.",
+        "conflict": "This book changed elsewhere. Refresh and try again.",
+        "history_unavailable": "Your page was updated, but reading history could not be recorded. Refresh and try again.",
+        "consent_required": "Progress consent is required in account settings.",
+        "quota_exceeded": "Your progress quota has been reached. Try again later.",
+        "offline": "You are offline. Reconnect before saving progress.",
+        "unavailable": "We could not save your progress. Try again."
+      }
+    },
+    "states": {
+      "loading": "Loading your library...",
+      "retry": "Try again",
+      "errorTitle": "The library is temporarily unavailable",
+      "errorDescription": "We could not load your books. Refresh the page or try again shortly.",
+      "permissionTitle": "Book unavailable",
+      "permissionDescription": "This book is not available in your library or you do not have permission to view it."
+    },
+    "account": {
+      "eyebrow": "Account and privacy",
+      "title": "My Page",
+      "description": "Manage your profile, preferences, security and privacy choices. Changes are saved to your account.",
+      "unavailableTitle": "We could not load your account"
+    },
+    "accountDeleted": {
+      "eyebrow": "Account closed",
+      "title": "Your account has been deleted",
+      "description": "Your Bookgolas account, reading data, consent records and private images have been removed. You can return to the public site or create a new account.",
+      "backHome": "Back to Bookgolas",
+      "signIn": "Go to sign in"
+    },
+    "accountSettings": {
+      "loading": "Loading your account...",
+      "retry": "Try again",
+      "offline": "You are offline. Reconnect and try again.",
+      "quota": "This account request is temporarily limited. Try again later.",
+      "consent": "Account consent is required before these settings can load.",
+      "unauthorizedTitle": "Sign-in required",
+      "profileTitle": "Profile",
+      "profileDescription": "Keep your Bookgolas profile current across the app and web.",
+      "email": "Email",
+      "nickname": "Nickname",
+      "nicknamePlaceholder": "Enter a nickname",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "saved": "Profile saved.",
+      "required": "Enter a nickname.",
+      "loadError": "We could not load your profile. Try again.",
+      "emptyTitle": "Your profile is not ready",
+      "emptyDescription": "We could not find a profile for this account yet.",
+      "avatar": "Profile photo",
+      "avatarChoose": "Choose an image",
+      "avatarSave": "Save photo",
+      "avatarSaving": "Uploading...",
+      "avatarSaved": "Profile photo saved.",
+      "avatarError": "We could not save that photo. Your current photo is unchanged.",
+      "avatarTypeError": "Choose a JPEG, PNG or WebP image under 2 MB.",
+      "preferencesTitle": "Preferences",
+      "theme": "Theme",
+      "themeDescription": "Choose how Bookgolas looks in this browser.",
+      "themeSystem": "System",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "language": "Language",
+      "languageDescription": "Choose the language for this account view.",
+      "languageKo": "한국어",
+      "languageEn": "English",
+      "languageConfirmTitle": "Change language?",
+      "languageConfirmDescription": "The account page will reload in your selected language.",
+      "languageConfirm": "Change language",
+      "languageCancel": "Keep current language",
+      "securityTitle": "Security",
+      "password": "Password",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "passwordSave": "Update password",
+      "passwordSaved": "Password updated.",
+      "passwordMin": "Use at least 6 characters.",
+      "passwordMismatch": "The passwords do not match.",
+      "passwordCurrentRequired": "Enter your current password.",
+      "passwordError": "We could not update your password. Try again.",
+      "legalTitle": "Information and privacy",
+      "terms": "Terms of service",
+      "privacy": "Privacy policy",
+      "aiConsent": "AI consent settings",
+      "announcements": "Announcements",
+      "notifications": "Notification settings",
+      "logout": "Sign out",
+      "deleteTitle": "Delete account",
+      "deleteDescription": "This permanently removes your account, books, reading history, consent records and private images. This action cannot be undone.",
+      "deleteOpen": "Delete my account",
+      "deleteDialogTitle": "Delete your account permanently?",
+      "deleteDialogDescription": "To continue, confirm the deletion and re-enter your current password. OAuth accounts only need their active session.",
+      "deleteConfirmationLabel": "Type DELETE to confirm",
+      "deleteConfirmationHint": "Enter DELETE exactly",
+      "deleteConfirmationWord": "DELETE",
+      "deletePasswordLabel": "Current password",
+      "deletePasswordHint": "Required for password accounts",
+      "deleteConfirm": "Permanently delete account",
+      "deleteWorking": "Deleting account...",
+      "deleteCancel": "Keep my account",
+      "deleteConfirmationRequired": "Type DELETE exactly to continue.",
+      "deletePasswordRequired": "Enter your current password.",
+      "deleteReauthError": "We could not verify your session or password. Your account is unchanged.",
+      "deleteOffline": "You are offline. Reconnect before deleting your account.",
+      "deleteError": "We could not delete your account. Your account is unchanged. Try again.",
+      "subscriptionTitle": "Subscription",
+      "subscriptionDescription": "Your current free account status is shown here. Web subscription controls are disabled.",
+      "subscriptionStatus": "Free account",
+      "subscriptionDisabled": "Unavailable on Web",
+      "subscriptionOpen": "View status"
+    },
+    "export": {
+      "title": "Export reading data",
+      "description": "Send your selected year's books, progress, sessions, records, images, goals and AI results to your account email.",
+      "yearLabel": "Export year",
+      "emailLabel": "Confirm account email",
+      "emailHint": "Enter the email for your signed-in account.",
+      "formatLabel": "File format",
+      "includeImages": "Include page images and OCR text",
+      "submit": "Request export",
+      "submitting": "Preparing export...",
+      "loading": "Preparing your reading data...",
+      "success": "Your {year} reading data was sent by email.",
+      "emptyTitle": "There is no data to export",
+      "emptyDescription": "No reading data was saved in {year}.",
+      "retry": "Try again",
+      "errorTitle": "We could not export your reading data",
+      "errorDescription": "The export could not be completed. Try again shortly.",
+      "offlineTitle": "You are offline",
+      "offlineDescription": "Reconnect before trying the export again.",
+      "consentTitle": "Account consent required",
+      "consentDescription": "Account consent is required before reading data can be exported.",
+      "quotaTitle": "Export limit reached",
+      "quotaDescription": "The export limit has been reached. Try again later.",
+      "unauthorizedTitle": "Sign-in required",
+      "unauthorizedDescription": "Sign in to export your reading data.",
+      "invalidRequest": "Check the year and account email."
+    },
+    "notifications": {
+      "loading": "Loading notification settings...",
+      "retry": "Try again",
+      "offlineTitle": "You are offline",
+      "offlineDescription": "Reconnect before loading or saving notification settings.",
+      "consentTitle": "Notification consent required",
+      "consentDescription": "Grant notification consent in account privacy settings before enabling browser notifications.",
+      "quotaTitle": "Notification registration is limited",
+      "quotaDescription": "This account has reached the current notification registration limit. Try again later.",
+      "errorTitle": "We could not load notification settings",
+      "errorDescription": "Notification settings are temporarily unavailable. Try again shortly.",
+      "title": "Browser notifications",
+      "description": "Allow Bookgolas to show reading reminders in this browser. Permission is requested only after you choose enable.",
+      "registered": "Enabled",
+      "notRegistered": "Not enabled",
+      "unsupported": "Unsupported",
+      "denied": "Blocked",
+      "unsupportedTitle": "This browser cannot receive Web Push",
+      "unsupportedDescription": "Use a supported secure browser or keep in-app notification settings enabled instead.",
+      "deniedTitle": "Browser permission is blocked",
+      "deniedDescription": "Allow notifications for this site in your browser settings, then return here to try again.",
+      "enabling": "Enabling...",
+      "enable": "Enable browser notifications",
+      "disabling": "Disabling...",
+      "disable": "Disable browser notifications",
+      "enabled": "Browser notifications enabled.",
+      "disabled": "Browser notifications disabled.",
+      "deliveryUnverified": "Registration is saved for this browser. Hosted Web Push delivery is not verified yet.",
+      "permissionDescription": "Your browser will ask for permission after you press the button.",
+      "settingsTitle": "Notification preferences",
+      "settingsDescription": "Choose which reading reminders and account announcements you want to receive.",
+      "notificationEnabled": "Notifications enabled",
+      "dailyReminder": "Daily reading reminder",
+      "goalAlarm": "Reading goal alarm",
+      "eventNudge": "Event nudges",
+      "announcements": "Announcements",
+      "dailyReminderTime": "Daily reminder time",
+      "goalAlarmTime": "Goal alarm time",
+      "saved": "Notification preferences saved.",
+      "fallbackTitle": "In-app notifications remain available",
+      "fallbackDescription": "If this browser cannot deliver Web Push, Bookgolas can still show notification states inside the account experience.",
+      "accountBack": "Back to My Page"
+    },
+    "consent": {
+      "title": "Feature consent",
+      "loading": "Loading consent settings...",
+      "saving": "Saving...",
+      "grant": "Grant consent",
+      "deny": "Withdraw consent",
+      "status": {
+        "required": "Not configured",
+        "granted": "Granted",
+        "denied": "Withdrawn"
+      },
+      "errors": {
+        "load": "We could not load your consent settings. Try again.",
+        "save": "We could not save your consent setting. Try again.",
+        "offline": "You are offline. Reconnect and try again."
+      },
+      "errorTitle": "We could not update consent settings",
+      "kinds": {
+        "ai": {
+          "title": "AI features",
+          "description": "Use reading records for AI search, analysis, recommendations and review drafts."
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Receive reading goal and reminder notifications."
+        },
+        "camera": {
+          "title": "Camera",
+          "description": "Capture book pages and save them as reading records."
+        },
+        "share": {
+          "title": "Sharing",
+          "description": "Use sharing features when sharing reading records."
+        },
+        "ocr": {
+          "title": "Photo text recognition",
+          "description": "Recognize text from photographed book pages."
+        }
+      }
+    },
+    "aiConsent": {
+      "title": "Provider-specific AI consent",
+      "description": "Choose separately whether OpenAI or Google Cloud Vision may process the data needed for the AI feature you start. Each choice records the policy version and receipt.",
+      "loading": "Loading provider consent...",
+      "errorTitle": "We could not load AI provider consent",
+      "retry": "Check again",
+      "saving": "Saving consent...",
+      "grant": "Allow provider",
+      "withdraw": "Withdraw consent",
+      "statusLabel": "Status",
+      "policyLabel": "Policy version",
+      "receiptLabel": "Receipt",
+      "notRecorded": "Not recorded",
+      "details": "View data and transfer details",
+      "actionLabel": "When it runs",
+      "dataLabel": "Data used",
+      "recipientLabel": "Recipient",
+      "sendBlocked": "New requests to this provider stay blocked until consent is confirmed.",
+      "failClosed": "The status could not be confirmed, so no new data is sent.",
+      "success": {
+        "grant": "Provider consent saved.",
+        "withdraw": "Provider consent withdrawn. New requests are blocked."
+      },
+      "states": {
+        "allowed": "Allowed",
+        "not_allowed": "Not allowed",
+        "unknown": "Confirmation needed",
+        "unavailable": "Unavailable"
+      },
+      "errors": {
+        "unknown": "Consent status is unknown. Try checking again.",
+        "unauthorized": "Sign in before changing provider consent.",
+        "consent_required": "Consent is required before this provider can be used.",
+        "insufficient_data": "More information is needed before this action can run.",
+        "input_too_large": "The AI input is too large. Shorten the request and try again.",
+        "rate_limit_exceeded": "The AI request rate limit was reached. Try again later.",
+        "quota_exceeded": "The operational AI quota was reached. Try again later.",
+        "concurrency_exceeded": "Too many AI requests are running. Try again when one finishes.",
+        "budget_exceeded": "The operational AI budget was reached. Try again later.",
+        "hard_cap_exceeded": "The operational AI safety cap was reached. Try again later.",
+        "provider_timeout": "The AI provider timed out. Try again later.",
+        "provider_error": "The AI provider returned an error. Try again later.",
+        "configuration_error": "The AI provider is not configured. No new data is sent.",
+        "offline": "You are offline. Reconnect and try again."
+      },
+      "providers": {
+        "google_cloud_vision": {
+          "title": "Google Cloud Vision OCR",
+          "description": "Allow the selected page image and language hints to be sent for text recognition."
+        },
+        "open_ai": {
+          "title": "OpenAI-powered features",
+          "description": "Allow the reading data needed for the OpenAI feature you choose to be processed."
+        }
+      }
+    },
+    "auth": {
+      "backToSite": "Back to Bookgolas",
+      "signInTitle": "Sign in to Bookgolas",
+      "signInDescription": "Continue your reading across app and web.",
+      "signUpTitle": "Create your Bookgolas account",
+      "signUpDescription": "Start a private reading space that syncs with the app.",
+      "resetTitle": "Reset your password",
+      "resetDescription": "We will send a secure password reset link to your email.",
+      "recoveryTitle": "Choose a new password",
+      "recoveryDescription": "Set a new password for your Bookgolas account.",
+      "email": "Email",
+      "nickname": "Nickname",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "signIn": "Sign in",
+      "signUp": "Create account",
+      "sendReset": "Send reset link",
+      "updatePassword": "Update password",
+      "processing": "Processing...",
+      "or": "or",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithApple": "Continue with Apple",
+      "saveEmail": "Save email on this device",
+      "forgotPassword": "Forgot password?",
+      "createAccount": "Create an account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "backToSignIn": "Back to sign in",
+      "confirmationSent": "Check your email to confirm your account before signing in.",
+      "resetSent": "If an account exists for this email, a reset link has been sent.",
+      "passwordUpdated": "Your password was updated. Sign in again with the new password.",
+      "verificationSent": "If this account still needs confirmation, a new email has been sent.",
+      "emailUnconfirmedDescription": "Confirm your email before signing in. You can request another confirmation email below.",
+      "resendVerification": "Resend confirmation email",
+      "resendCooldown": "Resend in {seconds}s",
+      "retry": "Try again",
+      "errors": {
+        "title": "We could not load the authentication page",
+        "emailRequired": "Enter your email.",
+        "emailInvalid": "Enter a valid email address.",
+        "passwordRequired": "Enter your password.",
+        "invalidCredentials": "The email or password is incorrect.",
+        "emailUnconfirmed": "Confirm your email before signing in.",
+        "nicknameRequired": "Enter a nickname.",
+        "passwordRejected": "Use a password that meets the account requirements.",
+        "passwordShort": "Use at least 6 characters for your password.",
+        "passwordMismatch": "The passwords do not match.",
+        "signOutFailed": "Your password changed, but we could not sign you out. Try again.",
+        "oauthCancelled": "Sign-in was cancelled. You can try again when you are ready.",
+        "oauthProvider": "The provider could not complete sign-in. Try again.",
+        "authCallback": "The sign-in link is invalid or expired. Start sign-in again.",
+        "generic": "We could not complete that request. Try again shortly."
+      }
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you requested does not exist or has moved.",
+      "back": "Back to Bookgolas home"
+    },
+    "routes": {
+      "announcements": {
+        "title": "Announcements",
+        "description": "Announcements arrive in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "onboarding": {
+        "title": "Onboarding",
+        "description": "Onboarding arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "library": {
+        "title": "My library",
+        "description": "The library arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "stats": {
+        "title": "Reading statistics",
+        "description": "Statistics arrive in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "calendar": {
+        "title": "Reading calendar",
+        "description": "The calendar arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "accountNotifications": {
+        "title": "Notification settings",
+        "description": "Choose browser notification preferences and manage the Web Push permission for this account."
+      },
+      "bookList": {
+        "title": "All books",
+        "description": "The book list arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "newBook": {
+        "title": "Add a book",
+        "description": "Book creation arrives in a later feature task. This route is ready inside the authenticated boundary."
+      },
+      "review": {
+        "title": "Reading review",
+        "description": "Reviews arrive in a later feature task. Only an ownership-verified book can open this route."
+      },
+      "mindMap": {
+        "title": "Mind map",
+        "description": "Mind maps arrive in a later feature task. Only an ownership-verified book can open this route."
+      },
+      "scan": {
+        "title": "Scan a book",
+        "description": "Browser book scanning arrives in a later feature task. This route does not request camera access yet."
+      },
+      "subscription": {
+        "title": "Subscription",
+        "description": "Web subscriptions and billing are unavailable. This page does not expose payment controls.",
+        "status": "Free account · Unavailable on Web",
+        "back": "Back to My Page"
+      }
+    },
+    "uiPrimitives": {
+      "eyebrow": "BLab consumer UI",
+      "title": "Shared UI primitives",
+      "description": "Shared Web components use the same tokens, states and keyboard behavior as the Flutter reference.",
+      "viewportNote": "English · light/dark · 390×844 / 1440×900",
+      "button": {
+        "heading": "Buttons",
+        "primary": "Primary action",
+        "secondary": "Secondary action",
+        "destructive": "Destructive action",
+        "loading": "Saving",
+        "disabled": "Unavailable",
+        "activated": "Button activated."
+      },
+      "card": {
+        "heading": "Cards and pressable surfaces",
+        "staticTitle": "Static card",
+        "staticMessage": "A surface for reading progress and state messages.",
+        "interactiveTitle": "Interactive card",
+        "interactiveMessage": "Enter or Space also opens this card.",
+        "disabledTitle": "Disabled card",
+        "activated": "Card opened."
+      },
+      "field": {
+        "heading": "Text fields",
+        "label": "Book title",
+        "placeholder": "Enter a book title",
+        "value": "The Art of Reading",
+        "errorLabel": "Page",
+        "errorPlaceholder": "Enter a page",
+        "error": "Enter a value no greater than the total page count.",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter a password",
+        "multilineLabel": "Note",
+        "multilinePlaceholder": "Write a reading note"
+      },
+      "feedback": {
+        "heading": "Loading, empty and error",
+        "loading": "Loading your library...",
+        "emptyTitle": "Your library is empty",
+        "emptyMessage": "Add a book in the app to see it here.",
+        "emptyAction": "How to add a book",
+        "errorTitle": "The library is unavailable",
+        "errorMessage": "Try again shortly.",
+        "retry": "Try again",
+        "retried": "Retry requested.",
+        "snackbar": "Changes saved.",
+        "dismiss": "Dismiss notification"
+      },
+      "navigation": {
+        "heading": "Tabs, segments and navigation",
+        "tabs": [
+          "Reading",
+          "To read",
+          "Finished"
+        ],
+        "tabLabel": "Reading status tabs",
+        "segments": [
+          "All",
+          "Records",
+          "Notes"
+        ],
+        "segmentLabel": "Record filter",
+        "bottomBarLabel": "Consumer navigation",
+        "selected": "selected",
+        "calendar": "Calendar",
+        "account": "My page"
+      },
+      "boundaries": {
+        "heading": "State boundaries",
+        "unauthorizedTitle": "Sign-in required",
+        "unauthorizedMessage": "Sign in to view your library.",
+        "signIn": "Go to sign in",
+        "consentTitle": "Consent required",
+        "consentMessage": "Choose consent before using AI and notification features.",
+        "consent": "Open consent settings",
+        "quotaTitle": "This month’s AI quota is used",
+        "quotaMessage": "You can use this feature again in the next period.",
+        "quota": "View usage",
+        "offlineTitle": "You are offline",
+        "offlineMessage": "Reconnect before trying to save again.",
+        "reconnect": "Reconnect"
+      },
+      "pressable": {
+        "heading": "Pressable feedback",
+        "label": "Pressable region",
+        "activated": "Region activated."
+      },
+      "boundariesFootnote": "iOS widgets, Siri/App Shortcuts, native push, camera/OCR, the native share sheet and RevenueCat subscriptions remain native-only Web boundaries."
     }
   }
 }

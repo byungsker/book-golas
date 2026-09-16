@@ -1,0 +1,23 @@
+{
+  "issue": 430,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "native": {
+    "screen": "app/lib/ui/my_library/widgets/my_library_screen.dart",
+    "recall": "app/lib/ui/recall/widgets/global_recall_search_sheet.dart",
+    "tabs": ["reading", "review", "records"],
+    "actions": ["debounced title/author search", "record type filter", "record detail", "go to book", "global Recall entry"]
+  },
+  "web": {
+    "route": "/[locale]/library",
+    "api": "/api/consumer/library",
+    "component": "src/components/consumer/library-client.tsx",
+    "tabs": ["reading", "review", "records"],
+    "searchFields": ["title", "author"],
+    "pagination": {"kind": "server-cursor", "stableOrder": ["updated_at", "id"], "recordOrder": ["created_at", "id"], "deduplicateBy": "id", "cancellation": "AbortController plus request sequence"},
+    "recall": {"entry": "global", "historyScope": "book_id IS NULL", "resultIsBookList": false}
+  },
+  "locales": ["ko", "en"],
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
+  "nativeOnly": ["iOS widget", "Siri/App Shortcuts", "native push", "camera/OCR", "share sheet", "RevenueCat subscription"],
+  "dataPolicy": {"ownerScoped": true, "callerIdentityRejected": true, "softDeletedExcluded": true, "recallHistoryOwnerScoped": true, "recallHistoryNotBookList": true}
+}

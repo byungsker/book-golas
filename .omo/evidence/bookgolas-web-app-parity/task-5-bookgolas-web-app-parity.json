@@ -1,0 +1,64 @@
+{
+  "issue": 414,
+  "target_delivery_unit": "web",
+  "target_version": "1.1.0",
+  "delivery_profile": "web-release-train",
+  "red": {
+    "before": [
+      "npm run test:e2e -- --list was not defined",
+      "only the Chromium Playwright project was configured",
+      "fixture and evidence path contracts were not present",
+      "remote npm run reset:fixtures failed because seed.sql directly deleted from storage.objects"
+    ]
+  },
+  "green": {
+    "commands": [
+      "npm run test:e2e -- --list",
+      "npm run test:fixtures",
+      "npm run test:fixtures:runtime",
+      "npm run test:evidence-paths",
+      "remote Tailscale Docker host: npm run test:fixtures:runtime"
+    ],
+    "result": "PASS",
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "listed_tests": 15,
+    "fixture_contract": "2 isolated users, 2 books, 2 images",
+    "remote_reset": {
+      "result": "PASS",
+      "tested_commit": "0460df44e964b83e6c1d284669c5a55d73b78922",
+      "fixture_upload": "2 synthetic PNG objects uploaded, listed and downloaded through the Storage API",
+      "storage_bytes": 68,
+      "evidence": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md"
+    }
+  },
+  "negative": {
+    "command": "npm run test:e2e -- --project=chromium --grep missing-session",
+    "result": "PASS",
+    "assertion": "missing consumer session fails closed without exposing book routes"
+  },
+  "surface": {
+    "command": "npm run test:e2e",
+    "result": "PASS",
+    "tests": 15,
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "evidence_writer": "Chromium only; Firefox and WebKit do not overwrite canonical screenshots"
+  },
+  "cleanup": {
+    "local_reset_command": "npm run reset:fixtures",
+    "status": "PASS_ON_REMOTE_DOCKER_HOST",
+    "reason": "Validated against a real Docker Desktop engine on an isolated Tailscale-linked remote host; the local locked host remains unavailable.",
+    "safety": "The reset command is restricted to supabase db reset --local and the committed local seed uses only reserved .invalid addresses, fixed UUIDs and a synthetic PNG.",
+    "storage_upload": "The reset script uploads the synthetic PNG to both local book-images paths after the database reset using the ephemeral local service-role key.",
+    "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/remote-reset-verification.md",
+    "tested_commit": "0460df44e964b83e6c1d284669c5a55d73b78922"
+  },
+  "plan": ".omo/plans/bookgolas-web-app-parity.md"
+}

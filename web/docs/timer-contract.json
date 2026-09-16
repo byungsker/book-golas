@@ -1,0 +1,73 @@
+{
+  "issue": 436,
+  "title": "Browser timer and reading sessions",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "native": {
+    "viewModel": "app/lib/ui/book_detail/view_model/reading_timer_view_model.dart:1-180",
+    "service": "app/lib/data/services/reading_timer_service.dart",
+    "model": "app/lib/domain/models/reading_session.dart",
+    "database": "supabase/migrations/20260131204925_add_reading_sessions.sql:1-31",
+    "surfaces": ["book detail", "reading screen", "floating timer bar", "reading timer modal"],
+    "actions": ["start", "pause", "resume", "stop", "restore", "clearOnLogout"],
+    "states": ["idle", "running", "paused", "stopping", "saved", "discarded", "error"]
+  },
+  "web": {
+    "route": "/{locale}/books/{bookId}",
+    "readingRoute": "/{locale}/reading/{bookId}",
+    "control": "src/components/consumer/reading-timer-control.tsx",
+    "floatingBar": "src/components/consumer/floating-timer-bar.tsx",
+    "provider": "src/components/consumer/consumer-timer-provider.tsx",
+    "api": "/api/consumer/timer",
+    "browserDisposition": {
+      "start": "localStorage state is created before the first server request",
+      "pauseResume": "segment time is accumulated in localStorage and restored after refresh",
+      "stop": "typed private API writes reading_sessions and books.total_reading_seconds",
+      "retryableFailure": "timer state remains available after offline or server failure",
+      "logout": "SIGNED_OUT and bookgolas:logout remove the local timer state"
+    }
+  },
+  "locales": ["ko", "en"],
+  "constants": {
+    "minimumSeconds": 30,
+    "maximumSeconds": 28800,
+    "requestMaximumSeconds": 86400
+  },
+  "states": [
+    "idle",
+    "hydrating",
+    "loading",
+    "empty",
+    "running",
+    "paused",
+    "stopping",
+    "saved",
+    "discarded",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "logged-out",
+    "max-duration"
+  ],
+  "operations": ["start", "pause", "resume", "stop", "restore", "clearOnLogout"],
+  "persistence": {
+    "beforeStop": "browser-local",
+    "afterStop": "reading_sessions plus books.total_reading_seconds",
+    "idempotency": "client UUID is sent as idempotencyKey and stored as the session id",
+    "ownership": "server derives the user from the verified session and scopes book/session reads and writes"
+  },
+  "nativeOnly": [
+    "iOS widget",
+    "Siri/App Shortcuts",
+    "native push notifications",
+    "camera capture",
+    "share sheet",
+    "subscription and in-app purchase"
+  ],
+  "qa": {
+    "happy": "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"start|pause|stop|refresh\"",
+    "failure": "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"minimum|duplicate|logout\""
+  },
+  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-22-bookgolas-web-app-parity.json"
+}

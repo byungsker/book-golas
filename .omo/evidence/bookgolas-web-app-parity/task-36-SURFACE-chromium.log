@@ -1,0 +1,377 @@
+
+> web@0.1.0 test:e2e
+> playwright test --project=chromium
+
+[WebServer] (node:76493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76559) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:76591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 165 tests using 5 workers
+
+(node:76595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    5 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile light (3.8s)
+  ✓    2 [chromium] › tests/e2e/ai-artifacts.spec.ts:20:5 › mindmap renders the owned note structure and connections (3.9s)
+  ✓    3 [chromium] › tests/e2e/auth-oauth.spec.ts:33:7 › Google PKCE success creates a session and preserves the locale return (4.2s)
+  ✓    1 [chromium] › tests/e2e/ai-consent.spec.ts:24:5 › grant and withdraw provider-specific consent state (4.3s)
+  ✓    6 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile dark (1.0s)
+  ✓    7 [chromium] › tests/e2e/ai-artifacts.spec.ts:30:5 › reading insights renders localized insight cards (987ms)
+  ✓    8 [chromium] › tests/e2e/auth-oauth.spec.ts:33:7 › Apple PKCE success creates a session and preserves the locale return (964ms)
+  ✓    4 [chromium] › tests/e2e/account-settings.spec.ts:24:5 › profile avatar theme and language round trip (5.2s)
+  ✓   12 [chromium] › tests/e2e/auth-oauth.spec.ts:55:5 › invalid or expired callback code returns a generic localized error (261ms)
+  ✓   10 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet light (745ms)
+  ✓   14 [chromium] › tests/e2e/auth-oauth.spec.ts:66:5 › invalid provider cancellation hides provider details (211ms)
+  ✓   11 [chromium] › tests/e2e/ai-artifacts.spec.ts:37:5 › recommendation screen opens the browser action dialog (892ms)
+  ✓    9 [chromium] › tests/e2e/ai-consent.spec.ts:51:5 › unknown consent state stays blocked and unavailable state is visible (1.5s)
+  ✓   16 [chromium] › tests/e2e/auth-oauth.spec.ts:80:5 › invalid provider error is generic and hides provider details (221ms)
+  ✓   13 [chromium] › tests/e2e/account-settings.spec.ts:51:5 › subscription entry remains disabled on Web (923ms)
+  ✓   19 [chromium] › tests/e2e/auth-oauth.spec.ts:94:5 › external returnTo is rejected by the full callback flow (368ms)
+  ✓   15 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet dark (724ms)
+  ✓   22 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop light (721ms)
+  ✓   17 [chromium] › tests/e2e/ai-artifacts.spec.ts:46:5 › missing and expired caches regenerate once per request (1.4s)
+  ✓   20 [chromium] › tests/e2e/account-settings.spec.ts:62:5 › foreign profile update and avatar failure preserve ownership (1.6s)
+  ✓   23 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop dark (730ms)
+  ✓   26 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile light (705ms)
+  ✓   24 [chromium] › tests/e2e/ai-artifacts.spec.ts:58:5 › rate-limit and provider states remain visible (1.3s)
+  ✓   27 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile dark (778ms)
+  ✓   25 [chromium] › tests/e2e/account-settings.spec.ts:75:5 › password validation and provider failure keep the password local (2.2s)
+  ✓   29 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet light (710ms)
+  ✓   31 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet dark (743ms)
+  ✓   32 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop light (716ms)
+  ✓   28 [chromium] › tests/e2e/ai-artifacts.spec.ts:68:5 › empty, source-change, consent, quota and offline fixtures stay distinct (3.1s)
+  ✘   21 [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile (5.7s)
+(node:76660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   33 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop dark (741ms)
+  ✓   34 [chromium] › tests/e2e/ai-artifacts.spec.ts:87:5 › foreign and unauthorized artifacts fail closed (1.3s)
+  ✓   35 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile light (720ms)
+  ✓   38 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile dark (719ms)
+  ✓   30 [chromium] › tests/e2e/account-settings.spec.ts:99:5 › loading empty error unauthorized consent quota and offline account states (4.4s)
+  ✓   39 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet light (716ms)
+  ✓   37 [chromium] › tests/e2e/book-detail.spec.ts:22:5 › detail exposes metadata and completes before a confirmed delete (1.9s)
+  ✓   41 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet dark (721ms)
+  ✓   43 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop light (708ms)
+  ✓   18 [chromium] › tests/e2e/ai-consent.spec.ts:65:5 › quota budget provider and other operational error states (10.3s)
+  ✓   42 [chromium] › tests/e2e/book-detail.spec.ts:56:5 › detail supports planned start and paused resume actions (1.5s)
+  ✓   44 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop dark (704ms)
+  ✓   40 [chromium] › tests/e2e/book-discovery.spec.ts:19:5 › search and manual-isbn happy path keeps native search and recommendation entry (2.8s)
+  ✓   47 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile light (720ms)
+  ✓   49 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile dark (687ms)
+  ✘   36 [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop (5.7s)
+  ✓   46 [chromium] › tests/e2e/book-detail.spec.ts:74:5 › foreign, deleted and invalid-transition detail requests fail closed (1.9s)
+(node:76685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   50 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet light (709ms)
+  ✓   51 [chromium] › tests/e2e/calendar.spec.ts:19:5 › calendar month navigation and filters (1.1s)
+  ✓   53 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet dark (715ms)
+  ✓   45 [chromium] › tests/e2e/book-lifecycle.spec.ts:19:5 › add and schedule lifecycle saves metadata, status, priority and an edited daily goal (3.7s)
+  ✓   48 [chromium] › tests/e2e/book-discovery.spec.ts:49:5 › latest search cancels a stale provider response (2.8s)
+  ✓   55 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop light (733ms)
+  ✓   54 [chromium] › tests/e2e/calendar.spec.ts:44:5 › calendar day-detail opens owned book (859ms)
+  ✓   58 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop dark (720ms)
+  ✓   59 [chromium] › tests/e2e/calendar.spec.ts:57:5 › calendar timezone keeps UTC midnight events on the correct KST day (767ms)
+  ✓   60 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile light (700ms)
+  ✓   57 [chromium] › tests/e2e/book-discovery.spec.ts:61:5 › unsupported invalid upstream states preserve scanner and manual fallbacks (1.8s)
+  ✓   61 [chromium] › tests/e2e/calendar.spec.ts:67:5 › calendar day detail preserves paused and planned statuses (826ms)
+  ✓   62 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile dark (682ms)
+  ✓   64 [chromium] › tests/e2e/calendar.spec.ts:79:5 › calendar empty state (827ms)
+  ✓   63 [chromium] › tests/e2e/charts-goals.spec.ts:19:5 › reading statistics metrics (1.1s)
+  ✓   65 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet light (692ms)
+  ✓   56 [chromium] › tests/e2e/book-lifecycle.spec.ts:56:5 › invalid, duplicate and foreign writes stay bounded and recoverable (3.2s)
+  ✓   66 [chromium] › tests/e2e/calendar.spec.ts:86:5 › calendar network failure (717ms)
+  ✓   68 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet dark (748ms)
+  ✓   67 [chromium] › tests/e2e/charts-goals.spec.ts:36:5 › annual goal updates (991ms)
+  ✓   70 [chromium] › tests/e2e/calendar.spec.ts:93:5 › calendar foreign events stay out of day detail (758ms)
+  ✘   52 [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile (5.7s)
+(node:76716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   71 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop light (917ms)
+  ✓   73 [chromium] › tests/e2e/calendar.spec.ts:102:5 › calendar deleted books stay out of day detail (682ms)
+  ✓   72 [chromium] › tests/e2e/charts-goals.spec.ts:48:5 › stats share fallback (1.0s)
+  ✓   75 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop dark (722ms)
+  ✓   77 [chromium] › tests/e2e/charts-goals.spec.ts:57:5 › statistics empty state (854ms)
+  ✓   78 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile light (715ms)
+  ✓   79 [chromium] › tests/e2e/charts-goals.spec.ts:64:5 › statistics invalid-range (741ms)
+  ✓   80 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile dark (702ms)
+  ✓   69 [chromium] › tests/e2e/consumer-shell.spec.ts:27:5 › desktop shell exposes exactly five tabs, deep-link state, search modes and timer mount (3.9s)
+  ✓   81 [chromium] › tests/e2e/charts-goals.spec.ts:71:5 › statistics stale snapshot (834ms)
+  ✓   82 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet light (688ms)
+  ✓   85 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet dark (722ms)
+  ✓   76 [chromium] › tests/e2e/export.spec.ts:30:5 › export success keeps selected year, format and localized account action (3.4s)
+  ✓   83 [chromium] › tests/e2e/consumer-shell.spec.ts:74:5 › mobile shell keeps five tabs and cycles home and chart re-taps in the URL (1.5s)
+  ✓   84 [chromium] › tests/e2e/home-book-list.spec.ts:22:5 › happy path renders five native status tabs, cards, progress, target D-day, add entry and keeps soft-deleted rows hidden (1.6s)
+  ✓   86 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop light (809ms)
+  ✓   90 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop dark (726ms)
+  ✘   74 [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop (5.7s)
+  ✓   91 [chromium] › tests/e2e/auth-email.spec.ts:164:5 › signup validates nickname and creates an email account (875ms)
+(node:76744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   89 [chromium] › tests/e2e/home-book-list.spec.ts:57:5 › loading skeleton precedes the resolved reading list (2.1s)
+  ✓   88 [chromium] › tests/e2e/consumer-shell.spec.ts:95:5 › pending and error boundaries remain inside the authenticated shell (2.8s)
+  ✘   93 [chromium] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home (742ms)
+  ✓   92 [chromium] › tests/e2e/auth-email.spec.ts:186:5 › login saves opted-in email and logout clears browser and server session (1.2s)
+  ✓   95 [chromium] › tests/e2e/consumer-shell.spec.ts:111:5 › unauthorized-private-data fixture never renders another reader's book (731ms)
+(node:76760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   97 [chromium] › tests/e2e/consumer-shell.spec.ts:120:5 › expired-session redirects a refreshed private deep link to sign in (680ms)
+  ✓   87 [chromium] › tests/e2e/export.spec.ts:51:5 › export loading and empty states remain observable (5.0s)
+  ✓   94 [chromium] › tests/e2e/home-book-list.spec.ts:67:5 › empty status surfaces stay distinct and keep the add-entry action (2.6s)
+  ✓   96 [chromium] › tests/e2e/auth-email.spec.ts:209:5 › recovery sends a non-enumerating link and updates the password (2.3s)
+  ✓   98 [chromium] › tests/e2e/images-ocr.spec.ts:32:5 › upload, OCR and manual fallback keep a private image usable (2.3s)
+  ✓  102 [chromium] › tests/e2e/auth-email.spec.ts:234:5 › invalid credentials show a localized non-enumerating error (877ms)
+  ✓  103 [chromium] › tests/e2e/images-ocr.spec.ts:51:5 › provider failure leaves the image available for manual text (450ms)
+  ✓  101 [chromium] › tests/e2e/home-book-list.spec.ts:88:5 › network error offers retry and offline state is announced (1.4s)
+  ✓   99 [chromium] › tests/e2e/library.spec.ts:19:5 › happy path keeps native tabs, title/author search, cursor pagination and record detail entry (2.6s)
+  ✓  104 [chromium] › tests/e2e/auth-email.spec.ts:245:5 › unconfirmed email supports a localized resend cooldown (950ms)
+  ✓  105 [chromium] › tests/e2e/images-ocr.spec.ts:69:5 › oversize image is rejected before upload (956ms)
+  ✓  109 [chromium] › tests/e2e/images-ocr.spec.ts:80:5 › denied camera exposes the file fallback (273ms)
+  ✓  110 [chromium] › tests/e2e/images-ocr.spec.ts:88:5 › insecure camera exposes the file fallback (290ms)
+  ✓  111 [chromium] › tests/e2e/images-ocr.spec.ts:96:5 › expired-url images remain rendered through a signed URL (233ms)
+  ✓  107 [chromium] › tests/e2e/library.spec.ts:62:5 › loading state precedes the resolved library response (1.5s)
+  ✓  113 [chromium] › tests/e2e/library.spec.ts:69:5 › cancellation keeps the latest debounced title search and discards the slow response (1.5s)
+  ✓  108 [chromium] › tests/e2e/onboarding.spec.ts:54:7 › ko three-page onboarding persists age policy through skip and start (2.5s)
+  ✓  112 [chromium] › tests/e2e/progress.spec.ts:25:5 › progress moves forward and keeps history (1.8s)
+  ✓  106 [chromium] › tests/e2e/notes-highlights.spec.ts:22:5 › create, edit and delete notes, highlights and memorable pages (5.0s)
+  ✓  100 [chromium] › tests/e2e/export.spec.ts:68:5 › export unauthorized consent quota and offline states keep safe feedback (7.1s)
+  ✓  116 [chromium] › tests/e2e/progress.spec.ts:39:5 › progress completes at total pages (1.9s)
+  ✓  115 [chromium] › tests/e2e/onboarding.spec.ts:54:7 › en three-page onboarding persists age policy through skip and start (2.4s)
+  ✓  117 [chromium] › tests/e2e/notes-highlights.spec.ts:59:5 › invalid page and invalid rectangle values are rejected (651ms)
+  ✓  119 [chromium] › tests/e2e/progress.spec.ts:53:5 › progress renders retry attempt messaging (849ms)
+  ✓  120 [chromium] › tests/e2e/onboarding.spec.ts:94:5 › authenticated corrupt-storage state resets and remains completable (1.4s)
+  ✓  114 [chromium] › tests/e2e/library.spec.ts:84:5 › empty, foreign and unavailable boundaries stay private and retryable (4.1s)
+  ✓  121 [chromium] › tests/e2e/notes-highlights.spec.ts:76:5 › index-failure keeps saved record visible and retry is idempotent (1.8s)
+  ✓  118 [chromium] › tests/e2e/export.spec.ts:83:5 › mismatch invalid-year and caller identity are rejected (2.4s)
+  ✓  125 [chromium] › tests/e2e/notes-highlights.spec.ts:96:5 › foreign record requests fail closed (254ms)
+  ✓  122 [chromium] › tests/e2e/progress.spec.ts:62:5 › stale progress shows conflict and refetch (1.7s)
+  ✓  123 [chromium] › tests/e2e/onboarding.spec.ts:113:5 › anonymous onboarding uses the localized authentication handoff (1.3s)
+  ✓  128 [chromium] › tests/e2e/progress.spec.ts:74:5 › duplicate submits preserve one history event (723ms)
+  ✓  127 [chromium] › tests/e2e/recall.spec.ts:23:5 › global recall search source expansion copy and history (1.3s)
+  ✓  124 [chromium] › tests/e2e/library.spec.ts:116:5 › Recall entry searches records, keeps history separate from book results and exposes quota/consent states (2.3s)
+  ✓  129 [chromium] › tests/e2e/review-share.spec.ts:22:5 › save, draft and share review outcomes (1.7s)
+  ✓  130 [chromium] › tests/e2e/progress.spec.ts:98:5 › server-error never presents false success after history failure (1.7s)
+  ✓  133 [chromium] › tests/e2e/review-share.spec.ts:56:5 › consent is required before generating a draft (778ms)
+  ✓  132 [chromium] › tests/e2e/routes.spec.ts:37:5 › localized consumer routes resolve inside the authenticated boundary (1.9s)
+  ✓  136 [chromium] › tests/e2e/routes.spec.ts:64:5 › unauthorized consumers are redirected to a localized sign-in with a safe return target (219ms)
+  ✓  131 [chromium] › tests/e2e/recall.spec.ts:60:5 › book recall search source navigation and signed image (2.6s)
+  ✓  135 [chromium] › tests/e2e/review-share.spec.ts:63:5 › provider failure preserves an unsaved review (928ms)
+  ✓  137 [chromium] › tests/e2e/routes.spec.ts:79:5 › unsafe return targets fall back to the authenticated home route (153ms)
+  ✓  134 [chromium] › tests/e2e/progress.spec.ts:110:5 › progress page bounds reject a value above the total page count (1.7s)
+  ✓  126 [chromium] › tests/e2e/export.spec.ts:105:5 › delivery and download failures expose a retryable error (4.5s)
+  ✓  140 [chromium] › tests/e2e/routes.spec.ts:87:5 › locale metadata and public route boundaries remain intact (725ms)
+  ✓  139 [chromium] › tests/e2e/review-share.spec.ts:73:5 › clipboard failure uses the download fallback (782ms)
+  ✓  141 [chromium] › tests/e2e/session-lifecycle.spec.ts:95:5 › expired and invalid sessions produce one localized login redirect (1.3s)
+  ✓  143 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at mobile in dark theme (935ms)
+  ✓  144 [chromium] › tests/e2e/web-push.spec.ts:66:5 › permission settings and deep-link registration (1.0s)
+  ✓  145 [chromium] › tests/e2e/session-lifecycle.spec.ts:122:5 › foreign book IDs return the same safe not-found policy (789ms)
+  ✓  147 [chromium] › tests/e2e/web-push.spec.ts:93:5 › denied browser state remains recoverable (670ms)
+  ✓  146 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at mobile in light theme (765ms)
+  ✓  142 [chromium] › tests/e2e/timer.spec.ts:39:5 › timer starts, pauses, resumes, stops and survives refresh (2.2s)
+  ✓  148 [chromium] › tests/e2e/session-lifecycle.spec.ts:132:5 › deleted books return the same safe not-found policy (706ms)
+  ✓  149 [chromium] › tests/e2e/web-push.spec.ts:102:5 › unsupported browser keeps the in-app fallback (714ms)
+  ✓  151 [chromium] › tests/e2e/timer.spec.ts:75:5 › stop caps sessions over eight hours (747ms)
+  ✓  150 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at desktop in dark theme (856ms)
+  ✓  153 [chromium] › tests/e2e/web-push.spec.ts:110:5 › foreign subscription payload is rejected (658ms)
+  ✓  152 [chromium] › tests/e2e/session-lifecycle.spec.ts:141:5 › return-to login reloads the allowlisted deep link after authentication (857ms)
+  ✓  154 [chromium] › tests/e2e/timer.spec.ts:86:5 › minimum sessions are discarded (725ms)
+  ✓  155 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at desktop in light theme (854ms)
+  ✓  157 [chromium] › tests/e2e/timer.spec.ts:98:5 › duplicate stop is harmless (722ms)
+  ✓  138 [chromium] › tests/e2e/recall.spec.ts:88:5 › consent quota foreign and empty recall states (4.9s)
+  ✓  158 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at mobile in dark theme (789ms)
+  ✓  159 [chromium] › tests/e2e/timer.spec.ts:114:5 › logout clears browser timer state (735ms)
+  ✓  160 [chromium] › tests/e2e/recall.spec.ts:132:5 › history deletion is idempotent (708ms)
+  ✓  161 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at mobile in light theme (744ms)
+  ✓  156 [chromium] › tests/e2e/session-lifecycle.spec.ts:159:5 › logout from a private deep link ends on sign-in and never reuses the link (2.1s)
+  ✓  162 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at desktop in dark theme (803ms)
+  ✓  163 [chromium] › tests/e2e/session-lifecycle.spec.ts:180:5 › network loss during auth bootstrap exposes a safe unavailable boundary (635ms)
+  ✓  164 [chromium] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at desktop in light theme (804ms)
+  ✘  165 [chromium] › tests/e2e/ui-primitives.spec.ts:121:5 › keyboard activation and focus contract (5.6s)
+
+
+  1) [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile ─────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: '새로고침' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: '새로고침' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: '새로고침' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-ko-BLDS-consumer-contract-at-mobile-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop ────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: '새로고침' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: '새로고침' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: '새로고침' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-ko-BLDS-consumer-contract-at-desktop-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile ─────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: 'Refresh' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: 'Refresh' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Refresh' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-en-BLDS-consumer-contract-at-mobile-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop ────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: 'Refresh' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: 'Refresh' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Refresh' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-en-BLDS-consumer-contract-at-desktop-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "/en/home"
+    Received: null
+
+      86 |
+      87 |   if (destination.pathname === "/en/auth/sign-in") {
+    > 88 |     expect(destination.searchParams.get("next")).toBe("/en/home");
+         |                                                  ^
+      89 |     return;
+      90 |   }
+      91 |
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:88:50
+
+    Error Context: test-results/blab-parity-missing-sessio-bd6c8-losed-for-the-consumer-home-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/ui-primitives.spec.ts:121:5 › keyboard activation and focus contract ───
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByTestId('pressable').locator('.blab-pressable')
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByTestId('pressable').locator('.blab-pressable') with timeout 5000ms
+      - waiting for getByTestId('pressable').locator('.blab-pressable')
+        14 × locator resolved to <div tabindex="0" role="button" data-blab-pressed="false" aria-label="Pressable region" class="blab-pressable bookgolas-consumer-blab">…</div>
+           - unexpected value "inactive"
+
+
+      151 |   const pressable = page.getByTestId("pressable").locator(".blab-pressable");
+      152 |   await pressable.focus();
+    > 153 |   await expect(pressable).toBeFocused();
+          |                           ^
+      154 |   await pressable.press("Enter");
+      155 |   await expect(page.getByTestId("pressable-feedback")).toHaveText("Region activated.");
+      156 |
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/ui-primitives.spec.ts:153:27
+
+    Error Context: test-results/ui-primitives-keyboard-activation-and-focus-contract-chromium/error-context.md
+
+  6 failed
+    [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile ──────────
+    [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop ─────────
+    [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile ──────────
+    [chromium] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop ─────────
+    [chromium] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home
+    [chromium] › tests/e2e/ui-primitives.spec.ts:121:5 › keyboard activation and focus contract ────
+  159 passed (1.2m)

@@ -1,0 +1,20 @@
+-- Bookgolas Web Parity task 34 account deletion evidence
+-- Issue: #446 | Parent: #412 | Target: version/web/1.1.0
+-- Plan: .omo/plans/bookgolas-web-app-parity.md
+-- RED
+-- npm run test:account-deletion -- --grep cancel-or-retry
+-- Expected before implementation: npm reported the missing acceptance script (exit 1).
+-- GREEN
+-- npm run test:account-deletion: 3 files, 12 tests passed, exit 0.
+-- npm run test:account-deletion -- --grep cancel-or-retry: 1 file, 2 tests passed, 10 skipped, exit 0.
+-- Canonical delete-user route, localized confirmation, re-auth/session validation, idempotent fixtures and cleanup helper implemented.
+-- SURFACE
+-- npm run typecheck: passed, exit 0.
+-- npm run lint: passed with 0 errors and 3 existing @next/next/no-img-element warnings.
+-- npm run build: release-config gate passed; Next.js compiled, TypeScript passed, 42/42 static pages generated, exit 0.
+-- Chromium account-deletion E2E: 3/3 passed, including cancel, success/retry, failure and localized completion route checks.
+-- Local-only Supabase surface: blocked operationally. Remote Docker context byungsker-docker was configured and SSH reachable, but Docker Desktop stopped during image pulls; subsequent docker info and supabase status returned Cannot connect to the Docker daemon at http://docker.example.com. No hosted or Production project was accessed.
+-- CLEANUP
+-- Manual review: authenticated server session derives ownership; canonical delete-user receives only confirmation=true; no client-side cascade or service-role secret crosses the Web boundary; completion route is public and localized; git diff --check passed.
+-- Commit/PR delivery follows after final review.
+-- Plan: .omo/plans/bookgolas-web-app-parity.md

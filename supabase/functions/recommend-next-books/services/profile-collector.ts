@@ -17,7 +17,7 @@ export class ProfileCollector {
 
   async collect(userId: string): Promise<UserReadingProfile> {
     const completedBooks = await this.fetchCompletedBooks(userId);
-    const booksAnalytics = await this.analyzeBooksInDetail(completedBooks);
+    const booksAnalytics = await this.analyzeBooksInDetail(completedBooks, userId);
     const stats = calculateAggregateStats(booksAnalytics);
     const interests = await extractUserInterests(this.supabase, userId);
 
@@ -43,13 +43,14 @@ export class ProfileCollector {
   }
 
   private async analyzeBooksInDetail(
-    books: BookRecord[]
+    books: BookRecord[],
+    userId: string,
   ): Promise<BookReadingAnalytics[]> {
     const analytics: BookReadingAnalytics[] = [];
 
     for (const book of books) {
-      const progressRecords = await this.fetchProgressRecords(book.id);
-      const embeddings = await this.fetchEmbeddings(book.id);
+      const progressRecords = await this.fetchProgressRecords(book.id, userId);
+      const embeddings = await this.fetchEmbeddings(book.id, userId);
 
       const highlightCount = embeddings.filter(
         (e) => e.content_type === "highlight"
@@ -103,22 +104,25 @@ export class ProfileCollector {
   }
 
   private async fetchProgressRecords(
-    bookId: string
+    bookId: string,
+    userId: string,
   ): Promise<ProgressRecord[]> {
     const { data } = await this.supabase
       .from("reading_progress_history")
       .select("*")
       .eq("book_id", bookId)
+      .eq("user_id", userId)
       .order("created_at", { ascending: true });
 
     return (data as ProgressRecord[]) || [];
   }
 
-  private async fetchEmbeddings(bookId: string): Promise<EmbeddingRecord[]> {
+  private async fetchEmbeddings(bookId: string, userId: string): Promise<EmbeddingRecord[]> {
     const { data } = await this.supabase
       .from("reading_content_embeddings")
       .select("id, user_id, book_id, content_type, content_text, page_number, source_id")
-      .eq("book_id", bookId);
+      .eq("book_id", bookId)
+      .eq("user_id", userId);
 
     return (data as EmbeddingRecord[]) || [];
   }

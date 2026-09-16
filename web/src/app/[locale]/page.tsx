@@ -1285,7 +1285,7 @@ export default function Page() {
   });
 
   const localePath = (path: string) =>
-    locale === "en" ? `/en${path}` : path;
+    `/${locale}${path}`;
 
   return (
     <div className="mesh-gradient min-h-screen">

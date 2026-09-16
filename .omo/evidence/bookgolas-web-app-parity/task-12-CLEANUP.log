@@ -1,0 +1,8 @@
+Scenario: task-local browser/server cleanup and staged diff validation
+Invocation: lsof ports 3000/54329; process scan; evidence control-byte scan; git diff --cached --check
+Port 3000 listeners: 0
+Port 54329 listeners: 0
+Task-local Next/Playwright/OAuth fixture processes: 0
+Evidence terminal control bytes: 0
+git diff --cached --check: PASS
+Cleanup result: PASS

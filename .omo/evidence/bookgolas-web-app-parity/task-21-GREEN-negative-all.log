@@ -1,0 +1,8 @@
+
+> web@0.1.0 test:progress-ui:negative
+> node scripts/test-progress-ui.mjs --fixture stale && node scripts/test-progress-ui.mjs --fixture duplicate && node scripts/test-progress-ui.mjs --fixture server-error && node scripts/test-progress-ui.mjs --fixture page-bounds
+
+progress-ui contract passed (stale)
+progress-ui contract passed (duplicate)
+progress-ui contract passed (server-error)
+progress-ui contract passed (page-bounds)

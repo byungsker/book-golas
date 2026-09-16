@@ -1,0 +1,43 @@
+{
+  "issue": 447,
+  "task": 35,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-447-offline-boundary",
+  "fixtures": [
+    {
+      "name": "duplicate",
+      "expectedExit": 1,
+      "expectedFailure": "duplicate offline replay must be rejected because queue.enabled is false",
+      "assertions": ["queued=false", "queueFlushed=false", "retry-online"]
+    },
+    {
+      "name": "unsupported-mutation",
+      "expectedExit": 1,
+      "expectedFailure": "image, AI, push and timer mutations must remain online-only",
+      "assertions": ["images-ocr", "ai", "web-push", "timer", "queued=false"]
+    },
+    {
+      "name": "queue-enabled",
+      "expectedExit": 1,
+      "expectedFailure": "the release contract must keep queue.enabled false",
+      "assertions": ["enabled=false", "replay=false"]
+    },
+    {
+      "name": "missing-reconnect",
+      "expectedExit": 1,
+      "expectedFailure": "the reconnect event and retry state must remain observable",
+      "assertions": ["bookgolas:online-reconnected", "data-network-state=reconnected", "retryable=true"]
+    }
+  ],
+  "forbiddenMarkers": [
+    "indexedDB",
+    "Background Sync",
+    "serviceWorker.sync",
+    "navigator.serviceWorker.ready.sync",
+    "Dexie",
+    "localforage"
+  ]
+}

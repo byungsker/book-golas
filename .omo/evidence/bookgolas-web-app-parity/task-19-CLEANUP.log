@@ -1,0 +1,7 @@
+Task 19 cleanup verification (pre-commit)
+
+- npm run lint: PASS
+- npm run typecheck: PASS
+- npm run build: PASS; /[locale]/books/new and /api/consumer/book-lifecycle compiled as dynamic routes
+- git diff --cached --check: PASS
+- protected /private/tmp/bookgolas-web-blds-453 worktree: preserved and untouched

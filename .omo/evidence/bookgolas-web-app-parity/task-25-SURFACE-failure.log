@@ -1,0 +1,10 @@
+SURFACE failure — 2026-09-16
+
+Command:
+npx playwright test tests/e2e/review-share.spec.ts --project=chromium --grep "consent|provider|clipboard"
+
+Observed result:
+PASS — 3 tests
+- missing consent renders a distinct consent state
+- provider failure keeps the unsaved long review
+- clipboard failure falls back to a downloaded share card

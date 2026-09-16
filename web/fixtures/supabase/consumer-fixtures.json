@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "fixture_id": "bookgolas-web-414",
+  "users": [
+    {
+      "key": "user_a",
+      "id": "00000000-0000-4000-8000-000000000041",
+      "email": "fixture-user-a@local.invalid",
+      "nickname": "Fixture User A"
+    },
+    {
+      "key": "user_b",
+      "id": "00000000-0000-4000-8000-000000000042",
+      "email": "fixture-user-b@local.invalid",
+      "nickname": "Fixture User B"
+    }
+  ],
+  "books": [
+    {
+      "key": "user_a_book",
+      "id": "00000000-0000-4000-8000-000000000101",
+      "user_key": "user_a",
+      "title": "Fixture Book A",
+      "author": "Fixture Author A",
+      "start_date": "2026-01-01T00:00:00.000Z",
+      "target_date": "2026-01-31T00:00:00.000Z",
+      "current_page": 12,
+      "total_pages": 240,
+      "status": "reading",
+      "attempt_count": 1,
+      "image_path": null
+    },
+    {
+      "key": "user_b_book",
+      "id": "00000000-0000-4000-8000-000000000102",
+      "user_key": "user_b",
+      "title": "Fixture Book B",
+      "author": "Fixture Author B",
+      "start_date": "2026-02-01T00:00:00.000Z",
+      "target_date": "2026-02-28T00:00:00.000Z",
+      "current_page": 24,
+      "total_pages": 320,
+      "status": "planned",
+      "attempt_count": 1,
+      "image_path": null
+    }
+  ],
+  "images": [
+    {
+      "key": "user_a_image",
+      "id": "00000000-0000-4000-8000-000000000201",
+      "user_key": "user_a",
+      "book_key": "user_a_book",
+      "storage_path": "00000000-0000-4000-8000-000000000041/00000000-0000-4000-8000-000000000101/book-a.png",
+      "asset_path": "web/fixtures/supabase/assets/cover.png",
+      "mime_type": "image/png",
+      "page_number": 1
+    },
+    {
+      "key": "user_b_image",
+      "id": "00000000-0000-4000-8000-000000000202",
+      "user_key": "user_b",
+      "book_key": "user_b_book",
+      "storage_path": "00000000-0000-4000-8000-000000000042/00000000-0000-4000-8000-000000000102/book-b.png",
+      "asset_path": "web/fixtures/supabase/assets/cover.png",
+      "mime_type": "image/png",
+      "page_number": 1
+    }
+  ]
+}

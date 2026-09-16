@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseAdminConfig } from "@/lib/supabase-admin";
 import { requireAdminUser } from "@/lib/supabase-server";
 
 export async function POST(request: NextRequest) {
@@ -6,13 +7,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  let supabaseUrl: string;
+  let serviceRoleKey: string;
+  try {
+    ({ url: supabaseUrl, serviceRoleKey } = getSupabaseAdminConfig());
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
 
   const { userId, title, body, pushType } = await request.json();

@@ -1,0 +1,20 @@
+{
+  "issue": 442,
+  "task": 30,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "fixtures": [
+    { "name": "missing", "routeFixture": "ai-artifacts-missing", "expected": { "cacheState": "missing", "generated": true } },
+    { "name": "expired", "routeFixture": "ai-artifacts-expired", "expected": { "cacheState": "expired", "generated": true } },
+    { "name": "source-changed", "routeFixture": "ai-artifacts-source-changed", "expected": { "cacheState": "expired", "generated": true } },
+    { "name": "empty", "routeFixture": "ai-artifacts-empty", "expected": { "state": "empty" } },
+    { "name": "unauthorized", "routeFixture": "ai-artifacts-unauthorized", "expected": { "code": "unauthorized" } },
+    { "name": "consent", "routeFixture": "ai-artifacts-consent", "expected": { "code": "consent_required" } },
+    { "name": "quota", "routeFixture": "ai-artifacts-quota", "expected": { "code": "quota_exceeded" } },
+    { "name": "rate-limit", "routeFixture": "ai-artifacts-rate-limit", "expected": { "code": "rate_limit_exceeded" } },
+    { "name": "provider", "routeFixture": "ai-artifacts-provider", "expected": { "code": "provider_error" } },
+    { "name": "offline", "routeFixture": "ai-artifacts-offline", "expected": { "code": "offline" } },
+    { "name": "foreign", "routeFixture": "ai-artifacts-foreign", "expected": { "code": "not_found" } }
+  ],
+  "forbiddenMarkers": ["foreign-user-id", "User A", "service_role", "OPENAI_API_KEY", "purchase", "upgrade", "subscribe", "user_id:"]
+}

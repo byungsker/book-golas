@@ -1,0 +1,11 @@
+task-24 cleanup evidence
+branch=codex/feature/web/1.1.0/BOK-435-private-images-ocr
+base_revision=ee03a4a9e289e76bce98f370dec70669e017dc41
+git diff --check=PASS
+typecheck=PASS
+lint=PASS with two existing Next.js no-img-element warnings in the new capture panel
+build=PASS
+scope review=PASS; consumer images/OCR, private storage, fixtures, migration, localized copy and related tests only
+security review=PASS; verified session owner, private bucket, user/book storage prefix, signed URLs, no public image URL in fixture seed, no service-role client in Web code
+evidence normalization=PASS; task-24 logs end with newline and generated screenshot is present
+supabase fixture runtime=BLOCKED; byungsker-docker daemon was unreachable at http://docker.example.com
