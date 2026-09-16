@@ -49,5 +49,6 @@
     "evidence": ".omo/evidence/bookgolas-web-app-parity/task-33-CLEANUP.log",
     "detail": "Whitespace, obsolete memos query, and public provider-secret scans passed."
   },
-  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-33-bookgolas-web-app-parity.png"
+  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-33-bookgolas-web-app-parity.png",
+  "commit": "2670fc7"
 }
