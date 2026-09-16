@@ -19,3 +19,4 @@ export * from "./review-share";
 export * from "./recall";
 export * from "./routes";
 export * from "./timer";
+export * from "./web-push";

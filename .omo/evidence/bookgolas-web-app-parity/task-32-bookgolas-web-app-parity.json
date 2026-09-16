@@ -1,0 +1,40 @@
+{
+  "issue": 445,
+  "task": 32,
+  "parentIssue": 412,
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-445-web-push",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "status": "ready-for-pr",
+  "red": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-32-RED-test-web-push.log",
+    "detail": "Acceptance command failed before implementation because the script was missing."
+  },
+  "green": {
+    "status": "pass",
+    "commands": [
+      "npm run test:web-push",
+      "npm run test:web-push:negative"
+    ],
+    "detail": "5 Vitest files and 11 tests passed; 9 negative fixtures passed."
+  },
+  "surface": {
+    "status": "pass",
+    "commands": [
+      "npm test",
+      "npx playwright test tests/e2e/web-push.spec.ts --project=chromium --grep \"permission|settings|deep-link\"",
+      "npx playwright test tests/e2e/web-push.spec.ts --project=chromium --grep \"denied|unsupported|foreign\"",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run build"
+    ],
+    "detail": "Full npm test passed with 76 files and 374 tests; exact browser lanes passed 1/1 and 3/3."
+  },
+  "cleanup": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-32-CLEANUP.log",
+    "detail": "Diff, contract, ownership, localization, safe deep-link and public secret-marker checks passed."
+  },
+  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-32-bookgolas-web-app-parity.png"
+}

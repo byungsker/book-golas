@@ -167,6 +167,14 @@ async function getAuthContext(): Promise<AuthContext> {
     };
   }
 
+  if (routeFixture?.startsWith("web-push-")) {
+    return {
+      supabase: null,
+      user: { id: "00000000-0000-0000-0000-000000000001" } as User,
+      unavailable: false,
+    };
+  }
+
   if (routeFixture?.startsWith("ai-consent-")) {
     return {
       supabase: null,
