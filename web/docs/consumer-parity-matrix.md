@@ -107,7 +107,7 @@ Reading Statistics also records the quota-gated AI insight generate and retry ac
 | Camera, barcode, document scan and OCR | scanner, document scan and OCR utilities | Browser permission plus input/upload fallback | planned equivalent | #428/#435 |
 | Native share sheet | BookShareService and share cards | Web Share API plus clipboard/download fallback | planned equivalent | #443 |
 | RevenueCat subscriptions | Native service exists; paid flag defaults off | Purchase, restore, upgrade and customer center disabled | disabled | #444 |
-| Offline mutation | Local cache/draft and widget behavior only | Online-core boundary; no unverified offline writes | partial boundary | #447 |
+| Offline mutation | Local cache/draft and widget behavior only | Online-only boundary with read-only feedback, observable reconnect and no silent queue | online-only boundary | #447 |
 | Native deep links | bookgolas://book/... parser | Locale-preserving HTTPS routes and safe next paths | partial equivalent | #427 |
 
 ## Reading data export (#443)
@@ -144,6 +144,14 @@ The exact profile text is in the ledger. A missing profile key is a validation f
 | bookgolas://book/scan/{bookId} | /{locale}/books/{bookId}?scan=1 |
 
 The auth callback `next` value is a Web-owned return-path security contract covered by #427 and `getSafeNextPath`; it is intentionally not listed as a native deep-link mapping because the Flutter source does not implement a native `next` route contract.
+
+## Offline boundary (#447)
+
+Web 1.1.0 deliberately keeps the consumer core online-only. When the browser reports offline, the shared consumer shell exposes a localized read-only status with `data-queue-enabled="false"`; progress, book metadata/status, notes/highlights, timers, images/OCR, AI, Web Push and account writes are rejected for the offline attempt and remain available for an explicit retry after reconnect. The browser emits `bookgolas:online-reconnected` and renders the reconnect state so retry is observable. The review editor is the only proven local draft exception; its unfinished text stays on the device and is never replayed as a hidden mutation queue.
+
+State contract: loading, empty, error, unauthorized, consent, quota, offline.
+
+The machine-checkable contract is `web/docs/offline-sync-contract.json`, its negative fixtures are `web/scripts/fixtures/offline-sync-negative.json`, and the acceptance command is `npm run test:offline-sync`. The browser scenarios are in `web/tests/e2e/offline-sync.spec.ts`. The contract records loading, empty, error, unauthorized, consent, quota, offline, reconnect, conflict, duplicate and unsupported-mutation states, plus the iOS widget, Siri/App Shortcuts, native push, camera/OCR, share sheet and subscription boundaries.
 
 ## Validation
 

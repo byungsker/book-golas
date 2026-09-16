@@ -1,0 +1,50 @@
+{
+  "issue": 447,
+  "task": 35,
+  "parentIssue": 412,
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-447-offline-boundary",
+  "plan": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "policy": "online-core",
+  "stages": ["RED", "GREEN", "SURFACE", "CLEANUP"],
+  "red": {
+    "command": "npm run test:offline-sync",
+    "status": "fail-as-expected",
+    "output": "npm error Missing script: test:offline-sync",
+    "meaning": "The acceptance command was absent before the task implementation."
+  },
+  "green": {
+    "command": "npm run test:offline-sync && npm run test:offline-sync:negative && npm run typecheck && npm run lint && npm run build",
+    "status": "pass",
+    "results": [
+      "Offline sync contract passed; Vitest 5 tests passed.",
+      "duplicate, unsupported-mutation, queue-enabled and missing-reconnect fixtures passed.",
+      "TypeScript completed with exit 0.",
+      "ESLint completed with 0 errors and 3 existing no-img-element warnings.",
+      "Next.js production build completed; 42 static pages generated."
+    ]
+  },
+  "surface": {
+    "commands": [
+      "npx playwright test tests/e2e/offline-sync.spec.ts --project=chromium --grep \"offline|reconnect|conflict\"",
+      "npx playwright test tests/e2e/offline-sync.spec.ts --project=chromium --grep \"duplicate|unsupported-mutation\""
+    ],
+    "status": "pass",
+    "results": [
+      "Chromium: 3 passed for offline|reconnect|conflict.",
+      "Chromium: 2 passed for duplicate|unsupported-mutation.",
+      "Offline POST failed before completion; completed mutation writes: 0.",
+      "Reconnect emitted bookgolas:online-reconnected and exposed retryable state."
+    ]
+  },
+  "cleanup": {
+    "status": "pass-with-preservation-note",
+    "results": [
+      "git diff --check passed and the feature worktree contains only the intended task files plus the evidence artifact.",
+      "No next, OAuth fixture server, Playwright or Vitest process remained after verification.",
+      "Browser test servers are stopped by Playwright after each command.",
+      "The protected #453 path was unavailable on this host and was not opened, reset, checked out, deleted or pruned; the existing prunable worktree registration was left untouched."
+    ]
+  }
+}

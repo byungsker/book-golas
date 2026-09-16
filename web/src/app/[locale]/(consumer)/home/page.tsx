@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { HomeBookCard } from "@/components/consumer/home-book-card";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
-import { NetworkStatus } from "@/components/consumer/network-status";
 import { RefreshButton } from "@/components/consumer/refresh-button";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import {
@@ -97,10 +96,6 @@ export default async function ConsumerHomePage({
               {t("home.addBook")}
             </Link>
           </div>
-        </div>
-
-        <div className="mt-6">
-          <NetworkStatus />
         </div>
 
         <section className="mt-8" aria-labelledby="consumer-books-heading">

@@ -109,7 +109,7 @@ test("empty, foreign and unavailable boundaries stay private and retryable", asy
   await setFixture(context, "library-book-list");
   await page.goto("/en/library", { waitUntil: "networkidle" });
   await context.setOffline(true);
-  await expect(page.getByText("You are offline. Reconnect before saving progress.", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("network-status")).toHaveAttribute("data-network-state", "offline");
   await context.setOffline(false);
 });
 

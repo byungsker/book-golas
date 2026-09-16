@@ -95,6 +95,6 @@ test("network error offers retry and offline state is announced", async ({ conte
   await setFixture(context, "home-book-list");
   await page.goto("/en/home?view=reading", { waitUntil: "networkidle" });
   await context.setOffline(true);
-  await expect(page.getByText("You are offline. Reconnect before saving progress.", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("network-status")).toHaveAttribute("data-network-state", "offline");
   await context.setOffline(false);
 });

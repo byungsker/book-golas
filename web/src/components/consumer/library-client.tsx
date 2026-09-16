@@ -14,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
-import { NetworkStatus } from "@/components/consumer/network-status";
 import { RecallClient } from "@/components/consumer/recall-client";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import {
@@ -283,7 +282,6 @@ export function LibraryClient({
             <div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("library.eyebrow")}</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{t("library.title")}</h1><p className="mt-3 max-w-xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("library.description")}</p></div>
             <div className="flex flex-wrap gap-3"><button type="button" data-testid="library-recall-open" onClick={openRecall} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--blab-glass-border)] px-4 py-2 text-sm font-semibold hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><Sparkles aria-hidden="true" size={17} />{t("library.recallOpen")}</button><Link href={`/${locale}/books/new`} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><BookOpen aria-hidden="true" size={17} />{t("library.addBook")}</Link></div>
           </div>
-          <div className="mt-6"><NetworkStatus /></div>
           <div className="mt-8 grid gap-6">
             <div role="tablist" aria-label={t("library.tabs.label")} data-testid="library-tabs" className="grid grid-cols-3 gap-2 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-2">
               {(["reading", "review", "records"] as const).map((tab) => <button key={tab} type="button" role="tab" aria-selected={activeTab === tab} data-testid={`library-tab-${tab}`} onClick={() => selectTab(tab)} className={`min-h-11 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${activeTab === tab ? "bg-[var(--blab-color-primary)] text-white" : "text-[var(--blab-text-secondary)] hover:bg-[var(--blab-glass-fill)]"}`}>{tabLabels[tab]} ({payload.counts[tab]})</button>)}

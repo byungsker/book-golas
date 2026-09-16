@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { BookDetailClient } from "@/components/consumer/book-detail-client";
-import { NetworkStatus } from "@/components/consumer/network-status";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
@@ -160,7 +159,6 @@ export default async function BookDetailPage({
               <h2 className="text-xl font-semibold text-white">{t("reading.title")}</h2>
               <p className="mt-2 text-sm leading-6 text-white/60">{t("reading.description")}</p>
             </div>
-            <NetworkStatus />
             <div className="mt-4">
               <ProgressUpdater
                 locale={locale}
