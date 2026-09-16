@@ -241,7 +241,7 @@ class WebVersionPathTests(unittest.TestCase):
 
 
 class WebPromotionTests(unittest.TestCase):
-    def test_accepts_web_release_promotion_to_dev(self):
+    def test_accepts_web_release_promotion_to_dev_with_quality_workflow(self):
         config = {
             "allowed_actor_prefixes": ["codex"],
             "delivery_units": {
@@ -291,7 +291,7 @@ class WebPromotionTests(unittest.TestCase):
             "Target-Version: 1.1.0\n"
             "Delivery-Profile: web-release-train\n"
             "Promotion-Source-SHA: 52e9c1db19b307200acef66eef73b86122b315d8\n",
-            ["web/src/app/page.tsx"],
+            [".github/workflows/quality.yml", "web/src/app/page.tsx"],
             registry,
             ancestry_checker=lambda _sha: True,
         )
