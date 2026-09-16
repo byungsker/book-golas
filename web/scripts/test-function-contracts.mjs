@@ -613,7 +613,7 @@ function ownerRequest(contract) {
     case "reading-insights": return { ...base, body: { userId: fixture.principals.owner.id } };
     case "recommend-next-books": return { ...base, body: { userId: fixture.principals.owner.id, locale: "ko" } };
     case "vision-ocr": return { ...base, body: { bookId: OWNER_BOOK_ID, imageId: OWNER_SOURCE_ID, imageBase64: "aGVsbG8=" } };
-    case "export-reading-data": return { ...base, body: { format: "csv", includeImages: true } };
+    case "export-reading-data": return { ...base, body: { year: 2026, email: fixture.principals.owner.email, format: "csv", includeImages: true } };
     case "delete-user": return { ...base, body: { confirmation: true } };
     default: throw new Error(`unknown contract ${contract.name}`);
   }
@@ -1055,7 +1055,8 @@ for (const contract of selected) {
       }
       if (contract.name === "export-reading-data" && scenario === "valid") {
         assert(typeof body.exportId === "string", "export-reading-data: valid response has exportId");
-        assert(body.format === "csv" && body.status === "ready", "export-reading-data: valid response matches export result contract");
+        assert(body.year === 2026 && body.format === "csv" && body.status === "ready", "export-reading-data: valid response matches export result contract");
+        assert(typeof body.bookCount === "number" && typeof body.recordCount === "number", "export-reading-data: valid response includes export counts");
         const attachment = result.counters.exportAttachments[0] ?? "";
         assert(attachment.includes("'=HYPERLINK"), "export-reading-data: CSV escapes formula-like book titles");
         assert(attachment.includes("'@SUM"), "export-reading-data: CSV escapes formula-like note text");
@@ -1063,6 +1064,7 @@ for (const contract of selected) {
         assert(attachment.includes('"line1\rline2"'), "export-reading-data: CSV quotes bare carriage returns");
         assert(!attachment.includes(",=HYPERLINK"), "export-reading-data: CSV has no unescaped formula field");
         assert(result.events.includes(`query:book_images:or:user_id.is.null,user_id.eq.${fixture.principals.owner.id}`), "export-reading-data: image query scopes rows before the service-role limit");
+        assert(!result.events.some((event) => event.includes("query:memos")), "export-reading-data: obsolete memos query is absent");
       }
       if (contract.name === "delete-user" && scenario === "valid") {
         const imageStorageEvent = result.events.find((event) => event.startsWith("storage:book-images:")) ?? "";

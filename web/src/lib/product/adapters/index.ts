@@ -45,6 +45,7 @@ export {
   generateBookReview,
   generateEmbedding,
   generateReadingInsights,
+  exportReadingData,
   extractKeywords,
   normalizeRecallResponse,
   recommendNextBooks,

@@ -110,6 +110,14 @@ Reading Statistics also records the quota-gated AI insight generate and retry ac
 | Offline mutation | Local cache/draft and widget behavior only | Online-core boundary; no unverified offline writes | partial boundary | #447 |
 | Native deep links | bookgolas://book/... parser | Locale-preserving HTTPS routes and safe next paths | partial equivalent | #427 |
 
+## Reading data export (#443)
+
+The export contract is machine-checkable in `web/docs/export-contract.json`, with negative cases in `web/scripts/fixtures/export-negative.json` and the acceptance command exposed as `npm run test:export`. The account action in `web/src/components/consumer/reading-data-export-client.tsx` at `/{locale}/account` sends a selected UTC calendar year in JSON or CSV format to the authenticated account email. The server derives ownership from the verified session, rejects caller identity fields and another account email, and scopes books plus every child graph source to that owner and selected year.
+
+The supported graph is `books`, `reading_progress_history`, `reading_sessions`, `reading_content_embeddings` for text, notes and highlights, `book_images` for images and OCR text, `reading_goals`, `recall_search_history`, `note_structures`, `reading_insights_memory`, `book_recommendations` and `ai_recall_usage`. The obsolete `memos` table is not queried. Korean and English account copy exposes loading, empty, error, unauthorized, consent, quota and offline outcomes; provider and download failures keep a retry action. The current Web contract reports that an email was sent only after the provider call succeeds and leaves `downloadUrl` null because a hosted download surface is not verified.
+
+The export surface records native-only iOS widgets, Siri/App Shortcuts, native push, camera capture, share sheet and subscription controls in the contract. Those capabilities remain unavailable or owned by their separate Web parity issue and are not silently presented as export behavior.
+
 ## State profiles
 
 Every ledger entry points to a profile. All profiles explicitly define:

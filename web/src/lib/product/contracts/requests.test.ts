@@ -57,7 +57,7 @@ const requestFixtures: readonly [string, ProductSchema<unknown>, unknown][] = [
   ["recommendation", RecommendationRequestSchema, { locale: "ko" }],
   ["consent", ConsentUpdateRequestSchema, { kind: "ai", status: "granted", version: "2026-01" }],
   ["notification-settings", NotificationSettingsUpdateRequestSchema, { dailyReminderEnabled: false }],
-  ["export", ExportReadingDataRequestSchema, { format: "json", includeImages: true }],
+  ["export", ExportReadingDataRequestSchema, { year: 2026, email: "reader@example.com", format: "json", includeImages: true }],
   ["delete-account", DeleteAccountRequestSchema, { confirmation: true }],
 ];
 
