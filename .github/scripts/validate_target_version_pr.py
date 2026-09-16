@@ -166,24 +166,29 @@ def validate(
         raise PolicyError(
             f"delivery unit {unit} has invalid additional_allowed_paths_by_version"
         )
-    configured_version_additions = additional_allowed_paths_by_version.get(version)
-    if configured_version_additions is None:
-        version_additions = []
-    else:
+    for configured_version, configured_version_additions in additional_allowed_paths_by_version.items():
+        if (
+            not isinstance(configured_version, str)
+            or re.fullmatch(SEMVER, configured_version) is None
+        ):
+            raise PolicyError(
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
+            )
         if (
             not isinstance(configured_version_additions, list)
             or not configured_version_additions
+            or not all(
+                isinstance(pattern, str) and pattern
+                for pattern in configured_version_additions
+            )
         ):
             raise PolicyError(
-                f"delivery unit {unit} has invalid additional paths for {version}"
+                f"delivery unit {unit} has invalid additional paths for {configured_version}"
             )
-        if not all(
-            isinstance(pattern, str) and pattern
-            for pattern in configured_version_additions
-        ):
-            raise PolicyError(
-                f"delivery unit {unit} has invalid additional paths for {version}"
-            )
+    if version not in additional_allowed_paths_by_version:
+        version_additions = []
+    else:
+        configured_version_additions = additional_allowed_paths_by_version[version]
         version_additions = configured_version_additions
     effective_allowed_paths = [*allowed_paths, *version_additions]
     invalid_paths = [
@@ -271,9 +276,15 @@ def validate(
                 f"promotion head is not a descendant of {source_branch} "
                 f"at {source_sha}"
             )
-        if base != production:
+        promotion_bases = policy.get("promotion_bases", [production])
+        if not isinstance(promotion_bases, list) or not all(
+            isinstance(candidate, str) and candidate for candidate in promotion_bases
+        ):
+            raise PolicyError(f"delivery unit {unit} has invalid promotion_bases")
+        if base not in promotion_bases:
             raise PolicyError(
-                f"{branch_type} base mismatch: observed {base!r}, expected {production!r}"
+                f"{branch_type} base mismatch: observed {base!r}, "
+                f"expected one of {promotion_bases!r}"
             )
     elif branch_type == "sync":
         allowed = policy.get("sync_bases", ["dev", f"version/{unit}/{version}"])
