@@ -1,0 +1,7 @@
+cleanup scope: task-36
+generated browser screenshots restored from the baseline
+tracked changes outside task-36 evidence restored
+release config contains no secret values
+Production deploy and hosted migration were not attempted
+admin allow-list and admin policy unchanged
+git diff --check and git diff --cached --check passed

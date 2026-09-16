@@ -96,6 +96,21 @@ test("locale metadata and public route boundaries remain intact", async ({ page 
   for (const route of ["/privacy", "/terms", "/support"]) {
     const response = await page.goto(route, { waitUntil: "domcontentloaded" });
     expect(response?.status(), route).toBe(200);
+    expect(new URL(page.url()).pathname, route).toBe("/ko" + route);
+    await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+  }
+
+  const localizedLegalRoutes = [
+    ["/terms", "Terms of Service", "The Web experience currently provides account and reading features without payment or subscription controls."],
+    ["/support", "Support", "Web subscription and billing controls are unavailable."],
+    ["/privacy", "Privacy Policy", "RevenueCat: native app purchase management; Web billing is not enabled"],
+  ] as const;
+  for (const [route, title, copy] of localizedLegalRoutes) {
+    const response = await page.goto("/en" + route, { waitUntil: "domcontentloaded" });
+    expect(response?.status(), "/en" + route).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page).toHaveTitle(new RegExp(title));
+    await expect(page.locator("body")).toContainText(copy);
   }
 
   await page.goto("/admin", { waitUntil: "domcontentloaded" });

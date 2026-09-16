@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "issue": 448,
+  "task": 36,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "deliveryUnit": "web",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-448-release-readiness",
+  "nextVersion": "16.3.0-preview.8",
+  "nodeVersion": "22",
+  "runtime": {
+    "buildCommand": "npm run build",
+    "buildGate": "npm run test:release-config",
+    "lintCommand": "npm run lint",
+    "browserCommands": [
+      "npm run test:e2e -- --project=chromium",
+      "npm run test:e2e -- --project=webkit",
+      "npm run test:e2e -- --project=firefox"
+    ],
+    "fixtureServer": "loopback-only"
+  },
+  "vercel": {
+    "requiredPublicEnvironment": [
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    ],
+    "requiredServerEnvironment": [
+      "SUPABASE_SERVICE_ROLE_KEY"
+    ],
+    "optionalServerEnvironment": [
+      "GOOGLE_BOOKS_API_KEY",
+      "NAVER_CLIENT_ID",
+      "NAVER_CLIENT_SECRET"
+    ],
+    "scopes": {
+      "preview": "Preview Supabase project credentials only",
+      "production": "Production Supabase project credentials only"
+    },
+    "prohibitions": [
+      "Never expose SUPABASE_SERVICE_ROLE_KEY or provider credentials through NEXT_PUBLIC variables",
+      "Never put Production Supabase credentials in a Preview deployment",
+      "Never enable a payment control or claim active Web subscription state without a separate approved delivery task"
+    ]
+  },
+  "supabase": {
+    "projects": {
+      "dev": "reoiqefoymdsqzpbouxi",
+      "production": "enyxrgxixrnoazzgqyyd"
+    },
+    "githubSecrets": [
+      "SUPABASE_ACCESS_TOKEN",
+      "SUPABASE_PROJECT_REF_DEV",
+      "SUPABASE_PROJECT_REF_PROD"
+    ],
+    "edgeEnvironment": [
+      "SUPABASE_URL",
+      "SUPABASE_ANON_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "WEB_ALLOWED_ORIGINS",
+      "ALADIN_TTB_KEY",
+      "OPENAI_API_KEY",
+      "GOOGLE_CLOUD_VISION_API_KEY",
+      "RESEND_API_KEY",
+      "FIREBASE_SERVICE_ACCOUNT",
+      "REVENUECAT_WEBHOOK_AUTH_KEY"
+    ],
+    "migrationOrder": [
+      "supabase db reset --local",
+      "supabase db lint --local --level error",
+      "supabase db push --include-all",
+      "supabase migration list",
+      "npm run reset:fixtures"
+    ],
+    "safeEnvironment": "Run hosted Edge URL, CORS, JWT and RLS checks only against an isolated Preview project with disposable data. Do not deploy Production as part of this issue."
+  },
+  "edgeFunctions": {
+    "urlPattern": "https://<project-ref>.supabase.co/functions/v1/<function-name>",
+    "corsSource": "supabase/functions/_shared/consumer-contract.ts",
+    "allowedOriginSource": "WEB_ALLOWED_ORIGINS",
+    "jwtRule": "requireUser calls auth.getUser for bearer tokens before private data access",
+    "serviceRoleRule": "createServiceClient is server-side and requires SUPABASE_SERVICE_ROLE_KEY",
+    "rlsRule": "private tables and writes are scoped with auth.uid() = user_id",
+    "previewChecks": [
+      "OPTIONS returns the configured Preview origin and 204",
+      "Unauthenticated private POST returns 401 without private data",
+      "Authenticated disposable Preview user can access only owned rows",
+      "An origin outside WEB_ALLOWED_ORIGINS is not granted as the requested origin"
+    ]
+  },
+  "adminBoundary": {
+    "policy": "deny-by-default",
+    "sourceFiles": [
+      "web/src/proxy.ts",
+      "web/src/lib/admin-auth.ts",
+      "web/src/lib/supabase-server.ts",
+      "web/src/app/api/admin"
+    ],
+    "expected": [
+      "Unauthenticated /admin requests redirect to /admin/login",
+      "Authenticated users outside the explicit email allow-list remain unauthorized",
+      "Every admin API route calls requireAdminUser before data access"
+    ]
+  },
+  "shippedWebClaims": {
+    "subscription": {
+      "enabled": false,
+      "disposition": "native-only",
+      "copyRule": "Web has no payment controls and does not claim an active subscription"
+    },
+    "offline": {
+      "supported": false,
+      "disposition": "explicit-unavailability",
+      "copyRule": "Web requires network access for synchronized data and AI features"
+    },
+    "nativeOnly": [
+      "ios-home-widget",
+      "siri-app-shortcuts",
+      "native-push",
+      "camera-and-ocr",
+      "share-sheet",
+      "revenuecat-subscriptions"
+    ]
+  },
+  "legalRoutes": {
+    "/privacy": "/ko/privacy",
+    "/terms": "/ko/terms",
+    "/support": "/ko/support",
+    "/en/privacy": "localized",
+    "/en/terms": "localized",
+    "/en/support": "localized",
+    "/ko/privacy": "localized",
+    "/ko/terms": "localized",
+    "/ko/support": "localized"
+  },
+  "releaseRules": {
+    "rollback": [
+      "Identify the last healthy immutable deployment or release tag",
+      "Redeploy the same artifact or create a revert PR for the merge commit",
+      "Verify authentication, core consumer routes, logs and data access",
+      "Treat database, Edge Function and external provider state as separate rollback surfaces"
+    ],
+    "featureFlags": {
+      "webBilling": false,
+      "routeFixture": "loopback-only"
+    },
+    "prohibitions": [
+      "Do not reset main or force-push a release branch",
+      "Do not deploy Production from this task",
+      "Do not change the admin allow-list or admin policy as a release shortcut"
+    ]
+  },
+  "verification": {
+    "positive": [
+      "npm run test:release-config",
+      "npm run lint",
+      "npm run build",
+      "npm run test:e2e -- --project=chromium",
+      "npm run test:e2e -- --project=webkit",
+      "npm run test:e2e -- --project=firefox"
+    ],
+    "negative": [
+      "npm run test:release-config -- --fixture missing-required-env"
+    ],
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-36-bookgolas-web-app-parity.md"
+  }
+}
