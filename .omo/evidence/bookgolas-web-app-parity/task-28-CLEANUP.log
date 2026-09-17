@@ -1,0 +1,85 @@
+git diff --cached --check
+PASS
+git diff --cached --stat
+ .../bookgolas-web-app-parity/task-28-CLEANUP.log   |  83 +++++++
+ .../task-28-GREEN-negative-ai-consent.log          |  16 ++
+ .../task-28-GREEN-test-ai-consent-states.log       |  16 ++
+ .../task-28-RED-test-ai-consent-states.log         |   6 +
+ .../task-28-SURFACE-build.log                      |  84 +++++++
+ .../task-28-SURFACE-failure.log                    |  38 +++
+ .../task-28-SURFACE-happy.log                      |  38 +++
+ .../task-28-SURFACE-lint.log                       |  10 +
+ .../task-28-SURFACE-typecheck.log                  |   3 +
+ .../task-28-bookgolas-web-app-parity.json          |  38 +++
+ .../task-28-bookgolas-web-app-parity.png           | Bin 0 -> 170033 bytes
+ .../task-28-full-regression.log                    | 184 ++++++++++++++
+ .../bookgolas-web-app-parity/task-28-review.md     |  15 ++
+ web/docs/ai-consent-contract.json                  | 104 ++++++++
+ web/messages/en.json                               |  56 +++++
+ web/messages/ko.json                               |  56 +++++
+ web/package.json                                   |   2 +
+ web/scripts/fixtures/ai-consent-negative.json      |  24 ++
+ web/scripts/test-ai-consent-states.mjs             | 110 +++++++++
+ web/src/app/[locale]/(consumer)/account/page.tsx   |  25 +-
+ web/src/app/api/consumer/ai-consent/route.test.ts  | 191 ++++++++++++++
+ web/src/app/api/consumer/ai-consent/route.ts       | 256 +++++++++++++++++++
+ .../components/consumer/ai-consent-settings.tsx    | 275 +++++++++++++++++++++
+ web/src/components/consumer/consent-settings.tsx   |   3 +-
+ web/src/lib/consumer/ai-consent-disclosures.ts     |  71 ++++++
+ web/src/lib/consumer/ai-consent-fixtures.test.ts   |  93 +++++++
+ web/src/lib/consumer/ai-consent-fixtures.ts        | 188 ++++++++++++++
+ web/src/lib/consumer/queries.ts                    |   8 +
+ web/src/lib/consumer/route-fixture.ts              |  40 +++
+ web/src/lib/product/adapters/errors.ts             |  42 +++-
+ web/src/lib/product/contracts/ai-consent.test.ts   |  66 +++++
+ web/src/lib/product/contracts/ai-consent.ts        | 203 +++++++++++++++
+ web/src/lib/product/contracts/common.ts            |  16 ++
+ web/src/lib/product/contracts/index.ts             |   1 +
+ web/src/lib/product/dal/errors.ts                  |  72 ++++++
+ web/src/lib/product/dal/index.ts                   |   8 +
+ web/src/proxy.ts                                   |   2 +-
+ web/tests/e2e/ai-consent.spec.ts                   |  92 +++++++
+ 38 files changed, 2526 insertions(+), 9 deletions(-)
+AI consumer billing CTA scan
+PASS
+protected worktree /private/tmp/bookgolas-web-blds-453
+PRESENT
+git status --short
+A  .omo/evidence/bookgolas-web-app-parity/task-28-CLEANUP.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-GREEN-negative-ai-consent.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-GREEN-test-ai-consent-states.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-RED-test-ai-consent-states.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-build.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-failure.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-happy.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-lint.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-typecheck.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-bookgolas-web-app-parity.json
+A  .omo/evidence/bookgolas-web-app-parity/task-28-bookgolas-web-app-parity.png
+A  .omo/evidence/bookgolas-web-app-parity/task-28-full-regression.log
+A  .omo/evidence/bookgolas-web-app-parity/task-28-review.md
+A  web/docs/ai-consent-contract.json
+M  web/messages/en.json
+M  web/messages/ko.json
+M  web/package.json
+A  web/scripts/fixtures/ai-consent-negative.json
+A  web/scripts/test-ai-consent-states.mjs
+M  web/src/app/[locale]/(consumer)/account/page.tsx
+A  web/src/app/api/consumer/ai-consent/route.test.ts
+A  web/src/app/api/consumer/ai-consent/route.ts
+A  web/src/components/consumer/ai-consent-settings.tsx
+M  web/src/components/consumer/consent-settings.tsx
+A  web/src/lib/consumer/ai-consent-disclosures.ts
+A  web/src/lib/consumer/ai-consent-fixtures.test.ts
+A  web/src/lib/consumer/ai-consent-fixtures.ts
+M  web/src/lib/consumer/queries.ts
+M  web/src/lib/consumer/route-fixture.ts
+M  web/src/lib/product/adapters/errors.ts
+A  web/src/lib/product/contracts/ai-consent.test.ts
+A  web/src/lib/product/contracts/ai-consent.ts
+M  web/src/lib/product/contracts/common.ts
+M  web/src/lib/product/contracts/index.ts
+M  web/src/lib/product/dal/errors.ts
+M  web/src/lib/product/dal/index.ts
+M  web/src/proxy.ts
+A  web/tests/e2e/ai-consent.spec.ts

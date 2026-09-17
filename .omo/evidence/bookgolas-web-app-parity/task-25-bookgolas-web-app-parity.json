@@ -1,0 +1,24 @@
+{
+  "issue": 437,
+  "task": 25,
+  "branch": "codex/feature/web/1.1.0/BOK-437-review-share",
+  "base_revision": "c4094ebd3536e91b58bc50dd19bc3b448c4e6195",
+  "red": ".omo/evidence/bookgolas-web-app-parity/task-25-RED-test-review-share.log",
+  "green": [
+    ".omo/evidence/bookgolas-web-app-parity/task-25-GREEN-test-review-share.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-25-GREEN-negative-review-share.log"
+  ],
+  "surface": [
+    ".omo/evidence/bookgolas-web-app-parity/task-25-SURFACE-happy.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-25-SURFACE-failure.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-25-SURFACE-build.log"
+  ],
+  "cleanup": ".omo/evidence/bookgolas-web-app-parity/task-25-CLEANUP.log",
+  "full_regression": ".omo/evidence/bookgolas-web-app-parity/task-25-full-regression.log",
+  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-25-bookgolas-web-app-parity.png",
+  "manual_review": "APPROVE",
+  "code_review": "Manual review APPROVE; CodeRabbit CLI was not retried because the repository review lane was rate limited.",
+  "blockers": [
+    ".omo/plans/bookgolas-web-app-parity.md is absent from the clean worktree and remains referenced by the contract and PR body."
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "issue": 444,
+  "task": 31,
+  "parentIssue": 412,
+  "wave": 6,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "locales": ["ko", "en"],
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "disabled"],
+  "parityRows": [
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::_buildProfileCard",
+      "nativeActions": ["edit-profile", "choose-avatar", "upload-avatar", "save-nickname"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/account-settings-client.tsx::AccountSettingsClient",
+      "browserDisposition": "Chromium exact profile and avatar lane; private owner-scoped API and signed avatar URL"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::_buildSettingsCard",
+      "nativeActions": ["change-theme", "change-language", "confirm-language"],
+      "nativeStates": ["loading", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/account-settings-client.tsx::AccountSettingsClient",
+      "browserDisposition": "Chromium exact theme and language lane; browser preference and locale route round-trip"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::_PasswordChangeSheet",
+      "nativeActions": ["open-password-modal", "validate-current-password", "update-password"],
+      "nativeStates": ["loading", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/account-settings-client.tsx::account-password-dialog",
+      "browserDisposition": "Chromium failure lane covers short, mismatch and provider failure without storing the password"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::_buildAccountCard",
+      "nativeActions": ["open-subscription-entry"],
+      "nativeStates": ["free", "disabled", "loading", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/subscription",
+      "webComponent": "web/src/app/[locale]/(consumer)/subscription/page.tsx::SubscriptionPage",
+      "browserDisposition": "Disabled Web status page; no billing request or enabled payment action"
+    },
+    {
+      "nativeFlutter": "app/lib/ui/auth/widgets/my_page_screen.dart::_buildInfoCard",
+      "nativeActions": ["open-terms", "open-privacy", "open-ai-consent", "open-announcements"],
+      "nativeStates": ["loading", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/account-settings-client.tsx::legal links",
+      "browserDisposition": "Locale-preserving links resolve to terms, privacy, AI consent anchor and announcements"
+    }
+  ],
+  "nativeOnly": [
+    { "feature": "iOS widget", "webDisposition": "native-only; no Web equivalent" },
+    { "feature": "Siri/App Shortcuts", "webDisposition": "native-only; no Web equivalent" },
+    { "feature": "native push", "webDisposition": "native-only; Web shows the notification route boundary" },
+    { "feature": "camera capture", "webDisposition": "native-only for this task; Web does not request camera permission" },
+    { "feature": "share sheet", "webDisposition": "native-only system surface; Web keeps browser share work in its owning task" },
+    { "feature": "subscription and in-app purchase", "webDisposition": "disabled on Web while paidSubscriptionsEnabled is false" }
+  ],
+  "evidence": {
+    "requiredScreenshot": ".omo/evidence/bookgolas-web-app-parity/task-31-bookgolas-web-app-parity.png",
+    "happyCommand": "npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep \"profile|avatar|theme|language\"",
+    "failureCommand": "npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep \"foreign|password|subscription\""
+  }
+}

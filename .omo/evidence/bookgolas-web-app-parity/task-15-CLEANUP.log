@@ -1,0 +1,28 @@
+Task 15 cleanup verification
+
+git diff --check
+  PASS before feature commit
+
+task-local process scan
+  Playwright and Next processes are terminated after each bounded browser run.
+
+listeners
+  The Playwright fixture server and Next server are terminated by the Playwright webServer harness after each run.
+
+protected worktree
+  /private/tmp/bookgolas-web-blds-453 was not reset, checked out, deleted, pruned, or otherwise modified.
+
+unrelated dirty worktree
+  /Users/byungskersmacbook/Documents/ChatGPT/book-golas was not modified.
+
+feature worktree
+  /private/tmp/bookgolas-web-427 is the only worktree edited for issue #427; final clean status is recorded after commit.
+
+feature commit
+  17ee612 fix(auth): harden consumer session and deep-link lifecycle
+
+post-commit verification
+  npm test PASS: 24 Vitest files / 195 tests, parity matrix, 59 negative fixtures, BLDS/UI and UI primitive contracts.
+  npm run typecheck PASS; npm run lint PASS; npm run build PASS.
+
+Plan: .omo/plans/bookgolas-web-app-parity.md

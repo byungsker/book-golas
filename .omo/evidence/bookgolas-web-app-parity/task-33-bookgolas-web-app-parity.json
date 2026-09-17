@@ -1,0 +1,54 @@
+{
+  "issue": 443,
+  "task": 33,
+  "parentIssue": 412,
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-443-export",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "status": "ready-for-pr",
+  "red": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-33-RED-test-export.log",
+    "detail": "npm run test:export failed before implementation because the script did not exist."
+  },
+  "green": {
+    "status": "pass",
+    "commands": [
+      "npm run test:export",
+      "npm run test:export:negative"
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-33-GREEN-test-export.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-GREEN-negative.log"
+    ],
+    "detail": "The export contract, route, fixtures, function contract harness, focused Vitest tests, and all 10 negative fixtures passed."
+  },
+  "surface": {
+    "status": "pass",
+    "commands": [
+      "npx playwright test tests/e2e/export.spec.ts --project=chromium --grep \"export|success\"",
+      "npx playwright test tests/e2e/export.spec.ts --project=chromium --grep \"mismatch|invalid-year|delivery\"",
+      "npm test",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run build"
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-browser-happy.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-browser-failure.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-npm-test.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-SURFACE-build.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-33-bookgolas-web-app-parity.png"
+    ],
+    "detail": "The exact browser acceptance suites passed 5/5 and 2/2. Full npm test passed 79 files and 381 tests; typecheck and build passed. Lint passed with three pre-existing image warnings in unrelated files."
+  },
+  "cleanup": {
+    "status": "pass",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-33-CLEANUP.log",
+    "detail": "Whitespace, obsolete memos query, and public provider-secret scans passed."
+  },
+  "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-33-bookgolas-web-app-parity.png",
+  "commit": "2670fc7"
+}

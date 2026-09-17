@@ -1,0 +1,35 @@
+{
+  "issue": 429,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "route": "/[locale]/home",
+  "views": ["reading", "planned", "completed", "paused", "all"],
+  "statuses": ["reading", "planned", "completed", "will_retry"],
+  "states": ["loading", "ready", "empty", "error", "unauthorized", "offline"],
+  "actions": ["open-book", "refresh", "add-entry"],
+  "dataPolicy": {
+    "ownerScoped": true,
+    "excludeSoftDeleted": true,
+    "stableOrdering": true,
+    "productionUsesSupabase": true,
+    "fixtureDataLoopbackOnly": true
+  },
+  "nativeReference": [
+    "app/lib/ui/home/widgets/home_screen.dart:11-64",
+    "app/lib/ui/book_list/widgets/book_list_screen.dart:19-529",
+    "app/lib/domain/models/book.dart:88-263",
+    "app/lib/data/services/book_service.dart:10-624"
+  ],
+  "acceptance": [
+    "seeded books appear in the correct status",
+    "completed/planned/will-retry empty states are distinct",
+    "loading skeleton precedes data",
+    "failed query offers retry",
+    "soft-deleted books never appear"
+  ],
+  "qa": {
+    "happy": "npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium",
+    "failure": "npx playwright test tests/e2e/home-book-list.spec.ts --project=chromium --grep \"empty|network\""
+  },
+  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-16-bookgolas-web-app-parity.png",
+  "commit": "feat(home): add current reading and status lists"
+}

@@ -1,0 +1,43 @@
+{
+  "issue": 440,
+  "task": 27,
+  "fixtures": [
+    {
+      "name": "timezone-boundary",
+      "source": "calendar-fixture-progress-and-sessions",
+      "expected": {
+        "beforeUtcBoundary": "2026-09-01",
+        "atUtcBoundary": "2026-09-02",
+        "timeZone": "Asia/Seoul"
+      }
+    },
+    {
+      "name": "foreign-event",
+      "expected": "foreign book ids never become analytics rows"
+    },
+    {
+      "name": "deleted-book",
+      "expected": "deleted books are excluded before metrics are calculated"
+    },
+    {
+      "name": "empty",
+      "expected": "zero metrics and intentional empty state"
+    },
+    {
+      "name": "invalid-range",
+      "expected": "custom start must be before or equal to end and cannot be in the future"
+    },
+    {
+      "name": "stale",
+      "expected": "last available server snapshot is labelled stale"
+    },
+    {
+      "name": "unauthorized",
+      "expected": "private route uses the shared sign-in boundary"
+    },
+    {
+      "name": "consent-quota-offline",
+      "expected": "typed failures retain consent, quota and offline codes"
+    }
+  ]
+}

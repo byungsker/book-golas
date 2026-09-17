@@ -1,0 +1,4 @@
+GREEN negative evidence — issue #440 / task 27
+Command: npm run test:charts-goals:negative
+Result: exit 0
+Output: timezone, foreign, deleted, unauthorized, invalid-range and stale fixtures all passed.

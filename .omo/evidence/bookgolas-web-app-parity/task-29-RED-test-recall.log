@@ -1,0 +1,10 @@
+npm error Missing script: "test:recall"
+npm error
+npm error Did you mean this?
+npm error   npm run test:rls # run the "test:rls" package script
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /Users/byungskersmacbook/.npm/_logs/2026-09-16T01_05_37_418Z-debug-0.log
+
+RED_EXIT_STATUS=1

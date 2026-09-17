@@ -1,0 +1,6 @@
+
+> web@0.1.0 test:release-config
+> node scripts/test-release-config.mjs --fixture missing-required-env
+
+release config fixture rejected the missing required environment before next build
+expected failure exit=1

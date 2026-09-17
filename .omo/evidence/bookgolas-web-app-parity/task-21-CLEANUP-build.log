@@ -1,0 +1,79 @@
+
+> web@0.1.0 build
+> next build
+
+▲ Next.js 16.3.0-preview.8 (Turbopack)
+✓ Running next.config.ts took 85ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.4s
+  Running TypeScript ...
+  Finished TypeScript in 4.5s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/27) ...
+  Generating static pages using 9 workers (6/27) 
+  Generating static pages using 9 workers (13/27) 
+  Generating static pages using 9 workers (20/27) 
+✓ Generating static pages using 9 workers (27/27) in 218ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/account
+├ ƒ /[locale]/account/notifications
+├ ƒ /[locale]/announcements
+├ ƒ /[locale]/auth/callback
+├ ƒ /[locale]/auth/reset-password
+├ ƒ /[locale]/auth/sign-in
+├ ƒ /[locale]/auth/sign-up
+├ ƒ /[locale]/book-list
+├ ƒ /[locale]/books/[bookId]
+├ ƒ /[locale]/books/[bookId]/mind-map
+├ ƒ /[locale]/books/[bookId]/review
+├ ƒ /[locale]/books/new
+├ ƒ /[locale]/books/scan
+├ ƒ /[locale]/calendar
+├ ƒ /[locale]/home
+├ ƒ /[locale]/library
+├ ƒ /[locale]/onboarding
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/reading/[bookId]
+├ ƒ /[locale]/stats
+├ ƒ /[locale]/subscription
+├ ƒ /[locale]/support
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/ui-primitives
+├ ƒ /admin
+├ ƒ /admin/announcements
+├ ƒ /admin/login
+├ ƒ /admin/push-logs
+├ ƒ /admin/push-templates
+├ ƒ /admin/test-push
+├ ƒ /admin/users
+├ ƒ /admin/waitlist
+├ ƒ /api/admin/fcm-tokens
+├ ƒ /api/admin/send-bulk-push
+├ ƒ /api/admin/send-test-push
+├ ƒ /api/admin/users
+├ ƒ /api/app/books
+├ ƒ /api/app/books/[bookId]
+├ ƒ /api/app/books/search
+├ ƒ /api/consumer/book-detail
+├ ƒ /api/consumer/book-discovery
+├ ƒ /api/consumer/book-lifecycle
+├ ƒ /api/consumer/consent
+├ ƒ /api/consumer/library
+├ ƒ /api/consumer/progress
+├ ○ /icon.png
+├ ƒ /privacy
+├ ƒ /support
+└ ƒ /terms
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

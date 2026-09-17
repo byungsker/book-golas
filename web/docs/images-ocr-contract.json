@@ -1,0 +1,79 @@
+{
+  "issue": 435,
+  "task": 24,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "locales": ["ko", "en"],
+  "native": {
+    "surfaces": ["barcode_scanner", "memorable_page_capture", "image_preview", "ocr_result", "manual_text_fallback"],
+    "actions": ["file_capture", "camera_capture", "preview", "upload", "refresh_signed_url", "delete", "ocr", "manual_text"],
+    "states": ["no_camera", "insecure_context", "permission_denied", "unsupported_api", "corrupt", "oversize", "wrong_mime", "ocr_failure"],
+    "references": [
+      "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+      "app/lib/data/services/book_image_storage_service.dart",
+      "app/lib/data/services/google_vision_ocr_service.dart",
+      "app/lib/ios/Runner/Info.plist",
+      "supabase/migrations/20260102055239_initial_schema.sql",
+      "supabase/migrations/20260726022112_privatize_book_images.sql",
+      "supabase/migrations/20260727144950_secure_legacy_book_image_ownership.sql",
+      "supabase/functions/vision-ocr/index.ts"
+    ]
+  },
+  "web": {
+    "route": "/{locale}/books/{bookId}",
+    "api": "/api/consumer/images-ocr",
+    "component": "src/components/consumer/book-image-capture-client.tsx",
+    "storage": "private book-images bucket with userId/bookId/imageId.ext paths",
+    "browserDisposition": "camera when secure and permitted; file input and manual OCR fallback otherwise",
+    "ocr": "authenticated vision-ocr invocation after image metadata is saved"
+  },
+  "parityRows": [
+    {
+      "nativeFlutter": "BarcodeScannerScreen",
+      "nativeSurface": "ui/barcode_scanner/barcode_scanner_screen.dart",
+      "nativeActions": ["camera_capture", "permission_denied", "unsupported_api"],
+      "nativeStates": ["loading", "ready", "error", "no_camera", "permission_denied"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "BookImageCaptureClient",
+      "browserDisposition": "getUserMedia with file input capture fallback"
+    },
+    {
+      "nativeFlutter": "BookImageStorageService",
+      "nativeSurface": "data/services/book_image_storage_service.dart",
+      "nativeActions": ["upload", "signed_url", "delete", "orphan_cleanup"],
+      "nativeStates": ["oversize", "wrong_mime", "corrupt", "expired_url", "foreign"],
+      "webRoute": "/api/consumer/images-ocr",
+      "webComponent": "privateBookImagesBucket and consumer-images DAL",
+      "browserDisposition": "private signed URL rendering with renewal"
+    },
+    {
+      "nativeFlutter": "GoogleVisionOcrService",
+      "nativeSurface": "data/services/google_vision_ocr_service.dart",
+      "nativeActions": ["ocr", "manual_text"],
+      "nativeStates": ["consent", "quota", "provider_failure", "manual_fallback"],
+      "webRoute": "/api/consumer/images-ocr",
+      "webComponent": "BookImageCaptureClient",
+      "browserDisposition": "distinct consent/provider errors; saved image remains usable"
+    }
+  ],
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "no_camera", "insecure_context", "permission_denied", "unsupported", "oversize", "wrong_mime", "corrupt", "provider_failure", "pending", "ready", "failed", "manual", "expired_url", "foreign", "deleted"],
+  "invariants": [
+    "private_bucket_is_not_public",
+    "storage_path_starts_with_authenticated_user_and_book",
+    "supported_mime_and_magic_bytes_are_required",
+    "file_size_is_at_most_8_mib",
+    "signed_urls_are_used_for_rendering",
+    "signed_urls_are_renewed_before_expiry",
+    "ocr_requires_explicit_consent",
+    "ocr_failure_keeps_image_and_manual_text_available",
+    "foreign_images_are_not_found",
+    "book_delete_removes_all_owned_image_objects"
+  ],
+  "negativeFixtures": ["oversize", "wrong-mime", "corrupt", "insecure", "denied", "expired-url", "provider-failure", "consent", "quota", "offline", "foreign"],
+  "acceptance": {
+    "command": "npm run test:images-ocr",
+    "negativeCommand": "npm run test:images-ocr:negative",
+    "happyBrowser": "npx playwright test tests/e2e/images-ocr.spec.ts --project=chromium --grep \"upload|ocr|manual\"",
+    "failureBrowser": "npx playwright test tests/e2e/images-ocr.spec.ts --project=chromium --grep \"oversize|denied|expired-url|provider\"",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-24-bookgolas-web-parity.png"
+  }
+}

@@ -1,0 +1,8 @@
+GREEN negative — 2026-09-16
+
+Command:
+npm run test:review-share:negative
+
+Observed result:
+PASS
+consent, provider, clipboard, timeout and foreign fixtures all passed.

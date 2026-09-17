@@ -1,0 +1,3534 @@
+{
+  "schema_version": 1,
+  "product": "Bookgolas",
+  "release": {
+    "delivery_unit": "web",
+    "target_version": "1.1.0",
+    "delivery_profile": "web-release-train",
+    "parity_policy": "online-core",
+    "delivery_dependencies": {
+      "parity_matrix": "#416",
+      "blds_react_next": "#453",
+      "shared_web_primitives": "#421",
+      "blds_package": "blab_design_system#12"
+    },
+    "reference_implementation": "native Flutter app",
+    "web_exception_rule": "Responsive geometry may adapt to viewport constraints, but product behavior, information hierarchy, copy, state transitions, interaction semantics, accessibility, localization and supported features must remain equivalent. Every intentional difference requires a parity-matrix exception."
+  },
+  "locales": [
+    "ko",
+    "en"
+  ],
+  "state_contract": {
+    "required": [
+      "loading",
+      "empty",
+      "error",
+      "unauthorized",
+      "consent",
+      "quota",
+      "offline"
+    ],
+    "profiles": {
+      "default": {
+        "loading": "Show a BLab loading or skeleton state and prevent duplicate destructive submission.",
+        "empty": "Show a localized empty state with the next useful action.",
+        "error": "Show a localized retryable error state and preserve safe navigation.",
+        "unauthorized": "Redirect to the locale-preserving sign-in route with a validated next path.",
+        "consent": "Request explicit consent before provider, AI, notification or device-capability work.",
+        "quota": "Show the quota outcome and disable only the gated action; never expose Web billing.",
+        "offline": "Declare the online-core boundary, preserve only proven local drafts, and offer retry."
+      },
+      "auth": {
+        "loading": "Disable the submitted auth action and expose progress without losing field values.",
+        "empty": "Render the empty form state with required labels and localized guidance.",
+        "error": "Render field or form authentication errors with resend and recovery actions where applicable.",
+        "unauthorized": "Keep the user on the auth route and render no consumer data.",
+        "consent": "No native terms/privacy consent action is present; model email verification as the separate verification-outcome action.",
+        "quota": "Not applicable; do not invent a quota or subscription gate.",
+        "offline": "Keep entered values, explain network failure, and allow a safe retry."
+      },
+      "onboarding": {
+        "loading": "Show onboarding initialization progress without skipping the current page.",
+        "empty": "Not applicable; onboarding always has an explicit page or completion state.",
+        "error": "Show persistence failure and allow retry without marking onboarding complete.",
+        "unauthorized": "Return to locale-preserving sign-in before persisting user-scoped policy.",
+        "consent": "Not applicable; native onboarding pages do not collect age-policy or product consent.",
+        "quota": "Not applicable.",
+        "offline": "Do not claim completion until the required user-scoped persistence succeeds."
+      },
+      "browser-equivalent": {
+        "loading": "Show permission or upload progress and keep the browser action cancellable.",
+        "empty": "Explain that no browser capability or input has been selected and offer the fallback.",
+        "error": "Show the browser/API failure with a file, clipboard, download or retry fallback.",
+        "unauthorized": "Require authenticated user scope before reading or writing consumer data.",
+        "consent": "Request browser permission or explicit user consent before device/API access.",
+        "quota": "Show provider or feature quota and keep billing disabled on Web.",
+        "offline": "Do not claim background or device delivery; surface the online-core limitation."
+      },
+      "native-only": {
+        "loading": "Not applicable to Web; show an explicit unavailable capability state.",
+        "empty": "Not applicable to Web; explain that no browser equivalent is promised.",
+        "error": "Record the native-only boundary and link to the supported Web alternative if one exists.",
+        "unauthorized": "Not applicable; no native capability is exposed from Web.",
+        "consent": "Do not request a misleading Web permission for an unavailable native capability.",
+        "quota": "Not applicable.",
+        "offline": "Not applicable; native-only capability is not part of Web online-core."
+      },
+      "disabled": {
+        "loading": "Not applicable; the disabled capability must not start work.",
+        "empty": "Show the feature as unavailable rather than an empty purchasable catalog.",
+        "error": "Explain the disabled product policy without exposing provider details.",
+        "unauthorized": "Not applicable.",
+        "consent": "Do not request consent for a disabled capability.",
+        "quota": "Do not expose quota, upgrade, purchase or restore controls on Web.",
+        "offline": "Not applicable."
+      }
+    }
+  },
+  "routes": [
+    {
+      "id": "auth-login",
+      "surface_type": "screen",
+      "native_surface": "Login and sign-in mode",
+      "native_source": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/core/view_model/auth_view_model.dart"
+      ],
+      "native_entry": "AuthWrapper renders LoginScreen when there is no authenticated session.",
+      "web": {
+        "canonical_url": "/{locale}/auth/sign-in",
+        "current": [
+          "web/src/app/[locale]/(auth)/auth/sign-in/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(auth)/auth/sign-in/page.tsx",
+          "BLDS React/Next auth primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#423"
+      },
+      "state_profile": "auth",
+      "actions": [
+        {
+          "id": "email-sign-in",
+          "label": "Sign in with email and password",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "google-sign-in",
+          "label": "Sign in with Google",
+          "owner": "#424",
+          "status": "planned"
+        },
+        {
+          "id": "apple-sign-in",
+          "label": "Sign in with Apple",
+          "owner": "#424",
+          "status": "planned"
+        },
+        {
+          "id": "open-sign-up",
+          "label": "Switch to account creation",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "open-password-recovery",
+          "label": "Open password recovery",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "resend-verification",
+          "label": "Resend verification email",
+          "owner": "#423",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The Web auth route exists but does not yet match the native social, verification, recovery and feedback contract."
+    },
+    {
+      "id": "auth-sign-up",
+      "surface_type": "screen",
+      "native_surface": "Account creation mode",
+      "native_source": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/core/view_model/auth_view_model.dart"
+      ],
+      "native_entry": "LoginScreen switches AuthMode from sign-in to sign-up.",
+      "web": {
+        "canonical_url": "/{locale}/auth/sign-up",
+        "current": [
+          "web/src/app/[locale]/(auth)/auth/sign-up/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(auth)/auth/sign-up/page.tsx",
+          "BLDS React/Next auth primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#423"
+      },
+      "state_profile": "auth",
+      "actions": [
+        {
+          "id": "create-account",
+          "label": "Create account with email",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "confirm-password",
+          "label": "Confirm password and validation",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "open-sign-in",
+          "label": "Switch to sign-in",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "verification-outcome",
+          "label": "Handle verification-required outcome",
+          "owner": "#423",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Email verification is a required outcome, not an optional success toast."
+    },
+    {
+      "id": "auth-password-recovery",
+      "surface_type": "screen",
+      "native_surface": "Password recovery and reset",
+      "native_source": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/auth/widgets/password_recovery_screen.dart"
+      ],
+      "native_entry": "LoginScreen AuthMode.forgotPassword and PasswordRecoveryScreen.",
+      "web": {
+        "canonical_url": "/{locale}/auth/reset-password",
+        "current": [
+          "web/src/app/[locale]/(auth)/auth/reset-password/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(auth)/auth/reset-password/page.tsx",
+          "BLDS React/Next auth primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#423"
+      },
+      "state_profile": "auth",
+      "actions": [
+        {
+          "id": "request-reset",
+          "label": "Request reset email",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "set-new-password",
+          "label": "Set a new password from recovery session",
+          "owner": "#423",
+          "status": "partial"
+        },
+        {
+          "id": "return-to-sign-in",
+          "label": "Return to sign-in",
+          "owner": "#423",
+          "status": "partial"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Recovery links must preserve locale and reject unsafe next paths."
+    },
+    {
+      "id": "legal-terms",
+      "surface_type": "screen",
+      "native_surface": "Terms WebView",
+      "native_source": [
+        "app/lib/ui/auth/widgets/terms_webview_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart"
+      ],
+      "native_entry": "My Page opens legal content in a native WebView.",
+      "web": {
+        "canonical_url": "/{locale}/terms",
+        "current": [
+          "web/src/app/[locale]/terms/page.tsx",
+          "web/src/components/legal/legal-pages.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/terms/page.tsx"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "partial",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-terms",
+          "label": "Read localized terms",
+          "owner": "#444",
+          "status": "partial"
+        },
+        {
+          "id": "return-to-account",
+          "label": "Return to account settings",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Web must keep legal content localized and route-stable."
+    },
+    {
+      "id": "announcements",
+      "surface_type": "screen",
+      "native_surface": "Announcements WebView from My Page",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "native_entry": "MyPageScreen opens TermsWebViewScreen with localized LegalContent.announcements(locale, isDark).",
+      "web": {
+        "canonical_url": "/{locale}/announcements",
+        "current": [],
+        "target": [
+        "Planned Web route implementation"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-announcements",
+          "label": "Read localized announcements",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "return-to-account",
+          "label": "Return to account settings",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native empty announcement state is localized in Korean and English; Web must preserve the browser-equivalent document state and account return path."
+    },
+    {
+      "id": "onboarding",
+      "surface_type": "screen",
+      "native_surface": "Onboarding pages",
+      "native_source": [
+        "app/lib/ui/onboarding/widgets/onboarding_screen.dart",
+        "app/lib/ui/onboarding/widgets/onboarding_page.dart",
+        "app/lib/ui/onboarding/view_model/onboarding_view_model.dart"
+      ],
+      "native_entry": "AuthWrapper renders onboarding after authentication until hasSeenOnboarding_v1 is persisted.",
+      "web": {
+        "canonical_url": "/{locale}/onboarding",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next onboarding primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#426"
+      },
+      "state_profile": "onboarding",
+      "actions": [
+        {
+          "id": "advance-onboarding",
+          "label": "Advance through onboarding pages",
+          "owner": "#426",
+          "status": "planned"
+        },
+        {
+          "id": "complete-onboarding",
+          "label": "Persist completion and enter the app shell",
+          "owner": "#426",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Completion must be user-scoped and durable before the shell is shown."
+    },
+    {
+      "id": "home",
+      "surface_type": "screen",
+      "native_surface": "Home tab and reading-list status surfaces",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/home/widgets/home_screen.dart",
+        "app/lib/ui/book_list/widgets/book_list_screen.dart",
+        "app/lib/ui/book_list/view_model/book_list_view_model.dart"
+      ],
+      "native_entry": "MainScreen tab index 0, with HomeScreen and BookListViewModel state.",
+      "web": {
+        "canonical_url": "/{locale}/home",
+        "current": [
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
+          "web/src/components/consumer/book-card.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
+          "BLDS React/Next product shell and book primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#429"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "switch-reading-status-tab",
+          "label": "Cycle or select reading, planned, completed and paused status views",
+          "owner": "#429",
+          "status": "planned"
+        },
+        {
+          "id": "toggle-all-books",
+          "label": "Show all current books and filter by status",
+          "owner": "#429",
+          "status": "planned"
+        },
+        {
+          "id": "open-book-detail",
+          "label": "Open a user-owned book detail",
+          "owner": "#433",
+          "status": "partial"
+        },
+        {
+          "id": "refresh-books",
+          "label": "Refresh user-owned books and progress",
+          "owner": "#429",
+          "status": "partial"
+        },
+        {
+          "id": "open-search-mode",
+          "label": "Open book search or AI record search",
+          "owner": "#428",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Book status values are planned, reading, completed and will_retry. The Web route currently renders only a foundation subset."
+    },
+    {
+      "id": "library",
+      "surface_type": "screen",
+      "native_surface": "My Library tab",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/my_library/widgets/my_library_screen.dart",
+        "app/lib/ui/my_library/view_model/my_library_view_model.dart"
+      ],
+      "native_entry": "MainScreen tab index 1 and MyLibraryScreen with three tab controllers.",
+      "web": {
+        "canonical_url": "/{locale}/library",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next tabs, cards and search primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#430"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "library-reading-tab",
+          "label": "Browse reading books with status filters and search",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "library-review-tab",
+          "label": "Browse books with reviews and open review editor",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "library-record-tab",
+          "label": "Browse reading records and filter record types",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "library-global-recall",
+          "label": "Open global AI Recall search",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "search-reading",
+          "label": "Search reading books",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "search-review",
+          "label": "Search reviewed books",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "filter-library-year",
+          "label": "Filter library content by year",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "toggle-record-group",
+          "label": "Expand or collapse grouped reading records",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "filter-record-type",
+          "label": "Filter records by record type",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native screen has reading, review and record tabs; tab cycling from the bottom bar is part of the contract."
+    },
+    {
+      "id": "reading-stats",
+      "surface_type": "screen",
+      "native_surface": "Reading statistics tab",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart",
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart",
+        "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart",
+        "app/lib/ui/reading_chart/view_model/reading_insights_view_model.dart"
+      ],
+      "native_entry": "MainScreen tab index 2 and ReadingChartScreen with overview, analysis and activity sections.",
+      "web": {
+        "canonical_url": "/{locale}/stats",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next chart, goal and share primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#440"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "stats-overview",
+          "label": "View reading totals, goals and completion summary",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "stats-analysis",
+          "label": "View genre, completion, highlights, notes and chart analysis",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "stats-activity",
+          "label": "View calendar heatmap and daily reading activity",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "stats-set-goal",
+          "label": "Set or update a yearly reading goal",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "stats-share",
+          "label": "Share reading statistics through browser equivalents",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "select-stats-period",
+          "label": "Select daily, weekly or monthly statistics period",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "navigate-stats-period",
+          "label": "Navigate to the previous or next statistics period",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "open-stats-custom-range",
+          "label": "Open custom statistics date range selection",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "clear-stats-custom-range",
+          "label": "Clear the active custom statistics range",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "navigate-stats-analysis-section",
+          "label": "Navigate between statistics analysis sections",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "generate-stats-ai-insight",
+          "label": "Generate an AI reading insight when the native quota allows",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "retry-stats-ai-insight",
+          "label": "Retry a failed AI reading insight generation",
+          "owner": "#440",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native tab cycles sections on repeated bottom-bar selection and supports annual, monthly, weekly and custom chart filters. AI insight generation is quota-gated and exposes generate and retry outcomes without a separate consent step."
+    },
+    {
+      "id": "calendar",
+      "surface_type": "screen",
+      "native_surface": "Calendar tab",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/calendar/widgets/calendar_screen.dart",
+        "app/lib/ui/calendar/view_model/calendar_view_model.dart"
+      ],
+      "native_entry": "MainScreen tab index 3 and CalendarScreen.",
+      "web": {
+        "canonical_url": "/{locale}/calendar",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next calendar and sheet primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#439"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "change-calendar-month",
+          "label": "Move to previous or next month",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "filter-calendar",
+          "label": "Filter all, reading or completed activity",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "open-calendar-day",
+          "label": "Open reading activity for a selected day",
+          "owner": "#439",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Day detail is a sheet in Flutter and must become an accessible Web dialog or route-preserving sheet."
+    },
+    {
+      "id": "account",
+      "surface_type": "screen",
+      "native_surface": "My Page and account settings tab",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/view_model/my_page_view_model.dart",
+        "app/lib/ui/core/view_model/notification_settings_view_model.dart"
+      ],
+      "native_entry": "MainScreen tab index 4 and MyPageScreen.",
+      "web": {
+        "canonical_url": "/{locale}/account",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next settings, form and dialog primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-profile",
+          "label": "Edit profile and avatar",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "change-language-theme",
+          "label": "Change locale and light or dark appearance",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "manage-notifications",
+          "label": "Manage notification categories and reminder times",
+          "owner": "#445",
+          "status": "planned"
+        },
+        {
+          "id": "change-password",
+          "label": "Change account password",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "open-legal",
+          "label": "Open terms, privacy and consent settings",
+          "owner": "#444",
+          "status": "partial"
+        },
+        {
+          "id": "open-announcements",
+          "label": "Open localized announcements",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "sign-out",
+          "label": "Sign out",
+          "owner": "#444",
+          "status": "partial"
+        },
+        {
+          "id": "delete-account",
+          "label": "Delete account and verify cleanup",
+          "owner": "#446",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Native subscription entry remains visible only behind a disabled Web policy; no Web billing controls are allowed."
+    },
+    {
+      "id": "legacy-book-list",
+      "surface_type": "screen",
+      "native_surface": "Book list route",
+      "native_source": [
+        "app/lib/routing/app_router.dart",
+        "app/lib/ui/book_list/widgets/book_list_screen.dart"
+      ],
+      "native_entry": "AppRouter.bookList remains a user-facing native route even though MainScreen also hosts the home book surfaces.",
+      "web": {
+        "canonical_url": "/{locale}/book-list",
+        "current": [],
+        "target": [
+        "Planned Web route implementation"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#430"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "filter-book-list",
+          "label": "Filter all, reading, planned, completed or paused books",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "refresh-book-list",
+          "label": "Refresh the user-owned list",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "open-list-book-detail",
+          "label": "Open a book detail",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "This route is retained in the ledger so an old native deep link cannot disappear silently."
+    },
+    {
+      "id": "book-search-add",
+      "surface_type": "screen",
+      "native_surface": "Reading start, book search and add-book flow",
+      "native_source": [
+        "app/lib/ui/reading_start/widgets/reading_start_screen.dart",
+        "app/lib/ui/reading_start/view_model/reading_start_view_model.dart",
+        "app/lib/data/services/aladin_api_service.dart",
+        "app/lib/data/services/naver_books_api_service.dart",
+        "app/lib/data/services/google_books_api_service.dart"
+      ],
+      "native_entry": "Search mode bookSearch opens ReadingStartScreen.",
+      "web": {
+        "canonical_url": "/{locale}/books/new",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next search, select, date-picker and form primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#428"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "search-book",
+          "label": "Search books through supported providers",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "isbn-search",
+          "label": "Search by ISBN and normalize provider results",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "scan-isbn",
+          "label": "Open barcode scanner or browser capture fallback",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "select-reading-status",
+          "label": "Choose reading or planned status",
+          "owner": "#431",
+          "status": "planned"
+        },
+        {
+          "id": "set-schedule-priority",
+          "label": "Set target date, daily target and priority",
+          "owner": "#431",
+          "status": "planned"
+        },
+        {
+          "id": "save-book",
+          "label": "Create a user-owned book record",
+          "owner": "#431",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Browser provider failures must preserve manual ISBN/title entry and must not leak provider credentials."
+    },
+    {
+      "id": "book-detail",
+      "surface_type": "screen",
+      "native_surface": "Book detail",
+      "native_source": [
+        "app/lib/ui/book_detail/book_detail_screen.dart",
+        "app/lib/ui/book_detail/widgets/tabs/detail_tab.dart",
+        "app/lib/ui/book_detail/widgets/tabs/progress_history_tab.dart",
+        "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+        "app/lib/domain/models/book.dart"
+      ],
+      "native_entry": "AppRouter.bookDetail, book cards, notifications and deep links.",
+      "web": {
+        "canonical_url": "/{locale}/books/{bookId}",
+        "current": [
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/loading.tsx",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/error.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "BLDS React/Next tabs, cards, progress and overlay primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "switch-detail-tabs",
+          "label": "Switch detail, progress-history and memorable-pages tabs",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "update-progress",
+          "label": "Update current page with validation and history",
+          "owner": "#434",
+          "status": "partial"
+        },
+        {
+          "id": "manage-reading",
+          "label": "Pause, resume, restart or delete a book",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "set-reading-target",
+          "label": "Set daily target and target date",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "add-memorable-page",
+          "label": "Add, edit, delete and view memorable-page images",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "open-recall",
+          "label": "Search book-specific AI Recall",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "open-reading-timer",
+          "label": "Start or resume a reading timer",
+          "owner": "#436",
+          "status": "planned"
+        },
+        {
+          "id": "open-review",
+          "label": "Open or edit the review",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "open-aladin-book-link",
+          "label": "Open the book listing in Aladin",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "open-existing-review-link",
+          "label": "Open the saved external review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "open-review-link-editor",
+          "label": "Open the external review-link editor",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "resume-reading",
+          "label": "Resume a paused reading attempt with a target date",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "start-planned-reading",
+          "label": "Start a planned book with a target date",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The number of tabs changes when a book reaches completion; the Web state model must not assume a fixed tab count."
+    },
+    {
+      "id": "reading-progress",
+      "surface_type": "screen",
+      "native_surface": "Reading progress detail",
+      "native_source": [
+        "app/lib/ui/reading_progress/widgets/reading_progress_screen.dart",
+        "app/lib/ui/book_detail/view_model/reading_progress_view_model.dart",
+        "app/lib/ui/core/widgets/reading_detail_bottom_bar.dart"
+      ],
+      "native_entry": "AppRouter.readingProgress and book detail progress actions.",
+      "web": {
+        "canonical_url": "/{locale}/reading/{bookId}",
+        "current": [
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/loading.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/error.tsx",
+          "web/src/components/consumer/progress-updater.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+          "BLDS React/Next reading controls and timer primitives"
+        ],
+        "disposition": "route",
+        "status": "partial",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "update-page",
+          "label": "Enter and save a valid reading page",
+          "owner": "#434",
+          "status": "partial"
+        },
+        {
+          "id": "record-history",
+          "label": "Record progress history and retry a failed write",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "start-timer",
+          "label": "Start, pause, resume and finish a reading session",
+          "owner": "#436",
+          "status": "planned"
+        },
+        {
+          "id": "return-to-book",
+          "label": "Return to book detail while preserving state",
+          "owner": "#434",
+          "status": "partial"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Progress writes are user-scoped and must preserve the native completion transition."
+    },
+    {
+      "id": "book-review",
+      "surface_type": "screen",
+      "native_surface": "Book review editor",
+      "native_source": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/data/services/ai_content_service.dart"
+      ],
+      "native_entry": "Book detail review action.",
+      "web": {
+        "canonical_url": "/{locale}/books/{bookId}/review",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next editor, confirmation and feedback primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-review",
+          "label": "Edit, undo, redo, copy and clear review text",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "generate-ai-draft",
+          "label": "Generate an AI draft and confirm replacement when review text exists",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "save-review",
+          "label": "Save review and return to book detail",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "discard-review",
+          "label": "Discard unsaved changes after confirmation",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Draft persistence, replacement confirmation when existing text is present, save completion and unsaved-exit confirmation are separate states. The first AI generation does not expose a separate consent step."
+    },
+    {
+      "id": "mind-map",
+      "surface_type": "screen",
+      "native_surface": "Note-structure mind map",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/mindmap_screen.dart",
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart",
+        "app/lib/ui/book_detail/view_model/note_structure_view_model.dart"
+      ],
+      "native_entry": "Book detail note-structure action.",
+      "web": {
+        "canonical_url": "/{locale}/books/{bookId}/mind-map",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "BLDS React/Next graph, loading and retry primitives"
+        ],
+        "disposition": "route",
+        "status": "planned",
+        "owner": "#442"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-mind-map",
+          "label": "View note hierarchy and legend",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "regenerate-mind-map",
+          "label": "Regenerate insights",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "retry-mind-map",
+          "label": "Retry failed generation",
+          "owner": "#442",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native refresh and error retry paths invoke regeneration directly without a separate consent step; the Web must not render a permanently blank graph."
+    },
+    {
+      "id": "barcode-scanner",
+      "surface_type": "screen",
+      "native_surface": "Barcode scanner",
+      "native_source": [
+        "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+        "app/lib/ui/barcode_scanner/widgets/scanner_overlay.dart",
+        "app/lib/ui/barcode_scanner/widgets/scanner_error_widget.dart"
+      ],
+      "native_entry": "ReadingStartScreen barcode action.",
+      "web": {
+        "canonical_url": "/{locale}/books/scan",
+        "current": [],
+        "target": [
+        "Planned Web route implementation",
+          "Browser camera permission and file-upload fallback"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#428"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "request-camera",
+          "label": "Request camera permission for barcode capture",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "capture-isbn",
+          "label": "Capture and normalize ISBN",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "use-manual-isbn",
+          "label": "Fall back to manual ISBN entry",
+          "owner": "#428",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Camera access is a browser-equivalent boundary, not permission to claim native scanner parity before device/browser evidence."
+    },
+    {
+      "id": "subscription",
+      "surface_type": "screen",
+      "native_surface": "Subscription and Pro management",
+      "native_source": [
+        "app/lib/ui/subscription/widgets/subscription_screen.dart",
+        "app/lib/ui/subscription/view_model/subscription_view_model.dart",
+        "app/lib/data/services/subscription_service.dart",
+        "app/lib/config/feature_flags.dart"
+      ],
+      "native_entry": "My Page subscription entry when native paid subscriptions are enabled.",
+      "web": {
+        "canonical_url": "/{locale}/subscription",
+        "current": [],
+        "target": [],
+        "disposition": "disabled",
+        "status": "disabled",
+        "owner": "#444"
+      },
+      "state_profile": "disabled",
+      "actions": [
+        {
+          "id": "show-disabled-subscription",
+          "label": "Explain that subscription purchase and restore are unavailable on Web",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "PAID_SUBSCRIPTIONS_ENABLED defaults to false and the Web release must not expose purchase, restore, upgrade or customer-center controls."
+    },
+    {
+      "id": "privacy",
+      "surface_type": "screen",
+      "native_surface": "Privacy and consent information",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/data/services/ad_service.dart",
+        "app/lib/data/services/fcm_service.dart"
+      ],
+      "native_entry": "My Page legal and privacy settings.",
+      "web": {
+        "canonical_url": "/{locale}/privacy",
+        "current": [
+          "web/src/app/[locale]/privacy/page.tsx",
+          "web/src/components/legal/legal-pages.tsx"
+        ],
+        "target": [
+          "web/src/app/[locale]/privacy/page.tsx"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "partial",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-privacy",
+          "label": "Read localized privacy policy",
+          "owner": "#444",
+          "status": "partial"
+        },
+        {
+          "id": "manage-consent",
+          "label": "Review AdMob privacy options or notification permission",
+          "owner": "#438",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Privacy policy content is separate from the native AdMob privacy-options form and FCM notification-permission boundary; the Web route must not imply consent to capabilities that are unavailable or disabled."
+    }
+  ],
+  "overlays": [
+    {
+      "id": "search-mode-menu",
+      "surface_type": "overlay",
+      "native_surface": "Search mode dropdown",
+      "native_source": [
+        "app/lib/ui/core/widgets/search_mode_dropdown.dart",
+        "app/lib/ui/core/widgets/liquid_glass_bottom_bar.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#428"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "choose-book-search",
+          "label": "Choose book search",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "choose-ai-record-search",
+          "label": "Choose AI record search",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "global-recall-search",
+      "surface_type": "overlay",
+      "native_surface": "Global Recall search sheet",
+      "native_source": [
+        "app/lib/ui/recall/widgets/global_recall_search_sheet.dart",
+        "app/lib/ui/recall/view_model/global_recall_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#441"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "search-global-records",
+          "label": "Search user-owned records",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "open-global-record",
+          "label": "Open a matching record detail",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "recall-search",
+      "surface_type": "overlay",
+      "native_surface": "Book Recall search sheet",
+      "native_source": [
+        "app/lib/ui/recall/widgets/recall_search_sheet.dart",
+        "app/lib/ui/recall/view_model/recall_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#441"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "search-book-records",
+          "label": "Search records for a book",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "load-recent-recall",
+          "label": "Load recent searches and rerun one",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "clear-recall-history",
+          "label": "Delete a search history entry",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "record-detail",
+      "surface_type": "overlay",
+      "native_surface": "Reading record detail sheet",
+      "native_source": [
+        "app/lib/ui/recall/widgets/record_detail_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#430"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-record",
+          "label": "View a user-owned reading record",
+          "owner": "#430",
+          "status": "planned"
+        },
+        {
+          "id": "open-source",
+          "label": "Open an attached source or memorable page",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "source-detail",
+      "surface_type": "overlay",
+      "native_surface": "Recall source detail modal",
+      "native_source": [
+        "app/lib/ui/recall/widgets/source_detail_modal.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#441"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-source",
+          "label": "View the source excerpt and metadata",
+          "owner": "#441",
+          "status": "planned"
+        },
+        {
+          "id": "close-source",
+          "label": "Close while preserving the search context",
+          "owner": "#441",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "calendar-day-detail",
+      "surface_type": "overlay",
+      "native_surface": "Calendar day detail sheet",
+      "native_source": [
+        "app/lib/ui/calendar/widgets/calendar_day_detail_sheet.dart",
+        "app/lib/ui/calendar/widgets/calendar_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#439"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-day-activity",
+          "label": "View books and reading activity for a day",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "open-day-book",
+          "label": "Open a book from day activity",
+          "owner": "#439",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "reading-goal",
+      "surface_type": "overlay",
+      "native_surface": "Reading goal sheet",
+      "native_source": [
+        "app/lib/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart",
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#440"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "set-yearly-goal",
+          "label": "Set or update yearly reading goal",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "save-goal",
+          "label": "Save goal with validation",
+          "owner": "#440",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "date-range-picker",
+      "surface_type": "overlay",
+      "native_surface": "Custom statistics date range picker",
+      "native_source": [
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#440"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "choose-date-range",
+          "label": "Choose a valid custom statistics range",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-date-range",
+          "label": "Cancel without changing the active filter",
+          "owner": "#440",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "bookstore-select",
+      "surface_type": "overlay",
+      "native_surface": "Bookstore selection sheet",
+      "native_source": [
+        "app/lib/ui/core/widgets/bookstore_select_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#428"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "choose-new-bookstore",
+          "label": "Choose an available new-book bookstore",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "choose-used-bookstore",
+          "label": "Choose an available used-book bookstore",
+          "owner": "#428",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "recommendation-action",
+      "surface_type": "overlay",
+      "native_surface": "Recommendation action sheet",
+      "native_source": [
+        "app/lib/ui/core/widgets/recommendation_action_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#428"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-recommendation",
+          "label": "Open recommendation detail",
+          "owner": "#428",
+          "status": "planned"
+        },
+        {
+          "id": "add-recommendation",
+          "label": "Add a recommendation to the reading list",
+          "owner": "#431",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "reading-books-selection",
+      "surface_type": "overlay",
+      "native_surface": "Reading books selection sheet",
+      "native_source": [
+        "app/lib/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#429"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "select-reading-book",
+          "label": "Select a reading book for the next action",
+          "owner": "#429",
+          "status": "planned"
+        },
+        {
+          "id": "open-selected-book",
+          "label": "Open selected book detail",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "reading-management",
+      "surface_type": "overlay",
+      "native_surface": "Reading management sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/reading_management_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "pause-reading",
+          "label": "Pause reading",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "delete-book",
+          "label": "Delete or soft-delete book",
+          "owner": "#446",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-reading-management",
+          "label": "Cancel without changing the book",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "pause-reading-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Pause reading confirmation sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/pause_reading_confirmation_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-pause",
+          "label": "Confirm pause",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-pause",
+          "label": "Cancel pause",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "delete-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Single delete confirmation sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/delete_confirmation_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#446"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-delete",
+          "label": "Confirm deletion",
+          "owner": "#446",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-delete",
+          "label": "Cancel deletion",
+          "owner": "#446",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "batch-delete-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Batch delete confirmation sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/delete_confirmation_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#446"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-batch-delete",
+          "label": "Confirm deleting selected pages",
+          "owner": "#446",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-batch-delete",
+          "label": "Cancel batch deletion",
+          "owner": "#446",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "book-info",
+      "surface_type": "overlay",
+      "native_surface": "Book information sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/book_info_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-book-info",
+          "label": "View title, author, metadata and cover",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "open-cover",
+          "label": "Open cover image viewer",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "full-title",
+      "surface_type": "overlay",
+      "native_surface": "Full title sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/full_title_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-full-title",
+          "label": "Read the full book title",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "image-source",
+      "surface_type": "overlay",
+      "native_surface": "Memorable-page image source sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "choose-camera",
+          "label": "Choose camera capture when browser permission allows",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "choose-gallery",
+          "label": "Choose file or photo upload",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "choose-ocr",
+          "label": "Choose OCR capture with explicit consent",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "image-replace-options",
+      "surface_type": "overlay",
+      "native_surface": "Existing image replacement options",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "replace-with-camera",
+          "label": "Replace with browser camera capture",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "replace-with-file",
+          "label": "Replace with file upload",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "replace-image-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Replace image confirmation",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-replace-image",
+          "label": "Confirm replacement",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-replace-image",
+          "label": "Cancel replacement",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "add-memorable-page",
+      "surface_type": "overlay",
+      "native_surface": "Add memorable page modal",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/modals/add_memorable_page_modal.dart",
+        "app/lib/ui/book_detail/view_model/memorable_page_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "capture-memorable-page",
+          "label": "Capture or upload a memorable page",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "run-ocr",
+          "label": "Run OCR after explicit provider consent",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "save-memorable-page",
+          "label": "Save private page image and extracted text",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "existing-image",
+      "surface_type": "overlay",
+      "native_surface": "Existing memorable page image modal",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/modals/existing_image_modal.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "view-image",
+          "label": "View private page image and highlights",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "replace-image",
+          "label": "Replace the image",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "delete-image",
+          "label": "Delete the image after confirmation",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "extracted-text",
+      "surface_type": "overlay",
+      "native_surface": "Extracted OCR text modal",
+      "native_source": [
+        "app/lib/ui/core/widgets/extracted_text_modal.dart",
+        "app/lib/ui/book_detail/utils/ocr_utils.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "review-extracted-text",
+          "label": "Review and edit extracted text",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "copy-extracted-text",
+          "label": "Copy extracted text",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "save-extracted-text",
+          "label": "Save extracted text to the private record",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "full-text-view",
+      "surface_type": "overlay",
+      "native_surface": "Full reading text viewer",
+      "native_source": [
+        "app/lib/ui/core/widgets/full_text_view_modal.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#432"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "read-full-text",
+          "label": "Read a complete note or highlight",
+          "owner": "#432",
+          "status": "planned"
+        },
+        {
+          "id": "copy-full-text",
+          "label": "Copy the text",
+          "owner": "#432",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "page-update",
+      "surface_type": "overlay",
+      "native_surface": "Reading page update modal",
+      "native_source": [
+        "app/lib/ui/core/widgets/page_update_modal.dart",
+        "app/lib/ui/book_detail/widgets/dialogs/update_page_dialog.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [
+          "web/src/components/consumer/progress-updater.tsx"
+        ],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "partial",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "save-page-update",
+          "label": "Save page update and record history",
+          "owner": "#434",
+          "status": "partial"
+        },
+        {
+          "id": "mark-not-read",
+          "label": "Mark that no pages were read",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-page-update",
+          "label": "Cancel without writing",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "reading-timer",
+      "surface_type": "overlay",
+      "native_surface": "Reading timer modal",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/reading_timer_modal.dart",
+        "app/lib/ui/book_detail/view_model/reading_timer_view_model.dart",
+        "app/lib/ui/core/widgets/floating_timer_bar.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#436"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "start-reading-session",
+          "label": "Start a reading session",
+          "owner": "#436",
+          "status": "planned"
+        },
+        {
+          "id": "pause-reading-session",
+          "label": "Pause or resume a session",
+          "owner": "#436",
+          "status": "planned"
+        },
+        {
+          "id": "finish-reading-session",
+          "label": "Finish and persist duration",
+          "owner": "#436",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "today-goal",
+      "surface_type": "overlay",
+      "native_surface": "Today goal sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/dialogs/today_goal_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "view-today-goal",
+          "label": "View current daily reading target",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "open-goal-settings",
+          "label": "Open daily target settings",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "daily-target",
+      "surface_type": "overlay",
+      "native_surface": "Daily target editor",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/dialogs/daily_target_dialog.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-daily-target",
+          "label": "Edit daily page target",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "save-daily-target",
+          "label": "Save target with validation",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "daily-target-confirm",
+      "surface_type": "overlay",
+      "native_surface": "Daily target confirmation sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/daily_target_confirm_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-daily-target",
+          "label": "Confirm daily target change",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-daily-target",
+          "label": "Cancel daily target change",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "update-target-date",
+      "surface_type": "overlay",
+      "native_surface": "Target date editor",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/dialogs/update_target_date_dialog.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#431"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-target-date",
+          "label": "Choose a target date",
+          "owner": "#431",
+          "status": "planned"
+        },
+        {
+          "id": "save-target-date",
+          "label": "Save target date",
+          "owner": "#431",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "edit-planned-book",
+      "surface_type": "overlay",
+      "native_surface": "Planned book editor",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/dialogs/edit_planned_book_dialog.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#431"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-planned-book",
+          "label": "Edit planned start date and priority",
+          "owner": "#431",
+          "status": "planned"
+        },
+        {
+          "id": "save-planned-book",
+          "label": "Save planned book changes",
+          "owner": "#431",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "book-completion",
+      "surface_type": "overlay",
+      "native_surface": "Book completion sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sheets/book_completion_sheet.dart",
+        "app/lib/ui/book_detail/book_detail_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "acknowledge-completion",
+          "label": "Acknowledge completion celebration",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "open-review-prompt",
+          "label": "Continue to review prompt",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "book-review-prompt",
+      "surface_type": "overlay",
+      "native_surface": "Post-completion review prompt",
+      "native_source": [
+        "app/lib/ui/book_detail/book_detail_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "write-review",
+          "label": "Open review editor",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "dismiss-review-prompt",
+          "label": "Dismiss review prompt",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "memorable-page-sort-menu",
+      "surface_type": "overlay",
+      "native_surface": "Memorable-page sort menu",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+        "app/lib/ui/book_detail/view_model/memorable_page_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "sort-memorable-pages-by-page-desc",
+          "label": "Sort memorable pages by descending page number",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-page-asc",
+          "label": "Sort memorable pages by ascending page number",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-date-desc",
+          "label": "Sort memorable pages by newest date",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "sort-memorable-pages-by-date-asc",
+          "label": "Sort memorable pages by oldest date",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native menu exposes four selectable sort outcomes and updates the memorable-page view model."
+    },
+    {
+      "id": "review-exit-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Review unsaved-exit confirmation",
+      "native_source": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/core/widgets/confirmation_bottom_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "discard-review-changes",
+          "label": "Discard unsaved review changes",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "keep-review-changes",
+          "label": "Keep editing",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "review-ai-replacement-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Review AI draft replacement confirmation",
+      "native_source": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/core/widgets/confirmation_bottom_sheet.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-review-ai-replacement",
+          "label": "Confirm replacing existing review text with the AI draft",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-review-ai-replacement",
+          "label": "Cancel AI draft replacement and keep the review text",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "This confirmation appears only when existing review text would be overwritten; first-time generation has no separate consent prompt."
+    },
+    {
+      "id": "review-save-complete",
+      "surface_type": "overlay",
+      "native_surface": "Review save completion sheet",
+      "native_source": [
+        "app/lib/ui/book_review/book_review_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#437"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "acknowledge-review-save",
+          "label": "Acknowledge saved review",
+          "owner": "#437",
+          "status": "planned"
+        },
+        {
+          "id": "open-review-book",
+          "label": "Return to book detail",
+          "owner": "#437",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "password-change",
+      "surface_type": "overlay",
+      "native_surface": "Password change sheet",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "auth",
+      "actions": [
+        {
+          "id": "change-password",
+          "label": "Validate and save a new password",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-password-change",
+          "label": "Cancel password change",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "delete-account-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Delete account confirmation dialog",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#446"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-account-deletion",
+          "label": "Confirm account deletion and cleanup",
+          "owner": "#446",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-account-deletion",
+          "label": "Cancel account deletion",
+          "owner": "#446",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "language-change-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "Language change confirmation sheet",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#444"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "confirm-language-change",
+          "label": "Confirm the localized language change",
+          "owner": "#444",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-language-change",
+          "label": "Cancel the language change",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "notification-time-picker",
+      "surface_type": "overlay",
+      "native_surface": "Notification time picker",
+      "native_source": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/core/widgets/locale_time_picker.dart",
+        "app/lib/data/services/notification_settings_service.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#445"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "set-daily-reminder-time",
+          "label": "Set daily reminder time",
+          "owner": "#445",
+          "status": "planned"
+        },
+        {
+          "id": "set-goal-alarm-time",
+          "label": "Set goal alarm time",
+          "owner": "#445",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "ocr-limit",
+      "surface_type": "overlay",
+      "native_surface": "OCR quota dialog",
+      "native_source": [
+        "app/lib/ui/subscription/widgets/ocr_limit_dialog.dart",
+        "app/lib/data/services/google_vision_ocr_service.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "show-ocr-quota",
+          "label": "Show OCR quota outcome",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "continue-without-ocr",
+          "label": "Continue with manual text entry",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "pro-features",
+      "surface_type": "overlay",
+      "native_surface": "Pro feature information sheet",
+      "native_source": [
+        "app/lib/ui/home/widgets/pro_upgrade_banner.dart",
+        "app/lib/data/services/subscription_service.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [],
+        "disposition": "disabled",
+        "status": "disabled",
+        "owner": "#444"
+      },
+      "state_profile": "disabled",
+      "actions": [
+        {
+          "id": "explain-web-billing-disabled",
+          "label": "Explain that Pro upgrade is unavailable on Web",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "floating-timer",
+      "surface_type": "overlay",
+      "native_surface": "Floating timer bar",
+      "native_source": [
+        "app/lib/ui/core/widgets/floating_timer_bar.dart",
+        "app/lib/ui/core/widgets/global_timer_indicator.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#436"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-running-timer",
+          "label": "Open the running timer",
+          "owner": "#436",
+          "status": "planned"
+        },
+        {
+          "id": "stop-running-timer",
+          "label": "Stop and save the running timer",
+          "owner": "#436",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "schedule-change",
+      "surface_type": "overlay",
+      "native_surface": "Reading schedule change sheet",
+      "native_source": [
+        "app/lib/ui/reading_start/widgets/schedule_change_modal.dart",
+        "app/lib/ui/reading_start/widgets/reading_start_screen.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#434"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "adjust-daily-target",
+          "label": "Adjust the daily page target",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "preview-reading-schedule",
+          "label": "Preview the recalculated reading schedule",
+          "owner": "#434",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-schedule-change",
+          "label": "Confirm or dismiss the schedule change",
+          "owner": "#434",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The sheet recalculates pages by date and must keep keyboard, validation and cancel behavior equivalent on Web."
+    },
+    {
+      "id": "calendar-month-picker",
+      "surface_type": "overlay",
+      "native_surface": "Calendar year and month picker sheet",
+      "native_source": [
+        "app/lib/ui/calendar/widgets/calendar_header.dart",
+        "app/lib/ui/core/widgets/korean_year_month_picker.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#439"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "choose-calendar-month",
+          "label": "Choose a calendar year and month",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-calendar-month",
+          "label": "Apply the selected month",
+          "owner": "#439",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-calendar-month",
+          "label": "Cancel without changing the calendar",
+          "owner": "#439",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "clear-ai-memory-confirmation",
+      "surface_type": "overlay",
+      "native_surface": "AI insight memory deletion confirmation dialog",
+      "native_source": [
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#440"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "cancel-ai-memory-clear",
+          "label": "Cancel AI memory deletion",
+          "owner": "#440",
+          "status": "planned"
+        },
+        {
+          "id": "confirm-ai-memory-clear",
+          "label": "Confirm deletion of AI insight memory",
+          "owner": "#440",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The destructive action requires explicit confirmation and must preserve the native consent and error outcomes."
+    },
+    {
+      "id": "mind-map-leaf-detail",
+      "surface_type": "overlay",
+      "native_surface": "Mind-map leaf detail sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#442"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-mind-map-leaf",
+          "label": "Open the full content of a leaf note",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "close-mind-map-leaf",
+          "label": "Close the leaf detail sheet",
+          "owner": "#442",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "mind-map-cluster-detail",
+      "surface_type": "overlay",
+      "native_surface": "Mind-map cluster detail sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#442"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-mind-map-cluster",
+          "label": "Open the summary of a cluster node",
+          "owner": "#442",
+          "status": "planned"
+        },
+        {
+          "id": "close-mind-map-cluster",
+          "label": "Close the cluster detail sheet",
+          "owner": "#442",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "review-link-editor",
+      "surface_type": "overlay",
+      "native_surface": "External review-link editor sheet",
+      "native_source": [
+        "app/lib/ui/book_detail/widgets/sections/review_link_section.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#433"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "edit-review-link",
+          "label": "Edit and validate an external review URL",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "save-review-link",
+          "label": "Save the review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "delete-review-link",
+          "label": "Delete the existing review link",
+          "owner": "#433",
+          "status": "planned"
+        },
+        {
+          "id": "cancel-review-link",
+          "label": "Cancel without changing the review link",
+          "owner": "#433",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The editor requires HTTP/HTTPS validation and preserves save, delete and cancel outcomes."
+    },
+    {
+      "id": "context-menu",
+      "surface_type": "overlay",
+      "native_surface": "Liquid glass context menu",
+      "native_source": [
+        "app/lib/ui/core/widgets/liquid_glass_context_menu.dart",
+        "app/lib/ui/core/widgets/floating_context_dropdown.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "BLDS React/Next context menu primitive"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#421"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "choose-context-action",
+          "label": "Choose a keyboard and pointer accessible context action",
+          "owner": "#421",
+          "status": "planned"
+        },
+        {
+          "id": "dismiss-context-menu",
+          "label": "Dismiss without changing state",
+          "owner": "#421",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "search-overlay",
+      "surface_type": "overlay",
+      "native_surface": "Liquid glass search overlay",
+      "native_source": [
+        "app/lib/ui/core/widgets/liquid_glass_search_overlay.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "BLDS React/Next search overlay primitive"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#421"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "search-with-keyboard",
+          "label": "Search with keyboard focus and clear affordance",
+          "owner": "#421",
+          "status": "planned"
+        },
+        {
+          "id": "dismiss-search-overlay",
+          "label": "Dismiss search and preserve the previous surface",
+          "owner": "#421",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    },
+    {
+      "id": "full-screen-image",
+      "surface_type": "overlay",
+      "native_surface": "Full-screen image viewer",
+      "native_source": [
+        "app/lib/ui/book_detail/book_detail_screen.dart",
+        "app/lib/ui/book_detail/widgets/draggable_dismiss_image.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+        "Planned Web overlay implementation"
+        ],
+        "disposition": "component",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "view-full-screen-image",
+          "label": "View a private image at readable scale",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "close-full-screen-image",
+          "label": "Close with keyboard or pointer",
+          "owner": "#421",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416"
+    }
+  ],
+  "deep_links": [
+    {
+      "id": "book-search-deep-link",
+      "source": "bookgolas://book/search",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/new",
+      "disposition": "browser-equivalent",
+      "status": "partial",
+      "owner": "#427",
+      "notes": "The Web destination preserves locale and opens the search/add-book flow."
+    },
+    {
+      "id": "book-detail-deep-link",
+      "source": "bookgolas://book/detail/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/{bookId}",
+      "disposition": "browser-equivalent",
+      "status": "partial",
+      "owner": "#427",
+      "notes": "The Web destination must enforce authenticated ownership before rendering book data."
+    },
+    {
+      "id": "book-record-deep-link",
+      "source": "bookgolas://book/record/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/{bookId}?tab=history",
+      "disposition": "browser-equivalent",
+      "status": "planned",
+      "owner": "#427",
+      "notes": "The Web destination opens the owned book detail with the history tab selected, matching the native record-link handler's initialTabIndex: 1 destination."
+    },
+    {
+      "id": "book-scan-deep-link",
+      "source": "bookgolas://book/scan/{bookId}",
+      "source_kind": "native-custom-scheme",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "canonical_web_url": "/{locale}/books/{bookId}?scan=1",
+      "disposition": "browser-equivalent",
+      "status": "planned",
+      "owner": "#427",
+      "notes": "The Web destination opens the owned book detail with scan mode selected and applies browser permission or upload fallback."
+    }
+  ],
+  "native_only_capabilities": [
+    {
+      "id": "ios-home-widget",
+      "capability": "iOS home-screen widgets and widget tap deep links",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/lib/main.dart",
+        "app/lib/data/services/widget_data_service.dart",
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [],
+        "disposition": "explicit-unavailability",
+        "status": "unavailable",
+        "owner": "#445"
+      },
+      "state_profile": "native-only",
+      "actions": [
+        {
+          "id": "open-widget-book",
+          "label": "Record native widget deep-link behavior and state that Web has no OS widget",
+          "owner": "#445",
+          "status": "unavailable"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Web may support ordinary HTTPS deep links to the equivalent book route, but must not claim iOS widget parity."
+    },
+    {
+      "id": "siri-app-shortcuts",
+      "capability": "Siri and App Shortcuts",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/ios/Runner/BookgolasShortcuts.swift",
+        "app/ios/Runner/AppDelegate.swift",
+        "app/ios/Runner/Info.plist"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [],
+        "disposition": "explicit-unavailability",
+        "status": "unavailable",
+        "owner": "#416"
+      },
+      "state_profile": "native-only",
+      "actions": [
+        {
+          "id": "continue-reading-shortcut",
+          "label": "Continue reading from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
+          "id": "scan-page-shortcut",
+          "label": "Open page scanning from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
+          "id": "add-book-shortcut",
+          "label": "Open book search from Siri or an iOS quick action",
+          "owner": "#416",
+          "status": "unavailable"
+        },
+        {
+          "id": "record-shortcut-boundary",
+          "label": "Keep iOS shortcut support out of the Web promise",
+          "owner": "#416",
+          "status": "unavailable"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "This row prevents stale product claims from silently becoming Web scope."
+    },
+    {
+      "id": "native-push",
+      "capability": "FCM and local notification delivery",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/lib/data/services/fcm_service.dart",
+        "app/lib/data/services/notification_settings_service.dart",
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web": {
+        "canonical_url": "/{locale}/account/notifications",
+        "current": [],
+        "target": [
+        "Browser Push API permission and settings"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#445"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "request-web-push",
+          "label": "Request browser notification permission",
+          "owner": "#445",
+          "status": "planned"
+        },
+        {
+          "id": "manage-notification-categories",
+          "label": "Manage daily reminder, goal alarm, event nudge and announcement settings",
+          "owner": "#445",
+          "status": "planned"
+        },
+        {
+          "id": "open-notification-deep-link",
+          "label": "Open the associated Web book route from a notification",
+          "owner": "#445",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Browser Push is an explicit equivalent with different permission and delivery constraints; native FCM behavior must not be copied as if it were available on Web."
+    },
+    {
+      "id": "camera-and-ocr",
+      "capability": "Camera capture, document scan and OCR",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+        "app/lib/ui/book_detail/utils/document_scan_utils.dart",
+        "app/lib/ui/book_detail/utils/ocr_utils.dart",
+        "app/lib/data/services/google_vision_ocr_service.dart"
+      ],
+      "web": {
+        "canonical_url": "/{locale}/books/scan",
+        "current": [],
+        "target": [
+          "Browser camera permission, input capture and file-upload fallback"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#435"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "capture-or-upload",
+          "label": "Capture or upload a page image",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "extract-ocr",
+          "label": "Extract text after explicit consent",
+          "owner": "#435",
+          "status": "planned"
+        },
+        {
+          "id": "manual-text-fallback",
+          "label": "Continue with manual text when camera or OCR is unavailable",
+          "owner": "#435",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Provider credentials remain server-side and private image storage remains user-scoped."
+    },
+    {
+      "id": "share-sheet",
+      "capability": "Native share sheet and shareable statistics",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/lib/data/services/book_share_service.dart",
+        "app/lib/ui/book_detail/widgets/book_share_card.dart",
+        "app/lib/ui/reading_chart/widgets/reading_stats_share_card.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [
+          "Web Share API with clipboard and download fallback"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "planned",
+        "owner": "#443"
+      },
+      "state_profile": "browser-equivalent",
+      "actions": [
+        {
+          "id": "share-book",
+          "label": "Share a book or reading result through Web Share when supported",
+          "owner": "#443",
+          "status": "planned"
+        },
+        {
+          "id": "download-share-card",
+          "label": "Download or copy a share card fallback",
+          "owner": "#443",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "A browser fallback is required; a missing Web Share API must not remove the user-visible share outcome."
+    },
+    {
+      "id": "subscriptions",
+      "capability": "RevenueCat subscriptions, paywall and customer center",
+      "native_presence": "implemented-but-feature-flagged-off-by-default",
+      "native_source": [
+        "app/lib/data/services/subscription_service.dart",
+        "app/lib/ui/subscription/widgets/subscription_screen.dart",
+        "app/lib/config/feature_flags.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [],
+        "target": [],
+        "disposition": "disabled",
+        "status": "disabled",
+        "owner": "#444"
+      },
+      "state_profile": "disabled",
+      "actions": [
+        {
+          "id": "show-billing-disabled",
+          "label": "Show an explicit disabled state without purchase or restore",
+          "owner": "#444",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Consumer Web must not expose billing until a separate approved delivery contract exists."
+    },
+    {
+      "id": "offline-boundary",
+      "capability": "Offline reading and offline mutation",
+      "native_presence": "partial-local-cache-and-widget-sync",
+      "native_source": [
+        "app/lib/data/services/widget_data_service.dart",
+        "app/lib/data/services/reading_timer_service.dart",
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart"
+      ],
+      "web": {
+        "canonical_url": null,
+        "current": [
+          "web/src/components/consumer/network-status.tsx"
+        ],
+        "target": [
+          "Online-core boundary with explicit offline state",
+          "Optional bounded local draft only where verified"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "partial",
+        "owner": "#447"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "show-network-status",
+          "label": "Tell the user when the online core is unavailable",
+          "owner": "#447",
+          "status": "partial"
+        },
+        {
+          "id": "preserve-proven-draft",
+          "label": "Preserve only explicitly tested local drafts",
+          "owner": "#447",
+          "status": "planned"
+        },
+        {
+          "id": "retry-online-write",
+          "label": "Retry a failed online mutation",
+          "owner": "#447",
+          "status": "planned"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "Web 1.1.0 is online-core. It must not claim full offline parity without a bounded, tested implementation."
+    },
+    {
+      "id": "deep-links",
+      "capability": "Auth, book, record and scan deep links",
+      "native_presence": "implemented",
+      "native_source": [
+        "app/lib/data/services/deep_link_service.dart",
+        "app/lib/main.dart"
+      ],
+      "web": {
+        "canonical_url": "/{locale}/books/{bookId}",
+        "current": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx"
+        ],
+        "target": [
+          "Locale-preserving HTTPS routes with safe next-path validation"
+        ],
+        "disposition": "browser-equivalent",
+        "status": "partial",
+        "owner": "#427"
+      },
+      "state_profile": "default",
+      "actions": [
+        {
+          "id": "open-book-deep-link",
+          "label": "Open an owned book detail from a deep link",
+          "owner": "#427",
+          "status": "partial"
+        },
+        {
+          "id": "open-record-deep-link",
+          "label": "Open a record or Recall surface from a deep link",
+          "owner": "#427",
+          "status": "planned"
+        },
+        {
+          "id": "complete-auth-callback",
+          "label": "Complete the native authentication callback",
+          "owner": "#427",
+          "status": "partial"
+        }
+      ],
+      "evidence_owner": "#416",
+      "notes": "The native custom scheme bookgolas:// is represented by canonical HTTPS Web routes. Web-owned next-path validation is documented separately and is not presented as a native deep-link contract."
+    }
+  ],
+  "source_inventory": [
+    "app/lib/main.dart",
+    "app/lib/routing/app_router.dart",
+    "app/lib/ui/",
+    "app/lib/domain/models/",
+    "app/lib/data/services/",
+    "app/lib/config/feature_flags.dart",
+    "app/lib/l10n/app_ko.arb",
+    "app/lib/l10n/app_en.arb",
+    "app/ios/BookgolasWidget/BookgolasWidget.swift",
+    "app/ios/Runner/BookgolasShortcuts.swift",
+    "app/ios/Runner/AppDelegate.swift",
+    "app/ios/Runner/Info.plist",
+    "web/src/app/",
+    "web/src/components/consumer/",
+    "web/src/lib/consumer/",
+    "web/src/i18n/routing.ts"
+  ],
+  "audit_notes": [
+    "The Flutter source and BLab public contract are authoritative for supported product behavior.",
+    "The Web route status records the current repository state on version/web/1.1.0; planned entries are not claims of implementation.",
+    "Native-only capability rows are explicit boundaries and must remain visible in release evidence.",
+    "No stale PRD statement can promote a route, feature or subscription capability to parity without source and evidence ownership."
+  ]
+}

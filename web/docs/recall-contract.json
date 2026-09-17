@@ -1,0 +1,78 @@
+{
+  "issue": 441,
+  "task": 29,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "locales": ["ko", "en"],
+  "scopes": ["global", "book"],
+  "nativeReferences": [
+    "app/lib/ui/recall/widgets/global_recall_search_sheet.dart",
+    "app/lib/ui/recall/widgets/recall_search_sheet.dart",
+    "app/lib/ui/recall/widgets/record_detail_sheet.dart",
+    "app/lib/ui/recall/widgets/source_detail_modal.dart",
+    "app/lib/data/services/recall_service.dart",
+    "supabase/functions/recall-search/index.ts",
+    "supabase/migrations/20260121030546_create_recall_system.sql"
+  ],
+  "operations": [
+    { "native": "global_search", "web": "POST /api/consumer/recall", "scope": "global" },
+    { "native": "book_search", "web": "POST /api/consumer/recall", "scope": "book" },
+    { "native": "recent_queries", "web": "GET /api/consumer/recall", "scope": "global|book" },
+    { "native": "suggestions_keywords", "web": "RecallHistoryPage.suggestions", "scope": "global|book" },
+    { "native": "answer_card", "web": "RecallSearchResponse.result.answer", "scope": "global|book" },
+    { "native": "grouped_sources", "web": "RecallSearchResponse.result.sourcesByBook", "scope": "global" },
+    { "native": "expand_collapse", "web": "recall-source-group-toggle", "scope": "global|book" },
+    { "native": "copy", "web": "recall-answer-copy|recall-source-copy", "scope": "global|book" },
+    { "native": "record_detail", "web": "recall-source-detail", "scope": "global|book" },
+    { "native": "private_image_view", "web": "GET /api/consumer/recall/source", "scope": "book" },
+    { "native": "delete_history", "web": "POST /api/consumer/recall action=delete_history", "scope": "global|book" },
+    { "native": "go_to_owned_book", "web": "recall-source-go-to-book", "scope": "global|book" }
+  ],
+  "states": [
+    "idle",
+    "loading",
+    "empty",
+    "unauthorized",
+    "consent_required",
+    "quota_exceeded",
+    "provider_error",
+    "offline",
+    "error"
+  ],
+  "errorMatrix": [
+    { "code": "unauthorized", "http": 401, "ui": "unauthorized" },
+    { "code": "consent_required", "http": 403, "ui": "consent_required" },
+    { "code": "quota_exceeded", "http": 429, "ui": "quota_exceeded" },
+    { "code": "provider_error", "http": 502, "ui": "provider_error" },
+    { "code": "provider_timeout", "http": 504, "ui": "provider_error" },
+    { "code": "offline", "http": 503, "ui": "offline" },
+    { "code": "unavailable", "http": 503, "ui": "error" }
+  ],
+  "pagination": {
+    "request": "RecallHistoryRequest.pagination",
+    "response": "RecallHistoryPage.pageInfo",
+    "limit": { "min": 1, "max": 100 },
+    "cursor": "opaque-or-fixture-offset"
+  },
+  "privacy": {
+    "owner": "authenticated session user_id",
+    "bookId": "optional and verified through owner-scoped adapter/function filters",
+    "history": "global reads require book_id IS NULL; book reads require matching owner book_id",
+    "foreignSources": "drop or reject source groups outside owned book IDs",
+    "forbiddenOutput": ["user_id", "embeddings", "raw prompts", "service-role secrets", "another user's source"],
+    "images": "only short-lived signed URLs from the private book-images bucket"
+  },
+  "fixtures": [
+    "recall-happy",
+    "recall-empty",
+    "recall-consent",
+    "recall-quota",
+    "recall-provider",
+    "recall-offline",
+    "recall-unauthorized",
+    "recall-foreign",
+    "recall-image"
+  ]
+}

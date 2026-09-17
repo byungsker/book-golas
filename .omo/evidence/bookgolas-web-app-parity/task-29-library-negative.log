@@ -1,0 +1,7 @@
+
+> web@0.1.0 test:library:negative
+> node scripts/test-library.mjs --fixture foreign-private-data
+
+library negative fixture passed: 3 private markers stay out of the production surface
+
+EXIT_STATUS=0

@@ -1,0 +1,22 @@
+
+> web@0.1.0 test:images-ocr
+> node scripts/test-images-ocr.mjs && vitest run src/lib/product/contracts/images-ocr.test.ts src/lib/product/adapters.storage.test.ts src/lib/product/dal.consumer-images.test.ts src/app/api/consumer/images-ocr/route.test.ts
+
+node:internal/modules/cjs/loader:1397
+  throw err;
+  ^
+
+Error: Cannot find module '/private/tmp/bookgolas-web-435/web/scripts/test-images-ocr.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1394:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1050:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1055:22)
+    at Function._load (node:internal/modules/cjs/loader:1204:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:234:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:151:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v23.7.0

@@ -1,0 +1,20 @@
+
+> web@0.1.0 test:library
+> node scripts/test-library.mjs && vitest run src/lib/consumer/library.test.ts src/lib/product/adapters.tables.test.ts src/lib/product/dal.test.ts src/lib/product/dal.records.test.ts
+
+library contract passed: tabs, debounced search, cursor pagination, Recall boundary and state coverage
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-441/web
+
+ ✓ src/lib/consumer/library.test.ts (4 tests) 6ms
+ ✓ src/lib/product/adapters.tables.test.ts (5 tests) 8ms
+ ✓ src/lib/product/dal.records.test.ts (2 tests) 7ms
+ ✓ src/lib/product/dal.test.ts (9 tests) 12ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  10:36:57
+   Duration  567ms (transform 276ms, setup 0ms, collect 1.18s, tests 34ms, environment 0ms, prepare 226ms)
+
+
+EXIT_STATUS=0

@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "issue": 447,
+  "task": 35,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-447-offline-boundary",
+  "locales": ["ko", "en"],
+  "policy": "online-core",
+  "queue": {
+    "enabled": false,
+    "name": null,
+    "replay": false,
+    "reason": "The Web release has no bounded idempotent replay implementation yet."
+  },
+  "noSilentWrites": true,
+  "states": [
+    "loading",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "reconnect",
+    "conflict",
+    "duplicate",
+    "unsupported-mutation"
+  ],
+  "stateRows": [
+    {
+      "state": "loading",
+      "native": "Load the current user-scoped surface before accepting an action.",
+      "web": "BLab loading or skeleton state preserves fields and prevents duplicate submission.",
+      "action": "wait-for-load",
+      "retryable": false,
+      "queue": false
+    },
+    {
+      "state": "empty",
+      "native": "Show the next useful reading action when no records are present.",
+      "web": "Localized empty state keeps the route and add or retry action available.",
+      "action": "open-supported-route",
+      "retryable": false,
+      "queue": false
+    },
+    {
+      "state": "error",
+      "native": "Show a recoverable provider or persistence error.",
+      "web": "Localized error state preserves safe navigation and exposes retry.",
+      "action": "retry-online",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "unauthorized",
+      "native": "Return to sign-in without exposing another user's records.",
+      "web": "Locale-preserving sign-in redirect uses a validated next path.",
+      "action": "sign-in",
+      "retryable": false,
+      "queue": false
+    },
+    {
+      "state": "consent",
+      "native": "Ask for explicit provider, AI or device permission where required.",
+      "web": "Consent or browser permission remains a separate state from offline.",
+      "action": "grant-consent-or-cancel",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "quota",
+      "native": "Explain the gated action without starting an unapproved purchase flow.",
+      "web": "Quota feedback disables only the gated action and keeps billing disabled.",
+      "action": "retry-after-quota-window",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "offline",
+      "native": "Native local cache and draft behavior is partial and surface-specific.",
+      "web": "Online-only mutations become read-only with no hidden queue; proven review text remains local.",
+      "action": "reconnect",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "reconnect",
+      "native": "Resume network-backed work after connectivity returns.",
+      "web": "The shared shell emits bookgolas:online-reconnected and shows an observable retry state.",
+      "action": "retry-interrupted-action",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "conflict",
+      "native": "Resolve or recover a server version conflict explicitly.",
+      "web": "Keep the failed online action visible and require an explicit refresh or retry.",
+      "action": "refresh-and-retry",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "duplicate",
+      "native": "Idempotency is required before an offline replay can be claimed.",
+      "web": "No offline replay is attempted, so duplicate writes are rejected before queuing.",
+      "action": "retry-online",
+      "retryable": true,
+      "queue": false
+    },
+    {
+      "state": "unsupported-mutation",
+      "native": "Images, AI, push and active timer remain online-only.",
+      "web": "Unsupported offline mutations show the online-only boundary and do not enter a queue.",
+      "action": "reconnect-before-action",
+      "retryable": true,
+      "queue": false
+    }
+  ],
+  "parityRows": [
+    {
+      "id": "home-reading-status",
+      "nativeFlutter": "HomeScreen reading status tabs and book cards",
+      "nativeActions": ["switch-status", "open-book", "refresh"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "offline"],
+      "webRoute": "/{locale}/home",
+      "webComponent": "web/src/components/consumer/network-status.tsx + home/page.tsx",
+      "browserDisposition": "online-core read-only status with explicit retry",
+      "offlineDisposition": "read-only",
+      "owner": "#447"
+    },
+    {
+      "id": "reading-progress",
+      "nativeFlutter": "Reading progress screen and page update action",
+      "nativeActions": ["change-page", "save-progress", "retry"],
+      "nativeStates": ["loading", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
+      "webRoute": "/{locale}/reading/{bookId}",
+      "webComponent": "web/src/components/consumer/progress-updater.tsx",
+      "browserDisposition": "online-only mutation with retry after reconnect",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "book-detail-and-status",
+      "nativeFlutter": "Book detail screen, status modal and delete confirmation",
+      "nativeActions": ["resume-reading", "change-status", "delete", "cancel", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "web/src/components/consumer/book-detail-client.tsx",
+      "browserDisposition": "online-only mutation with safe error and retry",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "notes-highlights",
+      "nativeFlutter": "Note and highlight editor modal",
+      "nativeActions": ["create", "edit", "delete", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
+      "webRoute": "/{locale}/library?view=records",
+      "webComponent": "web/src/components/consumer/notes-highlights-client.tsx",
+      "browserDisposition": "online-only mutation with explicit retry",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "review-editor",
+      "nativeFlutter": "Book review editor and save confirmation",
+      "nativeActions": ["edit", "save", "cancel", "clear-draft", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict"],
+      "webRoute": "/{locale}/books/{bookId}/review",
+      "webComponent": "web/src/components/consumer/book-review-client.tsx",
+      "browserDisposition": "online-only save with proven local draft preservation",
+      "offlineDisposition": "preserve-local-draft",
+      "owner": "#447"
+    },
+    {
+      "id": "reading-timer",
+      "nativeFlutter": "Reading timer modal and session save action",
+      "nativeActions": ["start", "pause", "resume", "stop", "discard", "retry"],
+      "nativeStates": ["loading", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
+      "webRoute": "/{locale}/reading/{bookId}",
+      "webComponent": "web/src/components/consumer/reading-timer-control.tsx",
+      "browserDisposition": "active timer save remains online-only",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "images-ocr",
+      "nativeFlutter": "Memorable page capture, image replacement and OCR modal",
+      "nativeActions": ["camera", "upload", "replace", "extract-text", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
+      "webRoute": "/{locale}/books/{bookId}",
+      "webComponent": "web/src/components/consumer/book-image-capture-client.tsx",
+      "browserDisposition": "browser permission and upload fallback remain online-only for mutation",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "ai-recall-and-artifacts",
+      "nativeFlutter": "Recall search, AI insight and artifact surfaces",
+      "nativeActions": ["search", "generate", "retry", "cancel"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
+      "webRoute": "/{locale}/library?view=records&mode=recall",
+      "webComponent": "web/src/components/consumer/recall-client.tsx + ai-artifacts-client.tsx",
+      "browserDisposition": "network-backed AI action with explicit consent, quota and retry",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    },
+    {
+      "id": "web-push-and-account",
+      "nativeFlutter": "Notification settings and account mutation surfaces",
+      "nativeActions": ["grant-permission", "enable", "disable", "save", "delete", "retry"],
+      "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
+      "webRoute": "/{locale}/account",
+      "webComponent": "web/src/components/consumer/web-push-settings-client.tsx + account-settings-client.tsx",
+      "browserDisposition": "permission and account mutations require an online retry",
+      "offlineDisposition": "reject-before-network",
+      "owner": "#447"
+    }
+  ],
+  "mutations": [
+    {"id": "progress", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "book-metadata", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "book-status", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "notes-highlights", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "review", "browserDisposition": "online-only save", "queued": false, "preservation": "proven-local-draft"},
+    {"id": "timer", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "images-ocr", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "ai", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "web-push", "browserDisposition": "online-only", "queued": false, "preservation": "none"},
+    {"id": "account", "browserDisposition": "online-only", "queued": false, "preservation": "none"}
+  ],
+  "nativeOnly": [
+    {"feature": "iOS widget", "nativeEvidence": "WidgetDataService and widget deep links", "webDisposition": "unavailable; use HTTPS deep links", "status": "unavailable"},
+    {"feature": "Siri/App Shortcuts", "nativeEvidence": "BookgolasShortcuts and AppDelegate", "webDisposition": "unavailable; use HTTPS destinations", "status": "unavailable"},
+    {"feature": "native push", "nativeEvidence": "FCM and local notification services", "webDisposition": "Browser Push registration only; delivery unverified", "status": "registration-only"},
+    {"feature": "camera", "nativeEvidence": "Scanner and document capture utilities", "webDisposition": "Browser permission plus upload fallback", "status": "planned-equivalent"},
+    {"feature": "share sheet", "nativeEvidence": "BookShareService", "webDisposition": "Web Share API plus clipboard/download fallback", "status": "planned-equivalent"},
+    {"feature": "subscription", "nativeEvidence": "RevenueCat service", "webDisposition": "Disabled; no purchase, restore or upgrade controls", "status": "disabled"}
+  ],
+  "observability": {
+    "networkComponent": "web/src/components/consumer/network-status.tsx",
+    "shellIntegration": "web/src/components/consumer/consumer-shell.tsx",
+    "offlineStateAttribute": "data-network-state=offline",
+    "reconnectedStateAttribute": "data-network-state=reconnected",
+    "queueAttribute": "data-queue-enabled=false",
+    "event": "bookgolas:online-reconnected",
+    "retryAction": "Retry the interrupted action",
+    "queueFlushed": false
+  },
+  "evidence": {
+    "file": ".omo/evidence/bookgolas-web-app-parity/task-35-bookgolas-web-app-parity.json",
+    "stages": ["RED", "GREEN", "SURFACE", "CLEANUP"],
+    "positiveCommand": "npm run test:offline-sync",
+    "negativeCommand": "npm run test:offline-sync:negative",
+    "happyBrowserCommand": "npx playwright test tests/e2e/offline-sync.spec.ts --project=chromium --grep \"offline|reconnect|conflict\"",
+    "negativeBrowserCommand": "npx playwright test tests/e2e/offline-sync.spec.ts --project=chromium --grep \"duplicate|unsupported-mutation\""
+  }
+}
