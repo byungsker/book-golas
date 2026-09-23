@@ -314,9 +314,12 @@ supabase migration new create_reading_moment_shares
 3. Add `reading_moment_share_events` with bounded event types and an index on `(share_id, created_at)`.
 4. Add uniqueness for the token hash and an index for published non-expired lookup.
 5. Add owner policies for create, preview, update version, revoke and read-back.
-6. Add public policy only for published, non-expired snapshots and only for the public projection columns.
-7. Ensure revoked/expired rows cannot be returned by the public query even if a caller knows the share ID.
-8. Add an explicit migration rollback note; do not use destructive resets against a shared environment.
+6. Do not grant `anon` or `PUBLIC` table-level `SELECT` on `reading_moment_shares`; RLS filters rows but does not by itself remove sensitive columns from a row result.
+7. Expose only the approved public projection columns through a dedicated view or security-definer RPC, and grant `anon` access to that projection only. Keep `owner_id`, `source_book_id` and `share_token_hash` inaccessible to the public role.
+8. Grant owner/server privileges separately for draft, publish, revoke and read-back operations; do not treat the public projection privilege as an owner privilege.
+9. Add public policies only for published, non-expired projection rows. Verify table, view and column privileges with `has_table_privilege`, `has_column_privilege` or the repository’s equivalent RLS/privilege fixture.
+10. Ensure revoked/expired rows cannot be returned by the public query even if a caller knows the share ID.
+11. Add an explicit migration rollback note; do not use destructive resets against a shared environment.
 
 **Verification:**
 
@@ -542,10 +545,12 @@ Expected: the route returns a public snapshot without cookies, private fields ar
 1. Define one deterministic cache tag builder including locale and share ID.
 2. Use the Next.js version-supported cache/revalidation primitive after checking the installed preview documentation/types.
 3. Invalidate the exact share tag and path after publish, version update, revoke or expiry.
-4. Add a safe no-cache response for owner preview and management APIs.
-5. Verify a revoked share cannot be served from a stale public response after invalidation.
-6. Verify one locale’s snapshot never appears under another locale.
-7. Add a test for a missing tag/profile configuration that fails closed rather than silently keeping stale content.
+4. At `expires_at`, hard-invalidate the exact share tag/path or ensure the cache lifetime ends before serving stale content; never rely on a UI-only expired state.
+5. Warm the public cache before expiry in a fixture, advance/override the clock, trigger expiry invalidation and verify the same URL no longer returns the previous body.
+6. Add a safe no-cache response for owner preview and management APIs.
+7. Verify a revoked share cannot be served from a stale public response after invalidation.
+8. Verify one locale’s snapshot never appears under another locale.
+9. Add a test for a missing tag/profile configuration that fails closed rather than silently keeping stale content.
 
 **Verification:**
 
