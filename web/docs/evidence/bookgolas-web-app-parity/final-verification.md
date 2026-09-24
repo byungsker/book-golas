@@ -28,29 +28,48 @@ Headed macOS inspection was unavailable because the host session was locked; Chr
 
 ## Task 22 release-evidence closure — 2026-09-24
 
-Verdict: `BLOCKED`. This is a staged/local verification record, not a Production parity claim.
+Verdict: `DONECLAIM` for exact-SHA local/staged evidence closure only. Task 22 Production and release acceptance remain `BLOCKED`; this record makes no hosted or Production parity claim.
+
+### Exact source identity
 
 - Branch: `codex/feature/web/1.1.0/bookgolas-web-completion`
-- Current HEAD: `52e9c1db19b307200acef66eef73b86122b315d8`
-- Current HEAD tree: `b9b996cf67558e6253947f46f7ea15065da68f2d`
-- Current source-input manifest SHA-256: `943c746660e65643b7629ba4f118573432604bda4c20d6d5166b300dc42afd35`
-- Ledger SHA-256: `ff7e1a273843c22697c98b12594da527187b81fcd60d595a74a0ca604885de6e`
-- Ownership SHA-256: `7b488289204b3997474d9e8e582bbb272bf1e827a2427957c770ea9d07e778f6`
-- Matrix SHA-256: `7bad8d02a213c31b1c0ef1fd5d4d84a327161f655820b1d22a6a1521425e75d1`
-- Fixture release manifest SHA-256: `618d32eefd1dffc14a5f23fc244eee3623494ae58f26b2ec86fecf16ae92c8a5`
-- Fixture evidence receipt SHA-256: `102ba455df96695124715472f8cfe8b74b16814b1453d927212a0351aa5677a0`
-- Repaired Web evidence checksum manifest SHA-256: `db3a74423f784aed7041327ec88b6f3ac7382f2d26b6652abc2e80f4047f58f6`
+- Verified source commit: `de8ba1e3b46df5f25693c42712e8d8908308fb23`
+- Verified source tree: `3f3ec1b1b7142de36cd6a2260aed6156b213f830`
+- Source commit subject: `test(parity): update production claim fixture rejection`
+- Parent implementation commit: `e463a614a624851a36cb9cdee4439cdf279057b5`
+- Evidence-only closure: this document and its checksum manifest may be committed after the verified source; that follow-up does not change the verified source tree or promote it.
+- `productionParityClaimed=false`
 
-Fresh local verification passed: `npm test` (`84` files / `424` tests and `57` focused commands), lint (`0` errors / `9` warnings), typecheck, build (`42/42` pages), parity positive, all `72` parity negative fixtures, evidence-path validation, and direct checksum verification. The intentional ledger-checksum mutation exited `1`.
+### Current verification
 
-The Task 21 all-browser artifact is reused only as a hash-bound current result: Chromium, Firefox and WebKit each passed `236/236`; the artifact SHA-256 is `051ae025b453bfa23cb0c6ebb8b90fd42c33d51ca39aeed1a74f7cc5402f4dde`, and the Task 22 currentness audit found no browser source, test, script, message, package, Playwright or TypeScript configuration input newer than that artifact.
+| Scenario | Invocation | Result |
+| --- | --- | --- |
+| Unit and focused contracts | `cd web && npm test` | PASS, exit `0`; Vitest `84/84` files and `424/424` tests; `57` focused commands with the one declared intentional failure handled by the status-aware aggregate |
+| Lint | `cd web && npm run lint` | PASS, exit `0`; `0` errors and `9` warnings |
+| TypeScript | `cd web && npm run typecheck` | PASS, exit `0`; no diagnostics |
+| Build | `cd web && npm run build` | PASS, exit `0`; compile and TypeScript passed; `42/42` static pages generated |
+| Staged parity | `cd web && npm run test:parity-matrix` | PASS, exit `0`; output explicitly says `not a production release claim` |
+| All parity negatives | `cd web && npm run test:parity-matrix:negative` | PASS, exit `0`; `72/72` expected rejections observed |
+| Intentional checksum mutation | `cd web && node scripts/test-parity-matrix.mjs --fixture ledger-checksum-mismatch` | PASS, expected exit `1`; ledger SHA mismatch was rejected |
+| Evidence paths | `cd web && npm run test:evidence-paths` | PASS, exit `0`; repository-relative, scoped, hashed, present evidence contract verified |
+| Web evidence checksums | `shasum -a 256 -c web/docs/evidence/bookgolas-web-app-parity/SHA256SUMS` | PASS, exit `0`; every listed committed evidence file verified |
+| Preview fail-closed probe | `cd web && env -u NEXT_PUBLIC_SUPABASE_URL -u NEXT_PUBLIC_SUPABASE_ANON_KEY -u SUPABASE_SERVICE_ROLE_KEY -u WEB_ALLOWED_ORIGINS npm run test:release-config -- --environment preview` | PASS as an adversarial boundary, expected exit `1`; all four missing names reported without values |
 
-Production parity remains `0/85` (`0/20` routes, `0/53` overlays, `0/4` deep links, `0/8` capabilities). Staged fixture characterization remains `7/85` (`1/20`, `1/53`, `0/4`, `5/8`). The ledger still contains `12` partial and `66` planned records; these are not relabeled as Production-terminal.
+Chromium, Firefox, and WebKit are retained from the Task 21 all-browser run at `236/236` each. Its log SHA-256 is `051ae025b453bfa23cb0c6ebb8b90fd42c33d51ca39aeed1a74f7cc5402f4dde`. Currentness is proven by the exact commit delta: `e463a614..de8ba1e3` changes only `web/scripts/test-parity-matrix.mjs`; no `web/src`, `web/tests`, messages, Playwright configuration, browser runner, or package configuration changed, and the parity validator is not imported by the browser surface. This is reuse of unchanged browser evidence, not a new hosted run.
 
-Blocking conditions:
+### Counters and boundaries
 
-- Hosted Preview verification cannot run because `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `WEB_ALLOWED_ORIGINS` are absent. The fail-closed Preview probe exited `1` and named all four variables.
-- The current product implementation is a dirty working-tree snapshot, not an immutable release commit. HEAD therefore cannot truthfully bind the uncommitted source tree as released code.
-- The Web 1.1.0 branch/version is policy-valid, but the allowed-path audit is non-zero. `.agents/**`, `.omo/evidence/bookgolas-web-completion/**`, `supabase/config.toml`, `supabase/.temp/**`, and `supabase/.branches/**` lack current Web allow-list coverage. Policy was not changed.
+- Production parity: `0/85` — routes `0/20`, overlays `0/53`, deep links `0/4`, capabilities `0/8`.
+- Staged fixture characterization: `7/85` — routes `1/20`, overlays `1/53`, deep links `0/4`, capabilities `5/8`.
+- Ledger statuses: disabled `3`, online-only `1`, partial `12`, planned `66`, registration-only `1`, unavailable `2`.
+- The staged manifest and receipt remain `fixture_only=true`. They are not hosted or Production evidence.
+- iOS widgets and Siri/App Shortcuts remain unavailable; subscriptions remain disabled; native push remains registration-only; offline remains online-only.
 
-Safe resume: provision isolated hosted Preview values through the release owner's secret store; run the documented hosted CORS/JWT/RLS/email/provider-stub checks; obtain governance authorization for the recorded disallowed paths; create an immutable verified source commit without absorbing unrelated work; regenerate the release manifest and receipt from that commit; then rerun parity, checksums and the final release gate. No deploy, merge, push, publish or hosted mutation was performed here.
+### Release blockers
+
+- Hosted Preview verification is unavailable because `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `WEB_ALLOWED_ORIGINS` are absent. No values were invented.
+- Production remains unverified at `0/85`; the ledger retains `12` partial and `66` planned records.
+- Web `1.1.0` has no immutable promotion-source SHA in `.byungskerlab/release-lines.json`.
+- Task-local evidence under `.omo/evidence/bookgolas-web-completion/**` is outside the committed Web allow-list and therefore remains uncommitted operational evidence.
+
+No deploy, push, merge, publish, Preview mutation, Production mutation, policy broadening, continuity edit, or hosted-system action was performed. Safe resume requires isolated Preview values, tracked hosted evidence for every promoted record, an immutable authorized promotion source, and a fresh release gate. Until then Task 22 Production/release acceptance remains `BLOCKED`.
