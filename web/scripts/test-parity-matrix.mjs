@@ -389,7 +389,7 @@ const negativeFixtureExpectations = {
   "untracked-release-evidence": "fixture evidence artifact is not manifest-listed",
   "status-progress-mismatch": "status.md generated parity progress does not match ledger accounting",
   "cross-record-receipt-evidence-alias": "receipt evidence alias across terminal records",
-  "fixture-only-production-claim": "production release manifest path is untracked or dirty",
+  "fixture-only-production-claim": "production release evidence path is untracked or dirty",
   "invalid-deep-link-target": "must map to",
   "invalid-deep-link-source": "missing required deep link",
   "invalid-deep-link-assertion-source": "deep link assertion source must be listed",
