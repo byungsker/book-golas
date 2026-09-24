@@ -22,11 +22,11 @@ import { SignOutButton } from "@/components/consumer/sign-out-button";
 import {
   Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import {
   consumerShellTabs,
   getActiveConsumerTab,
@@ -86,11 +86,11 @@ export function ConsumerShell({
       : `/${locale}/library?view=records&mode=recall`);
   }
 
-  function toggleSearch() {
+  function toggleSearch(trigger?: HTMLButtonElement) {
     if (!searchOpen) {
-      searchReturnFocusRef.current = document.activeElement instanceof HTMLButtonElement
+      searchReturnFocusRef.current = trigger ?? (document.activeElement instanceof HTMLButtonElement
         ? document.activeElement
-        : null;
+        : null);
     }
     setSearchOpen((open) => !open);
   }
@@ -136,7 +136,7 @@ export function ConsumerShell({
             );
           })}
         </nav>
-        <button type="button" onClick={toggleSearch} className="mt-[var(--blab-space-lg)] flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] px-4 text-sm font-medium text-[var(--blab-text-secondary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-expanded={searchOpen} aria-controls="consumer-search-modes">
+        <button type="button" onClick={(event) => toggleSearch(event.currentTarget)} className="mt-[var(--blab-space-lg)] flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] px-4 text-sm font-medium text-[var(--blab-text-secondary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-expanded={searchOpen} aria-controls="consumer-search-modes">
           <Search aria-hidden="true" size={20} />
           {t("search.open")}
         </button>
@@ -178,17 +178,20 @@ export function ConsumerShell({
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent
           id="consumer-search-modes"
+          data-testid="search-mode-menu"
+          data-parity-actions="choose-book-search choose-ai-record-search"
           showCloseButton={false}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            searchReturnFocusRef.current?.focus();
+            const returnFocusTarget = searchReturnFocusRef.current;
             searchReturnFocusRef.current = null;
+            window.requestAnimationFrame(() => returnFocusTarget?.focus());
           }}
           className="w-full rounded-[var(--blab-radius-card)] border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-[var(--blab-space-xl)] text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-surface)] sm:max-w-md"
         >
           <DialogHeader className="text-left">
             <p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("search.eyebrow")}</p>
-            <DialogTitle id="consumer-search-title" className="mt-1 text-xl font-semibold">{t("search.title")}</DialogTitle>
+            <DialogTitle className="mt-1 text-xl font-semibold">{t("search.title")}</DialogTitle>
             <DialogDescription className="sr-only">{t("search.description")}</DialogDescription>
           </DialogHeader>
           <DialogClose asChild>

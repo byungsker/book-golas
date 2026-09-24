@@ -11,6 +11,7 @@ import {
   Check,
   FileImage,
   LoaderCircle,
+  ExternalLink,
   Search,
   Sparkles,
   Upload,
@@ -27,12 +28,12 @@ import {
 import {
   Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import type {
   BookRecommendation,
   BookSearchResult,
@@ -50,7 +51,7 @@ import type { ConsumerLocale } from "@/lib/consumer/paths";
 type SearchState = "idle" | "loading" | "ready" | "empty" | "error";
 type RecommendationState = "loading" | "ready" | "empty" | "error";
 type CameraState = "checking" | "ready" | "unsupported" | "insecure" | "denied";
-type FileState = "idle" | "reading" | "detected" | "manual-fallback";
+type FileState = "idle" | "reading" | "detected" | "manual-fallback" | "wrong-mime" | "oversize";
 
 type BarcodeDetection = { readonly rawValue?: string };
 type BarcodeDetectorLike = {
@@ -61,6 +62,11 @@ type BarcodeDetectorConstructorLike = new (options?: { formats?: string[] }) => 
 function getBarcodeDetector(): BarcodeDetectorConstructorLike | null {
   const candidate = (window as Window & { BarcodeDetector?: BarcodeDetectorConstructorLike }).BarcodeDetector;
   return candidate ?? null;
+}
+
+function browserFixture(): string | null {
+  if (typeof document === "undefined") return null;
+  return document.cookie.match(/(?:^|; )bookgolas-route-fixture=([^;]+)/)?.[1] ?? null;
 }
 
 function errorKind(code: ProductError["code"]): "unauthorized" | "consent" | "quota" | "offline" | "upstream" | "invalid" {
@@ -79,9 +85,11 @@ function imageAlt(book: BookSearchResult | BookRecommendation, t: (key: string) 
 export function BookDiscoveryClient({
   locale,
   initialQuery = "",
+  autoOpenScanner = false,
 }: {
   locale: ConsumerLocale;
   initialQuery?: string;
+  autoOpenScanner?: boolean;
 }) {
   const t = useTranslations("consumer");
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -94,7 +102,8 @@ export function BookDiscoveryClient({
   const [recommendationState, setRecommendationState] = useState<RecommendationState>("loading");
   const [recommendationError, setRecommendationError] = useState<ProductError | null>(null);
   const [selectedRecommendation, setSelectedRecommendation] = useState<BookRecommendation | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(autoOpenScanner);
+  const [bookstoreBook, setBookstoreBook] = useState<BookSearchResult | null>(null);
   const [cameraState, setCameraState] = useState<CameraState>("checking");
   const [fileState, setFileState] = useState<FileState>("idle");
   const [isbnError, setIsbnError] = useState(false);
@@ -223,6 +232,10 @@ export function BookDiscoveryClient({
   }, [locale]);
 
   useEffect(() => {
+    if (autoOpenScanner) setCameraOpen(true);
+  }, [autoOpenScanner]);
+
+  useEffect(() => {
     if (!cameraOpen) {
       stopCamera();
       return;
@@ -231,6 +244,19 @@ export function BookDiscoveryClient({
     let cancelled = false;
     const start = async () => {
       setCameraState("checking");
+      const fixture = browserFixture();
+      if (fixture === "images-ocr-insecure") {
+        setCameraState("insecure");
+        return;
+      }
+      if (fixture === "images-ocr-denied") {
+        setCameraState("denied");
+        return;
+      }
+      if (fixture === "images-ocr-unsupported") {
+        setCameraState("unsupported");
+        return;
+      }
       if (!window.isSecureContext) {
         setCameraState("insecure");
         return;
@@ -327,6 +353,14 @@ export function BookDiscoveryClient({
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setFileState("wrong-mime");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setFileState("oversize");
+      return;
+    }
     setFileState("reading");
     const Detector = getBarcodeDetector();
     if (!Detector || typeof createImageBitmap !== "function") {
@@ -455,7 +489,7 @@ export function BookDiscoveryClient({
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <ConsumerButton type="button" variant={selected ? "secondary" : "primary"} text={selected ? t("bookDiscovery.result.selected") : t("bookDiscovery.result.select")} onClick={() => setSelectedBook(book)} />
-                {book.aladinUrl ? <a href={book.aladinUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-medium text-[var(--blab-color-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">{t("bookDiscovery.result.openProvider")}</a> : null}
+                {book.aladinUrl ? <ConsumerButton type="button" variant="secondary" text={t("bookDiscovery.result.chooseBookstore")} icon={<ExternalLink aria-hidden="true" size={16} />} onClick={() => setBookstoreBook(book)} data-testid="bookstore-select-open" /> : null}
               </div>
             </article>
           );
@@ -493,9 +527,9 @@ export function BookDiscoveryClient({
   const cameraFallback = cameraState === "unsupported" || cameraState === "insecure" || cameraState === "denied";
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12" data-testid="book-discovery-page" data-route-state={searchState}>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
-        <section>
+    <main className="mx-auto max-w-6xl min-w-0 overflow-x-clip px-4 py-8 sm:px-6 lg:px-8 lg:py-12" data-testid="book-discovery-page" data-route-state={searchState}>
+      <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,.9fr)]">
+        <section className="min-w-0">
           <div>
             <p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("bookDiscovery.eyebrow")}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{t("bookDiscovery.title")}</h1>
@@ -523,6 +557,8 @@ export function BookDiscoveryClient({
               {fileState === "reading" ? <p role="status" className="mt-3 text-sm text-[var(--blab-text-tertiary)]">{t("bookDiscovery.scanner.fileReading")}</p> : null}
               {fileState === "detected" ? <p role="status" className="mt-3 text-sm text-[var(--blab-color-success)]">{t("bookDiscovery.scanner.detected")}</p> : null}
               {fileState === "manual-fallback" ? <p data-testid="book-discovery-file-fallback" role="status" className="mt-3 text-sm text-[var(--blab-color-warning)]">{t("bookDiscovery.scanner.fileFallback")}</p> : null}
+              {fileState === "wrong-mime" ? <p data-testid="book-discovery-file-wrong-mime" role="alert" className="mt-3 text-sm text-[var(--blab-color-error)]">{t("bookDiscovery.scanner.wrongMime")}</p> : null}
+              {fileState === "oversize" ? <p data-testid="book-discovery-file-oversize" role="alert" className="mt-3 text-sm text-[var(--blab-color-error)]">{t("bookDiscovery.scanner.oversize")}</p> : null}
             </div>
           </ConsumerCard>
 
@@ -530,7 +566,7 @@ export function BookDiscoveryClient({
           {selectedBook ? <><ConsumerCard className="mt-5" data-testid="book-discovery-selected"><div className="flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("bookDiscovery.selected.eyebrow")}</p><h2 className="mt-1 text-xl font-semibold">{selectedBook.title}</h2><p className="mt-1 text-sm text-[var(--blab-text-tertiary)]">{selectedBook.author}</p>{selectedBook.isbn ? <p className="mt-2 text-xs text-[var(--blab-text-tertiary)]">{t("bookDiscovery.result.isbn")}: {selectedBook.isbn}</p> : null}</div><Check aria-hidden="true" className="text-[var(--blab-color-success)]" size={22} /></div><p className="mt-4 text-sm leading-6 text-[var(--blab-text-secondary)]">{t("bookDiscovery.selected.description")}</p></ConsumerCard><BookLifecycleClient locale={locale} selectedBook={selectedBook} /></> : null}
         </section>
 
-        <aside className="lg:pt-12" aria-labelledby="book-discovery-recommendation-heading">
+        <aside className="min-w-0 lg:pt-12" aria-labelledby="book-discovery-recommendation-heading">
           <div className="mb-4"><p className="text-sm font-medium text-[var(--blab-color-primary)]"><Sparkles aria-hidden="true" className="mr-1 inline" size={15} />{t("bookDiscovery.recommendations.eyebrow")}</p><h2 id="book-discovery-recommendation-heading" className="mt-2 text-xl font-semibold">{t("bookDiscovery.recommendations.title")}</h2><p className="mt-2 text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("bookDiscovery.recommendations.description")}</p></div>
           {renderRecommendations()}
         </aside>
@@ -555,6 +591,17 @@ export function BookDiscoveryClient({
       <Dialog open={selectedRecommendation !== null} onOpenChange={(open) => { if (!open) setSelectedRecommendation(null); }}>
         <DialogContent className="w-full max-w-lg rounded-3xl border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-6 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-surface)]">
           {selectedRecommendation ? <><DialogHeader className="text-left"><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("bookDiscovery.recommendations.actionEyebrow")}</p><DialogTitle className="mt-1">{selectedRecommendation.title}</DialogTitle><DialogDescription>{selectedRecommendation.author}</DialogDescription></DialogHeader><p className="mt-5 rounded-2xl bg-[var(--blab-color-primary)]/10 p-4 text-sm leading-6 text-[var(--blab-color-primary)]">{selectedRecommendation.reason}</p><DialogFooter className="mt-6"><DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("bookDiscovery.recommendations.viewDetails")} onClick={() => chooseRecommendation(selectedRecommendation, false)} /></DialogClose><ConsumerButton type="button" variant="primary" text={t("bookDiscovery.recommendations.startReading")} icon={<BookOpen aria-hidden="true" size={17} />} onClick={() => chooseRecommendation(selectedRecommendation, true)} /></DialogFooter></> : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bookstoreBook !== null} onOpenChange={(open) => { if (!open) setBookstoreBook(null); }}>
+        <DialogContent className="w-full max-w-md rounded-3xl border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-6 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-surface)]" data-testid="bookstore-select">
+          <DialogHeader className="text-left">
+            <DialogTitle>{t("bookDiscovery.bookstore.title")}</DialogTitle>
+            <DialogDescription>{t("bookDiscovery.bookstore.description")}</DialogDescription>
+          </DialogHeader>
+          {bookstoreBook?.aladinUrl ? <a href={bookstoreBook.aladinUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex min-h-12 w-full items-center justify-between rounded-2xl bg-[var(--blab-glass-fill)] px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="bookstore-select-provider"><span>{t("bookDiscovery.bookstore.provider")}</span><ExternalLink aria-hidden="true" size={17} /></a> : null}
+          <DialogFooter className="mt-5"><DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("bookDiscovery.bookstore.close")} /></DialogClose></DialogFooter>
         </DialogContent>
       </Dialog>
     </main>

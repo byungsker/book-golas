@@ -25,11 +25,16 @@ export const aiArtifactUiStateValues = [
   "missing",
   "expired",
   "empty",
+  "unknown",
+  "unavailable",
   "unauthorized",
   "consent_required",
   "insufficient_data",
   "rate_limit_exceeded",
   "quota_exceeded",
+  "concurrency_exceeded",
+  "budget_exceeded",
+  "hard_cap_exceeded",
   "provider_timeout",
   "provider_error",
   "configuration_error",
@@ -189,4 +194,3 @@ export const AiArtifactResponseSchema = z.union([
   AiArtifactGeneratedResponseSchema,
 ]);
 export type AiArtifactResponse = z.infer<typeof AiArtifactResponseSchema>;
-

@@ -1,0 +1,1 @@
+{"fixture_only":true,"record_id":"offline-boundary","channel":"browser","actions":["show-network-status","preserve-proven-draft","retry-online-write"],"result":"online-only browser boundary characterized"}

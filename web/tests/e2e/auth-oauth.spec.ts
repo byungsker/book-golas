@@ -6,6 +6,10 @@ const evidenceDirectory = path.resolve(
   process.cwd(),
   "../.omo/evidence/bookgolas-web-app-parity",
 );
+const taskEvidenceDirectory = path.resolve(
+  process.cwd(),
+  "../.omo/evidence/bookgolas-web-completion",
+);
 
 async function enableAuthenticatedTarget(context: BrowserContext) {
   await context.addCookies([
@@ -27,6 +31,11 @@ async function enableAuthenticatedTarget(context: BrowserContext) {
 async function capture(page: Page, name: string) {
   fs.mkdirSync(evidenceDirectory, { recursive: true });
   await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
+}
+
+async function captureTask6(page: Page, name: string) {
+  fs.mkdirSync(taskEvidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(taskEvidenceDirectory, name), fullPage: true });
 }
 
 for (const provider of ["Google", "Apple"] as const) {
@@ -55,7 +64,7 @@ for (const provider of ["Google", "Apple"] as const) {
 test("invalid or expired callback code returns a generic localized error", async ({ page }) => {
   await page.goto("/ko/auth/callback?code=expired-code&returnTo=%2Fko%2Fhome");
 
-  await expect(page).toHaveURL(/\/ko\/auth\/sign-in\?error=auth_callback&next=/);
+  await expect(page).toHaveURL(/\/ko\/auth\/sign-in\?error=auth_callback&returnTo=/);
   await expect(page.locator("form [role='alert']")).toHaveText(
     "로그인 링크가 올바르지 않거나 만료되었습니다. 로그인을 다시 시작하세요.",
   );
@@ -68,7 +77,7 @@ test("invalid provider cancellation hides provider details", async ({ page }) =>
     "/en/auth/callback?error=access_denied&error_description=private-provider-detail&error_code=secret-code&returnTo=%2Fen%2Fhome",
   );
 
-  await expect(page).toHaveURL(/\/en\/auth\/sign-in\?error=oauth_cancelled&next=/);
+  await expect(page).toHaveURL(/\/en\/auth\/sign-in\?error=oauth_cancelled&returnTo=/);
   await expect(page.locator("form [role='alert']")).toHaveText(
     "Sign-in was cancelled. You can try again when you are ready.",
   );
@@ -82,7 +91,7 @@ test("invalid provider error is generic and hides provider details", async ({ pa
     "/ko/auth/callback?error=server_error&error_description=private-provider-detail&error_code=secret-code&returnTo=%2Fko%2Fhome",
   );
 
-  await expect(page).toHaveURL(/\/ko\/auth\/sign-in\?error=oauth_provider&next=/);
+  await expect(page).toHaveURL(/\/ko\/auth\/sign-in\?error=oauth_provider&returnTo=/);
   await expect(page.locator("form [role='alert']")).toHaveText(
     "제공업체 로그인을 완료하지 못했습니다. 다시 시도하세요.",
   );
@@ -99,4 +108,14 @@ test("external returnTo is rejected by the full callback flow", async ({ context
   await expect(page).toHaveURL(/\/ko\/home$/);
   expect(page.url()).not.toContain("evil.example");
   await capture(page, "task-12-SURFACE-external-return-rejected.png");
+});
+
+test("raw next aliases cannot select an authenticated return target", async ({ context, page }) => {
+  await enableAuthenticatedTarget(context);
+  await page.goto("/en/auth/sign-in?next=%2Fen%2Fbooks%2Fnew", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Continue with Google" }).click();
+
+  await expect(page).toHaveURL(/\/en\/home$/);
+  expect(page.url()).not.toContain("/books/new");
+  await captureTask6(page, "task-6-oauth-raw-next-rejected.png");
 });

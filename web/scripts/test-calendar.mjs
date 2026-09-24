@@ -60,7 +60,7 @@ if (failures.length === 0) {
   requireCondition(source.ko.includes('"calendar"') && source.en.includes('"calendar"') && source.ko.includes('"plannedDescription"') && source.en.includes('"plannedDescription"'), "calendar copy must be localized in Korean and English");
   requireCondition(source.e2e.includes("calendar month navigation and filters") && source.e2e.includes("calendar day-detail opens owned book") && source.e2e.includes("calendar timezone keeps UTC midnight events on the correct KST day"), "calendar happy browser scenarios must be named");
   requireCondition(source.e2e.includes("calendar empty state") && source.e2e.includes("calendar network failure") && source.e2e.includes("calendar foreign events stay out of day detail"), "calendar failure browser scenarios must be named");
-  requireCondition(source.e2e.includes("task-26-bookgolas-web-app-parity.png"), "calendar browser suite must capture issue evidence");
+  for (const artifact of ["calendar-positive.png", "calendar-day-detail.png", "calendar-month-picker.png"]) requireCondition(source.e2e.includes(artifact), `calendar browser suite must capture ${artifact}`);
 
   if (fixtureMode === "timezone") {
     requireCondition(fixture.fixtures.some((item) => item.name === "timezone-boundary" && item.expectedKstDays.join(",") === "2026-09-01,2026-09-02"), "timezone fixture must assert the KST boundary days");

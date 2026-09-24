@@ -5,6 +5,7 @@ import {
   BookIdSchema,
   IsoDateSchema,
   LocaleSchema,
+  RequestIdSchema,
 } from "./common";
 
 const ConsumerProgressBookSchema = z
@@ -36,6 +37,27 @@ export const ProgressUiRequestSchema = z
   })
   .strict();
 
+export const ProgressScheduleRequestSchema = z
+  .object({
+    action: z.literal("update_schedule"),
+    locale: LocaleSchema,
+    bookId: BookIdSchema,
+    targetDate: IsoDateSchema.optional(),
+    dailyTargetPages: z.number().int().min(1).max(100_000).optional(),
+    expectedUpdatedAt: IsoDateSchema,
+    idempotencyKey: RequestIdSchema,
+  })
+  .strict()
+  .refine(
+    (request) => request.targetDate !== undefined || request.dailyTargetPages !== undefined,
+    { message: "A schedule field is required." },
+  );
+
+export const ProgressUiMutationRequestSchema = z.union([
+  ProgressUiRequestSchema,
+  ProgressScheduleRequestSchema,
+]);
+
 export const ProgressUiSuccessSchema = z
   .object({
     kind: z.literal("updated"),
@@ -47,11 +69,24 @@ export const ProgressUiSuccessSchema = z
   })
   .strict();
 
+export const ProgressScheduleSuccessSchema = z
+  .object({
+    kind: z.literal("schedule_updated"),
+    book: BookSchema,
+    duplicate: z.boolean(),
+    invalidatedPaths: z.array(z.string().startsWith("/")),
+  })
+  .strict();
+
 export const ProgressUiResponseSchema = z.union([
   ProgressUiSuccessSchema,
+  ProgressScheduleSuccessSchema,
   ApiErrorResponseSchema,
 ]);
 
 export type ProgressUiRequest = z.infer<typeof ProgressUiRequestSchema>;
+export type ProgressScheduleRequest = z.infer<typeof ProgressScheduleRequestSchema>;
+export type ProgressUiMutationRequest = z.infer<typeof ProgressUiMutationRequestSchema>;
 export type ProgressUiSuccess = z.infer<typeof ProgressUiSuccessSchema>;
+export type ProgressScheduleSuccess = z.infer<typeof ProgressScheduleSuccessSchema>;
 export type ProgressUiResponse = z.infer<typeof ProgressUiResponseSchema>;

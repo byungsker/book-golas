@@ -43,6 +43,10 @@ function privateError(error: ProductError): NextResponse {
   return response;
 }
 
+function hasValidActionKey(request: NextRequest, bookId: string, idempotencyKey: string): boolean {
+  return request.headers.get("x-bookgolas-action-key") === `${bookId}:finish:${idempotencyKey}`;
+}
+
 function invalidatedPaths(locale: "ko" | "en", bookId: string): string[] {
   return [
     `/${locale}/home`,
@@ -120,6 +124,9 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return privateError(validationError());
 
   const input = parsed.data;
+  if (!hasValidActionKey(request, input.bookId, input.idempotencyKey)) {
+    return privateError(validationError("The action key is invalid."));
+  }
   const paths = invalidatedPaths(input.locale, input.bookId);
   const fixture = getConsumerRouteFixture(
     request.cookies.get("bookgolas-route-fixture")?.value,

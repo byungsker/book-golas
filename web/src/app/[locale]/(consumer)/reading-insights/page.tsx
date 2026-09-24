@@ -14,6 +14,9 @@ export default async function ReadingInsightsPage({ params }: { params: Promise<
         <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{t("aiArtifacts.insights.title")}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("aiArtifacts.insights.description")}</p>
         <AiArtifactsClient locale={locale} kind="insights" />
+        <section id="recommendations" aria-label={t("aiArtifacts.recommendations.title")}>
+          <AiArtifactsClient locale={locale} kind="recommendations" />
+        </section>
       </main>
     </div>
   );

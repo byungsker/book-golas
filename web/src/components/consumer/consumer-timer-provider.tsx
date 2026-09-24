@@ -166,6 +166,11 @@ export function ConsumerTimerProvider({
       setErrorCode(null);
 
       try {
+        if (!window.navigator.onLine) {
+          const code = "offline" as const;
+          setErrorCode(code);
+          return { kind: "error", code };
+        }
         const endedAt = new Date().toISOString();
         const request = TimerFinishRequestSchema.parse({
           action: "finish",
@@ -178,7 +183,10 @@ export function ConsumerTimerProvider({
         });
         const response = await fetch("/api/consumer/timer", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Bookgolas-Action-Key": `${current.bookId}:finish:${current.sessionId}`,
+          },
           body: JSON.stringify(request),
           cache: "no-store",
         });

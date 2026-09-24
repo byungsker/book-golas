@@ -7,10 +7,12 @@ import {
   calendarDateFromDayKey,
   calendarDayKeyFromDate,
 } from "./calendar";
-import { BookIdSchema, IsoDateSchema, LocaleSchema } from "./common";
+import { InsightSchema } from "./ai";
+import { BookIdSchema, IsoDateSchema, LocaleSchema, RequestIdSchema } from "./common";
 
-/** The reading chart and the calendar intentionally share one display clock. */
-export const CHARTS_GOALS_TIME_ZONE = CALENDAR_TIME_ZONE; // Asia/Seoul
+export const CHARTS_GOALS_TIME_ZONE = CALENDAR_TIME_ZONE;
+export const MAX_READING_ANALYTICS_RANGE_DAYS = 366;
+export const MAX_READING_ANALYTICS_INSIGHTS = 3;
 
 export const ReadingAnalyticsViewSchema = z.enum(["annual", "monthly", "weekly", "custom"]);
 export type ReadingAnalyticsView = z.infer<typeof ReadingAnalyticsViewSchema>;
@@ -93,6 +95,12 @@ export const ReadingAnalyticsRequestSchema = z
         }
         if (request.customEnd > today) {
           context.addIssue({ code: "custom", path: ["customEnd"], message: "The custom range cannot include future dates." });
+        }
+        const start = calendarDateFromDayKey(request.customStart).getTime();
+        const end = calendarDateFromDayKey(request.customEnd).getTime();
+        const rangeDays = Math.floor((end - start) / 86_400_000) + 1;
+        if (rangeDays > MAX_READING_ANALYTICS_RANGE_DAYS) {
+          context.addIssue({ code: "custom", path: ["customEnd"], message: "The custom range cannot exceed 366 days." });
         }
       }
     }
@@ -208,11 +216,11 @@ export const ReadingAnalyticsDataSchema = z
     status: ReadingAnalyticsStatusSchema,
     period: ReadingAnalyticsPeriodSchema,
     metrics: ReadingAnalyticsMetricsSchema,
-    periods: z.array(ReadingAnalyticsPeriodPointSchema),
-    daily: z.array(ReadingAnalyticsDailyPointSchema),
+    periods: z.array(ReadingAnalyticsPeriodPointSchema).max(MAX_READING_ANALYTICS_RANGE_DAYS),
+    daily: z.array(ReadingAnalyticsDailyPointSchema).max(MAX_READING_ANALYTICS_RANGE_DAYS),
     monthlyBookCounts: z.array(ReadingAnalyticsMonthlyBookCountSchema).length(12),
-    genreDistribution: z.array(ReadingAnalyticsGenreCountSchema),
-    heatmap: z.array(ReadingAnalyticsDailyPointSchema),
+    genreDistribution: z.array(ReadingAnalyticsGenreCountSchema).max(100),
+    heatmap: z.array(ReadingAnalyticsDailyPointSchema).max(MAX_READING_ANALYTICS_RANGE_DAYS),
     goal: ReadingAnalyticsGoalProgressSchema,
   })
   .strict();
@@ -226,6 +234,35 @@ export const ReadingGoalUpdateRequestSchema = z
   })
   .strict();
 export type ReadingGoalUpdateRequest = z.infer<typeof ReadingGoalUpdateRequestSchema>;
+
+export const ReadingAnalyticsInsightRequestSchema = z
+  .object({
+    action: z.literal("generate_insight"),
+    locale: LocaleSchema,
+    requestKey: RequestIdSchema,
+  })
+  .strict();
+export type ReadingAnalyticsInsightRequest = z.infer<typeof ReadingAnalyticsInsightRequestSchema>;
+
+export const ChartsGoalsMutationRequestSchema = z.union([
+  ReadingGoalUpdateRequestSchema,
+  ReadingAnalyticsInsightRequestSchema,
+]);
+
+export const ReadingAnalyticsInsightsSchema = z
+  .array(InsightSchema.extend({
+    description: z.string().trim().min(1).max(2000),
+    relatedBooks: z.array(BookIdSchema).max(20),
+  }).strict())
+  .max(MAX_READING_ANALYTICS_INSIGHTS);
+
+export const ReadingAnalyticsInsightSuccessSchema = z
+  .object({
+    kind: z.literal("insight_generated"),
+    requestKey: RequestIdSchema,
+    insights: ReadingAnalyticsInsightsSchema,
+  })
+  .strict();
 
 export const ReadingGoalUpdateSuccessSchema = z
   .object({
@@ -359,7 +396,8 @@ function orderedGenreCounts(books: readonly ReadingAnalyticsBook[], year: number
   }
   return [...counts.entries()]
     .map(([genre, count]) => ({ genre, count }))
-    .sort((left, right) => right.count - left.count || left.genre.localeCompare(right.genre));
+    .sort((left, right) => right.count - left.count || left.genre.localeCompare(right.genre))
+    .slice(0, 100);
 }
 
 function completedBookCounts(books: readonly ReadingAnalyticsBook[], year: number): { monthly: number[]; daily: Map<string, number>; completed: number } {

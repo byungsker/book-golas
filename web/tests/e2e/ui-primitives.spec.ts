@@ -4,12 +4,14 @@ import { expect, test } from "@playwright/test";
 
 const evidenceDirectory = path.resolve(
   process.cwd(),
-  "../.omo/evidence/bookgolas-web-app-parity",
+  process.env.TASK18_EVIDENCE_DIR ?? "../.omo/evidence/bookgolas-web-completion/task-18-artifacts/screenshots",
 );
 
 const viewports = [
   { id: "mobile", width: 390, height: 844 },
-  { id: "desktop", width: 1440, height: 900 },
+  { id: "tablet", width: 768, height: 1024 },
+  { id: "desktop-1280", width: 1280, height: 900 },
+  { id: "desktop-1440", width: 1440, height: 900 },
 ] as const;
 
 const themes = [
@@ -20,7 +22,10 @@ const themes = [
 const copy = {
   ko: {
     buttonPrimary: "기본 동작",
+    buttonSecondary: "보조 동작",
+    buttonDestructive: "삭제 동작",
     buttonLoading: "저장 중",
+    buttonDisabled: "사용할 수 없음",
     buttonActivated: "버튼을 눌렀습니다.",
     cardInteractive: "상호작용 카드",
     cardActivated: "카드를 열었습니다.",
@@ -71,6 +76,21 @@ const copy = {
   },
 } as const;
 
+async function waitForFonts(page: import("@playwright/test").Page) {
+  await page.evaluate(() => document.fonts.ready);
+}
+
+async function focusForKeyboardContract(
+  page: import("@playwright/test").Page,
+  target: import("@playwright/test").Locator,
+) {
+  await page.bringToFront();
+  await expect.poll(async () => {
+    await target.focus();
+    return target.evaluate((element) => document.activeElement === element);
+  }).toBe(true);
+}
+
 for (const locale of ["ko", "en"] as const) {
   for (const viewport of viewports) {
     for (const theme of themes) {
@@ -80,6 +100,7 @@ for (const locale of ["ko", "en"] as const) {
         await page.setViewportSize({ width: viewport.width, height: viewport.height });
         await page.emulateMedia({ colorScheme: theme.colorScheme, reducedMotion: "reduce" });
         await page.goto(`/${locale}/ui-primitives`, { waitUntil: "networkidle" });
+        await waitForFonts(page);
 
         await expect(page.getByTestId("ui-primitives-showcase")).toBeVisible();
         await expect(page.locator("html")).toHaveAttribute("data-blab-theme", theme.id);
@@ -103,14 +124,41 @@ for (const locale of ["ko", "en"] as const) {
         expect(describedBy).toBeTruthy();
         await expect(page.locator(`#${describedBy}`)).toHaveText(strings.errorText);
 
+        if (locale === "ko" && viewport.id === "desktop-1440" && theme.id === "light") {
+          const actionContainer = page.getByTestId("button-actions");
+          const actionButtons = [
+            ["primary-button", copy.ko.buttonPrimary],
+            ["secondary-button", copy.ko.buttonSecondary],
+            ["destructive-button", copy.ko.buttonDestructive],
+            ["loading-button", copy.ko.buttonLoading],
+            ["disabled-button", copy.ko.buttonDisabled],
+          ] as const;
+
+          await expect(actionContainer).toBeVisible();
+          const actionContainerBox = await actionContainer.boundingBox();
+          expect(actionContainerBox).not.toBeNull();
+
+          for (const [testId, accessibleName] of actionButtons) {
+            const button = page.getByTestId(testId);
+            await expect(button).toBeVisible();
+            await expect(button).toHaveAccessibleName(accessibleName);
+            const buttonBox = await button.boundingBox();
+            expect(buttonBox).not.toBeNull();
+            expect(buttonBox!.x).toBeGreaterThanOrEqual(actionContainerBox!.x);
+            expect(buttonBox!.y).toBeGreaterThanOrEqual(actionContainerBox!.y);
+            expect(buttonBox!.x + buttonBox!.width).toBeLessThanOrEqual(actionContainerBox!.x + actionContainerBox!.width);
+            expect(buttonBox!.y + buttonBox!.height).toBeLessThanOrEqual(actionContainerBox!.y + actionContainerBox!.height);
+          }
+        }
+
         if (locale === "ko" && viewport.id === "mobile" && theme.id === "dark") {
           await page.screenshot({
-            path: path.join(evidenceDirectory, "task-9-bookgolas-web-app-parity.png"),
+            path: path.join(evidenceDirectory, "task-18-bookgolas-web-completion.png"),
             fullPage: true,
           });
         }
         await page.screenshot({
-          path: path.join(evidenceDirectory, `task-9-ui-primitives-${locale}-${viewport.id}-${theme.id}.png`),
+          path: path.join(evidenceDirectory, `ui-primitives-${locale}-${viewport.id}-${theme.id}.png`),
           fullPage: true,
         });
       });
@@ -122,35 +170,37 @@ test("keyboard activation and focus contract", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   await page.goto("/en/ui-primitives", { waitUntil: "networkidle" });
+  await waitForFonts(page);
 
   const primaryButton = page.getByTestId("primary-button");
-  await primaryButton.focus();
-  await expect(primaryButton).toBeFocused();
+  await focusForKeyboardContract(page, primaryButton);
   await expect(primaryButton).toHaveCSS("box-shadow", /.+/);
+  await page.screenshot({
+    path: path.join(evidenceDirectory, "ui-primitives-en-mobile-light-keyboard-focus.png"),
+    fullPage: true,
+  });
   await primaryButton.press("Enter");
   await expect(page.getByTestId("button-feedback")).toHaveText("Button activated.");
 
   const interactiveCard = page.getByTestId("interactive-card");
-  await interactiveCard.focus();
-  await expect(interactiveCard).toBeFocused();
+  await focusForKeyboardContract(page, interactiveCard);
   await interactiveCard.press("Space");
   await expect(page.getByTestId("card-feedback")).toHaveText("Card opened.");
 
   const tabList = page.getByRole("tablist", { name: "Reading status tabs" });
   const firstTab = tabList.getByRole("tab", { name: "Reading" });
-  await firstTab.focus();
+  await focusForKeyboardContract(page, firstTab);
   await firstTab.press("ArrowRight");
   await expect(tabList.getByRole("tab", { name: "To read" })).toHaveAttribute("aria-selected", "true");
 
   const segmentedControl = page.getByRole("group", { name: "Record filter" });
   const allSegment = segmentedControl.getByRole("button", { name: "All" });
-  await allSegment.focus();
+  await focusForKeyboardContract(page, allSegment);
   await allSegment.press("ArrowRight");
   await expect(segmentedControl.getByRole("button", { name: "Records" })).toHaveAttribute("aria-pressed", "true");
 
   const pressable = page.getByTestId("pressable").locator(".blab-pressable");
-  await pressable.focus();
-  await expect(pressable).toBeFocused();
+  await focusForKeyboardContract(page, pressable);
   await pressable.press("Enter");
   await expect(page.getByTestId("pressable-feedback")).toHaveText("Region activated.");
 
@@ -163,10 +213,34 @@ test("keyboard activation and focus contract", async ({ page }) => {
   }
 
   await page.screenshot({
-    path: path.join(evidenceDirectory, "task-9-ui-primitives-en-action-feedback.png"),
+    path: path.join(evidenceDirectory, "ui-primitives-en-mobile-light-action-feedback.png"),
     fullPage: true,
   });
 
   await page.getByTestId("snackbar").getByRole("button", { name: "Dismiss notification" }).click();
   await expect(page.getByTestId("snackbar")).toBeHidden();
+});
+
+test("200 percent layout zoom reflows at half the desktop CSS viewport", async ({ page }) => {
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.setViewportSize({ width: 640, height: 900 });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/ko/ui-primitives", { waitUntil: "networkidle" });
+  await waitForFonts(page);
+
+  expect(await page.evaluate(() => window.innerWidth)).toBe(640);
+  await expect(page.getByTestId("ui-primitives-showcase")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth),
+  );
+  const primaryButton = page.getByTestId("primary-button");
+  await primaryButton.focus();
+  await expect(primaryButton).toBeFocused();
+  const secondaryButton = page.getByTestId("secondary-button");
+  await secondaryButton.focus();
+  await expect(secondaryButton).toBeFocused();
+  await page.screenshot({
+    path: path.join(evidenceDirectory, "ui-primitives-ko-desktop-1280-dark-200-percent-layout-zoom.png"),
+    fullPage: true,
+  });
 });

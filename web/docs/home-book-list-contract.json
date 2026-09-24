@@ -1,11 +1,11 @@
 {
   "issue": 429,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
-  "route": "/[locale]/home",
-  "views": ["reading", "planned", "completed", "paused", "all"],
+  "plan": ".omo/plans/bookgolas-web-completion.md",
+  "routes": ["/[locale]/home", "/[locale]/book-list"],
+  "views": ["reading", "planned", "completed", "will_retry", "all"],
   "statuses": ["reading", "planned", "completed", "will_retry"],
   "states": ["loading", "ready", "empty", "error", "unauthorized", "offline"],
-  "actions": ["open-book", "refresh", "add-entry"],
+  "actions": ["open-book", "refresh", "add-entry", "filter-book-list"],
   "dataPolicy": {
     "ownerScoped": true,
     "excludeSoftDeleted": true,
@@ -23,7 +23,8 @@
     "seeded books appear in the correct status",
     "completed/planned/will-retry empty states are distinct",
     "loading skeleton precedes data",
-    "failed query offers retry",
+    "failed query offers retry without losing the selected query view",
+    "legacy book-list uses the same owner-scoped status tabs and never renders AI recommendations",
     "soft-deleted books never appear"
   ],
   "qa": {

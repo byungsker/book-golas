@@ -84,7 +84,7 @@ if (failures.length === 0) {
   requireCondition(!/(upgrade|purchase|subscribe)/i.test(aiConsentCopy), "AI consent consumer copy must not contain billing CTA text");
   requireCondition(source.sourceTest.includes("stale") && source.sourceTest.includes("canSendToAiProvider") && source.fixtureTest.includes("withdraw") && source.apiTest.includes("401") && source.apiTest.includes("413") && source.apiTest.includes("429"), "unit/route tests must cover fail-closed and HTTP error boundaries");
   requireCondition(source.e2e.includes("grant") && source.e2e.includes("withdraw") && source.e2e.includes("unknown") && source.e2e.includes("quota") && source.e2e.includes("budget") && source.e2e.includes("provider"), "browser suite must name grant/withdraw/state and operational failure scenarios");
-  requireCondition(source.e2e.includes("task-28-bookgolas-web-app-parity.png"), "browser suite must capture issue evidence");
+  requireCondition(source.e2e.includes("task-8-ai-consent-grant-withdraw.png"), "browser suite must capture Todo 8 consent evidence");
 
   const fixtureNames = fixture.fixtures?.map((item) => item.name) ?? [];
   if (fixtureMode) {

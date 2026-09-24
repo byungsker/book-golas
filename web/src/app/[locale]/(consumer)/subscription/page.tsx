@@ -7,7 +7,7 @@ export default async function SubscriptionPage({ params }: { params: Promise<{ l
   const { locale } = await params;
   const t = await getTranslations("consumer.routes.subscription");
   return (
-    <main className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] px-4 py-8 text-[var(--blab-text-primary)] sm:px-6 lg:px-8 lg:py-12" data-testid="subscription-disabled" data-route-state="disabled" data-subscription-enabled="false">
+    <main className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] px-4 py-8 text-[var(--blab-text-primary)] sm:px-6 lg:px-8 lg:py-12" data-testid="subscription-disabled" data-parity-overlay="pro-features" data-parity-actions="explain-web-billing-disabled" data-route-state="disabled" data-subscription-enabled="false">
       <div className="mx-auto max-w-3xl">
         <ConsumerCard>
           <ConsumerEmptyState title={t("title")} message={t("description")} />

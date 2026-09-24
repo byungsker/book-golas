@@ -25,7 +25,7 @@
     },
     {
       "name": "invalid-range",
-      "expected": "custom start must be before or equal to end and cannot be in the future"
+      "expected": "custom start must be before or equal to end, cannot be in the future and cannot exceed 366 days"
     },
     {
       "name": "stale",
@@ -38,6 +38,14 @@
     {
       "name": "consent-quota-offline",
       "expected": "typed failures retain consent, quota and offline codes"
+    },
+    {
+      "name": "ai-quota",
+      "expected": "AI quota is a localized retry state without a billing prompt"
+    },
+    {
+      "name": "ai-provider",
+      "expected": "AI provider failure preserves statistics and offers a safe retry"
     }
   ]
 }

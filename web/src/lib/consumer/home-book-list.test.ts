@@ -29,9 +29,10 @@ function book(overrides: Partial<ConsumerBook> = {}): ConsumerBook {
 }
 
 describe("home book-list status surface", () => {
-  it("keeps native views and maps paused to will_retry", () => {
+  it("keeps canonical views and maps legacy paused links to will-retry", () => {
     expect(getHomeBookListView("unknown")).toBe("reading");
-    expect(getHomeBookListStatus("paused")).toBe("will_retry");
+    expect(getHomeBookListView("paused")).toBe("will_retry");
+    expect(getHomeBookListStatus("will_retry")).toBe("will_retry");
     expect(getHomeBookListStatus("all")).toBeNull();
   });
 
@@ -61,7 +62,7 @@ describe("home book-list status surface", () => {
 
     const oldPause = book({ id: "00000000-0000-4000-8000-000000004208", status: "will_retry", pausedAt: "2026-09-01T00:00:00.000Z" });
     const recentPause = book({ id: "00000000-0000-4000-8000-000000004209", status: "will_retry", pausedAt: "2026-09-10T00:00:00.000Z" });
-    expect(selectHomeBookListBooks([oldPause, recentPause], "paused").map((item) => item.id)).toEqual([recentPause.id, oldPause.id]);
+    expect(selectHomeBookListBooks([oldPause, recentPause], "will_retry").map((item) => item.id)).toEqual([recentPause.id, oldPause.id]);
   });
 
   it("calculates target D-day deterministically", () => {

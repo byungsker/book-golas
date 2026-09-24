@@ -1,0 +1,17 @@
+
+> web@0.1.0 test:account-deletion:negative
+> node scripts/test-account-deletion.mjs --grep cancel-or-retry
+
+
+ RUN  v3.2.7 /Users/byungskersmacbook/Documents/ChatGPT/book-golas-wt/bookgolas-web-completion-wave-0/web
+
+ ↓ src/lib/consumer/account-deletion.test.ts (2 tests | 2 skipped)
+ ↓ src/lib/consumer/account-deletion-fixtures.test.ts (2 tests | 2 skipped)
+ ✓ src/app/api/consumer/account/deletion/route.test.ts (8 tests | 6 skipped) 9ms
+
+ Test Files  1 passed | 2 skipped (3)
+      Tests  2 passed | 10 skipped (12)
+   Start at  06:06:44
+   Duration  474ms (transform 152ms, setup 0ms, collect 650ms, tests 9ms, environment 0ms, prepare 168ms)
+
+Account deletion contract passed (cancel-or-retry)

@@ -1,7 +1,7 @@
 {
   "issue": 434,
   "title": "Atomic progress UI, history, completion and retry attempts",
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "baseBranch": "version/web/1.1.0",
   "nativeContract": {
     "service": "app/lib/data/services/reading_progress_service.dart",
@@ -33,12 +33,24 @@
     "atomic_page_status_history",
     "idempotent_submit",
     "stale_refetch",
-    "history_failure"
+    "history_failure",
+    "view_today_goal",
+    "edit_daily_target",
+    "confirm_daily_target",
+    "update_target_date",
+    "reject_offline_without_queue"
   ],
+  "mutationGuards": {
+    "progress": "If-Match quotes expectedCurrentPage and X-Bookgolas-Action-Key binds book, progress, revision and idempotency UUID",
+    "schedule": "If-Match quotes books.updated_at and the owner-scoped update uses the same revision as a compare-and-swap predicate",
+    "offline": "The client rejects before fetch, keeps an explicit manual retry action and creates no background queue"
+  },
+  "overlays": ["today-goal", "daily-target", "daily-target-confirm", "update-target-date"],
   "webSurface": {
     "route": "/{locale}/books/{bookId}",
     "api": "/api/consumer/progress",
     "cacheInvalidation": ["/{locale}/home", "/{locale}/library", "/{locale}/books/{bookId}", "/{locale}/reading/{bookId}"],
     "locales": ["ko", "en"]
-  }
+  },
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-12-bookgolas-web-completion.md"
 }

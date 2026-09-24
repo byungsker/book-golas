@@ -8,6 +8,9 @@ const paths = {
   fixture: path.join(root, "scripts/fixtures/consumer-shell-negative.json"),
   manifest: path.join(root, "package.json"),
   shell: path.join(root, "src/components/consumer/consumer-shell.tsx"),
+  floatingTimer: path.join(root, "src/components/consumer/floating-timer-bar.tsx"),
+  announcements: path.join(root, "src/app/[locale]/(consumer)/announcements/page.tsx"),
+  announcementsLoading: path.join(root, "src/app/[locale]/(consumer)/announcements/loading.tsx"),
   state: path.join(root, "src/lib/consumer/shell.ts"),
   layout: path.join(root, "src/app/[locale]/(consumer)/layout.tsx"),
   e2e: path.join(root, "tests/e2e/consumer-shell.spec.ts"),
@@ -28,6 +31,9 @@ const contract = JSON.parse(fs.readFileSync(paths.contract, "utf8"));
 const fixture = JSON.parse(fs.readFileSync(paths.fixture, "utf8"));
 const manifest = JSON.parse(fs.readFileSync(paths.manifest, "utf8"));
 const shell = fs.readFileSync(paths.shell, "utf8");
+const floatingTimer = fs.readFileSync(paths.floatingTimer, "utf8");
+const announcements = fs.readFileSync(paths.announcements, "utf8");
+const announcementsLoading = fs.readFileSync(paths.announcementsLoading, "utf8");
 const state = fs.readFileSync(paths.state, "utf8");
 const layout = fs.readFileSync(paths.layout, "utf8");
 const e2e = fs.readFileSync(paths.e2e, "utf8");
@@ -39,10 +45,14 @@ requireCondition(contract.adminNavigationCoupled === false, "consumer tab state 
 requireCondition(contract.nativeOnlyCapabilitiesAdded.length === 0, "shell must not add native-only capabilities");
 requireCondition(manifest.scripts["test:consumer-shell"] === "node scripts/test-consumer-shell.mjs", "package script must run the shell contract");
 requireCondition(layout.includes("<ConsumerShell"), "authenticated layout must mount the shell");
-requireCondition(shell.includes("bookgolas-floating-timer-root"), "shell must expose the timer mount point");
+requireCondition(!shell.includes("consumer-timer-mount"), "shell must not duplicate the timer provider mount");
+requireCondition(floatingTimer.includes("bookgolas-floating-timer-root") && floatingTimer.includes("consumer-timer-mount"), "timer provider must expose the floating timer mount point");
 requireCondition(shell.includes("ConsumerBottomBar") && shell.includes("lg:grid"), "shell must provide mobile and desktop navigation");
 requireCondition(state.includes("getNextCycledPath"), "shell must implement re-tap cycles");
 requireCondition(e2e.includes("expired-session") && e2e.includes("unauthorized-private-data"), "browser coverage must include both negative fixtures");
+requireCondition(announcements.includes("push_announcements") && !announcements.includes("ConsumerRoutePlaceholder"), "announcements must read sent announcements instead of rendering a placeholder");
+requireCondition(announcements.includes("announcements-content") && announcements.includes("announcements-empty") && announcements.includes("announcements-error"), "announcements must expose content, empty and error fixtures");
+requireCondition(announcementsLoading.includes("ConsumerLoadingState"), "announcements must expose a loading state");
 requireCondition(Boolean(fixture.expiredSession && fixture.unauthorizedPrivateData && fixture.foreignBookId), "negative fixture must define expired session and foreign data");
 
 for (const locale of ["en", "ko"]) {
@@ -50,6 +60,7 @@ for (const locale of ["en", "ko"]) {
   const tabs = messages.consumer?.shell?.tabs;
   requireCondition(tabs && Object.keys(tabs).length === 5, `${locale} must localize exactly five tabs`);
   requireCondition(Boolean(messages.consumer.shell.search?.bookTitle && messages.consumer.shell.search?.recallTitle), `${locale} must localize both search modes`);
+  requireCondition(Boolean(messages.consumer.announcements?.emptyTitle && messages.consumer.announcements?.errorTitle), `${locale} must localize announcement states`);
 }
 
 const vitest = path.join(root, "node_modules", ".bin", "vitest");

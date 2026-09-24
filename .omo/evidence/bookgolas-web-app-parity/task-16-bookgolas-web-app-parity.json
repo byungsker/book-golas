@@ -38,5 +38,44 @@
     "softDelete": "is(deleted_at, null) plus defensive row filter",
     "ordering": "updated_at desc, id desc on the server; status-aware stable ordering in the surface",
     "fixtureBoundary": "route fixtures require enabled test mode and loopback Supabase"
+  },
+  "todo16GateRepair": {
+    "productionParityClaimed": false,
+    "productBlockers": {
+      "exportHonesty": {
+        "status": "resolved",
+        "scenario": "ExportReadingDataResult with downloadUrl null renders unverified delivery state and no download control.",
+        "invocation": "PLAYWRIGHT_BASE_URL=http://127.0.0.1:3001 BOOKGOLAS_EVIDENCE_DIR=../.omo/evidence/bookgolas-web-app-parity/task-16-gate-repair npx playwright test tests/e2e/account-settings.spec.ts tests/e2e/account-deletion.spec.ts tests/e2e/export.spec.ts tests/e2e/web-push.spec.ts --project=chromium --workers=1 --grep \"cancel leaves|profile avatar|export without a download URL|permission settings\"",
+        "binaryObservable": "4 passed; export test asserts data-export-delivery=unverified and no export-download element.",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-account-export-web-push-smoke.log",
+          ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-export-no-download-url.png"
+        ]
+      },
+      "scheduleChange": {
+        "status": "resolved",
+        "scenario": "Owner-scoped daily-target schedule change renders a recalculated pages/date preview, explicit cancel/confirm, and saved response state.",
+        "invocation": "PLAYWRIGHT_BASE_URL=http://127.0.0.1:3001 BOOKGOLAS_EVIDENCE_DIR=../.omo/evidence/bookgolas-web-app-parity/task-16-gate-repair npx playwright test tests/e2e/progress.spec.ts --project=chromium --workers=1",
+        "binaryObservable": "11 passed; schedule scenario asserts update_schedule request, schedule_updated response, saved state, preview dismissal, and updated daily-target summary.",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-schedule-change-chromium.log",
+          ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-schedule-change-preview.png",
+          ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-schedule-change-confirmed.png"
+        ]
+      }
+    },
+    "verification": {
+      "contractSuites": "export 7 tests, progress 20 tests, account settings 12 tests, account deletion 12 tests, web push 11 tests; requested negatives passed before the release-level parity check.",
+      "typecheck": ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-typecheck.log",
+      "focusedLint": ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-focused-lint.log",
+      "build": ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-build.log",
+      "ownership": "consumer parity ownership passed: 85 records (20 routes, 53 overlays, 4 deep links, 8 capabilities)."
+    },
+    "releaseLevelBlocker": {
+      "status": "blocked",
+      "reason": "Shared release-manifest ledger revision does not match declared SHA.",
+      "artifact": ".omo/evidence/bookgolas-web-app-parity/task-16-gate-repair/task-16-typecheck-parity-negative.log",
+      "separateFromProductBlockers": true
+    }
   }
 }

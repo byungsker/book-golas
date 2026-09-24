@@ -67,6 +67,7 @@ if (failures.length === 0) {
   requireCondition(source.sourceRoute.includes("getOwnedBookImageWithSignedUrl") && source.sourceRoute.includes("signedUrl") && source.sourceRoute.includes("sourceId"), "source detail route must return a signed image contract");
   requireCondition(source.component.includes("RecallHistoryPageSchema") && source.component.includes("RecallSearchResponseSchema") && source.component.includes("RecallDeleteHistoryResponseSchema"), "Recall UI must parse typed responses");
   for (const marker of ["recall-loading", "recall-consent", "recall-quota", "recall-provider", "recall-offline", "recall-source-group-toggle", "recall-source-detail", "recall-source-copy", "recall-source-go-to-book"]) requireCondition(source.component.includes(marker), `Recall UI must expose ${marker}`);
+  requireCondition(source.component.includes('data-surface="record-detail"') && source.component.includes('data-surface="source-detail"'), "Recall UI must expose direct record-detail and source-detail ownership");
   requireCondition(source.component.includes('testPrefix}-empty') && source.component.includes('testPrefix}-history-delete'), "Recall UI must expose scoped empty and history deletion states");
   requireCondition(source.component.includes("clipboard") && source.component.includes("signedUrl") && source.component.includes("photo_ocr"), "Recall UI must support copy and private image detail");
   requireCondition(source.library.includes("RecallClient") && source.detail.includes("RecallClient"), "global library and per-book detail must mount Recall");
@@ -75,7 +76,7 @@ if (failures.length === 0) {
   requireCondition(source.fixtureSource.includes("Foreign private title") && source.fixtureSource.includes("recall-foreign"), "negative fixture source must include foreign boundary markers");
   requireCondition(source.fixtureTest.includes("foreign") && source.routeTest.includes("user_id") && source.tableTest.includes("delete"), "Recall tests must cover privacy and idempotent deletion");
   requireCondition(source.e2e.includes("global") && source.e2e.includes("book") && source.e2e.includes("source") && source.e2e.includes("history") && source.e2e.includes("consent") && source.e2e.includes("quota") && source.e2e.includes("foreign") && source.e2e.includes("empty"), "Recall browser suite must cover happy and failure scenarios");
-  requireCondition(source.e2e.includes("task-29-bookgolas-web-app-parity.png"), "Recall browser suite must capture issue evidence");
+  requireCondition(source.e2e.includes("`task-13-${name}.png`") && source.e2e.includes('capture(page, "global-recall-search")') && source.e2e.includes('capture(page, "book-recall-search")') && source.e2e.includes('capture(page, "record-detail")') && source.e2e.includes('capture(page, "source-detail")'), "Recall browser suite must capture global, book, record and source evidence");
 
   const fixtureNames = fixture.fixtures?.map((item) => item.name) ?? [];
   if (fixtureMode) {

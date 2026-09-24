@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { BookDetailClient } from "@/components/consumer/book-detail-client";
-import { ProgressUpdater } from "@/components/consumer/progress-updater";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
 import { formatBookDate, getBookProgress } from "@/lib/consumer/types";
@@ -13,11 +12,19 @@ export const dynamic = "force-dynamic";
 
 export default async function BookDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; bookId: string }>;
+  searchParams: Promise<{ tab?: string | string[]; scan?: string | string[] }>;
 }) {
   const { locale, bookId } = await params;
+  const query = await searchParams;
   if (!isConsumerLocale(locale)) redirect("/ko/auth/sign-in");
+
+  const initialTab = typeof query.tab === "string" && query.tab === "history"
+    ? "history"
+    : "detail";
+  const autoOpenScan = typeof query.scan === "string" && query.scan === "1";
 
   const result = await fetchOwnedBookDetail(bookId);
   if (result.code === "unauthenticated") {
@@ -152,27 +159,14 @@ export default async function BookDetailPage({
             </div>
           </div>
 
-          <BookDetailClient locale={locale} initialBook={book} />
-
-          <div className="mt-8">
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-white">{t("reading.title")}</h2>
-              <p className="mt-2 text-sm leading-6 text-white/60">{t("reading.description")}</p>
-            </div>
-            <div className="mt-4">
-              <ProgressUpdater
-                locale={locale}
-                bookId={book.id}
-                currentPage={book.currentPage}
-                totalPages={book.totalPages}
-                status={book.status}
-                attemptCount={book.attemptCount}
-                initialBook={book}
-                initialHistory={historyResult.history}
-                initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
-              />
-            </div>
-          </div>
+          <BookDetailClient
+            locale={locale}
+            initialBook={book}
+            initialTab={initialTab}
+            autoOpenScan={autoOpenScan}
+            initialHistory={historyResult.history}
+            initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
+          />
         </article>
       </main>
     </div>

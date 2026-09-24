@@ -67,7 +67,10 @@ jobs:
             );
             core.setOutput(
               "web",
-              paths.some((path) => path.startsWith("web/")),
+              paths.some((path) =>
+                path.startsWith("web/") ||
+                path === ".github/workflows/quality.yml",
+              ),
             );
             core.setOutput(
               "workflow",
@@ -119,9 +122,10 @@ jobs:
         run: flutter test --no-pub
 
   web:
-    name: Web Audit, Lint, and Build
+    name: Web Consumer Release Gate
     needs: changes
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: web
@@ -142,11 +146,11 @@ jobs:
       - if: needs.changes.outputs.web == 'true'
         run: npm audit --audit-level=high
       - if: needs.changes.outputs.web == 'true'
-        run: npm test
+        run: npx playwright install --with-deps chromium firefox webkit
       - if: needs.changes.outputs.web == 'true'
-        run: npm run lint
-      - if: needs.changes.outputs.web == 'true'
-        run: npm run build
+        run: npm run test:release-gate
+        env:
+          CI: true
 
   workflow-contract:
     name: Quality Workflow Contract
@@ -159,7 +163,8 @@ jobs:
         uses: actions/checkout@v4
       - if: needs.changes.outputs.workflow == 'true'
         run: |
-          test "$(grep -cE '^[[:space:]]+run: npm test$' .github/workflows/quality.yml)" -eq 1
+          test "$(grep -cE '^[[:space:]]+run: npm run test:release-gate$' .github/workflows/quality.yml)" -eq 1
+          ! grep -qE 'secrets\.|SUPABASE_(ACCESS_TOKEN|SERVICE_ROLE_KEY|PROJECT_REF)' .github/workflows/quality.yml
 
   edge-functions:
     name: Edge Function Type Check

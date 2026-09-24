@@ -41,7 +41,7 @@ if (failures.length === 0) {
   const source = Object.fromEntries(Object.entries(paths).map(([name, filePath]) => [name, fs.readFileSync(filePath, "utf8")]));
 
   requireCondition(contract.issue === 431, "book-lifecycle contract must bind issue 431");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "book-lifecycle contract must reference the parity plan");
+  requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "book-lifecycle contract must reference the completion plan");
   requireCondition(JSON.stringify(contract.native.priorityValues) === JSON.stringify([1, 2, 3, 4]), "native priority values must stay 1 through 4");
   requireCondition(JSON.stringify(contract.native.statuses) === JSON.stringify(["planned", "reading", "completed", "will_retry"]), "canonical statuses must stay stable");
   for (const state of ["loading", "ready", "invalid", "saved", "error", "retry", "duplicate", "unauthorized", "consent", "quota", "offline", "foreign"]) requireCondition(contract.states.includes(state), `lifecycle contract must cover ${state}`);
@@ -56,6 +56,7 @@ if (failures.length === 0) {
   requireCondition(source.client.includes("disabled={saveState === \"saving\"}") && source.client.includes("noValidate"), "duplicate submits must be visibly recoverable and client validation must run before native submit");
   requireCondition(source.api.includes("BookLifecycleRequestSchema") && source.api.includes("createBook") && source.api.includes("updateBook") && source.api.includes("revalidatePath"), "lifecycle API must use canonical DAL and invalidate relevant paths");
   requireCondition(source.api.includes("Cache-Control") && source.api.includes("book-lifecycle-"), "lifecycle API must be private and fixture bounded");
+  requireCondition(source.api.includes('request.headers.get("if-match")') && source.api.includes("getBook") && source.api.includes("conflictError"), "planned lifecycle edits must reject stale owner-scoped revisions");
   requireCondition(source.contracts.includes("canTransitionBookStatus") && source.contracts.includes("statusTransitions") && source.contracts.includes("BookLifecycleRequestSchema"), "canonical lifecycle status contract is missing");
   requireCondition(source.operations.includes("plannedStartDate") && source.operations.includes("targetDate must be on or after"), "operation contracts must validate planned dates and date ranges");
   requireCondition(source.books.includes("bookPriorityValues") && source.books.includes("min(1).max(4)"), "priority contract must match the native 1..4 range");

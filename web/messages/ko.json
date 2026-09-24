@@ -224,6 +224,7 @@
     }
   },
   "consumer": {
+    "dialogClose": "대화상자 닫기",
     "brand": "북골라스",
     "shell": {
       "brand": "북골라스",
@@ -293,6 +294,19 @@
         "back": "온보딩으로 돌아가기"
       }
     },
+    "announcements": {
+      "eyebrow": "북골라스 업데이트",
+      "title": "공지사항",
+      "description": "북골라스 독자에게 발송된 서비스 업데이트입니다.",
+      "listLabel": "공지사항 기록",
+      "loading": "공지사항을 불러오는 중...",
+      "emptyTitle": "아직 공지사항이 없습니다",
+      "emptyDescription": "현재 표시할 발송 완료 공지사항이 없습니다.",
+      "errorTitle": "공지사항을 불러올 수 없습니다",
+      "errorDescription": "연결을 확인한 뒤 다시 시도해 주세요. 이 화면에는 독서 기록이 표시되지 않습니다.",
+      "retry": "다시 시도",
+      "sentOn": "{date} 발송"
+    },
     "nav": {
       "label": "소비자 메뉴",
       "library": "내 서재",
@@ -323,7 +337,7 @@
         "reading": "읽는 중",
         "planned": "읽을 책",
         "completed": "완독",
-        "paused": "다시 읽기",
+        "willRetry": "다시 읽기",
         "all": "전체"
       },
       "statusEmpty": {
@@ -339,7 +353,7 @@
           "title": "완독한 책이 없어요",
           "description": "첫 책을 끝까지 읽으면 이곳에 기록됩니다."
         },
-        "paused": {
+        "will_retry": {
           "title": "다시 읽을 책이 없어요",
           "description": "잠시 멈춘 책은 다시 읽기 목록에서 관리할 수 있어요."
         }
@@ -446,9 +460,10 @@
         "chooseRange": "기간 선택",
         "rangeLabel": "날짜 범위",
         "start": "시작일",
-        "end": "종료일",
-        "apply": "기간 적용",
-        "cancel": "취소"
+      "end": "종료일",
+      "apply": "기간 적용",
+      "cancel": "취소",
+      "clear": "직접 선택 기간 해제"
       },
       "metrics": {
         "totalPages": "차트 페이지",
@@ -495,7 +510,7 @@
         "month": "{month}월",
         "count": "{count}권"
       },
-      "activity": {
+    "activity": {
         "heatmapTitle": "{year}년 독서 히트맵",
         "heatmapDescription": "진행 기록의 실제 읽은 페이지를 기준으로 강도를 표시합니다.",
         "legendLess": "적음",
@@ -503,13 +518,38 @@
         "seriesTitle": "기록된 활동",
         "day": "{day}",
         "pages": "{pages}페이지",
-        "minutes": "{minutes}분"
-      },
+      "minutes": "{minutes}분"
+    },
+    "ai": {
+      "eyebrow": "AI 독서 인사이트",
+      "title": "이 독서 기간 돌아보기",
+      "description": "운영 할당량이 허용될 때 내 독서 기록만 사용해 제한된 인사이트를 생성합니다.",
+      "idle": "인사이트 생성을 선택하기 전에는 어떤 데이터도 전송하지 않습니다.",
+      "generate": "인사이트 생성",
+      "generating": "인사이트 생성 중...",
+        "retry": "인사이트 다시 시도",
+        "clear": "AI 인사이트 지우기",
+        "clearTitle": "이 AI 인사이트를 지울까요?",
+        "clearDescription": "현재 브라우저 화면에 표시된 인사이트만 지웁니다. 독서 기록은 변경되지 않습니다.",
+        "clearCancel": "인사이트 유지",
+        "clearConfirm": "인사이트 지우기",
+      "empty": "인사이트를 만들 독서 활동이 아직 충분하지 않아요.",
+      "errorTitle": "인사이트를 생성하지 못했어요",
+      "noBillingPrompt": "이 운영 상태에서는 구매나 구독이 필요하지 않습니다.",
+      "errors": {
+        "quota": "AI 운영 할당량에 도달했어요. 할당량이 초기화된 후 다시 시도하세요.",
+        "provider": "AI 제공자를 지금 사용할 수 없어요. 독서 통계는 변경되지 않았습니다.",
+        "consent": "독서 데이터를 제공자에게 보내기 전에 AI 동의가 필요합니다.",
+        "unauthorized": "세션이 만료되었어요. 다시 로그인한 뒤 인사이트를 생성하세요.",
+        "offline": "오프라인 상태입니다. 연결 후 인사이트를 다시 시도하세요.",
+        "unavailable": "인사이트 서비스를 지금 사용할 수 없어요. 잠시 후 다시 시도하세요."
+      }
+    },
       "emptyTitle": "아직 독서 데이터가 없어요",
       "emptyDescription": "앱에서 진행률을 기록하거나 책을 완독하면 통계가 쌓입니다.",
       "loading": "독서 통계를 불러오는 중...",
       "stale": "마지막으로 확인된 통계를 표시하고 있어요. 온라인에서 새로고침하세요.",
-      "invalidRange": "2020년부터 오늘까지의 날짜를 순서대로 선택하세요.",
+    "invalidRange": "2020년부터 오늘까지 최대 366일 범위의 날짜를 순서대로 선택하세요.",
       "errorTitle": "독서 통계를 불러오지 못했어요",
       "retry": "다시 시도",
       "errors": {
@@ -675,8 +715,10 @@
         "fileAction": "ISBN 이미지 선택",
         "fileReading": "선택한 이미지를 확인하는 중...",
         "detected": "ISBN을 찾았어요. 검색을 시작합니다...",
-        "fileFallback": "올바른 ISBN-13을 찾지 못했어요. 직접 입력해 주세요.",
-        "close": "스캐너 닫기"
+    "fileFallback": "올바른 ISBN-13을 찾지 못했어요. 직접 입력해 주세요.",
+    "wrongMime": "ISBN 바코드를 스캔할 이미지 파일을 선택하세요.",
+    "oversize": "ISBN 이미지는 8MiB 이하여야 해요.",
+    "close": "스캐너 닫기"
       },
       "result": {
         "authorUnknown": "저자 미상",
@@ -684,8 +726,15 @@
         "select": "이 책 선택",
         "isbn": "ISBN",
         "pages": "페이지",
-        "openProvider": "제공자 상세 보기"
-      },
+    "openProvider": "제공자 상세 보기",
+    "chooseBookstore": "서점 선택"
+  },
+  "bookstore": {
+    "title": "서점 선택",
+    "description": "검증된 제공자 페이지를 새 탭에서 엽니다. 내 비공개 독서 데이터는 전달하지 않아요.",
+    "provider": "알라딘 서점 열기",
+    "close": "닫기"
+  },
       "selected": {
         "eyebrow": "책을 선택했어요",
         "description": "이 책은 다음 독서 설정 단계에서 사용할 수 있어요."
@@ -693,7 +742,7 @@
       "recommendations": {
         "eyebrow": "다음 독서를 위해",
         "title": "나를 위한 추천",
-        "description": "native 독서 시작 흐름과 같은 추천 진입점입니다.",
+        "description": "네이티브 독서 시작 흐름과 같은 추천 진입점입니다.",
         "loading": "추천을 불러오는 중...",
         "emptyTitle": "아직 추천을 준비할 수 없어요",
         "emptyDescription": "책을 완독하면 더 알맞은 추천을 받을 수 있어요.",
@@ -820,6 +869,8 @@
         "back": "책 상세로",
         "connections": "연결된 기록",
         "page": "{page}페이지",
+        "clusterCount": "연결된 기록 {count}개",
+        "closeDetail": "상세 닫기",
         "nodeTypes": {
           "highlight": "하이라이트",
           "note": "메모",
@@ -839,16 +890,21 @@
       "recommendations": {
         "eyebrow": "다음 독서",
         "title": "나의 리듬에 맞는 책",
-        "description": "완독한 독서 기록으로 추천하며 결제 장벽 없이 운영 한도를 상태로 보여줘요.",
+        "description": "완독한 독서 기록을 바탕으로 다음 책을 추천해요.",
         "viewDetails": "이 책 찾기",
         "startReading": "독서 시작"
       },
       "errors": {
         "unauthorized": "비공개 독서 결과를 보려면 로그인하세요.",
         "consent_required": "독서 데이터를 제공자에게 보내려면 AI 사용 동의가 필요해요.",
+        "unknown": "AI 동의 상태를 확인하지 못해 독서 데이터를 보내지 않았어요. 제공자 설정을 확인하세요.",
+        "unavailable": "AI 안전 정책을 잠시 확인할 수 없어 독서 데이터를 보내지 않았어요. 나중에 다시 시도하세요.",
         "insufficient_data": "이 결과를 만들려면 독서 기록이 더 필요해요.",
         "rate_limit_exceeded": "최근에 이미 만든 결과예요. 운영 한도가 초기화된 뒤 다시 시도하세요.",
         "quota_exceeded": "이번 기간의 AI 운영 한도에 도달했어요.",
+        "concurrency_exceeded": "실행 중인 AI 요청이 너무 많아요. 하나가 끝난 뒤 다시 시도하세요.",
+        "budget_exceeded": "AI 운영 예산 한도에 도달했어요. 한도가 초기화된 뒤 다시 시도하세요.",
+        "hard_cap_exceeded": "AI 안전 한도에 도달했어요. 한도가 초기화될 때까지 새 제공자 요청은 차단됩니다.",
         "provider_timeout": "AI 제공자의 응답이 너무 오래 걸렸어요. 다시 시도하세요.",
         "provider_error": "AI 제공자를 잠시 사용할 수 없어요.",
         "configuration_error": "현재 AI 서비스 설정을 확인할 수 없어요.",
@@ -898,10 +954,79 @@
       "review": {
         "title": "리뷰",
         "open": "참고 리뷰 열기",
-        "edit": "리뷰 편집"
+        "edit": "리뷰 편집",
+        "editLink": "외부 링크 편집",
+        "linkEditor": {
+          "title": "외부 리뷰 링크",
+          "description": "이 리뷰에 HTTPS 링크 하나를 저장하거나 기존 링크를 삭제하세요.",
+          "label": "리뷰 URL",
+          "save": "링크 저장",
+          "delete": "링크 삭제",
+          "cancel": "취소"
+        }
       },
       "links": {
         "store": "서점 열기"
+      },
+      "tabs": {
+        "label": "책 상세 섹션",
+        "detail": "상세",
+        "history": "독서 기록",
+        "memorable": "기억할 페이지",
+        "scanOpened": "이 책의 스캔 흐름을 열었어요. 아래에서 카메라 또는 파일 대체 수단을 선택하세요."
+      },
+      "overlays": {
+        "cancel": "취소",
+        "management": {
+          "action": "독서 관리",
+          "title": "독서 관리",
+          "description": "독서를 잠시 멈추거나 페이지 삭제를 검토하거나 책을 삭제할 수 있어요."
+        },
+        "pause": {
+          "title": "독서를 잠시 멈출까요?",
+          "description": "진행 상황은 유지되며 새로운 독서 회차로 다시 시작할 수 있어요.",
+          "confirm": "독서 잠시 멈추기"
+        },
+        "batchDelete": {
+          "action": "선택한 페이지 삭제",
+          "title": "선택한 페이지를 삭제할까요?",
+          "description": "영구 삭제 전에 선택한 기억할 페이지를 검토하세요. 이 대화상자만으로는 페이지가 삭제되지 않아요.",
+          "reviewSelection": "선택한 페이지 검토"
+        },
+        "bookInfo": {
+          "action": "책 정보",
+          "title": "책 정보"
+        },
+        "fullTitle": {
+          "action": "전체 제목",
+          "title": "전체 제목",
+          "description": "저장된 책 제목 전체입니다."
+        },
+        "planned": {
+          "action": "계획 수정",
+          "title": "읽을 예정 책 수정",
+          "description": "읽기 예정일과 독서 우선순위를 변경하세요.",
+          "date": "읽기 예정일",
+          "priority": "우선순위",
+          "noPriority": "우선순위 없음",
+          "priority1": "긴급",
+          "priority2": "높음",
+          "priority3": "보통",
+          "priority4": "낮음",
+          "save": "계획 저장"
+        },
+        "completion": {
+          "title": "완독했어요",
+          "description": "{title}을(를) 완독했어요. 독서 기록은 계속 확인할 수 있어요.",
+          "done": "완료",
+          "review": "리뷰로 계속"
+        },
+        "reviewPrompt": {
+          "title": "리뷰를 작성할까요?",
+          "description": "책의 여운이 남아 있을 때 기억하고 싶은 내용을 기록해 보세요.",
+          "later": "나중에",
+          "write": "리뷰 작성"
+        }
       },
       "delete": {
         "title": "이 책을 삭제할까요?",
@@ -959,6 +1084,32 @@
       "shareCopied": "리뷰 링크를 복사했어요.",
       "shareDownloaded": "공유 카드를 다운로드했어요.",
       "shareCancelled": "공유를 취소했어요.",
+      "shareDenied": "브라우저 공유 권한이 거부됐어요. 복사하거나 다운로드하지 않았어요.",
+      "clipboardDeniedDownloaded": "클립보드 권한이 거부되어 공유 카드를 대신 다운로드했어요.",
+      "exit": {
+        "title": "리뷰 작성을 나갈까요?",
+        "description": "버리지 않으면 저장하지 않은 변경 내용은 이 기기에 남아 있어요.",
+        "keep": "계속 작성",
+        "discard": "버리고 나가기"
+      },
+      "replace": {
+        "title": "작성한 내용을 바꿀까요?",
+        "description": "AI 초안을 사용하면 현재 긴 독후감 입력 내용이 바뀝니다.",
+        "cancel": "내 글 유지",
+        "confirm": "초안으로 바꾸기"
+      },
+      "saveComplete": {
+        "title": "리뷰를 저장했어요",
+        "description": "리뷰와 외부 링크를 이 책에 저장했습니다.",
+        "done": "계속 편집",
+        "openBook": "책 열기"
+      },
+      "restore": {
+        "title": "기기 내 임시 리뷰를 복원할까요?",
+        "description": "이 기기에 작성 중이던 리뷰가 있어요. 편집하기 전에 복원 여부를 선택하세요.",
+        "discard": "임시 리뷰 삭제",
+        "confirm": "임시 리뷰 복원"
+      },
       "states": {
         "loading": "리뷰 편집기를 불러오는 중이에요...",
         "empty": "아직 저장한 리뷰가 없는 책이에요.",
@@ -990,6 +1141,7 @@
       "resume": "재개",
       "stop": "저장하고 종료",
       "stopSaving": "저장 중...",
+      "retry": "저장 다시 시도",
       "saved": "독서 시간이 저장됐어요.",
       "discarded": "30초 미만의 기록은 저장하지 않았어요.",
       "activeOther": "다른 책의 타이머가 실행 중이에요. 먼저 현재 타이머를 종료하세요.",
@@ -1079,7 +1231,8 @@
       "loading": "비공개 이미지를 불러오는 중...",
       "retryLoad": "이미지 다시 불러오기",
       "camera": "카메라 사용",
-      "chooseFile": "이미지 선택",
+  "chooseFile": "이미지 선택",
+  "addMemorablePage": "기억할 페이지 추가",
       "capture": "현재 화면 촬영",
       "cancelCamera": "카메라 닫기",
       "fileFallback": "이 환경에서는 카메라를 사용할 수 없어요. 이미지 파일을 선택하세요.",
@@ -1089,10 +1242,44 @@
       "previewAlt": "비공개 페이지 촬영 미리보기",
       "page": "{page}페이지",
       "pageUnknown": "페이지 미지정",
-      "delete": "이미지 삭제",
+  "delete": "이미지 삭제",
+  "replace": "이미지 교체",
+  "openFullScreen": "전체 화면 이미지 열기",
+      "viewFullText": "전체 텍스트 보기",
+      "copyText": "텍스트 복사",
+      "copied": "복사됨",
+      "sort": {
+        "label": "기억할 페이지 정렬",
+        "pageDesc": "페이지 높은 순",
+        "pageAsc": "페이지 낮은 순",
+        "dateDesc": "최신순",
+        "dateAsc": "오래된 순"
+      },
       "manualPlaceholder": "OCR을 사용할 수 없으면 텍스트를 직접 입력하세요.",
       "saveManual": "직접 입력 저장",
-      "retryOcr": "OCR 다시 시도",
+  "retryOcr": "OCR 다시 시도",
+  "imageSource": {
+    "title": "이미지 출처 선택",
+    "description": "지원되는 브라우저 카메라를 사용하거나 기존 이미지 파일을 선택하세요.",
+    "camera": "카메라 사용",
+    "file": "파일 선택"
+  },
+  "replaceOptions": {
+    "title": "이 페이지 이미지를 교체할까요?",
+    "description": "교체 이미지 업로드가 성공할 때까지 기존 비공개 이미지를 유지합니다.",
+    "continue": "교체 이미지 선택"
+  },
+  "replaceConfirm": {
+    "title": "교체 이미지 출처 확인",
+    "description": "새 이미지가 저장되면 기존 비공개 이미지를 삭제합니다."
+  },
+  "fullText": {
+    "title": "추출된 텍스트"
+  },
+  "fullScreen": {
+    "title": "전체 화면 페이지 이미지",
+    "description": "비공개 페이지 이미지 미리보기"
+  },
       "captureStates": {
         "idle": "페이지 이미지를 준비하세요.",
         "camera_ready": "카메라를 사용할 수 있어요.",
@@ -1135,6 +1322,7 @@
         "quota": "OCR 사용 한도에 도달했어요.",
         "provider": "OCR 제공자를 사용할 수 없어요. 텍스트를 직접 입력할 수 있어요.",
         "oversize": "이미지가 8MiB 제한을 초과했어요.",
+        "clipboard": "텍스트를 복사하지 못했어요. 클립보드 권한을 확인하고 다시 시도하세요.",
         "offline": "오프라인 상태예요. 연결 후 다시 시도하세요.",
         "notFound": "이 이미지를 서재에서 찾을 수 없어요.",
         "generic": "이미지를 저장하지 못했어요. 다시 시도하세요."
@@ -1174,6 +1362,43 @@
       "retry": "다시 시도",
       "backToBook": "책 상세로",
       "offline": "오프라인 상태입니다. 진행률을 저장하기 전에 네트워크를 연결하세요.",
+      "goals": {
+        "title": "독서 계획",
+        "summary": "오늘 {count}페이지 읽기",
+        "todayOpen": "오늘 목표",
+        "scheduleOpen": "일정 변경",
+        "scheduleTitle": "독서 일정 변경",
+        "scheduleDescription": "하루 목표 페이지를 정하고 저장 전에 다시 계산된 완독 예정일을 확인하세요.",
+        "preview": "일정 미리 보기",
+        "previewTitle": "다시 계산한 일정 확인",
+        "previewDescription": "확인하면 이 계정의 독서 일정을 저장합니다.",
+        "previewPagesLabel": "하루 페이지",
+        "previewPages": "하루 {count}페이지",
+        "previewDateLabel": "예상 완독일",
+        "dateOpen": "목표일",
+        "todayTitle": "오늘의 독서 목표",
+        "todayDescription": "일정을 지키려면 오늘 {count}페이지를 읽어보세요.",
+        "settings": "하루 목표 조정",
+        "dailyTitle": "하루 목표",
+        "dailyDescription": "하루에 읽을 페이지 목표를 범위 안에서 정하세요.",
+        "dailyLabel": "하루 페이지",
+        "review": "변경 확인",
+        "confirmTitle": "하루 목표 확인",
+        "confirmDescription": "하루 목표를 {count}페이지로 설정할까요?",
+        "confirm": "목표 확정",
+        "dateTitle": "완독 목표일 변경",
+        "dateDescription": "완독 목표일은 독서 시작일보다 빠를 수 없어요.",
+        "dateLabel": "완독 목표일",
+        "saveDate": "목표일 저장",
+        "saving": "저장 중...",
+        "saved": "독서 계획을 저장했어요.",
+        "offline": "오프라인 상태예요. 변경 사항을 대기열에 넣지 않았어요.",
+        "conflict": "다른 곳에서 독서 계획이 변경됐어요. 새로고침 후 다시 시도하세요.",
+        "invalid": "목표 값을 확인한 뒤 다시 시도하세요.",
+        "retry": "다시 시도",
+        "cancel": "취소",
+        "close": "닫기"
+      },
       "errors": {
         "invalid_input": "0페이지부터 전체 페이지 수 사이의 값을 입력하세요.",
         "unauthenticated": "세션이 만료되었습니다. 다시 로그인하세요.",
@@ -1293,7 +1518,7 @@
     },
     "export": {
       "title": "독서 기록 내보내기",
-      "description": "선택한 연도의 내 책과 진행률, 세션, 기록, 이미지, 목표와 AI 결과를 계정 이메일로 보냅니다.",
+      "description": "선택한 연도의 책, 진행률, 세션, 기록, 이미지, 목표와 AI 결과 내보내기를 요청합니다. 요청 상태만으로 이메일 전송이 확인되지는 않으며, 링크가 제공될 때만 다운로드할 수 있습니다.",
       "yearLabel": "내보낼 연도",
       "emailLabel": "계정 이메일 확인",
       "emailHint": "로그인한 계정의 이메일을 입력하세요.",
@@ -1302,7 +1527,9 @@
       "submit": "내보내기 요청",
       "submitting": "내보내는 중...",
       "loading": "독서 기록을 준비하는 중...",
-      "success": "{year}년 독서 기록을 이메일로 보냈어요.",
+      "successUnverified": "{year}년 내보내기 {recordCount}개 기록이 준비되었습니다. 이 응답만으로 전송 완료나 다운로드 링크는 확인되지 않습니다.",
+      "successDownload": "{year}년 내보내기를 다운로드할 수 있습니다.",
+      "download": "내보내기 다운로드",
       "emptyTitle": "내보낼 기록이 없어요",
       "emptyDescription": "{year}년에 저장된 독서 기록이 없습니다.",
       "retry": "다시 시도",
@@ -1321,6 +1548,8 @@
     "notifications": {
       "loading": "알림 설정을 불러오는 중...",
       "retry": "다시 시도",
+      "unauthorizedTitle": "로그인이 필요합니다",
+      "unauthorizedDescription": "알림 설정을 불러오거나 저장하려면 다시 로그인하세요.",
       "offlineTitle": "오프라인 상태입니다",
       "offlineDescription": "알림 설정을 불러오거나 저장하려면 네트워크를 연결하세요.",
       "consentTitle": "알림 동의가 필요합니다",
@@ -1573,7 +1802,7 @@
       "eyebrow": "BLab 소비자 UI",
       "title": "공통 UI 프리미티브",
       "description": "Flutter 기준과 같은 토큰, 상태, 키보드 동작을 사용하는 Web 공통 컴포넌트입니다.",
-      "viewportNote": "한국어 · 라이트/다크 · 390×844 / 1440×900",
+      "viewportNote": "한국어 · 라이트/다크 · 모바일 / 태블릿 / 데스크톱",
       "button": {
         "heading": "버튼",
         "primary": "기본 동작",
@@ -1588,7 +1817,7 @@
         "staticTitle": "정적 카드",
         "staticMessage": "읽기 진행률과 상태 메시지를 담는 표면입니다.",
         "interactiveTitle": "상호작용 카드",
-        "interactiveMessage": "Enter 또는 Space로도 열 수 있습니다.",
+        "interactiveMessage": "엔터 또는 스페이스 키로도 열 수 있습니다.",
         "disabledTitle": "비활성화된 카드",
         "activated": "카드를 열었습니다."
       },
@@ -1656,6 +1885,20 @@
         "heading": "누르기 피드백",
         "label": "누를 수 있는 영역",
         "activated": "영역을 눌렀습니다."
+      },
+      "overlays": {
+        "heading": "컨텍스트 및 검색 오버레이",
+        "contextOpen": "컨텍스트 메뉴 열기",
+        "contextLabel": "독서 동작",
+        "contextAction": "독서 동작 선택",
+        "contextChosen": "독서 동작을 선택했습니다.",
+        "searchOpen": "키보드 검색 열기",
+        "searchTitle": "기록 검색",
+        "searchDescription": "키보드로 검색어를 입력하고 안전하게 닫을 수 있습니다.",
+        "searchLabel": "검색어",
+        "searchEmpty": "검색어를 입력하세요.",
+        "searchResult": "{query} 검색 중",
+        "dismiss": "닫기"
       },
       "boundariesFootnote": "iOS 위젯, Siri/App Shortcuts, 네이티브 푸시, 카메라/OCR, 공유 시트, RevenueCat 구독은 Web에서 네이티브 기능으로 제공하지 않습니다."
     }

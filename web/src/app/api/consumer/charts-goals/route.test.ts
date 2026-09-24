@@ -6,6 +6,7 @@ import { POST } from "./route";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/supabase-server", () => ({ createServerSupabaseClient: vi.fn() }));
+vi.mock("server-only", () => ({}));
 
 const payload = { locale: "en", year: 2026, targetBooks: 40 };
 
@@ -48,6 +49,26 @@ describe("/api/consumer/charts-goals", () => {
     const offline = await POST(request(payload, "charts-goals-offline"));
     expect(offline.status).toBe(503);
     expect((await offline.json()).error.code).toBe("offline");
+    expect(createServerSupabaseClient).not.toHaveBeenCalled();
+  });
+
+  it("generates a bounded fixture insight and preserves quota and provider errors", async () => {
+    const insightPayload = {
+      action: "generate_insight",
+      locale: "en",
+      requestKey: "00000000-0000-4000-8000-000000004396",
+    };
+    const success = await POST(request(insightPayload, "charts-goals-happy"));
+    expect(success.status).toBe(200);
+    expect(await success.json()).toMatchObject({ kind: "insight_generated", insights: [{ category: "pattern" }] });
+
+    const quota = await POST(request(insightPayload, "charts-goals-ai-quota"));
+    expect(quota.status).toBe(429);
+    expect((await quota.json()).error.code).toBe("quota_exceeded");
+
+    const provider = await POST(request(insightPayload, "charts-goals-ai-provider"));
+    expect(provider.status).toBe(502);
+    expect((await provider.json()).error.code).toBe("provider_error");
     expect(createServerSupabaseClient).not.toHaveBeenCalled();
   });
 });

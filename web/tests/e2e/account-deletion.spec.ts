@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.env.BOOKGOLAS_EVIDENCE_DIR ?? path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity"));
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -44,6 +44,8 @@ test("cancel leaves the account untouched and repeated confirmation is safe", as
 
   await page.getByTestId("account-delete-open").click();
   await fillDeletionForm(page);
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "overlay-delete-account-confirmation.png"), fullPage: true });
   await page.getByTestId("account-delete-confirm").click();
   await expect(page).toHaveURL(/\/en\/account-deleted$/);
   await expect(page.getByTestId("account-deleted-page")).toBeVisible();
@@ -66,6 +68,8 @@ test("destructive failures stay visible and do not clear local state", async ({ 
   await page.getByTestId("account-delete-confirm").click();
   await expect(page.getByTestId("account-delete-error")).toBeVisible();
   await expect.poll(() => page.evaluate(() => localStorage.getItem("bookgolas.reading-timer.v1"))).toBe("fixture-timer");
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "overlay-delete-account-retry-safe.png"), fullPage: true });
 });
 
 test("public completion route is available in both localized surfaces", async ({ page }) => {

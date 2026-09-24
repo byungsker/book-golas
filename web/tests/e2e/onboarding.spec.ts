@@ -4,7 +4,7 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 const evidenceDirectory = path.resolve(
   process.cwd(),
-  "../.omo/evidence/bookgolas-web-app-parity",
+  "../.omo/evidence/bookgolas-web-completion/task-7-browser",
 );
 
 const copy = {

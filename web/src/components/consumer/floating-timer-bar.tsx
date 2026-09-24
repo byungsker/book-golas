@@ -38,7 +38,7 @@ export function FloatingTimerBar({ locale }: { locale: "ko" | "en" }) {
       data-testid="consumer-timer-mount"
       data-timer-status={timer?.status ?? "idle"}
       data-timer-book-id={timer?.bookId ?? ""}
-      className="fixed bottom-28 right-4 z-30 flex min-h-11 max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] px-4 py-3 text-sm text-[var(--blab-text-secondary)] shadow-[var(--blab-elevation-surface)] lg:bottom-8 lg:right-8"
+      className="fixed bottom-28 right-4 z-30 flex min-h-11 max-w-[calc(100vw-2rem)] flex-wrap items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] px-4 py-3 text-sm text-[var(--blab-text-secondary)] shadow-[var(--blab-elevation-surface)] lg:bottom-8 lg:right-8"
     >
       {!isHydrated ? (
         <>
@@ -99,7 +99,12 @@ export function FloatingTimerBar({ locale }: { locale: "ko" | "en" }) {
         </>
       )}
       {errorCode ? (
-        <span className="sr-only" role="alert" data-testid="timer-error">{t(`errors.${errorMessageKey(errorCode)}`)}</span>
+        <span className="basis-full rounded-xl bg-[var(--blab-color-error)]/10 px-3 py-2 text-[var(--blab-color-error)]" role="alert" data-testid="timer-error">
+          {t(`errors.${errorMessageKey(errorCode)}`)}
+          {timer ? (
+            <ConsumerButton className="ml-3" type="button" variant="secondary" text={t("retry")} onClick={() => void stopTimer()} data-testid="timer-retry" />
+          ) : null}
+        </span>
       ) : null}
     </div>
   );

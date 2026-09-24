@@ -16,6 +16,7 @@ import {
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { bookDtoSelect, parseBookRow } from "./codec";
 import {
+  conflictError,
   failure,
   mapDatabaseError,
   notFoundError,
@@ -27,6 +28,7 @@ import { resolveProductSession, type ProductClientFactory } from "./context";
 import { deleteOwnedBookImages } from "./consumer-images";
 
 type BookInsertRow = {
+  readonly id?: string;
   readonly user_id: string;
   readonly title: string;
   readonly author: string | null;
@@ -85,6 +87,7 @@ function parseReturnedBook(value: unknown): ProductResult<Book> {
 export async function createBook(
   request: CreateBookRequest,
   factory: ProductClientFactory = createServerSupabaseClient,
+  bookId?: string,
 ): Promise<ProductResult<Book>> {
   const parsedRequest = CreateBookRequestSchema.safeParse(request);
   if (!parsedRequest.success) return failure(validationError());
@@ -93,7 +96,10 @@ export async function createBook(
   if (!session.ok) return failure(session.error);
 
   const input = parsedRequest.data;
+  const parsedBookId = bookId === undefined ? null : BookIdSchema.safeParse(bookId);
+  if (parsedBookId && !parsedBookId.success) return failure(validationError());
   const insert: BookInsertRow = {
+    ...(parsedBookId ? { id: parsedBookId.data } : {}),
     user_id: session.value.userId,
     title: input.title,
     author: input.author,
@@ -129,6 +135,7 @@ export async function createBook(
 export async function updateBook(
   request: UpdateBookRequest,
   factory: ProductClientFactory = createServerSupabaseClient,
+  expectedRevision?: string,
 ): Promise<ProductResult<Book>> {
   const parsedRequest = UpdateBookRequestSchema.safeParse(request);
   if (!parsedRequest.success) return failure(validationError());
@@ -205,22 +212,25 @@ export async function updateBook(
   if (input.longReview !== undefined) updates.long_review = input.longReview;
   if (Object.keys(updates).length === 0) return failure(validationError());
 
-  const { data, error } = await session.value.supabase
+  let updateQuery = session.value.supabase
     .from("books")
     .update(updates)
     .eq("id", parsedBookId.data)
     .eq("user_id", session.value.userId)
-    .is("deleted_at", null)
+    .is("deleted_at", null);
+  if (expectedRevision) updateQuery = updateQuery.eq("updated_at", expectedRevision);
+  const { data, error } = await updateQuery
     .select(bookDtoSelect)
     .maybeSingle();
   if (error) return failure(mapDatabaseError(error));
-  if (!data) return failure(notFoundError());
+  if (!data) return failure(expectedRevision ? conflictError() : notFoundError());
   return parseReturnedBook(data);
 }
 
 export async function deleteBook(
   bookId: string,
   factory: ProductClientFactory = createServerSupabaseClient,
+  expectedRevision?: string,
 ): Promise<ProductResult<{ readonly deleted: true }>> {
   const parsedBookId = BookIdSchema.safeParse(bookId);
   if (!parsedBookId.success) return failure(notFoundError());
@@ -228,24 +238,27 @@ export async function deleteBook(
   const session = await resolveProductSession(factory);
   if (!session.ok) return failure(session.error);
 
+  let deleteQuery = session.value.supabase
+    .from("books")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", parsedBookId.data)
+    .eq("user_id", session.value.userId)
+    .is("deleted_at", null);
+  if (expectedRevision) deleteQuery = deleteQuery.eq("updated_at", expectedRevision);
+  const { data, error } = await deleteQuery
+    .select("id")
+    .maybeSingle();
+  if (error) return failure(mapDatabaseError(error));
+  if (!data) return failure(expectedRevision ? conflictError() : notFoundError());
+
   const storage = (session.value.supabase as unknown as { storage?: { from?: unknown } }).storage;
   if (storage && typeof storage.from === "function") {
     const cleaned = await deleteOwnedBookImages(
       parsedBookId.data,
       () => Promise.resolve(session.value.supabase),
+      { requireActiveBook: false },
     );
     if (!cleaned.ok) return failure(cleaned.error);
   }
-
-  const { data, error } = await session.value.supabase
-    .from("books")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", parsedBookId.data)
-    .eq("user_id", session.value.userId)
-    .is("deleted_at", null)
-    .select("id")
-    .maybeSingle();
-  if (error) return failure(mapDatabaseError(error));
-  if (!data) return failure(notFoundError());
   return success({ deleted: true });
 }

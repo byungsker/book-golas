@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ConsumerHeader } from "@/components/consumer/consumer-header";
 import { ConsumerNotice } from "@/components/consumer/consumer-notice";
 import { ProgressUpdater } from "@/components/consumer/progress-updater";
+import { ReadingTimerControl } from "@/components/consumer/reading-timer-control";
 import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale } from "@/lib/consumer/paths";
 import { fetchOwnedBookDetail, fetchOwnedProgressHistory } from "@/lib/consumer/queries";
 
@@ -100,6 +101,7 @@ export default async function ReadingPage({
               initialHistoryState={historyResult.code === "ok" ? "ready" : "error"}
             />
           </div>
+          <ReadingTimerControl book={book} />
         </section>
       </main>
     </div>

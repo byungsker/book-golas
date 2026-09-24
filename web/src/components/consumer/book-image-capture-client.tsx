@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, FileImage, RefreshCw, RotateCcw, Trash2, Upload } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDownUp, Camera, Check, Clipboard, Eye, FileImage, ImagePlus, Maximize2, RefreshCw, Replace, RotateCcw, Trash2, Upload } from "lucide-react";
 import {
   ImagesOcrResponseSchema,
   imageExtension,
@@ -18,6 +18,15 @@ import {
   ConsumerErrorState,
   ConsumerLoadingState,
 } from "@/components/consumer/blab-primitives";
+import {
+  Dialog,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 
 type BookImageCaptureClientProps = {
@@ -28,6 +37,7 @@ type BookImageCaptureClientProps = {
 
 type LoadState = { phase: "loading" } | { phase: "ready" } | { phase: "error"; code: string };
 type SelectedFile = { file: File; previewUrl: string; mimeType: BookImageMimeType };
+type MemorablePageSort = "page_desc" | "page_asc" | "date_desc" | "date_asc";
 
 function requestId(): string {
   return globalThis.crypto?.randomUUID?.() ?? "00000000-0000-4000-8000-000000000999";
@@ -65,10 +75,29 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [imageSourceOpen, setImageSourceOpen] = useState(false);
+  const [replacementTarget, setReplacementTarget] = useState<BookImage | null>(null);
+  const [replacementOptionsOpen, setReplacementOptionsOpen] = useState(false);
+  const [replacementConfirmOpen, setReplacementConfirmOpen] = useState(false);
+  const [replacingImageId, setReplacingImageId] = useState<string | null>(null);
+  const [fullTextImage, setFullTextImage] = useState<BookImage | null>(null);
+  const [fullScreenImage, setFullScreenImage] = useState<BookImage | null>(null);
+  const [sort, setSort] = useState<MemorablePageSort>("date_desc");
+  const [copiedImageId, setCopiedImageId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const failedSignedUrlsRef = useRef(new Set<string>());
+
+  const sortedImages = useMemo(() => [...images].sort((left, right) => {
+    if (sort === "page_desc" || sort === "page_asc") {
+      if (left.pageNumber === null) return 1;
+      if (right.pageNumber === null) return -1;
+      return sort === "page_asc" ? left.pageNumber - right.pageNumber : right.pageNumber - left.pageNumber;
+    }
+    const comparison = left.createdAt.localeCompare(right.createdAt);
+    return sort === "date_asc" ? comparison : -comparison;
+  }), [images, sort]);
 
   const loadImages = useCallback(async () => {
     setLoadState({ phase: "loading" });
@@ -112,6 +141,7 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
     if (code === "quota_exceeded") return t("errors.quota");
     if (code === "provider_error") return t("errors.provider");
     if (code === "payload_too_large") return t("errors.oversize");
+    if (code === "clipboard_error") return t("errors.clipboard");
     if (code === "offline") return t("errors.offline");
     if (code === "not_found" || code === "forbidden") return t("errors.notFound");
     return t("errors.generic");
@@ -149,6 +179,7 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
   }
 
   async function openCamera() {
+    setImageSourceOpen(false);
     const fixture = fixtureValue();
     if (fixture === "images-ocr-insecure") {
       setCaptureState("insecure_context");
@@ -230,6 +261,17 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
       }
       const saved = parsed.data;
       setImages((previous) => saved.duplicate ? previous.map((image) => image.id === saved.image.id ? saved.image : image) : [saved.image, ...previous]);
+      if (replacingImageId && replacingImageId !== saved.image.id) {
+        const replacedId = replacingImageId;
+        const deleteResponse = await fetch("/api/consumer/images-ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", locale, bookId, imageId: replacedId, idempotencyKey: requestId() }),
+          cache: "no-store",
+        });
+        if (deleteResponse.ok) setImages((previous) => previous.filter((image) => image.id !== replacedId));
+      }
+      setReplacingImageId(null);
       clearSelectedFile();
       setPageNumber("");
       setCaption("");
@@ -275,6 +317,26 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
     }
   }
 
+  function chooseReplacementSource(source: "camera" | "file") {
+    if (!replacementTarget) return;
+    setReplacingImageId(replacementTarget.id);
+    setReplacementTarget(null);
+    setReplacementConfirmOpen(false);
+    if (source === "camera") void openCamera();
+    else fileInputRef.current?.click();
+  }
+
+  async function copyExtractedText(image: BookImage) {
+    try {
+      await navigator.clipboard.writeText(image.extractedText);
+      setCopiedImageId(image.id);
+      window.setTimeout(() => setCopiedImageId((current) => current === image.id ? null : current), 1_500);
+    } catch (copyError) {
+      if (copyError instanceof Error) setError("clipboard_error");
+      else throw copyError;
+    }
+  }
+
   if (loadState.phase === "loading") {
     return <ConsumerCard className="mt-6" data-testid="images-ocr-panel"><ConsumerLoadingState label={t("loading")} /></ConsumerCard>;
   }
@@ -297,6 +359,7 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
           <p className="mt-2 text-sm leading-6 text-[var(--blab-text-secondary)]">{t("description")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <ConsumerButton type="button" variant="primary" text={t("addMemorablePage")} icon={<ImagePlus aria-hidden="true" size={16} />} onClick={() => setImageSourceOpen(true)} data-testid="add-memorable-page" />
           <ConsumerButton type="button" variant="secondary" text={t("camera")} icon={<Camera aria-hidden="true" size={16} />} onClick={() => void openCamera()} data-testid="images-ocr-camera" />
           <ConsumerButton type="button" variant="secondary" text={t("chooseFile")} icon={<FileImage aria-hidden="true" size={16} />} onClick={() => fileInputRef.current?.click()} data-testid="images-ocr-choose-file" />
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" data-capture-disposition="file_fallback" className="sr-only" onChange={(event) => void selectFile(event.target.files?.[0] ?? null)} data-testid="images-ocr-file-input" />
@@ -306,12 +369,23 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
       <p className="mt-3 text-xs text-[var(--blab-text-tertiary)]" data-testid="images-ocr-capture-state">{t(`captureStates.${captureState}`)}</p>
       {captureState === "camera_ready" ? <div className="mt-4 rounded-2xl border border-[var(--blab-glass-border)] p-3"><video ref={videoRef} autoPlay playsInline muted className="aspect-video w-full rounded-xl bg-black object-cover" data-testid="images-ocr-camera-preview" /><div className="mt-3 flex gap-2"><ConsumerButton type="button" variant="primary" text={t("capture")} onClick={captureFrame} data-testid="images-ocr-capture" /><ConsumerButton type="button" variant="secondary" text={t("cancelCamera")} onClick={stopCamera} data-testid="images-ocr-cancel-camera" /></div></div> : null}
 
-      {selectedFile ? <div className="mt-5 grid gap-4 rounded-2xl border border-[var(--blab-glass-border)] p-4 sm:grid-cols-[10rem_1fr]" data-testid="images-ocr-upload-form"><img src={selectedFile.previewUrl} alt={t("previewAlt")} className="h-32 w-full rounded-xl object-cover sm:h-40" data-testid="images-ocr-preview" /><div className="grid gap-3"><p className="text-sm text-[var(--blab-text-secondary)]">{selectedFile.file.name} · {Math.ceil(selectedFile.file.size / 1024)} KB</p><div className="grid gap-3 sm:grid-cols-2"><label className="grid gap-1 text-sm text-[var(--blab-text-secondary)]">{t("form.page")}<input type="number" min={1} max={totalPages} value={pageNumber} onChange={(event) => setPageNumber(event.target.value)} className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" data-testid="images-ocr-page" /></label><label className="grid gap-1 text-sm text-[var(--blab-text-secondary)]">{t("form.caption")}<input value={caption} onChange={(event) => setCaption(event.target.value)} className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" data-testid="images-ocr-caption" /></label></div><label className="flex items-start gap-3 rounded-xl border border-[var(--blab-glass-border)] bg-black/10 p-3 text-sm text-[var(--blab-text-secondary)]"><input type="checkbox" checked={ocrConsent} onChange={(event) => setOcrConsent(event.target.checked)} className="mt-1" data-testid="images-ocr-consent" /><span>{t("form.ocrConsent")}</span></label><div className="flex flex-wrap gap-2"><ConsumerButton type="button" variant="primary" text={t("upload")} loading={saving} loadingLabel={t("saving")} icon={<Upload aria-hidden="true" size={16} />} onClick={() => void upload()} data-testid="images-ocr-upload" /><ConsumerButton type="button" variant="secondary" text={t("cancel")} disabled={saving} onClick={clearSelectedFile} data-testid="images-ocr-cancel-upload" /></div></div></div> : null}
+      {selectedFile ? <div className="mt-5 grid gap-4 rounded-2xl border border-[var(--blab-glass-border)] p-4 sm:grid-cols-[10rem_1fr]" data-testid="images-ocr-upload-form"><img src={selectedFile.previewUrl} alt={t("previewAlt")} className="h-32 w-full rounded-xl object-cover sm:h-40" data-testid="images-ocr-preview" /><div className="grid gap-3"><p className="text-sm text-[var(--blab-text-secondary)]">{selectedFile.file.name} · {Math.ceil(selectedFile.file.size / 1024)} KB</p><div className="grid gap-3 sm:grid-cols-2"><label className="grid gap-1 text-sm text-[var(--blab-text-secondary)]">{t("form.page")}<input type="number" min={1} max={totalPages} value={pageNumber} onChange={(event) => setPageNumber(event.target.value)} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" data-testid="images-ocr-page" /></label><label className="grid gap-1 text-sm text-[var(--blab-text-secondary)]">{t("form.caption")}<input value={caption} onChange={(event) => setCaption(event.target.value)} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" data-testid="images-ocr-caption" /></label></div><label className="flex items-start gap-3 rounded-xl border border-[var(--blab-glass-border)] bg-black/10 p-3 text-sm text-[var(--blab-text-secondary)]"><input type="checkbox" checked={ocrConsent} onChange={(event) => setOcrConsent(event.target.checked)} className="mt-1" data-testid="images-ocr-consent" /><span>{t("form.ocrConsent")}</span></label><div className="flex flex-wrap gap-2"><ConsumerButton type="button" variant="primary" text={t("upload")} loading={saving} loadingLabel={t("saving")} icon={<Upload aria-hidden="true" size={16} />} onClick={() => void upload()} data-testid="images-ocr-upload" /><ConsumerButton type="button" variant="secondary" text={t("cancel")} disabled={saving} onClick={clearSelectedFile} data-testid="images-ocr-cancel-upload" /></div></div></div> : null}
       {captureState !== "idle" && captureState !== "file_ready" && captureState !== "camera_ready" && captureState !== "saved" ? <p className="mt-3 rounded-xl bg-amber-400/10 px-4 py-3 text-sm text-amber-100" data-capture-disposition="file_fallback" data-testid="images-ocr-fallback-message">{t("fileFallback")}</p> : null}
       {validationError ? <p className="mt-3 rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-100" role="alert" data-testid="images-ocr-validation-error">{validationError}</p> : null}
-      {error ? <p className="mt-3 rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-100" role="alert" data-testid="images-ocr-error">{errorMessage(error)}</p> : null}
+      {error ? <p className="mt-3 rounded-xl bg-red-400/10 px-4 py-3 text-sm text-[var(--blab-color-error)]" role="alert" data-testid={error === "quota_exceeded" ? "ocr-limit" : "images-ocr-error"}>{errorMessage(error)}</p> : null}
 
-      {images.length === 0 ? <div className="mt-5" data-testid="images-ocr-empty"><ConsumerEmptyState title={t("empty.title")} message={t("empty.description")} /></div> : <div className="mt-5 grid gap-4 sm:grid-cols-2" data-testid="images-ocr-list">{images.map((image) => <article key={image.id} className="overflow-hidden rounded-2xl border border-[var(--blab-glass-border)] bg-black/10" data-testid={`images-ocr-image-${image.id}`} data-ocr-status={image.ocrStatus}><img src={image.signedUrl} alt={t("previewAlt")} className="aspect-video w-full object-cover" onError={() => handleImageError(image)} data-testid={`images-ocr-rendered-${image.id}`} /><div className="p-4"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold text-[var(--blab-text-primary)]">{image.pageNumber === null ? t("pageUnknown") : t("page", { page: image.pageNumber })}</p><span className="rounded-full bg-white/10 px-2 py-1 text-xs text-[var(--blab-text-secondary)]" data-testid={`images-ocr-status-${image.id}`}>{t(`ocrStatus.${image.ocrStatus}`)}</span></div>{image.caption ? <p className="mt-2 text-sm text-[var(--blab-text-secondary)]">{image.caption}</p> : null}{image.extractedText ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--blab-text-secondary)]">{image.extractedText}</p> : null}{image.ocrStatus === "failed" ? <div className="mt-3 grid gap-2"><p className="text-xs text-amber-100">{image.ocrError ?? t("errors.provider")}</p><textarea rows={3} value={manualDrafts[image.id] ?? image.extractedText} onChange={(event) => setManualDrafts((previous) => ({ ...previous, [image.id]: event.target.value }))} placeholder={t("manualPlaceholder")} className="rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 py-2 text-sm text-[var(--blab-text-primary)]" data-testid={`images-ocr-manual-text-${image.id}`} /><div className="flex flex-wrap gap-2"><ConsumerButton type="button" variant="secondary" text={t("saveManual")} disabled={saving} onClick={() => void mutateJson({ action: "manual", locale, bookId, imageId: image.id, manualText: manualDrafts[image.id] ?? image.extractedText, idempotencyKey: requestId() })} data-testid={`images-ocr-manual-${image.id}`} /><ConsumerButton type="button" variant="secondary" text={t("retryOcr")} disabled={saving} icon={<RotateCcw aria-hidden="true" size={15} />} onClick={() => void mutateJson({ action: "retry_ocr", locale, bookId, imageId: image.id, ocrConsent: true, idempotencyKey: requestId() })} data-testid={`images-ocr-retry-${image.id}`} /></div></div> : null}<div className="mt-4 flex justify-end"><button type="button" className="inline-flex items-center gap-1 text-sm text-red-200 underline-offset-4 hover:underline" disabled={saving} onClick={() => void mutateJson({ action: "delete", locale, bookId, imageId: image.id, idempotencyKey: requestId() })} data-testid={`images-ocr-delete-${image.id}`}><Trash2 aria-hidden="true" size={14} />{t("delete")}</button></div></div></article>)}</div>}
+      {images.length > 1 ? <label className="mt-5 flex items-center justify-end gap-2 text-sm text-[var(--blab-text-secondary)]" data-testid="memorable-page-sort-menu"><ArrowDownUp aria-hidden="true" size={16} /><span>{t("sort.label")}</span><select value={sort} onChange={(event) => setSort(event.target.value as MemorablePageSort)} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 text-[var(--blab-text-primary)]" data-testid="memorable-page-sort-select"><option value="page_desc">{t("sort.pageDesc")}</option><option value="page_asc">{t("sort.pageAsc")}</option><option value="date_desc">{t("sort.dateDesc")}</option><option value="date_asc">{t("sort.dateAsc")}</option></select></label> : null}
+      {images.length === 0 ? <div className="mt-5" data-testid="images-ocr-empty"><ConsumerEmptyState title={t("empty.title")} message={t("empty.description")} /></div> : <div className="mt-5 grid gap-4 sm:grid-cols-2" data-testid="images-ocr-list">{sortedImages.map((image) => <article key={image.id} className="overflow-hidden rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-glass-fill)]" data-testid={`images-ocr-image-${image.id}`} data-surface="existing-image" data-page-number={image.pageNumber ?? ""} data-created-at={image.createdAt} data-ocr-status={image.ocrStatus}><button type="button" className="block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--blab-color-primary)]" onClick={() => setFullScreenImage(image)} aria-label={t("openFullScreen")}><img src={image.signedUrl} alt={t("previewAlt")} className="aspect-video w-full object-cover" onError={() => handleImageError(image)} data-testid={`images-ocr-rendered-${image.id}`} /></button><div className="p-4"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold text-[var(--blab-text-primary)]">{image.pageNumber === null ? t("pageUnknown") : t("page", { page: image.pageNumber })}</p><span className="rounded-full bg-[var(--blab-surface-elevated)] px-2 py-1 text-xs text-[var(--blab-text-secondary)]" data-testid={`images-ocr-status-${image.id}`}>{t(`ocrStatus.${image.ocrStatus}`)}</span></div>{image.caption ? <p className="mt-2 text-sm text-[var(--blab-text-secondary)]">{image.caption}</p> : null}{image.extractedText ? <div className="mt-3" data-testid={`extracted-text-${image.id}`}><p className="line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[var(--blab-text-secondary)]">{image.extractedText}</p><div className="mt-2 flex flex-wrap gap-1"><button type="button" className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--blab-color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => setFullTextImage(image)} data-testid={`full-text-view-${image.id}`}><Eye aria-hidden="true" size={15} />{t("viewFullText")}</button><button type="button" className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--blab-color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => void copyExtractedText(image)} data-testid={`extracted-text-copy-${image.id}`}>{copiedImageId === image.id ? <Check aria-hidden="true" size={15} /> : <Clipboard aria-hidden="true" size={15} />}{copiedImageId === image.id ? t("copied") : t("copyText")}</button></div></div> : null}{image.ocrStatus === "failed" ? <div className="mt-3 grid gap-2"><p className="text-xs text-[var(--blab-color-warning)]" data-testid={image.ocrError?.toLowerCase().includes("quota") ? "ocr-limit" : `ocr-provider-state-${image.id}`}>{image.ocrError ?? t("errors.provider")}</p><textarea rows={3} value={manualDrafts[image.id] ?? image.extractedText} onChange={(event) => setManualDrafts((previous) => ({ ...previous, [image.id]: event.target.value }))} placeholder={t("manualPlaceholder")} className="rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 py-2 text-sm text-[var(--blab-text-primary)]" data-testid={`images-ocr-manual-text-${image.id}`} /><div className="flex flex-wrap gap-2"><ConsumerButton type="button" variant="secondary" text={t("saveManual")} disabled={saving} onClick={() => void mutateJson({ action: "manual", locale, bookId, imageId: image.id, manualText: manualDrafts[image.id] ?? image.extractedText, idempotencyKey: requestId() })} data-testid={`images-ocr-manual-${image.id}`} /><ConsumerButton type="button" variant="secondary" text={t("retryOcr")} disabled={saving} icon={<RotateCcw aria-hidden="true" size={15} />} onClick={() => void mutateJson({ action: "retry_ocr", locale, bookId, imageId: image.id, ocrConsent: true, idempotencyKey: requestId() })} data-testid={`images-ocr-retry-${image.id}`} /></div></div> : null}<div className="mt-4 flex flex-wrap justify-end gap-2"><button type="button" className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm text-[var(--blab-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => { setReplacementTarget(image); setReplacementOptionsOpen(true); }} data-testid={`image-replace-options-${image.id}`}><Replace aria-hidden="true" size={14} />{t("replace")}</button><button type="button" className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm text-[var(--blab-color-error)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" disabled={saving} onClick={() => void mutateJson({ action: "delete", locale, bookId, imageId: image.id, idempotencyKey: requestId() })} data-testid={`images-ocr-delete-${image.id}`}><Trash2 aria-hidden="true" size={14} />{t("delete")}</button></div></div></article>)}</div>}
+
+      <Dialog open={imageSourceOpen} onOpenChange={setImageSourceOpen}><DialogContent className="max-w-md rounded-3xl bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="image-source"><DialogHeader><DialogTitle>{t("imageSource.title")}</DialogTitle><DialogDescription>{t("imageSource.description")}</DialogDescription></DialogHeader><div className="mt-4 grid gap-3 sm:grid-cols-2"><ConsumerButton type="button" variant="secondary" text={t("imageSource.camera")} icon={<Camera aria-hidden="true" size={16} />} onClick={() => void openCamera()} /><ConsumerButton type="button" variant="secondary" text={t("imageSource.file")} icon={<FileImage aria-hidden="true" size={16} />} onClick={() => { setImageSourceOpen(false); fileInputRef.current?.click(); }} /></div></DialogContent></Dialog>
+
+      <Dialog open={replacementOptionsOpen} onOpenChange={(open) => { setReplacementOptionsOpen(open); if (!open && !replacementConfirmOpen) setReplacementTarget(null); }}><DialogContent className="max-w-md rounded-3xl bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="image-replace-options"><DialogHeader><DialogTitle>{t("replaceOptions.title")}</DialogTitle><DialogDescription>{t("replaceOptions.description")}</DialogDescription></DialogHeader><DialogFooter className="mt-5"><DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("cancel")} /></DialogClose><ConsumerButton type="button" variant="primary" text={t("replaceOptions.continue")} onClick={() => { setReplacementOptionsOpen(false); setReplacementConfirmOpen(true); }} /></DialogFooter></DialogContent></Dialog>
+
+      <Dialog open={replacementConfirmOpen} onOpenChange={setReplacementConfirmOpen}><DialogContent className="max-w-md rounded-3xl bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="replace-image-confirmation"><DialogHeader><DialogTitle>{t("replaceConfirm.title")}</DialogTitle><DialogDescription>{t("replaceConfirm.description")}</DialogDescription></DialogHeader><div className="mt-4 grid gap-3 sm:grid-cols-2"><ConsumerButton type="button" variant="secondary" text={t("imageSource.camera")} icon={<Camera aria-hidden="true" size={16} />} onClick={() => chooseReplacementSource("camera")} /><ConsumerButton type="button" variant="primary" text={t("imageSource.file")} icon={<FileImage aria-hidden="true" size={16} />} onClick={() => chooseReplacementSource("file")} /></div></DialogContent></Dialog>
+
+      <Dialog open={fullTextImage !== null} onOpenChange={(open) => { if (!open) setFullTextImage(null); }}><DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto rounded-3xl bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="full-text-view"><DialogHeader><DialogTitle>{t("fullText.title")}</DialogTitle><DialogDescription>{fullTextImage?.pageNumber ? t("page", { page: fullTextImage.pageNumber }) : t("pageUnknown")}</DialogDescription></DialogHeader><p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[var(--blab-text-secondary)]">{fullTextImage?.extractedText}</p>{fullTextImage ? <ConsumerButton type="button" variant="secondary" text={copiedImageId === fullTextImage.id ? t("copied") : t("copyText")} icon={copiedImageId === fullTextImage.id ? <Check aria-hidden="true" size={15} /> : <Clipboard aria-hidden="true" size={15} />} onClick={() => void copyExtractedText(fullTextImage)} data-testid="full-text-copy" /> : null}</DialogContent></Dialog>
+
+      <Dialog open={fullScreenImage !== null} onOpenChange={(open) => { if (!open) setFullScreenImage(null); }}><DialogContent className="max-h-[95vh] max-w-5xl overflow-hidden rounded-3xl bg-[var(--blab-surface-elevated)] p-3 text-[var(--blab-text-primary)]" data-testid="full-screen-image"><DialogHeader className="sr-only"><DialogTitle>{t("fullScreen.title")}</DialogTitle><DialogDescription>{t("fullScreen.description")}</DialogDescription></DialogHeader>{fullScreenImage ? <img src={fullScreenImage.signedUrl} alt={t("previewAlt")} className="max-h-[88vh] w-full rounded-2xl object-contain" /> : null}<span className="pointer-events-none absolute bottom-5 right-5 rounded-full bg-black/60 p-2 text-white"><Maximize2 aria-hidden="true" size={18} /></span></DialogContent></Dialog>
     </ConsumerCard>
   );
 }

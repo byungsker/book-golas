@@ -1,12 +1,19 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { setChartsGoalsFixtureGoal } from "@/lib/consumer/charts-goals-fixtures";
+import {
+  generateChartsGoalsFixtureInsight,
+  setChartsGoalsFixtureGoal,
+} from "@/lib/consumer/charts-goals-fixtures";
 import { getConsumerRouteFixture } from "@/lib/consumer/route-fixture";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import {
-  ReadingGoalUpdateRequestSchema,
+  ChartsGoalsMutationRequestSchema,
+  MAX_READING_ANALYTICS_INSIGHTS,
+  ReadingAnalyticsInsightSuccessSchema,
+  ReadingAnalyticsInsightsSchema,
   ReadingGoalUpdateSuccessSchema,
 } from "@/lib/product/contracts";
+import { generateReadingInsights } from "@/lib/product/adapters";
 import {
   consentRequiredError,
   conflictError,
@@ -31,6 +38,19 @@ function privateSuccess(input: { year: number; targetBooks: number; updatedAt: s
   return response;
 }
 
+function privateInsightSuccess(input: { requestKey: string; insights: unknown }): NextResponse {
+  const insights = ReadingAnalyticsInsightsSchema.safeParse(input.insights);
+  if (!insights.success) return privateError(unavailableError("The reading insight response is invalid."));
+  const body = ReadingAnalyticsInsightSuccessSchema.parse({
+    kind: "insight_generated",
+    requestKey: input.requestKey,
+    insights: insights.data,
+  });
+  const response = NextResponse.json(body, { status: 200 });
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 function fixtureError(fixture: string): ProductError | null {
   if (fixture === "charts-goals-unauthorized") return unauthorizedError();
   if (fixture === "charts-goals-offline") return offlineError("Reading statistics are offline.");
@@ -48,12 +68,17 @@ export async function POST(request: NextRequest) {
     return privateError(validationError());
   }
 
-  const parsed = ReadingGoalUpdateRequestSchema.safeParse(body);
+  const parsed = ChartsGoalsMutationRequestSchema.safeParse(body);
   if (!parsed.success) return privateError(validationError());
 
   const input = parsed.data;
   const fixture = getConsumerRouteFixture(request.cookies.get("bookgolas-route-fixture")?.value);
   if (fixture?.startsWith("charts-goals-")) {
+    if ("action" in input) {
+      const result = generateChartsGoalsFixtureInsight(fixture);
+      if (!result.ok) return privateError(result.error);
+      return privateInsightSuccess({ requestKey: input.requestKey, insights: result.value });
+    }
     const error = fixtureError(fixture);
     if (error) return privateError(error);
     const result = setChartsGoalsFixtureGoal({ fixture, year: input.year, targetBooks: input.targetBooks });
@@ -75,6 +100,18 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (authError) return privateError(unavailableError());
   if (!user) return privateError(unauthorizedError());
+
+  if ("action" in input) {
+    const result = await generateReadingInsights(input.locale, {
+      factory: () => Promise.resolve(supabase),
+      signal: request.signal,
+    });
+    if (!result.ok) return privateError(result.error);
+    return privateInsightSuccess({
+      requestKey: input.requestKey,
+      insights: result.value.slice(0, MAX_READING_ANALYTICS_INSIGHTS),
+    });
+  }
 
   const now = new Date().toISOString();
   const existing = await supabase

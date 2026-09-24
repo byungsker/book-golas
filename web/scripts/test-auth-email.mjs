@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
+const fixtureMode = process.argv[2] === "--fixture" ? process.argv[3] : null;
 const contractPath = path.join(root, "docs/auth-email-contract.json");
 const fixturePath = path.join(root, "scripts/fixtures/auth-email-negative.json");
 const packagePath = path.join(root, "package.json");
@@ -42,8 +44,24 @@ for (const rule of ["no-password-storage", "non-enumerating-signup-and-recovery"
 }
 
 requireCondition(signInPage.includes("getSafeNextPath"), "sign-in must resolve return targets on the server");
+requireCondition(!signInPage.includes("query.next"), "sign-in must reject the legacy raw next alias");
+requireCondition(authForm.includes("pendingRef.current"), "auth actions must synchronously reject duplicate submissions");
+requireCondition(authForm.includes("window.navigator.onLine") && authForm.includes('tConsumer("network.offline")'), "auth actions must expose localized offline feedback");
 requireCondition(fixture.unsafeReturnTargets.length >= 5, "negative fixture must cover unsafe return targets");
 requireCondition(fixture.accountExistenceMessages.length >= 3, "negative fixture must cover provider enumeration messages");
 requireCondition(!authForm.includes("localStorage.setItem") || !authForm.includes("localStorage.setItem(\"password"), "auth form must not store passwords");
+
+if (fixtureMode === "unsafe-return") {
+  const { getSafeNextPath } = await import(pathToFileURL(path.join(root, "src/lib/consumer/paths.ts")).href);
+  const acceptedTargets = fixture.unsafeReturnTargets.filter(
+    (target) => getSafeNextPath("ko", target) !== "/ko/home",
+  );
+  if (acceptedTargets.length === 0) {
+    console.error(`auth-email unsafe-return fixture rejected: ${fixture.unsafeReturnTargets.length} targets`);
+    process.exit(1);
+  }
+  console.log(`auth-email unsafe-return fixture unexpectedly accepted: ${acceptedTargets.join(",")}`);
+  process.exit(0);
+}
 
 console.log("auth-email contract: PASS");

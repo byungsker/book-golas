@@ -27,6 +27,60 @@
       "data": "Only the book details, reading records, OCR text, statistics, and question needed for that operation"
     }
   ],
+  "backendConsent": {
+    "canonicalTable": "user_consents",
+    "policyVersion": "third-party-ai-v2",
+    "providerKinds": {
+      "google_cloud_vision": "ocr",
+      "open_ai": "ai"
+    },
+    "providerEvidenceTables": [
+      "third_party_ai_consents",
+      "third_party_ai_consent_events"
+    ],
+    "failClosedStates": ["revoked", "unknown", "unavailable", "stale_policy"]
+  },
+  "aiSpendPolicy": {
+    "policyVersion": "cost-control-v1",
+    "pricingVersion": "pricing-v1",
+    "approvedModels": ["gpt-4o-mini", "text-embedding-3-small"],
+    "requestsPerMinute": 10,
+    "requestsPerDay": 30,
+    "concurrentRequests": 3,
+    "budgetMicrousdPerDay": 50000,
+    "hardCapMicrousdPerDay": 100000,
+    "blockedReasons": [
+      "rate_limit_exceeded",
+      "quota_exceeded",
+      "concurrency_exceeded",
+      "budget_exceeded",
+      "hard_cap_exceeded",
+      "model_not_allowed",
+      "budget_unavailable"
+    ],
+    "usageAccounting": {
+      "currency": "USD",
+      "costUnit": "integer_microusd",
+      "rounding": "ceiling",
+      "requiredTokenFields": ["input_tokens", "output_tokens", "total_tokens"]
+    },
+    "errorShape": {
+      "legacyCodeField": "error",
+      "auditFields": ["code", "status", "requestId", "retryable"]
+    }
+  },
+  "migrationValidation": {
+    "status": "blocked",
+    "requiredForCompletion": true,
+    "owner": "Todo 4 backend owner",
+    "commands": [
+      "supabase db reset",
+      "supabase db lint"
+    ],
+    "reason": "Colima is available and database lint passes, but database reset fails in the pre-existing 20260102055239_initial_schema.sql migration because public.fcm_tokens.preferred_hour does not exist when its COMMENT statement runs.",
+    "nextStep": "Repair the historical initial-schema migration in its owning scope, then rerun both Colima-backed commands from the repository root and change this status only after both exit 0.",
+    "lastCheckedAt": "2026-09-23T14:29:48Z"
+  },
   "consentStates": ["allowed", "not_allowed", "unknown", "unavailable"],
   "operationalStates": [
     "idle",

@@ -26,6 +26,7 @@ import {
   type CalendarBookDay,
 } from "@/lib/product/contracts";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
+import { useAccessibleModal } from "@/components/consumer/use-accessible-modal";
 
 function monthValue(year: number, month: number): string {
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}`;
@@ -101,7 +102,7 @@ function CalendarDayCell({
       type="button"
       disabled={!data}
       onClick={() => data && onSelect(data)}
-      className={`group relative min-h-24 rounded-2xl border p-2 text-left transition sm:min-h-28 ${
+      className={`group relative min-h-16 min-w-0 rounded-xl border p-1 text-left transition sm:min-h-28 sm:rounded-2xl sm:p-2 ${
         isToday
           ? "border-[var(--blab-color-primary)] bg-[var(--blab-color-primary)]/10"
           : "border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)]"
@@ -123,11 +124,11 @@ function CalendarDayCell({
         {Number(day.slice(-2))}
       </span>
       {data ? (
-        <span className="mt-3 flex min-w-0 items-center gap-2 rounded-xl bg-[var(--blab-glass-fill)] px-2 py-2 text-[var(--blab-text-secondary)]">
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[var(--blab-color-primary)]/15 text-[var(--blab-color-primary)]">
+        <span className="mt-2 flex min-w-0 items-center justify-center rounded-lg bg-[var(--blab-glass-fill)] p-1 text-[var(--blab-text-secondary)] sm:mt-3 sm:justify-start sm:gap-2 sm:rounded-xl sm:px-2 sm:py-2">
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[var(--blab-color-primary)]/15 text-[var(--blab-color-primary)] sm:size-8">
             {statusIcon(data.books[0].status)}
           </span>
-          <span className="min-w-0">
+          <span className="hidden min-w-0 sm:block">
             <span className="block truncate text-xs font-semibold text-[var(--blab-text-primary)]">{data.books[0].title}</span>
             <span className="mt-0.5 block text-[11px] text-[var(--blab-text-tertiary)]">
               {data.books.length > 1 ? t("calendar.moreBooks", { count: data.books.length - 1 }) : data.books[0].kind === "planned" ? t("calendar.plannedMarker") : t("calendar.activeMarker")}
@@ -135,7 +136,7 @@ function CalendarDayCell({
           </span>
         </span>
       ) : (
-        <span className="mt-4 block text-[11px] text-[var(--blab-text-tertiary)]">{t("calendar.noActivityShort")}</span>
+        <span className="mt-4 hidden text-[11px] text-[var(--blab-text-tertiary)] sm:block">{t("calendar.noActivityShort")}</span>
       )}
     </button>
   );
@@ -152,9 +153,13 @@ function DayDetail({
   onClose: () => void;
   t: ReturnType<typeof useTranslations<"consumer">>;
 }) {
+  const dialogRef = useAccessibleModal(true, onClose);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="calendar-day-detail-title"
@@ -248,6 +253,7 @@ export function CalendarClient({
   const [isPending, startTransition] = useTransition();
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const monthPickerDialogRef = useAccessibleModal(monthPickerOpen, () => setMonthPickerOpen(false));
   const [monthPickerValue, setMonthPickerValue] = useState(monthValue(initialData.year, initialData.month));
   const currentMonth = monthValue(initialData.year, initialData.month);
   const today = calendarDayKeyFromDate(new Date());
@@ -316,15 +322,15 @@ export function CalendarClient({
             ))}
           </div>
 
-          <div className="mt-6 overflow-x-auto" data-testid="calendar-grid-wrap">
-            <div className="min-w-[42rem]" role="grid" aria-label={t("calendar.gridLabel")} data-testid="calendar-grid">
-              <div className="grid grid-cols-7 gap-2 px-1" role="row">
+          <div className="mt-6 min-w-0" data-testid="calendar-grid-wrap">
+            <div className="w-full min-w-0" role="grid" aria-label={t("calendar.gridLabel")} data-testid="calendar-grid">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 sm:px-1" role="row">
                 {Array.from({ length: 7 }, (_, index) => {
                   const date = new Date(Date.UTC(2026, 0, 4 + index, 12));
-                  return <span key={index} role="columnheader" className="py-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[var(--blab-text-tertiary)]">{new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: CALENDAR_TIME_ZONE }).format(date)}</span>;
+                  return <span key={index} role="columnheader" className="min-w-0 whitespace-nowrap py-2 text-center text-[10px] font-semibold text-[var(--blab-text-tertiary)] sm:text-xs sm:uppercase sm:tracking-[0.12em]">{new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: CALENDAR_TIME_ZONE }).format(date)}</span>;
                 })}
               </div>
-              <div className="grid grid-cols-7 gap-2" role="rowgroup">
+              <div className="grid min-w-0 grid-cols-7 gap-1 sm:gap-2" role="rowgroup">
                 {gridDays.map((day) => (
                   <CalendarDayCell key={day} day={day} currentMonth={currentMonth} today={today} data={daysByKey.get(day)} onSelect={setSelectedDay} locale={locale} t={t} />
                 ))}
@@ -350,7 +356,7 @@ export function CalendarClient({
 
       {monthPickerOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setMonthPickerOpen(false)}>
-          <section role="dialog" aria-modal="true" aria-labelledby="calendar-month-picker-title" className="w-full rounded-t-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 shadow-[var(--blab-elevation-overlay)] sm:max-w-md sm:rounded-[var(--blab-radius-card)]" data-testid="calendar-month-picker">
+          <section ref={monthPickerDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="calendar-month-picker-title" className="w-full rounded-t-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 shadow-[var(--blab-elevation-overlay)] sm:max-w-md sm:rounded-[var(--blab-radius-card)]" data-testid="calendar-month-picker">
             <div className="flex items-center justify-between gap-4">
               <h2 id="calendar-month-picker-title" className="text-lg font-semibold">{t("calendar.monthPickerTitle")}</h2>
               <button type="button" onClick={() => setMonthPickerOpen(false)} className="grid min-h-11 min-w-11 place-items-center rounded-full text-[var(--blab-text-tertiary)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-label={t("calendar.cancelMonthPicker")}>

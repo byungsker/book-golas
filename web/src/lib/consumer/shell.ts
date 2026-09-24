@@ -8,7 +8,7 @@ export const consumerShellTabs = [
 
 export type ConsumerShellTab = (typeof consumerShellTabs)[number]["id"];
 
-export const homeViews = ["reading", "planned", "completed", "paused", "all"] as const;
+export const homeViews = ["reading", "planned", "completed", "will_retry", "all"] as const;
 export const chartViews = ["progress", "pages", "time"] as const;
 
 function isValueInList<T extends string>(value: string | null, values: readonly T[]): value is T {
@@ -21,6 +21,7 @@ export function getActiveConsumerTab(pathname: string): ConsumerShellTab | null 
 }
 
 export function getHomeView(value: string | null): (typeof homeViews)[number] {
+  if (value === "paused") return "will_retry";
   return isValueInList(value, homeViews) ? value : homeViews[0];
 }
 

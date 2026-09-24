@@ -6,6 +6,11 @@
     "target_version": "1.1.0",
     "delivery_profile": "web-release-train",
     "parity_policy": "online-core",
+    "evidence_contract": {
+      "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+      "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+      "mode": "deterministic-staged-fixture"
+    },
     "delivery_dependencies": {
       "parity_matrix": "#416",
       "blds_react_next": "#453",
@@ -307,7 +312,7 @@
         "canonical_url": "/{locale}/announcements",
         "current": [],
         "target": [
-        "Planned Web route implementation"
+          "Planned Web route implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -345,7 +350,7 @@
         "canonical_url": "/{locale}/onboarding",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next onboarding primitives"
         ],
         "disposition": "route",
@@ -445,7 +450,7 @@
         "canonical_url": "/{locale}/library",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next tabs, cards and search primitives"
         ],
         "disposition": "route",
@@ -528,7 +533,7 @@
         "canonical_url": "/{locale}/stats",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next chart, goal and share primitives"
         ],
         "disposition": "route",
@@ -627,7 +632,7 @@
         "canonical_url": "/{locale}/calendar",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next calendar and sheet primitives"
         ],
         "disposition": "route",
@@ -673,7 +678,7 @@
         "canonical_url": "/{locale}/account",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next settings, form and dialog primitives"
         ],
         "disposition": "route",
@@ -747,7 +752,7 @@
         "canonical_url": "/{locale}/book-list",
         "current": [],
         "target": [
-        "Planned Web route implementation"
+          "Planned Web route implementation"
         ],
         "disposition": "route",
         "status": "planned",
@@ -793,7 +798,7 @@
         "canonical_url": "/{locale}/books/new",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next search, select, date-picker and form primitives"
         ],
         "disposition": "route",
@@ -1022,7 +1027,7 @@
         "canonical_url": "/{locale}/books/{bookId}/review",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next editor, confirmation and feedback primitives"
         ],
         "disposition": "route",
@@ -1073,7 +1078,7 @@
         "canonical_url": "/{locale}/books/{bookId}/mind-map",
         "current": [],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "BLDS React/Next graph, loading and retry primitives"
         ],
         "disposition": "route",
@@ -1116,9 +1121,15 @@
       "native_entry": "ReadingStartScreen barcode action.",
       "web": {
         "canonical_url": "/{locale}/books/scan",
-        "current": [],
+        "current": [
+          "web/src/app/[locale]/(consumer)/books/scan/page.tsx",
+          "web/src/components/consumer/book-discovery-client.tsx",
+          "web/src/app/api/consumer/book-discovery/route.ts",
+          "web/src/lib/consumer/book-discovery.ts",
+          "web/src/lib/consumer/isbn.ts"
+        ],
         "target": [
-        "Planned Web route implementation",
+          "Planned Web route implementation",
           "Browser camera permission and file-upload fallback"
         ],
         "disposition": "browser-equivalent",
@@ -1147,7 +1158,7 @@
         }
       ],
       "evidence_owner": "#416",
-      "notes": "Camera access is a browser-equivalent boundary, not permission to claim native scanner parity before device/browser evidence."
+      "notes": "Todo 10 browser evidence is recorded in .omo/evidence/bookgolas-web-completion/task-10-bookgolas-web-completion.json with scanner artifacts at .omo/evidence/bookgolas-web-completion/task-10-book-discovery.png and .omo/evidence/bookgolas-web-completion/task-10-permission-fallback.png. BarcodeDetector/getUserMedia is attempted only when browser capability, permission and secure context allow; denied, insecure or unsupported camera falls back to file upload/manual ISBN. This remains browser-equivalent and planned and does not claim native camera or on-device scanner parity."
     },
     {
       "id": "subscription",
@@ -1174,10 +1185,24 @@
           "id": "show-disabled-subscription",
           "label": "Explain that subscription purchase and restore are unavailable on Web",
           "owner": "#444",
-          "status": "planned"
+          "status": "disabled"
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "PAID_SUBSCRIPTIONS_ENABLED defaults to false and the Web release must not expose purchase, restore, upgrade or customer-center controls."
     },
     {
@@ -1236,7 +1261,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1271,7 +1296,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1306,7 +1331,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1346,7 +1371,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1380,7 +1405,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1415,7 +1440,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1450,7 +1475,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1484,7 +1509,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1518,7 +1543,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1552,7 +1577,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1586,7 +1611,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1620,7 +1645,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1660,7 +1685,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1694,7 +1719,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1728,7 +1753,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1762,7 +1787,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1796,7 +1821,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1824,7 +1849,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -1864,7 +1889,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "browser-equivalent",
         "status": "planned",
@@ -1898,7 +1923,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1933,7 +1958,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -1973,7 +1998,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2014,7 +2039,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2054,7 +2079,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2091,7 +2116,7 @@
           "web/src/components/consumer/progress-updater.tsx"
         ],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "partial",
@@ -2133,7 +2158,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2173,7 +2198,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2207,7 +2232,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2241,7 +2266,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2275,7 +2300,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2309,7 +2334,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2344,7 +2369,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2378,7 +2403,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2413,7 +2438,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2461,7 +2486,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2531,7 +2556,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2565,7 +2590,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2599,7 +2624,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2635,7 +2660,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2671,7 +2696,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2706,7 +2731,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2751,10 +2776,24 @@
           "id": "explain-web-billing-disabled",
           "label": "Explain that Pro upgrade is unavailable on Web",
           "owner": "#444",
-          "status": "planned"
+          "status": "disabled"
         }
       ],
-      "evidence_owner": "#416"
+      "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "pro-features-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "pro-features-browser"
+        }
+      ]
     },
     {
       "id": "floating-timer",
@@ -2768,7 +2807,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2803,7 +2842,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2845,7 +2884,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2885,7 +2924,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2920,7 +2959,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2954,7 +2993,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -2988,7 +3027,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -3105,7 +3144,7 @@
         "canonical_url": null,
         "current": [],
         "target": [
-        "Planned Web overlay implementation"
+          "Planned Web overlay implementation"
         ],
         "disposition": "component",
         "status": "planned",
@@ -3211,6 +3250,20 @@
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "Web may support ordinary HTTPS deep links to the equivalent book route, but must not claim iOS widget parity."
     },
     {
@@ -3258,6 +3311,20 @@
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "This row prevents stale product claims from silently becoming Web scope."
     },
     {
@@ -3273,10 +3340,10 @@
         "canonical_url": "/{locale}/account/notifications",
         "current": [],
         "target": [
-        "Browser Push API permission and settings"
+          "Browser Push API permission and settings"
         ],
         "disposition": "browser-equivalent",
-        "status": "planned",
+        "status": "registration-only",
         "owner": "#445"
       },
       "state_profile": "browser-equivalent",
@@ -3285,22 +3352,36 @@
           "id": "request-web-push",
           "label": "Request browser notification permission",
           "owner": "#445",
-          "status": "planned"
+          "status": "registration-only"
         },
         {
           "id": "manage-notification-categories",
           "label": "Manage daily reminder, goal alarm, event nudge and announcement settings",
           "owner": "#445",
-          "status": "planned"
+          "status": "registration-only"
         },
         {
           "id": "open-notification-deep-link",
           "label": "Open the associated Web book route from a notification",
           "owner": "#445",
-          "status": "planned"
+          "status": "registration-only"
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "Browser Push is an explicit equivalent with different permission and delivery constraints; native FCM behavior must not be copied as if it were available on Web."
     },
     {
@@ -3315,7 +3396,13 @@
       ],
       "web": {
         "canonical_url": "/{locale}/books/scan",
-        "current": [],
+        "current": [
+          "web/src/app/[locale]/(consumer)/books/scan/page.tsx",
+          "web/src/components/consumer/book-discovery-client.tsx",
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/book-discovery/route.ts",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ],
         "target": [
           "Browser camera permission, input capture and file-upload fallback"
         ],
@@ -3345,7 +3432,7 @@
         }
       ],
       "evidence_owner": "#416",
-      "notes": "Provider credentials remain server-side and private image storage remains user-scoped."
+      "notes": "Todo 10 browser evidence is recorded in .omo/evidence/bookgolas-web-completion/task-10-bookgolas-web-completion.json with OCR and fallback artifacts at .omo/evidence/bookgolas-web-completion/task-10-images-ocr.png and .omo/evidence/bookgolas-web-completion/task-10-permission-fallback.png. Camera capture is attempted only when browser capability, permission and secure context allow; denied, insecure or unsupported camera falls back to file upload/manual ISBN. OCR is authenticated server/provider-stub-backed with provider secrets server-side, and browser fixtures make no real provider calls. No native camera or on-device OCR parity is claimed; actions remain planned."
     },
     {
       "id": "share-sheet",
@@ -3407,10 +3494,24 @@
           "id": "show-billing-disabled",
           "label": "Show an explicit disabled state without purchase or restore",
           "owner": "#444",
-          "status": "planned"
+          "status": "disabled"
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "Consumer Web must not expose billing until a separate approved delivery contract exists."
     },
     {
@@ -3433,7 +3534,7 @@
           "Optional bounded local draft only where verified"
         ],
         "disposition": "browser-equivalent",
-        "status": "partial",
+        "status": "online-only",
         "owner": "#447"
       },
       "state_profile": "default",
@@ -3442,22 +3543,36 @@
           "id": "show-network-status",
           "label": "Tell the user when the online core is unavailable",
           "owner": "#447",
-          "status": "partial"
+          "status": "online-only"
         },
         {
           "id": "preserve-proven-draft",
           "label": "Preserve only explicitly tested local drafts",
           "owner": "#447",
-          "status": "planned"
+          "status": "online-only"
         },
         {
           "id": "retry-online-write",
           "label": "Retry a failed online mutation",
           "owner": "#447",
-          "status": "planned"
+          "status": "online-only"
         }
       ],
       "evidence_owner": "#416",
+      "evidence": [
+        {
+          "kind": "data",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-data"
+        },
+        {
+          "kind": "browser",
+          "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+          "receipt": "web/scripts/fixtures/parity-evidence-receipt.json",
+          "receipt_evidence_id": "staged-browser"
+        }
+      ],
       "notes": "Web 1.1.0 is online-core. It must not claim full offline parity without a bounded, tested implementation."
     },
     {

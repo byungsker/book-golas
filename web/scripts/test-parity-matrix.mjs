@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -51,7 +52,17 @@ const allowedStatuses = new Set([
   "unavailable",
   "disabled",
   "complete",
+  "registration-only",
+  "online-only",
 ]);
+const terminalStatuses = new Set([
+  "complete",
+  "disabled",
+  "unavailable",
+  "registration-only",
+  "online-only",
+]);
+const boundaryStatuses = new Set(["registration-only", "online-only"]);
 const allowedEvidenceKinds = new Set(["data", "browser"]);
 const requiredDeepLinkMappings = new Map([
   ["bookgolas://book/search", "/{locale}/books/new"],
@@ -63,11 +74,11 @@ const allowedDeepLinkKinds = new Set(["native-custom-scheme", "auth-return"]);
 const nativeCapabilityRules = {
   "ios-home-widget": { disposition: "explicit-unavailability", status: "unavailable" },
   "siri-app-shortcuts": { disposition: "explicit-unavailability", status: "unavailable" },
-  "native-push": { disposition: "browser-equivalent", status: "planned" },
+  "native-push": { disposition: "browser-equivalent", status: "registration-only" },
   "camera-and-ocr": { disposition: "browser-equivalent", status: "planned" },
   "share-sheet": { disposition: "browser-equivalent", status: "planned" },
   subscriptions: { disposition: "disabled", status: "disabled" },
-  "offline-boundary": { disposition: "browser-equivalent", status: "partial" },
+  "offline-boundary": { disposition: "browser-equivalent", status: "online-only" },
   "deep-links": { disposition: "browser-equivalent", status: "partial" },
 };
 const requiredDeliveryDependencies = {
@@ -292,15 +303,25 @@ const negativeFixtureNames = [
   "missing-error-state",
   "missing-required-state",
   "complete-without-evidence",
+  "complete-with-planned-action",
   "complete-with-invalid-evidence",
   "complete-with-fabricated-evidence",
   "invalid-native-boundary",
   "missing-deep-link",
+  "missing-deep-link-evidence",
+  "invalid-deep-link-evidence-destination",
+  "ledger-checksum-mismatch",
+  "staged-ledger-revision-mismatch",
+  "untracked-release-evidence",
+  "status-progress-mismatch",
+  "cross-record-receipt-evidence-alias",
+  "fixture-only-production-claim",
   "invalid-deep-link-target",
   "invalid-deep-link-source",
   "invalid-deep-link-assertion-source",
   "missing-native-overlay",
   "missing-native-action",
+  "missing-capability-action",
   "invalid-billing-route",
   "invalid-billing-overlay",
   "invalid-billing-claim",
@@ -317,6 +338,9 @@ const negativeFixtureNames = [
   "invalid-action-assertion",
   "invalid-native-assertion-source",
   "invalid-native-assertion-policy",
+  "self-referential-evidence",
+  "invalid-registration-boundary",
+  "invalid-online-only-boundary",
   "unsafe-evidence-source",
   "missing-required-native-surface",
   "missing-required-native-action",
@@ -353,15 +377,25 @@ const negativeFixtureExpectations = {
   "missing-error-state": "state profile default is missing error",
   "missing-required-state": "state_contract.required must include",
   "complete-without-evidence": "cannot be complete without evidence",
+  "complete-with-planned-action": "cannot be terminal while action",
   "complete-with-invalid-evidence": "evidence 1 must be an object",
   "complete-with-fabricated-evidence": "source does not exist in the repository",
   "invalid-native-boundary": "subscriptions must use disposition disabled",
   "missing-deep-link": "missing required deep link",
+  "missing-deep-link-evidence": "terminal deep link evidence must include browser evidence",
+  "invalid-deep-link-evidence-destination": "terminal deep link evidence must bind destination",
+  "ledger-checksum-mismatch": "release manifest ledger at code_sha or current ledger does not match declared SHA",
+  "staged-ledger-revision-mismatch": "release manifest ledger revision does not match declared SHA",
+  "untracked-release-evidence": "fixture evidence artifact is not manifest-listed",
+  "status-progress-mismatch": "status.md generated parity progress does not match ledger accounting",
+  "cross-record-receipt-evidence-alias": "receipt evidence alias across terminal records",
+  "fixture-only-production-claim": "production release manifest path is untracked or dirty",
   "invalid-deep-link-target": "must map to",
   "invalid-deep-link-source": "missing required deep link",
   "invalid-deep-link-assertion-source": "deep link assertion source must be listed",
   "missing-native-overlay": "required overlays surface is missing from ledger",
   "missing-native-action": "is missing native action google-sign-in",
+  "missing-capability-action": "required native action is missing from ledger: native_only_capabilities.native-push.open-notification-deep-link",
   "invalid-billing-route": "subscription must use disposition disabled",
   "invalid-billing-overlay": "pro-features must use disposition disabled",
   "invalid-billing-claim": "contains a billing claim",
@@ -377,6 +411,9 @@ const negativeFixtureExpectations = {
   "invalid-action-assertion": "is not present",
   "invalid-native-assertion-source": "native action assertion source must be listed",
   "invalid-native-assertion-policy": "native action assertion policy is invalid",
+  "self-referential-evidence": "release manifest code_sha must not use the current HEAD as self-referential proof",
+  "invalid-registration-boundary": "native-push must use status registration-only",
+  "invalid-online-only-boundary": "offline-boundary must use status online-only",
   "unsafe-evidence-source": "source does not exist in the repository",
   "missing-required-native-surface": "required routes surface is missing from ledger",
   "missing-required-native-action": "required native action is missing from ledger",
@@ -385,8 +422,8 @@ const negativeFixtureExpectations = {
   "invalid-web-current-role": "web.current references an invalid role path",
   "invalid-web-target-role": "Web target references an invalid role path",
   "complete-with-self-authored-evidence": "evidence 1 source has an invalid role or is not tracked",
-  "complete-with-self-authored-runtime-artifact": "evidence 1 artifact has an invalid role or is not tracked",
-  "complete-with-unit-test-browser-evidence": "evidence 2 artifact has an invalid role or is not tracked",
+  "complete-with-self-authored-runtime-artifact": "fixture evidence artifact is not manifest-listed",
+  "complete-with-unit-test-browser-evidence": "fixture evidence artifact is not manifest-listed",
   "invalid-web-target": "Web target must not be an external URL",
   "invalid-web-target-missing-path": "Web target references a missing or unsafe path",
   "invalid-web-target-directory": "Web target must reference a tracked file",
@@ -444,10 +481,49 @@ const allowedWebTargetDescriptors = new Set([
 const fixtureIndex = process.argv.indexOf("--fixture");
 const fixtureName = fixtureIndex >= 0 ? process.argv[fixtureIndex + 1] : null;
 const temporaryFixturePaths = [];
+if (fixtureName !== null && !negativeFixtureNames.includes(fixtureName)) {
+  fail("unknown fixture: " + (fixtureName || "missing name"));
+}
+const evidenceContract = ledger.release?.evidence_contract;
+const releaseManifestPath = evidenceContract?.release_manifest;
+const evidenceReceiptPath = evidenceContract?.receipt;
+const releaseManifestAbsolutePath = isNonEmptyString(releaseManifestPath)
+  ? path.resolve(repositoryRoot, releaseManifestPath)
+  : "";
+const evidenceReceiptAbsolutePath = isNonEmptyString(evidenceReceiptPath)
+  ? path.resolve(repositoryRoot, evidenceReceiptPath)
+  : "";
+const releaseManifest = releaseManifestAbsolutePath && fs.existsSync(releaseManifestAbsolutePath)
+  ? JSON.parse(fs.readFileSync(releaseManifestAbsolutePath, "utf8"))
+  : null;
+const evidenceReceipt = evidenceReceiptAbsolutePath && fs.existsSync(evidenceReceiptAbsolutePath)
+  ? JSON.parse(fs.readFileSync(evidenceReceiptAbsolutePath, "utf8"))
+  : null;
+function stagedEvidenceForRecord(recordId) {
+  return (evidenceReceipt?.evidence ?? [])
+    .filter((item) => item.record_id === recordId)
+    .map((item) => ({
+      ...structuredClone(item),
+      release_manifest: releaseManifestPath,
+      receipt: evidenceReceiptPath,
+      receipt_evidence_id: item.id,
+    }));
+}
 
-function createTemporaryUntrackedFixture(relativePath) {
+if (isStagedFixtureMode()) {
+  for (const entry of [...(ledger.routes ?? []), ...(ledger.overlays ?? []), ...(ledger.native_only_capabilities ?? [])]) {
+    const status = entry.web?.status;
+    if (terminalStatuses.has(status)) {
+      entry.evidence = stagedEvidenceForRecord(entry.id);
+    }
+  }
+}
+
+const stagedTerminalEvidence = stagedEvidenceForRecord("subscription");
+
+function createTemporaryUntrackedFixture(relativePath, content = "export const parityFixture = true;\n") {
   const absolutePath = path.resolve(repositoryRoot, relativePath);
-  fs.writeFileSync(absolutePath, "export const parityFixture = true;\n");
+  fs.writeFileSync(absolutePath, content);
   temporaryFixturePaths.push(absolutePath);
 }
 
@@ -470,6 +546,11 @@ if (fixtureName === "missing-required-state") {
 if (fixtureName === "complete-without-evidence") {
   ledger.routes[0].web.status = "complete";
   delete ledger.routes[0].evidence;
+}
+
+if (fixtureName === "complete-with-planned-action") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].evidence = structuredClone(stagedTerminalEvidence);
 }
 
 if (fixtureName === "complete-with-invalid-evidence") {
@@ -507,6 +588,55 @@ if (fixtureName === "missing-deep-link") {
   ledger.deep_links.shift();
 }
 
+if (fixtureName === "missing-deep-link-evidence") {
+  const link = ledger.deep_links[0];
+  link.status = "complete";
+  link.evidence = structuredClone(stagedTerminalEvidence.filter((item) => item.kind === "data"));
+}
+
+if (fixtureName === "invalid-deep-link-evidence-destination") {
+  const link = ledger.deep_links[0];
+  link.status = "complete";
+  link.evidence = structuredClone(stagedTerminalEvidence);
+  evidenceReceipt.evidence[0].destination = "/{locale}/wrong";
+}
+
+if (fixtureName === "ledger-checksum-mismatch") {
+  ledger.release.evidence_contract.mode = "release";
+  releaseManifest.fixture_only = false;
+  evidenceReceipt.fixture_only = false;
+}
+
+if (fixtureName === "staged-ledger-revision-mismatch") {
+  releaseManifest.ledger.sha256 = "0".repeat(64);
+}
+
+if (fixtureName === "untracked-release-evidence") {
+  const fixturePath = "web/scripts/fixtures/.parity-untracked-browser.json";
+  const fixtureContent = '{"result":"fabricated untracked browser evidence"}\n';
+  createTemporaryUntrackedFixture(fixturePath, fixtureContent);
+  const browserEvidence = evidenceReceipt.evidence.find((item) => item.kind === "browser");
+  browserEvidence.artifact = fixturePath;
+  browserEvidence.artifact_sha256 = sha256(fixtureContent);
+  browserEvidence.artifact_contains = "fabricated untracked browser evidence";
+}
+
+if (fixtureName === "status-progress-mismatch") {
+  ledger.routes.find((entry) => entry.id === "subscription").web.status = "planned";
+}
+
+if (fixtureName === "cross-record-receipt-evidence-alias") {
+  const subscription = ledger.routes.find((entry) => entry.id === "subscription");
+  const proFeatures = ledger.overlays.find((entry) => entry.id === "pro-features");
+  proFeatures.evidence = structuredClone(subscription.evidence);
+}
+
+if (fixtureName === "fixture-only-production-claim") {
+  ledger.release.evidence_contract.mode = "release";
+  releaseManifest.fixture_only = false;
+  evidenceReceipt.fixture_only = false;
+}
+
 if (fixtureName === "invalid-deep-link-target") {
   ledger.deep_links.find((link) => link.source === "bookgolas://book/detail/{bookId}").canonical_web_url = "/{locale}/wrong/{bookId}";
 }
@@ -527,6 +657,11 @@ if (fixtureName === "missing-native-overlay") {
 
 if (fixtureName === "missing-native-action") {
   ledger.routes[0].actions = ledger.routes[0].actions.filter((action) => action.id !== "google-sign-in");
+}
+
+if (fixtureName === "missing-capability-action") {
+  const capability = ledger.native_only_capabilities.find((entry) => entry.id === "native-push");
+  capability.actions = capability.actions.filter((action) => action.id !== "open-notification-deep-link");
 }
 
 if (fixtureName === "invalid-billing-route") {
@@ -639,6 +774,24 @@ if (fixtureName === "invalid-native-assertion-source") {
 
 if (fixtureName === "invalid-native-assertion-policy") {
   nativeInventory.native_action_assertion_policy.source_content_scope = "all-actions";
+}
+
+if (fixtureName === "self-referential-evidence") {
+  ledger.routes[0].web.status = "complete";
+  ledger.routes[0].actions.forEach((action) => {
+    action.status = "complete";
+  });
+  ledger.routes[0].evidence = structuredClone(stagedTerminalEvidence);
+  releaseManifest.code_sha = currentCommit;
+  evidenceReceipt.code_sha = currentCommit;
+}
+
+if (fixtureName === "invalid-registration-boundary") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "native-push").web.status = "complete";
+}
+
+if (fixtureName === "invalid-online-only-boundary") {
+  ledger.native_only_capabilities.find((entry) => entry.id === "offline-boundary").web.status = "complete";
 }
 
 if (fixtureName === "unsafe-evidence-source") {
@@ -1031,6 +1184,304 @@ function isBoundToCurrentCommit(value) {
   }
 }
 
+function sha256(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function readRepositoryFileAtCommit(commit, value) {
+  if (!/^[0-9a-f]{40}$/.test(commit) || !isSafeRepositoryReference(value)) return null;
+  try {
+    return execFileSync("git", ["show", commit + ":" + value], {
+      cwd: repositoryRoot,
+      encoding: null,
+      maxBuffer: 16 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return null;
+  }
+}
+
+function isStagedFixtureMode() {
+  return evidenceContract?.mode === "deterministic-staged-fixture" &&
+    releaseManifest?.fixture_only === true &&
+    evidenceReceipt?.fixture_only === true;
+}
+
+function readReleaseEvidenceArtifact(value, expectedSha256) {
+  if (isStagedFixtureMode()) {
+    const listedArtifact = (releaseManifest?.fixture_evidence ?? []).find(
+      (candidate) => candidate?.path === value && candidate?.sha256 === expectedSha256,
+    );
+    if (!listedArtifact) {
+      fail("fixture evidence artifact is not manifest-listed: " + value);
+      return null;
+    }
+    const artifactPath = resolveSafeRepositoryPath(value);
+    if (!artifactPath || !value.startsWith("web/scripts/fixtures/") || !fs.statSync(artifactPath).isFile()) {
+      fail("fixture evidence artifact is missing or unsafe: " + value);
+      return null;
+    }
+    return fs.readFileSync(artifactPath);
+  }
+  const artifactPath = resolveSafeRepositoryPath(value);
+  if (
+    !artifactPath ||
+    !value.startsWith(".omo/evidence/") ||
+    !isTrackedFile(value) ||
+    !isBoundToCurrentCommit(value)
+  ) {
+    fail("production release evidence path is untracked or dirty: " + value);
+    return null;
+  }
+  return fs.readFileSync(artifactPath);
+}
+
+function checkReleaseEvidenceContract() {
+  if (!evidenceContract || !["release", "deterministic-staged-fixture"].includes(evidenceContract.mode)) {
+    fail("release evidence contract mode is invalid");
+    return;
+  }
+  if (!releaseManifest || releaseManifest.schema_version !== 1) {
+    fail("release manifest is invalid");
+    return;
+  }
+  const stagedFixtureMode = isStagedFixtureMode();
+  if (
+    evidenceContract.mode === "deterministic-staged-fixture" &&
+    (!stagedFixtureMode ||
+      releaseManifestPath !== "web/scripts/fixtures/parity-release-manifest.json" ||
+      evidenceReceiptPath !== "web/scripts/fixtures/parity-evidence-receipt.json")
+  ) {
+    fail("deterministic staged fixture contract is invalid");
+    return;
+  }
+  if (
+    evidenceContract.mode === "release" &&
+    (releaseManifest.fixture_only === true || evidenceReceipt?.fixture_only === true)
+  ) {
+    fail("production release evidence must not use fixture-only artifacts");
+  }
+  if (!stagedFixtureMode) {
+    if (!isTrackedFile(releaseManifestPath) || !isBoundToCurrentCommit(releaseManifestPath)) {
+      fail("production release manifest path is untracked or dirty");
+    }
+    if (!isTrackedFile(evidenceReceiptPath) || !isBoundToCurrentCommit(evidenceReceiptPath)) {
+      fail("production evidence receipt path is untracked or dirty");
+    }
+  }
+  if (!/^[0-9a-f]{40}$/.test(releaseManifest.code_sha)) {
+    fail("release manifest code_sha must be a full Git SHA");
+    return;
+  }
+  if (releaseManifest.code_sha === currentCommit) {
+    fail("release manifest code_sha must not use the current HEAD as self-referential proof");
+  }
+  try {
+    execFileSync("git", ["cat-file", "-e", releaseManifest.code_sha + "^{commit}"], {
+      cwd: repositoryRoot,
+      stdio: "ignore",
+    });
+  } catch {
+    fail("release manifest code_sha is not a verified commit");
+  }
+  const releasedLedgerPath = resolveSafeRepositoryPath(releaseManifest.ledger?.path);
+  const declaredLedgerSha = releaseManifest.ledger?.sha256;
+  const currentLedgerContent = releasedLedgerPath && fs.statSync(releasedLedgerPath).isFile()
+    ? fs.readFileSync(releasedLedgerPath)
+    : null;
+  if (
+    releaseManifest.ledger?.path !== "web/docs/consumer-parity-ledger.json" ||
+    !/^[0-9a-f]{64}$/.test(declaredLedgerSha ?? "") ||
+    !currentLedgerContent
+  ) {
+    fail("release manifest ledger declaration is invalid");
+  } else if (stagedFixtureMode) {
+    const revision = releaseManifest.ledger?.revision;
+    if (
+      revision?.kind !== "content-addressed-staged-fixture" ||
+      revision?.sha256 !== declaredLedgerSha ||
+      sha256(currentLedgerContent) !== declaredLedgerSha
+    ) {
+      fail("release manifest ledger revision does not match declared SHA");
+    }
+  } else {
+    const releasedLedgerContent = readRepositoryFileAtCommit(releaseManifest.code_sha, releaseManifest.ledger.path);
+    if (
+      !releasedLedgerContent ||
+      sha256(releasedLedgerContent) !== declaredLedgerSha ||
+      sha256(currentLedgerContent) !== declaredLedgerSha
+    ) {
+      fail("release manifest ledger at code_sha or current ledger does not match declared SHA");
+    }
+  }
+  if (!evidenceReceipt || evidenceReceipt.schema_version !== 1 || evidenceReceipt.evidence_only !== true) {
+    fail("evidence-only receipt is invalid");
+    return;
+  }
+  if (
+    evidenceReceipt.release_manifest !== releaseManifestPath ||
+    evidenceReceipt.release_manifest_sha256 !== sha256(fs.readFileSync(releaseManifestAbsolutePath))
+  ) {
+    fail("evidence receipt does not bind the release manifest checksum");
+  }
+  if (
+    evidenceReceipt.code_sha !== releaseManifest.code_sha ||
+    evidenceReceipt.ledger_sha256 !== releaseManifest.ledger?.sha256
+  ) {
+    fail("evidence receipt does not bind the released code and ledger SHAs");
+  }
+  const releasedAt = Date.parse(releaseManifest.released_at);
+  const recordedAt = Date.parse(evidenceReceipt.recorded_at);
+  if (!Number.isFinite(releasedAt) || !Number.isFinite(recordedAt) || recordedAt <= releasedAt) {
+    fail("evidence receipt must be later than the release manifest");
+  }
+  if (readRepositoryFileAtCommit(releaseManifest.code_sha, evidenceReceiptPath)) {
+    fail("evidence receipt must not be part of the released code commit");
+  }
+}
+
+const receiptEvidenceOwners = new Map();
+const receiptClaimPathOwners = new Map();
+const receiptArtifactOwners = new Map();
+const receiptSourceOwners = new Map();
+
+function checkTerminalEvidence(entry, evidenceItems, label = "terminal", destination = null) {
+  const evidenceKinds = new Set();
+  const evidenceReferences = new Set();
+  for (const [index, evidence] of evidenceItems.entries()) {
+    if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+      fail(entry.id + " evidence " + (index + 1) + " must be an object");
+      continue;
+    }
+    if (!allowedEvidenceKinds.has(evidence.kind)) {
+      fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
+      continue;
+    }
+    evidenceKinds.add(evidence.kind);
+    const receiptEvidence = (evidenceReceipt?.evidence ?? []).find(
+      (candidate) => candidate.id === evidence.receipt_evidence_id,
+    );
+    if (
+      evidence.release_manifest !== releaseManifestPath ||
+      evidence.receipt !== evidenceReceiptPath ||
+      !receiptEvidence ||
+      receiptEvidence.kind !== evidence.kind
+    ) {
+      fail(entry.id + " evidence " + (index + 1) + " is not bound to the verified release receipt");
+    }
+    const expectedEvidence = receiptEvidence ?? evidence;
+    const expectedActionIds = (entry.actions ?? []).map((action) => action.id);
+    if (expectedEvidence.record_id !== entry.id) {
+      fail(entry.id + " evidence " + (index + 1) + " is bound to record " + expectedEvidence.record_id);
+    }
+    if (!hasSameValues(expectedEvidence.action_ids ?? [], expectedActionIds)) {
+      fail(entry.id + " evidence " + (index + 1) + " is not bound to its complete action set");
+    }
+    if (
+      !isNonEmptyString(expectedEvidence.claim_path) ||
+      !expectedEvidence.claim_path.split("/").includes(entry.id)
+    ) {
+      fail(entry.id + " evidence " + (index + 1) + " has an invalid record claim path");
+    }
+    const existingReceiptOwner = receiptEvidenceOwners.get(expectedEvidence.id);
+    if (existingReceiptOwner && existingReceiptOwner !== entry.id) {
+      fail("receipt evidence alias across terminal records: " + expectedEvidence.id);
+    } else {
+      receiptEvidenceOwners.set(expectedEvidence.id, entry.id);
+    }
+    const existingClaimOwner = receiptClaimPathOwners.get(expectedEvidence.claim_path);
+    if (existingClaimOwner && existingClaimOwner !== entry.id) {
+      fail("receipt claim path alias across terminal records: " + expectedEvidence.claim_path);
+    } else {
+      receiptClaimPathOwners.set(expectedEvidence.claim_path, entry.id);
+    }
+    if (destination !== null && expectedEvidence.destination !== destination) {
+      fail(entry.id + " " + label + " evidence must bind destination " + destination);
+    }
+    const source = evidence.source ?? expectedEvidence.source;
+    const artifact = evidence.artifact ?? expectedEvidence.artifact;
+    if (!isNonEmptyString(source)) {
+      fail(entry.id + " evidence " + (index + 1) + " is missing source");
+      continue;
+    }
+    if (!isNonEmptyString(artifact)) {
+      fail(entry.id + " evidence " + (index + 1) + " is missing artifact");
+      continue;
+    }
+    const normalizedSource = path.normalize(source).replaceAll(path.sep, "/");
+    const normalizedArtifact = path.normalize(artifact).replaceAll(path.sep, "/");
+    if (normalizedSource === normalizedArtifact || evidenceReferences.has(normalizedSource) || evidenceReferences.has(normalizedArtifact)) {
+      fail(entry.id + " evidence sources and artifacts must be independent");
+    }
+    evidenceReferences.add(normalizedSource);
+    evidenceReferences.add(normalizedArtifact);
+    const sourceClaimKey = `${normalizedSource}\u0000${expectedEvidence.source_contains ?? ""}`;
+    const existingSourceOwner = receiptSourceOwners.get(sourceClaimKey);
+    if (existingSourceOwner && existingSourceOwner !== entry.id) {
+      fail("receipt source path alias across terminal records: " + normalizedSource);
+    } else {
+      receiptSourceOwners.set(sourceClaimKey, entry.id);
+    }
+    const existingArtifactOwner = receiptArtifactOwners.get(normalizedArtifact);
+    if (existingArtifactOwner && existingArtifactOwner !== entry.id) {
+      fail("receipt artifact path alias across terminal records: " + normalizedArtifact);
+    } else {
+      receiptArtifactOwners.set(normalizedArtifact, entry.id);
+    }
+    const sourceContent = readRepositoryFileAtCommit(releaseManifest?.code_sha, source);
+    if (!sourceContent) {
+      fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
+    } else if (!hasPathRoot(source, ["app/", "web/src/"])) {
+      fail(entry.id + " evidence " + (index + 1) + " source has an invalid role or is not tracked");
+    } else if (
+      sha256(sourceContent) !== expectedEvidence.source_sha256 ||
+      !sourceContent.toString("utf8").includes(expectedEvidence.source_contains)
+    ) {
+      fail(entry.id + " evidence " + (index + 1) + " source checksum or assertion is invalid");
+    }
+    let artifactContent = null;
+    if (isStagedFixtureMode()) {
+      artifactContent = readReleaseEvidenceArtifact(artifact, expectedEvidence.artifact_sha256);
+    } else if (evidence.kind === "data") {
+      artifactContent = readRepositoryFileAtCommit(releaseManifest?.code_sha, artifact);
+      if (!artifactContent || !/^web\/(?:src|tests|e2e)\//.test(artifact) || !/(?:test|spec)\.[cm]?[jt]sx?$/.test(artifact)) {
+        fail(entry.id + " evidence " + (index + 1) + " artifact has an invalid role or is not tracked");
+      }
+    } else {
+      artifactContent = readReleaseEvidenceArtifact(artifact, expectedEvidence.artifact_sha256);
+    }
+    if (
+      artifactContent &&
+      (sha256(artifactContent) !== expectedEvidence.artifact_sha256 ||
+        !artifactContent.toString("utf8").includes(expectedEvidence.artifact_contains))
+    ) {
+      fail(entry.id + " evidence " + (index + 1) + " artifact checksum or assertion is invalid");
+    }
+    if (!isNonEmptyString(expectedEvidence.observation)) {
+      fail(entry.id + " evidence " + (index + 1) + " is missing observation");
+    }
+    if (receiptEvidence) {
+      for (const field of ["record_id", "claim_path", "source", "source_sha256", "source_contains", "artifact", "artifact_sha256", "artifact_contains", "destination", "observation"]) {
+        if (evidence[field] !== undefined && evidence[field] !== receiptEvidence[field]) {
+          fail(entry.id + " evidence " + (index + 1) + " does not match receipt field " + field);
+        }
+      }
+      if (
+        evidence.action_ids !== undefined &&
+        JSON.stringify(evidence.action_ids) !== JSON.stringify(receiptEvidence.action_ids)
+      ) {
+        fail(entry.id + " evidence " + (index + 1) + " does not match receipt field action_ids");
+      }
+    }
+  }
+  for (const kind of allowedEvidenceKinds) {
+    if (!evidenceKinds.has(kind)) {
+      fail(entry.id + " " + label + " evidence must include " + kind + " evidence");
+    }
+  }
+}
+
 function hasPathRoot(value, roots) {
   return roots.some((root) => value.startsWith(root));
 }
@@ -1265,6 +1716,11 @@ function checkEntry(entry, groupName) {
     if (web.status !== disabledRule.status) {
       fail(entry.id + " must use status " + disabledRule.status);
     }
+    for (const action of entry.actions ?? []) {
+      if (action.status !== "disabled") {
+        fail(entry.id + " action " + action.id + " must use status disabled");
+      }
+    }
     if (isNonEmptyArray(web.target)) {
       fail(entry.id + " must not define a Web target");
     }
@@ -1273,8 +1729,6 @@ function checkEntry(entry, groupName) {
     }
     if (entry.evidence !== undefined && !Array.isArray(entry.evidence)) {
       fail(entry.id + " complete Web evidence must be an array");
-    } else if (isNonEmptyArray(entry.evidence)) {
-      fail(entry.id + " must not define complete Web evidence");
     }
   }
 
@@ -1297,74 +1751,16 @@ function checkEntry(entry, groupName) {
     }
   }
 
-  if (web.status === "complete") {
-    if (!isNonEmptyArray(entry.evidence)) {
-      fail(entry.id + " cannot be complete without evidence");
-    } else {
-      const evidenceKinds = new Set();
-      const evidenceReferences = new Set();
-      entry.evidence.forEach((evidence, index) => {
-        if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
-          fail(entry.id + " evidence " + (index + 1) + " must be an object");
-          return;
-        }
-        let sourcePath = null;
-        if (!isNonEmptyString(evidence.source)) {
-          fail(entry.id + " evidence " + (index + 1) + " is missing source");
-        } else {
-          sourcePath = resolveSafeRepositoryPath(evidence.source);
-          if (!sourcePath) {
-            fail(entry.id + " evidence " + (index + 1) + " source does not exist in the repository");
-          } else if (!isApprovedEvidenceReference(evidence.source, "source", evidence.kind)) {
-            fail(entry.id + " evidence " + (index + 1) + " source has an invalid role or is not tracked");
-          } else if (evidenceReferences.has(sourcePath)) {
-            fail(entry.id + " evidence sources and artifacts must be independent");
-          } else {
-            evidenceReferences.add(sourcePath);
-          }
-        }
-        if (!isNonEmptyString(evidence.source_contains)) {
-          fail(entry.id + " evidence " + (index + 1) + " is missing source_contains");
-        } else if (sourcePath && !fs.readFileSync(sourcePath, "utf8").includes(evidence.source_contains)) {
-          fail(entry.id + " evidence " + (index + 1) + " source_contains is not present");
-        }
-        if (!allowedEvidenceKinds.has(evidence.kind)) {
-          fail(entry.id + " evidence " + (index + 1) + " has invalid kind");
-        } else {
-          evidenceKinds.add(evidence.kind);
-        }
-        if (!isNonEmptyString(evidence.observation)) {
-          fail(entry.id + " evidence " + (index + 1) + " is missing observation");
-        }
-        if (evidence.commit !== currentCommit) {
-          fail(entry.id + " evidence " + (index + 1) + " is not bound to the current commit");
-        }
-        if (!isNonEmptyString(evidence.artifact)) {
-          fail(entry.id + " evidence " + (index + 1) + " is missing artifact");
-        } else {
-          const artifactPath = resolveSafeRepositoryPath(evidence.artifact);
-          if (!artifactPath) {
-            fail(entry.id + " evidence " + (index + 1) + " artifact is missing or unsafe");
-          } else if (!isApprovedEvidenceReference(evidence.artifact, "artifact", evidence.kind)) {
-            fail(entry.id + " evidence " + (index + 1) + " artifact has an invalid role or is not tracked");
-          }
-          if (artifactPath && evidenceReferences.has(artifactPath)) {
-            fail(entry.id + " evidence sources and artifacts must be independent");
-          } else if (artifactPath) {
-            evidenceReferences.add(artifactPath);
-          }
-          if (!isNonEmptyString(evidence.artifact_contains)) {
-            fail(entry.id + " evidence " + (index + 1) + " is missing artifact_contains");
-          } else if (artifactPath && !fs.readFileSync(artifactPath, "utf8").includes(evidence.artifact_contains)) {
-            fail(entry.id + " evidence " + (index + 1) + " artifact_contains is not present");
-          }
-        }
-      });
-      for (const kind of allowedEvidenceKinds) {
-        if (!evidenceKinds.has(kind)) {
-          fail(entry.id + " complete evidence must include " + kind + " evidence");
-        }
+  if (terminalStatuses.has(web.status)) {
+    for (const action of entry.actions ?? []) {
+      if (!terminalStatuses.has(action?.status)) {
+        fail(entry.id + " cannot be terminal while action " + (action?.id ?? "unknown") + " is " + action?.status);
       }
+    }
+    if (!isNonEmptyArray(entry.evidence)) {
+      fail(entry.id + (web.status === "complete" ? " cannot be complete without evidence" : " cannot be terminal without evidence"));
+    } else {
+      checkTerminalEvidence(entry, entry.evidence, web.status === "complete" ? "complete" : "terminal");
     }
   }
 }
@@ -1428,6 +1824,13 @@ function checkDeepLinks() {
     }
     if (!allowedStatuses.has(link?.status)) {
       fail((link?.id ?? "deep link") + " has invalid status");
+    }
+    if (terminalStatuses.has(link?.status)) {
+      if (!isNonEmptyArray(link.evidence)) {
+        fail(link.id + " cannot be terminal without evidence");
+      } else {
+        checkTerminalEvidence(link, link.evidence, "terminal deep link", link.canonical_web_url);
+      }
     }
     if (!isNonEmptyString(link?.owner)) {
       fail((link?.id ?? "deep link") + " is missing owner");
@@ -1601,6 +2004,199 @@ function checkNativeOnlyCapabilities() {
     if (capability?.web?.status !== expectedRule.status) {
       fail(capability.id + " must use status " + expectedRule.status);
     }
+    if (terminalStatuses.has(expectedRule.status)) {
+      for (const action of capability.actions ?? []) {
+        if (action.status !== expectedRule.status) {
+          fail(capability.id + " action " + action.id + " must use status " + expectedRule.status);
+        }
+      }
+    }
+  }
+}
+
+function checkStatusAccounting() {
+  const groups = {
+    routes: ledger.routes ?? [],
+    overlays: ledger.overlays ?? [],
+    deep_links: ledger.deep_links ?? [],
+    capabilities: ledger.native_only_capabilities ?? [],
+  };
+  const expectedGroupTotals = { routes: 20, overlays: 53, deep_links: 4, capabilities: 8 };
+  for (const [groupName, expectedTotal] of Object.entries(expectedGroupTotals)) {
+    if (groups[groupName].length !== expectedTotal) {
+      fail("status accounting " + groupName + " denominator must be " + expectedTotal);
+    }
+  }
+  const rows = [
+    ...groups.routes.map((entry) => ({ ...entry, accountingStatus: entry.web?.status })),
+    ...groups.overlays.map((entry) => ({ ...entry, accountingStatus: entry.web?.status })),
+    ...groups.deep_links.map((entry) => ({ ...entry, accountingStatus: entry.status })),
+    ...groups.capabilities.map((entry) => ({ ...entry, accountingStatus: entry.web?.status })),
+  ];
+  const hasBothEvidenceKinds = (entry) => {
+    const kinds = new Set((Array.isArray(entry.evidence) ? entry.evidence : []).map((item) => item?.kind));
+    return [...allowedEvidenceKinds].every((kind) => kinds.has(kind));
+  };
+  const hasBoundReceiptEvidence = (entry) =>
+    (entry.evidence ?? []).every((reference) => {
+      const receiptItem = (evidenceReceipt?.evidence ?? []).find(
+        (candidate) => candidate.id === reference?.receipt_evidence_id,
+      );
+      return receiptItem?.record_id === entry.id &&
+        hasSameValues(receiptItem?.action_ids ?? [], (entry.actions ?? []).map((action) => action.id));
+    });
+  const releasedLedgerContent = readRepositoryFileAtCommit(
+    releaseManifest?.code_sha,
+    releaseManifest?.ledger?.path,
+  );
+  const productionReleaseIsCountable =
+    evidenceContract?.mode === "release" &&
+    releaseManifest?.fixture_only !== true &&
+    evidenceReceipt?.fixture_only !== true &&
+    isTrackedFile(releaseManifestPath) &&
+    isBoundToCurrentCommit(releaseManifestPath) &&
+    isTrackedFile(evidenceReceiptPath) &&
+    isBoundToCurrentCommit(evidenceReceiptPath) &&
+    releasedLedgerContent &&
+    sha256(releasedLedgerContent) === releaseManifest?.ledger?.sha256 &&
+    sha256(fs.readFileSync(ledgerPath)) === releaseManifest?.ledger?.sha256;
+  const hasCountableProductionArtifacts = (entry) =>
+    (entry.evidence ?? []).every((reference) => {
+      const receiptItem = (evidenceReceipt?.evidence ?? []).find(
+        (candidate) => candidate.id === reference?.receipt_evidence_id,
+      );
+      if (!receiptItem || !readRepositoryFileAtCommit(releaseManifest?.code_sha, receiptItem.source)) {
+        return false;
+      }
+      if (receiptItem.kind === "data") {
+        return Boolean(readRepositoryFileAtCommit(releaseManifest?.code_sha, receiptItem.artifact)) &&
+          /^web\/(?:src|tests|e2e)\//.test(receiptItem.artifact) &&
+          /(?:test|spec)\.[cm]?[jt]sx?$/.test(receiptItem.artifact);
+      }
+      return receiptItem.kind === "browser" &&
+        receiptItem.artifact.startsWith(".omo/evidence/") &&
+        isTrackedFile(receiptItem.artifact) &&
+        isBoundToCurrentCommit(receiptItem.artifact);
+    });
+  const isCountedTerminal = (entry, tier) =>
+    terminalStatuses.has(entry.accountingStatus) &&
+    (entry.actions ?? []).every((action) => terminalStatuses.has(action.status)) &&
+    hasBothEvidenceKinds(entry) &&
+    hasBoundReceiptEvidence(entry) &&
+    (tier === "fixture"
+      ? isStagedFixtureMode()
+      : productionReleaseIsCountable && hasCountableProductionArtifacts(entry));
+  const terminalByGroup = (tier) => Object.fromEntries(
+    Object.entries(groups).map(([groupName, entries]) => [
+      groupName,
+      entries.filter((entry) =>
+        isCountedTerminal({
+          ...entry,
+          accountingStatus: groupName === "deep_links" ? entry.status : entry.web?.status,
+        }, tier),
+      ).length,
+    ]),
+  );
+  const totalsForTier = (tier) => {
+    const complete = rows.filter((entry) => isCountedTerminal(entry, tier) && entry.accountingStatus === "complete").length;
+    const disabled = rows.filter((entry) => isCountedTerminal(entry, tier) && entry.accountingStatus === "disabled").length;
+    const unavailable = rows.filter((entry) => isCountedTerminal(entry, tier) && entry.accountingStatus === "unavailable").length;
+    const registrationOnly = rows.filter(
+      (entry) => isCountedTerminal(entry, tier) && entry.accountingStatus === "registration-only",
+    ).length;
+    const onlineOnly = rows.filter(
+      (entry) => isCountedTerminal(entry, tier) && entry.accountingStatus === "online-only",
+    ).length;
+    const boundary = registrationOnly + onlineOnly;
+    return {
+      complete,
+      disabled,
+      unavailable,
+      registrationOnly,
+      onlineOnly,
+      boundary,
+      terminal: complete + disabled + unavailable + boundary,
+    };
+  };
+  const productionByGroup = terminalByGroup("production");
+  const fixtureByGroup = terminalByGroup("fixture");
+  const productionTotals = totalsForTier("production");
+  const fixtureTotals = totalsForTier("fixture");
+  const statusPath = path.resolve(repositoryRoot, ".agents/references/bookgolas-web/status.md");
+  const statusText = fs.existsSync(statusPath) ? fs.readFileSync(statusPath, "utf8") : "";
+  const formatProgressRows = (prefix, totals, byGroup, totalSuffix) => [
+    { label: prefix + "product parity", terminal: totals.terminal, denominator: rows.length, suffix: totalSuffix },
+    { label: prefix + "routes", terminal: byGroup.routes, denominator: groups.routes.length, suffix: "" },
+    { label: prefix + "overlays", terminal: byGroup.overlays, denominator: groups.overlays.length, suffix: "" },
+    { label: prefix + "deep links", terminal: byGroup.deep_links, denominator: groups.deep_links.length, suffix: "" },
+    { label: prefix + "capabilities", terminal: byGroup.capabilities, denominator: groups.capabilities.length, suffix: "" },
+  ].map((row) => {
+    const percentage = Math.round((100 * row.terminal) / row.denominator);
+    const filledSegments = Math.round((10 * row.terminal) / row.denominator);
+    return {
+      ...row,
+      percentage,
+      bar: "█".repeat(filledSegments) + "░".repeat(10 - filledSegments),
+    };
+  });
+  const productionProgressRows = formatProgressRows("", productionTotals, productionByGroup, " records");
+  const fixtureProgressRows = formatProgressRows("staged fixture ", fixtureTotals, fixtureByGroup, " fixture records");
+  const requiredAccountingLines = [
+    ...[...productionProgressRows, ...fixtureProgressRows].map(
+      (row) =>
+        row.label +
+        " [" +
+        row.bar +
+        "] " +
+        row.percentage +
+        "% (" +
+        row.terminal +
+        "/" +
+        row.denominator +
+        row.suffix +
+        ")",
+    ),
+    "denominator = routes(20) + overlays(53) + deep_links(4) + capabilities(8) = " + rows.length,
+    "production_verified_terminal = complete(" + productionTotals.complete + ") + disabled(" + productionTotals.disabled + ") + unavailable(" + productionTotals.unavailable + ") + boundary(" + productionTotals.boundary + ") = " + productionTotals.terminal,
+    "production_boundary = registration-only(" + productionTotals.registrationOnly + ") + online-only(" + productionTotals.onlineOnly + ") = " + productionTotals.boundary,
+    "production_non_terminal = 85 - " + productionTotals.terminal + " = " + (85 - productionTotals.terminal),
+    "staged_fixture_terminal = complete(" + fixtureTotals.complete + ") + disabled(" + fixtureTotals.disabled + ") + unavailable(" + fixtureTotals.unavailable + ") + boundary(" + fixtureTotals.boundary + ") = " + fixtureTotals.terminal,
+    "staged_fixture_boundary = registration-only(" + fixtureTotals.registrationOnly + ") + online-only(" + fixtureTotals.onlineOnly + ") = " + fixtureTotals.boundary,
+  ];
+  for (const line of requiredAccountingLines) {
+    if (!statusText.includes(line)) {
+      fail("status.md accounting is missing: " + line);
+    }
+  }
+  const progressMatch = statusText.match(
+    /<!-- parity-progress:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- parity-progress:end -->/,
+  );
+  if (!progressMatch) {
+    fail("status.md generated parity progress block is missing");
+  } else {
+    let actualProgress = null;
+    try {
+      actualProgress = JSON.parse(progressMatch[1]);
+    } catch {
+      fail("status.md generated parity progress block is invalid JSON");
+    }
+    const expectedProgress = {
+      schema_version: 2,
+      source: "web/docs/consumer-parity-ledger.json",
+      production_evidence_tier: "tracked release evidence only",
+      staged_fixture_evidence_tier: "fixture-only characterization; never production completion",
+      formula: {
+        denominator: "routes + overlays + deep_links + capabilities",
+        percentage: "Math.round(100 * terminal / denominator)",
+        bar_segments: 10,
+        filled_segments: "Math.round(bar_segments * terminal / denominator)",
+      },
+      production_rows: productionProgressRows.map(({ suffix, ...row }) => row),
+      staged_fixture_rows: fixtureProgressRows.map(({ suffix, ...row }) => row),
+    };
+    if (actualProgress && JSON.stringify(actualProgress) !== JSON.stringify(expectedProgress)) {
+      fail("status.md generated parity progress does not match ledger accounting");
+    }
   }
 }
 
@@ -1757,6 +2353,7 @@ function checkDeepLinkAssertions() {
   }
 }
 
+checkReleaseEvidenceContract();
 checkStateProfiles();
 
 const allEntries = [
@@ -1798,6 +2395,7 @@ for (const overlay of ledger.overlays ?? []) {
   }
 }
 checkNativeOnlyCapabilities();
+checkStatusAccounting();
 
 if (process.argv.includes("--assert-fixtures")) {
   const unexpectedPasses = [];
@@ -1831,9 +2429,19 @@ if (failures.length > 0) {
     console.error("- " + failure);
   }
   process.exitCode = 1;
-} else {
+  } else {
   if (process.argv.includes("--assert-fixtures")) {
     console.log("parity negative fixtures passed: " + negativeFixtureNames.length);
+  } else if (isStagedFixtureMode()) {
+    console.log(
+      "parity matrix staged fixture passed (not a production release claim): " +
+        ledger.routes.length +
+        " routes, " +
+        ledger.overlays.length +
+        " overlays, " +
+        ledger.native_only_capabilities.length +
+        " capabilities",
+    );
   } else {
     console.log(
       "parity matrix passed: " +

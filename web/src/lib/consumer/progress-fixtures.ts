@@ -3,6 +3,7 @@ import {
   ProgressEventSchema,
   type Book,
   type ProgressEvent,
+  type ProgressScheduleRequest,
   type ProgressUiRequest,
 } from "@/lib/product/contracts";
 import {
@@ -301,6 +302,38 @@ export function applyProgressFixture(
   });
 
   return { ok: true, value: cloneResult(result) };
+}
+
+export function applyProgressScheduleFixture(
+  fixture: string,
+  input: ProgressScheduleRequest,
+): ProductResult<Book> {
+  const fixtureError = errors[fixture];
+  if (fixtureError) return failure(fixtureError);
+  if (fixture === "progress-stale") return failure(conflictError());
+  const snapshot = getProgressFixtureSnapshot({ fixture, bookId: input.bookId });
+  if (!snapshot) return failure(notFoundError());
+  if (snapshot.book.updatedAt !== input.expectedUpdatedAt) return failure(conflictError());
+
+  const targetDate = input.targetDate ?? snapshot.book.targetDate;
+  if (Date.parse(targetDate) < Date.parse(snapshot.book.startDate)) {
+    return failure(validationError("The target date must be on or after the start date."));
+  }
+  if (input.dailyTargetPages !== undefined && input.dailyTargetPages > Math.max(1, snapshot.book.totalPages)) {
+    return failure(validationError("The daily target must not exceed the total page count."));
+  }
+
+  const updated = BookSchema.parse({
+    ...snapshot.book,
+    targetDate,
+    dailyTargetPages: input.dailyTargetPages ?? snapshot.book.dailyTargetPages,
+    updatedAt: new Date(Date.parse(snapshot.book.updatedAt ?? fixtureUpdatedAt) + 1_000).toISOString(),
+  });
+  fixtureStates.set(`${fixture}:${input.bookId}`, {
+    book: updated,
+    history: snapshot.history.map((event) => ({ ...event })),
+  });
+  return { ok: true, value: { ...updated } };
 }
 
 export function getProgressFixtureUserId(): string {

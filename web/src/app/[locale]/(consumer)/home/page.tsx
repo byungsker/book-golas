@@ -43,7 +43,7 @@ export default async function ConsumerHomePage({
     { view: "reading", label: t("home.statusTabs.reading") },
     { view: "planned", label: t("home.statusTabs.planned") },
     { view: "completed", label: t("home.statusTabs.completed") },
-    { view: "paused", label: t("home.statusTabs.paused") },
+    { view: "will_retry", label: t("home.statusTabs.willRetry") },
     { view: "all", label: t("home.statusTabs.all") },
   ];
   const statusLabel = (book: (typeof result.books)[number]) => {
@@ -151,7 +151,7 @@ export default async function ConsumerHomePage({
           ) : (
             <div>
               {view === "all" && currentReadingBooks.length > 0 ? (
-                <section className="mb-8" aria-labelledby="current-reading-heading" data-testid="current-reading-section">
+                <section className="mb-8" aria-labelledby="current-reading-heading" data-testid="current-reading-section" data-parity-overlay="reading-books-selection" data-parity-actions="select-reading-book open-selected-book">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <h3 id="current-reading-heading" className="text-base font-semibold text-[var(--blab-text-primary)]">
                       {t("home.currentReading")}
@@ -166,7 +166,7 @@ export default async function ConsumerHomePage({
                 </section>
               ) : null}
 
-              <section aria-labelledby="selected-book-list-heading">
+              <section aria-labelledby="selected-book-list-heading" data-parity-overlay={view === "reading" ? "reading-books-selection" : undefined} data-parity-actions={view === "reading" ? "select-reading-book open-selected-book" : undefined}>
                 <h3 id="selected-book-list-heading" className="sr-only">{selectedStatus ? statusTabs.find((tab) => tab.view === view)?.label : t("home.booksHeading")}</h3>
                 <div className="grid gap-4 md:grid-cols-2" data-testid={`home-book-list-view-${view}`}>
                   {visibleBooks.map((book) => (

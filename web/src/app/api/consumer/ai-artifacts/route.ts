@@ -23,6 +23,7 @@ import { getConsumerRouteFixture } from "@/lib/consumer/route-fixture";
 import {
   getAiArtifactsFixtureRead,
   getAiArtifactsFixtureGenerate,
+  getAiArtifactsFixtureProviderCalls,
 } from "@/lib/consumer/ai-artifacts-fixtures";
 
 type InFlightResult = ProductResult<AiArtifactGeneratedResponse>;
@@ -42,11 +43,16 @@ function privateError(error: ProductError): NextResponse {
   return response;
 }
 
+function withFixtureProviderCalls(response: NextResponse, fixture: string): NextResponse {
+  response.headers.set("X-Bookgolas-Provider-Calls", String(getAiArtifactsFixtureProviderCalls(fixture)));
+  return response;
+}
+
 function fixtureFor(request: NextRequest): string | null {
   return getConsumerRouteFixture(request.cookies.get("bookgolas-route-fixture")?.value);
 }
 
-function isArtifactFixture(fixture: string | null): boolean {
+function isArtifactFixture(fixture: string | null): fixture is string {
   return fixture?.startsWith("ai-artifacts-") ?? false;
 }
 
@@ -99,9 +105,12 @@ function fixtureGeneratedResponse(
   fixture: string,
 ): NextResponse {
   const result = getAiArtifactsFixtureGenerate(input, fixture);
-  if (!result.ok) return privateError(result.error);
+  if (!result.ok) return withFixtureProviderCalls(privateError(result.error), fixture);
   const generated = generatedResponse(input, result.value.cacheState, result.value.artifact);
-  return generated.ok ? privateJson(generated.value) : privateError(generated.error);
+  return withFixtureProviderCalls(
+    generated.ok ? privateJson(generated.value) : privateError(generated.error),
+    fixture,
+  );
 }
 
 async function generateForSession(
@@ -150,8 +159,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!parsed.success) return privateError(validationError());
   const fixture = fixtureFor(request);
   if (isArtifactFixture(fixture)) {
-    const result = getAiArtifactsFixtureRead({ fixture: fixture!, kind: parsed.data.kind });
-    return result.ok ? responseForRead(result.value) : privateError(result.error);
+    const result = getAiArtifactsFixtureRead({ fixture, kind: parsed.data.kind });
+    return withFixtureProviderCalls(
+      result.ok ? responseForRead(result.value) : privateError(result.error),
+      fixture,
+    );
   }
 
   const result = await readAiArtifact(
@@ -173,7 +185,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!parsed.success) return privateError(validationError());
   const input = parsed.data;
   const fixture = fixtureFor(request);
-  if (isArtifactFixture(fixture)) return fixtureGeneratedResponse(input, fixture!);
+  if (isArtifactFixture(fixture)) return fixtureGeneratedResponse(input, fixture);
 
   const session = await resolveProductSession();
   if (!session.ok) return privateError(session.error);

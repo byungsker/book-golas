@@ -38,8 +38,8 @@ if (failures.length === 0) {
   const packageJson = JSON.parse(fs.readFileSync(paths.package, "utf8"));
   const source = Object.fromEntries(Object.entries(paths).map(([name, filePath]) => [name, fs.readFileSync(filePath, "utf8")]));
 
-  requireCondition(contract.issue === 435 && contract.task === 24, "images-ocr contract must bind issue 435 task 24");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "images-ocr contract must reference the parity plan");
+  requireCondition(contract.issue === 435 && contract.task === 10, "images-ocr contract must bind completion Todo 10");
+  requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "images-ocr contract must reference the completion plan");
   requireCondition(JSON.stringify(contract.locales) === JSON.stringify(["ko", "en"]), "images-ocr must cover Korean and English");
   requireCondition(Array.isArray(contract.parityRows) && contract.parityRows.length >= 3, "images-ocr parity rows must map native surfaces to Web dispositions");
   requireCondition(contract.native.references.includes("supabase/functions/vision-ocr/index.ts"), "native vision-ocr reference is missing");
@@ -54,6 +54,10 @@ if (failures.length === 0) {
   requireCondition(source.route.includes("formData") && source.route.includes("ImagesOcrUploadMetadataSchema") && source.route.includes("private, no-store"), "API must parse multipart upload and remain private");
   requireCondition(source.client.includes("getUserMedia") && source.client.includes("isSecureContext") && source.client.includes('capture="environment"') && source.client.includes("file_fallback") && source.client.includes("manual"), "client must expose camera fallback and manual OCR");
   requireCondition(source.client.includes("signedUrl") && !source.client.includes("/public/"), "client must render signed URLs and never public storage URLs");
+  for (const surface of ["image-source", "image-replace-options", "replace-image-confirmation", "add-memorable-page", "existing-image", "extracted-text", "full-text-view", "ocr-limit", "full-screen-image", "memorable-page-sort-menu"]) requireCondition(source.client.includes(surface), `missing direct ${surface} surface`);
+  for (const action of ["page_desc", "page_asc", "date_desc", "date_asc", "extracted-text-copy", "full-text-copy"]) requireCondition(source.client.includes(action), `missing memorable page action ${action}`);
+  requireCondition(source.e2e.includes("orders every supported mode") && source.e2e.includes("task-13-memorable-page-sort-menu.png"), "browser suite must directly verify and capture the sort menu");
+  requireCondition(source.client.includes("replacingImageId") && source.client.indexOf("deleteResponse") > source.client.indexOf("parsed.data"), "replacement must remove the old image only after the new image is saved");
   requireCondition(!source.seed.includes("/storage/v1/object/public/book-images/"), "fixture seed must not publish book image URLs");
   requireCondition(source.migration.includes("public = false") && source.migration.includes("storage.objects") && source.migration.includes("auth.uid()"), "migration must make bucket private and scope storage objects");
   requireCondition(source.deleteBook.includes("deleteOwnedBookImages"), "book deletion must run image object cleanup");

@@ -155,6 +155,7 @@ export async function listBooks(
 export async function getBook(
   bookId: string,
   factory: ProductClientFactory = createServerSupabaseClient,
+  includeDeleted = false,
 ): Promise<ProductResult<Book>> {
   const parsedBookId = BookIdSchema.safeParse(bookId);
   if (!parsedBookId.success) return failure(notFoundError());
@@ -162,13 +163,13 @@ export async function getBook(
   const session = await resolveProductSession(factory);
   if (!session.ok) return failure(session.error);
 
-  const { data, error } = await session.value.supabase
+  let query = session.value.supabase
     .from("books")
     .select(bookDtoSelect)
     .eq("id", parsedBookId.data)
-    .eq("user_id", session.value.userId)
-    .is("deleted_at", null)
-    .maybeSingle();
+    .eq("user_id", session.value.userId);
+  if (!includeDeleted) query = query.is("deleted_at", null);
+  const { data, error } = await query.maybeSingle();
 
   if (error) return failure(mapDatabaseError(error));
   if (!data) return failure(notFoundError());

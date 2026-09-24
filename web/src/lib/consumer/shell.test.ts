@@ -16,12 +16,15 @@ describe("consumer shell route state", () => {
 
   it("recovers invalid deep-link state to native defaults", () => {
     expect(getHomeView("unknown")).toBe("reading");
+    expect(getHomeView("paused")).toBe("will_retry");
     expect(getChartView(null)).toBe("progress");
   });
 
   it("cycles home and chart re-taps while preserving unrelated query state", () => {
     expect(getNextCycledPath("en", "home", new URLSearchParams("view=all&filter=mine")))
       .toBe("/en/home?view=reading&filter=mine");
+    expect(getNextCycledPath("en", "home", new URLSearchParams("view=completed")))
+      .toBe("/en/home?view=will_retry");
     expect(getNextCycledPath("ko", "stats", new URLSearchParams("view=pages")))
       .toBe("/ko/stats?view=time");
     expect(getNextCycledPath("ko", "calendar", new URLSearchParams())).toBeNull();

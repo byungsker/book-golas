@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page, type Route } from "@playwright/test";
 
-const fixtureAuthOrigin = "http://127.0.0.1:54329";
+const fixtureAuthOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54329";
 const fixtureUserId = "00000000-0000-4000-8000-000000004270";
 const foreignBookId = "00000000-0000-4000-8000-000000004251";
 const deletedBookId = "00000000-0000-4000-8000-000000004272";

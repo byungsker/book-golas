@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { updateReadingProgress } from "@/app/actions/reading-progress";
 import { fetchOwnedProgressHistory } from "@/lib/consumer/queries";
+import { getBook, updateBook } from "@/lib/product/dal";
 import { BookIdSchema, BookSchema, RecordIdSchema } from "@/lib/product/contracts";
 import { revalidatePath } from "next/cache";
 import { POST } from "./route";
@@ -9,6 +10,7 @@ import { POST } from "./route";
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/app/actions/reading-progress", () => ({ updateReadingProgress: vi.fn() }));
 vi.mock("@/lib/consumer/queries", () => ({ fetchOwnedProgressHistory: vi.fn() }));
+vi.mock("@/lib/product/dal", () => ({ getBook: vi.fn(), updateBook: vi.fn() }));
 
 const bookId = BookIdSchema.parse("00000000-0000-4000-8000-000000004341");
 const requestId = RecordIdSchema.parse("00000000-0000-4000-8000-000000005345");
@@ -50,12 +52,37 @@ const payload = {
   readingTime: 900,
 };
 
-function request(body: unknown, fixture?: string) {
+function request(body: typeof payload, fixture?: string, validHeaders = true) {
+  const revision = String(body.expectedCurrentPage);
   return new NextRequest("http://localhost/api/consumer/progress", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(validHeaders ? {
+        "If-Match": `"${revision}"`,
+        "X-Bookgolas-Action-Key": `${body.bookId}:progress:${revision}:${body.idempotencyKey}`,
+      } : {}),
       ...(fixture ? { Cookie: `bookgolas-route-fixture=${fixture}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+function scheduleRequest(expectedUpdatedAt = book.updatedAt ?? "") {
+  const body = {
+    action: "update_schedule" as const,
+    locale: "en" as const,
+    bookId,
+    dailyTargetPages: 20,
+    expectedUpdatedAt,
+    idempotencyKey: requestId,
+  };
+  return new NextRequest("http://localhost/api/consumer/progress", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "If-Match": `"${expectedUpdatedAt}"`,
+      "X-Bookgolas-Action-Key": `${bookId}:schedule:${expectedUpdatedAt}:${requestId}`,
     },
     body: JSON.stringify(body),
   });
@@ -91,7 +118,11 @@ describe("/api/consumer/progress", () => {
   });
 
   it("rejects caller ownership fields before the atomic action", async () => {
-    const response = await POST(request({ ...payload, user_id: "foreign-user" }));
+    const response = await POST(new NextRequest("http://localhost/api/consumer/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, user_id: "foreign-user" }),
+    }));
     expect(response.status).toBe(400);
     expect((await response.json()).error.code).toBe("validation_error");
     expect(updateReadingProgress).not.toHaveBeenCalled();
@@ -135,5 +166,29 @@ describe("/api/consumer/progress", () => {
     const response = await POST(request(payload, "progress-server-error"));
     expect(response.status).toBe(503);
     expect((await response.json()).error.code).toBe("history_unavailable");
+  });
+
+  it("rejects missing mutation preconditions", async () => {
+    const response = await POST(request(payload, undefined, false));
+    expect(response.status).toBe(428);
+    expect((await response.json()).error.code).toBe("precondition_required");
+    expect(updateReadingProgress).not.toHaveBeenCalled();
+  });
+
+  it("updates an owner-scoped daily target with book revision CAS", async () => {
+    vi.mocked(getBook).mockResolvedValue({ ok: true, value: book });
+    vi.mocked(updateBook).mockResolvedValue({ ok: true, value: { ...book, dailyTargetPages: 20 } });
+    const response = await POST(scheduleRequest());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ kind: "schedule_updated", book: { dailyTargetPages: 20 } });
+    expect(updateBook).toHaveBeenCalledWith({ bookId, dailyTargetPages: 20 }, undefined, book.updatedAt);
+  });
+
+  it("rejects a stale daily target before the owner-scoped update", async () => {
+    vi.mocked(getBook).mockResolvedValue({ ok: true, value: { ...book, updatedAt: "2026-09-16T00:06:00.000Z" } });
+    const response = await POST(scheduleRequest());
+    expect(response.status).toBe(409);
+    expect((await response.json()).error.code).toBe("conflict");
+    expect(updateBook).not.toHaveBeenCalled();
   });
 });

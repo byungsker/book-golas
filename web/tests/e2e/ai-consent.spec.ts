@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion");
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -21,31 +21,31 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
 }
 
-test("grant and withdraw provider-specific consent state", async ({ context, page }) => {
+test("grant and withdraw both provider-specific consent states", async ({ context, page }) => {
   await openAccount(context, page, "ai-consent-happy");
 
   const settings = page.getByTestId("ai-consent-settings");
   await expect(settings).toBeVisible();
   await expect(settings).toHaveAttribute("data-ai-consent-policy-version", "2");
-  await expect(page.getByTestId("ai-consent-provider-google_cloud_vision")).toBeVisible();
+  await expect(page.getByTestId("ai-consent-provider-google_cloud_vision")).toHaveAttribute("data-ai-consent-state", "not_allowed");
   await expect(page.getByTestId("ai-consent-provider-open_ai")).toHaveAttribute("data-ai-consent-state", "not_allowed");
-  await expect(page.getByTestId("ai-consent-blocked-open_ai")).toBeVisible();
   await expect(page.getByTestId("ai-consent-details-open_ai")).toContainText("OpenAI OpCo, LLC");
   await expect(page.locator("body")).not.toContainText(/upgrade|purchase|subscribe/i);
 
-  await page.getByTestId("ai-consent-toggle-open_ai").click();
-  await expect(page.getByTestId("ai-consent-saved")).toContainText("Provider consent saved");
-  await expect(page.getByTestId("ai-consent-provider-open_ai")).toHaveAttribute("data-ai-consent-state", "allowed");
-  await expect(page.getByTestId("ai-consent-provider-open_ai")).toHaveAttribute("data-ai-can-send", "true");
-  await expect(page.getByTestId("ai-consent-policy-open_ai")).toHaveText("2");
-  await expect(page.getByTestId("ai-consent-receipt-open_ai")).not.toHaveText("Not recorded");
-
-  await page.getByTestId("ai-consent-toggle-open_ai").click();
-  await expect(page.getByTestId("ai-consent-saved")).toContainText("withdrawn");
-  await expect(page.getByTestId("ai-consent-provider-open_ai")).toHaveAttribute("data-ai-consent-state", "not_allowed");
-  await expect(page.getByTestId("ai-consent-provider-open_ai")).toHaveAttribute("data-ai-can-send", "false");
-  await expect(page.getByTestId("ai-consent-blocked-open_ai")).toBeVisible();
-  await capture(page, "task-28-bookgolas-web-app-parity.png");
+  for (const provider of ["google_cloud_vision", "open_ai"] as const) {
+    await expect(page.getByTestId(`ai-consent-blocked-${provider}`)).toBeVisible();
+    await page.getByTestId(`ai-consent-toggle-${provider}`).click();
+    await expect(page.getByTestId("ai-consent-saved")).toContainText("Provider consent saved");
+    await expect(page.getByTestId(`ai-consent-provider-${provider}`)).toHaveAttribute("data-ai-consent-state", "allowed");
+    await expect(page.getByTestId(`ai-consent-provider-${provider}`)).toHaveAttribute("data-ai-can-send", "true");
+    await expect(page.getByTestId(`ai-consent-policy-${provider}`)).toHaveText("2");
+    await expect(page.getByTestId(`ai-consent-receipt-${provider}`)).not.toHaveText("Not recorded");
+    await page.getByTestId(`ai-consent-toggle-${provider}`).click();
+    await expect(page.getByTestId("ai-consent-saved")).toContainText("withdrawn");
+    await expect(page.getByTestId(`ai-consent-provider-${provider}`)).toHaveAttribute("data-ai-consent-state", "not_allowed");
+    await expect(page.getByTestId(`ai-consent-provider-${provider}`)).toHaveAttribute("data-ai-can-send", "false");
+  }
+  await capture(page, "task-8-ai-consent-grant-withdraw.png");
 });
 
 test("unknown consent state stays blocked and unavailable state is visible", async ({ context, page }) => {

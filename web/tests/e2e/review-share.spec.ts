@@ -3,8 +3,13 @@ import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 const bookId = "00000000-0000-4000-8000-000000004331";
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
-const evidencePath = path.join(evidenceDirectory, "task-25-bookgolas-web-app-parity.png");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion/task-14-browser");
+
+async function capture(page: Page, name: string) {
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
+}
 
 async function setFixture(context: BrowserContext, fixture: string) {
   await context.addCookies([
@@ -21,6 +26,7 @@ async function openReview(page: Page, fixture: string) {
 
 test("save, draft and share review outcomes", async ({ context, page }) => {
   await context.addInitScript(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText: async (value: string) => { (window as typeof window & { __copied?: string }).__copied = value; } },
@@ -31,6 +37,9 @@ test("save, draft and share review outcomes", async ({ context, page }) => {
   await page.getByTestId("review-short-text").fill("A review written in the browser.");
   await page.getByTestId("review-long-text").fill("The longer reflection remains available while an AI draft is generated.");
   await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByTestId("review-draft-restore-confirmation")).toBeVisible();
+  await expect(page.getByTestId("review-short-text")).not.toHaveValue("A review written in the browser.");
+  await page.getByTestId("review-draft-restore-confirm").click();
   await expect(page.getByTestId("review-short-text")).toHaveValue("A review written in the browser.");
   await expect(page.getByTestId("review-long-text")).toHaveValue("The longer reflection remains available while an AI draft is generated.");
   await page.getByTestId("review-rating-5").click();
@@ -38,9 +47,18 @@ test("save, draft and share review outcomes", async ({ context, page }) => {
   await page.getByTestId("review-ai-generate").click();
   await expect(page.getByTestId("review-ai-draft")).toBeVisible();
   await page.getByTestId("review-ai-use-draft").click();
+  await expect(page.getByTestId("review-ai-replacement-confirmation")).toBeVisible();
+  await capture(page, "review-ai-replacement-confirmation.png");
+  await page.getByTestId("review-ai-replace-cancel").click();
+  await expect(page.getByTestId("review-long-text")).toHaveValue("The longer reflection remains available while an AI draft is generated.");
+  await page.getByTestId("review-ai-use-draft").click();
+  await page.getByTestId("review-ai-replace-confirm").click();
   await expect(page.getByTestId("review-long-text")).toHaveValue(/This book gave me/);
 
   await page.getByTestId("review-save").click();
+  await expect(page.getByTestId("review-save-complete")).toBeVisible();
+  await capture(page, "review-save-complete.png");
+  await page.getByTestId("review-save-complete-done").click();
   await expect(page.getByTestId("review-save-status")).toBeVisible();
 
   await page.getByTestId("review-share").click();
@@ -49,8 +67,20 @@ test("save, draft and share review outcomes", async ({ context, page }) => {
   await page.getByTestId("review-download").click();
   await expect((await download).suggestedFilename()).toMatch(/share-card\.txt$/);
 
-  fs.mkdirSync(evidenceDirectory, { recursive: true });
-  await page.screenshot({ path: evidencePath, fullPage: true });
+  await capture(page, "review-save-share-happy.png");
+});
+
+test("exit confirmation keeps or discards unsaved text explicitly", async ({ page }) => {
+  await openReview(page, "review-share-happy");
+  await page.getByTestId("review-short-text").fill("Do not lose this review.");
+  await page.getByTestId("review-back").click();
+  await expect(page.getByTestId("review-exit-confirmation")).toBeVisible();
+  await capture(page, "review-exit-confirmation.png");
+  await page.getByTestId("review-exit-keep").click();
+  await expect(page.getByTestId("review-short-text")).toHaveValue("Do not lose this review.");
+  await page.getByTestId("review-back").click();
+  await page.getByTestId("review-exit-discard").click();
+  await expect(page).toHaveURL(new RegExp(`/en/books/${bookId}$`));
 });
 
 test("consent is required before generating a draft", async ({ page }) => {
@@ -72,6 +102,7 @@ test("provider failure preserves an unsaved review", async ({ page }) => {
 
 test("clipboard failure uses the download fallback", async ({ context, page }) => {
   await context.addInitScript(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText: async () => { throw new Error("clipboard unavailable"); } },
@@ -84,4 +115,38 @@ test("clipboard failure uses the download fallback", async ({ context, page }) =
   await expect((await download).suggestedFilename()).toMatch(/share-card\.txt$/);
   await expect(page.getByTestId("review-share-status")).toContainText("downloaded");
   await expect(page.getByTestId("review-canonical-url")).toHaveAttribute("href", new RegExp(`/en/books/${bookId}/review$`));
+  await capture(page, "review-clipboard-denied-download-fallback.png");
+});
+
+test("denied Web Share permission is explicit and does not claim fallback parity", async ({ context, page }) => {
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async () => { throw new DOMException("share denied", "NotAllowedError"); },
+    });
+  });
+  await openReview(page, "review-share-happy");
+  await page.getByTestId("review-share").click();
+  await expect(page.getByTestId("review-share-status")).toContainText("denied");
+  await capture(page, "review-web-share-permission-denied.png");
+});
+
+test("mind-map leaf, cluster and recommendation actions have direct details", async ({ context, page }) => {
+  await setFixture(context, "ai-artifacts-happy");
+  await page.goto("/en/books/00000000-0000-4000-8000-000000004421/mind-map", { waitUntil: "networkidle" });
+  await page.getByTestId("mind-map-cluster-open").first().click();
+  await expect(page.getByTestId("mind-map-cluster-detail")).toBeVisible();
+  await capture(page, "mind-map-cluster-detail.png");
+  await page.getByTestId("mind-map-cluster-close").click();
+  await page.getByTestId("ai-artifacts-mindmap-node").first().click();
+  await expect(page.getByTestId("mind-map-leaf-detail")).toBeVisible();
+  await capture(page, "mind-map-leaf-detail.png");
+  await page.getByTestId("mind-map-leaf-close").click();
+
+  await page.goto("/en/reading-insights#recommendations", { waitUntil: "networkidle" });
+  await page.getByTestId("ai-artifacts-recommendation").first().click();
+  await expect(page.getByTestId("recommendation-action")).toBeVisible();
+  await expect(page.getByTestId("recommendation-open")).toHaveAttribute("href", /book-list\?query=/);
+  await expect(page.getByTestId("recommendation-add")).toHaveAttribute("href", /intent=add/);
+  await capture(page, "recommendation-action.png");
 });

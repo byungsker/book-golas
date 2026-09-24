@@ -55,7 +55,7 @@ if (failures.length === 0) {
   const requiredStates = ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "logged-out", "running", "paused", "stopping", "saved", "discarded", "max-duration"];
 
   requireCondition(contract.issue === 436, "timer contract must bind issue 436");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "timer contract must reference the parity plan");
+  requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "timer contract must reference the completion plan");
   requireCondition(JSON.stringify(contract.locales) === JSON.stringify(["ko", "en"]), "timer must cover Korean and English");
   for (const state of requiredStates) requireCondition(contract.states.includes(state), `timer contract must cover ${state}`);
   for (const operation of ["start", "pause", "resume", "stop", "restore", "clearOnLogout"]) requireCondition(contract.operations.includes(operation), `timer contract must cover ${operation}`);
@@ -71,13 +71,14 @@ if (failures.length === 0) {
   requireCondition(source.stateTest.includes("round-trips") && source.stateTest.includes("pauses and resumes") && source.stateTest.includes("eight hours"), "timer state tests must cover restore, pause/resume and max duration");
   requireCondition(source.api.includes("resolveProductSession") && source.api.includes('.eq("user_id", userId)') && source.api.includes('.is("deleted_at", null)'), "timer API must derive and enforce the verified owner scope");
   requireCondition(source.api.includes("idempotencyKey") && source.api.includes("23505") && source.api.includes("total_reading_seconds"), "timer API must replay idempotently and update saved totals");
+  requireCondition(source.api.includes("x-bookgolas-action-key") && source.provider.includes("X-Bookgolas-Action-Key"), "timer completion must bind the session idempotency key to an action header");
   requireCondition(source.api.includes("timerMinimumSeconds") && source.api.includes("timerMaximumSeconds") && source.api.includes("private, no-store"), "timer API must enforce minimum/maximum and private caching");
   requireCondition(source.apiTest.includes("discards") && source.apiTest.includes("caps") && source.apiTest.includes("duplicate") && source.apiTest.includes("unauthorized"), "timer API tests must cover threshold, replay and typed failure paths");
   requireCondition(source.routeFixture.includes('"timer-minimum"') && source.routeFixture.includes('"timer-over-max"') && source.routeFixture.includes('"timer-duplicate"') && source.routeFixture.includes('"timer-unauthorized"') && source.fixtures.includes("cappedDuration < 30") && source.fixtures.includes("savedRequests"), "timer fixtures must model negative and replay paths");
   requireCondition(source.fixtureTest.includes("short sessions") && source.fixtureTest.includes("idempotently") && source.fixtureTest.includes("offline"), "timer fixture tests must cover short, replay and offline paths");
   requireCondition(source.routeFixture.includes('"timer-happy"') && source.proxy.includes('startsWith("timer-")') && source.queries.includes('startsWith("timer-")'), "timer fixtures must remain bounded by the loopback route and auth boundaries");
   requireCondition(source.provider.includes("localStorage") && source.provider.includes("SIGNED_OUT") && source.provider.includes("timer-saved") && source.provider.includes("stopTimer"), "timer provider must restore, clear on auth logout and publish saved totals");
-  requireCondition(source.floating.includes("bookgolas-floating-timer-root") && source.floating.includes("timer-pause") && source.floating.includes("timer-stop"), "floating timer bar must expose stable controls");
+  requireCondition(source.floating.includes("bookgolas-floating-timer-root") && source.floating.includes("timer-pause") && source.floating.includes("timer-stop") && source.floating.includes("timer-retry"), "floating timer bar must expose stable controls and visible retry");
   requireCondition(source.control.includes("reading-timer-open") && source.control.includes("reading-timer-dialog") && source.control.includes("timer-start"), "book detail must expose the timer modal and start action");
   requireCondition(source.layout.includes("ConsumerTimerProvider") && source.shell.includes("consumer-timer-mount") === false, "timer provider must wrap the shell and own the floating mount");
   requireCondition(source.detail.includes("ReadingTimerControl") && source.detail.includes("totalReadingSeconds") && source.detail.includes("bookgolas:timer-saved"), "detail must expose the control and saved total");
@@ -85,7 +86,7 @@ if (failures.length === 0) {
   requireCondition(source.books.includes("totalReadingSeconds") && source.codec.includes("total_reading_seconds"), "book DTOs must carry saved session totals");
   requireCondition(source.ko.includes('"timer"') && source.en.includes('"timer"') && source.ko.includes('"totalReadingTime"') && source.en.includes('"totalReadingTime"'), "timer copy must be localized in Korean and English");
   requireCondition(source.e2e.includes("starts, pauses, resumes, stops and survives refresh") && source.e2e.includes("minimum sessions are discarded") && source.e2e.includes("duplicate stop is harmless") && source.e2e.includes("logout clears browser timer state"), "browser suite must name the issue-defined happy and failure scenarios");
-  requireCondition(source.e2e.includes("task-22-bookgolas-web-app-parity.png") && source.e2e.includes("timer-over-max"), "browser suite must capture evidence and exercise the maximum bound");
+  requireCondition(source.e2e.includes("task-12-reading-timer.png") && source.e2e.includes("task-12-floating-timer.png") && source.e2e.includes("timer-over-max"), "browser suite must capture independent timer overlays and exercise the maximum bound");
 
   if (fixtureMode === "minimum") {
     requireCondition(source.fixtures.includes('cappedDuration < 30') && source.api.includes('cappedDuration < timerMinimumSeconds') && source.e2e.includes("timer-minimum"), "minimum fixture must discard before persistence");

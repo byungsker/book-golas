@@ -1,6 +1,6 @@
 {
   "issue": 433,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "native": {
     "sources": [
       "app/lib/ui/book_detail/book_detail_screen.dart:58",
@@ -10,7 +10,7 @@
       "supabase/migrations/20260113022313_add_reading_status_management.sql:1"
     ],
     "screens": ["book-detail", "reading-progress", "review", "mind-map"],
-    "modals": ["pause-reading-confirmation", "delete-confirmation", "book-completion"],
+    "modals": ["reading-management", "pause-reading-confirmation", "delete-confirmation", "batch-delete-confirmation", "book-info", "full-title", "edit-planned-book", "book-completion", "book-review-prompt"],
     "actions": ["start", "resume", "pause", "complete", "delete"],
     "statuses": ["planned", "reading", "completed", "will_retry"]
   },
@@ -25,6 +25,11 @@
       "nativeShare": "browser-share-or-explicitly-unavailable",
       "camera": "explicitly-unavailable-on-detail; use browser discovery fallback",
       "subscription": "explicitly-unavailable"
+    },
+    "queryState": {
+      "history": "tab=history",
+      "scan": "scan=1",
+      "arraysOrUnknownValues": "ignored"
     }
   },
   "locales": ["ko", "en"],
@@ -43,6 +48,14 @@
     "invalid-transition",
     "updated",
     "delete-confirmation",
+    "pause-reading-confirmation",
+    "reading-management",
+    "batch-delete-confirmation",
+    "book-info",
+    "full-title",
+    "edit-planned-book",
+    "book-completion",
+    "book-review-prompt",
     "retry"
   ],
   "statusActions": {
@@ -56,6 +69,17 @@
     "write": "verified session user plus id match plus deleted_at is null",
     "softDelete": "set deleted_at and hide aggregate/dependent reads",
     "callerIdentity": "never accepted from request payload"
+  },
+  "deepLinks": {
+    "search": "/{locale}/books/new",
+    "detail": "/{locale}/books/{bookId}",
+    "record": "/{locale}/books/{bookId}?tab=history",
+    "scan": "/{locale}/books/{bookId}?scan=1"
+  },
+  "mutationSafety": {
+    "duplicateClientSubmit": "disabled while pending; the action key is bound to book, action and revision, and replay returns HTTP 409 without a second mutation",
+    "statusConflict": "server validates the current owner-scoped status and atomically compares updated_at before every transition",
+    "plannedEditConflict": "missing If-Match returns 428, malformed quoting returns 400, and a stale quoted updatedAt revision returns 409"
   },
   "cacheInvalidation": [
     "/{locale}/home",
@@ -73,5 +97,5 @@
     { "capability": "share-sheet", "browserDisposition": "browser-share-or-explicitly-unavailable" },
     { "capability": "subscription", "browserDisposition": "explicit-unavailability" }
   ],
-  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-20-bookgolas-web-app-parity.json"
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
 }

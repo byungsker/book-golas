@@ -12,7 +12,7 @@ function callbackErrorResponse(
 ) {
   const errorUrl = new URL(getConsumerPath(locale, "/auth/sign-in"), request.url);
   errorUrl.searchParams.set("error", error);
-  errorUrl.searchParams.set("next", nextPath);
+  errorUrl.searchParams.set("returnTo", nextPath);
   const response = NextResponse.redirect(errorUrl);
   response.headers.set("Cache-Control", "private, no-store");
   for (const cookie of sessionResponse?.cookies.getAll() ?? []) response.cookies.set(cookie);
@@ -25,11 +25,10 @@ export async function GET(
 ) {
   const { locale: rawLocale } = await context.params;
   const locale = isConsumerLocale(rawLocale) ? rawLocale : "ko";
+  const returnTargets = request.nextUrl.searchParams.getAll("returnTo");
   const nextPath = getSafeNextPath(
     locale,
-    request.nextUrl.searchParams.get("returnTo") ??
-      request.nextUrl.searchParams.get("next") ??
-      undefined,
+    returnTargets.length === 1 ? returnTargets[0] : undefined,
   );
   const providerError = request.nextUrl.searchParams.get("error");
   if (providerError) {
@@ -51,7 +50,14 @@ export async function GET(
   );
   response.headers.set("Cache-Control", "private, no-store");
 
-  const { url, anonKey } = getSupabasePublicConfig();
+  let publicConfig: ReturnType<typeof getSupabasePublicConfig>;
+  try {
+    publicConfig = getSupabasePublicConfig();
+  } catch {
+    return callbackErrorResponse(request, locale, nextPath, "oauth_provider", response);
+  }
+
+  const { url, anonKey } = publicConfig;
   const supabase = createServerClient(url, anonKey, {
     auth: {
       autoRefreshToken: true,

@@ -448,13 +448,16 @@ export async function deleteOwnedBookImage(
 export async function deleteOwnedBookImages(
   bookId: string,
   factory: ProductClientFactory = createServerSupabaseClient,
+  options: { readonly requireActiveBook?: boolean } = {},
 ): Promise<ProductResult<{ deleted: true }>> {
   const parsedBookId = BookIdSchema.safeParse(bookId);
   if (!parsedBookId.success) return failure(notFoundError());
   const session = await resolveProductSession(factory);
   if (!session.ok) return failure(session.error);
-  const book = await ownedBook(session.value, parsedBookId.data);
-  if (!book.ok) return failure(book.error);
+  if (options.requireActiveBook ?? true) {
+    const book = await ownedBook(session.value, parsedBookId.data);
+    if (!book.ok) return failure(book.error);
+  }
   const storage = (session.value.supabase as unknown as { storage?: { from?: unknown } }).storage;
   if (storage && typeof storage.from === "function") {
     const { data, error } = await session.value.supabase

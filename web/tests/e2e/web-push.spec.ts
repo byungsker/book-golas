@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.env.BOOKGOLAS_EVIDENCE_DIR ?? path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity"));
 const fixtureSubscription = {
   endpoint: "https://push.example.invalid/send/web-push-fixture",
   expirationTime: null,
@@ -87,7 +87,21 @@ test("permission settings and deep-link registration", async ({ context, page })
   expect(serviceWorker).toContain("bookId");
   expect(serviceWorker).not.toMatch(/SUPABASE_SERVICE_ROLE_KEY|FCM_SERVER_KEY|service_role|privateKey/);
   expect(await page.content()).not.toMatch(/fixture-p256dh-key|fixture-auth-key|SUPABASE_SERVICE_ROLE_KEY|FCM_SERVER_KEY/);
+  await expect(page.locator("body")).not.toContainText(/purchase|restore|upgrade|customer center/i);
+  await capture(page, "capability-native-push-registration-only.png");
   await capture(page, "task-32-bookgolas-web-app-parity.png");
+});
+
+test("notification times persist for the authenticated owner", async ({ context, page }) => {
+  await setFixture(context, "web-push-happy");
+  await installSupportedPushMocks(page);
+  await page.goto("/en/account/notifications", { waitUntil: "networkidle" });
+
+  await page.getByTestId("web-push-daily-time").selectOption("7:30");
+  await expect.poll(async () => (await page.request.get("/api/consumer/notifications")).json()).toMatchObject({ settings: { dailyReminderHour: 7, dailyReminderMinute: 30 } });
+  await page.getByTestId("web-push-goal-time").selectOption("21:30");
+  await expect.poll(async () => (await page.request.get("/api/consumer/notifications")).json()).toMatchObject({ settings: { goalAlarmHour: 21, goalAlarmMinute: 30 } });
+  await capture(page, "overlay-notification-time-picker.png");
 });
 
 test("denied browser state remains recoverable", async ({ context, page }) => {
@@ -97,6 +111,7 @@ test("denied browser state remains recoverable", async ({ context, page }) => {
   await expect(page.getByTestId("web-push-settings")).toHaveAttribute("data-push-state", "denied");
   await expect(page.getByTestId("web-push-denied")).toBeVisible();
   await expect(page.getByTestId("web-push-enable")).toHaveCount(0);
+  await capture(page, "capability-native-push-denied-recovery.png");
 });
 
 test("unsupported browser keeps the in-app fallback", async ({ context, page }) => {
@@ -118,4 +133,24 @@ test("foreign subscription payload is rejected", async ({ context, page }) => {
   expect(noIdentity.status()).toBe(400);
   expect((await noIdentity.json()).error.code).toBe("validation_error");
   expect(await page.content()).not.toContain("foreign-user");
+});
+
+test("offline consent quota provider network foreign and unauthorized states remain explicit", async ({ context, page }) => {
+  const cases = [
+    ["web-push-offline", "offline"],
+    ["web-push-consent", "consent"],
+    ["web-push-quota", "quota"],
+    ["web-push-provider", "error"],
+    ["web-push-network", "error"],
+    ["web-push-foreign", "error"],
+    ["web-push-unauthorized", "unauthorized"],
+  ] as const;
+
+  for (const [fixture, state] of cases) {
+    await setFixture(context, fixture);
+    await page.goto("/en/account/notifications", { waitUntil: "networkidle" });
+    await expect(page.getByTestId("web-push-settings")).toHaveAttribute("data-push-state", state);
+    await expect(page.getByTestId("web-push-retry")).toBeVisible();
+  }
+  await capture(page, "capability-native-push-boundary-states.png");
 });

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.env.BOOKGOLAS_EVIDENCE_DIR ?? path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity"));
 const payload = { year: 2026, email: "reader@example.com", format: "csv", includeImages: true };
 
 async function setFixture(context: BrowserContext, value: string) {
@@ -40,12 +40,25 @@ test("export success keeps selected year, format and localized account action", 
   expect(exportRequest.postDataJSON()).toMatchObject({ year: 2025, email: payload.email, format: "json", includeImages: false });
   await expect(page.getByTestId("reading-data-export")).toHaveAttribute("data-export-state", "ready");
   await expect(page.getByTestId("export-success")).toContainText("2025");
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "reading-data-export-selected-utc-year.png"), fullPage: true });
 
   await openAccount(context, page, "export-success", "ko");
   await expect(page.getByTestId("reading-data-export")).toHaveAttribute("data-export-locale", "ko");
   await submitExport(page);
   await expect(page.getByTestId("export-success")).toContainText("2026");
   await capture(page);
+});
+
+test("export without a download URL exposes an unverified delivery state", async ({ context, page }) => {
+  await openAccount(context, page, "export-success");
+  await submitExport(page);
+  await expect(page.getByTestId("reading-data-export")).toHaveAttribute("data-export-delivery", "unverified");
+  await expect(page.getByTestId("export-download")).toHaveCount(0);
+  await expect(page.getByTestId("export-success")).toContainText("does not confirm delivery or provide a download link");
+  await expect(page.getByTestId("export-success")).not.toContainText(/\b(?:sent|delivered|ready to download)\b/i);
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "task-16-export-no-download-url.png"), fullPage: true });
 });
 
 test("export loading and empty states remain observable", async ({ context, page }) => {
@@ -109,5 +122,9 @@ test("delivery and download failures expose a retryable error", async ({ context
     await expect(page.getByTestId("reading-data-export")).toHaveAttribute("data-export-state", "error");
     await expect(page.getByTestId("export-error-state")).toHaveAttribute("data-export-error", "error");
     await expect(page.getByTestId("export-retry")).toBeVisible();
+    if (fixture === "export-delivery") {
+      fs.mkdirSync(evidenceDirectory, { recursive: true });
+      await page.screenshot({ path: path.join(evidenceDirectory, "reading-data-export-delivery-unverified.png"), fullPage: true });
+    }
   }
 });

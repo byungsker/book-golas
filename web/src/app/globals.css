@@ -478,7 +478,10 @@
   }
 
   .bookgolas-ui-showcase__actions .blab-button {
+    flex: 0 0 auto;
     max-width: 100%;
+    min-inline-size: max-content;
+    white-space: nowrap;
   }
 
   .bookgolas-ui-showcase__stack,
@@ -550,6 +553,11 @@
   }
 
   .bookgolas-ui-showcase :where(a, button, [role="button"]):focus-visible {
+    outline: none;
+    box-shadow: var(--blab-focus-ring);
+  }
+
+  .bookgolas-consumer-shell :where(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {
     outline: none;
     box-shadow: var(--blab-focus-ring);
   }

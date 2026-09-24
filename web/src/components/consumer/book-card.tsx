@@ -69,7 +69,7 @@ export function BookCard({
 
       <Link
         href={getConsumerPath(locale, `/books/${book.id}`)}
-        className="mt-5 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
       >
         {openLabel}
       </Link>

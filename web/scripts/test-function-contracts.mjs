@@ -5,6 +5,7 @@ import * as vm from "node:vm";
 import { webcrypto } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { runAiBackendPolicyContract } from "./test-ai-backend-policy.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const fixturePath = path.join(root, "scripts", "fixtures", "function-contracts-cross-user.json");
@@ -432,6 +433,15 @@ function makeContractRuntime(request, events, counters, options = {}) {
   const sandbox = {
     AbortController,
     AbortSignal,
+    AiUsageError: class AiUsageError extends Error {
+      constructor(code, status, requestId = undefined) {
+        super(code);
+        this.name = "AiUsageError";
+        this.code = code;
+        this.status = status;
+        this.requestId = requestId;
+      }
+    },
     ContractError: sharedHelpers.ContractError,
     Deno: sharedSandbox.Deno,
     DOMException,
@@ -452,6 +462,11 @@ function makeContractRuntime(request, events, counters, options = {}) {
     Array,
     crypto: { randomUUID: () => "44444444-4444-4444-8444-444444444444", subtle: webcrypto.subtle },
     encodeURIComponent,
+    executeThirdPartyAiOperation: async (_client, _userId, _provider, operation) => ({
+      allowed: true,
+      value: await operation(),
+    }),
+    withAiBudget: async (_client, _inputChars, operation) => operation(),
     unescape,
     btoa: (value) => Buffer.from(value, "binary").toString("base64"),
     console,
@@ -966,6 +981,7 @@ assert(fs.existsSync(consentMigrationPath) && fs.existsSync(consentRoutePath), "
 assert(fs.existsSync(recallMigrationPath), "recall reservation lease migration exists");
 assert(fs.existsSync(deletionMigrationPath), "deletion replay receipt migration exists");
 assert(fs.existsSync(deletionScopeMigrationPath), "deletion replay receipt is scoped to one durable operation per user");
+await runAiBackendPolicyContract({ assert, root, typescript });
 await executeConsentBoundary();
 await executeNoteEmbeddingBoundary();
 await executeStreamingBodyBoundary();

@@ -10,6 +10,7 @@ const paths = {
   page: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/page.tsx"),
   client: path.join(root, "src/components/consumer/book-detail-client.tsx"),
   api: path.join(root, "src/app/api/consumer/book-detail/route.ts"),
+  paths: path.join(root, "src/lib/consumer/paths.ts"),
   apiTest: path.join(root, "src/app/api/consumer/book-detail/route.test.ts"),
   fixtures: path.join(root, "src/lib/consumer/book-detail-fixtures.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
@@ -60,11 +61,19 @@ if (failures.length === 0) {
     "invalid-transition",
     "updated",
     "delete-confirmation",
+    "pause-reading-confirmation",
+    "reading-management",
+    "batch-delete-confirmation",
+    "book-info",
+    "full-title",
+    "edit-planned-book",
+    "book-completion",
+    "book-review-prompt",
     "retry",
   ];
 
   requireCondition(contract.issue === 433, "book-detail contract must bind issue 433");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "book-detail contract must reference the parity plan");
+  requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "book-detail contract must reference the completion plan");
   requireCondition(JSON.stringify(contract.native.actions) === JSON.stringify(expectedActions), "book-detail actions must match the native action set");
   requireCondition(JSON.stringify(contract.native.statuses) === JSON.stringify(expectedStatuses), "book-detail statuses must match the native status set");
   requireCondition(JSON.stringify(contract.locales) === JSON.stringify(["ko", "en"]), "book-detail must cover Korean and English");
@@ -97,10 +106,23 @@ if (failures.length === 0) {
     "book-detail-delete-confirm",
     "book-detail-attempt",
     "book-detail-metadata",
+    "reading-management",
+    "pause-reading-confirmation",
+    "batch-delete-confirmation",
+    "book-info",
+    "full-title",
+    "edit-planned-book",
+    "book-completion",
+    "book-review-prompt",
+    "book-detail-history-panel",
+    "book-detail-scan-flow",
   ]) requireCondition(source.client.includes(marker), `book detail client must expose ${marker}`);
+  requireCondition(source.page.includes("searchParams") && source.page.includes('query.tab === "history"') && source.page.includes('query.scan === "1"'), "book detail server page must strictly consume canonical history and scan query state");
+  requireCondition(source.paths.includes("getCanonicalBookDeepLinkPath") && source.paths.includes('?tab=history') && source.paths.includes('?scan=1'), "canonical localized deep-link helper must own all four mappings");
   requireCondition(source.client.includes("BookDetailResponseSchema") && source.client.includes("canApplyBookDetailAction"), "book detail client must parse typed responses and use the native action matrix");
   requireCondition(source.client.includes("/api/consumer/book-detail") && source.client.includes("cache: \"no-store\""), "book detail client must use the private action API");
   requireCondition(source.client.includes("disabled={pendingAction !== null}") && source.client.includes("Dialog"), "pending actions and delete confirmation must be guarded in the browser");
+  requireCondition(source.client.includes('"If-Match"') && source.client.includes("X-Bookgolas-Action-Key"), "detail writes must carry conflict and duplicate intent guards");
   requireCondition(source.client.includes("url.protocol === \"https:\""), "external detail links must be HTTPS-only");
 
   requireCondition(source.api.includes("BookDetailRequestSchema") && source.api.includes("getBook") && source.api.includes("updateBook") && source.api.includes("deleteBook"), "book detail API must use the strict request schema and canonical DAL");
@@ -113,8 +135,8 @@ if (failures.length === 0) {
   requireCondition(source.operations.includes("attemptCount") && source.operations.includes("pausedAt"), "book operation contract must carry lifecycle metadata");
   requireCondition(source.dal.includes("paused_at") && source.dal.includes("attempt_count") && source.dal.includes('.eq("user_id", session.value.userId)'), "book DAL must persist pause/attempt metadata under verified owner scope");
   requireCondition(source.ko.includes('"bookDetail"') && source.en.includes('"bookDetail"'), "book detail copy must be localized in Korean and English");
-  requireCondition(source.e2e.includes('detail exposes metadata and completes before a confirmed delete') && source.e2e.includes('foreign, deleted and invalid-transition detail requests fail closed'), "E2E must name the issue-defined happy and failure scenarios");
-  requireCondition(source.e2e.includes("task-20-bookgolas-web-app-parity.png") && source.e2e.includes("book-detail-delete-cancel") && source.e2e.includes("book-detail-delete-confirm"), "E2E must capture evidence and exercise confirmation boundaries");
+  requireCondition(source.e2e.includes('detail exposes every lifecycle overlay with independent actions') && source.e2e.includes('foreign, deleted and invalid-transition detail requests fail closed'), "E2E must name the issue-defined happy and failure scenarios");
+  requireCondition(source.e2e.includes("task-11-book-detail") && source.e2e.includes("book-detail-delete-cancel") && source.e2e.includes("book-detail-delete-confirm"), "E2E must capture completion evidence and exercise confirmation boundaries");
 
   if (fixtureMode === "foreign-book") {
     requireCondition(source.queries.includes('.eq("user_id", context.user.id)') && source.queries.includes('.is("deleted_at", null)'), "foreign-book negative fixture must retain owner and active-row scope");
