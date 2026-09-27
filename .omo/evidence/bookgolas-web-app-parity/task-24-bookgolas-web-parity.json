@@ -1,0 +1,25 @@
+{
+  "issue": 435,
+  "task": 24,
+  "branch": "codex/feature/web/1.1.0/BOK-435-private-images-ocr",
+  "base_revision": "ee03a4a9e289e76bce98f370dec70669e017dc41",
+  "red": ".omo/evidence/bookgolas-web-app-parity/task-24-RED-test-images-ocr.log",
+  "green": [
+    ".omo/evidence/bookgolas-web-app-parity/task-24-GREEN-test-images-ocr.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-24-GREEN-negative-images-ocr.log"
+  ],
+  "surface": [
+    ".omo/evidence/bookgolas-web-app-parity/task-24-SURFACE-happy.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-24-SURFACE-failure.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-24-SURFACE-build.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-24-SURFACE-fixture-runtime.log"
+  ],
+  "cleanup": ".omo/evidence/bookgolas-web-app-parity/task-24-CLEANUP.log",
+  "full_regression": ".omo/evidence/bookgolas-web-app-parity/task-24-full-regression.log",
+  "manual_review": "APPROVE",
+  "code_review": "Manual review APPROVE; CodeRabbit CLI was rate limited and was not retried.",
+  "blockers": [
+    ".omo/plans/bookgolas-web-app-parity.md is absent from the clean worktree and remains referenced by the contract and PR body.",
+    "Supabase fixture runtime could not run because the configured byungsker-docker daemon was unreachable."
+  ]
+}

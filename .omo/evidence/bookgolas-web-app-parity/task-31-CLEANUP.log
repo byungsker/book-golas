@@ -1,0 +1,20 @@
+Task 31 cleanup checks
+issue=444 parent=412 target=version/web/1.1.0
+feature_branch=codex/feature/web/1.1.0/BOK-444-account-settings
+git_diff_check=pass
+json_parse=pass
+account_contract=pass
+negative_fixtures=9_pass
+browser_exact_happy=2_pass
+browser_exact_failure=3_pass
+browser_full_account=5_pass
+full_npm_test=71_files_363_tests_pass
+typecheck=pass
+lint=pass_with_3_preexisting_img_warnings
+build=pass
+ownership_scope=verified_session_user_id_and_private_account_avatars
+failed_avatar_upload_profile_unchanged=pass
+disabled_subscription_controls=pass
+localized_copy=ko_and_en
+new_code_comments=none
+required_screenshot=task-31-bookgolas-web-app-parity.png

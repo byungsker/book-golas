@@ -1,0 +1,97 @@
+{
+  "issue": 431,
+  "title": "[Bookgolas Web Parity 19] Implement add-book form, schedule, status and priority lifecycle",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-431-book-lifecycle",
+  "base_revision": "e1833e50069c0d19f9b40f1f69c93b5ba390ac37",
+  "final_revision": "HEAD verified after the post-commit regression; see git history for the immutable commit",
+  "red": {
+    "command": "npm run test:book-lifecycle",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:book-lifecycle.",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-19-RED-test-book-lifecycle.log"
+  },
+  "green": {
+    "commands": [
+      "npm run test:book-lifecycle",
+      "npm run test:book-lifecycle:negative",
+      "node scripts/test-book-lifecycle.mjs --fixture negative-pages-or-target",
+      "node scripts/test-book-lifecycle.mjs --fixture invalid-status-transition",
+      "node scripts/test-book-lifecycle.mjs --fixture duplicate-submit"
+    ],
+    "result": "PASS",
+    "details": [
+      "Focused lifecycle suite passed 3 Vitest files and 14 tests.",
+      "Negative fixture modes passed for pages/date bounds, status transitions, foreign ownership and duplicate recovery.",
+      "Create and update contracts normalize dates, validate statuses and priorities, and revalidate localized consumer paths after save."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-19-GREEN-test-book-lifecycle.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-GREEN-negative-pages-or-target.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-GREEN-negative-status-transition.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-GREEN-negative-foreign-book-write.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-GREEN-negative-duplicate-submit.log"
+    ]
+  },
+  "surface": {
+    "commands": [
+      "npx playwright test tests/e2e/book-lifecycle.spec.ts --project=chromium --grep \"add|schedule\"",
+      "npx playwright test tests/e2e/book-lifecycle.spec.ts --project=chromium --grep \"invalid|duplicate|foreign\""
+    ],
+    "result": "PASS",
+    "details": [
+      "The happy path saved a selected book with planned status, priority and edited daily goal, then edited it to reading and refreshed home data.",
+      "The failure path blocked reversed dates in the client, exposed conflict retry recovery and returned a private 404 for a foreign update.",
+      "The form exposes localized metadata, lifecycle status, schedule preview/edit, priority controls and save state semantics."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-19-SURFACE-add-schedule.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-SURFACE-invalid-duplicate-foreign.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-bookgolas-web-app-parity.png"
+    ]
+  },
+  "cleanup": {
+    "commands": [
+      "npm run lint",
+      "npm run typecheck",
+      "npm run build",
+      "git diff --cached --check"
+    ],
+    "result": "PASS",
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-build.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-build-post-commit.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-staged-diff-check.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP.log"
+    ]
+  },
+  "full_regression": {
+    "command": "npm test",
+    "result": "PASS",
+    "details": [
+      "Vitest passed 33 files and 230 tests.",
+      "Parity matrix passed 20 routes, 53 overlays and 8 capabilities; all 59 parity negative fixtures passed.",
+      "BLDS parity, BLDS negative, SSR state, UI primitive and UI primitive negative contracts passed."
+    ],
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-19-CLEANUP-full-regression-post-commit.log"
+  },
+  "review": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-19-review.md",
+    "verdict": "APPROVE",
+    "reviewer": "manual code review",
+    "blocking_findings": []
+  },
+  "guards": {
+    "ownership": "The verified session user id scopes both current-row reads and updates; caller ownership fields are rejected by strict schemas.",
+    "transitions": "The DAL enforces planned, reading, completed and will_retry transitions through canTransitionBookStatus.",
+    "cache": "Successful saves revalidate localized home, library, book detail and reading paths.",
+    "recovery": "Pending save disables duplicate submits; conflict, offline and typed auth errors retain retry or account actions."
+  },
+  "blockers": [
+    "The referenced .omo/plans/bookgolas-web-app-parity.md file is not present in this checkout; the required reference is retained in the contract and PR footer."
+  ]
+}

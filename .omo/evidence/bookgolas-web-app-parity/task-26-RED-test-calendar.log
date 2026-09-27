@@ -1,0 +1,4 @@
+Task 26 RED evidence
+Base revision: 3386fd3b674b2b33b04eb6dd239541e3692cf8fc
+
+Before implementation, the integration branch had no web/docs/calendar-contract.json and web/package.json did not expose test:calendar. The calendar route was still the authenticated ConsumerRoutePlaceholder. The missing contract/script and placeholder route establish the expected RED baseline for this task.

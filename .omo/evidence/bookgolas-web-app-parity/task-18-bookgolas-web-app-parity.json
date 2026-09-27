@@ -1,0 +1,90 @@
+{
+  "issue": 428,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "red": {
+    "command": "npm run test:book-discovery",
+    "result": "failed before implementation with four missing book-discovery surfaces: client, API, fixtures and E2E spec",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-18-RED-test-book-discovery.log"
+  },
+  "green": {
+    "focusedContract": {
+      "command": "npm run test:book-discovery",
+      "result": "passed: contract plus 4 Vitest files, 11 tests"
+    },
+    "negative": [
+      {
+        "command": "npm run test:book-discovery:negative",
+        "result": "passed: provider-secret-leak"
+      },
+      {
+        "command": "node scripts/test-book-discovery.mjs --fixture insecure-camera-only-path",
+        "result": "passed"
+      },
+      {
+        "command": "node scripts/test-book-discovery.mjs --fixture untrusted-provider-url",
+        "result": "passed"
+      }
+    ],
+    "browser": [
+      {
+        "command": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"search|manual-isbn\"",
+        "result": "passed: 2 tests, including recommendation entry and stale search cancellation",
+        "evidence": ".omo/evidence/bookgolas-web-app-parity/task-18-GREEN-e2e-happy.log"
+      },
+      {
+        "command": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"unsupported|invalid|upstream\"",
+        "result": "passed: 1 test covering invalid ISBN, unsupported scanner and provider failure",
+        "evidence": ".omo/evidence/bookgolas-web-app-parity/task-18-GREEN-e2e-failure.log"
+      }
+    ]
+  },
+  "surface": {
+    "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-18-bookgolas-web-app-parity.png",
+    "viewport": "1440x900",
+    "locales": ["en", "ko"],
+    "states": [
+      "idle",
+      "loading",
+      "ready",
+      "empty",
+      "invalid",
+      "upstream",
+      "unauthorized",
+      "consent",
+      "quota",
+      "offline",
+      "camera-checking",
+      "camera-ready",
+      "camera-unsupported",
+      "camera-insecure",
+      "camera-denied",
+      "file-fallback",
+      "manual-fallback"
+    ],
+    "review": "English happy path was visually inspected with selected search result, ISBN, recommendation cards, and authenticated header; Korean copy was asserted in Chromium. Camera access remains optional and image/file plus manual ISBN entry remain visible."
+  },
+  "cleanup": {
+    "commands": [
+      "git diff --check",
+      "npm run typecheck",
+      "npm run lint",
+      "npm test",
+      "npm run build"
+    ],
+    "result": "passed; no whitespace errors, TypeScript diagnostics or ESLint errors; clean HEAD full regression passed with 31 test files/219 tests, parity matrix and negative fixtures, BLDS/UI contracts, and production build",
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-18-CLEANUP-diff-check.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-18-CLEANUP-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-18-CLEANUP-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-18-CLEANUP-full-regression-post-commit.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-18-CLEANUP-build.log"
+    ]
+  },
+  "dataGuards": {
+    "providerBoundary": "The browser calls the same-origin consumer route; Aladin invocation and credentials remain server-only.",
+    "ownershipBoundary": "The route rejects user_id, userId, p_user_id and owner_id fields and production adapters derive ownership from the verified session.",
+    "providerUrls": "Google Books and Aladin links/covers require HTTPS and an exact allowlisted hostname.",
+    "scannerFallback": "BarcodeDetector and getUserMedia are best-effort; insecure, unsupported and denied states retain image/file and manual ISBN paths.",
+    "cancellation": "AbortController plus a request sequence prevents a delayed provider response from replacing the latest search."
+  }
+}

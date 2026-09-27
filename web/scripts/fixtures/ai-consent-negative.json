@@ -1,0 +1,24 @@
+{
+  "issue": 438,
+  "task": 28,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "fixtures": [
+    {"name": "unauthorized", "routeFixture": "ai-consent-unauthorized", "expected": {"method": "POST", "status": 401, "code": "unauthorized", "uiState": "unauthorized"}},
+    {"name": "consent", "routeFixture": "ai-consent-consent", "expected": {"method": "POST", "status": 403, "code": "consent_required", "uiState": "consent_required"}},
+    {"name": "foreign", "routeFixture": "ai-consent-foreign", "expected": {"method": "POST", "status": 403, "code": "forbidden", "uiState": "consent_required"}},
+    {"name": "input-too-large", "routeFixture": "ai-consent-input-too-large", "expected": {"method": "POST", "status": 413, "code": "input_too_large", "uiState": "input_too_large"}},
+    {"name": "insufficient-data", "routeFixture": "ai-consent-insufficient-data", "expected": {"method": "POST", "status": 400, "code": "insufficient_data", "uiState": "insufficient_data"}},
+    {"name": "daily-rate-limit", "routeFixture": "ai-consent-daily-rate-limit", "expected": {"method": "POST", "status": 429, "code": "rate_limit_exceeded", "uiState": "rate_limit_exceeded"}},
+    {"name": "quota", "routeFixture": "ai-consent-quota", "expected": {"method": "POST", "status": 429, "code": "quota_exceeded", "uiState": "quota_exceeded"}},
+    {"name": "concurrency", "routeFixture": "ai-consent-concurrency", "expected": {"method": "POST", "status": 429, "code": "concurrency_exceeded", "uiState": "concurrency_exceeded"}},
+    {"name": "budget", "routeFixture": "ai-consent-budget", "expected": {"method": "POST", "status": 429, "code": "budget_exceeded", "uiState": "budget_exceeded"}},
+    {"name": "hard-cap", "routeFixture": "ai-consent-hard-cap", "expected": {"method": "POST", "status": 429, "code": "hard_cap_exceeded", "uiState": "hard_cap_exceeded"}},
+    {"name": "timeout", "routeFixture": "ai-consent-timeout", "expected": {"method": "POST", "status": 504, "code": "provider_timeout", "uiState": "provider_timeout"}},
+    {"name": "provider", "routeFixture": "ai-consent-provider", "expected": {"method": "POST", "status": 502, "code": "provider_error", "uiState": "provider_error"}},
+    {"name": "server-error", "routeFixture": "ai-consent-server-error", "expected": {"method": "POST", "status": 500, "code": "provider_error", "uiState": "provider_error"}},
+    {"name": "configuration", "routeFixture": "ai-consent-configuration", "expected": {"method": "POST", "status": 503, "code": "configuration_error", "uiState": "configuration_error"}},
+    {"name": "offline", "routeFixture": "ai-consent-offline", "expected": {"method": "POST", "status": 503, "code": "offline", "uiState": "offline"}},
+    {"name": "unknown", "routeFixture": "ai-consent-unknown", "expected": {"method": "POST", "status": 503, "code": "consent_status_unknown", "uiState": "unknown", "canSend": false}},
+    {"name": "status-unavailable", "routeFixture": "ai-consent-status-unavailable", "expected": {"method": "GET", "status": 200, "state": "unavailable", "canSend": false}}
+  ]
+}

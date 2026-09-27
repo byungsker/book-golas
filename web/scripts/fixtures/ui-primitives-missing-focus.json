@@ -1,0 +1,5 @@
+{
+  "source": "src/app/globals.css",
+  "remove_marker": ".bookgolas-ui-showcase :where(a, button, [role=\"button\"]):focus-visible",
+  "expected_message": "consumer showcase focus ring rule is missing"
+}

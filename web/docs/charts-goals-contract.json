@@ -1,0 +1,64 @@
+{
+  "issue": 440,
+  "task": 27,
+  "parent": 412,
+  "wave": 5,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "completionPlan": ".omo/plans/bookgolas-web-completion.md#todo-15",
+  "timeZone": "Asia/Seoul",
+  "native": {
+    "route": "reading-stats",
+    "sourceFiles": [
+      "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart",
+      "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart",
+      "app/lib/data/services/reading_progress_service.dart",
+      "app/lib/data/services/reading_goal_service.dart"
+    ],
+    "tabs": ["overview", "analysis", "activity"],
+    "periods": ["annual", "monthly", "weekly", "custom"],
+    "statusFilters": ["all", "reading", "completed"],
+    "metrics": ["completion-rate", "streak", "heatmap", "genre-count", "monthly-completions", "daily-pages", "daily-seconds", "annual-goal"],
+    "semantics": {
+      "chartPages": "For each period and book, keep the maximum recorded page, then sum books.",
+      "pagesRead": "For heatmap and daily activity, sum max(0, page - previous_page).",
+      "readingSeconds": "Sum reading_sessions.duration_seconds by started_at in KST.",
+      "completedBooks": "Count owned, non-deleted books where status=completed and updated_at belongs to the selected year.",
+      "genre": "Count completed books by the first segment before >; empty values are Uncategorized.",
+      "goal": "Read the owner-scoped reading_goals row and calculate progress from completed books in the selected year."
+    }
+  },
+  "web": {
+    "route": "/{locale}/stats",
+    "component": "src/components/consumer/reading-analytics-client.tsx",
+    "contract": "src/lib/product/contracts/charts-goals.ts",
+    "query": "src/lib/consumer/queries.ts:fetchOwnedReadingAnalyticsData",
+    "goalMutation": "/api/consumer/charts-goals",
+    "insightMutation": "/api/consumer/charts-goals action=generate_insight",
+    "browserDisposition": "browser-equivalent",
+    "sourceTables": ["books", "reading_progress_history", "reading_sessions", "reading_goals"],
+    "ownerScope": ["books.user_id", "reading_progress_history.user_id", "reading_sessions.user_id", "reading_goals.user_id"],
+    "activeBookScope": "books.deleted_at IS NULL",
+    "dailyTargetBoundary": "Per-book daily targets and target dates are mutated by /api/consumer/progress with owner-scoped CAS; this route remains limited to annual reading goals.",
+    "payloadBounds": { "rangeDays": 366, "periodPoints": 366, "dailyPoints": 366, "heatmapPoints": 366, "genres": 100, "insights": 3 },
+    "aiBoundary": "The server derives ownership from the authenticated session and delegates to the quota-gated reading-insights adapter. Quota and provider failures remain operational retry states and never become billing prompts."
+  },
+  "states": ["loading", "empty", "error", "unauthorized", "consent", "quota", "provider", "offline", "stale", "invalid-range", "foreign", "deleted"],
+  "operations": ["select-tab", "preserve-section-url", "select-period", "navigate-period", "select-status", "choose-custom-range", "clear-custom-range", "save-goal", "refresh-after-goal", "generate-ai-insight", "retry-ai-insight", "share-card", "clipboard-fallback", "download-fallback", "owner-scope", "kst-boundary", "bounded-payload"],
+  "fixtures": ["charts-goals-happy", "charts-goals-empty", "charts-goals-stale", "charts-goals-invalid-range", "charts-goals-foreign", "charts-goals-deleted", "charts-goals-unauthorized", "charts-goals-consent", "charts-goals-quota", "charts-goals-offline", "charts-goals-network", "charts-goals-ai-quota", "charts-goals-ai-provider", "charts-goals-ai-timeout", "charts-goals-ai-consent", "charts-goals-ai-offline", "charts-goals-ai-unauthorized"],
+  "nativeOnly": {
+    "ios-widget": "explicitly unavailable on Web",
+    "siri-app-shortcuts": "explicitly unavailable on Web",
+    "native-push": "browser notification equivalent remains a separate capability",
+    "camera": "camera/OCR remains a separate browser capability",
+    "share-sheet": "Web Share API with clipboard/download fallback",
+    "subscription": "native RevenueCat billing remains disabled on Web"
+  },
+  "acceptance": {
+    "command": "npm run test:charts-goals",
+    "negativeCommand": "npm run test:charts-goals:negative",
+    "happyBrowser": "npx playwright test tests/e2e/charts-goals.spec.ts --project=chromium --grep \"metrics|goal|share\"",
+    "failureBrowser": "npx playwright test tests/e2e/charts-goals.spec.ts --project=chromium --grep \"empty|invalid-range|stale\""
+  },
+  "evidenceStages": ["RED", "GREEN", "SURFACE", "CLEANUP"],
+  "evidenceDisposition": "Local fixtures prove contract and browser behavior only; they do not claim production provider parity."
+}

@@ -1,34 +1,18 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { createAdminSupabaseClient } from "@/lib/supabase-admin";
 import { requireAdminUser } from "@/lib/supabase-server";
-
-function getAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null;
-  }
-
-  return createClient(supabaseUrl.trim(), serviceRoleKey.trim(), {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-}
 
 export async function GET() {
   if (!(await requireAdminUser())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabaseAdmin = getAdminClient();
-  if (!supabaseAdmin) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  let supabaseAdmin;
+  try {
+    supabaseAdmin = createAdminSupabaseClient();
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
 
   const { data, error } = await supabaseAdmin
@@ -49,12 +33,12 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabaseAdmin = getAdminClient();
-  if (!supabaseAdmin) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  let supabaseAdmin;
+  try {
+    supabaseAdmin = createAdminSupabaseClient();
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
 
   const body = await request.json();

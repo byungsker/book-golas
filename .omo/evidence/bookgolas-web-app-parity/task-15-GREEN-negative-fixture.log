@@ -1,0 +1,5 @@
+
+> web@0.1.0 test:session-lifecycle:negative
+> node scripts/test-session-lifecycle.mjs --fixture unsafe-return
+
+session lifecycle negative fixture passed: 5 unsafe targets rejected by the shared boundary

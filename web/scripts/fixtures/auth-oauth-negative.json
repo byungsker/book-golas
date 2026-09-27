@@ -1,0 +1,15 @@
+{
+  "unsafeReturnTargets": [
+    "https://evil.example/account",
+    "//evil.example/account",
+    "/admin",
+    "/en/home",
+    "/ko/../admin",
+    "/ko/%2e%2e/admin"
+  ],
+  "providerFailures": [
+    { "error": "access_denied", "error_description": "user cancelled with private provider detail" },
+    { "error": "server_error", "error_code": "provider_secret_code" }
+  ],
+  "invalidCodes": ["", "expired-code", "replayed-code"]
+}

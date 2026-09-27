@@ -19,7 +19,8 @@
       "sync_bases": [
         "dev",
         "main",
-        "version/web/1.0.2"
+        "version/web/1.0.2",
+        "version/web/1.1.0"
       ],
       "allowed_paths": [
         ".byungskerlab/branch-policy.json",
@@ -77,11 +78,11 @@
         "AGENTS.md",
         ".github/workflows/quality.yml",
         "docs/**",
-        "web/**",
-        ".omo/evidence/bookgolas-web-app-parity/**"
+        "web/**"
       ],
       "additional_allowed_paths_by_version": {
         "1.1.0": [
+          ".omo/evidence/bookgolas-web-app-parity/**",
           "supabase/migrations/**",
           "supabase/functions/**"
         ]

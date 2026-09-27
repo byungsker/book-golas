@@ -1,0 +1,27 @@
+{
+  "issue": 439,
+  "task": 26,
+  "baseRevision": "3386fd3b674b2b33b04eb6dd239541e3692cf8fc",
+  "branch": "codex/feature/web/1.1.0/BOK-439-calendar",
+  "red": ".omo/evidence/bookgolas-web-app-parity/task-26-RED-test-calendar.log",
+  "green": [
+    ".omo/evidence/bookgolas-web-app-parity/task-26-GREEN-test-calendar.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-26-GREEN-negative-calendar.log"
+  ],
+  "surface": {
+    "happy": ".omo/evidence/bookgolas-web-app-parity/task-26-SURFACE-happy.log",
+    "failure": ".omo/evidence/bookgolas-web-app-parity/task-26-SURFACE-failure.log",
+    "browserFull": ".omo/evidence/bookgolas-web-app-parity/task-26-SURFACE-browser-full.log",
+    "build": ".omo/evidence/bookgolas-web-app-parity/task-26-SURFACE-build.log",
+    "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-26-bookgolas-web-app-parity.png"
+  },
+  "cleanup": ".omo/evidence/bookgolas-web-app-parity/task-26-CLEANUP.log",
+  "fullRegression": ".omo/evidence/bookgolas-web-app-parity/task-26-full-regression.log",
+  "manualReview": {
+    "status": "APPROVE",
+    "review": ".omo/evidence/bookgolas-web-app-parity/task-26-review.md"
+  },
+  "blockers": [
+    "The clean integration checkout does not contain .omo/plans/bookgolas-web-app-parity.md; the contract, evidence and PR footer retain the required plan reference."
+  ]
+}

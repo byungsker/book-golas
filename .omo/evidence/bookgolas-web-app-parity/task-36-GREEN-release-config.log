@@ -1,0 +1,5 @@
+
+> web@0.1.0 test:release-config
+> node scripts/test-release-config.mjs
+
+consumer web release config passed

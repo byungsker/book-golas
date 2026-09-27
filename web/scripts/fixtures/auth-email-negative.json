@@ -1,0 +1,15 @@
+{
+  "unsafeReturnTargets": [
+    "https://evil.example/account",
+    "//evil.example/account",
+    "/admin",
+    "/en/home",
+    "/ko/../admin",
+    "/ko/%2e%2e/admin"
+  ],
+  "accountExistenceMessages": [
+    "User already registered",
+    "User not found",
+    "Email not found"
+  ]
+}

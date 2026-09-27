@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:auth-oauth
+> node scripts/test-auth-oauth.mjs && vitest run src/lib/consumer/oauth.test.ts 'src/app/[locale]/(auth)/auth/callback/route.test.ts'
+
+file:///private/tmp/bookgolas-web-424/web/scripts/test-auth-oauth.mjs:12
+  if (!condition) throw new Error(message);
+                        ^
+
+Error: auth form must start Supabase OAuth
+    at requireCondition (file:///private/tmp/bookgolas-web-424/web/scripts/test-auth-oauth.mjs:12:25)
+    at file:///private/tmp/bookgolas-web-424/web/scripts/test-auth-oauth.mjs:30:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:272:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:583:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:98:5)
+
+Node.js v23.7.0

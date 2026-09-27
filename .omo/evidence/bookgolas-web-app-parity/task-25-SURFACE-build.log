@@ -1,0 +1,14 @@
+SURFACE build — 2026-09-16
+
+Commands:
+npm run typecheck
+npm run lint -- --no-cache
+npm run build
+npm run test:fixtures
+
+Observed result:
+PASS
+- TypeScript completed without errors.
+- ESLint completed without errors; two existing image warnings remain in book-image-capture-client.tsx.
+- Next production build completed and emitted /[locale]/books/[bookId]/review and /api/consumer/review-share.
+- Fixture contract passed.

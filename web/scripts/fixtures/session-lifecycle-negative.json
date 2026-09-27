@@ -1,0 +1,22 @@
+{
+  "unsafeReturnTargets": [
+    "https://evil.example/private",
+    "//evil.example/private",
+    "/en/%252e%252e/admin",
+    "/ko/books/00000000-0000-4000-8000-000000004251/../account",
+    "/ko\\\\books\\\\00000000-0000-4000-8000-000000004251"
+  ],
+  "privateDataMarkers": [
+    "Foreign private title",
+    "Deleted private title"
+  ],
+  "unauthenticatedNetworkMarkers": [
+    "/rest/v1/books",
+    "Foreign private title",
+    "Deleted private title"
+  ],
+  "expectedFallback": {
+    "locale": "ko",
+    "path": "/ko/home"
+  }
+}

@@ -1,0 +1,14 @@
+
+> web@0.1.0 test:export:negative
+> node scripts/test-export.mjs --fixture invalid-year && node scripts/test-export.mjs --fixture invalid-email && node scripts/test-export.mjs --fixture caller-identity && node scripts/test-export.mjs --fixture email-mismatch && node scripts/test-export.mjs --fixture delivery && node scripts/test-export.mjs --fixture download && node scripts/test-export.mjs --fixture unauthorized && node scripts/test-export.mjs --fixture consent && node scripts/test-export.mjs --fixture quota && node scripts/test-export.mjs --fixture offline
+
+Export contract passed (invalid-year)
+Export contract passed (invalid-email)
+Export contract passed (caller-identity)
+Export contract passed (email-mismatch)
+Export contract passed (delivery)
+Export contract passed (download)
+Export contract passed (unauthorized)
+Export contract passed (consent)
+Export contract passed (quota)
+Export contract passed (offline)

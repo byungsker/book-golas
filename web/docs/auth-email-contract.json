@@ -1,0 +1,34 @@
+{
+  "issue": 423,
+  "locales": ["ko", "en"],
+  "routes": [
+    "/{locale}/auth/sign-in",
+    "/{locale}/auth/sign-up",
+    "/{locale}/auth/reset-password",
+    "/{locale}/auth/callback"
+  ],
+  "passwordMinimum": 6,
+  "resendCooldownSeconds": 60,
+  "features": [
+    "nickname-required",
+    "saved-email-opt-in",
+    "loading-and-error-states",
+    "email-unconfirmed-resend",
+    "password-recovery",
+    "safe-session-redirect",
+    "browser-and-server-sign-out"
+  ],
+  "security": [
+    "supabase-auth-only",
+    "no-password-storage",
+    "non-enumerating-signup-and-recovery",
+    "localized-protected-return-targets",
+    "no-service-role-client-exposure"
+  ],
+  "commands": {
+    "acceptance": "npm run test:auth-email",
+    "happy": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"signup|login|recovery\"",
+    "failure": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"invalid|unconfirmed\""
+  },
+  "plan": ".omo/plans/bookgolas-web-app-parity.md"
+}

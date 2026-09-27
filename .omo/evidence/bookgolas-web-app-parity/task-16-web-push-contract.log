@@ -1,0 +1,13 @@
+
+> web@0.1.0 test:web-push:negative
+> node scripts/test-web-push.mjs --fixture denied && node scripts/test-web-push.mjs --fixture unsupported && node scripts/test-web-push.mjs --fixture foreign && node scripts/test-web-push.mjs --fixture offline && node scripts/test-web-push.mjs --fixture consent && node scripts/test-web-push.mjs --fixture quota && node scripts/test-web-push.mjs --fixture provider && node scripts/test-web-push.mjs --fixture network && node scripts/test-web-push.mjs --fixture unauthorized
+
+Web Push contract passed (denied)
+Web Push contract passed (unsupported)
+Web Push contract passed (foreign)
+Web Push contract passed (offline)
+Web Push contract passed (consent)
+Web Push contract passed (quota)
+Web Push contract passed (provider)
+Web Push contract passed (network)
+Web Push contract passed (unauthorized)

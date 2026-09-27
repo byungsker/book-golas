@@ -1,0 +1,127 @@
+{
+  "task": "BOK-417",
+  "title": "Secure and normalize consumer function contracts",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "generatedAt": "2026-09-10T10:12:00+09:00",
+  "revisionUnderTest": "826f419282e94fabdb779bae2254f43a7abb5d31",
+  "baseBranch": "version/web/1.1.0",
+  "functions": [
+    "aladin-books",
+    "recall-search",
+    "generate-embedding",
+    "extract-keywords",
+    "structure-notes",
+    "reading-insights",
+    "recommend-next-books",
+    "generate-book-review",
+    "vision-ocr",
+    "export-reading-data",
+    "delete-user"
+  ],
+  "red": {
+    "command": "cd /private/tmp/b417-red-baseline-v5 && npm --prefix web run test:function-contracts",
+    "exitCode": 1,
+    "baselineReceipt": "920935983837e2194c5386087c8575e8cf8f494f",
+    "observed": "The pre-fix batch baseline failed 13 assertions: source-less note acceptance, explicit-null integer fallback, recall and reading-insights database failures mapped to provider_error, export bare-carriage-return escaping and database failure mapping, ownerless Storage deletion, and deletion resume budget accounting.",
+    "transcript": "/private/tmp/b417-red-baseline-function-contracts-v5.log"
+  },
+  "green": {
+    "commands": [
+      "npm --prefix web run test:function-contracts",
+      "npm --prefix web run test:function-contracts -- --grep cross-user",
+      "npm --prefix web test",
+      "npm --prefix web run test:parity-matrix",
+      "npm --prefix web run test:parity-matrix:negative",
+      "npm --prefix web run lint",
+      "npm --prefix web run typecheck",
+      "npm --prefix web run build"
+    ],
+    "results": {
+      "functionContracts": "11 contracts passed with valid, invalid, unauthenticated, cross-user, consent, oversized input, rate/quota, provider failure, database failure, provider timeout/oversized response, export escaping, storage ownership, note source requirement, stored provider-input bounds, explicit consent dispositions, and deletion replay coverage.",
+      "crossUserNegative": "Selected 11 contract cases passed; User B to User A requests stopped before provider calls and service mutations.",
+      "web": "9 files passed, 74 tests passed, including the consent route, BLDS parity and SSR state checks.",
+      "parityMatrix": "20 routes, 53 overlays, 8 capabilities passed.",
+      "parityNegative": "59 negative fixtures passed.",
+      "lint": "passed.",
+      "typecheck": "passed.",
+      "nextBuild": "passed; account route and consent API were included in the generated routes.",
+      "sourceSyntax": "TypeScript sources compiled through the production build with no reported errors."
+    }
+  },
+  "surface": {
+    "remotePostgres": {
+      "context": "byungsker-docker",
+      "container": "supabase_db_book-golas-413-review",
+      "migration": "supabase/migrations/20260910125000_scope_account_deletion_operations_per_user.sql",
+      "migrationApply": "idempotent apply passed after the account deletion receipt migration.",
+      "transaction": [
+        "account_deletion_operations exists.",
+        "authenticated has no SELECT privilege; service_role has SELECT/INSERT/UPDATE/DELETE.",
+        "the receipt table has no foreign key, so its data_deleted state survives Auth user deletion.",
+        "account_deletion_operations_user_idx is unique on user_id.",
+        "a transactional started receipt insert succeeded and rolled back cleanly."
+      ],
+      "receipt": "/private/tmp/bookgolas-web-417-surface-v4.log"
+    },
+    "localNext": {
+      "baseUrl": "http://127.0.0.1:3102",
+      "routes": [
+        {
+          "path": "/ko/account",
+          "status": 200,
+          "viewport": "1440x900 and 390x844",
+          "scrollWidth": "clientWidth"
+        },
+        {
+          "path": "/en/account",
+          "status": 200,
+          "viewport": "1440x900 and 390x844",
+          "scrollWidth": "clientWidth"
+        },
+        {
+          "path": "/api/consumer/consent",
+          "status": 503,
+          "reason": "local environment has no Supabase credentials; unavailable response is normalized"
+        }
+      ],
+      "browserScenarios": "5 Chromium scenarios passed from the fresh production server."
+    },
+    "visualQa": {
+      "reviewedRevision": "826f419282e94fabdb779bae2254f43a7abb5d31",
+      "verdict": "PASS from two independent read-only lanes.",
+      "captures": [
+        {
+          "path": ".omo/evidence/bookgolas-web-app-parity/visual-qa/ko-desktop.png",
+          "viewport": "1440x900",
+          "sha256": "bf6e696528cc2e02df51987fbafe45158c722733c746f205ff7207e5e046ddd5"
+        },
+        {
+          "path": ".omo/evidence/bookgolas-web-app-parity/visual-qa/en-desktop.png",
+          "viewport": "1440x900",
+          "sha256": "2c9b14b41b0c58f8c9cdd289b1fa092ddf2a0161fbf389012acdc81b919375aa"
+        },
+        {
+          "path": ".omo/evidence/bookgolas-web-app-parity/visual-qa/ko-mobile.png",
+          "viewport": "390x844",
+          "sha256": "9fd37891f5875b3da9d70162cbed1e3f3076e211013122909304bbc493bf6a37"
+        },
+        {
+          "path": ".omo/evidence/bookgolas-web-app-parity/visual-qa/en-mobile.png",
+          "viewport": "390x844",
+          "sha256": "f33b81b18958ee28d9036c2fa075936d4ffff26626eca362d3de040018d2c7f7"
+        }
+      ],
+      "report": ".omo/evidence/bookgolas-web-app-parity/BOK-417-visual-review.md",
+      "captureSourceRevision": "ffd6aec40fbba47ce442f2a4ca94288a9b1dd61e (UI source unchanged through final revision)"
+    },
+    "runtimeNote": "Deno HTTP boot was unavailable because the remote Supabase CLI shim lacks supabase-go. The request-level TypeScript VM harness, Next production build, and remote Postgres transaction were used instead."
+  },
+  "cleanup": {
+    "protectedWorktree": "/private/tmp/bookgolas-web-blds-453 was not accessed or modified.",
+    "implementationWorktree": "/private/tmp/bookgolas-web-417",
+    "webBranchScope": "Final branch diff contains only Web 1.1.0 allowlisted paths; app/** and .omo/plans/** were removed from the PR scope.",
+    "debugArtifacts": "Temporary debug journal, browser audit output, root node_modules, and stale untracked review artifacts were removed or restored; the final worktree has no temporary QA files.",
+    "secrets": "No secrets, tokens, credentials, or PII were written to the repository or evidence."
+  }
+}

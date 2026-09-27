@@ -1,0 +1,7 @@
+{
+  "fixtures": [
+    { "name": "provider-secret-leak", "reason": "client modules must not contain provider credentials or direct Aladin API calls" },
+    { "name": "insecure-camera-only-path", "reason": "camera failure must preserve manual ISBN and image/file input" },
+    { "name": "untrusted-provider-url", "reason": "provider links and covers must reject arbitrary hosts and non-HTTPS URLs" }
+  ]
+}

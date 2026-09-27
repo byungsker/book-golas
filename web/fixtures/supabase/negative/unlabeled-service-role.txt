@@ -1,0 +1,2 @@
+This committed negative fixture is synthetic and must be detected as a JWT-shaped secret:
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaXh0dXJlIn0.c2lnbmF0dXJl

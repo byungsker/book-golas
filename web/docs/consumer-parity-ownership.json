@@ -1,0 +1,4928 @@
+{
+  "schema_version": 1,
+  "source_revision": "52e9c1db19b307200acef66eef73b86122b315d8",
+  "expected_counts": {
+    "total": 85,
+    "routes": 20,
+    "overlays": 53,
+    "deep_links": 4,
+    "capabilities": 8
+  },
+  "source_contract": {
+    "ledger": "web/docs/consumer-parity-ledger.json",
+    "native_inventory": "web/docs/native-consumer-surface-inventory.json",
+    "matrix": "web/docs/consumer-parity-matrix.md"
+  },
+  "dependency_catalog": {
+    "parity-ledger": "web/docs/consumer-parity-ledger.json",
+    "native-inventory": "web/docs/native-consumer-surface-inventory.json",
+    "issue-423": "Repository issue #423",
+    "issue-444": "Repository issue #444",
+    "issue-426": "Repository issue #426",
+    "issue-429": "Repository issue #429",
+    "issue-430": "Repository issue #430",
+    "issue-440": "Repository issue #440",
+    "issue-439": "Repository issue #439",
+    "issue-428": "Repository issue #428",
+    "issue-433": "Repository issue #433",
+    "issue-434": "Repository issue #434",
+    "issue-437": "Repository issue #437",
+    "issue-442": "Repository issue #442",
+    "issue-441": "Repository issue #441",
+    "issue-446": "Repository issue #446",
+    "issue-435": "Repository issue #435",
+    "issue-432": "Repository issue #432",
+    "issue-436": "Repository issue #436",
+    "issue-431": "Repository issue #431",
+    "issue-445": "Repository issue #445",
+    "issue-421": "Repository issue #421",
+    "issue-416": "Repository issue #416",
+    "issue-443": "Repository issue #443",
+    "issue-447": "Repository issue #447",
+    "issue-427": "Repository issue #427",
+    "todo-6": "Selected plan Todo 6",
+    "todo-7": "Selected plan Todo 7",
+    "todo-8": "Selected plan Todo 8",
+    "todo-9": "Selected plan Todo 9",
+    "todo-10": "Selected plan Todo 10",
+    "todo-11": "Selected plan Todo 11",
+    "todo-12": "Selected plan Todo 12",
+    "todo-13": "Selected plan Todo 13",
+    "todo-14": "Selected plan Todo 14",
+    "todo-15": "Selected plan Todo 15",
+    "todo-16": "Selected plan Todo 16",
+    "todo-17": "Selected plan Todo 17",
+    "todo-18": "Selected plan Todo 18"
+  },
+  "routes": [
+    {
+      "id": "auth-login",
+      "category": "route",
+      "native_action_ids": [
+        "email-sign-in",
+        "google-sign-in",
+        "apple-sign-in",
+        "open-sign-up",
+        "open-password-recovery",
+        "resend-verification"
+      ],
+      "native_action_keys": [
+        "route/auth-login/email-sign-in",
+        "route/auth-login/google-sign-in",
+        "route/auth-login/apple-sign-in",
+        "route/auth-login/open-sign-up",
+        "route/auth-login/open-password-recovery",
+        "route/auth-login/resend-verification"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/core/view_model/auth_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(auth)/auth/sign-in/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:email-sign-in:partial",
+          "action:google-sign-in:planned",
+          "action:apple-sign-in:planned",
+          "action:open-sign-up:partial",
+          "action:open-password-recovery:partial",
+          "action:resend-verification:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#423",
+        "component_api_function": "AuthForm"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/auth-email.spec.ts",
+        "test_command": "node web/scripts/test-auth-email.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-6-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-6",
+        "issue-423"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "auth-sign-up",
+      "category": "route",
+      "native_action_ids": [
+        "create-account",
+        "confirm-password",
+        "open-sign-in",
+        "verification-outcome"
+      ],
+      "native_action_keys": [
+        "route/auth-sign-up/create-account",
+        "route/auth-sign-up/confirm-password",
+        "route/auth-sign-up/open-sign-in",
+        "route/auth-sign-up/verification-outcome"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/core/view_model/auth_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(auth)/auth/sign-up/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:create-account:partial",
+          "action:confirm-password:partial",
+          "action:open-sign-in:partial",
+          "action:verification-outcome:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#423",
+        "component_api_function": "AuthForm"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/auth-email.spec.ts",
+        "test_command": "node web/scripts/test-auth-email.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-6-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-6",
+        "issue-423"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "auth-password-recovery",
+      "category": "route",
+      "native_action_ids": [
+        "request-reset",
+        "set-new-password",
+        "return-to-sign-in"
+      ],
+      "native_action_keys": [
+        "route/auth-password-recovery/request-reset",
+        "route/auth-password-recovery/set-new-password",
+        "route/auth-password-recovery/return-to-sign-in"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/login_screen.dart",
+        "app/lib/ui/auth/widgets/password_recovery_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(auth)/auth/reset-password/page.tsx",
+          "web/src/components/consumer/auth-form.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:request-reset:partial",
+          "action:set-new-password:partial",
+          "action:return-to-sign-in:partial"
+        ]
+      },
+      "responsible": {
+        "owner": "#423",
+        "component_api_function": "AuthForm"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/auth-email.spec.ts",
+        "test_command": "node web/scripts/test-auth-email.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-6-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-6",
+        "issue-423"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "legal-terms",
+      "category": "route",
+      "native_action_ids": [
+        "read-terms",
+        "return-to-account"
+      ],
+      "native_action_keys": [
+        "route/legal-terms/read-terms",
+        "route/legal-terms/return-to-account"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/terms_webview_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/terms/page.tsx",
+          "web/src/components/legal/legal-pages.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:read-terms:partial",
+          "action:return-to-account:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "LegalPage"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-7-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-7",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "announcements",
+      "category": "route",
+      "native_action_ids": [
+        "read-announcements",
+        "return-to-account"
+      ],
+      "native_action_keys": [
+        "route/announcements/read-announcements",
+        "route/announcements/return-to-account"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/announcements/page.tsx",
+          "web/src/components/consumer/consumer-route-placeholder.tsx"
+        ],
+        "missing_states_or_actions": [
+          "route renders ConsumerRoutePlaceholder; announcement document and empty/return behavior are not implemented",
+          "action:read-announcements:planned",
+          "action:return-to-account:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "AnnouncementsPage / ConsumerRoutePlaceholder"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-7-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-7",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "onboarding",
+      "category": "route",
+      "native_action_ids": [
+        "advance-onboarding",
+        "complete-onboarding"
+      ],
+      "native_action_keys": [
+        "route/onboarding/advance-onboarding",
+        "route/onboarding/complete-onboarding"
+      ],
+      "native_sources": [
+        "app/lib/ui/onboarding/widgets/onboarding_screen.dart",
+        "app/lib/ui/onboarding/widgets/onboarding_page.dart",
+        "app/lib/ui/onboarding/view_model/onboarding_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/onboarding/page.tsx",
+          "web/src/components/consumer/onboarding-flow.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:advance-onboarding:planned",
+          "action:complete-onboarding:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#426",
+        "component_api_function": "OnboardingFlow"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/onboarding.spec.ts",
+        "test_command": "node web/scripts/test-onboarding.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-7-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-7",
+        "issue-426"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "home",
+      "category": "route",
+      "native_action_ids": [
+        "switch-reading-status-tab",
+        "toggle-all-books",
+        "open-book-detail",
+        "refresh-books",
+        "open-search-mode"
+      ],
+      "native_action_keys": [
+        "route/home/switch-reading-status-tab",
+        "route/home/toggle-all-books",
+        "route/home/open-book-detail",
+        "route/home/refresh-books",
+        "route/home/open-search-mode"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/ui/home/widgets/home_screen.dart",
+        "app/lib/ui/book_list/widgets/book_list_screen.dart",
+        "app/lib/ui/book_list/view_model/book_list_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
+          "web/src/components/consumer/home-book-card.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:switch-reading-status-tab:planned",
+          "action:toggle-all-books:planned",
+          "action:open-book-detail:partial",
+          "action:refresh-books:partial",
+          "action:open-search-mode:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#429",
+        "component_api_function": "HomePage / HomeBookCard"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/home-book-list.spec.ts",
+        "test_command": "node web/scripts/test-home-book-list.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-9-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-9",
+        "issue-429"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "library",
+      "category": "route",
+      "native_action_ids": [
+        "library-reading-tab",
+        "library-review-tab",
+        "library-record-tab",
+        "library-global-recall",
+        "search-reading",
+        "search-review",
+        "filter-library-year",
+        "toggle-record-group",
+        "filter-record-type"
+      ],
+      "native_action_keys": [
+        "route/library/library-reading-tab",
+        "route/library/library-review-tab",
+        "route/library/library-record-tab",
+        "route/library/library-global-recall",
+        "route/library/search-reading",
+        "route/library/search-review",
+        "route/library/filter-library-year",
+        "route/library/toggle-record-group",
+        "route/library/filter-record-type"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/ui/my_library/widgets/my_library_screen.dart",
+        "app/lib/ui/my_library/view_model/my_library_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/library/page.tsx",
+          "web/src/components/consumer/library-client.tsx",
+          "web/src/app/api/consumer/library/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:library-reading-tab:planned",
+          "action:library-review-tab:planned",
+          "action:library-record-tab:planned",
+          "action:library-global-recall:planned",
+          "action:search-reading:planned",
+          "action:search-review:planned",
+          "action:filter-library-year:planned",
+          "action:toggle-record-group:planned",
+          "action:filter-record-type:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#430",
+        "component_api_function": "LibraryClient / GET library"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/library.spec.ts",
+        "test_command": "node web/scripts/test-library.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-9-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-9",
+        "issue-430"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "reading-stats",
+      "category": "route",
+      "native_action_ids": [
+        "stats-overview",
+        "stats-analysis",
+        "stats-activity",
+        "stats-set-goal",
+        "stats-share",
+        "select-stats-period",
+        "navigate-stats-period",
+        "open-stats-custom-range",
+        "clear-stats-custom-range",
+        "navigate-stats-analysis-section",
+        "generate-stats-ai-insight",
+        "retry-stats-ai-insight"
+      ],
+      "native_action_keys": [
+        "route/reading-stats/stats-overview",
+        "route/reading-stats/stats-analysis",
+        "route/reading-stats/stats-activity",
+        "route/reading-stats/stats-set-goal",
+        "route/reading-stats/stats-share",
+        "route/reading-stats/select-stats-period",
+        "route/reading-stats/navigate-stats-period",
+        "route/reading-stats/open-stats-custom-range",
+        "route/reading-stats/clear-stats-custom-range",
+        "route/reading-stats/navigate-stats-analysis-section",
+        "route/reading-stats/generate-stats-ai-insight",
+        "route/reading-stats/retry-stats-ai-insight"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart",
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart",
+        "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart",
+        "app/lib/ui/reading_chart/view_model/reading_insights_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/stats/page.tsx",
+          "web/src/components/consumer/reading-analytics-client.tsx",
+          "web/src/app/api/consumer/charts-goals/route.ts"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#440",
+        "component_api_function": "ReadingAnalyticsClient / POST charts-goals"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/charts-goals.spec.ts",
+        "test_command": "node web/scripts/test-charts-goals.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-15-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-440"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Implemented with Todo 15 local contract and Chromium browser evidence. Production parity remains non-terminal; local fixtures do not claim hosted production parity."
+      }
+    },
+    {
+      "id": "calendar",
+      "category": "route",
+      "native_action_ids": [
+        "change-calendar-month",
+        "filter-calendar",
+        "open-calendar-day"
+      ],
+      "native_action_keys": [
+        "route/calendar/change-calendar-month",
+        "route/calendar/filter-calendar",
+        "route/calendar/open-calendar-day"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/ui/calendar/widgets/calendar_screen.dart",
+        "app/lib/ui/calendar/view_model/calendar_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/calendar/page.tsx",
+          "web/src/components/consumer/calendar-client.tsx"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#439",
+        "component_api_function": "CalendarClient"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/calendar.spec.ts",
+        "test_command": "node web/scripts/test-calendar.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-15-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-439"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Implemented with Todo 15 local contract and Chromium browser evidence. Production parity remains non-terminal; local fixtures do not claim hosted production parity."
+      }
+    },
+    {
+      "id": "account",
+      "category": "route",
+      "native_action_ids": [
+        "edit-profile",
+        "change-language-theme",
+        "manage-notifications",
+        "change-password",
+        "open-legal",
+        "open-announcements",
+        "sign-out",
+        "delete-account"
+      ],
+      "native_action_keys": [
+        "route/account/edit-profile",
+        "route/account/change-language-theme",
+        "route/account/manage-notifications",
+        "route/account/change-password",
+        "route/account/open-legal",
+        "route/account/open-announcements",
+        "route/account/sign-out",
+        "route/account/delete-account"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/view_model/my_page_view_model.dart",
+        "app/lib/ui/core/view_model/notification_settings_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/account/page.tsx",
+          "web/src/components/consumer/account-settings-client.tsx",
+          "web/src/app/api/consumer/account/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:edit-profile:planned",
+          "action:change-language-theme:planned",
+          "action:manage-notifications:planned",
+          "action:change-password:planned",
+          "action:open-legal:partial",
+          "action:open-announcements:planned",
+          "action:sign-out:partial",
+          "action:delete-account:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "AccountSettingsClient / account routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/account-settings.spec.ts",
+        "test_command": "node web/scripts/test-account-settings.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-16-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "legacy-book-list",
+      "category": "route",
+      "native_action_ids": [
+        "filter-book-list",
+        "refresh-book-list",
+        "open-list-book-detail"
+      ],
+      "native_action_keys": [
+        "route/legacy-book-list/filter-book-list",
+        "route/legacy-book-list/refresh-book-list",
+        "route/legacy-book-list/open-list-book-detail"
+      ],
+      "native_sources": [
+        "app/lib/routing/app_router.dart",
+        "app/lib/ui/book_list/widgets/book_list_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/book-list/page.tsx",
+          "web/src/components/consumer/library-client.tsx"
+        ],
+        "missing_states_or_actions": [
+          "current page delegates to LibraryClient; frozen planned/reading/completed/will_retry status tabs are not independently implemented",
+          "action:filter-book-list:planned",
+          "action:refresh-book-list:planned",
+          "action:open-list-book-detail:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#430",
+        "component_api_function": "BookListPage / LibraryClient"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/home-book-list.spec.ts",
+        "test_command": "node web/scripts/test-home-book-list.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-9-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-9",
+        "issue-430"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "book-search-add",
+      "category": "route",
+      "native_action_ids": [
+        "search-book",
+        "isbn-search",
+        "scan-isbn",
+        "select-reading-status",
+        "set-schedule-priority",
+        "save-book"
+      ],
+      "native_action_keys": [
+        "route/book-search-add/search-book",
+        "route/book-search-add/isbn-search",
+        "route/book-search-add/scan-isbn",
+        "route/book-search-add/select-reading-status",
+        "route/book-search-add/set-schedule-priority",
+        "route/book-search-add/save-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_start/widgets/reading_start_screen.dart",
+        "app/lib/ui/reading_start/view_model/reading_start_view_model.dart",
+        "app/lib/data/services/aladin_api_service.dart",
+        "app/lib/data/services/naver_books_api_service.dart",
+        "app/lib/data/services/google_books_api_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/books/new/page.tsx",
+          "web/src/components/consumer/book-discovery-client.tsx",
+          "web/src/app/api/consumer/book-discovery/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:search-book:planned",
+          "action:isbn-search:planned",
+          "action:scan-isbn:planned",
+          "action:select-reading-status:planned",
+          "action:set-schedule-priority:planned",
+          "action:save-book:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#428",
+        "component_api_function": "BookDiscoveryClient / POST book-discovery"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-discovery.spec.ts",
+        "test_command": "node web/scripts/test-book-discovery.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-10-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-10",
+        "issue-428"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "book-detail",
+      "category": "route",
+      "native_action_ids": [
+        "switch-detail-tabs",
+        "update-progress",
+        "manage-reading",
+        "set-reading-target",
+        "add-memorable-page",
+        "open-recall",
+        "open-reading-timer",
+        "open-review",
+        "open-aladin-book-link",
+        "open-existing-review-link",
+        "open-review-link-editor",
+        "resume-reading",
+        "start-planned-reading"
+      ],
+      "native_action_keys": [
+        "route/book-detail/switch-detail-tabs",
+        "route/book-detail/update-progress",
+        "route/book-detail/manage-reading",
+        "route/book-detail/set-reading-target",
+        "route/book-detail/add-memorable-page",
+        "route/book-detail/open-recall",
+        "route/book-detail/open-reading-timer",
+        "route/book-detail/open-review",
+        "route/book-detail/open-aladin-book-link",
+        "route/book-detail/open-existing-review-link",
+        "route/book-detail/open-review-link-editor",
+        "route/book-detail/resume-reading",
+        "route/book-detail/start-planned-reading"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/book_detail_screen.dart",
+        "app/lib/ui/book_detail/widgets/tabs/detail_tab.dart",
+        "app/lib/ui/book_detail/widgets/tabs/progress_history_tab.dart",
+        "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+        "app/lib/domain/models/book.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "canonical page does not consume tab=history or scan=1 query state",
+          "action:switch-detail-tabs:planned",
+          "action:update-progress:partial",
+          "action:manage-reading:planned",
+          "action:set-reading-target:planned",
+          "action:add-memorable-page:planned",
+          "action:open-recall:planned",
+          "action:open-reading-timer:planned",
+          "action:open-review:planned",
+          "action:open-aladin-book-link:planned",
+          "action:open-existing-review-link:planned",
+          "action:open-review-link-editor:planned",
+          "action:resume-reading:planned",
+          "action:start-planned-reading:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / POST book-detail"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "reading-progress",
+      "category": "route",
+      "native_action_ids": [
+        "update-page",
+        "record-history",
+        "start-timer",
+        "return-to-book"
+      ],
+      "native_action_keys": [
+        "route/reading-progress/update-page",
+        "route/reading-progress/record-history",
+        "route/reading-progress/start-timer",
+        "route/reading-progress/return-to-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_progress/widgets/reading_progress_screen.dart",
+        "app/lib/ui/book_detail/view_model/reading_progress_view_model.dart",
+        "app/lib/ui/core/widgets/reading_detail_bottom_bar.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:update-page:partial",
+          "action:record-history:planned",
+          "action:start-timer:planned",
+          "action:return-to-book:partial"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / POST progress"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-progress-ui.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-12-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "book-review",
+      "category": "route",
+      "native_action_ids": [
+        "edit-review",
+        "generate-ai-draft",
+        "save-review",
+        "discard-review"
+      ],
+      "native_action_keys": [
+        "route/book-review/edit-review",
+        "route/book-review/generate-ai-draft",
+        "route/book-review/save-review",
+        "route/book-review/discard-review"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/data/services/ai_content_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/books/[bookId]/review/page.tsx",
+          "web/src/components/consumer/book-review-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:edit-review:planned",
+          "action:generate-ai-draft:planned",
+          "action:save-review:planned",
+          "action:discard-review:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#437",
+        "component_api_function": "BookReviewClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-review-share.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-14-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-437"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "mind-map",
+      "category": "route",
+      "native_action_ids": [
+        "view-mind-map",
+        "regenerate-mind-map",
+        "retry-mind-map"
+      ],
+      "native_action_keys": [
+        "route/mind-map/view-mind-map",
+        "route/mind-map/regenerate-mind-map",
+        "route/mind-map/retry-mind-map"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/mindmap_screen.dart",
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart",
+        "app/lib/ui/book_detail/view_model/note_structure_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/books/[bookId]/mind-map/page.tsx",
+          "web/src/components/consumer/ai-artifacts-client.tsx",
+          "web/src/app/api/consumer/ai-artifacts/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:view-mind-map:planned",
+          "action:regenerate-mind-map:planned",
+          "action:retry-mind-map:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#442",
+        "component_api_function": "AiArtifactsClient / ai-artifacts route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/ai-artifacts.spec.ts",
+        "test_command": "node web/scripts/test-ai-artifacts.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-14-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-442"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "barcode-scanner",
+      "category": "route",
+      "native_action_ids": [
+        "request-camera",
+        "capture-isbn",
+        "use-manual-isbn"
+      ],
+      "native_action_keys": [
+        "route/barcode-scanner/request-camera",
+        "route/barcode-scanner/capture-isbn",
+        "route/barcode-scanner/use-manual-isbn"
+      ],
+      "native_sources": [
+        "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+        "app/lib/ui/barcode_scanner/widgets/scanner_overlay.dart",
+        "app/lib/ui/barcode_scanner/widgets/scanner_error_widget.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/books/scan/page.tsx",
+          "web/src/components/consumer/consumer-route-placeholder.tsx"
+        ],
+        "missing_states_or_actions": [
+          "route renders ConsumerRoutePlaceholder; camera permission, ISBN capture, and manual fallback are not implemented",
+          "action:request-camera:planned",
+          "action:capture-isbn:planned",
+          "action:use-manual-isbn:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#428",
+        "component_api_function": "ScanBookPage / ConsumerRoutePlaceholder"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-discovery.spec.ts",
+        "test_command": "node web/scripts/test-book-discovery.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-10-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-10",
+        "issue-428"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    },
+    {
+      "id": "subscription",
+      "category": "route",
+      "native_action_ids": [
+        "show-disabled-subscription"
+      ],
+      "native_action_keys": [
+        "route/subscription/show-disabled-subscription"
+      ],
+      "native_sources": [
+        "app/lib/ui/subscription/widgets/subscription_screen.dart",
+        "app/lib/ui/subscription/view_model/subscription_view_model.dart",
+        "app/lib/data/services/subscription_service.dart",
+        "app/lib/config/feature_flags.dart"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/subscription/page.tsx"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "SubscriptionPage"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-parity-matrix.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-17-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "disabled",
+        "rule": "Todo 17 directly verifies the localized disabled subscription route, absence of billing controls, and safe account navigation. Production billing remains disabled."
+      }
+    },
+    {
+      "id": "privacy",
+      "category": "route",
+      "native_action_ids": [
+        "read-privacy",
+        "manage-consent"
+      ],
+      "native_action_keys": [
+        "route/privacy/read-privacy",
+        "route/privacy/manage-consent"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/auth/utils/legal_content.dart",
+        "app/lib/data/services/ad_service.dart",
+        "app/lib/data/services/fcm_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/app/[locale]/privacy/page.tsx",
+          "web/src/components/legal/legal-pages.tsx",
+          "web/src/components/consumer/ai-consent-settings.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:read-privacy:partial",
+          "action:manage-consent:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "LegalPage / AiConsentSettings"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/ai-consent.spec.ts",
+        "test_command": "node web/scripts/test-ai-consent-states.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-8-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-8",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when every listed native action and required state has direct data and browser evidence; a path alone is insufficient."
+      }
+    }
+  ],
+  "overlays": [
+    {
+      "id": "search-mode-menu",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-book-search",
+        "choose-ai-record-search"
+      ],
+      "native_action_keys": [
+        "overlay/search-mode-menu/choose-book-search",
+        "overlay/search-mode-menu/choose-ai-record-search"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/search_mode_dropdown.dart",
+        "app/lib/ui/core/widgets/liquid_glass_bottom_bar.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/consumer-shell.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#428",
+        "component_api_function": "ConsumerShell"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/todo-19-overlays.spec.ts",
+        "test_command": "node web/scripts/test-consumer-shell.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/search-mode-menu.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/todo-19-overlays.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-7",
+        "issue-428"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-book-search": "implemented-evidence-backed",
+        "choose-ai-record-search": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "global-recall-search",
+      "category": "overlay",
+      "native_action_ids": [
+        "search-global-records",
+        "open-global-record"
+      ],
+      "native_action_keys": [
+        "overlay/global-recall-search/search-global-records",
+        "overlay/global-recall-search/open-global-record"
+      ],
+      "native_sources": [
+        "app/lib/ui/recall/widgets/global_recall_search_sheet.dart",
+        "app/lib/ui/recall/view_model/global_recall_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/library-client.tsx",
+          "web/src/components/consumer/recall-client.tsx",
+          "web/src/app/api/consumer/recall/route.ts",
+          "web/src/app/api/consumer/recall/source/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#441",
+        "component_api_function": "RecallClient in LibraryClient / recall and recall/source routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/recall.spec.ts",
+        "test_command": "npm run test:recall && npm run test:recall:negative",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/global-recall-search.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/recall.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-441"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "search-global-records": "implemented-evidence-backed",
+        "open-global-record": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "recall-search",
+      "category": "overlay",
+      "native_action_ids": [
+        "search-book-records",
+        "load-recent-recall",
+        "clear-recall-history"
+      ],
+      "native_action_keys": [
+        "overlay/recall-search/search-book-records",
+        "overlay/recall-search/load-recent-recall",
+        "overlay/recall-search/clear-recall-history"
+      ],
+      "native_sources": [
+        "app/lib/ui/recall/widgets/recall_search_sheet.dart",
+        "app/lib/ui/recall/view_model/recall_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/recall-client.tsx",
+          "web/src/app/api/consumer/recall/route.ts",
+          "web/src/app/api/consumer/recall/source/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#441",
+        "component_api_function": "RecallClient in BookDetailClient / recall and recall/source routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/recall.spec.ts",
+        "test_command": "npm run test:recall && npm run test:recall:negative",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/recall-search.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/recall.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-441"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "search-book-records": "implemented-evidence-backed",
+        "load-recent-recall": "implemented-evidence-backed",
+        "clear-recall-history": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "record-detail",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-record",
+        "open-source"
+      ],
+      "native_action_keys": [
+        "overlay/record-detail/view-record",
+        "overlay/record-detail/open-source"
+      ],
+      "native_sources": [
+        "app/lib/ui/recall/widgets/record_detail_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/recall-client.tsx",
+          "web/src/app/api/consumer/recall/route.ts",
+          "web/src/app/api/consumer/recall/source/route.ts",
+          "web/src/components/consumer/library-client.tsx",
+          "web/src/app/api/consumer/library/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#441",
+        "component_api_function": "RecallClient / recall and recall/source routes; separate Todo 9 LibraryClient / GET library ownership (#430) retained"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/recall.spec.ts",
+        "test_command": "npm run test:recall && npm run test:recall:negative",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/record-detail.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/recall.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-9",
+        "issue-430",
+        "todo-13",
+        "issue-441"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-record": "implemented-evidence-backed",
+        "open-source": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "source-detail",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-source",
+        "close-source"
+      ],
+      "native_action_keys": [
+        "overlay/source-detail/view-source",
+        "overlay/source-detail/close-source"
+      ],
+      "native_sources": [
+        "app/lib/ui/recall/widgets/source_detail_modal.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/recall-client.tsx",
+          "web/src/app/api/consumer/recall/route.ts",
+          "web/src/app/api/consumer/recall/source/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#441",
+        "component_api_function": "RecallClient / recall routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/recall.spec.ts",
+        "test_command": "npm run test:recall && npm run test:recall:negative",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/source-detail.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/recall.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-441"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-source": "implemented-evidence-backed",
+        "close-source": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "calendar-day-detail",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-day-activity",
+        "open-day-book"
+      ],
+      "native_action_keys": [
+        "overlay/calendar-day-detail/view-day-activity",
+        "overlay/calendar-day-detail/open-day-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/calendar/widgets/calendar_day_detail_sheet.dart",
+        "app/lib/ui/calendar/widgets/calendar_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/calendar-client.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#439",
+        "component_api_function": "CalendarClient / DayDetail"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/calendar.spec.ts",
+        "test_command": "node web/scripts/test-calendar.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/calendar-day-detail.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/calendar.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-439"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-day-activity": "implemented-evidence-backed",
+        "open-day-book": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "reading-goal",
+      "category": "overlay",
+      "native_action_ids": [
+        "set-yearly-goal",
+        "save-goal"
+      ],
+      "native_action_keys": [
+        "overlay/reading-goal/set-yearly-goal",
+        "overlay/reading-goal/save-goal"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_chart/widgets/sheets/reading_goal_sheet.dart",
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/reading-analytics-client.tsx",
+          "web/src/app/api/consumer/charts-goals/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#440",
+        "component_api_function": "ReadingAnalyticsClient / charts-goals route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/charts-goals.spec.ts",
+        "test_command": "node web/scripts/test-charts-goals.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/reading-goal.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/charts-goals.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-440"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "set-yearly-goal": "implemented-evidence-backed",
+        "save-goal": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "date-range-picker",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-date-range",
+        "cancel-date-range"
+      ],
+      "native_action_keys": [
+        "overlay/date-range-picker/choose-date-range",
+        "overlay/date-range-picker/cancel-date-range"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_chart/widgets/reading_chart_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/reading-analytics-client.tsx",
+          "web/src/app/api/consumer/charts-goals/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#440",
+        "component_api_function": "ReadingAnalyticsClient / charts-goals route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/charts-goals.spec.ts",
+        "test_command": "node web/scripts/test-charts-goals.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/date-range-picker.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/charts-goals.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-440"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-date-range": "implemented-evidence-backed",
+        "cancel-date-range": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "bookstore-select",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-new-bookstore",
+        "choose-used-bookstore"
+      ],
+      "native_action_keys": [
+        "overlay/bookstore-select/choose-new-bookstore",
+        "overlay/bookstore-select/choose-used-bookstore"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/bookstore_select_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-discovery-client.tsx",
+          "web/src/app/api/consumer/book-discovery/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#428",
+        "component_api_function": "BookDiscoveryClient / book-discovery route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-discovery.spec.ts",
+        "test_command": "node web/scripts/test-book-discovery.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/bookstore-select.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-discovery.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-10",
+        "issue-428"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-new-bookstore": "implemented-evidence-backed",
+        "choose-used-bookstore": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "recommendation-action",
+      "category": "overlay",
+      "native_action_ids": [
+        "open-recommendation",
+        "add-recommendation"
+      ],
+      "native_action_keys": [
+        "overlay/recommendation-action/open-recommendation",
+        "overlay/recommendation-action/add-recommendation"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/recommendation_action_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/ai-artifacts-client.tsx",
+          "web/src/app/api/consumer/ai-artifacts/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#428",
+        "component_api_function": "AiArtifactsClient / ai-artifacts route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-ai-artifacts.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/recommendation-action.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-428"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "open-recommendation": "implemented-evidence-backed",
+        "add-recommendation": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "reading-books-selection",
+      "category": "overlay",
+      "native_action_ids": [
+        "select-reading-book",
+        "open-selected-book"
+      ],
+      "native_action_keys": [
+        "overlay/reading-books-selection/select-reading-book",
+        "overlay/reading-books-selection/open-selected-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_list/widgets/sheets/reading_books_selection_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/home/page.tsx",
+          "web/src/components/consumer/home-book-card.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#429",
+        "component_api_function": "ConsumerShell"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/home-book-list.spec.ts",
+        "test_command": "node web/scripts/test-consumer-shell.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/reading-books-selection.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/home-book-list.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-7",
+        "issue-429"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "select-reading-book": "implemented-evidence-backed",
+        "open-selected-book": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "reading-management",
+      "category": "overlay",
+      "native_action_ids": [
+        "pause-reading",
+        "delete-book",
+        "cancel-reading-management"
+      ],
+      "native_action_keys": [
+        "overlay/reading-management/pause-reading",
+        "overlay/reading-management/delete-book",
+        "overlay/reading-management/cancel-reading-management"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/reading_management_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/reading-management.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "pause-reading": "implemented-evidence-backed",
+        "delete-book": "implemented-evidence-backed",
+        "cancel-reading-management": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "pause-reading-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-pause",
+        "cancel-pause"
+      ],
+      "native_action_keys": [
+        "overlay/pause-reading-confirmation/confirm-pause",
+        "overlay/pause-reading-confirmation/cancel-pause"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/pause_reading_confirmation_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/pause-reading-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-pause": "implemented-evidence-backed",
+        "cancel-pause": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "delete-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-delete",
+        "cancel-delete"
+      ],
+      "native_action_keys": [
+        "overlay/delete-confirmation/confirm-delete",
+        "overlay/delete-confirmation/cancel-delete"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/delete_confirmation_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#446",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/delete-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-446"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-delete": "implemented-evidence-backed",
+        "cancel-delete": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "batch-delete-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-batch-delete",
+        "cancel-batch-delete"
+      ],
+      "native_action_keys": [
+        "overlay/batch-delete-confirmation/confirm-batch-delete",
+        "overlay/batch-delete-confirmation/cancel-batch-delete"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/delete_confirmation_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/library-client.tsx",
+          "web/src/app/api/consumer/library/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#446",
+        "component_api_function": "LibraryClient / GET library"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-library.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/batch-delete-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-9",
+        "issue-446"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-batch-delete": "implemented-evidence-backed",
+        "cancel-batch-delete": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "book-info",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-book-info",
+        "open-cover"
+      ],
+      "native_action_keys": [
+        "overlay/book-info/view-book-info",
+        "overlay/book-info/open-cover"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/book_info_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/book-info.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-book-info": "implemented-evidence-backed",
+        "open-cover": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "full-title",
+      "category": "overlay",
+      "native_action_ids": [
+        "read-full-title"
+      ],
+      "native_action_keys": [
+        "overlay/full-title/read-full-title"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/full_title_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/full-title.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "read-full-title": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "image-source",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-camera",
+        "choose-gallery",
+        "choose-ocr"
+      ],
+      "native_action_keys": [
+        "overlay/image-source/choose-camera",
+        "overlay/image-source/choose-gallery",
+        "overlay/image-source/choose-ocr"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/image-source.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-camera": "implemented-evidence-backed",
+        "choose-gallery": "implemented-evidence-backed",
+        "choose-ocr": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "image-replace-options",
+      "category": "overlay",
+      "native_action_ids": [
+        "replace-with-camera",
+        "replace-with-file"
+      ],
+      "native_action_keys": [
+        "overlay/image-replace-options/replace-with-camera",
+        "overlay/image-replace-options/replace-with-file"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/image-replace-options.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "replace-with-camera": "implemented-evidence-backed",
+        "replace-with-file": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "replace-image-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-replace-image",
+        "cancel-replace-image"
+      ],
+      "native_action_keys": [
+        "overlay/replace-image-confirmation/confirm-replace-image",
+        "overlay/replace-image-confirmation/cancel-replace-image"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/image_source_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/replace-image-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-replace-image": "implemented-evidence-backed",
+        "cancel-replace-image": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "add-memorable-page",
+      "category": "overlay",
+      "native_action_ids": [
+        "capture-memorable-page",
+        "run-ocr",
+        "save-memorable-page"
+      ],
+      "native_action_keys": [
+        "overlay/add-memorable-page/capture-memorable-page",
+        "overlay/add-memorable-page/run-ocr",
+        "overlay/add-memorable-page/save-memorable-page"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/modals/add_memorable_page_modal.dart",
+        "app/lib/ui/book_detail/view_model/memorable_page_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/add-memorable-page.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "capture-memorable-page": "implemented-evidence-backed",
+        "run-ocr": "implemented-evidence-backed",
+        "save-memorable-page": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "existing-image",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-image",
+        "replace-image",
+        "delete-image"
+      ],
+      "native_action_keys": [
+        "overlay/existing-image/view-image",
+        "overlay/existing-image/replace-image",
+        "overlay/existing-image/delete-image"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/modals/existing_image_modal.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/existing-image.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-image": "implemented-evidence-backed",
+        "replace-image": "implemented-evidence-backed",
+        "delete-image": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "extracted-text",
+      "category": "overlay",
+      "native_action_ids": [
+        "review-extracted-text",
+        "copy-extracted-text",
+        "save-extracted-text"
+      ],
+      "native_action_keys": [
+        "overlay/extracted-text/review-extracted-text",
+        "overlay/extracted-text/copy-extracted-text",
+        "overlay/extracted-text/save-extracted-text"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/extracted_text_modal.dart",
+        "app/lib/ui/book_detail/utils/ocr_utils.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/extracted-text.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "review-extracted-text": "implemented-evidence-backed",
+        "copy-extracted-text": "implemented-evidence-backed",
+        "save-extracted-text": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "full-text-view",
+      "category": "overlay",
+      "native_action_ids": [
+        "read-full-text",
+        "copy-full-text"
+      ],
+      "native_action_keys": [
+        "overlay/full-text-view/read-full-text",
+        "overlay/full-text-view/copy-full-text"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/full_text_view_modal.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#432",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/full-text-view.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-432"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "read-full-text": "implemented-evidence-backed",
+        "copy-full-text": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "page-update",
+      "category": "overlay",
+      "native_action_ids": [
+        "save-page-update",
+        "mark-not-read",
+        "cancel-page-update"
+      ],
+      "native_action_keys": [
+        "overlay/page-update/save-page-update",
+        "overlay/page-update/mark-not-read",
+        "overlay/page-update/cancel-page-update"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/page_update_modal.dart",
+        "app/lib/ui/book_detail/widgets/dialogs/update_page_dialog.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/progress-form.tsx",
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / progress route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-progress-ui.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/page-update.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "save-page-update": "implemented-evidence-backed",
+        "mark-not-read": "implemented-evidence-backed",
+        "cancel-page-update": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "reading-timer",
+      "category": "overlay",
+      "native_action_ids": [
+        "start-reading-session",
+        "pause-reading-session",
+        "finish-reading-session"
+      ],
+      "native_action_keys": [
+        "overlay/reading-timer/start-reading-session",
+        "overlay/reading-timer/pause-reading-session",
+        "overlay/reading-timer/finish-reading-session"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/reading_timer_modal.dart",
+        "app/lib/ui/book_detail/view_model/reading_timer_view_model.dart",
+        "app/lib/ui/core/widgets/floating_timer_bar.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/reading-timer-control.tsx",
+          "web/src/components/consumer/floating-timer-bar.tsx",
+          "web/src/app/api/consumer/timer/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#436",
+        "component_api_function": "ReadingTimerControl / FloatingTimerBar / timer route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/timer.spec.ts",
+        "test_command": "node web/scripts/test-timer.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/reading-timer.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/timer.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-436"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "start-reading-session": "implemented-evidence-backed",
+        "pause-reading-session": "implemented-evidence-backed",
+        "finish-reading-session": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "today-goal",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-today-goal",
+        "open-goal-settings"
+      ],
+      "native_action_keys": [
+        "overlay/today-goal/view-today-goal",
+        "overlay/today-goal/open-goal-settings"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/dialogs/today_goal_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / progress route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-progress-ui.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/today-goal.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-today-goal": "implemented-evidence-backed",
+        "open-goal-settings": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "daily-target",
+      "category": "overlay",
+      "native_action_ids": [
+        "edit-daily-target",
+        "save-daily-target"
+      ],
+      "native_action_keys": [
+        "overlay/daily-target/edit-daily-target",
+        "overlay/daily-target/save-daily-target"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/dialogs/daily_target_dialog.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / progress route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-progress-ui.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/daily-target.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "edit-daily-target": "implemented-evidence-backed",
+        "save-daily-target": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "daily-target-confirm",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-daily-target",
+        "cancel-daily-target"
+      ],
+      "native_action_keys": [
+        "overlay/daily-target-confirm/confirm-daily-target",
+        "overlay/daily-target-confirm/cancel-daily-target"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/daily_target_confirm_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / progress route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-progress-ui.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/daily-target-confirm.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-daily-target": "implemented-evidence-backed",
+        "cancel-daily-target": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "update-target-date",
+      "category": "overlay",
+      "native_action_ids": [
+        "edit-target-date",
+        "save-target-date"
+      ],
+      "native_action_keys": [
+        "overlay/update-target-date/edit-target-date",
+        "overlay/update-target-date/save-target-date"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/dialogs/update_target_date_dialog.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#431",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/update-target-date.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-431"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "edit-target-date": "implemented-evidence-backed",
+        "save-target-date": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "edit-planned-book",
+      "category": "overlay",
+      "native_action_ids": [
+        "edit-planned-book",
+        "save-planned-book"
+      ],
+      "native_action_keys": [
+        "overlay/edit-planned-book/edit-planned-book",
+        "overlay/edit-planned-book/save-planned-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/dialogs/edit_planned_book_dialog.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#431",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/edit-planned-book.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-431"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "edit-planned-book": "implemented-evidence-backed",
+        "save-planned-book": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "book-completion",
+      "category": "overlay",
+      "native_action_ids": [
+        "acknowledge-completion",
+        "open-review-prompt"
+      ],
+      "native_action_keys": [
+        "overlay/book-completion/acknowledge-completion",
+        "overlay/book-completion/open-review-prompt"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sheets/book_completion_sheet.dart",
+        "app/lib/ui/book_detail/book_detail_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/book-completion.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "acknowledge-completion": "implemented-evidence-backed",
+        "open-review-prompt": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "book-review-prompt",
+      "category": "overlay",
+      "native_action_ids": [
+        "write-review",
+        "dismiss-review-prompt"
+      ],
+      "native_action_keys": [
+        "overlay/book-review-prompt/write-review",
+        "overlay/book-review-prompt/dismiss-review-prompt"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/book_detail_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/components/consumer/book-lifecycle-client.tsx",
+          "web/src/app/api/consumer/book-detail/route.ts",
+          "web/src/app/api/consumer/book-lifecycle/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#437",
+        "component_api_function": "BookDetailClient / BookLifecycleClient / lifecycle routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "node web/scripts/test-book-detail.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/book-review-prompt.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-437"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "write-review": "implemented-evidence-backed",
+        "dismiss-review-prompt": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "memorable-page-sort-menu",
+      "category": "overlay",
+      "native_action_ids": [
+        "sort-memorable-pages-by-page-desc",
+        "sort-memorable-pages-by-page-asc",
+        "sort-memorable-pages-by-date-desc",
+        "sort-memorable-pages-by-date-asc"
+      ],
+      "native_action_keys": [
+        "overlay/memorable-page-sort-menu/sort-memorable-pages-by-page-desc",
+        "overlay/memorable-page-sort-menu/sort-memorable-pages-by-page-asc",
+        "overlay/memorable-page-sort-menu/sort-memorable-pages-by-date-desc",
+        "overlay/memorable-page-sort-menu/sort-memorable-pages-by-date-asc"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/tabs/memorable_pages_tab.dart",
+        "app/lib/ui/book_detail/view_model/memorable_page_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "npm run test:images-ocr && npm run test:images-ocr:negative",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/memorable-page-sort-menu.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "sort-memorable-pages-by-page-desc": "implemented-evidence-backed",
+        "sort-memorable-pages-by-page-asc": "implemented-evidence-backed",
+        "sort-memorable-pages-by-date-desc": "implemented-evidence-backed",
+        "sort-memorable-pages-by-date-asc": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "review-exit-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "discard-review-changes",
+        "keep-review-changes"
+      ],
+      "native_action_keys": [
+        "overlay/review-exit-confirmation/discard-review-changes",
+        "overlay/review-exit-confirmation/keep-review-changes"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/core/widgets/confirmation_bottom_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-review-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#437",
+        "component_api_function": "BookReviewClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-review-share.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/review-exit-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-437"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "discard-review-changes": "implemented-evidence-backed",
+        "keep-review-changes": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "review-ai-replacement-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-review-ai-replacement",
+        "cancel-review-ai-replacement"
+      ],
+      "native_action_keys": [
+        "overlay/review-ai-replacement-confirmation/confirm-review-ai-replacement",
+        "overlay/review-ai-replacement-confirmation/cancel-review-ai-replacement"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/core/widgets/confirmation_bottom_sheet.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-review-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#437",
+        "component_api_function": "BookReviewClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-review-share.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/review-ai-replacement-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-437"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-review-ai-replacement": "implemented-evidence-backed",
+        "cancel-review-ai-replacement": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "review-save-complete",
+      "category": "overlay",
+      "native_action_ids": [
+        "acknowledge-review-save",
+        "open-review-book"
+      ],
+      "native_action_keys": [
+        "overlay/review-save-complete/acknowledge-review-save",
+        "overlay/review-save-complete/open-review-book"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_review/book_review_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-review-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#437",
+        "component_api_function": "BookReviewClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-review-share.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/review-save-complete.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-437"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "acknowledge-review-save": "implemented-evidence-backed",
+        "open-review-book": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "password-change",
+      "category": "overlay",
+      "native_action_ids": [
+        "change-password",
+        "cancel-password-change"
+      ],
+      "native_action_keys": [
+        "overlay/password-change/change-password",
+        "overlay/password-change/cancel-password-change"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/account-settings-client.tsx",
+          "web/src/app/api/consumer/account/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "AccountSettingsClient / account routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/account-settings.spec.ts",
+        "test_command": "node web/scripts/test-account-settings.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/password-change.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/account-settings.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "auth",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "change-password": "implemented-evidence-backed",
+        "cancel-password-change": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "delete-account-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-account-deletion",
+        "cancel-account-deletion"
+      ],
+      "native_action_keys": [
+        "overlay/delete-account-confirmation/confirm-account-deletion",
+        "overlay/delete-account-confirmation/cancel-account-deletion"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/account-settings-client.tsx",
+          "web/src/app/api/consumer/account/deletion/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#446",
+        "component_api_function": "AccountSettingsClient / account routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/account-deletion.spec.ts",
+        "test_command": "npm --prefix web run test:account-deletion",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/delete-account-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/account-deletion.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-446"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-account-deletion": "implemented-evidence-backed",
+        "cancel-account-deletion": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "language-change-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "confirm-language-change",
+        "cancel-language-change"
+      ],
+      "native_action_keys": [
+        "overlay/language-change-confirmation/confirm-language-change",
+        "overlay/language-change-confirmation/cancel-language-change"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/l10n/app_ko.arb",
+        "app/lib/l10n/app_en.arb"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/account-settings-client.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "AccountSettingsClient / account routes"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/account-settings.spec.ts",
+        "test_command": "node web/scripts/test-account-settings.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/language-change-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/account-settings.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "confirm-language-change": "implemented-evidence-backed",
+        "cancel-language-change": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "notification-time-picker",
+      "category": "overlay",
+      "native_action_ids": [
+        "set-daily-reminder-time",
+        "set-goal-alarm-time"
+      ],
+      "native_action_keys": [
+        "overlay/notification-time-picker/set-daily-reminder-time",
+        "overlay/notification-time-picker/set-goal-alarm-time"
+      ],
+      "native_sources": [
+        "app/lib/ui/auth/widgets/my_page_screen.dart",
+        "app/lib/ui/core/widgets/locale_time_picker.dart",
+        "app/lib/data/services/notification_settings_service.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/web-push-settings-client.tsx",
+          "web/src/app/api/consumer/notifications/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#445",
+        "component_api_function": "WebPushSettingsClient / notifications route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/web-push.spec.ts",
+        "test_command": "npm --prefix web run test:web-push",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/notification-time-picker.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/web-push.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-445"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "set-daily-reminder-time": "implemented-evidence-backed",
+        "set-goal-alarm-time": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "ocr-limit",
+      "category": "overlay",
+      "native_action_ids": [
+        "show-ocr-quota",
+        "continue-without-ocr"
+      ],
+      "native_action_keys": [
+        "overlay/ocr-limit/show-ocr-quota",
+        "overlay/ocr-limit/continue-without-ocr"
+      ],
+      "native_sources": [
+        "app/lib/ui/subscription/widgets/ocr_limit_dialog.dart",
+        "app/lib/data/services/google_vision_ocr_service.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/ocr-limit.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "show-ocr-quota": "implemented-evidence-backed",
+        "continue-without-ocr": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "pro-features",
+      "category": "overlay",
+      "native_action_ids": [
+        "explain-web-billing-disabled"
+      ],
+      "native_action_keys": [
+        "overlay/pro-features/explain-web-billing-disabled"
+      ],
+      "native_sources": [
+        "app/lib/ui/home/widgets/pro_upgrade_banner.dart",
+        "app/lib/data/services/subscription_service.dart"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/subscription/page.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "SubscriptionPage disabled boundary"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/todo-19-overlays.spec.ts",
+        "test_command": "node web/scripts/test-parity-matrix.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/pro-features.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/todo-19-overlays.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "disabled",
+        "rule": "Terminal only while Web billing remains absent and the localized disabled boundary has direct data and browser evidence."
+      },
+      "state_profile": "disabled",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "explain-web-billing-disabled": "disabled"
+      }
+    },
+    {
+      "id": "floating-timer",
+      "category": "overlay",
+      "native_action_ids": [
+        "open-running-timer",
+        "stop-running-timer"
+      ],
+      "native_action_keys": [
+        "overlay/floating-timer/open-running-timer",
+        "overlay/floating-timer/stop-running-timer"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/floating_timer_bar.dart",
+        "app/lib/ui/core/widgets/global_timer_indicator.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/reading-timer-control.tsx",
+          "web/src/components/consumer/floating-timer-bar.tsx",
+          "web/src/components/consumer/consumer-timer-provider.tsx",
+          "web/src/app/api/consumer/timer/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#436",
+        "component_api_function": "ReadingTimerControl / FloatingTimerBar / timer route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/timer.spec.ts",
+        "test_command": "node web/scripts/test-timer.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/floating-timer.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/timer.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-436"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "open-running-timer": "implemented-evidence-backed",
+        "stop-running-timer": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "schedule-change",
+      "category": "overlay",
+      "native_action_ids": [
+        "adjust-daily-target",
+        "preview-reading-schedule",
+        "confirm-schedule-change"
+      ],
+      "native_action_keys": [
+        "overlay/schedule-change/adjust-daily-target",
+        "overlay/schedule-change/preview-reading-schedule",
+        "overlay/schedule-change/confirm-schedule-change"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_start/widgets/schedule_change_modal.dart",
+        "app/lib/ui/reading_start/widgets/reading_start_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/progress-updater.tsx",
+          "web/src/components/consumer/reading-goal-controls.tsx",
+          "web/src/app/api/consumer/progress/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#434",
+        "component_api_function": "ProgressUpdater / ReadingGoalControls / update_schedule progress route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/progress.spec.ts",
+        "test_command": "npm --prefix web run test:progress-ui",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/schedule-change.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/progress.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-12",
+        "issue-434"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "adjust-daily-target": "implemented-evidence-backed",
+        "preview-reading-schedule": "implemented-evidence-backed",
+        "confirm-schedule-change": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "calendar-month-picker",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-calendar-month",
+        "confirm-calendar-month",
+        "cancel-calendar-month"
+      ],
+      "native_action_keys": [
+        "overlay/calendar-month-picker/choose-calendar-month",
+        "overlay/calendar-month-picker/confirm-calendar-month",
+        "overlay/calendar-month-picker/cancel-calendar-month"
+      ],
+      "native_sources": [
+        "app/lib/ui/calendar/widgets/calendar_header.dart",
+        "app/lib/ui/core/widgets/korean_year_month_picker.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/calendar-client.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#439",
+        "component_api_function": "CalendarClient / DayDetail"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/calendar.spec.ts",
+        "test_command": "node web/scripts/test-calendar.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/calendar-month-picker.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/calendar.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-439"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-calendar-month": "implemented-evidence-backed",
+        "confirm-calendar-month": "implemented-evidence-backed",
+        "cancel-calendar-month": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "clear-ai-memory-confirmation",
+      "category": "overlay",
+      "native_action_ids": [
+        "cancel-ai-memory-clear",
+        "confirm-ai-memory-clear"
+      ],
+      "native_action_keys": [
+        "overlay/clear-ai-memory-confirmation/cancel-ai-memory-clear",
+        "overlay/clear-ai-memory-confirmation/confirm-ai-memory-clear"
+      ],
+      "native_sources": [
+        "app/lib/ui/reading_chart/widgets/cards/ai_insight_card.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/reading-analytics-client.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#440",
+        "component_api_function": "ReadingAnalyticsClient / charts-goals route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/todo-19-overlays.spec.ts",
+        "test_command": "node web/scripts/test-charts-goals.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/clear-ai-memory-confirmation.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/todo-19-overlays.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-15",
+        "issue-440"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "cancel-ai-memory-clear": "implemented-evidence-backed",
+        "confirm-ai-memory-clear": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "mind-map-leaf-detail",
+      "category": "overlay",
+      "native_action_ids": [
+        "open-mind-map-leaf",
+        "close-mind-map-leaf"
+      ],
+      "native_action_keys": [
+        "overlay/mind-map-leaf-detail/open-mind-map-leaf",
+        "overlay/mind-map-leaf-detail/close-mind-map-leaf"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/ai-artifacts-client.tsx",
+          "web/src/app/api/consumer/ai-artifacts/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#442",
+        "component_api_function": "AiArtifactsClient / ai-artifacts route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-ai-artifacts.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/mind-map-leaf-detail.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-442"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "open-mind-map-leaf": "implemented-evidence-backed",
+        "close-mind-map-leaf": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "mind-map-cluster-detail",
+      "category": "overlay",
+      "native_action_ids": [
+        "open-mind-map-cluster",
+        "close-mind-map-cluster"
+      ],
+      "native_action_keys": [
+        "overlay/mind-map-cluster-detail/open-mind-map-cluster",
+        "overlay/mind-map-cluster-detail/close-mind-map-cluster"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/note_structure_mindmap.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/ai-artifacts-client.tsx",
+          "web/src/app/api/consumer/ai-artifacts/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#442",
+        "component_api_function": "AiArtifactsClient / ai-artifacts route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-ai-artifacts.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/mind-map-cluster-detail.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/review-share.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-442"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "open-mind-map-cluster": "implemented-evidence-backed",
+        "close-mind-map-cluster": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "review-link-editor",
+      "category": "overlay",
+      "native_action_ids": [
+        "edit-review-link",
+        "save-review-link",
+        "delete-review-link",
+        "cancel-review-link"
+      ],
+      "native_action_keys": [
+        "overlay/review-link-editor/edit-review-link",
+        "overlay/review-link-editor/save-review-link",
+        "overlay/review-link-editor/delete-review-link",
+        "overlay/review-link-editor/cancel-review-link"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/widgets/sections/review_link_section.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-detail-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#433",
+        "component_api_function": "BookDetailClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/book-detail.spec.ts",
+        "test_command": "npx playwright test tests/e2e/book-detail.spec.ts --project=chromium",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/review-link-editor.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/book-detail.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-433"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "edit-review-link": "implemented-evidence-backed",
+        "save-review-link": "implemented-evidence-backed",
+        "delete-review-link": "implemented-evidence-backed",
+        "cancel-review-link": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "context-menu",
+      "category": "overlay",
+      "native_action_ids": [
+        "choose-context-action",
+        "dismiss-context-menu"
+      ],
+      "native_action_keys": [
+        "overlay/context-menu/choose-context-action",
+        "overlay/context-menu/dismiss-context-menu"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/liquid_glass_context_menu.dart",
+        "app/lib/ui/core/widgets/floating_context_dropdown.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/ui-primitives-showcase.tsx",
+          "web/src/components/consumer/blab-primitives.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#421",
+        "component_api_function": "BLDS consumer primitive owner #421"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/todo-19-overlays.spec.ts",
+        "test_command": "node web/scripts/test-ui-primitives.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/context-menu.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/todo-19-overlays.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-18",
+        "issue-421"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "choose-context-action": "implemented-evidence-backed",
+        "dismiss-context-menu": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "search-overlay",
+      "category": "overlay",
+      "native_action_ids": [
+        "search-with-keyboard",
+        "dismiss-search-overlay"
+      ],
+      "native_action_keys": [
+        "overlay/search-overlay/search-with-keyboard",
+        "overlay/search-overlay/dismiss-search-overlay"
+      ],
+      "native_sources": [
+        "app/lib/ui/core/widgets/liquid_glass_search_overlay.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/ui-primitives-showcase.tsx",
+          "web/src/components/consumer/blab-primitives.tsx"
+        ]
+      },
+      "responsible": {
+        "owner": "#421",
+        "component_api_function": "BLDS consumer primitive owner #421"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/todo-19-overlays.spec.ts",
+        "test_command": "node web/scripts/test-ui-primitives.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/search-overlay.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/todo-19-overlays.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-18",
+        "issue-421"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "default",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "search-with-keyboard": "implemented-evidence-backed",
+        "dismiss-search-overlay": "implemented-evidence-backed"
+      }
+    },
+    {
+      "id": "full-screen-image",
+      "category": "overlay",
+      "native_action_ids": [
+        "view-full-screen-image",
+        "close-full-screen-image"
+      ],
+      "native_action_keys": [
+        "overlay/full-screen-image/view-full-screen-image",
+        "overlay/full-screen-image/close-full-screen-image"
+      ],
+      "native_sources": [
+        "app/lib/ui/book_detail/book_detail_screen.dart",
+        "app/lib/ui/book_detail/widgets/draggable_dismiss_image.dart"
+      ],
+      "web_implementation": {
+        "state": "implemented-evidence-backed",
+        "paths": [
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-19-artifacts/overlays/full-screen-image.json",
+        "artifacts": [
+          ".omo/evidence/bookgolas-web-completion/task-19-artifacts/logs/final-current-head-browser.log",
+          "web/tests/e2e/images-ocr.spec.ts"
+        ]
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "implemented-evidence-backed",
+        "rule": "Terminal for local current-head ownership only when every native action, required state profile, component/API owner, focused test, and direct Task 19 artifact is present; production parity is not claimed."
+      },
+      "state_profile": "browser-equivalent",
+      "required_states": [
+        "loading",
+        "empty",
+        "error",
+        "unauthorized",
+        "consent",
+        "quota",
+        "offline"
+      ],
+      "action_statuses": {
+        "view-full-screen-image": "implemented-evidence-backed",
+        "close-full-screen-image": "implemented-evidence-backed"
+      }
+    }
+  ],
+  "deep_links": [
+    {
+      "id": "book-search-deep-link",
+      "category": "deep-link",
+      "native_action_ids": [
+        "book-search-deep-link"
+      ],
+      "native_action_keys": [
+        "deep-link/book-search-deep-link/book-search-deep-link"
+      ],
+      "native_sources": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/new/page.tsx"
+        ],
+        "missing_states_or_actions": [
+          "destination evidence remains partial"
+        ]
+      },
+      "responsible": {
+        "owner": "#427",
+        "component_api_function": "getSafeNextPath / canonical consumer destination page"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-427"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when the native URI resolves to the exact locale-preserving HTTPS destination and destination state with independent data and browser evidence."
+      },
+      "native_uri": "bookgolas://book/search",
+      "canonical_web_url": "/{locale}/books/new"
+    },
+    {
+      "id": "book-detail-deep-link",
+      "category": "deep-link",
+      "native_action_ids": [
+        "book-detail-deep-link"
+      ],
+      "native_action_keys": [
+        "deep-link/book-detail-deep-link/book-detail-deep-link"
+      ],
+      "native_sources": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx"
+        ],
+        "missing_states_or_actions": [
+          "destination evidence remains partial"
+        ]
+      },
+      "responsible": {
+        "owner": "#427",
+        "component_api_function": "getSafeNextPath / canonical consumer destination page"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-427"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Complete only when the native URI resolves to the exact locale-preserving HTTPS destination and destination state with independent data and browser evidence."
+      },
+      "native_uri": "bookgolas://book/detail/{bookId}",
+      "canonical_web_url": "/{locale}/books/{bookId}"
+    },
+    {
+      "id": "book-record-deep-link",
+      "category": "deep-link",
+      "native_action_ids": [
+        "book-record-deep-link"
+      ],
+      "native_action_keys": [
+        "deep-link/book-record-deep-link/book-record-deep-link"
+      ],
+      "native_sources": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web_implementation": {
+        "state": "missing",
+        "paths": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx"
+        ],
+        "missing_states_or_actions": [
+          "destination does not consume tab=history"
+        ]
+      },
+      "responsible": {
+        "owner": "#427",
+        "component_api_function": "getSafeNextPath / canonical consumer destination page"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-427"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when the native URI resolves to the exact locale-preserving HTTPS destination and destination state with independent data and browser evidence."
+      },
+      "native_uri": "bookgolas://book/record/{bookId}",
+      "canonical_web_url": "/{locale}/books/{bookId}?tab=history"
+    },
+    {
+      "id": "book-scan-deep-link",
+      "category": "deep-link",
+      "native_action_ids": [
+        "book-scan-deep-link"
+      ],
+      "native_action_keys": [
+        "deep-link/book-scan-deep-link/book-scan-deep-link"
+      ],
+      "native_sources": [
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web_implementation": {
+        "state": "missing",
+        "paths": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx"
+        ],
+        "missing_states_or_actions": [
+          "destination does not consume scan=1"
+        ]
+      },
+      "responsible": {
+        "owner": "#427",
+        "component_api_function": "getSafeNextPath / canonical consumer destination page"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-427"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Complete only when the native URI resolves to the exact locale-preserving HTTPS destination and destination state with independent data and browser evidence."
+      },
+      "native_uri": "bookgolas://book/scan/{bookId}",
+      "canonical_web_url": "/{locale}/books/{bookId}?scan=1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "ios-home-widget",
+      "category": "capability",
+      "native_action_ids": [
+        "open-widget-book"
+      ],
+      "native_action_keys": [
+        "capability/ios-home-widget/open-widget-book"
+      ],
+      "native_sources": [
+        "app/lib/main.dart",
+        "app/lib/data/services/widget_data_service.dart",
+        "app/lib/data/services/deep_link_service.dart"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#445",
+        "component_api_function": "No Web component; explicit iOS-only boundary"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-parity-matrix.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-17-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-445"
+      ],
+      "terminal_status": {
+        "current": "unavailable",
+        "rule": "Remain unavailable; prove the native-only or disabled boundary and expose no unsupported activation."
+      }
+    },
+    {
+      "id": "siri-app-shortcuts",
+      "category": "capability",
+      "native_action_ids": [
+        "continue-reading-shortcut",
+        "scan-page-shortcut",
+        "add-book-shortcut",
+        "record-shortcut-boundary"
+      ],
+      "native_action_keys": [
+        "capability/siri-app-shortcuts/continue-reading-shortcut",
+        "capability/siri-app-shortcuts/scan-page-shortcut",
+        "capability/siri-app-shortcuts/add-book-shortcut",
+        "capability/siri-app-shortcuts/record-shortcut-boundary"
+      ],
+      "native_sources": [
+        "app/ios/Runner/BookgolasShortcuts.swift",
+        "app/ios/Runner/AppDelegate.swift",
+        "app/ios/Runner/Info.plist"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#416",
+        "component_api_function": "No Web component; explicit Siri/App Shortcuts boundary"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-parity-matrix.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-17-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-416"
+      ],
+      "terminal_status": {
+        "current": "unavailable",
+        "rule": "Remain unavailable; prove the native-only or disabled boundary and expose no unsupported activation."
+      }
+    },
+    {
+      "id": "native-push",
+      "category": "capability",
+      "native_action_ids": [
+        "request-web-push",
+        "manage-notification-categories",
+        "open-notification-deep-link"
+      ],
+      "native_action_keys": [
+        "capability/native-push/request-web-push",
+        "capability/native-push/manage-notification-categories",
+        "capability/native-push/open-notification-deep-link"
+      ],
+      "native_sources": [
+        "app/lib/data/services/fcm_service.dart",
+        "app/lib/data/services/notification_settings_service.dart",
+        "app/lib/ui/auth/widgets/my_page_screen.dart"
+      ],
+      "web_implementation": {
+        "state": "registration-only",
+        "paths": [
+          "web/src/components/consumer/web-push-settings-client.tsx",
+          "web/src/app/api/consumer/push/route.ts",
+          "web/src/lib/consumer/web-push.ts",
+          "web/public/push-sw.js"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#445",
+        "component_api_function": "WebPushSettingsClient / push route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/web-push.spec.ts",
+        "test_command": "npm --prefix web run test:web-push",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-16-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-16",
+        "issue-445"
+      ],
+      "terminal_status": {
+        "current": "registration-only",
+        "rule": "Todo 16 proves browser permission, owner-scoped registration/settings, same-origin deep-link handling, and named recovery states. Hosted delivery remains unverified and production parity remains non-terminal."
+      }
+    },
+    {
+      "id": "camera-and-ocr",
+      "category": "capability",
+      "native_action_ids": [
+        "capture-or-upload",
+        "extract-ocr",
+        "manual-text-fallback"
+      ],
+      "native_action_keys": [
+        "capability/camera-and-ocr/capture-or-upload",
+        "capability/camera-and-ocr/extract-ocr",
+        "capability/camera-and-ocr/manual-text-fallback"
+      ],
+      "native_sources": [
+        "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
+        "app/lib/ui/book_detail/utils/document_scan_utils.dart",
+        "app/lib/ui/book_detail/utils/ocr_utils.dart",
+        "app/lib/data/services/google_vision_ocr_service.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/components/consumer/book-discovery-client.tsx",
+          "web/src/components/consumer/book-image-capture-client.tsx",
+          "web/src/app/api/consumer/images-ocr/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:capture-or-upload:planned",
+          "action:extract-ocr:planned",
+          "action:manual-text-fallback:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#435",
+        "component_api_function": "BookDiscoveryClient / BookImageCaptureClient / images-ocr route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/images-ocr.spec.ts",
+        "test_command": "node web/scripts/test-images-ocr.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-13-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-13",
+        "issue-435"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Reach only the matrix-defined browser boundary with action-level data and browser evidence; do not overclaim provider or OS delivery."
+      }
+    },
+    {
+      "id": "share-sheet",
+      "category": "capability",
+      "native_action_ids": [
+        "share-book",
+        "download-share-card"
+      ],
+      "native_action_keys": [
+        "capability/share-sheet/share-book",
+        "capability/share-sheet/download-share-card"
+      ],
+      "native_sources": [
+        "app/lib/data/services/book_share_service.dart",
+        "app/lib/ui/book_detail/widgets/book_share_card.dart",
+        "app/lib/ui/reading_chart/widgets/reading_stats_share_card.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/components/consumer/book-review-client.tsx",
+          "web/src/app/api/consumer/review-share/route.ts"
+        ],
+        "missing_states_or_actions": [
+          "action:share-book:planned",
+          "action:download-share-card:planned"
+        ]
+      },
+      "responsible": {
+        "owner": "#443",
+        "component_api_function": "BookReviewClient / review-share route"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/review-share.spec.ts",
+        "test_command": "node web/scripts/test-review-share.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-14-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-14",
+        "issue-443"
+      ],
+      "terminal_status": {
+        "current": "planned",
+        "rule": "Reach only the matrix-defined browser boundary with action-level data and browser evidence; do not overclaim provider or OS delivery."
+      }
+    },
+    {
+      "id": "subscriptions",
+      "category": "capability",
+      "native_action_ids": [
+        "show-billing-disabled"
+      ],
+      "native_action_keys": [
+        "capability/subscriptions/show-billing-disabled"
+      ],
+      "native_sources": [
+        "app/lib/data/services/subscription_service.dart",
+        "app/lib/ui/subscription/widgets/subscription_screen.dart",
+        "app/lib/config/feature_flags.dart"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [
+          "web/src/app/[locale]/(consumer)/subscription/page.tsx"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#444",
+        "component_api_function": "SubscriptionPage disabled boundary"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-parity-matrix.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-17-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-444"
+      ],
+      "terminal_status": {
+        "current": "disabled",
+        "rule": "Todo 17 directly verifies the disabled subscription capability with no purchase, restore, upgrade, customer-center or RevenueCat activation."
+      }
+    },
+    {
+      "id": "offline-boundary",
+      "category": "capability",
+      "native_action_ids": [
+        "show-network-status",
+        "preserve-proven-draft",
+        "retry-online-write"
+      ],
+      "native_action_keys": [
+        "capability/offline-boundary/show-network-status",
+        "capability/offline-boundary/preserve-proven-draft",
+        "capability/offline-boundary/retry-online-write"
+      ],
+      "native_sources": [
+        "app/lib/data/services/widget_data_service.dart",
+        "app/lib/data/services/reading_timer_service.dart",
+        "app/lib/ui/book_review/book_review_screen.dart",
+        "app/lib/ui/reading_chart/view_model/reading_chart_view_model.dart"
+      ],
+      "web_implementation": {
+        "state": "boundary",
+        "paths": [
+          "web/src/components/consumer/network-status.tsx",
+          "web/src/lib/consumer/offline-boundary.ts",
+          "web/src/components/consumer/book-review-client.tsx"
+        ],
+        "missing_states_or_actions": []
+      },
+      "responsible": {
+        "owner": "#447",
+        "component_api_function": "NetworkStatus / offline boundary"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/offline-sync.spec.ts",
+        "test_command": "node web/scripts/test-offline-sync.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-17-bookgolas-web-completion.json"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-17",
+        "issue-447"
+      ],
+      "terminal_status": {
+        "current": "online-only",
+        "rule": "Todo 17 directly verifies localized offline and reconnect states, ten rejected write classes, no queue or reconnect replay, and the review-only local draft exception. Production offline parity remains unclaimed."
+      }
+    },
+    {
+      "id": "deep-links",
+      "category": "capability",
+      "native_action_ids": [
+        "open-book-deep-link",
+        "open-record-deep-link",
+        "complete-auth-callback"
+      ],
+      "native_action_keys": [
+        "capability/deep-links/open-book-deep-link",
+        "capability/deep-links/open-record-deep-link",
+        "capability/deep-links/complete-auth-callback"
+      ],
+      "native_sources": [
+        "app/lib/data/services/deep_link_service.dart",
+        "app/lib/main.dart"
+      ],
+      "web_implementation": {
+        "state": "partial",
+        "paths": [
+          "web/src/lib/consumer/paths.ts",
+          "web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx"
+        ],
+        "missing_states_or_actions": [
+          "action:open-book-deep-link:partial",
+          "action:open-record-deep-link:planned",
+          "action:complete-auth-callback:partial"
+        ]
+      },
+      "responsible": {
+        "owner": "#427",
+        "component_api_function": "getSafeNextPath / consumer destination pages"
+      },
+      "verification": {
+        "fixture_or_test": "web/tests/e2e/routes.spec.ts",
+        "test_command": "node web/scripts/test-consumer-routes.mjs",
+        "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+      },
+      "dependencies": [
+        "parity-ledger",
+        "native-inventory",
+        "todo-11",
+        "issue-427"
+      ],
+      "terminal_status": {
+        "current": "partial",
+        "rule": "Reach only the matrix-defined browser boundary with action-level data and browser evidence; do not overclaim provider or OS delivery."
+      }
+    }
+  ]
+}

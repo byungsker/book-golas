@@ -24,6 +24,7 @@ jobs:
       flutter: ${{ steps.scope.outputs.flutter }}
       web: ${{ steps.scope.outputs.web }}
       edge: ${{ steps.scope.outputs.edge }}
+      workflow: ${{ steps.scope.outputs.workflow }}
     steps:
       - id: scope
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
@@ -66,7 +67,14 @@ jobs:
             );
             core.setOutput(
               "web",
-              paths.some((path) => path.startsWith("web/")),
+              paths.some((path) =>
+                path.startsWith("web/") ||
+                path === ".github/workflows/quality.yml",
+              ),
+            );
+            core.setOutput(
+              "workflow",
+              paths.some((path) => path === ".github/workflows/quality.yml"),
             );
             core.setOutput(
               "edge",
@@ -114,9 +122,10 @@ jobs:
         run: flutter test --no-pub
 
   web:
-    name: Web Audit, Lint, and Build
+    name: Web Consumer Release Gate
     needs: changes
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: web
@@ -137,9 +146,25 @@ jobs:
       - if: needs.changes.outputs.web == 'true'
         run: npm audit --audit-level=high
       - if: needs.changes.outputs.web == 'true'
-        run: npm run lint
+        run: npx playwright install --with-deps chromium firefox webkit
       - if: needs.changes.outputs.web == 'true'
-        run: npm run build
+        run: npm run test:release-gate
+        env:
+          CI: true
+
+  workflow-contract:
+    name: Quality Workflow Contract
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.workflow != 'true'
+        run: echo "No Quality workflow changes detected"
+      - if: needs.changes.outputs.workflow == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.workflow == 'true'
+        run: |
+          test "$(grep -cE '^[[:space:]]+run: npm run test:release-gate$' .github/workflows/quality.yml)" -eq 1
+          ! grep -qE 'secrets\.|SUPABASE_(ACCESS_TOKEN|SERVICE_ROLE_KEY|PROJECT_REF)' .github/workflows/quality.yml
 
   edge-functions:
     name: Edge Function Type Check

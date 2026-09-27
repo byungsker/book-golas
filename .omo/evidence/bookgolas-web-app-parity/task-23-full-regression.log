@@ -1,0 +1,171 @@
+
+> web@0.1.0 test
+> vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative && npm run test:progress-ui && npm run test:progress-ui:negative && npm run test:timer && npm run test:timer:negative && npm run test:notes-highlights && npm run test:notes-highlights:negative
+
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-432/web
+
+ ✓ src/lib/auth-boundary.test.ts (5 tests) 197ms
+ ✓ src/proxy.test.ts (20 tests) 14ms
+ ✓ src/app/api/consumer/consent/route.test.ts (3 tests) 12ms
+ ✓ src/lib/product/contracts/requests.test.ts (18 tests) 14ms
+ ✓ src/lib/product/contracts/contracts.test.ts (26 tests) 27ms
+ ✓ src/app/api/consumer/book-discovery/route.test.ts (4 tests) 12ms
+ ✓ src/app/api/consumer/book-lifecycle/route.test.ts (3 tests) 14ms
+ ✓ src/lib/product/dal.records.test.ts (2 tests) 8ms
+ ✓ src/lib/product/adapters.test.ts (13 tests) 25ms
+ ✓ src/app/api/consumer/notes-highlights/route.test.ts (4 tests) 17ms
+ ✓ src/app/api/app/books/[bookId]/route.test.ts (4 tests) 11ms
+ ✓ src/app/api/consumer/timer/route.test.ts (4 tests) 15ms
+ ✓ src/lib/product/dal.writes.test.ts (6 tests) 28ms
+ ✓ src/app/api/consumer/book-detail/route.test.ts (4 tests) 13ms
+ ✓ src/app/api/consumer/progress/route.test.ts (6 tests) 13ms
+ ✓ src/lib/product/dal.test.ts (9 tests) 30ms
+ ✓ src/app/[locale]/(auth)/auth/callback/route.test.ts (7 tests) 7ms
+ ✓ src/lib/product/dal.consumer-records.test.ts (3 tests) 12ms
+ ✓ src/lib/product/contracts/book-lifecycle.test.ts (5 tests) 14ms
+ ✓ src/app/api/app/books/route.test.ts (4 tests) 12ms
+ ✓ src/app/api/app/books/search/route.test.ts (2 tests) 10ms
+ ✓ src/lib/product/adapters.storage.test.ts (4 tests) 8ms
+ ✓ src/lib/consumer/progress-fixtures.test.ts (3 tests) 8ms
+ ✓ src/lib/product/adapters.book-search.test.ts (1 test) 5ms
+ ✓ src/lib/consumer/queries.test.ts (6 tests) 7ms
+ ✓ src/lib/product/contracts/progress-ui.test.ts (4 tests) 9ms
+ ✓ src/lib/product/adapters.tables.test.ts (4 tests) 11ms
+ ✓ src/lib/product/contracts/timer.test.ts (3 tests) 8ms
+ ✓ src/lib/consumer/library.test.ts (4 tests) 6ms
+ ✓ src/lib/product/contracts/book-detail.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 6ms
+ ✓ src/lib/product/contracts/notes-highlights.test.ts (4 tests) 6ms
+ ✓ src/lib/consumer/paths.test.ts (28 tests) 4ms
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 8ms
+ ✓ src/lib/product/contracts/book-discovery.test.ts (4 tests) 5ms
+ ✓ src/lib/consumer/session-lifecycle.test.ts (7 tests) 3ms
+ ✓ src/lib/consumer/home-book-list.test.ts (6 tests) 6ms
+ ✓ src/lib/consumer/route-fixture.test.ts (9 tests) 3ms
+ ✓ src/lib/consumer/oauth.test.ts (5 tests) 4ms
+ ✓ src/lib/consumer/types.test.ts (2 tests) 2ms
+ ✓ src/lib/consumer/timer-fixtures.test.ts (3 tests) 6ms
+ ✓ src/lib/consumer/timer-state.test.ts (4 tests) 5ms
+ ✓ src/lib/consumer/onboarding.test.ts (3 tests) 3ms
+ ✓ src/lib/consumer/isbn.test.ts (2 tests) 2ms
+ ✓ src/lib/consumer/shell.test.ts (3 tests) 2ms
+
+ Test Files  45 passed (45)
+      Tests  275 passed (275)
+   Start at  06:54:18
+   Duration  3.05s (transform 1.96s, setup 0ms, collect 11.89s, tests 642ms, environment 11ms, prepare 3.97s)
+
+
+> web@0.1.0 test:parity-matrix
+> node scripts/test-parity-matrix.mjs
+
+parity matrix passed: 20 routes, 53 overlays, 8 capabilities
+
+> web@0.1.0 test:parity-matrix:negative
+> node scripts/test-parity-matrix.mjs --assert-fixtures
+
+parity negative fixtures passed: 59
+
+> web@0.1.0 test:blab-parity
+> node scripts/test-blab-parity.mjs
+
+BLDS React parity contract passed: artifact=vendor/byungsker-blab-design-system-0.2.0.tgz sha256=4a3508b4e01de95c0e90269b9cc891bafcba51a05240ecef871b6295f378bd7a contract=docs/blab-react-parity-contract.json evidence=docs/evidence/bookgolas-web-app-parity
+
+> web@0.1.0 test:blab-parity:negative
+> node scripts/test-blab-parity.mjs --fixture missing-component
+
+BLDS parity negative fixture passed: adapter is missing ConsumerButton
+
+> web@0.1.0 test:blab-render
+> node scripts/test-blab-render.mjs
+
+BLDS SSR state contract passed: loading, empty, error, retry, loading button, text field and accessible roles
+
+> web@0.1.0 test:ui-primitives
+> node scripts/test-ui-primitives.mjs
+
+UI primitive contract passed: DESIGN.md, BLDS adapters, localized states, dev-only tooling and reduced-motion coverage
+
+> web@0.1.0 test:ui-primitives:negative
+> node scripts/test-ui-primitives.mjs --fixture missing-focus
+
+UI primitive negative fixture passed: consumer showcase focus ring rule is missing
+
+> web@0.1.0 test:progress-ui
+> node scripts/test-progress-ui.mjs && vitest run src/lib/product/contracts/progress-ui.test.ts src/lib/consumer/progress-fixtures.test.ts src/app/api/consumer/progress/route.test.ts src/app/actions/reading-progress.test.ts
+
+progress-ui contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-432/web
+
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 4ms
+ ✓ src/lib/product/contracts/progress-ui.test.ts (4 tests) 8ms
+ ✓ src/lib/consumer/progress-fixtures.test.ts (3 tests) 8ms
+ ✓ src/app/api/consumer/progress/route.test.ts (6 tests) 12ms
+
+ Test Files  4 passed (4)
+      Tests  16 passed (16)
+   Start at  06:54:41
+   Duration  357ms (transform 187ms, setup 0ms, collect 551ms, tests 32ms, environment 0ms, prepare 207ms)
+
+
+> web@0.1.0 test:progress-ui:negative
+> node scripts/test-progress-ui.mjs --fixture stale && node scripts/test-progress-ui.mjs --fixture duplicate && node scripts/test-progress-ui.mjs --fixture server-error && node scripts/test-progress-ui.mjs --fixture page-bounds
+
+progress-ui contract passed (stale)
+progress-ui contract passed (duplicate)
+progress-ui contract passed (server-error)
+progress-ui contract passed (page-bounds)
+
+> web@0.1.0 test:timer
+> node scripts/test-timer.mjs && vitest run src/lib/product/contracts/timer.test.ts src/lib/consumer/timer-state.test.ts src/lib/consumer/timer-fixtures.test.ts src/app/api/consumer/timer/route.test.ts
+
+timer contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-432/web
+
+ ✓ src/lib/product/contracts/timer.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/timer-state.test.ts (4 tests) 3ms
+ ✓ src/lib/consumer/timer-fixtures.test.ts (3 tests) 4ms
+ ✓ src/app/api/consumer/timer/route.test.ts (4 tests) 14ms
+
+ Test Files  4 passed (4)
+      Tests  14 passed (14)
+   Start at  06:54:42
+   Duration  392ms (transform 135ms, setup 0ms, collect 476ms, tests 28ms, environment 0ms, prepare 206ms)
+
+
+> web@0.1.0 test:timer:negative
+> node scripts/test-timer.mjs --fixture minimum && node scripts/test-timer.mjs --fixture duplicate && node scripts/test-timer.mjs --fixture logout && node scripts/test-timer.mjs --fixture over-max
+
+timer contract passed (minimum)
+timer contract passed (duplicate)
+timer contract passed (logout)
+timer contract passed (over-max)
+
+> web@0.1.0 test:notes-highlights
+> node scripts/test-notes-highlights.mjs && vitest run src/lib/product/contracts/notes-highlights.test.ts src/lib/product/dal.consumer-records.test.ts src/app/api/consumer/notes-highlights/route.test.ts
+
+notes-highlights contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-432/web
+
+ ✓ src/lib/product/contracts/notes-highlights.test.ts (4 tests) 6ms
+ ✓ src/app/api/consumer/notes-highlights/route.test.ts (4 tests) 15ms
+ ✓ src/lib/product/dal.consumer-records.test.ts (3 tests) 11ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  06:54:43
+   Duration  475ms (transform 147ms, setup 0ms, collect 455ms, tests 31ms, environment 0ms, prepare 142ms)
+
+
+> web@0.1.0 test:notes-highlights:negative
+> node scripts/test-notes-highlights.mjs --fixture invalid-page && node scripts/test-notes-highlights.mjs --fixture invalid-rectangle && node scripts/test-notes-highlights.mjs --fixture index-failure && node scripts/test-notes-highlights.mjs --fixture foreign-record && node scripts/test-notes-highlights.mjs --fixture duplicate-retry
+
+notes-highlights contract passed (invalid-page)
+notes-highlights contract passed (invalid-rectangle)
+notes-highlights contract passed (index-failure)
+notes-highlights contract passed (foreign-record)
+notes-highlights contract passed (duplicate-retry)

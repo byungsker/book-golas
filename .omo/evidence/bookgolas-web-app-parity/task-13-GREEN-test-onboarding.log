@@ -1,0 +1,15 @@
+
+> web@0.1.0 test:onboarding
+> node scripts/test-onboarding.mjs && vitest run src/lib/consumer/onboarding.test.ts src/lib/consumer/paths.test.ts
+
+onboarding contract: PASS
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-426/web
+
+ ✓ src/lib/consumer/onboarding.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/paths.test.ts (27 tests) 4ms
+
+ Test Files  2 passed (2)
+      Tests  30 passed (30)
+   Start at  00:50:05
+   Duration  262ms (transform 53ms, setup 0ms, collect 64ms, tests 6ms, environment 0ms, prepare 80ms)

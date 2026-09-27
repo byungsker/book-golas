@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:book-detail
+> node scripts/test-book-detail.mjs && vitest run src/lib/product/contracts/book-detail.test.ts src/app/api/consumer/book-detail/route.test.ts src/lib/product/dal.writes.test.ts
+
+book-detail contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-433/web
+
+ ✓ src/lib/product/contracts/book-detail.test.ts (3 tests) 6ms
+ ✓ src/app/api/consumer/book-detail/route.test.ts (4 tests) 11ms
+ ✓ src/lib/product/dal.writes.test.ts (6 tests) 14ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  04:54:47
+   Duration  453ms (transform 149ms, setup 0ms, collect 469ms, tests 30ms, environment 0ms, prepare 132ms)

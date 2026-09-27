@@ -1,0 +1,8 @@
+npm error Missing script: "test:book-detail"
+npm error
+npm error Did you mean this?
+npm error   npm run test:auth-email # run the "test:auth-email" package script
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /Users/byungskersmacbook/.npm/_logs/2026-09-15T19_34_38_104Z-debug-0.log

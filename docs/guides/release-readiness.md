@@ -48,16 +48,23 @@ Production workflow는 App Store Connect API key로 `Bookgolas App Store`와
 - [ ] Sandbox 구매·복원·갱신·취소·만료 검증
 - [ ] 심사용 계정 로그인 및 Pro 권한 검증
 
-## 브랜치와 배포
+## 브랜치·태그·배포
 
-1. `feature/* → daily/YYYY-MM-DD` PR을 merge commit으로 합칩니다.
-2. `daily/YYYY-MM-DD → dev` PR을 merge commit으로 합칩니다.
-3. TestFlight와 개발 Supabase 배포가 성공할 때까지 수정합니다.
-4. Apple 유료 앱 계약·세금·은행 정보와 외부 자격증명을 활성화합니다.
-5. `dev → main` PR을 merge commit으로 합치고 Production environment를 승인합니다.
-6. 운영 Supabase 배포와 `com.bookgolas.app` TestFlight 업로드를 확인합니다.
-7. 프로덕션 TestFlight 빌드에서 Sandbox 구매·복원·갱신·취소·만료를 검증합니다.
-8. App Store Connect에서 빌드·구독을 선택하고 심사에 제출합니다.
-9. 승인 후 수동 출시 또는 예약 출시를 실행합니다.
+1. `.byungskerlab/release-lines.json`에서 모바일 `1.0.2` 대상과 근거를 확인합니다.
+2. `version/mobile/1.0.2`에서 작업하고 같은 버전 라인으로 PR을 합칩니다.
+3. 범위를 동결한 뒤 `release/mobile/1.0.2`에서 릴리즈 QA를 수행합니다.
+4. TestFlight와 개발 Supabase 배포가 성공할 때까지 수정합니다.
+5. `release/mobile/1.0.2`를 `main`으로 승격하고 결과 커밋에
+   `mobile-v1.0.2` annotated tag를 만듭니다.
+6. 태그와 동일한 커밋 또는 불변 아티팩트를 Production에 배포하고,
+   커밋 SHA·태그·아티팩트 식별자·롤백 대상을 기록합니다.
+7. 운영 Supabase 배포와 `com.bookgolas.app` TestFlight 업로드를 확인합니다.
+8. 프로덕션 TestFlight 빌드에서 Sandbox 구매·복원·갱신·취소·만료를 검증합니다.
+9. App Store Connect에서 빌드·구독을 선택하고 심사·출시를 진행합니다.
+10. 배포 증거와 동기화가 끝나면 version/release 브랜치를 퇴역시키고
+    `mobile-v1.0.2` 태그와 릴리즈 기록은 보존합니다.
+
+상세한 브랜치 수명과 롤백 절차는
+[`release-and-rollback-policy.md`](./release-and-rollback-policy.md)를 따릅니다.
 
 최종 확인일: 2026-07-23

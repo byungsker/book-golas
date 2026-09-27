@@ -151,6 +151,9 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - 모든 브랜치와 PR은 `.byungskerlab/branch-policy.json`,
   `.byungskerlab/release-lines.json`과 전역 Target Delivery Contract를
   따른다.
+- 릴리즈 태그, 버전 브랜치 수명, 롤백 및 버전 라인 퇴역은
+  `docs/guides/release-and-rollback-policy.md`를 따른다. 버전 브랜치는
+  롤백 보관소가 아니며, 배포 복구 기준점은 불변 태그와 아티팩트다.
 - 기계 검증 가능한 활성 버전 원본은 `release-lines.json`이며, 현재
   승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
@@ -485,3 +488,81 @@ BLabButton(text: 'Submit', onPressed: () {})
 BLabCard(child: Text('Content'))
 BLabSnackbar.show(context, message: 'Success', type: BLabSnackbarType.success)
 ```
+
+## Consumer Web 1.1.0 Completion Lane
+
+This isolated lane is for the Bookgolas consumer Web 1.1.0 continuity work only.
+
+### Source of truth
+
+- The selected execution plan is `.omo/plans/bookgolas-web-completion.md`.
+- The consumer Web contract is the `web/` source, its `web/AGENTS.md`, and the
+  parity matrix and ledger under `web/docs/` at the verified base revision.
+- The worktree must stay on `codex/feature/web/1.1.0/bookgolas-web-completion` at
+  base `52e9c1db19b307200acef66eef73b86122b315d8` until a later task records a
+  verified implementation revision.
+
+### Exact-path authorization and policy mismatch
+
+The user explicitly authorized these continuity paths in this worktree:
+
+- `AGENTS.md`
+- `.agents/references/bookgolas-web/bookgolas-web.md`
+- `.agents/references/bookgolas-web/status.md`
+- `.agents/references/bookgolas-web/log.md`
+- `.omo/evidence/bookgolas-web-completion/task-1-bookgolas-web-completion.md`
+
+The current `.byungskerlab/branch-policy.json` allows root `AGENTS.md` for the
+Web delivery unit, but does not list `.agents/**`; its Web 1.1.0 evidence
+allow-list names `.omo/evidence/bookgolas-web-app-parity/**`, not the requested
+`.omo/evidence/bookgolas-web-completion/**`. The policy also has a separate
+governance `active_versions` value of `1.0.0`, while the Web delivery unit and
+`release-lines.json` list `1.1.0`. This is recorded as a current branch-policy
+mismatch. Do not silently edit or broaden policy files; obtain governance review
+before changing them.
+
+### Branch and worktree safety
+
+- Work only in `/Users/byungskersmacbook/Documents/ChatGPT/book-golas-wt/bookgolas-web-completion-wave-0`.
+- The original checkout is `/Users/byungskersmacbook/Documents/ChatGPT/book-golas`.
+  Never edit, reset, stash, clean, or overwrite it.
+- Before each continuity task, capture `git status --short --branch`,
+  `git diff --stat`, `git rev-parse HEAD`, and `git worktree list --porcelain`.
+- Do not implement product features in this bootstrap task: do not change
+  `web/src`, Supabase files, or historical evidence.
+
+### Bootstrap and verification commands
+
+Run from the target worktree unless a command uses an explicit absolute path:
+
+```bash
+git status --short --branch
+git rev-parse HEAD
+git worktree list --porcelain
+test -f AGENTS.md
+test -f .agents/references/bookgolas-web/bookgolas-web.md
+test -f .agents/references/bookgolas-web/status.md
+test -f .agents/references/bookgolas-web/log.md
+rg -n "0/22|0/85|0/20|0/53|0/4|0/8|Wave 0|Wave 1|Wave 2|Wave 3|Wave 4|Final|Current task|Last verified SHA|Blocker" .agents/references/bookgolas-web/status.md
+git diff --check
+```
+
+The remote source of truth for the base is
+`git ls-remote origin refs/heads/version/web/1.1.0`; it must equal the pinned
+base SHA. A temporary status checker must reject any copy missing a required
+counter or continuity field before a status receipt is accepted.
+
+### Fresh-session resume recipe
+
+1. `cd /Users/byungskersmacbook/Documents/ChatGPT/book-golas-wt/bookgolas-web-completion-wave-0`.
+2. Verify the branch, exact base/last-verified SHA, clean assigned scope, and
+   worktree list before reading or editing anything.
+3. Read `.agents/references/bookgolas-web/status.md`, then append a structured
+   entry to `log.md`; never rewrite prior log entries or historical evidence.
+4. Read the selected plan and the referenced Web contract files. Execute only
+   the next task named in `status.md`, retaining the 85-record denominator.
+5. Run the task's happy and intentional-failure scenarios, capture artifacts
+   under `.omo/evidence/bookgolas-web-completion/`, and update status only with
+   evidence-backed counters.
+6. On interruption, clean task-local processes/temp copies, record the restart
+   state in `log.md`, and resume from the last verified SHA.

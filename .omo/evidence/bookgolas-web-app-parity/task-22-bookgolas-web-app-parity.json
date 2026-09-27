@@ -1,0 +1,85 @@
+{
+  "issue": 436,
+  "title": "[Bookgolas Web Parity 22] Implement timer/session behavior and floating timer bar",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-436-timer-sessions",
+  "base_revision": "3b80d7471fd8a4a20e5f1225bc5fb61c7a1c8507",
+  "red": {
+    "command": "npm run test:timer",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:timer.",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-22-RED-test-timer.log"
+  },
+  "green": {
+    "commands": [
+      "npm run test:timer",
+      "npm run test:timer:negative",
+      "node scripts/test-timer.mjs --fixture minimum",
+      "node scripts/test-timer.mjs --fixture duplicate",
+      "node scripts/test-timer.mjs --fixture logout",
+      "node scripts/test-timer.mjs --fixture over-max"
+    ],
+    "result": "PASS",
+    "details": [
+      "The strict timer contract, browser state, fixture state machine and private route suites passed 4 Vitest files and 14 tests.",
+      "The acceptance script covers 30-second discard, eight-hour cap, idempotency, verified owner scope, logout cleanup, localized paths and private no-store responses.",
+      "The package negative command passed minimum, duplicate, logout and over-max fixture modes."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-22-GREEN-test-timer.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-GREEN-negative-all.log"
+    ]
+  },
+  "surface": {
+    "commands": [
+      "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"start|pause|stop|refresh\"",
+      "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"minimum|duplicate|logout\""
+    ],
+    "result": "PASS",
+    "details": [
+      "The happy surface passed start, pause, resume, refresh restoration, stop persistence, the eight-hour cap and duplicate replay.",
+      "The failure surface passed minimum-session discard, duplicate stop replay and logout local-state cleanup."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-22-SURFACE-start-pause-stop-refresh.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-SURFACE-minimum-duplicate-logout.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-bookgolas-web-app-parity.png"
+    ]
+  },
+  "cleanup": {
+    "commands": [
+      "npm run lint",
+      "npm run typecheck",
+      "npm run build",
+      "git diff --check"
+    ],
+    "result": "PASS",
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-22-CLEANUP-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-CLEANUP-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-CLEANUP-build.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-22-CLEANUP-diff-check.log"
+    ]
+  },
+  "full_regression": {
+    "command": "npm test",
+    "result": "PASS",
+    "details": [
+      "Vitest passed 42 files and 264 tests.",
+      "Parity matrix passed 20 routes, 53 overlays and 8 capabilities; all 59 parity negative fixtures passed.",
+      "BLDS React parity, BLDS negative, SSR state, UI primitive, UI primitive negative, progress UI, progress UI negative and timer contracts passed."
+    ],
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-22-CLEANUP-full-regression-post-commit.log"
+  },
+  "review": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-22-review.md",
+    "verdict": "APPROVE",
+    "reviewer": "manual code review",
+    "blocking_findings": []
+  },
+  "blockers": [
+    "The referenced .omo/plans/bookgolas-web-app-parity.md file is not present in this clean checkout; the required reference is retained in the contract and PR footer."
+  ]
+}

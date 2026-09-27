@@ -1,0 +1,4 @@
+GREEN evidence — issue #440 / task 27
+Command: npm run test:charts-goals
+Result: exit 0
+Output: charts/goals contract passed; 3 Vitest files passed; 9 tests passed.

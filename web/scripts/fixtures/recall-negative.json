@@ -1,0 +1,16 @@
+{
+  "issue": 441,
+  "task": 29,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "forbiddenMarkers": ["Foreign private title", "User A recall history", "foreign-user-id", "embedding", "raw prompt"],
+  "fixtures": [
+    { "name": "unauthorized", "routeFixture": "recall-unauthorized", "expected": { "code": "unauthorized", "status": 401, "uiState": "unauthorized" } },
+    { "name": "consent", "routeFixture": "recall-consent", "expected": { "code": "consent_required", "status": 403, "uiState": "consent_required" } },
+    { "name": "quota", "routeFixture": "recall-quota", "expected": { "code": "quota_exceeded", "status": 429, "uiState": "quota_exceeded" } },
+    { "name": "provider", "routeFixture": "recall-provider", "expected": { "code": "provider_error", "status": 502, "uiState": "provider_error" } },
+    { "name": "offline", "routeFixture": "recall-offline", "expected": { "code": "offline", "status": 503, "uiState": "offline" } },
+    { "name": "empty", "routeFixture": "recall-empty", "expected": { "code": null, "status": 200, "uiState": "empty" } },
+    { "name": "foreign", "routeFixture": "recall-foreign", "expected": { "code": null, "status": 200, "uiState": "owner_scoped" } },
+    { "name": "signed-image", "routeFixture": "recall-image", "expected": { "code": null, "status": 200, "uiState": "signed_only" } }
+  ]
+}

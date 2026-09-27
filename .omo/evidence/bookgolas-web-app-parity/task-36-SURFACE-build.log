@@ -1,0 +1,10 @@
+
+> web@0.1.0 build
+> npm run test:release-config && next build
+
+
+> web@0.1.0 test:release-config
+> node scripts/test-release-config.mjs
+
+consumer web release config passed
+sh: next: command not found

@@ -1,0 +1,38 @@
+{
+  "issue": 438,
+  "task": 28,
+  "baseRevision": "4d19c9d2f423d420ff80bdfbefb45155f94c78ac",
+  "branch": "codex/feature/web/1.1.0/BOK-438-ai-consent",
+  "red": ".omo/evidence/bookgolas-web-app-parity/task-28-RED-test-ai-consent-states.log",
+  "green": [
+    ".omo/evidence/bookgolas-web-app-parity/task-28-GREEN-test-ai-consent-states.log",
+    ".omo/evidence/bookgolas-web-app-parity/task-28-GREEN-negative-ai-consent.log"
+  ],
+  "surface": {
+    "typecheck": ".omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-typecheck.log",
+    "lint": ".omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-lint.log",
+    "build": ".omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-build.log",
+    "happy": ".omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-happy.log",
+    "failure": ".omo/evidence/bookgolas-web-app-parity/task-28-SURFACE-failure.log",
+    "screenshot": ".omo/evidence/bookgolas-web-app-parity/task-28-bookgolas-web-app-parity.png"
+  },
+  "cleanup": ".omo/evidence/bookgolas-web-app-parity/task-28-CLEANUP.log",
+  "fullRegression": ".omo/evidence/bookgolas-web-app-parity/task-28-full-regression.log",
+  "manualReview": {
+    "status": "APPROVE",
+    "review": ".omo/evidence/bookgolas-web-app-parity/task-28-review.md"
+  },
+  "tests": {
+    "acceptance": "npm run test:ai-consent-states",
+    "negative": "npm run test:ai-consent-states:negative",
+    "browser": [
+      "npx playwright test tests/e2e/ai-consent.spec.ts --project=chromium --grep \"grant|withdraw|state\"",
+      "npx playwright test tests/e2e/ai-consent.spec.ts --project=chromium --grep \"unknown|quota|budget|provider\""
+    ],
+    "fullRegressionResult": "58 test files and 328 tests passed"
+  },
+  "blockers": [
+    "The clean integration checkout does not contain .omo/plans/bookgolas-web-app-parity.md; the contract, evidence and PR footer retain the required plan reference.",
+    "Live Supabase/Docker runtime verification remains unavailable on the configured host; owner-scoped route mock, deterministic fixture, unit, build and Chromium checks pass."
+  ]
+}

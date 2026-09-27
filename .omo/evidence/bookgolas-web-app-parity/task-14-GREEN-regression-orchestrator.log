@@ -1,0 +1,152 @@
+
+> web@0.1.0 typecheck
+> tsc --noEmit
+
+
+> web@0.1.0 lint
+> eslint
+
+
+> web@0.1.0 test
+> vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative
+
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-425/web
+
+ ✓ src/lib/auth-boundary.test.ts (5 tests) 87ms
+ ✓ src/proxy.test.ts (19 tests) 14ms
+ ✓ src/app/api/consumer/consent/route.test.ts (3 tests) 12ms
+ ✓ src/lib/product/contracts/contracts.test.ts (26 tests) 16ms
+ ✓ src/app/api/app/books/search/route.test.ts (2 tests) 8ms
+ ✓ src/app/api/app/books/route.test.ts (4 tests) 11ms
+ ✓ src/lib/product/dal.writes.test.ts (3 tests) 15ms
+ ✓ src/lib/product/dal.test.ts (9 tests) 16ms
+ ✓ src/lib/product/adapters.test.ts (13 tests) 25ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 8ms
+ ✓ src/lib/product/contracts/requests.test.ts (18 tests) 13ms
+ ✓ src/app/[locale]/(auth)/auth/callback/route.test.ts (7 tests) 8ms
+ ✓ src/app/api/app/books/[bookId]/route.test.ts (4 tests) 10ms
+ ✓ src/lib/consumer/paths.test.ts (27 tests) 4ms
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 5ms
+ ✓ src/lib/product/adapters.tables.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/oauth.test.ts (5 tests) 5ms
+ ✓ src/lib/consumer/queries.test.ts (5 tests) 5ms
+ ✓ src/lib/product/adapters.storage.test.ts (4 tests) 9ms
+ ✓ src/lib/consumer/onboarding.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/route-fixture.test.ts (6 tests) 2ms
+ ✓ src/lib/consumer/types.test.ts (2 tests) 2ms
+ ✓ src/lib/consumer/shell.test.ts (3 tests) 3ms
+
+ Test Files  23 passed (23)
+      Tests  182 passed (182)
+   Start at  01:19:25
+   Duration  1.01s (transform 766ms, setup 0ms, collect 3.14s, tests 288ms, environment 2ms, prepare 1.46s)
+
+
+> web@0.1.0 test:parity-matrix
+> node scripts/test-parity-matrix.mjs
+
+parity matrix passed: 20 routes, 53 overlays, 8 capabilities
+
+> web@0.1.0 test:parity-matrix:negative
+> node scripts/test-parity-matrix.mjs --assert-fixtures
+
+parity negative fixtures passed: 59
+
+> web@0.1.0 test:blab-parity
+> node scripts/test-blab-parity.mjs
+
+BLDS React parity contract passed: artifact=vendor/byungsker-blab-design-system-0.2.0.tgz sha256=4a3508b4e01de95c0e90269b9cc891bafcba51a05240ecef871b6295f378bd7a contract=docs/blab-react-parity-contract.json evidence=docs/evidence/bookgolas-web-app-parity
+
+> web@0.1.0 test:blab-parity:negative
+> node scripts/test-blab-parity.mjs --fixture missing-component
+
+BLDS parity negative fixture passed: adapter is missing ConsumerButton
+
+> web@0.1.0 test:blab-render
+> node scripts/test-blab-render.mjs
+
+BLDS SSR state contract passed: loading, empty, error, retry, loading button, text field and accessible roles
+
+> web@0.1.0 test:ui-primitives
+> node scripts/test-ui-primitives.mjs
+
+UI primitive contract passed: DESIGN.md, BLDS adapters, localized states, dev-only tooling and reduced-motion coverage
+
+> web@0.1.0 test:ui-primitives:negative
+> node scripts/test-ui-primitives.mjs --fixture missing-focus
+
+UI primitive negative fixture passed: consumer showcase focus ring rule is missing
+
+> web@0.1.0 build
+> next build
+
+▲ Next.js 16.3.0-preview.8 (Turbopack)
+✓ Running next.config.ts took 27ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.3s
+  Running TypeScript ...
+  Finished TypeScript in 3.8s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/22) ...
+  Generating static pages using 9 workers (5/22)
+  Generating static pages using 9 workers (10/22)
+  Generating static pages using 9 workers (16/22)
+✓ Generating static pages using 9 workers (22/22) in 251ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/account
+├ ƒ /[locale]/account/notifications
+├ ƒ /[locale]/announcements
+├ ƒ /[locale]/auth/callback
+├ ƒ /[locale]/auth/reset-password
+├ ƒ /[locale]/auth/sign-in
+├ ƒ /[locale]/auth/sign-up
+├ ƒ /[locale]/book-list
+├ ƒ /[locale]/books/[bookId]
+├ ƒ /[locale]/books/[bookId]/mind-map
+├ ƒ /[locale]/books/[bookId]/review
+├ ƒ /[locale]/books/new
+├ ƒ /[locale]/books/scan
+├ ƒ /[locale]/calendar
+├ ƒ /[locale]/home
+├ ƒ /[locale]/library
+├ ƒ /[locale]/onboarding
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/reading/[bookId]
+├ ƒ /[locale]/stats
+├ ƒ /[locale]/subscription
+├ ƒ /[locale]/support
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/ui-primitives
+├ ƒ /admin
+├ ƒ /admin/announcements
+├ ƒ /admin/login
+├ ƒ /admin/push-logs
+├ ƒ /admin/push-templates
+├ ƒ /admin/test-push
+├ ƒ /admin/users
+├ ƒ /admin/waitlist
+├ ƒ /api/admin/fcm-tokens
+├ ƒ /api/admin/send-bulk-push
+├ ƒ /api/admin/send-test-push
+├ ƒ /api/admin/users
+├ ƒ /api/app/books
+├ ƒ /api/app/books/[bookId]
+├ ƒ /api/app/books/search
+├ ƒ /api/consumer/consent
+├ ○ /icon.png
+├ ƒ /privacy
+├ ƒ /support
+└ ƒ /terms
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

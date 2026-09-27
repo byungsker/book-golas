@@ -1,0 +1,28 @@
+{
+  "issue": 424,
+  "providers": ["google", "apple"],
+  "locales": ["ko", "en"],
+  "callback": "/{locale}/auth/callback",
+  "flow": "pkce",
+  "features": [
+    "localized-provider-actions",
+    "safe-provider-cancellation",
+    "safe-provider-errors",
+    "session-code-exchange",
+    "locale-preserving-return"
+  ],
+  "security": [
+    "allowlisted-internal-return-targets",
+    "reject-external-return-targets",
+    "generic-callback-errors",
+    "no-provider-error-detail-forwarding",
+    "no-auth-code-forwarding",
+    "no-client-secret"
+  ],
+  "commands": {
+    "acceptance": "npm run test:auth-oauth",
+    "happy": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep success",
+    "failure": "npx playwright test tests/e2e/auth-oauth.spec.ts --project=chromium --grep \"invalid|external\""
+  },
+  "plan": ".omo/plans/bookgolas-web-app-parity.md"
+}

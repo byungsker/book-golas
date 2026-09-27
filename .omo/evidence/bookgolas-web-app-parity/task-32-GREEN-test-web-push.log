@@ -1,0 +1,18 @@
+
+> web@0.1.0 test:web-push
+> node scripts/test-web-push.mjs && vitest run src/lib/product/contracts/web-push.test.ts src/lib/consumer/web-push-fixtures.test.ts src/lib/product/dal.web-push.test.ts src/app/api/consumer/notifications/route.test.ts src/app/api/consumer/push/route.test.ts
+
+Web Push contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-445/web
+
+ ✓ src/lib/product/contracts/web-push.test.ts (2 tests) 5ms
+ ✓ src/lib/consumer/web-push-fixtures.test.ts (2 tests) 5ms
+ ✓ src/app/api/consumer/notifications/route.test.ts (2 tests) 14ms
+ ✓ src/app/api/consumer/push/route.test.ts (2 tests) 19ms
+ ✓ src/lib/product/dal.web-push.test.ts (3 tests) 14ms
+
+ Test Files  5 passed (5)
+      Tests  11 passed (11)
+   Start at  12:46:20
+   Duration  741ms (transform 380ms, setup 0ms, collect 1.60s, tests 57ms, environment 1ms, prepare 309ms)

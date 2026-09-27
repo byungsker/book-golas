@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "fixture_only": true,
+  "evidence_only": true,
+  "recorded_at": "2026-09-22T00:05:00.000Z",
+  "release_manifest": "web/scripts/fixtures/parity-release-manifest.json",
+  "release_manifest_sha256": "618d32eefd1dffc14a5f23fc244eee3623494ae58f26b2ec86fecf16ae92c8a5",
+  "code_sha": "48d0b0e202b23e4b62ca8c21e1a6393552a82a11",
+  "ledger_sha256": "ff7e1a273843c22697c98b12594da527187b81fcd60d595a74a0ca604885de6e",
+  "evidence": [
+    {
+      "id": "subscription-data",
+      "kind": "data",
+      "record_id": "subscription",
+      "action_ids": [
+        "show-disabled-subscription"
+      ],
+      "claim_path": "routes/subscription/data",
+      "source": "app/lib/ui/subscription/widgets/subscription_screen.dart",
+      "source_sha256": "4e2f4f42de295d6ed64b44d4f1bd5b507a70d4cada5c8c7ce26e5c4e1d197c90",
+      "source_contains": "class SubscriptionScreen extends StatelessWidget {",
+      "artifact": "web/scripts/fixtures/parity-subscription-data.json",
+      "artifact_sha256": "5292cee4933bd9f14fbc4b735f7f9f830eb3bb4dbb2c08e6e79effdb3b636b25",
+      "artifact_contains": "disabled boundary characterized",
+      "observation": "Fixture-only characterization of the disabled subscription route and action."
+    },
+    {
+      "id": "subscription-browser",
+      "kind": "browser",
+      "record_id": "subscription",
+      "action_ids": [
+        "show-disabled-subscription"
+      ],
+      "claim_path": "routes/subscription/browser",
+      "source": "app/lib/ui/subscription/view_model/subscription_view_model.dart",
+      "source_sha256": "52ff33e7dd14f6ead1ed35b6bfdab2e119247eafe909c7639e5fbce6226b520c",
+      "source_contains": "class SubscriptionViewModel extends BaseViewModel {",
+      "artifact": "web/scripts/fixtures/parity-subscription-browser.json",
+      "artifact_sha256": "15a88edc36781124cb484c6fead666c2412e2df2e696397869656cce617e4647",
+      "artifact_contains": "disabled route browser boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization for the disabled subscription route."
+    },
+    {
+      "id": "ios-home-widget-data",
+      "kind": "data",
+      "record_id": "ios-home-widget",
+      "action_ids": [
+        "open-widget-book"
+      ],
+      "claim_path": "capabilities/ios-home-widget/data",
+      "source": "app/lib/main.dart",
+      "source_sha256": "0c5f1583fa95499e99787980f0490c5721150027fd2c7ba48443445bac8df860",
+      "source_contains": "final RouteObserver<ModalRoute<void>> routeObserver =",
+      "artifact": "web/scripts/fixtures/parity-ios-home-widget-data.json",
+      "artifact_sha256": "1e0999ac1113b832c2d09142105b144eece3e1795f12a41e3703019ec850d96d",
+      "artifact_contains": "native widget unavailability characterized",
+      "observation": "Fixture-only characterization of native widget unavailability."
+    },
+    {
+      "id": "ios-home-widget-browser",
+      "kind": "browser",
+      "record_id": "ios-home-widget",
+      "action_ids": [
+        "open-widget-book"
+      ],
+      "claim_path": "capabilities/ios-home-widget/browser",
+      "source": "app/lib/data/services/widget_data_service.dart",
+      "source_sha256": "ecb068355f446a96ed3800cfe3ddb23c3df619b00b5b01be2b700d0e03479dde",
+      "source_contains": "class WidgetDataService {",
+      "artifact": "web/scripts/fixtures/parity-ios-home-widget-browser.json",
+      "artifact_sha256": "447d5c42b6eed9f37699f6088d127489e4fccb32efa6813f3583df475f41df06",
+      "artifact_contains": "browser widget boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization for native widgets."
+    },
+    {
+      "id": "siri-app-shortcuts-data",
+      "kind": "data",
+      "record_id": "siri-app-shortcuts",
+      "action_ids": [
+        "continue-reading-shortcut",
+        "scan-page-shortcut",
+        "add-book-shortcut",
+        "record-shortcut-boundary"
+      ],
+      "claim_path": "capabilities/siri-app-shortcuts/data",
+      "source": "app/ios/Runner/BookgolasShortcuts.swift",
+      "source_sha256": "0ed14349464ccb467449f7476d3bec5a0d27e3e5a7d182233fd48ebb4395833c",
+      "source_contains": "#if canImport(UIKit)",
+      "artifact": "web/scripts/fixtures/parity-siri-app-shortcuts-data.json",
+      "artifact_sha256": "8140d4399e315ad742dd3029252564d03592645716bb933fd5b2513927faf63b",
+      "artifact_contains": "native shortcut unavailability characterized",
+      "observation": "Fixture-only characterization of native App Shortcut actions."
+    },
+    {
+      "id": "siri-app-shortcuts-browser",
+      "kind": "browser",
+      "record_id": "siri-app-shortcuts",
+      "action_ids": [
+        "continue-reading-shortcut",
+        "scan-page-shortcut",
+        "add-book-shortcut",
+        "record-shortcut-boundary"
+      ],
+      "claim_path": "capabilities/siri-app-shortcuts/browser",
+      "source": "app/ios/Runner/AppDelegate.swift",
+      "source_sha256": "cf9422fe3ae1c623e5ee5a12745434e79e262d2a7b9d731f9b6023e2cd4eb286",
+      "source_contains": "@main",
+      "artifact": "web/scripts/fixtures/parity-siri-app-shortcuts-browser.json",
+      "artifact_sha256": "e8259cc053d0d74b7d4f85d60fd22b6a56f415bd443e52c6658fd95232f0e242",
+      "artifact_contains": "browser shortcut boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization for App Shortcuts."
+    },
+    {
+      "id": "native-push-data",
+      "kind": "data",
+      "record_id": "native-push",
+      "action_ids": [
+        "request-web-push",
+        "manage-notification-categories",
+        "open-notification-deep-link"
+      ],
+      "claim_path": "capabilities/native-push/data",
+      "source": "app/lib/data/services/fcm_service.dart",
+      "source_sha256": "fa8a5ed80e10f591943c99bbfd84b422aabc3ba448b0d534b15d6e463b18d3f7",
+      "source_contains": "class FCMService {",
+      "artifact": "web/scripts/fixtures/parity-native-push-data.json",
+      "artifact_sha256": "57d348f125925b503f4a1207353090a824820a48b7c412a76208d166be332a5e",
+      "artifact_contains": "push registration-only data characterized",
+      "observation": "Fixture-only characterization of push registration-only actions."
+    },
+    {
+      "id": "native-push-browser",
+      "kind": "browser",
+      "record_id": "native-push",
+      "action_ids": [
+        "request-web-push",
+        "manage-notification-categories",
+        "open-notification-deep-link"
+      ],
+      "claim_path": "capabilities/native-push/browser",
+      "source": "app/lib/data/services/notification_settings_service.dart",
+      "source_sha256": "5c10601cc3a8310d9b232b528838446cac5f9709cc039ad7b1a6cde7f822a7d8",
+      "source_contains": "class NotificationSettings {",
+      "artifact": "web/scripts/fixtures/parity-native-push-browser.json",
+      "artifact_sha256": "a7d037cc5dbaf1ef586375b5a3c1ff2308f17b26d17325b7d9a173cc182797bb",
+      "artifact_contains": "push registration-only browser boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization of push registration."
+    },
+    {
+      "id": "subscriptions-data",
+      "kind": "data",
+      "record_id": "subscriptions",
+      "action_ids": [
+        "show-billing-disabled"
+      ],
+      "claim_path": "capabilities/subscriptions/data",
+      "source": "app/lib/config/feature_flags.dart",
+      "source_sha256": "61b39ec95a172e4a3bfd6aa7485eaa0fd3cb5f0127eb2e6e736f97ec69407953",
+      "source_contains": "abstract final class FeatureFlags {",
+      "artifact": "web/scripts/fixtures/parity-subscriptions-data.json",
+      "artifact_sha256": "d16907ceb250f12ca7333bc6476099ed965b1cd8d8dccbf66e6d1fe3b8e5b3b8",
+      "artifact_contains": "subscription capability disabled policy characterized",
+      "observation": "Fixture-only characterization of the disabled subscription capability."
+    },
+    {
+      "id": "subscriptions-browser",
+      "kind": "browser",
+      "record_id": "subscriptions",
+      "action_ids": [
+        "show-billing-disabled"
+      ],
+      "claim_path": "capabilities/subscriptions/browser",
+      "source": "app/lib/ui/auth/widgets/my_page_screen.dart",
+      "source_sha256": "8d6794370094c62e297364665cadd011ae8145c39c90db49befccc464522fca8",
+      "source_contains": "class MyPageScreen extends StatelessWidget {",
+      "artifact": "web/scripts/fixtures/parity-subscriptions-browser.json",
+      "artifact_sha256": "e5071dc507881fef59a917a61551d4f3f0c80f4cfcebf865c5a748bdd8835967",
+      "artifact_contains": "subscription capability browser boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization of disabled subscriptions."
+    },
+    {
+      "id": "offline-boundary-data",
+      "kind": "data",
+      "record_id": "offline-boundary",
+      "action_ids": [
+        "show-network-status",
+        "preserve-proven-draft",
+        "retry-online-write"
+      ],
+      "claim_path": "capabilities/offline-boundary/data",
+      "source": "app/lib/data/services/reading_timer_service.dart",
+      "source_sha256": "ba2011595163bbe29e03d7cae1432d1d8e196724b91c99cd3f9e8c7ada3c5a1b",
+      "source_contains": "class ReadingTimerService {",
+      "artifact": "web/scripts/fixtures/parity-offline-boundary-data.json",
+      "artifact_sha256": "c02dac84738a61661e89d72a9897b8f867baae1ae15c421ebb9b1a58cc2e8c4d",
+      "artifact_contains": "online-only data boundary characterized",
+      "observation": "Fixture-only characterization of online-only data actions."
+    },
+    {
+      "id": "offline-boundary-browser",
+      "kind": "browser",
+      "record_id": "offline-boundary",
+      "action_ids": [
+        "show-network-status",
+        "preserve-proven-draft",
+        "retry-online-write"
+      ],
+      "claim_path": "capabilities/offline-boundary/browser",
+      "source": "app/lib/ui/book_review/book_review_screen.dart",
+      "source_sha256": "8ad9850c78155e1972d630a5d919d72ff5edeb30989be07b5cae32cfd51953e8",
+      "source_contains": "class BookReviewScreen extends StatefulWidget {",
+      "artifact": "web/scripts/fixtures/parity-offline-boundary-browser.json",
+      "artifact_sha256": "bb6325d3caa454c0de9ebc26206650b2f3fd9b090b8cf42412560dbd6ece66a0",
+      "artifact_contains": "online-only browser boundary characterized",
+      "observation": "Fixture-only browser-boundary characterization of online-only behavior."
+    },
+    {
+      "id": "pro-features-data",
+      "kind": "data",
+      "record_id": "pro-features",
+      "action_ids": [
+        "explain-web-billing-disabled"
+      ],
+      "claim_path": "overlays/pro-features/data",
+      "source": "app/lib/ui/home/widgets/pro_upgrade_banner.dart",
+      "source_sha256": "8d57d65555bf38a5c4dbaceeeb116efd197a8cad1ca27fa486d6f7bcb8cc7b47",
+      "source_contains": "class ProUpgradeBanner extends StatelessWidget {",
+      "artifact": "web/scripts/fixtures/parity-overlay-pro-features-data.json",
+      "artifact_sha256": "fd1621577356cfbb9a38586a27cf22069f227c533d563ef5ed8603325eb33b96",
+      "artifact_contains": "pro-features data current-head overlay ownership characterized",
+      "observation": "Fixture-only data characterization bound to direct Task 19 current-head ownership for pro-features; production parity is not claimed."
+    },
+    {
+      "id": "pro-features-browser",
+      "kind": "browser",
+      "record_id": "pro-features",
+      "action_ids": [
+        "explain-web-billing-disabled"
+      ],
+      "claim_path": "overlays/pro-features/browser",
+      "source": "web/src/app/[locale]/(consumer)/subscription/page.tsx",
+      "source_sha256": "b4f220a561c126a9d6b3456b93fcce2e5dfe2aa8557f5c29fec2b5fb80782516",
+      "source_contains": "export default async function SubscriptionPage({ params }: { params: Promise<{ locale: ConsumerLocale }> }) {",
+      "artifact": "web/scripts/fixtures/parity-overlay-pro-features-browser.json",
+      "artifact_sha256": "4b1509179ea3b9debb172eb3d838a15dbc6e3f617af4147a2f67dac395c78861",
+      "artifact_contains": "pro-features browser current-head overlay ownership characterized",
+      "observation": "Fixture-only browser characterization bound to direct Task 19 current-head ownership for pro-features; production parity is not claimed."
+    }
+  ]
+}

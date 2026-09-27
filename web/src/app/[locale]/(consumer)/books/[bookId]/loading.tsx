@@ -1,0 +1,15 @@
+import { getTranslations } from "next-intl/server";
+import { ConsumerLoadingState } from "@/components/consumer/blab-primitives";
+
+export default async function BookDetailLoading() {
+  const t = await getTranslations("consumer");
+
+  return (
+    <main className="mesh-gradient min-h-screen px-4 py-12 sm:px-6" aria-busy="true" data-route-state="pending">
+      <div className="mx-auto max-w-3xl">
+        <ConsumerLoadingState label={t("states.loading")} />
+        <div className="mt-8 h-[34rem] animate-pulse rounded-3xl border border-white/10 bg-white/[0.04]" />
+      </div>
+    </main>
+  );
+}

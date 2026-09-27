@@ -1,0 +1,70 @@
+{
+  "issue": 415,
+  "target_delivery_unit": "web",
+  "target_version": "1.1.0",
+  "delivery_profile": "web-release-train",
+  "tested_commit": "2713916a9c0d44f76b631c53afc026c4019ff392",
+  "red": {
+    "command": "npm run test:product-contracts after adding the unsafe dynamic route regression test and before BookIdSchema validation",
+    "result": "FAIL as expected",
+    "exit_code": 1,
+    "observed": "1 failed, 40 passed; consumerRoutes.book('../account') did not throw",
+    "purpose": "Failing-first security regression for dynamic route segments",
+    "review_followup": {
+      "commit": "85401b8903548bf425b03b87ee9d05263f8e8f5e",
+      "result": "BLOCK as expected before hardening",
+      "observed": [
+        "Runtime locale values were interpolated without LocaleSchema validation.",
+        "Recommendation success and failure envelopes were not mutually exclusive.",
+        "Fixture tests re-parsed their own output instead of checking independent input.",
+        "Auth continuation paths accepted traversal and a locale different from the request locale."
+      ],
+      "purpose": "Review-driven red gate for the route and recommendation contract boundaries"
+    }
+  },
+  "green": {
+    "commands": [
+      "npm run test:product-contracts",
+      "npm run test:product-contracts -- --grep cross-user-request",
+      "npm test"
+    ],
+    "result": "PASS",
+    "product_contract_tests": "2 files, 44 tests passed",
+    "cross_user_negative": "1 targeted test passed, 43 tests skipped",
+    "full_suite": "8 files, 71 tests passed; parity, 59 negative fixtures, BLDS parity, BLDS negative and SSR state checks passed",
+    "hardening": [
+      "LocaleSchema now validates every localized route helper at runtime.",
+      "RecommendationResultSchema is a strict discriminated success/failure union with the authoritative profile envelope.",
+      "Canonical fixture tests parse independent input once and assert locale and recommendation negative cases.",
+      "Auth continuation paths reject traversal, encoded traversal, and locale mismatches."
+    ]
+  },
+  "surface": {
+    "command": "npm run build",
+    "result": "PASS",
+    "observed": "Next production compilation completed and 19 static pages were generated",
+    "runtime_scope": "Typed contract and build surface; no UI component or browser route implementation changed",
+    "native_alignment": "Recommendation profile fixture matches the native and Edge Function profile.stats envelope; route helpers follow the merged #416 parity matrix"
+  },
+  "cleanup": {
+    "commands": [
+      "npm run typecheck",
+      "npm run lint",
+      "npm run test:evidence-paths",
+      "git diff --check",
+      "git status --short",
+      "shasum -a 256 -c .omo/evidence/bookgolas-web-app-parity/SHA256SUMS"
+    ],
+    "result": "PASS",
+    "observed": "No debug statements, temporary fixtures or inspector processes remain; the temporary review worktree was removed after each review pass; evidence checksums validate",
+    "authorization_boundary": "All exported ConsumerRequestSchemas are strict and reject caller-selected user_id fields"
+  },
+  "scope_notes": [
+    "The merged #416 matrix is the canonical route source of truth; its existing /{locale}/auth, /{locale}/home and /{locale}/books routes supersede stale literal examples in the original #415 prose.",
+    "Existing recommendation Edge Function non-2xx responses remain raw error envelopes; adapting provider errors to ApiErrorResponse is deferred to the downstream integration/security boundary task and is not claimed here.",
+    "The protected /private/tmp/bookgolas-web-blds-453 path was absent before this work and was never reset, checked out or deleted."
+  ],
+  "runtime_transcript": ".omo/evidence/bookgolas-web-app-parity/task-2-runtime-transcript.md",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md"
+}

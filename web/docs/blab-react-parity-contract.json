@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "source": {
+    "flutter_repository": "byungsker/blab_design_system",
+    "flutter_commit": "10a9016f58b30728f179f1c96b0ed738c40c271c",
+    "react_package": "@byungsker/blab-design-system@0.2.0",
+    "css_export": "@byungsker/blab-design-system/styles.css",
+    "web_adapter": "web/src/components/consumer/blab-primitives.tsx"
+  },
+  "locales": ["ko", "en"],
+  "themes": ["light", "dark"],
+  "viewports": [
+    {"id": "mobile", "width": 390, "height": 844},
+    {"id": "desktop", "width": 1440, "height": 900}
+  ],
+  "tokens": [
+    {"id": "color-primary", "native_export": "BLabColors.primary", "react_export": "BLabColors.primary", "css_variable": "--blab-color-primary", "role": "primary action"},
+    {"id": "color-text-primary", "native_export": "BLabColors.textPrimary(mode)", "react_export": "BLabColors.textPrimary(mode)", "css_variable": "--blab-text-primary", "role": "primary content"},
+    {"id": "color-surface-card", "native_export": "BLabColors.card(mode)", "react_export": "BLabColors.card(mode)", "css_variable": "--blab-surface-card", "role": "card surface"},
+    {"id": "typography-body-medium", "native_export": "BLabTypography.bodyMedium", "react_export": "BLabTypography.bodyMedium", "css_variable": "--blab-font-size-body-medium", "role": "secondary content"},
+    {"id": "spacing-control", "native_export": "EdgeInsets.symmetric(horizontal: 16, vertical: 14)", "react_export": "--blab-space-control-vertical|--blab-space-control-horizontal", "css_variable": "--blab-space-control-vertical|--blab-space-control-horizontal", "role": "control padding"},
+    {"id": "radius-control", "native_export": "BorderRadius.circular(12)", "react_export": "--blab-radius-control", "css_variable": "--blab-radius-control", "role": "control shape"},
+    {"id": "elevation-surface", "native_export": "BackdropFilter blur(25) and BoxDecoration glass surface", "react_export": "--blab-elevation-surface|--blab-glass-card-blur", "css_variable": "--blab-elevation-surface|--blab-glass-card-blur", "role": "surface depth"},
+    {"id": "glass-fill", "native_export": "Colors.white.withValues(alpha: 0.12)|Colors.black.withValues(alpha: 0.08)", "react_export": "--blab-glass-fill", "css_variable": "--blab-glass-fill", "role": "glass surface"},
+    {"id": "motion-press", "native_export": "BLabPressableWrapper.animationDuration (150ms)", "react_export": "--blab-motion-press", "css_variable": "--blab-motion-press", "role": "press feedback"}
+  ],
+  "states": [
+    "loading",
+    "empty",
+    "error",
+    "retry",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline"
+  ],
+  "components": [
+    {
+      "id": "button",
+      "flutter_export": "BLabButton",
+      "react_export": "BLabButton",
+      "web_adapter": "ConsumerButton",
+      "props": ["text|children", "variant", "isFullWidth", "loading", "loadingLabel", "disabled", "type", "onClick", "icon"],
+      "variants": ["primary", "secondary", "destructive"],
+      "states": ["default", "disabled", "loading", "focus-visible"],
+      "accessibility": ["native button semantics", "aria-busy while loading", "minimum 44px touch target"],
+      "motion": ["press scale", "reduced-motion disables transition"]
+    },
+    {
+      "id": "card",
+      "flutter_export": "BLabCard",
+      "react_export": "BLabCard",
+      "web_adapter": "ConsumerCard",
+      "props": ["children", "padding", "borderRadius", "onClick", "onLongPress", "disabled"],
+      "variants": ["static", "interactive", "disabled"],
+      "states": ["default", "focus-visible", "disabled"],
+      "accessibility": ["keyboard activation for interactive cards", "aria-disabled for disabled cards"],
+      "motion": ["press scale", "reduced-motion disables transition"]
+    },
+    {
+      "id": "text-field",
+      "flutter_export": "BLabTextField",
+      "react_export": "BLabTextField",
+      "web_adapter": "ConsumerTextField",
+      "props": ["value", "onChange", "label|ariaLabel", "hintText", "obscureText", "error", "disabled", "required", "inputType", "describedBy"],
+      "variants": ["single-line", "multiline", "password", "error"],
+      "states": ["default", "focus-visible", "disabled", "error"],
+      "accessibility": ["label association", "aria-invalid for error", "aria-describedby for hints and errors"],
+      "motion": ["reduced-motion disables transition"]
+    },
+    {
+      "id": "state-feedback",
+      "flutter_export": "BLabLoadingState | BLabEmptyState | BLabErrorState | BLabRetryButton",
+      "react_export": "BLabLoadingState | BLabEmptyState | BLabErrorState | BLabRetryButton",
+      "web_adapter": "ConsumerLoadingState | ConsumerEmptyState | ConsumerErrorState",
+      "props": ["label", "title", "message", "retryLabel", "onRetry", "retryLoading"],
+      "variants": ["loading", "empty", "error", "retry"],
+      "states": ["loading", "empty", "error", "retry"],
+      "accessibility": ["role=status for loading and empty", "role=alert for error", "retry is a native button"],
+      "motion": ["spinner respects reduced-motion"]
+    }
+  ],
+  "native_only_boundaries": [
+    "iOS home widget",
+    "Siri and App Shortcuts",
+    "native push and notification categories",
+    "camera and OCR implementation",
+    "native share sheet",
+    "RevenueCat subscription billing"
+  ],
+  "native_reference": {
+    "flutter_commit": "10a9016f58b30728f179f1c96b0ed738c40c271c",
+    "sources": {
+      "tokens": "lib/src/theme/app_colors.dart|lib/src/theme/app_typography.dart",
+      "button": "lib/src/widgets/liquid_glass_button.dart",
+      "card": "lib/src/widgets/liquid_glass_card.dart",
+      "text_field": "lib/src/widgets/liquid_glass_text_field.dart",
+      "states": "docs/design/REACT.md"
+    },
+    "comparison": {
+      "web_visual_evidence": "web/docs/evidence/bookgolas-web-app-parity/",
+      "web_interaction_suite": "web/tests/e2e/blab-parity.spec.ts",
+      "native_capture": "flutter-golden-reference",
+      "native_visual_evidence": [
+        "web/docs/evidence/bookgolas-web-app-parity/task-9-5-blab-native-reference-light.png",
+        "web/docs/evidence/bookgolas-web-app-parity/task-9-5-blab-native-reference-dark.png"
+      ],
+      "native_test_source": "web/docs/blab-native-reference-test.dart",
+      "native_test": "cp web/docs/blab-native-reference-test.dart /path/to/blab-design-system/test/blab_web_parity_reference_test.dart && (cd /path/to/blab-design-system && flutter test --update-goldens test/blab_web_parity_reference_test.dart)"
+    },
+    "surface_policy": {
+      "blab_migrated": ["button", "card", "text-field", "loading", "empty", "error", "retry"],
+      "product_shell_preserved": ["consumer-header", "book-card", "route-shell", "progress-input"],
+      "follow_up": "#421 shared primitive migration owns remaining product shell styling; #453 adds no new semantic fork"
+    }
+  }
+}

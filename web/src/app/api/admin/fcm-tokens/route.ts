@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { createAdminSupabaseClient } from "@/lib/supabase-admin";
 import { requireAdminUser } from "@/lib/supabase-server";
 
 export async function GET() {
@@ -7,22 +7,13 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
+  let supabaseAdmin;
+  try {
+    supabaseAdmin = createAdminSupabaseClient();
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
-
-  const supabaseAdmin = createClient(supabaseUrl.trim(), serviceRoleKey.trim(), {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
 
   const { data: tokensData, error: tokensError } = await supabaseAdmin
     .from("fcm_tokens")

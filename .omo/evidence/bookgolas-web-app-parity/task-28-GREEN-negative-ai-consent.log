@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:ai-consent-states:negative
+> node scripts/test-ai-consent-states.mjs --fixture unauthorized && node scripts/test-ai-consent-states.mjs --fixture consent && node scripts/test-ai-consent-states.mjs --fixture input-too-large && node scripts/test-ai-consent-states.mjs --fixture daily-rate-limit && node scripts/test-ai-consent-states.mjs --fixture quota && node scripts/test-ai-consent-states.mjs --fixture concurrency && node scripts/test-ai-consent-states.mjs --fixture budget && node scripts/test-ai-consent-states.mjs --fixture hard-cap && node scripts/test-ai-consent-states.mjs --fixture timeout && node scripts/test-ai-consent-states.mjs --fixture provider && node scripts/test-ai-consent-states.mjs --fixture configuration && node scripts/test-ai-consent-states.mjs --fixture unknown
+
+AI consent contract passed (unauthorized)
+AI consent contract passed (consent)
+AI consent contract passed (input-too-large)
+AI consent contract passed (daily-rate-limit)
+AI consent contract passed (quota)
+AI consent contract passed (concurrency)
+AI consent contract passed (budget)
+AI consent contract passed (hard-cap)
+AI consent contract passed (timeout)
+AI consent contract passed (provider)
+AI consent contract passed (configuration)
+AI consent contract passed (unknown)

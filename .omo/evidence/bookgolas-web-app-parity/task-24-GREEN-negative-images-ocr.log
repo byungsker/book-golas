@@ -1,0 +1,10 @@
+
+> web@0.1.0 test:images-ocr:negative
+> node scripts/test-images-ocr.mjs --fixture oversize && node scripts/test-images-ocr.mjs --fixture wrong-mime && node scripts/test-images-ocr.mjs --fixture insecure && node scripts/test-images-ocr.mjs --fixture denied && node scripts/test-images-ocr.mjs --fixture expired-url && node scripts/test-images-ocr.mjs --fixture provider-failure
+
+images-ocr contract passed (oversize)
+images-ocr contract passed (wrong-mime)
+images-ocr contract passed (insecure)
+images-ocr contract passed (denied)
+images-ocr contract passed (expired-url)
+images-ocr contract passed (provider-failure)

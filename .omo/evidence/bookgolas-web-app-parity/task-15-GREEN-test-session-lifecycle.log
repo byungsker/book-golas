@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:session-lifecycle
+> node scripts/test-session-lifecycle.mjs && vitest run src/lib/consumer/session-lifecycle.test.ts src/lib/consumer/paths.test.ts src/proxy.test.ts
+
+session lifecycle contract passed: fail-closed auth, safe return-to, owner-scoped not-found and aligned route states
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-427/web
+
+ ✓ src/lib/consumer/session-lifecycle.test.ts (7 tests) 3ms
+ ✓ src/lib/consumer/paths.test.ts (28 tests) 4ms
+ ✓ src/proxy.test.ts (20 tests) 12ms
+
+ Test Files  3 passed (3)
+      Tests  55 passed (55)
+   Start at  02:07:13
+   Duration  277ms (transform 95ms, setup 0ms, collect 155ms, tests 19ms, environment 0ms, prepare 153ms)
