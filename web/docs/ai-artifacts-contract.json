@@ -1,6 +1,7 @@
 {
   "issue": 442,
   "task": 30,
+  "completionTodo": 8,
   "parentIssue": 412,
   "wave": 5,
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
@@ -8,15 +9,26 @@
   "targetBranch": "version/web/1.1.0",
   "locales": ["ko", "en"],
   "artifacts": ["mindmap", "insights", "recommendations"],
-  "states": ["loading", "missing", "expired", "empty", "error", "unauthorized", "consent_required", "insufficient_data", "rate_limit_exceeded", "quota_exceeded", "provider_timeout", "provider_error", "configuration_error", "offline"],
+  "states": ["loading", "missing", "expired", "empty", "error", "unknown", "unavailable", "unauthorized", "consent_required", "insufficient_data", "rate_limit_exceeded", "quota_exceeded", "concurrency_exceeded", "budget_exceeded", "hard_cap_exceeded", "provider_timeout", "provider_error", "configuration_error", "offline"],
+  "providerPolicy": {
+    "provider": "open_ai",
+    "consentPolicyVersion": "third-party-ai-v2",
+    "spendPolicyVersion": "cost-control-v1",
+    "pricingVersion": "pricing-v1",
+    "providerCallObservable": "X-Bookgolas-Provider-Calls",
+    "failClosedStates": ["consent_required", "unknown", "unavailable", "rate_limit_exceeded", "quota_exceeded", "concurrency_exceeded", "budget_exceeded", "hard_cap_exceeded", "provider_timeout", "provider_error", "offline"]
+  },
   "invariants": [
     "owner_is_derived_from_verified_session",
     "caller_identity_fields_are_rejected",
     "request_key_is_scoped_to_user_artifact_and_locale",
     "missing_or_expired_cache_generates_at_most_once_per_request_key",
     "source_changes_invalidate_cached_artifacts",
+    "foreign_expired_and_source_changed_artifacts_are_checked_before_provider_dispatch",
+    "withdrawn_unknown_and_unavailable_provider_consent_block_provider_dispatch",
+    "each_provider_dispatch_is_wrapped_by_task_4_consent_budget_and_usage_policy",
     "locale_is_forwarded_to_insight_and_recommendation_generation",
-    "consent_quota_rate_limit_provider_and_offline_states_are_distinct",
+    "consent_unknown_unavailable_quota_budget_hard_cap_rate_limit_concurrency_timeout_provider_and_offline_states_are_distinct",
     "operational_limits_do_not_render_billing_walls"
   ],
   "nativeReferences": [
@@ -54,9 +66,9 @@
       "nativeFlutter": "ReadingStartScreen recommendation section",
       "nativeActions": ["load cache", "generate recommendations", "open action sheet", "view details", "start reading"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
-      "webRoute": "/{locale}/book-list",
+      "webRoute": "/{locale}/reading-insights#recommendations",
       "webComponent": "AiArtifactsClient(kind=recommendations)",
-      "browserDisposition": "localized recommendation cards with a browser dialog and book search handoff"
+      "browserDisposition": "separate localized AI recommendation section with a browser dialog and book search handoff"
     }
   ],
   "nativeOnly": [

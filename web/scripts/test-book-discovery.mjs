@@ -8,6 +8,7 @@ const paths = {
   fixture: path.join(root, "scripts/fixtures/book-discovery-negative.json"),
   manifest: path.join(root, "package.json"),
   page: path.join(root, "src/app/[locale]/(consumer)/books/new/page.tsx"),
+  scanPage: path.join(root, "src/app/[locale]/(consumer)/books/scan/page.tsx"),
   client: path.join(root, "src/components/consumer/book-discovery-client.tsx"),
   api: path.join(root, "src/app/api/consumer/book-discovery/route.ts"),
   isbn: path.join(root, "src/lib/consumer/isbn.ts"),
@@ -43,7 +44,7 @@ if (failures.length === 0) {
 
   requireCondition(contract.issue === 428, "book-discovery contract must bind issue 428");
   requireCondition(Array.isArray(fixture.fixtures) && fixture.fixtures.length >= 3, "book-discovery negative fixture must cover the three security boundaries");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "book-discovery contract must reference the parity plan");
+  requireCondition(contract.task === 10 && contract.plan === ".omo/plans/bookgolas-web-completion.md", "book-discovery contract must reference completion Todo 10");
   requireCondition(JSON.stringify(contract.actions) === JSON.stringify(["search", "recommendations"]), "book-discovery actions must preserve search and recommendation entry");
   requireCondition(JSON.stringify(contract.searchModes) === JSON.stringify(["text", "isbn"]), "book-discovery must distinguish text and ISBN search");
   for (const locale of ["ko", "en"]) requireCondition(contract.locales.includes(locale), `book-discovery must cover ${locale}`);
@@ -53,10 +54,14 @@ if (failures.length === 0) {
   requireCondition(manifest.scripts["test:book-discovery"] === "node scripts/test-book-discovery.mjs && vitest run src/lib/consumer/isbn.test.ts src/lib/product/contracts/book-discovery.test.ts src/lib/product/adapters.book-search.test.ts src/app/api/consumer/book-discovery/route.test.ts", "package must expose the exact book-discovery acceptance command");
   requireCondition(manifest.scripts["test:book-discovery:negative"] === "node scripts/test-book-discovery.mjs --fixture provider-secret-leak", "package must expose the book-discovery negative command");
   requireCondition(source.page.includes("BookDiscoveryClient") && source.page.includes("ConsumerHeader"), "new-book route must render the authenticated discovery client");
+  requireCondition(source.scanPage.includes("BookDiscoveryClient") && source.scanPage.includes("autoOpenScanner"), "scan route must open the real browser scanner flow");
   requireCondition(source.client.includes("AbortController") && source.client.includes("isValidIsbn13"), "discovery client must cancel stale searches and validate ISBN-13");
   requireCondition(source.client.includes("getUserMedia") && source.client.includes("BarcodeDetector"), "discovery client must implement the browser scanner capability path");
   requireCondition(source.client.includes('accept="image/*"') && source.client.includes("manual-fallback") && source.client.includes("file-fallback"), "camera failures must preserve manual and image/file fallbacks");
   requireCondition(source.client.includes("recommendations") && source.client.includes("data-testid=\"book-recommendation\""), "discovery client must expose the native recommendation entry");
+  requireCondition(source.client.includes("bookstore-select-provider") && source.e2e.includes("performs its verified direct action"), "bookstore-select must have an independently clicked direct action");
+  requireCondition(source.client.includes("wrong-mime") && source.client.includes("oversize"), "scanner file fallback must distinguish wrong MIME and oversize files");
+  requireCondition(source.e2e.includes("owner-safe add") && source.e2e.includes("duplicate conflict"), "book add must verify owner-safe success and duplicate conflict separately");
   requireCondition(source.api.includes("searchBooks") && source.api.includes("recommendNextBooks") && source.api.includes("productErrorResponse"), "book-discovery API must use the verified server adapters and typed errors");
   requireCondition(source.api.includes("user_id") && source.api.includes("userId"), "book-discovery API must reject caller-selected ownership fields");
   requireCondition(source.adapter.includes("sanitizeTrustedProviderUrl") && source.adapter.includes("trustedBookImageHosts") && source.adapter.includes("trustedBookLinkHosts"), "provider URLs must be sanitized against HTTPS allowlists");

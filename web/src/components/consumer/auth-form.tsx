@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import { ConsumerButton, ConsumerTextField } from "@/components/consumer/blab-primitives";
@@ -36,6 +36,8 @@ type AuthFormProps = {
 
 export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: AuthFormProps) {
   const t = useTranslations("consumer.auth");
+  const tConsumer = useTranslations("consumer");
+  const pendingRef = useRef(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -47,6 +49,7 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
   const [successKey, setSuccessKey] = useState<string | null>(null);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     if (mode !== "sign-in") return;
@@ -80,8 +83,22 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     return () => window.clearTimeout(timer);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => setIsOffline(false);
+
+    setIsOffline(!window.navigator.onLine);
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pendingRef.current) return;
     setErrorKey(null);
     setSuccessKey(null);
     setUnconfirmedEmail(null);
@@ -108,8 +125,15 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
       return;
     }
 
+    if (!window.navigator.onLine) {
+      setIsOffline(true);
+      return;
+    }
+
+    pendingRef.current = true;
     setIsPending(true);
     const normalizedEmail = email.trim();
+    let keepPendingForNavigation = false;
 
     try {
       if (mode === "sign-in") {
@@ -123,6 +147,7 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
           return;
         }
         writeSavedEmail(window.localStorage, normalizedEmail, saveEmail);
+        keepPendingForNavigation = true;
         window.location.assign(nextPath);
         return;
       }
@@ -145,6 +170,7 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
           return;
         }
         if (data.session) {
+          keepPendingForNavigation = true;
           window.location.assign(nextPath);
           return;
         }
@@ -183,14 +209,22 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     } catch {
       setErrorKey("errors.generic");
     } finally {
-      setIsPending(false);
+      if (!keepPendingForNavigation) {
+        pendingRef.current = false;
+        setIsPending(false);
+      }
     }
   }
 
   async function resendVerification() {
-    if (!unconfirmedEmail || resendCooldown > 0 || isPending) return;
+    if (!unconfirmedEmail || resendCooldown > 0 || pendingRef.current) return;
     setErrorKey(null);
     setSuccessKey(null);
+    if (!window.navigator.onLine) {
+      setIsOffline(true);
+      return;
+    }
+    pendingRef.current = true;
     setIsPending(true);
 
     try {
@@ -207,14 +241,22 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     } catch {
       setErrorKey("errors.generic");
     } finally {
+      pendingRef.current = false;
       setIsPending(false);
     }
   }
 
   async function startOAuth(provider: OAuthProvider) {
+    if (pendingRef.current) return;
     setErrorKey(null);
     setSuccessKey(null);
+    if (!window.navigator.onLine) {
+      setIsOffline(true);
+      return;
+    }
+    pendingRef.current = true;
     setIsPending(true);
+    let keepPendingForNavigation = false;
 
     try {
       const { data, error } = await signInWithOAuth(supabase.auth, provider, {
@@ -230,11 +272,15 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
         setErrorKey("errors.oauthProvider");
         return;
       }
+      keepPendingForNavigation = true;
       window.location.assign(data.url);
     } catch (error) {
       setErrorKey(getOAuthStartErrorKey(error));
     } finally {
-      setIsPending(false);
+      if (!keepPendingForNavigation) {
+        pendingRef.current = false;
+        setIsPending(false);
+      }
     }
   }
 
@@ -341,7 +387,11 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
           </label>
         ) : null}
 
-        {errorKey ? (
+        {isOffline ? (
+          <p className="mt-5 text-sm leading-6 text-[var(--blab-color-error)]" role="alert">
+            {tConsumer("network.offline")}
+          </p>
+        ) : errorKey ? (
           <p className="mt-5 text-sm leading-6 text-[var(--blab-color-error)]" role="alert">
             {t(errorKey as never)}
           </p>

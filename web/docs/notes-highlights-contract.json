@@ -111,6 +111,6 @@
     "negativeCommand": "npm run test:notes-highlights:negative",
     "happyBrowser": "npx playwright test tests/e2e/notes-highlights.spec.ts --project=chromium --grep \"create|edit|delete\"",
     "failureBrowser": "npx playwright test tests/e2e/notes-highlights.spec.ts --project=chromium --grep \"invalid|index-failure|foreign\"",
-    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-23-bookgolas-web-app-parity.png"
+    "evidence": ".omo/evidence/bookgolas-web-completion/task-13-notes-highlights-crud.png"
   }
 }

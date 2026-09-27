@@ -1,7 +1,7 @@
 {
   "issue": 436,
   "title": "Browser timer and reading sessions",
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "native": {
     "viewModel": "app/lib/ui/book_detail/view_model/reading_timer_view_model.dart:1-180",
     "service": "app/lib/data/services/reading_timer_service.dart",
@@ -54,7 +54,7 @@
   "persistence": {
     "beforeStop": "browser-local",
     "afterStop": "reading_sessions plus books.total_reading_seconds",
-    "idempotency": "client UUID is sent as idempotencyKey and stored as the session id",
+    "idempotency": "client UUID is sent as idempotencyKey, bound to X-Bookgolas-Action-Key and stored as the session id",
     "ownership": "server derives the user from the verified session and scopes book/session reads and writes"
   },
   "nativeOnly": [
@@ -69,5 +69,6 @@
     "happy": "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"start|pause|stop|refresh\"",
     "failure": "npx playwright test tests/e2e/timer.spec.ts --project=chromium --grep \"minimum|duplicate|logout\""
   },
-  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-22-bookgolas-web-app-parity.json"
+  "overlayEvidence": ["reading-timer", "floating-timer"],
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-12-bookgolas-web-completion.md"
 }

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion");
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -52,7 +52,7 @@ test("happy path keeps native tabs, title/author search, cursor pagination and r
   await expect(page.getByTestId("library-record-detail")).toBeVisible();
   await expect(page.getByTestId("library-record-detail")).toContainText("The Reading Atlas");
   await expect(page.getByTestId("library-record-detail").getByRole("link")).toHaveAttribute("href", /\/en\/books\//);
-  await capture(page, "task-17-bookgolas-web-app-parity.png");
+  await capture(page, "task-9-library.png");
 
   await page.goto("/ko/library", { waitUntil: "networkidle" });
   await expect(page.getByTestId("library-tab-reading")).toContainText("읽는 중");
@@ -101,6 +101,9 @@ test("empty, foreign and unavailable boundaries stay private and retryable", asy
   await page.goto("/en/library", { waitUntil: "networkidle" });
   await expect(page.getByTestId("library-error")).toBeVisible();
   await expect(page.getByTestId("library-retry")).toBeVisible();
+  await page.getByTestId("library-retry").click();
+  await expect(page).toHaveURL(/\/en\/library$/);
+  await expect(page.getByTestId("library-error")).toBeVisible();
 
   await setFixture(context, "library-unauthorized");
   await page.goto("/en/library", { waitUntil: "networkidle" });
@@ -124,7 +127,7 @@ test("Recall entry searches records, keeps history separate from book results an
   await expect(page.getByTestId("library-recall-answer")).toBeVisible();
   await expect(page.getByTestId("library-recall-source-group")).toBeVisible();
   await expect(page.getByTestId("library-books")).toHaveCount(0);
-  await capture(page, "task-17-SURFACE-recall.png");
+  await capture(page, "task-9-library-recall.png");
 
   await setFixture(context, "library-quota");
   await page.goto("/en/library?view=records&mode=recall", { waitUntil: "networkidle" });

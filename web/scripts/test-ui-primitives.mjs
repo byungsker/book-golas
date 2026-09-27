@@ -127,7 +127,10 @@ requireCondition(fs.existsSync(paths.route), "ui primitive showcase route is mis
 requireCondition(focusContractFailures(css).length === 0, focusFailureMessage);
 requireCondition(css.includes("var(--blab-focus-ring)"), "consumer focus ring must use the BLDS token");
 requireCondition(e2e.includes('colorScheme: "dark"') && e2e.includes('colorScheme: "light"'), "responsive browser coverage must include both BLDS themes");
-requireCondition(e2e.includes("task-9-ui-primitives-${locale}-${viewport.id}-${theme.id}.png"), "responsive browser coverage must capture both BLDS themes");
+requireCondition(e2e.includes("ui-primitives-${locale}-${viewport.id}-${theme.id}.png"), "responsive browser coverage must capture both BLDS themes");
+requireCondition(e2e.includes('id: "tablet"') && e2e.includes('id: "desktop-1280"') && e2e.includes('id: "desktop-1440"'), "responsive browser coverage must include tablet and both desktop widths");
+requireCondition(!e2e.includes("setPageScaleFactor") && !e2e.includes("pageScaleFactor"), "200 percent coverage must not use pinch or page scale emulation");
+requireCondition(e2e.includes("200 percent layout zoom") && e2e.includes("width: 640"), "responsive browser coverage must include half-width 200 percent layout reflow");
 
 for (const locale of ["ko", "en"]) {
   const messages = JSON.parse(fs.readFileSync(paths[locale], "utf8"));

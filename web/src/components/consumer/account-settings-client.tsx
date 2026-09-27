@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
   AccountAvatarResponseSchema,
@@ -32,12 +32,12 @@ import { supabase } from "@/lib/supabase";
 import {
   Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 
 type AccountClientState = "loading" | "ready" | "empty" | "error" | "unauthorized" | "consent" | "quota" | "offline";
 type ThemeChoice = "system" | "light" | "dark";
@@ -112,6 +112,7 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
   const [theme, setTheme] = useState<ThemeChoice>("system");
   const [languageToConfirm, setLanguageToConfirm] = useState<ConsumerLocale | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const passwordTriggerRef = useRef<HTMLElement | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -453,7 +454,7 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       <ConsumerCard>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><h2 className="text-xl font-semibold">{t("securityTitle")}</h2><p className="mt-1 text-sm text-[var(--blab-text-tertiary)]">{t("password")}</p></div>
-          <ConsumerButton type="button" variant="secondary" text={t("changePassword")} onClick={() => { setPasswordError(null); setPasswordOpen(true); }} data-testid="account-password-open" />
+          <ConsumerButton type="button" variant="secondary" text={t("changePassword")} onClick={(event) => { passwordTriggerRef.current = event.currentTarget; setPasswordError(null); setPasswordOpen(true); }} data-testid="account-password-open" />
         </div>
         {passwordSaved ? <p role="status" className="mt-4 text-sm text-[var(--blab-color-success)]" data-testid="account-password-saved">{t("passwordSaved")}</p> : null}
       </ConsumerCard>
@@ -501,7 +502,7 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       </ConsumerCard>
 
       <Dialog open={languageToConfirm !== null} onOpenChange={(open) => { if (!open) setLanguageToConfirm(null); }}>
-        <DialogContent className="border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-language-dialog">
+        <DialogContent className="border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-language-dialog" data-parity-overlay="language-change-confirmation" data-parity-actions="confirm-language-change cancel-language-change">
           <DialogHeader><DialogTitle>{t("languageConfirmTitle")}</DialogTitle><DialogDescription>{t("languageConfirmDescription")}</DialogDescription></DialogHeader>
           <DialogFooter>
             <DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("languageCancel")} /></DialogClose>
@@ -511,7 +512,7 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       </Dialog>
 
       <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
-        <DialogContent className="border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-password-dialog">
+        <DialogContent className="border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-password-dialog" data-parity-overlay="password-change" data-parity-actions="change-password cancel-password-change" onCloseAutoFocus={(event) => { event.preventDefault(); passwordTriggerRef.current?.focus(); }}>
           <DialogHeader><DialogTitle>{t("changePassword")}</DialogTitle><DialogDescription>{t("passwordMin")}</DialogDescription></DialogHeader>
           <form onSubmit={(event) => void savePassword(event)} noValidate className="grid gap-4" data-testid="account-password-form">
             <ConsumerTextField id="account-current-password" data-testid="account-current-password" label={t("currentPassword")} obscureText autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
@@ -524,7 +525,7 @@ export function AccountSettingsClient({ locale }: { locale: ConsumerLocale }) {
       </Dialog>
 
       <Dialog open={deleteOpen} onOpenChange={(open) => { if (!open) closeDeleteDialog(); }}>
-        <DialogContent className="border-rose-400/40 bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-delete-dialog">
+        <DialogContent className="border-rose-400/40 bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="account-delete-dialog" data-parity-overlay="delete-account-confirmation" data-parity-actions="confirm-account-deletion cancel-account-deletion">
           <DialogHeader>
             <DialogTitle className="text-rose-200">{t("deleteDialogTitle")}</DialogTitle>
             <DialogDescription>{t("deleteDialogDescription")}</DialogDescription>

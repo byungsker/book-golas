@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   BarChart3,
@@ -8,6 +8,8 @@ import {
   CalendarDays,
   Library,
   UserCircle,
+  Search,
+  MoreHorizontal,
 } from "lucide-react";
 import {
   ConsumerBottomBar,
@@ -22,6 +24,15 @@ import {
   ConsumerTabBar,
   ConsumerTextField,
 } from "@/components/consumer/blab-primitives";
+import {
+  Dialog,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 
 type NavigationMode = "all" | "records" | "notes";
 type BoundaryStateId = "unauthorized-state" | "consent-state" | "quota-state" | "offline-state";
@@ -41,6 +52,25 @@ export function UiPrimitivesShowcase() {
   const [page, setPage] = useState("512");
   const [password, setPassword] = useState("");
   const [note, setNote] = useState("");
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextOutcome, setContextOutcome] = useState("");
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  const [overlaySearch, setOverlaySearch] = useState("");
+  const contextTriggerRef = useRef<HTMLButtonElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!contextMenuOpen) return;
+    contextMenuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setContextMenuOpen(false);
+      contextTriggerRef.current?.focus();
+    };
+    document.addEventListener("keydown", close, true);
+    return () => document.removeEventListener("keydown", close, true);
+  }, [contextMenuOpen]);
 
   const navigationItems = [
     { icon: <BookOpen aria-hidden="true" />, activeIcon: <BookOpen aria-hidden="true" />, label: t("navigation.tabs.0") },
@@ -65,7 +95,7 @@ export function UiPrimitivesShowcase() {
             <ConsumerCard>
               <div className="bookgolas-ui-showcase__section-content">
                 <h2 id="showcase-buttons">{t("button.heading")}</h2>
-                <div className="bookgolas-ui-showcase__actions">
+                <div className="bookgolas-ui-showcase__actions" data-testid="button-actions">
                   <ConsumerButton
                     data-testid="primary-button"
                     text={t("button.primary")}
@@ -263,6 +293,20 @@ export function UiPrimitivesShowcase() {
             </ConsumerCard>
           </section>
 
+          <section aria-labelledby="showcase-overlays" className="bookgolas-ui-showcase__section">
+            <ConsumerCard>
+              <div className="bookgolas-ui-showcase__section-content">
+                <h2 id="showcase-overlays">{t("overlays.heading")}</h2>
+                <div className="bookgolas-ui-showcase__actions">
+                  <button ref={contextTriggerRef} type="button" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--blab-glass-border)] px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => setContextMenuOpen((open) => !open)} aria-expanded={contextMenuOpen} data-testid="context-menu-open"><MoreHorizontal aria-hidden="true" size={16} />{t("overlays.contextOpen")}</button>
+                  <ConsumerButton type="button" variant="secondary" icon={<Search aria-hidden="true" size={16} />} text={t("overlays.searchOpen")} onClick={() => setSearchOverlayOpen(true)} data-testid="search-overlay-open" />
+                </div>
+                {contextMenuOpen ? <div ref={contextMenuRef} role="menu" aria-label={t("overlays.contextLabel")} className="mt-3 grid gap-1 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-2" data-testid="context-menu" data-parity-actions="choose-context-action dismiss-context-menu"><button type="button" role="menuitem" className="min-h-11 rounded-lg px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => { setContextOutcome(t("overlays.contextChosen")); setContextMenuOpen(false); contextTriggerRef.current?.focus(); }}>{t("overlays.contextAction")}</button><button type="button" role="menuitem" className="min-h-11 rounded-lg px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => { setContextMenuOpen(false); contextTriggerRef.current?.focus(); }}>{t("overlays.dismiss")}</button></div> : null}
+                {contextOutcome ? <p role="status" data-testid="context-menu-outcome" className="bookgolas-ui-showcase__feedback">{contextOutcome}</p> : null}
+              </div>
+            </ConsumerCard>
+          </section>
+
           <section aria-labelledby="showcase-boundaries" className="bookgolas-ui-showcase__section bookgolas-ui-showcase__section--wide">
             <ConsumerCard>
               <div className="bookgolas-ui-showcase__section-content">
@@ -307,6 +351,15 @@ export function UiPrimitivesShowcase() {
           </section>
         </div>
       </div>
+
+      <Dialog open={searchOverlayOpen} onOpenChange={setSearchOverlayOpen}>
+        <DialogContent data-testid="search-overlay" data-parity-actions="search-with-keyboard dismiss-search-overlay" onCloseAutoFocus={(event) => { event.preventDefault(); document.querySelector<HTMLButtonElement>('[data-testid="search-overlay-open"]')?.focus(); }}>
+          <DialogHeader><DialogTitle>{t("overlays.searchTitle")}</DialogTitle><DialogDescription>{t("overlays.searchDescription")}</DialogDescription></DialogHeader>
+          <label className="grid gap-2 text-sm font-medium">{t("overlays.searchLabel")}<input autoFocus value={overlaySearch} onChange={(event) => setOverlaySearch(event.target.value)} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3" data-testid="search-overlay-input" /></label>
+          <p role="status" data-testid="search-overlay-result" className="text-sm text-[var(--blab-text-secondary)]">{overlaySearch ? t("overlays.searchResult", { query: overlaySearch }) : t("overlays.searchEmpty")}</p>
+          <DialogFooter><DialogClose asChild><ConsumerButton type="button" variant="secondary" text={t("overlays.dismiss")} /></DialogClose></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

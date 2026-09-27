@@ -3,6 +3,7 @@ import {
   BookIdSchema,
   RecordIdSchema,
   ReadingAnalyticsBookSchema,
+  ReadingAnalyticsInsightSuccessSchema,
   ReadingAnalyticsRequestSchema,
   buildReadingAnalytics,
   currentReadingAnalyticsWeekStart,
@@ -48,10 +49,26 @@ describe("reading analytics contracts", () => {
   it("validates weekly Mondays and ordered custom ranges", () => {
     expect(() => ReadingAnalyticsRequestSchema.parse({ view: "weekly", year: 2026, weekStart: "2026-09-02", status: "all" })).toThrow();
     expect(() => ReadingAnalyticsRequestSchema.parse({ view: "custom", year: 2026, customStart: "2026-09-10", customEnd: "2026-09-01", status: "all" })).toThrow();
+    expect(() => ReadingAnalyticsRequestSchema.parse({ view: "custom", year: 2026, customStart: "2025-09-01", customEnd: "2026-09-02", status: "all" })).toThrow();
     vi.setSystemTime(new Date("2026-09-16T03:00:00.000Z"));
     expect(() => ReadingAnalyticsRequestSchema.parse({ view: "custom", year: 2026, customStart: "2026-09-01", customEnd: "2026-09-17", status: "all" })).toThrow();
     expect(getReadingAnalyticsRange(ReadingAnalyticsRequestSchema.parse({ view: "weekly", year: 2026, weekStart: "2026-09-07", status: "all" }))).toEqual({ startDay: "2026-09-07", endDay: "2026-09-13" });
     vi.useRealTimers();
+  });
+
+  it("bounds chart and AI insight payloads", () => {
+    expect(() => ReadingAnalyticsInsightSuccessSchema.parse({
+      kind: "insight_generated",
+      requestKey: "00000000-0000-4000-8000-000000004399",
+      insights: Array.from({ length: 4 }, (_, index) => ({
+        id: `00000000-0000-4000-8000-00000000439${index}`,
+        title: "Bounded insight",
+        description: "A bounded response.",
+        category: "pattern",
+        relatedBooks: [],
+        generatedAt: "2026-09-16T03:00:00.000Z",
+      })),
+    })).toThrow();
   });
 
   it("uses the current KST week start", () => {

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const fixtureMode = process.argv[2] === "--fixture" ? process.argv[3] : null;
@@ -76,8 +77,17 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(
-  fixtureMode === "unsafe-return"
-    ? `session lifecycle negative fixture passed: ${fixture.unsafeReturnTargets.length} unsafe targets rejected by the shared boundary`
-    : "session lifecycle contract passed: fail-closed auth, safe return-to, owner-scoped not-found and aligned route states",
-);
+if (fixtureMode === "unsafe-return") {
+  const { getSafeNextPath } = await import(pathToFileURL(paths.paths).href);
+  const acceptedTargets = fixture.unsafeReturnTargets.filter(
+    (target) => getSafeNextPath("ko", target) !== fixture.expectedFallback.path,
+  );
+  if (acceptedTargets.length === 0) {
+    console.error(`session lifecycle unsafe-return fixture rejected: ${fixture.unsafeReturnTargets.length} targets`);
+    process.exit(1);
+  }
+  console.log(`session lifecycle unsafe-return fixture unexpectedly accepted: ${acceptedTargets.join(",")}`);
+  process.exit(0);
+}
+
+console.log("session lifecycle contract passed: fail-closed auth, safe return-to, owner-scoped not-found and aligned route states");

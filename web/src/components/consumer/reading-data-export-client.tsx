@@ -108,7 +108,11 @@ export function ReadingDataExportClient({ locale, initialEmail = "" }: { locale:
         setMessage(null);
       } else {
         setState("ready");
-        setMessage(t("success", { year: next.data.year }));
+        setMessage(
+          next.data.downloadUrl
+            ? t("successDownload", { year: next.data.year })
+            : t("successUnverified", { year: next.data.year, recordCount: next.data.recordCount }),
+        );
       }
     } catch (caught) {
       const error = caught instanceof Error ? caught as RequestError : new Error("The export request failed.");
@@ -126,7 +130,7 @@ export function ReadingDataExportClient({ locale, initialEmail = "" }: { locale:
   const description = state === "unauthorized" ? t("unauthorizedDescription") : state === "consent" ? t("consentDescription") : state === "quota" ? t("quotaDescription") : state === "offline" ? t("offlineDescription") : t("errorDescription");
 
   return (
-    <div className="grid gap-6" data-testid="reading-data-export" data-export-state={state} data-export-locale={locale} aria-busy={state === "loading"}>
+    <div className="grid gap-6" data-testid="reading-data-export" data-export-state={state} data-export-locale={locale} data-export-delivery={result?.downloadUrl ? "download-ready" : result ? "unverified" : undefined} aria-busy={state === "loading"}>
       <ConsumerCard>
         <h2 className="text-xl font-semibold">{t("title")}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("description")}</p>
@@ -145,6 +149,7 @@ export function ReadingDataExportClient({ locale, initialEmail = "" }: { locale:
           <label className="flex min-h-11 items-center gap-3 rounded-xl border border-[var(--blab-glass-border)] px-4 py-3 text-sm font-semibold"><input type="checkbox" checked={includeImages} disabled={state === "loading"} onChange={(event) => setIncludeImages(event.target.checked)} data-testid="export-include-images" /><span>{t("includeImages")}</span></label>
           <ConsumerButton type="submit" variant="primary" text={state === "loading" ? t("submitting") : t("submit")} loading={state === "loading"} loadingLabel={t("submitting")} data-testid="export-submit" />
           {message ? <p role="status" className="text-sm text-[var(--blab-color-success)]" data-testid="export-success">{message}</p> : null}
+          {result?.downloadUrl ? <a className="text-sm font-semibold text-[var(--blab-color-primary)] underline underline-offset-4" href={result.downloadUrl} data-testid="export-download">{t("download")}</a> : null}
         </form>
       </ConsumerCard>
     </div>

@@ -9,15 +9,21 @@ import type {
   RecordId,
 } from "@/lib/product/contracts";
 import {
+  budgetExceededError,
+  concurrencyExceededError,
   consentRequiredError,
+  consentStatusUnknownError,
   failure,
+  hardCapExceededError,
   notFoundError,
   offlineError,
   providerError,
+  providerTimeoutError,
   quotaExceededError,
   rateLimitExceededError,
   success,
   unauthorizedError,
+  unavailableError,
   type ProductError,
   type ProductResult,
 } from "@/lib/product/dal/errors";
@@ -99,14 +105,22 @@ const emptyRecommendations: AiRecommendations = {
 const errorByFixture: Record<string, ProductError> = {
   "ai-artifacts-unauthorized": unauthorizedError(),
   "ai-artifacts-consent": consentRequiredError("AI consent is required for this artifact."),
+  "ai-artifacts-consent-withdrawn": consentRequiredError("OpenAI consent was withdrawn."),
+  "ai-artifacts-consent-unknown": consentStatusUnknownError("OpenAI consent could not be confirmed."),
+  "ai-artifacts-consent-unavailable": unavailableError("OpenAI consent verification is unavailable."),
   "ai-artifacts-quota": quotaExceededError("AI quota has been reached for this period."),
   "ai-artifacts-rate-limit": rateLimitExceededError("This artifact can be generated again later."),
+  "ai-artifacts-concurrency": concurrencyExceededError("The maximum number of AI requests is running."),
+  "ai-artifacts-budget": budgetExceededError("The operational AI budget was reached."),
+  "ai-artifacts-hard-cap": hardCapExceededError("The AI safety cap was reached."),
+  "ai-artifacts-timeout": providerTimeoutError("The AI provider timed out."),
   "ai-artifacts-provider": providerError("The AI provider is unavailable."),
   "ai-artifacts-offline": offlineError("AI artifacts are offline."),
   "ai-artifacts-foreign": notFoundError(),
 };
 
 const generatedByRequestKey = new Map<string, AiArtifactReadResponse["artifact"]>();
+const providerCallsByFixture = new Map<string, number>();
 
 function artifactFor(kind: AiArtifactKind, empty: boolean): AiArtifactReadResponse["artifact"] {
   if (kind === "mindmap") return empty ? { ...mindMap, clusters: [], connections: [] } : mindMap;
@@ -125,6 +139,11 @@ function readResponse(kind: AiArtifactKind, cacheState: "fresh" | "missing" | "e
 
 export function resetAiArtifactsFixtures() {
   generatedByRequestKey.clear();
+  providerCallsByFixture.clear();
+}
+
+export function getAiArtifactsFixtureProviderCalls(fixture: string): number {
+  return providerCallsByFixture.get(fixture) ?? 0;
 }
 
 export function getAiArtifactsFixtureRead(input: {
@@ -145,9 +164,14 @@ export function getAiArtifactsFixtureGenerate(
   const error = errorByFixture[fixture];
   if (error) return failure(error);
   if (fixture === "ai-artifacts-foreign") return failure(notFoundError());
-  const existing = generatedByRequestKey.get(input.requestKey);
+  const artifactScope = input.kind === "mindmap" ? input.bookId : "account";
+  const scopedRequestKey = `${fixture}:${input.kind}:${artifactScope}:${input.requestKey}`;
+  const existing = generatedByRequestKey.get(scopedRequestKey);
   const artifact = existing ?? artifactFor(input.kind, false);
-  generatedByRequestKey.set(input.requestKey, artifact);
+  if (existing === undefined) {
+    generatedByRequestKey.set(scopedRequestKey, artifact);
+    providerCallsByFixture.set(fixture, getAiArtifactsFixtureProviderCalls(fixture) + 1);
+  }
   return success({
     kind: input.kind,
     cacheState: fixture === "ai-artifacts-expired" || fixture === "ai-artifacts-source-changed" ? "expired" : "missing",

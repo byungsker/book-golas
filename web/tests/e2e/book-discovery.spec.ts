@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion");
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -39,8 +39,9 @@ test("search and manual-isbn happy path keeps native search and recommendation e
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Start with this book", exact: true }).click();
   await expect(page.getByTestId("book-discovery-selected")).toBeVisible();
+  await expect(page.getByRole("dialog")).toBeHidden();
 
-  await capture(page, "task-18-bookgolas-web-app-parity.png");
+  await capture(page, "task-10-book-discovery.png");
   await page.goto("/ko/books/new", { waitUntil: "networkidle" });
   await expect(page.getByText("새로운 독서를 시작하세요", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "ISBN 검색", exact: true })).toBeVisible();
@@ -79,4 +80,69 @@ test("unsupported invalid upstream states preserve scanner and manual fallbacks"
   await setFixture(context, "book-discovery-upstream");
   await page.locator("#book-discovery-search").fill("provider failure");
   await expect(page.getByText("Book search is temporarily unavailable", { exact: true })).toBeVisible();
+});
+
+test("scan route opens a denied-permission fallback with manual ISBN and file input", async ({ context, page }) => {
+  await page.addInitScript(() => {
+    class Detector {
+      async detect() { return []; }
+    }
+    Object.defineProperty(window, "BarcodeDetector", { configurable: true, value: Detector });
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: async () => { throw new DOMException("denied", "NotAllowedError"); } },
+    });
+  });
+  await setFixture(context, "book-discovery-results");
+  await page.goto("/en/books/scan", { waitUntil: "networkidle" });
+  await expect(page.getByRole("dialog", { name: "Scan an ISBN barcode" })).toBeVisible();
+  await expect(page.getByTestId("book-discovery-camera-fallback")).toContainText("permission was denied");
+  await expect(page.locator("#book-discovery-file-modal")).toHaveAttribute("accept", "image/*");
+  await page.getByRole("button", { name: "Close scanner" }).click();
+  await expect(page.getByRole("dialog", { name: "Scan an ISBN barcode" })).toBeHidden();
+  await expect(page.locator("#book-discovery-isbn")).toBeVisible();
+  await capture(page, "task-10-permission-fallback.png");
+});
+
+test("owner-safe add and duplicate conflict remain distinct", async ({ context, page }) => {
+  await setFixture(context, "book-lifecycle-success");
+  await page.goto("/en/books/new", { waitUntil: "networkidle" });
+  await page.locator("#book-discovery-search").fill("reading");
+  await page.getByTestId("book-discovery-result").first().getByRole("button", { name: "Use this book" }).click();
+  await page.getByTestId("book-lifecycle-save").click();
+  await expect(page.getByTestId("book-lifecycle-saved")).toContainText("The Reading Atlas");
+
+  await page.waitForLoadState("networkidle");
+  await setFixture(context, "book-lifecycle-duplicate");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.locator("#book-discovery-search").fill("reading");
+  await page.getByTestId("book-discovery-result").first().getByRole("button", { name: "Use this book" }).click();
+  await page.getByTestId("book-lifecycle-save").click();
+  await expect(page.getByTestId("book-lifecycle-error")).toHaveAttribute("data-error-code", "conflict");
+});
+
+test("bookstore select performs its verified direct action", async ({ context, page }) => {
+  await context.route("https://www.aladin.co.kr/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<title>Verified bookstore</title>" }));
+  await setFixture(context, "book-discovery-results");
+  await page.goto("/en/books/new", { waitUntil: "networkidle" });
+  await page.locator("#book-discovery-search").fill("reading");
+  await page.getByTestId("bookstore-select-open").first().click();
+  await expect(page.getByTestId("bookstore-select")).toBeVisible();
+  const provider = page.getByTestId("bookstore-select-provider");
+  await expect(provider).toHaveAttribute("href", /^https:\/\/www\.aladin\.co\.kr\//);
+  const [popup] = await Promise.all([context.waitForEvent("page"), provider.click()]);
+  await expect(popup).toHaveTitle("Verified bookstore");
+  await capture(page, "task-10-bookstore-select.png");
+  await popup.close();
+});
+
+test("mobile Korean discovery reflows without horizontal overflow", async ({ context, page }) => {
+  await setFixture(context, "book-discovery-results");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/ko/books/new", { waitUntil: "networkidle" });
+  await page.locator("#book-discovery-search").fill("독서");
+  await expect(page.getByTestId("book-discovery-result")).toHaveCount(2);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await capture(page, "task-10-book-discovery-mobile-ko.png");
 });

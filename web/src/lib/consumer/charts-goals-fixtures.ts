@@ -1,9 +1,11 @@
 import {
   buildReadingAnalytics,
+  InsightSchema,
   ReadingAnalyticsBookSchema,
   ReadingAnalyticsDataSchema,
   ReadingAnalyticsRequestSchema,
   ReadingAnalyticsSourceGoalSchema,
+  type Insight,
   type ReadingAnalyticsData,
   type ReadingAnalyticsRequest,
 } from "@/lib/product/contracts";
@@ -11,6 +13,8 @@ import {
   consentRequiredError,
   failure,
   offlineError,
+  providerError,
+  providerTimeoutError,
   quotaExceededError,
   unauthorizedError,
   unavailableError,
@@ -20,6 +24,15 @@ import {
 import { getCalendarFixtureSources } from "@/lib/consumer/calendar-fixtures";
 
 const fixtureGoalValues = new Map<string, number>();
+
+const fixtureInsight: Insight = InsightSchema.parse({
+  id: "00000000-0000-4000-8000-000000004397",
+  title: "A steady reading rhythm",
+  description: "Your recent activity shows a consistent mix of progress and focused reading time.",
+  category: "pattern",
+  relatedBooks: ["00000000-0000-4000-8000-000000004391"],
+  generatedAt: "2026-09-16T03:00:00.000Z",
+});
 
 const fixtureBookMetadata: Record<string, { genre: string | null; updatedAt: string | null; attemptCount: number }> = {
   "00000000-0000-4000-8000-000000004391": {
@@ -112,4 +125,14 @@ export function setChartsGoalsFixtureGoal(input: {
   }
   fixtureGoalValues.set(input.fixture, input.targetBooks);
   return { ok: true, value: { year: input.year, targetBooks: input.targetBooks } };
+}
+
+export function generateChartsGoalsFixtureInsight(fixture: string): ProductResult<Insight[]> {
+  if (fixture === "charts-goals-ai-unauthorized") return failure(unauthorizedError());
+  if (fixture === "charts-goals-ai-consent") return failure(consentRequiredError("AI consent is required for reading insights."));
+  if (fixture === "charts-goals-ai-quota") return failure(quotaExceededError("The reading insight quota has been reached."));
+  if (fixture === "charts-goals-ai-provider") return failure(providerError("The reading insight provider is unavailable."));
+  if (fixture === "charts-goals-ai-timeout") return failure(providerTimeoutError("The reading insight provider timed out."));
+  if (fixture === "charts-goals-ai-offline") return failure(offlineError("Reading insights are offline."));
+  return { ok: true, value: [fixtureInsight] };
 }

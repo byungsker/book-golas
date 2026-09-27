@@ -13,11 +13,12 @@ vi.mock("@/lib/product/dal", () => ({
 
 const bookId = "00000000-0000-4000-8000-000000004361";
 
-function request(body: unknown, fixture: string) {
+function request(body: ReturnType<typeof input>, fixture: string, validActionKey = true) {
   return new NextRequest("http://localhost/api/consumer/timer", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(validActionKey ? { "X-Bookgolas-Action-Key": `${body.bookId}:finish:${body.idempotencyKey}` } : {}),
       Cookie: `bookgolas-route-fixture=${fixture}`,
     },
     body: JSON.stringify(body),
@@ -85,8 +86,19 @@ describe("/api/consumer/timer", () => {
     expect((await (await POST(request(body, "timer-offline"))).json()).error.code).toBe("offline");
     expect((await (await POST(request(body, "timer-unauthorized"))).json()).error.code).toBe("unauthorized");
     expect((await (await POST(request(body, "timer-foreign"))).json()).error.code).toBe("not_found");
-    const malformed = await POST(request({ ...body, user_id: "foreign-user" }, "timer-happy"));
+    const malformed = await POST(new NextRequest("http://localhost/api/consumer/timer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...body, user_id: "foreign-user" }),
+    }));
     expect(malformed.status).toBe(400);
     expect((await malformed.json()).error.code).toBe("validation_error");
+  });
+
+  it("rejects a missing completion action key", async () => {
+    const body = input("00000000-0000-4000-8000-000000005376");
+    const response = await POST(request(body, "timer-happy", false));
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.code).toBe("validation_error");
   });
 });

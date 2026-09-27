@@ -31,11 +31,17 @@ describe("AI artifact contracts", () => {
       "loading",
       "empty",
       "error",
+      "unknown",
+      "unavailable",
       "unauthorized",
       "consent_required",
       "quota_exceeded",
+      "concurrency_exceeded",
+      "budget_exceeded",
+      "hard_cap_exceeded",
       "offline",
       "rate_limit_exceeded",
+      "provider_timeout",
       "provider_error",
     ]));
   });

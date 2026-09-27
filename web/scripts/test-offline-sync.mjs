@@ -6,6 +6,7 @@ const root = process.cwd();
 const fixtureMode = process.argv[2] === "--fixture" ? process.argv[3] : null;
 const paths = {
   package: path.join(root, "package.json"),
+  releaseConfig: path.join(root, "docs/consumer-web-release-config.json"),
   contract: path.join(root, "docs/offline-sync-contract.json"),
   fixture: path.join(root, "scripts/fixtures/offline-sync-negative.json"),
   matrix: path.join(root, "docs/consumer-parity-matrix.md"),
@@ -21,14 +22,26 @@ const paths = {
   reading: path.join(root, "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx"),
   bookDetail: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/page.tsx"),
   library: path.join(root, "src/components/consumer/library-client.tsx"),
-  evidence: path.join(root, "../.omo/evidence/bookgolas-web-app-parity/task-35-bookgolas-web-app-parity.json"),
+  subscription: path.join(root, "src/app/[locale]/(consumer)/subscription/page.tsx"),
 };
+const consumerRouteDirectory = path.join(root, "src/app/[locale]/(consumer)");
+const consumerComponentDirectory = path.join(root, "src/components/consumer");
 
 const failures = [];
 const requireCondition = (condition, message) => {
   if (!condition) failures.push(message);
 };
 const source = {};
+
+function readSourceTree(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true })
+    .flatMap((entry) => {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return readSourceTree(entryPath);
+      return /\.tsx?$/.test(entry.name) ? [fs.readFileSync(entryPath, "utf8")] : [];
+    })
+    .join("\n");
+}
 
 for (const [name, filePath] of Object.entries(paths)) {
   requireCondition(fs.existsSync(filePath), `missing offline sync ${name}: ${path.relative(root, filePath)}`);
@@ -37,6 +50,7 @@ for (const [name, filePath] of Object.entries(paths)) {
 
 if (failures.length === 0) {
   const packageJson = JSON.parse(source.package);
+  const releaseConfig = JSON.parse(source.releaseConfig);
   const contract = JSON.parse(source.contract);
   const fixture = JSON.parse(source.fixture);
   const ledger = JSON.parse(source.ledger);
@@ -44,12 +58,20 @@ if (failures.length === 0) {
   const messagesKo = JSON.parse(source.ko);
   const requiredStates = ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "reconnect", "conflict", "duplicate", "unsupported-mutation"];
   const requiredMutations = ["progress", "book-metadata", "book-status", "notes-highlights", "review", "timer", "images-ocr", "ai", "web-push", "account"];
-  const requiredNativeOnly = ["iOS widget", "Siri/App Shortcuts", "native push", "camera", "share sheet", "subscription"];
+  const requiredNativeOnly = new Map([
+    ["iOS widget", "unavailable"],
+    ["Siri/App Shortcuts", "unavailable"],
+    ["native push", "registration-only"],
+    ["camera", "browser-equivalent"],
+    ["share sheet", "browser-equivalent"],
+    ["subscription", "disabled"],
+  ]);
+  const consumerSource = readSourceTree(consumerRouteDirectory) + readSourceTree(consumerComponentDirectory);
 
-  requireCondition(contract.issue === 447 && contract.task === 35 && contract.parentIssue === 412, "offline sync contract must bind issue 447/task 35/parent 412");
-  requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "offline sync contract must reference the parity plan");
+  requireCondition(contract.issue === 447 && contract.task === 17 && contract.parentIssue === 412, "offline sync contract must bind issue 447/task 17/parent 412");
+  requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "offline sync contract must reference the completion plan");
   requireCondition(contract.targetVersion === "1.1.0" && contract.targetBranch === "version/web/1.1.0", "offline sync contract must target Web 1.1.0");
-  requireCondition(contract.featureBranch === "codex/feature/web/1.1.0/BOK-447-offline-boundary", "offline sync feature branch is incorrect");
+  requireCondition(contract.featureBranch === "codex/feature/web/1.1.0/bookgolas-web-completion", "offline sync feature branch is incorrect");
   requireCondition(contract.locales?.join(",") === "ko,en", "offline sync contract must cover ko and en");
   requireCondition(contract.policy === "online-core", "offline sync policy must be online-core");
   requireCondition(contract.queue?.enabled === false && contract.queue?.name === null && contract.queue?.replay === false, "offline queue must be explicitly disabled");
@@ -72,12 +94,17 @@ if (failures.length === 0) {
     requireCondition(Boolean(row), `offline mutation is missing: ${mutation}`);
     if (row) requireCondition(row.queued === false && typeof row.browserDisposition === "string" && typeof row.preservation === "string", `offline mutation is not explicit: ${mutation}`);
   }
-  for (const feature of requiredNativeOnly) requireCondition(contract.nativeOnly?.some((item) => item.feature === feature), `native-only capability missing: ${feature}`);
+  for (const [feature, status] of requiredNativeOnly) {
+    const capability = contract.nativeOnly?.find((item) => item.feature === feature);
+    requireCondition(capability?.status === status, `native-only capability ${feature} must remain ${status}`);
+  }
   requireCondition(contract.observability?.event === "bookgolas:online-reconnected", "reconnect event is not canonical");
   requireCondition(contract.observability?.queueAttribute === "data-queue-enabled=false", "queue-disabled UI marker is missing");
+  requireCondition(contract.boundaryAudit?.roots?.join(",") === "web/src/app/[locale]/(consumer),web/src/components/consumer", "consumer boundary audit roots are incomplete");
+  requireCondition(contract.boundaryAudit?.ordinaryHttpsDestinationsAllowed === true, "ordinary HTTPS destinations must remain allowed");
   requireCondition(contract.evidence?.stages?.join(",") === "RED,GREEN,SURFACE,CLEANUP", "offline sync evidence stages are incomplete");
 
-  requireCondition(fixture.issue === 447 && fixture.task === 35 && fixture.parentIssue === 412, "offline negative fixture metadata is incorrect");
+  requireCondition(fixture.issue === 447 && fixture.task === 17 && fixture.parentIssue === 412, "offline negative fixture metadata is incorrect");
   requireCondition(fixture.plan === contract.plan && fixture.targetVersion === contract.targetVersion && fixture.targetBranch === contract.targetBranch && fixture.featureBranch === contract.featureBranch, "offline negative fixture target is inconsistent");
   const fixtureNames = new Set(fixture.fixtures?.map((item) => item.name));
   for (const name of ["duplicate", "unsupported-mutation", "queue-enabled", "missing-reconnect"]) requireCondition(fixtureNames.has(name), `offline negative fixture missing: ${name}`);
@@ -87,7 +114,7 @@ if (failures.length === 0) {
 
   requireCondition(typeof packageJson.scripts?.["test:offline-sync"] === "string" && packageJson.scripts["test:offline-sync"].includes("test-offline-sync.mjs"), "package must expose npm run test:offline-sync");
   requireCondition(typeof packageJson.scripts?.["test:offline-sync:negative"] === "string" && packageJson.scripts["test:offline-sync:negative"].includes("--fixture duplicate") && packageJson.scripts["test:offline-sync:negative"].includes("--fixture unsupported-mutation"), "package must expose offline negative fixtures");
-  requireCondition(packageJson.scripts.test.includes("test:offline-sync") && packageJson.scripts.test.includes("test:offline-sync:negative"), "full Web test command must include offline sync acceptance");
+  requireCondition(packageJson.scripts.test.includes("test:contracts") && releaseConfig.verification?.contractScripts?.includes("test:offline-sync") && releaseConfig.verification?.contractScripts?.includes("test:offline-sync:negative"), "full Web test command must include offline sync acceptance through the versioned contract inventory");
 
   for (const marker of ["data-testid=\"network-status\"", "data-network-state", "data-online-core=\"true\"", "data-queue-enabled=\"false\"", "data-mutation-mode", "CustomEvent", "reconnected", "onDismiss"]) requireCondition(source.network.includes(marker), `network status is missing ${marker}`);
   requireCondition((source.network + source.boundary).includes("bookgolas:online-reconnected") && source.network.includes("navigator.onLine") && source.network.includes("retryable"), "network status must expose reconnect and retry behavior");
@@ -99,11 +126,21 @@ if (failures.length === 0) {
   requireCondition(messagesKo.consumer?.network?.offline.includes("대기열") && messagesKo.consumer.network.reconnected.includes("다시 시도"), "Korean network boundary copy is incomplete");
   requireCondition(source.matrix.includes("#447") && source.matrix.includes("online-only boundary") && source.matrix.includes("data-queue-enabled=\"false\"") && source.matrix.includes("loading, empty, error, unauthorized, consent, quota, offline"), "parity matrix must match the offline evidence label");
   const ledgerCapability = ledger.native_only_capabilities?.find((item) => item.id === "offline-boundary");
-  requireCondition(ledgerCapability?.web?.owner === "#447" && ledgerCapability?.web?.status === "partial" && ledgerCapability?.web?.target?.includes("Online-core boundary with explicit offline state"), "parity ledger offline label is inconsistent");
+  requireCondition(ledgerCapability?.web?.owner === "#447" && ledgerCapability?.web?.status === "online-only" && ledgerCapability?.web?.target?.includes("Online-core boundary with explicit offline state"), "parity ledger offline label is inconsistent");
 
-  for (const marker of ["context.setOffline(true)", "context.setOffline(false)", "network-status", "data-queue-enabled", "offline", "reconnect", "conflict", "duplicate", "unsupported-mutation", "task-35-bookgolas-web-app-parity.png"]) requireCondition(source.e2e.includes(marker), `offline browser suite is missing ${marker}`);
-  requireCondition(source.e2e.includes("no hidden queue") && source.e2e.includes("no mutation write"), "offline browser suite must assert no silent writes");
-  requireCondition(source.evidence.includes("RED") && source.evidence.includes("GREEN") && source.evidence.includes("SURFACE") && source.evidence.includes("CLEANUP") && source.evidence.includes("Plan: .omo/plans/bookgolas-web-app-parity.md"), "offline sync evidence must contain four stages and plan footer");
+  const activationPatterns = [
+    /(?:href|router\.(?:push|replace)|location\.assign)\s*[=(][^\n]*(?:\/billing|\/purchase|\/upgrade|customer[-/]center)/i,
+    /data-testid=["'][^"']*(?:purchase|restore-purchase|upgrade|customer-center|native-widget|native-shortcut)[^"']*["']/i,
+    /(?:RevenueCat|Purchases\.(?:configure|purchase|restore)|requestNativeWidget|requestSiri|registerAppShortcut)/,
+  ];
+  for (const pattern of activationPatterns) {
+    requireCondition(!pattern.test(consumerSource), `consumer route or overlay contains forbidden billing/native activation: ${pattern}`);
+  }
+  requireCondition(source.subscription.includes('data-subscription-enabled="false"') && source.subscription.includes('data-route-state="disabled"'), "subscription route must render the disabled boundary");
+  requireCondition(!source.subscription.includes("ConsumerButton") && !source.subscription.includes("RevenueCat"), "subscription route must not expose billing controls or clients");
+
+  for (const marker of ["context.setOffline(true)", "context.setOffline(false)", "network-status", "data-queue-enabled", "offline", "reconnect", "conflict", "duplicate", "unsupported-mutation", "task-17-offline-reconnect.png", "task-17-review-draft-offline.png"]) requireCondition(source.e2e.includes(marker), `offline browser suite is missing ${marker}`);
+  requireCondition(source.e2e.includes("no hidden queue") && source.e2e.includes("no mutation write") && source.e2e.includes("review draft is local-only and reconnect never replays it"), "offline browser suite must assert no silent writes or draft replay");
 
   if (fixtureMode) {
     const selected = fixture.fixtures?.find((item) => item.name === fixtureMode);

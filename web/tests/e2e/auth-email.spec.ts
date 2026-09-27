@@ -2,10 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-const fixtureAuthOrigin = "http://127.0.0.1:54329";
+const fixtureAuthOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54329";
 const evidenceDirectory = path.resolve(
   process.cwd(),
   "../.omo/evidence/bookgolas-web-app-parity",
+);
+const taskEvidenceDirectory = path.resolve(
+  process.cwd(),
+  "../.omo/evidence/bookgolas-web-completion",
 );
 const fixtureUserId = "00000000-0000-4000-8000-000000004230";
 const now = "2026-09-16T00:00:00.000Z";
@@ -132,6 +136,11 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
 }
 
+async function captureTask6(page: Page, name: string) {
+  fs.mkdirSync(taskEvidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(taskEvidenceDirectory, name), fullPage: true });
+}
+
 const responsiveViewports = [
   { id: "mobile", width: 375, height: 844 },
   { id: "tablet", width: 768, height: 900 },
@@ -254,4 +263,39 @@ test("unconfirmed email supports a localized resend cooldown", async ({ page }) 
   await expect(page.getByRole("status")).toContainText("new email has been sent");
   await expect(page.getByRole("button", { name: /Resend in \d+s/ })).toBeDisabled();
   await capture(page, "task-11-SURFACE-unconfirmed-en.png");
+});
+
+test("offline sign-in stays visible and retries without queuing", async ({ context, page }) => {
+  const requests = await installAuthFixture(page);
+  await page.goto("/en/auth/sign-in", { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: "Email" }).fill("reader@local.invalid");
+  await page.getByLabel("Password", { exact: true }).fill("secret1");
+
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.locator("form [role='alert']")).toContainText("You are offline");
+  expect(requests.filter((request) => request.pathname.endsWith("/token"))).toHaveLength(0);
+  await captureTask6(page, "task-6-auth-offline.png");
+
+  await context.setOffline(false);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/en\/home$/);
+  expect(requests.filter((request) => request.pathname.endsWith("/token"))).toHaveLength(1);
+  await captureTask6(page, "task-6-auth-duplicate-submit.png");
+});
+
+test("duplicate sign-in submissions send one authentication request", async ({ page }) => {
+  const requests = await installAuthFixture(page);
+  await page.goto("/en/auth/sign-in", { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: "Email" }).fill("reader@local.invalid");
+  await page.getByLabel("Password", { exact: true }).fill("secret1");
+
+  await page.locator("form").evaluate((form) => {
+    if (!(form instanceof HTMLFormElement)) throw new TypeError("Expected an authentication form");
+    form.requestSubmit();
+    form.requestSubmit();
+  });
+
+  await expect(page).toHaveURL(/\/en\/home$/);
+  expect(requests.filter((request) => request.pathname.endsWith("/token"))).toHaveLength(1);
 });

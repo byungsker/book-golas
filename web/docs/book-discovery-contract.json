@@ -1,6 +1,7 @@
 {
   "issue": 428,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "task": 10,
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "nativeSources": [
     "app/lib/ui/reading_start/widgets/reading_start_screen.dart",
     "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
@@ -9,6 +10,7 @@
   ],
   "routes": {
     "entry": "/{locale}/books/new",
+    "scanner": "/{locale}/books/scan",
     "search": "/api/consumer/book-discovery",
     "method": "POST"
   },
@@ -32,20 +34,27 @@
     "camera-denied",
     "file-fallback",
     "manual-fallback"
+    ,"wrong-mime"
+    ,"oversize"
+    ,"duplicate"
+    ,"owner-safe-add"
+    ,"bookstore-select"
   ],
   "locales": ["ko", "en"],
   "capabilities": {
     "camera": "best-effort browser BarcodeDetector plus getUserMedia; manual and image/file input always remain available",
     "providerCredentials": "server-only aladin-books invocation; no provider key or direct provider API request in browser assets",
-    "providerLinks": "https-only allowlisted provider hosts"
+    "providerLinks": "https-only allowlisted provider hosts opened through an explicit bookstore-select action",
+    "nativeParityBoundary": "browser-equivalent only; no claim of native camera or barcode scanner parity"
   },
   "privacy": {
-    "ownerScope": "adapter verifies the current session and the request has no caller-selected user id",
+    "ownerScope": "discovery requests reject caller-selected identity and add uses the authenticated owner-scoped lifecycle route",
     "providerBoundary": "browser calls the same-origin route and never receives ALADIN_TTB_KEY"
   },
   "qa": {
     "happy": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"search|manual-isbn\"",
     "failure": "npx playwright test tests/e2e/book-discovery.spec.ts --project=chromium --grep \"unsupported|invalid|upstream\"",
-    "negative": "npm run test:book-discovery:negative"
+    "negative": "npm run test:book-discovery:negative",
+    "bookstoreSelect": "tests/e2e/book-discovery.spec.ts clicks bookstore-select-provider and observes a verified HTTPS popup"
   }
 }

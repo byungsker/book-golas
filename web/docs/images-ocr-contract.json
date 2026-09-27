@@ -1,11 +1,11 @@
 {
   "issue": 435,
-  "task": 24,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "task": 10,
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "locales": ["ko", "en"],
   "native": {
-    "surfaces": ["barcode_scanner", "memorable_page_capture", "image_preview", "ocr_result", "manual_text_fallback"],
-    "actions": ["file_capture", "camera_capture", "preview", "upload", "refresh_signed_url", "delete", "ocr", "manual_text"],
+    "surfaces": ["image_source", "replace_image_options", "replace_image_confirmation", "add_memorable_page", "existing_image", "extracted_text", "full_text_view", "ocr_limit", "full_screen_image", "manual_text_fallback", "memorable_page_sort_menu"],
+    "actions": ["file_capture", "camera_capture", "preview", "upload", "refresh_signed_url", "delete", "ocr", "manual_text", "copy_extracted_text", "copy_full_text", "sort_page_desc", "sort_page_asc", "sort_date_desc", "sort_date_asc"],
     "states": ["no_camera", "insecure_context", "permission_denied", "unsupported_api", "corrupt", "oversize", "wrong_mime", "ocr_failure"],
     "references": [
       "app/lib/ui/barcode_scanner/barcode_scanner_screen.dart",
@@ -24,7 +24,8 @@
     "component": "src/components/consumer/book-image-capture-client.tsx",
     "storage": "private book-images bucket with userId/bookId/imageId.ext paths",
     "browserDisposition": "camera when secure and permitted; file input and manual OCR fallback otherwise",
-    "ocr": "authenticated vision-ocr invocation after image metadata is saved"
+    "capabilityBoundary": "browser-equivalent capture only; no native camera or on-device OCR parity claim",
+    "ocr": "authenticated vision-ocr invocation after image metadata is saved; fixtures never call a real provider"
   },
   "parityRows": [
     {
@@ -74,6 +75,6 @@
     "negativeCommand": "npm run test:images-ocr:negative",
     "happyBrowser": "npx playwright test tests/e2e/images-ocr.spec.ts --project=chromium --grep \"upload|ocr|manual\"",
     "failureBrowser": "npx playwright test tests/e2e/images-ocr.spec.ts --project=chromium --grep \"oversize|denied|expired-url|provider\"",
-    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-24-bookgolas-web-parity.png"
+    "evidence": ".omo/evidence/bookgolas-web-completion/task-13-bookgolas-web-completion.json"
   }
 }

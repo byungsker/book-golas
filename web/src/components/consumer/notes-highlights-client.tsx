@@ -13,12 +13,12 @@ import {
 } from "@/components/consumer/blab-primitives";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import {
   NotesHighlightsResponseSchema,
@@ -362,7 +362,7 @@ export function NotesHighlightsClient({ locale, bookId, totalPages }: NotesHighl
             type="button"
             role="tab"
             aria-selected={activeTab === tab}
-            className={`inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${activeTab === tab ? "bg-[var(--blab-color-primary)] text-white" : "text-[var(--blab-text-secondary)] hover:bg-white/10"}`}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${activeTab === tab ? "bg-[var(--blab-color-primary)] text-white" : "text-[var(--blab-text-secondary)] hover:bg-white/10"}`}
             onClick={() => setActiveTab(tab)}
             data-testid={`notes-highlights-tab-${tab.replace("_", "-")}`}
           >
@@ -413,12 +413,12 @@ export function NotesHighlightsClient({ locale, bookId, totalPages }: NotesHighl
             <>
               <DialogHeader><DialogTitle>{dialogMode === "edit" ? t("editTitle") : t("createTitle")}</DialogTitle><DialogDescription>{t("formDescription")}</DialogDescription></DialogHeader>
               <div className="mt-2 grid gap-4" data-testid="notes-highlights-form">
-                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.type")}<select className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.recordType} onChange={(event) => setForm((previous) => ({ ...previous, recordType: event.target.value as ConsumerRecordType }))} data-testid="notes-highlights-type"><option value="note">{typeLabel("note")}</option><option value="highlight">{typeLabel("highlight")}</option><option value="memorable_page">{typeLabel("memorable_page")}</option></select></label>
-                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.page")}<input type="number" min={1} max={totalPages} className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.pageNumber} onChange={(event) => setForm((previous) => ({ ...previous, pageNumber: event.target.value }))} data-testid="notes-highlights-page" /></label>
+                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.type")}<select className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.recordType} onChange={(event) => setForm((previous) => ({ ...previous, recordType: event.target.value as ConsumerRecordType }))} data-testid="notes-highlights-type"><option value="note">{typeLabel("note")}</option><option value="highlight">{typeLabel("highlight")}</option><option value="memorable_page">{typeLabel("memorable_page")}</option></select></label>
+                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.page")}<input type="number" min={1} max={totalPages} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.pageNumber} onChange={(event) => setForm((previous) => ({ ...previous, pageNumber: event.target.value }))} data-testid="notes-highlights-page" /></label>
                 <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.text")}<textarea rows={4} className="rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 py-2 text-[var(--blab-text-primary)]" value={form.contentText} onChange={(event) => setForm((previous) => ({ ...previous, contentText: event.target.value }))} data-testid="notes-highlights-text" /></label>
-                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.caption")}<input className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.caption} onChange={(event) => setForm((previous) => ({ ...previous, caption: event.target.value }))} data-testid="notes-highlights-caption" /></label>
-                {form.recordType === "memorable_page" ? <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.imageUrl")}<input type="url" className="min-h-10 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.imageUrl} onChange={(event) => setForm((previous) => ({ ...previous, imageUrl: event.target.value }))} data-testid="notes-highlights-image-url" /></label> : null}
-                {form.recordType === "highlight" ? <fieldset className="grid gap-3 rounded-xl border border-[var(--blab-glass-border)] p-3"><legend className="px-1 text-sm text-[var(--blab-text-secondary)]">{t("form.rectangle")}</legend><div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{(["x", "y", "width", "height"] as const).map((key) => <label key={key} className="grid gap-1 text-xs text-[var(--blab-text-tertiary)]">{key}<input type="number" step="0.01" min={0} max={1} className="min-h-9 rounded-lg border border-[var(--blab-glass-border)] bg-black/20 px-2 text-sm text-[var(--blab-text-primary)]" value={form[key]} onChange={(event) => setForm((previous) => ({ ...previous, [key]: event.target.value }))} data-testid={`notes-highlights-rect-${key}`} /></label>)}</div></fieldset> : null}
+                <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.caption")}<input className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.caption} onChange={(event) => setForm((previous) => ({ ...previous, caption: event.target.value }))} data-testid="notes-highlights-caption" /></label>
+                {form.recordType === "memorable_page" ? <label className="grid gap-2 text-sm text-[var(--blab-text-secondary)]">{t("form.imageUrl")}<input type="url" className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-black/20 px-3 text-[var(--blab-text-primary)]" value={form.imageUrl} onChange={(event) => setForm((previous) => ({ ...previous, imageUrl: event.target.value }))} data-testid="notes-highlights-image-url" /></label> : null}
+                {form.recordType === "highlight" ? <fieldset className="grid gap-3 rounded-xl border border-[var(--blab-glass-border)] p-3"><legend className="px-1 text-sm text-[var(--blab-text-secondary)]">{t("form.rectangle")}</legend><div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{(["x", "y", "width", "height"] as const).map((key) => <label key={key} className="grid gap-1 text-xs text-[var(--blab-text-tertiary)]">{key}<input type="number" step="0.01" min={0} max={1} className="min-h-11 rounded-lg border border-[var(--blab-glass-border)] bg-black/20 px-2 text-sm text-[var(--blab-text-primary)]" value={form[key]} onChange={(event) => setForm((previous) => ({ ...previous, [key]: event.target.value }))} data-testid={`notes-highlights-rect-${key}`} /></label>)}</div></fieldset> : null}
                 <label className="flex items-start gap-3 rounded-xl border border-[var(--blab-glass-border)] bg-black/10 p-3 text-sm text-[var(--blab-text-secondary)]"><input type="checkbox" checked={form.aiConsent} onChange={(event) => setForm((previous) => ({ ...previous, aiConsent: event.target.checked }))} className="mt-1" data-testid="notes-highlights-consent" /><span>{t("form.aiConsent")}</span></label>
                 {validationError ? <p className="text-sm text-red-200" role="alert" data-testid="notes-highlights-validation-error">{validationError}</p> : null}
                 {error ? <p className="text-sm text-red-200" role="alert">{errorMessage(error)}</p> : null}

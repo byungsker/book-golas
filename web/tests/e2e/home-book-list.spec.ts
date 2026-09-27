@@ -4,7 +4,7 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 const evidenceDirectory = path.resolve(
   process.cwd(),
-  "../.omo/evidence/bookgolas-web-app-parity",
+  "../.omo/evidence/bookgolas-web-completion",
 );
 
 async function setFixture(context: BrowserContext, value: string) {
@@ -19,13 +19,14 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
 }
 
-test("happy path renders five native status tabs, cards, progress, target D-day, add entry and keeps soft-deleted rows hidden", async ({ context, page }) => {
+test("reading-books-selection renders five native status tabs, cards, progress, target D-day, add entry and keeps soft-deleted rows hidden", async ({ context, page }) => {
   await setFixture(context, "home-book-list");
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   await page.goto("/en/home?view=all", { waitUntil: "networkidle" });
 
   await expect(page.getByTestId("home-book-list")).toHaveAttribute("data-route-state", "ready");
+  await expect(page.locator('[data-parity-overlay="reading-books-selection"]')).toBeVisible();
   const tabs = page.getByTestId("home-status-tabs");
   await expect(tabs.getByRole("link")).toHaveCount(5);
   await expect(page.getByTestId("home-status-tab-all")).toHaveAttribute("aria-current", "page");
@@ -40,17 +41,21 @@ test("happy path renders five native status tabs, cards, progress, target D-day,
   await expect(page.locator('[data-testid="book-dday"]')).toHaveCount(5);
   await expect(page.getByRole("link", { name: "Add a book", exact: true })).toHaveAttribute("href", "/en/books/new");
 
-  await capture(page, "task-16-bookgolas-web-app-parity.png");
+  await capture(page, "task-9-home-book-list.png");
 
   await page.getByTestId("home-status-tab-completed").click();
   await expect(page).toHaveURL(/\/en\/home\?view=completed$/);
   await expect(page.getByTestId("home-book-list-view-completed").locator('[data-book-status="completed"]')).toHaveCount(1);
   await expect(page.getByTestId("home-book-list-view-completed").locator('[data-book-status="reading"]')).toHaveCount(0);
 
-  await page.goto("/ko/home?view=paused", { waitUntil: "networkidle" });
-  await expect(page.getByTestId("home-status-tab-paused")).toHaveAttribute("aria-current", "page");
-  await expect(page.getByTestId("home-book-list-view-paused").locator('[data-book-status="will_retry"]')).toHaveCount(1);
-  await expect(page.getByTestId("home-status-tab-paused")).toHaveText("다시 읽기");
+  await page.getByTestId("consumer-desktop-navigation").getByRole("link", { name: "Home" }).click();
+  await expect(page).toHaveURL(/\/en\/home\?view=will_retry$/);
+  await expect(page.getByTestId("home-status-tab-will_retry")).toHaveAttribute("aria-current", "page");
+
+  await page.goto("/ko/home?view=will_retry", { waitUntil: "networkidle" });
+  await expect(page.getByTestId("home-status-tab-will_retry")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByTestId("home-book-list-view-will_retry").locator('[data-book-status="will_retry"]')).toHaveCount(1);
+  await expect(page.getByTestId("home-status-tab-will_retry")).toHaveText("다시 읽기");
   await expect(page.getByText("삭제된 비공개 fixture", { exact: false })).toHaveCount(0);
 });
 
@@ -69,7 +74,7 @@ test("empty status surfaces stay distinct and keep the add-entry action", async 
     ["home-empty-reading", "reading", "Nothing is in progress"],
     ["home-empty-planned", "planned", "No books are planned"],
     ["home-empty-completed", "completed", "No finished books yet"],
-    ["home-empty-paused", "paused", "No paused books"],
+    ["home-empty-paused", "will_retry", "No paused books"],
   ] as const;
 
   const emptyTitles = new Set<string>();
@@ -83,6 +88,21 @@ test("empty status surfaces stay distinct and keep the add-entry action", async 
     emptyTitles.add(title);
   }
   expect(emptyTitles.size).toBe(4);
+});
+
+test("legacy book-list keeps its own status query state and never renders the AI recommendation surface", async ({ context, page }) => {
+  await setFixture(context, "home-book-list");
+  await page.goto("/en/book-list?view=all", { waitUntil: "networkidle" });
+
+  await expect(page.getByTestId("legacy-book-list")).toHaveAttribute("data-route-state", "ready");
+  await expect(page.getByTestId("legacy-book-list-tabs").getByRole("link")).toHaveCount(5);
+  await expect(page.getByTestId("legacy-book-list-view-all").locator('[data-book-status="will_retry"]')).toHaveCount(1);
+  await expect(page.getByTestId("ai-artifacts-recommendations")).toHaveCount(0);
+
+  await page.getByTestId("legacy-book-list-tab-completed").click();
+  await expect(page).toHaveURL(/\/en\/book-list\?view=completed$/);
+  await expect(page.getByTestId("legacy-book-list-view-completed").locator('[data-book-status="completed"]')).toHaveCount(1);
+  await capture(page, "task-9-legacy-book-list.png");
 });
 
 test("network error offers retry and offline state is announced", async ({ context, page }) => {

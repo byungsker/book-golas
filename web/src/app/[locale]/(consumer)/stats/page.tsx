@@ -8,6 +8,7 @@ import { getConsumerPath, getConsumerSignInRedirectPath, isConsumerLocale, type 
 import {
   ReadingAnalyticsRequestSchema,
   ReadingAnalyticsStatusSchema,
+  ReadingAnalyticsTabSchema,
   ReadingAnalyticsViewSchema,
   currentReadingAnalyticsWeekStart,
   currentCalendarMonth,
@@ -51,6 +52,9 @@ export default async function StatsPage({
   const rawStatus = stringValue(raw?.status);
   const statusResult = ReadingAnalyticsStatusSchema.safeParse(rawStatus ?? "all");
   const status = statusResult.success ? statusResult.data : "all";
+  const rawSection = stringValue(raw?.section);
+  const sectionResult = ReadingAnalyticsTabSchema.safeParse(rawSection ?? "overview");
+  const section = sectionResult.success ? sectionResult.data : "overview";
   const year = positiveInteger(stringValue(raw?.year)) ?? current.year;
   const month = positiveInteger(stringValue(raw?.month)) ?? current.month;
   const weekStart = stringValue(raw?.weekStart) ?? currentReadingAnalyticsWeekStart();
@@ -87,5 +91,5 @@ export default async function StatsPage({
     );
   }
 
-  return <ReadingAnalyticsClient locale={locale} initialData={result.data} />;
+  return <ReadingAnalyticsClient locale={locale} initialData={result.data} initialTab={section} />;
 }

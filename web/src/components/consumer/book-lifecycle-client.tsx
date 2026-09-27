@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
   CalendarDays,
@@ -22,12 +22,12 @@ import {
 import {
   Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import {
   BookLifecycleResponseSchema,
   canTransitionBookStatus,
@@ -133,6 +133,7 @@ export function BookLifecycleClient({
   const [scheduleDraft, setScheduleDraft] = useState("");
   const [scheduleError, setScheduleError] = useState("");
   const [form, setForm] = useState(() => initialForm(selectedBook));
+  const actionKey = useRef(crypto.randomUUID());
 
   useEffect(() => {
     setMode("create");
@@ -140,6 +141,7 @@ export function BookLifecycleClient({
     setSavedBook(null);
     setSaveError(null);
     setForm(initialForm(selectedBook));
+    actionKey.current = crypto.randomUUID();
   }, [selectedBook]);
 
   const totalPagesNumber = form.totalPages.trim() === "" ? 0 : Number(form.totalPages);
@@ -272,7 +274,13 @@ export function BookLifecycleClient({
     try {
       const response = await fetch("/api/consumer/book-lifecycle", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Bookgolas-Action-Key": action === "update" && savedBook?.updatedAt
+            ? `${savedBook.id}:update:${savedBook.updatedAt}`
+            : actionKey.current,
+          ...(action === "update" && savedBook?.updatedAt ? { "If-Match": `"${savedBook.updatedAt}"` } : {}),
+        },
         body: JSON.stringify(body),
         cache: "no-store",
       });
@@ -283,6 +291,7 @@ export function BookLifecycleClient({
       setSavedBook(parsed.data.book);
       setSaveState("saved");
       setMode("view");
+      actionKey.current = crypto.randomUUID();
       router.refresh();
     } catch (error) {
       const typed = error && typeof error === "object" && "code" in error && "message" in error
@@ -323,8 +332,8 @@ export function BookLifecycleClient({
       <div className="mt-5 rounded-2xl border border-[var(--blab-color-error)]/30 bg-[var(--blab-color-error)]/10 p-4" data-testid="book-lifecycle-error" data-error-code={saveError.code} role="alert">
         <p className="text-sm leading-6 text-[var(--blab-color-error)]">{message}</p>
         <div className="mt-3 flex flex-wrap gap-3">
-          {needsAccount ? <Link href={saveError.code === "unauthorized" ? `/${locale}/auth/sign-in` : `/${locale}/account`} className="inline-flex min-h-10 items-center rounded-xl bg-[var(--blab-color-primary)] px-3 py-2 text-sm font-semibold text-white">{saveError.code === "unauthorized" ? t("errors.signIn") : t("errors.openSettings")}</Link> : null}
-          {!needsAccount ? <button type="button" data-testid="book-lifecycle-retry" onClick={() => void saveBook()} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--blab-glass-border)] px-3 py-2 text-sm font-semibold text-[var(--blab-text-primary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><LoaderCircle aria-hidden="true" size={16} />{t("retry")}</button> : null}
+          {needsAccount ? <Link href={saveError.code === "unauthorized" ? `/${locale}/auth/sign-in` : `/${locale}/account`} className="inline-flex min-h-11 items-center rounded-xl bg-[var(--blab-color-primary)] px-3 py-2 text-sm font-semibold text-white">{saveError.code === "unauthorized" ? t("errors.signIn") : t("errors.openSettings")}</Link> : null}
+          {!needsAccount ? <button type="button" data-testid="book-lifecycle-retry" onClick={() => void saveBook()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--blab-glass-border)] px-3 py-2 text-sm font-semibold text-[var(--blab-text-primary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><LoaderCircle aria-hidden="true" size={16} />{t("retry")}</button> : null}
         </div>
       </div>
     );
@@ -401,7 +410,7 @@ export function BookLifecycleClient({
           {form.status === "planned" ? <label className="mt-4 flex min-h-11 cursor-pointer items-center gap-3 text-sm"><input type="checkbox" checked={form.hasPlannedDate} onChange={(event) => togglePlannedDate(event.target.checked)} className="size-5 accent-[var(--blab-color-primary)]" data-testid="book-lifecycle-planned-date-toggle" /><span>{t("schedule.usePlannedDate")}</span></label> : null}
           {form.status === "planned" && form.hasPlannedDate ? <label className="mt-3 grid gap-2 text-sm font-medium">{t("schedule.plannedStartDate")}<input className={inputClassName} type="date" min={form.startDate || undefined} value={form.plannedStartDate} onChange={(event) => setField("plannedStartDate", event.target.value)} data-testid="book-lifecycle-planned-date" /></label> : null}
           <div className="mt-4 rounded-2xl border border-[var(--blab-glass-border)] bg-[var(--blab-glass-fill)] p-4" data-testid="book-lifecycle-schedule-preview">
-            <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">{t("schedule.preview")}</p><button type="button" data-testid="book-lifecycle-schedule-edit" onClick={openScheduleEditor} className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-semibold text-[var(--blab-color-primary)] hover:bg-[var(--blab-color-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><Pencil aria-hidden="true" size={14} />{t("schedule.edit")}</button></div>
+            <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">{t("schedule.preview")}</p><button type="button" data-testid="book-lifecycle-schedule-edit" onClick={openScheduleEditor} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-xs font-semibold text-[var(--blab-color-primary)] hover:bg-[var(--blab-color-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><Pencil aria-hidden="true" size={14} />{t("schedule.edit")}</button></div>
             {schedulePreview ? <dl className="mt-3 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-[var(--blab-text-tertiary)]">{t("schedule.targetDays")}</dt><dd className="mt-1 font-semibold">{schedulePreview.targetDays} {t("schedule.days")}</dd></div><div><dt className="text-[var(--blab-text-tertiary)]">{t("schedule.dailyGoal")}</dt><dd className="mt-1 font-semibold">{schedulePreview.dailyTargetPages} {t("schedule.pagesPerDay")}</dd></div></dl> : <ConsumerLoadingState label={t("schedule.previewUnavailable")} />}
           </div>
         </section>

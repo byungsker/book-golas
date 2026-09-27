@@ -1,11 +1,11 @@
 {
   "issue": 447,
-  "task": 35,
+  "task": 17,
   "parentIssue": 412,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "targetVersion": "1.1.0",
   "targetBranch": "version/web/1.1.0",
-  "featureBranch": "codex/feature/web/1.1.0/BOK-447-offline-boundary",
+  "featureBranch": "codex/feature/web/1.1.0/bookgolas-web-completion",
   "fixtures": [
     {
       "name": "duplicate",

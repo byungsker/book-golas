@@ -68,6 +68,79 @@ function makeSupabase(query: ReturnType<typeof makeQuery>) {
   };
 }
 
+function makeConcurrentDeleteSupabase() {
+  const revision = "2026-08-01T00:00:00.000Z";
+  const storagePath = `${userId}/${bookId}/page.png`;
+  let deleted = false;
+  const storageList = vi.fn().mockResolvedValue({
+    data: [{ id: "object-id", name: "page.png" }],
+    error: null,
+  });
+  const storageRemove = vi.fn().mockResolvedValue({ data: [], error: null });
+  const imageRowDelete = vi.fn();
+  const from = vi.fn((table: string) => {
+    let operation: "select" | "update" | "delete" = "select";
+    let expectedRevision: string | undefined;
+    const response = () => {
+      if (table === "books") {
+        if (operation === "update") {
+          if (deleted || expectedRevision !== revision) {
+            return Promise.resolve({ data: null, error: null });
+          }
+          deleted = true;
+          return Promise.resolve({ data: { id: bookId }, error: null });
+        }
+        return Promise.resolve({
+          data: deleted ? null : { id: bookId, total_pages: 100 },
+          error: null,
+        });
+      }
+      if (operation === "delete") {
+        return Promise.resolve({ data: null, error: null });
+      }
+      return Promise.resolve({ data: [{ storage_path: storagePath }], error: null });
+    };
+    const query = {
+      select: vi.fn(() => query),
+      update: vi.fn(() => {
+        operation = "update";
+        return query;
+      }),
+      delete: vi.fn(() => {
+        operation = "delete";
+        imageRowDelete();
+        return query;
+      }),
+      eq: vi.fn((column: string, value: string) => {
+        if (column === "updated_at") expectedRevision = value;
+        return query;
+      }),
+      is: vi.fn(() => query),
+      maybeSingle: vi.fn(() => response()),
+      then: (resolve: (value: QueryResponse) => unknown, reject?: (reason: unknown) => unknown) => response().then(resolve, reject),
+    };
+    return query;
+  });
+  return {
+    revision,
+    imageRowDelete,
+    storageList,
+    storageRemove,
+    supabase: {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: userId } },
+          error: null,
+        }),
+      },
+      from,
+      storage: {
+        from: vi.fn(() => ({ list: storageList, remove: storageRemove })),
+      },
+    },
+  };
+}
+
 const createRequest = {
   title: "Created book",
   author: "Author",
@@ -187,5 +260,23 @@ describe("user-scoped product DAL writes", () => {
     );
     expect(query.eq).toHaveBeenCalledWith("user_id", userId);
     expect(query.is).toHaveBeenCalledWith("deleted_at", null);
+  });
+
+  it("lets only the compare-and-set winner clean dependent image rows and storage", async () => {
+    const setup = makeConcurrentDeleteSupabase();
+    const factory = () => Promise.resolve(setup.supabase as never);
+
+    const results = await Promise.all([
+      deleteBook(bookId, factory, setup.revision),
+      deleteBook(bookId, factory, setup.revision),
+    ]);
+
+    expect(results.filter((result) => result.ok)).toHaveLength(1);
+    expect(results.filter((result) => !result.ok)).toEqual([
+      expect.objectContaining({ error: expect.objectContaining({ code: "conflict", status: 409 }) }),
+    ]);
+    expect(setup.storageList).toHaveBeenCalledTimes(1);
+    expect(setup.storageRemove).toHaveBeenCalledTimes(1);
+    expect(setup.imageRowDelete).toHaveBeenCalledTimes(1);
   });
 });

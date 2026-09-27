@@ -4,7 +4,7 @@ export const homeBookListViews = [
   "reading",
   "planned",
   "completed",
-  "paused",
+  "will_retry",
   "all",
 ] as const;
 
@@ -19,6 +19,7 @@ const statusOrder: Record<HomeBookListStatus, number> = {
 };
 
 export function getHomeBookListView(value: string | null | undefined): HomeBookListView {
+  if (value === "paused") return "will_retry";
   return homeBookListViews.includes(value as HomeBookListView)
     ? (value as HomeBookListView)
     : "reading";
@@ -31,7 +32,7 @@ export function getEffectiveBookStatus(book: ConsumerBook): ConsumerBookStatus {
 }
 
 export function getHomeBookListStatus(view: HomeBookListView): HomeBookListStatus | null {
-  return view === "paused" ? "will_retry" : view === "all" ? null : view;
+  return view === "all" ? null : view;
 }
 
 function dateValue(value: string | null): number {

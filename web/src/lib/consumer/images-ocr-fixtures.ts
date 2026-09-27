@@ -68,6 +68,13 @@ function imageFor(bookId: string, id: string, overrides: Partial<BookImage> = {}
 }
 
 function initialImages(fixture: string, bookId: string): BookImage[] {
+  if (fixture === "images-ocr-sort") {
+    return [
+      imageFor(bookId, "00000000-0000-4000-8000-000000004353", { pageNumber: 91, createdAt: "2026-09-18T00:00:00.000Z", extractedText: "Ninety-one." }),
+      imageFor(bookId, "00000000-0000-4000-8000-000000004352", { pageNumber: 7, createdAt: "2026-09-17T00:00:00.000Z", extractedText: "Seven." }),
+      imageFor(bookId, "00000000-0000-4000-8000-000000004351", { pageNumber: 42, createdAt: "2026-09-16T00:00:00.000Z", extractedText: "Forty-two." }),
+    ];
+  }
   if (fixture === "images-ocr-expired-url") {
     return [imageFor(bookId, "00000000-0000-4000-8000-000000004351", {
       signedUrlExpiresAt: "2026-09-15T23:59:00.000Z",

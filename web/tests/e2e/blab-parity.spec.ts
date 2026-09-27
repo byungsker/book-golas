@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type BrowserContext } from "@playwright/test";
 
 const evidenceDirectory = path.resolve(
   process.cwd(),
@@ -12,12 +12,22 @@ const viewports = [
   { id: "desktop", width: 1440, height: 900 },
 ] as const;
 
+async function setUnavailableFixture(context: BrowserContext) {
+  await context.addCookies([
+    { name: "bookgolas-route-fixture", value: "unavailable", domain: "127.0.0.1", path: "/" },
+    { name: "bookgolas-route-fixture", value: "unavailable", domain: "localhost", path: "/" },
+  ]);
+}
+
 for (const locale of ["ko", "en"] as const) {
   for (const viewport of viewports) {
-    test(`${locale} BLDS consumer contract at ${viewport.id}`, async ({ page }, testInfo) => {
+    test(`${locale} BLDS consumer contract at ${viewport.id}`, async ({ context, page }, testInfo) => {
       fs.mkdirSync(evidenceDirectory, { recursive: true });
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       for (const theme of ["light", "dark"] as const) {
+        // The auth contract below clears the route fixture after each theme.
+        // Re-establish it here so the next BLDS pass remains fixture-backed.
+        await setUnavailableFixture(context);
         await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
         await page.goto(`/${locale}/home`, { waitUntil: "networkidle" });
         await expect(page.locator("html")).toHaveAttribute("data-blab-theme", theme);
@@ -66,16 +76,21 @@ for (const locale of ["ko", "en"] as const) {
           }
         }
 
-        await page.goto(`/${locale}/auth/sign-in`, { waitUntil: "networkidle" });
-        const authButton = page.getByRole("button", { name: locale === "ko" ? "로그인" : "Sign in" });
-        await expect(authButton).toHaveAttribute("data-blab-component", "button");
-        await expect(authButton).toHaveAccessibleName(locale === "ko" ? "로그인" : "Sign in");
-        await expect(page.getByRole("textbox")).toHaveCount(2);
-        await expect(page.getByRole("textbox", { name: locale === "ko" ? "이메일" : "Email" })).toHaveAccessibleName(
-          locale === "ko" ? "이메일" : "Email",
-        );
-        await expect(page.locator('[data-blab-component="text-field"]')).toHaveCount(2);
       }
+
+      // Firefox can retain the previous home-page navigation while its route
+      // fixture settles. Assert the independent auth primitive in a fresh page.
+      const authPage = await context.newPage();
+      await authPage.goto(`/${locale}/auth/sign-in`, { waitUntil: "domcontentloaded" });
+      const authButton = authPage.getByRole("button", { name: locale === "ko" ? "로그인" : "Sign in" });
+      await expect(authButton).toHaveAttribute("data-blab-component", "button");
+      await expect(authButton).toHaveAccessibleName(locale === "ko" ? "로그인" : "Sign in");
+      await expect(authPage.getByRole("textbox")).toHaveCount(2);
+      await expect(authPage.getByRole("textbox", { name: locale === "ko" ? "이메일" : "Email" })).toHaveAccessibleName(
+        locale === "ko" ? "이메일" : "Email",
+      );
+      await expect(authPage.locator('[data-blab-component="text-field"]')).toHaveCount(2);
+      await authPage.close();
     });
   }
 }
@@ -85,7 +100,7 @@ test("missing-session fails closed for the consumer home", async ({ page }) => {
   const destination = new URL(page.url());
 
   if (destination.pathname === "/en/auth/sign-in") {
-    expect(destination.searchParams.get("next")).toBe("/en/home");
+    expect(destination.searchParams.get("returnTo")).toBe("/en/home");
     return;
   }
 

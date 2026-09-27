@@ -1,0 +1,20 @@
+{
+  "fixture_only": true,
+  "record_id": "pro-features",
+  "kind": "browser",
+  "marker": "pro-features browser current-head overlay ownership characterized",
+  "action_ids": [
+    "explain-web-billing-disabled"
+  ],
+  "state_profile": "disabled",
+  "required_states": [
+    "loading",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline"
+  ],
+  "production_parity_claimed": false
+}

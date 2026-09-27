@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { createServerClientMock, exchangeCodeForSessionMock } = vi.hoisted(() => ({
+const { createServerClientMock, exchangeCodeForSessionMock, getSupabasePublicConfigMock } = vi.hoisted(() => ({
   createServerClientMock: vi.fn(),
   exchangeCodeForSessionMock: vi.fn(),
+  getSupabasePublicConfigMock: vi.fn(),
 }));
 
 vi.mock("@supabase/ssr", () => ({
@@ -11,10 +12,7 @@ vi.mock("@supabase/ssr", () => ({
 }));
 
 vi.mock("@/lib/supabase-config", () => ({
-  getSupabasePublicConfig: () => ({
-    url: "https://test.supabase.co",
-    anonKey: "test-anon-key",
-  }),
+  getSupabasePublicConfig: getSupabasePublicConfigMock,
 }));
 
 import { GET } from "./route";
@@ -26,6 +24,10 @@ function makeRequest(query: string) {
 describe("Supabase auth callback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getSupabasePublicConfigMock.mockReturnValue({
+      url: "https://test.supabase.co",
+      anonKey: "test-anon-key",
+    });
     exchangeCodeForSessionMock.mockResolvedValue({ error: null });
     createServerClientMock.mockReturnValue({
       auth: { exchangeCodeForSession: exchangeCodeForSessionMock },
@@ -33,7 +35,7 @@ describe("Supabase auth callback", () => {
   });
 
   it("redirects to the safe destination after a successful code exchange", async () => {
-    const response = await GET(makeRequest("code=valid-code&next=%2Fko%2Fhome"), {
+    const response = await GET(makeRequest("code=valid-code&returnTo=%2Fko%2Fhome"), {
       params: Promise.resolve({ locale: "ko" }),
     });
 
@@ -45,7 +47,7 @@ describe("Supabase auth callback", () => {
   it("returns to sign-in when the PKCE exchange fails", async () => {
     exchangeCodeForSessionMock.mockResolvedValue({ error: new Error("invalid code") });
 
-    const response = await GET(makeRequest("code=replayed-code&next=%2Fko%2Fhome"), {
+    const response = await GET(makeRequest("code=replayed-code&returnTo=%2Fko%2Fhome"), {
       params: Promise.resolve({ locale: "ko" }),
     });
     const location = new URL(response.headers.get("location")!);
@@ -53,7 +55,8 @@ describe("Supabase auth callback", () => {
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/ko/auth/sign-in");
     expect(location.searchParams.get("error")).toBe("auth_callback");
-    expect(location.searchParams.get("next")).toBe("/ko/home");
+    expect(location.searchParams.get("returnTo")).toBe("/ko/home");
+    expect(location.searchParams.has("next")).toBe(false);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(location.search).not.toContain("replayed-code");
     expect(location.search).not.toContain("invalid code");
@@ -81,7 +84,8 @@ describe("Supabase auth callback", () => {
 
     expect(location.pathname).toBe("/ko/auth/sign-in");
     expect(location.searchParams.get("error")).toBe("oauth_cancelled");
-    expect(location.searchParams.get("next")).toBe("/ko/home");
+    expect(location.searchParams.get("returnTo")).toBe("/ko/home");
+    expect(location.searchParams.has("next")).toBe(false);
     expect(location.search).not.toContain("private-provider-detail");
     expect(location.search).not.toContain("secret-code");
     expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
@@ -121,6 +125,34 @@ describe("Supabase auth callback", () => {
 
     expect(location.pathname).toBe("/ko/auth/sign-in");
     expect(location.searchParams.get("error")).toBe("auth_callback");
+    expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects raw next aliases and ambiguous return targets", async () => {
+    const rawNextResponse = await GET(makeRequest("code=valid-code&next=%2Fko%2Fbooks%2Fnew"), {
+      params: Promise.resolve({ locale: "ko" }),
+    });
+    const duplicateResponse = await GET(
+      makeRequest("code=valid-code&returnTo=%2Fko%2Fbooks%2Fnew&returnTo=%2Fko%2Faccount"),
+      { params: Promise.resolve({ locale: "ko" }) },
+    );
+
+    expect(new URL(rawNextResponse.headers.get("location")!).pathname).toBe("/ko/home");
+    expect(new URL(duplicateResponse.headers.get("location")!).pathname).toBe("/ko/home");
+  });
+
+  it("keeps provider configuration failures distinct from invalid callback codes", async () => {
+    getSupabasePublicConfigMock.mockImplementation(() => {
+      throw new Error("private configuration detail");
+    });
+
+    const response = await GET(makeRequest("code=valid-code&returnTo=%2Fko%2Fhome"), {
+      params: Promise.resolve({ locale: "ko" }),
+    });
+    const location = new URL(response.headers.get("location")!);
+
+    expect(location.searchParams.get("error")).toBe("oauth_provider");
+    expect(location.search).not.toContain("private configuration detail");
     expect(exchangeCodeForSessionMock).not.toHaveBeenCalled();
   });
 });

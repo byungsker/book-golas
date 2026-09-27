@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion/task-11-browser");
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -48,7 +48,7 @@ test("add and schedule lifecycle saves metadata, status, priority and an edited 
   await expect(page.getByTestId("book-lifecycle-saved")).toBeVisible();
   await expect(page.getByTestId("book-lifecycle-saved")).toContainText("Reading");
 
-  await capture(page, "task-19-bookgolas-web-app-parity.png");
+  await capture(page, "task-11-book-lifecycle.png");
   await page.goto("/en/home", { waitUntil: "networkidle" });
   await expect(page.getByTestId(/home-book-card-/).first()).toContainText("The Reading Atlas");
 });
@@ -73,6 +73,10 @@ test("invalid, duplicate and foreign writes stay bounded and recoverable", async
 
   await setFixture(context, "book-lifecycle-foreign");
   const foreignResponse = await page.request.post("/api/consumer/book-lifecycle", {
+    headers: {
+      "If-Match": '"2026-09-16T00:00:00.000Z"',
+      "X-Bookgolas-Action-Key": "00000000-0000-4000-8000-000000004399:update:2026-09-16T00:00:00.000Z",
+    },
     data: {
       action: "update",
       locale: "en",

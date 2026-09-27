@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ConsumerButton, ConsumerCard } from "@/components/consumer/blab-primitives";
+import { useAccessibleModal } from "@/components/consumer/use-accessible-modal";
 import {
   completeOnboardingState,
   readOnboardingState,
@@ -30,6 +31,7 @@ export function OnboardingFlow({ nextPath }: { nextPath: string }) {
   const [showAgePolicy, setShowAgePolicy] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const dialogHeadingRef = useRef<HTMLHeadingElement>(null);
+  const agePolicyDialogRef = useAccessibleModal(showAgePolicy, () => setShowAgePolicy(false));
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -119,7 +121,7 @@ export function OnboardingFlow({ nextPath }: { nextPath: string }) {
 
       {showAgePolicy && (
         <div className="bookgolas-onboarding__backdrop" data-testid="age-policy-backdrop">
-          <section className="bookgolas-onboarding__dialog" role="dialog" aria-modal="true" aria-labelledby="age-policy-title">
+          <section ref={agePolicyDialogRef} tabIndex={-1} className="bookgolas-onboarding__dialog" role="dialog" aria-modal="true" aria-labelledby="age-policy-title">
             <p className="bookgolas-onboarding__eyebrow">{t("agePolicy.eyebrow")}</p>
             <h2 id="age-policy-title" ref={dialogHeadingRef} tabIndex={-1}>{t("agePolicy.title")}</h2>
             <p>{t("agePolicy.description")}</p>

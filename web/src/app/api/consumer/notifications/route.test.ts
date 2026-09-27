@@ -22,9 +22,26 @@ describe("consumer notification settings route", () => {
   it("reads and persists notification preferences for the fixture account", async () => {
     const first = await GET(request("web-push-happy"));
     expect(first.status).toBe(200);
-    const updated = await PATCH(request("web-push-happy", { method: "PATCH", body: JSON.stringify({ dailyReminderEnabled: false }) }));
+    const updated = await PATCH(request("web-push-happy", {
+      method: "PATCH",
+      body: JSON.stringify({
+        dailyReminderEnabled: false,
+        dailyReminderHour: 7,
+        dailyReminderMinute: 30,
+        goalAlarmHour: 21,
+        goalAlarmMinute: 30,
+      }),
+    }));
     expect(updated.status).toBe(200);
-    expect(await updated.json()).toMatchObject({ settings: { dailyReminderEnabled: false } });
+    expect(await updated.json()).toMatchObject({
+      settings: {
+        dailyReminderEnabled: false,
+        dailyReminderHour: 7,
+        dailyReminderMinute: 30,
+        goalAlarmHour: 21,
+        goalAlarmMinute: 30,
+      },
+    });
   });
 
   it("rejects caller identity and preserves explicit failure states", async () => {

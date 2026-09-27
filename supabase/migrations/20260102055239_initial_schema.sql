@@ -69,7 +69,22 @@ CREATE TABLE IF NOT EXISTS public.fcm_tokens (
   notification_enabled boolean DEFAULT true
 );
 
-COMMENT ON COLUMN public.fcm_tokens.preferred_hour IS '알림 받을 시간 (0-23, KST 기준). 기본값 9 (오전 9시)';
+ALTER TABLE public.fcm_tokens
+  ADD COLUMN IF NOT EXISTS preferred_hour integer DEFAULT 9
+  CHECK (preferred_hour >= 0 AND preferred_hour <= 23);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'fcm_tokens'
+      AND column_name = 'preferred_hour'
+  ) THEN
+    COMMENT ON COLUMN public.fcm_tokens.preferred_hour IS '알림 받을 시간 (0-23, KST 기준). 기본값 9 (오전 9시)';
+  END IF;
+END
+$$;
 COMMENT ON COLUMN public.fcm_tokens.notification_enabled IS '푸시 알림 활성화 여부. 기본값 true';
 
 -- Push templates table
@@ -106,6 +121,10 @@ ALTER TABLE public.push_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.push_logs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for books
+DROP POLICY IF EXISTS "Users can view their own books" ON public.books;
+DROP POLICY IF EXISTS "Users can insert their own books" ON public.books;
+DROP POLICY IF EXISTS "Users can update their own books" ON public.books;
+DROP POLICY IF EXISTS "Users can delete their own books" ON public.books;
 CREATE POLICY "Users can view their own books" ON public.books
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own books" ON public.books
@@ -116,6 +135,10 @@ CREATE POLICY "Users can delete their own books" ON public.books
   FOR DELETE USING (auth.uid() = user_id);
 
 -- RLS Policies for book_images
+DROP POLICY IF EXISTS "Users can view their own book images" ON public.book_images;
+DROP POLICY IF EXISTS "Users can insert their own book images" ON public.book_images;
+DROP POLICY IF EXISTS "Users can update their own book images" ON public.book_images;
+DROP POLICY IF EXISTS "Users can delete their own book images" ON public.book_images;
 CREATE POLICY "Users can view their own book images" ON public.book_images
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own book images" ON public.book_images
@@ -126,6 +149,10 @@ CREATE POLICY "Users can delete their own book images" ON public.book_images
   FOR DELETE USING (auth.uid() = user_id);
 
 -- RLS Policies for reading_progress_history
+DROP POLICY IF EXISTS "Users can view their own progress" ON public.reading_progress_history;
+DROP POLICY IF EXISTS "Users can insert their own progress" ON public.reading_progress_history;
+DROP POLICY IF EXISTS "Users can update their own progress" ON public.reading_progress_history;
+DROP POLICY IF EXISTS "Users can delete their own progress" ON public.reading_progress_history;
 CREATE POLICY "Users can view their own progress" ON public.reading_progress_history
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own progress" ON public.reading_progress_history
@@ -136,6 +163,10 @@ CREATE POLICY "Users can delete their own progress" ON public.reading_progress_h
   FOR DELETE USING (auth.uid() = user_id);
 
 -- RLS Policies for fcm_tokens
+DROP POLICY IF EXISTS "Users can view their own tokens" ON public.fcm_tokens;
+DROP POLICY IF EXISTS "Users can insert their own tokens" ON public.fcm_tokens;
+DROP POLICY IF EXISTS "Users can update their own tokens" ON public.fcm_tokens;
+DROP POLICY IF EXISTS "Users can delete their own tokens" ON public.fcm_tokens;
 CREATE POLICY "Users can view their own tokens" ON public.fcm_tokens
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own tokens" ON public.fcm_tokens
@@ -146,10 +177,13 @@ CREATE POLICY "Users can delete their own tokens" ON public.fcm_tokens
   FOR DELETE USING (auth.uid() = user_id);
 
 -- RLS Policies for push_templates (read-only for authenticated users)
+DROP POLICY IF EXISTS "Authenticated users can view templates" ON public.push_templates;
 CREATE POLICY "Authenticated users can view templates" ON public.push_templates
   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- RLS Policies for push_logs
+DROP POLICY IF EXISTS "Users can view their own logs" ON public.push_logs;
+DROP POLICY IF EXISTS "Users can insert their own logs" ON public.push_logs;
 CREATE POLICY "Users can view their own logs" ON public.push_logs
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own logs" ON public.push_logs

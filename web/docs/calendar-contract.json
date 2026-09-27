@@ -3,6 +3,7 @@
   "task": 26,
   "title": "Implement Calendar and day-detail reading activity",
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "completionPlan": ".omo/plans/bookgolas-web-completion.md#todo-15",
   "target": {
     "deliveryUnit": "web",
     "version": "1.1.0",
@@ -46,6 +47,7 @@
     "negativeCommand": "npm run test:calendar:negative",
     "happyQa": "npx playwright test tests/e2e/calendar.spec.ts --project=chromium --grep \"month|day-detail|timezone\"",
     "failureQa": "npx playwright test tests/e2e/calendar.spec.ts --project=chromium --grep \"empty|network|foreign\"",
-    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-26-bookgolas-web-app-parity.png"
-  }
+    "evidence": ".omo/evidence/bookgolas-web-completion/task-15-artifacts/calendar-positive.png"
+  },
+  "evidenceDisposition": "Local fixtures prove contract and browser behavior only; they do not claim production data parity."
 }

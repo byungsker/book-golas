@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "fixture_only": true,
+  "release_id": "bookgolas-web-1.1.0-parity-validator-staged-release",
+  "released_at": "2026-09-22T00:00:00.000Z",
+  "code_sha": "48d0b0e202b23e4b62ca8c21e1a6393552a82a11",
+  "ledger": {
+    "path": "web/docs/consumer-parity-ledger.json",
+    "sha256": "ff7e1a273843c22697c98b12594da527187b81fcd60d595a74a0ca604885de6e",
+    "revision": {
+      "kind": "content-addressed-staged-fixture",
+      "sha256": "ff7e1a273843c22697c98b12594da527187b81fcd60d595a74a0ca604885de6e"
+    }
+  },
+  "fixture_evidence": [
+    {
+      "path": "web/scripts/fixtures/parity-subscription-data.json",
+      "sha256": "5292cee4933bd9f14fbc4b735f7f9f830eb3bb4dbb2c08e6e79effdb3b636b25"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-subscription-browser.json",
+      "sha256": "15a88edc36781124cb484c6fead666c2412e2df2e696397869656cce617e4647"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-ios-home-widget-data.json",
+      "sha256": "1e0999ac1113b832c2d09142105b144eece3e1795f12a41e3703019ec850d96d"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-ios-home-widget-browser.json",
+      "sha256": "447d5c42b6eed9f37699f6088d127489e4fccb32efa6813f3583df475f41df06"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-siri-app-shortcuts-data.json",
+      "sha256": "8140d4399e315ad742dd3029252564d03592645716bb933fd5b2513927faf63b"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-siri-app-shortcuts-browser.json",
+      "sha256": "e8259cc053d0d74b7d4f85d60fd22b6a56f415bd443e52c6658fd95232f0e242"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-native-push-data.json",
+      "sha256": "57d348f125925b503f4a1207353090a824820a48b7c412a76208d166be332a5e"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-native-push-browser.json",
+      "sha256": "a7d037cc5dbaf1ef586375b5a3c1ff2308f17b26d17325b7d9a173cc182797bb"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-subscriptions-data.json",
+      "sha256": "d16907ceb250f12ca7333bc6476099ed965b1cd8d8dccbf66e6d1fe3b8e5b3b8"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-subscriptions-browser.json",
+      "sha256": "e5071dc507881fef59a917a61551d4f3f0c80f4cfcebf865c5a748bdd8835967"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-offline-boundary-data.json",
+      "sha256": "c02dac84738a61661e89d72a9897b8f867baae1ae15c421ebb9b1a58cc2e8c4d"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-offline-boundary-browser.json",
+      "sha256": "bb6325d3caa454c0de9ebc26206650b2f3fd9b090b8cf42412560dbd6ece66a0"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-overlay-pro-features-data.json",
+      "sha256": "fd1621577356cfbb9a38586a27cf22069f227c533d563ef5ed8603325eb33b96"
+    },
+    {
+      "path": "web/scripts/fixtures/parity-overlay-pro-features-browser.json",
+      "sha256": "4b1509179ea3b9debb172eb3d838a15dbc6e3f617af4147a2f67dac395c78861"
+    }
+  ]
+}

@@ -27,12 +27,16 @@ describe("consumer route fixture boundary", () => {
 
   it.each([
     "bootstrap-network",
+    "calendar-deleted",
     "deleted-book",
     "expired-session",
     "invalid-session",
     "unauthorized-private-data",
     "pending",
     "unavailable",
+    "announcements-content",
+    "announcements-empty",
+    "announcements-error",
   ] as const)("accepts the loopback-only %s state", (fixture) => {
     expect(
       getConsumerRouteFixture(fixture, {

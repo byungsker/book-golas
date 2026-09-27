@@ -1,0 +1,1 @@
+{"fixture_only":true,"record_id":"native-push","channel":"browser","actions":["request-web-push","manage-notification-categories","open-notification-deep-link"],"result":"push registration-only browser boundary characterized"}

@@ -1,6 +1,6 @@
 {
   "issue": 430,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
   "native": {
     "screen": "app/lib/ui/my_library/widgets/my_library_screen.dart",
     "recall": "app/lib/ui/recall/widgets/global_recall_search_sheet.dart",

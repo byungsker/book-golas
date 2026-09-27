@@ -12,7 +12,7 @@ export type PasswordAuthClient = {
 };
 
 export type SignOutAuthClient = {
-  signOut: () => Promise<AuthResponse>;
+  signOut: (options?: { scope?: "global" | "local" | "others" }) => Promise<AuthResponse>;
 };
 
 export type SavedEmailStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -112,7 +112,7 @@ export function writeSavedEmail(
 
 export async function signOutUser(auth: SignOutAuthClient): Promise<boolean> {
   try {
-    const { error } = await auth.signOut();
+    const { error } = await auth.signOut({ scope: "global" });
     return !error;
   } catch {
     return false;

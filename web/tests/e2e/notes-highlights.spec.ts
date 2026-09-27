@@ -3,8 +3,8 @@ import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 const bookId = "00000000-0000-4000-8000-000000004331";
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
-const evidencePath = path.join(evidenceDirectory, "task-23-bookgolas-web-parity.png");
+const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-completion");
+const evidencePath = path.join(evidenceDirectory, "task-13-notes-highlights-crud.png");
 
 async function setFixture(context: BrowserContext, fixture: string) {
   await context.addCookies([
@@ -71,6 +71,8 @@ test("invalid page and invalid rectangle values are rejected", async ({ page }) 
   await page.getByTestId("notes-highlights-rect-width").fill("0.4");
   await page.getByTestId("notes-highlights-save").click();
   await expect(page.getByTestId("notes-highlights-validation-error")).toContainText("rectangle");
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "task-13-notes-invalid-page-rectangle.png"), fullPage: true });
 });
 
 test("index-failure keeps saved record visible and retry is idempotent", async ({ page }) => {
@@ -108,4 +110,6 @@ test("foreign record requests fail closed", async ({ page, request }) => {
     headers: { Cookie: "bookgolas-route-fixture=notes-highlights-foreign" },
   });
   expect(response.status()).toBe(404);
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  await page.screenshot({ path: path.join(evidenceDirectory, "task-13-notes-foreign-rejected.png"), fullPage: true });
 });

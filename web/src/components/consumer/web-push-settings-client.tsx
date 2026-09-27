@@ -26,7 +26,7 @@ import {
   type WebPushSettingsResponse,
 } from "@/lib/product/contracts";
 
-type SettingsState = "loading" | "ready" | "unsupported" | "permission-required" | "denied" | "error" | "consent" | "quota" | "offline";
+type SettingsState = "loading" | "ready" | "unsupported" | "permission-required" | "denied" | "error" | "unauthorized" | "consent" | "quota" | "offline";
 type RequestError = Error & { code?: string };
 
 function browserState(
@@ -60,6 +60,7 @@ function responseError(response: Response, payload: unknown): RequestError {
 }
 
 function errorState(error: RequestError): SettingsState {
+  if (error.code === "unauthorized") return "unauthorized";
   if (error.code === "consent_required") return "consent";
   if (error.code === "quota_exceeded") return "quota";
   if (error.code === "offline" || (typeof navigator !== "undefined" && !navigator.onLine)) return "offline";
@@ -194,8 +195,8 @@ export function WebPushSettingsClient({ locale }: { locale: ConsumerLocale }) {
   }
 
   if (!data) {
-    const title = state === "offline" ? t("offlineTitle") : state === "consent" ? t("consentTitle") : state === "quota" ? t("quotaTitle") : t("errorTitle");
-    const description = state === "offline" ? t("offlineDescription") : state === "consent" ? t("consentDescription") : state === "quota" ? t("quotaDescription") : t("errorDescription");
+    const title = state === "unauthorized" ? t("unauthorizedTitle") : state === "offline" ? t("offlineTitle") : state === "consent" ? t("consentTitle") : state === "quota" ? t("quotaTitle") : t("errorTitle");
+    const description = state === "unauthorized" ? t("unauthorizedDescription") : state === "offline" ? t("offlineDescription") : state === "consent" ? t("consentDescription") : state === "quota" ? t("quotaDescription") : t("errorDescription");
     return (
       <div data-testid="web-push-settings" data-push-state={state}>
         <ConsumerCard>
@@ -242,7 +243,7 @@ export function WebPushSettingsClient({ locale }: { locale: ConsumerLocale }) {
           <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border border-[var(--blab-glass-border)] px-4 py-3"><span className="font-semibold">{t("goalAlarm")}</span><input type="checkbox" checked={settings.goalAlarmEnabled} disabled={saving} onChange={(event) => void updateSettings({ goalAlarmEnabled: event.target.checked })} data-testid="web-push-goal-enabled" /></label>
           <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border border-[var(--blab-glass-border)] px-4 py-3"><span className="font-semibold">{t("eventNudge")}</span><input type="checkbox" checked={settings.eventNudgeEnabled} disabled={saving} onChange={(event) => void updateSettings({ eventNudgeEnabled: event.target.checked })} data-testid="web-push-event-enabled" /></label>
           <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border border-[var(--blab-glass-border)] px-4 py-3"><span className="font-semibold">{t("announcements")}</span><input type="checkbox" checked={settings.announcementsEnabled} disabled={saving} onChange={(event) => void updateSettings({ announcementsEnabled: event.target.checked })} data-testid="web-push-announcements-enabled" /></label>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2" data-testid="notification-time-picker" data-parity-actions="set-daily-reminder-time set-goal-alarm-time">
             <label className="grid gap-2 text-sm font-semibold"><span>{t("dailyReminderTime")}</span><select className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-glass-fill)] px-3" value={timeValue(settings.dailyReminderHour, settings.dailyReminderMinute)} disabled={saving} onChange={(event) => void updateSettings({ dailyReminderHour: parseTime(event.target.value).hour, dailyReminderMinute: parseTime(event.target.value).minute })} data-testid="web-push-daily-time">{options.map((option) => <option key={timeValue(option.hour, option.minute)} value={timeValue(option.hour, option.minute)}>{String(option.hour).padStart(2, "0")}:{String(option.minute).padStart(2, "0")}</option>)}</select></label>
             <label className="grid gap-2 text-sm font-semibold"><span>{t("goalAlarmTime")}</span><select className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-glass-fill)] px-3" value={timeValue(settings.goalAlarmHour, settings.goalAlarmMinute)} disabled={saving} onChange={(event) => void updateSettings({ goalAlarmHour: parseTime(event.target.value).hour, goalAlarmMinute: parseTime(event.target.value).minute })} data-testid="web-push-goal-time">{options.map((option) => <option key={timeValue(option.hour, option.minute)} value={timeValue(option.hour, option.minute)}>{String(option.hour).padStart(2, "0")}:{String(option.minute).padStart(2, "0")}</option>)}</select></label>
           </div>

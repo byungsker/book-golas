@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { Check, Clipboard, Download, Link2, Sparkles } from "lucide-react";
 import {
   ConsumerButton,
@@ -10,6 +11,14 @@ import {
   ConsumerEmptyState,
   ConsumerLoadingState,
 } from "@/components/consumer/blab-primitives";
+import {
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import {
   ReviewResponseSchema,
@@ -26,6 +35,12 @@ type BookReviewClientProps = {
 };
 
 type SaveState = "idle" | "saving" | "saved" | "error";
+type StoredDraft = {
+  rating: number | null;
+  review: string;
+  longReview: string;
+  reviewLink: string;
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -107,6 +122,7 @@ function copyWithLegacyFallback(value: string): boolean {
 
 export function BookReviewClient({ locale, initialBook }: BookReviewClientProps) {
   const t = useTranslations("consumer.reviewEditor");
+  const router = useRouter();
   const [book, setBook] = useState(initialBook);
   const [rating, setRating] = useState<number | null>(initialBook.rating);
   const [review, setReview] = useState(initialBook.review ?? "");
@@ -118,11 +134,13 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
   const [aiState, setAiState] = useState<ReviewEditorState>("idle");
   const [aiError, setAiError] = useState<ProductError | null>(null);
   const [generatedDraft, setGeneratedDraft] = useState("");
-  const [shareStatus, setShareStatus] = useState<"native" | "clipboard" | "download" | "cancelled" | null>(null);
+  const [shareStatus, setShareStatus] = useState<"native" | "clipboard" | "download" | "cancelled" | "share-denied" | "clipboard-denied" | null>(null);
   const [canonicalUrl, setCanonicalUrl] = useState(consumerRoutes.review(locale, initialBook.id));
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [draftUsed, setDraftUsed] = useState(false);
+  const [pendingStoredDraft, setPendingStoredDraft] = useState<StoredDraft | null>(null);
+  const [dialog, setDialog] = useState<"exit" | "replace" | "saved" | "restore" | null>(null);
 
   const canonicalPath = useMemo(() => consumerRoutes.review(locale, book.id), [book.id, locale]);
   const hasSavedReview = Boolean(book.review?.trim() || book.longReview?.trim() || book.reviewLink || book.rating !== null);
@@ -139,11 +157,14 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
       if (stored) {
         const parsed: unknown = JSON.parse(stored);
         if (isRecord(parsed) && parsed.version === 1) {
-          if (typeof parsed.rating === "number" && Number.isInteger(parsed.rating)) setRating(parsed.rating);
-          if (typeof parsed.review === "string") setReview(parsed.review);
-          if (typeof parsed.longReview === "string") setLongReview(parsed.longReview);
-          if (typeof parsed.reviewLink === "string") setReviewLink(parsed.reviewLink);
-          setDraftRestored(true);
+          const storedDraft: StoredDraft = {
+            rating: typeof parsed.rating === "number" && Number.isInteger(parsed.rating) ? parsed.rating : null,
+            review: typeof parsed.review === "string" ? parsed.review : "",
+            longReview: typeof parsed.longReview === "string" ? parsed.longReview : "",
+            reviewLink: typeof parsed.reviewLink === "string" ? parsed.reviewLink : "",
+          };
+          setPendingStoredDraft(storedDraft);
+          setDialog("restore");
         }
       }
     } catch {
@@ -154,7 +175,17 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
   }, [initialBook.id]);
 
   useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
     if (!draftLoaded) return;
+    if (pendingStoredDraft) return;
     try {
       if (!hasUnsavedChanges) {
         window.localStorage.removeItem(storageKey(book.id));
@@ -170,7 +201,7 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
     } catch {
       // The server remains the source of truth when local persistence is unavailable.
     }
-  }, [book.id, draftLoaded, hasUnsavedChanges, longReview, rating, review, reviewLink]);
+  }, [book.id, draftLoaded, hasUnsavedChanges, longReview, pendingStoredDraft, rating, review, reviewLink]);
 
   function errorMessage(error: ProductError): string {
     if (error.code === "validation_error") return t("errors.validation");
@@ -223,6 +254,7 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
       setCanonicalUrl(parsed.data.canonicalUrl);
       setSaveState("saved");
       setDraftRestored(false);
+      setDialog("saved");
       try {
         window.localStorage.removeItem(storageKey(book.id));
       } catch {
@@ -278,9 +310,18 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
 
   function useDraft() {
     if (!generatedDraft.trim()) return;
+    if (longReview.trim() && longReview !== generatedDraft) {
+      setDialog("replace");
+      return;
+    }
+    confirmDraftReplacement();
+  }
+
+  function confirmDraftReplacement() {
     setLongReview(generatedDraft);
     setDraftUsed(true);
     setAiState("draft");
+    setDialog(null);
   }
 
   function clearLocalDraft() {
@@ -323,8 +364,11 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
 
   async function handleCopy() {
     const copied = await copyLink();
-    setShareStatus(copied ? "clipboard" : "download");
-    if (!copied) downloadCard();
+    if (copied) {
+      setShareStatus("clipboard");
+      return;
+    }
+    downloadCard("clipboard-denied");
   }
 
   async function handleShare() {
@@ -342,12 +386,18 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
           setShareStatus("cancelled");
           return;
         }
+        if (isRecord(caught) && caught.name === "NotAllowedError") {
+          setShareStatus("share-denied");
+          return;
+        }
+        setShareStatus("share-denied");
+        return;
       }
     }
     await handleCopy();
   }
 
-  function downloadCard() {
+  function downloadCard(status: "download" | "clipboard-denied" = "download") {
     const blob = new Blob([shareCard()], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -357,13 +407,45 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
-    setShareStatus("download");
+    setShareStatus(status);
+  }
+
+  function requestExit(event: MouseEvent<HTMLAnchorElement>) {
+    if (!hasUnsavedChanges) return;
+    event.preventDefault();
+    setDialog("exit");
+  }
+
+  function discardAndExit() {
+    clearLocalDraft();
+    router.push(`/${locale}/books/${book.id}`);
+  }
+
+  function restoreStoredDraft() {
+    if (!pendingStoredDraft) return;
+    setRating(pendingStoredDraft.rating);
+    setReview(pendingStoredDraft.review);
+    setLongReview(pendingStoredDraft.longReview);
+    setReviewLink(pendingStoredDraft.reviewLink);
+    setDraftRestored(true);
+    setPendingStoredDraft(null);
+    setDialog(null);
+  }
+
+  function discardStoredDraft() {
+    setPendingStoredDraft(null);
+    setDialog(null);
+    try {
+      window.localStorage.removeItem(storageKey(book.id));
+    } catch {
+      return;
+    }
   }
 
   return (
     <div className="bookgolas-consumer-page min-h-screen bg-[var(--blab-surface-scaffold)] text-[var(--blab-text-primary)]" data-testid="review-editor" data-review-content-state={hasSavedReview ? "saved" : "empty"} data-review-ai-state={aiState}>
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <Link href={`/${locale}/books/${book.id}`} className="inline-flex min-h-10 items-center rounded-xl px-2 text-sm text-[var(--blab-text-tertiary)] underline-offset-4 hover:text-[var(--blab-text-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="review-back">
+        <Link href={`/${locale}/books/${book.id}`} onClick={requestExit} className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-[var(--blab-text-tertiary)] underline-offset-4 hover:text-[var(--blab-text-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="review-back">
           ← {t("bookLabel")}
         </Link>
         <p className="mt-6 text-sm font-medium text-[var(--blab-color-primary)]">{t("eyebrow")}</p>
@@ -383,8 +465,8 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
           <fieldset className="mt-6">
             <legend className="text-sm font-medium">{t("rating")}</legend>
             <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="review-rating">
-              <button type="button" aria-pressed={rating === null} onClick={() => setRating(null)} className={`min-h-10 rounded-xl border px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${rating === null ? "border-[var(--blab-color-primary)] bg-[var(--blab-color-primary)]/15" : "border-[var(--blab-glass-border)]"}`} data-testid="review-rating-none">{t("noRating")}</button>
-              {[1, 2, 3, 4, 5].map((value) => <button key={value} type="button" aria-label={`${value}/5`} aria-pressed={rating === value} onClick={() => setRating(value)} className={`min-h-10 min-w-10 rounded-xl border text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${rating !== null && rating >= value ? "border-amber-300/60 bg-amber-300/15 text-amber-200" : "border-[var(--blab-glass-border)] text-[var(--blab-text-tertiary)]"}`} data-testid={`review-rating-${value}`}>★</button>)}
+              <button type="button" aria-pressed={rating === null} onClick={() => setRating(null)} className={`min-h-11 rounded-xl border px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${rating === null ? "border-[var(--blab-color-primary)] bg-[var(--blab-color-primary)]/15" : "border-[var(--blab-glass-border)]"}`} data-testid="review-rating-none">{t("noRating")}</button>
+              {[1, 2, 3, 4, 5].map((value) => <button key={value} type="button" aria-label={`${value}/5`} aria-pressed={rating === value} onClick={() => setRating(value)} className={`min-h-11 min-w-11 rounded-xl border text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${rating !== null && rating >= value ? "border-amber-300/60 bg-amber-300/15 text-amber-200" : "border-[var(--blab-glass-border)] text-[var(--blab-text-tertiary)]"}`} data-testid={`review-rating-${value}`}>★</button>)}
             </div>
           </fieldset>
 
@@ -449,14 +531,47 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
           <div className="mt-4 flex flex-wrap gap-3">
             <ConsumerButton type="button" variant="primary" text={t("share")} icon={<Link2 aria-hidden="true" size={16} />} onClick={() => void handleShare()} data-testid="review-share" />
             <ConsumerButton type="button" variant="secondary" text={t("copy")} icon={<Clipboard aria-hidden="true" size={16} />} onClick={() => void handleCopy()} data-testid="review-copy" />
-            <ConsumerButton type="button" variant="secondary" text={t("download")} icon={<Download aria-hidden="true" size={16} />} onClick={downloadCard} data-testid="review-download" />
+            <ConsumerButton type="button" variant="secondary" text={t("download")} icon={<Download aria-hidden="true" size={16} />} onClick={() => downloadCard()} data-testid="review-download" />
           </div>
           {shareStatus === "native" ? <p className="mt-4 text-sm text-[var(--blab-color-success)]" role="status" data-testid="review-share-status">{t("shareNative")}</p> : null}
           {shareStatus === "clipboard" ? <p className="mt-4 text-sm text-[var(--blab-color-success)]" role="status" data-testid="review-share-status">{t("shareCopied")}</p> : null}
           {shareStatus === "download" ? <p className="mt-4 text-sm text-[var(--blab-color-success)]" role="status" data-testid="review-share-status">{t("shareDownloaded")}</p> : null}
           {shareStatus === "cancelled" ? <p className="mt-4 text-sm text-[var(--blab-text-tertiary)]" role="status" data-testid="review-share-status">{t("shareCancelled")}</p> : null}
+          {shareStatus === "share-denied" ? <p className="mt-4 text-sm text-[var(--blab-color-error)]" role="alert" data-testid="review-share-status">{t("shareDenied")}</p> : null}
+          {shareStatus === "clipboard-denied" ? <p className="mt-4 text-sm text-[var(--blab-color-warning)]" role="status" data-testid="review-share-status">{t("clipboardDeniedDownloaded")}</p> : null}
         </ConsumerCard>
       </main>
+
+      <Dialog open={dialog === "exit"} onOpenChange={(open) => setDialog(open ? "exit" : null)}>
+        <DialogContent className="bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="review-exit-confirmation">
+          <DialogHeader><DialogTitle>{t("exit.title")}</DialogTitle><DialogDescription>{t("exit.description")}</DialogDescription></DialogHeader>
+          <DialogFooter><ConsumerButton type="button" variant="secondary" text={t("exit.keep")} onClick={() => setDialog(null)} data-testid="review-exit-keep" /><ConsumerButton type="button" variant="primary" text={t("exit.discard")} onClick={discardAndExit} data-testid="review-exit-discard" /></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={dialog === "replace"} onOpenChange={(open) => setDialog(open ? "replace" : null)}>
+        <DialogContent className="bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="review-ai-replacement-confirmation">
+          <DialogHeader><DialogTitle>{t("replace.title")}</DialogTitle><DialogDescription>{t("replace.description")}</DialogDescription></DialogHeader>
+          <DialogFooter><ConsumerButton type="button" variant="secondary" text={t("replace.cancel")} onClick={() => setDialog(null)} data-testid="review-ai-replace-cancel" /><ConsumerButton type="button" variant="primary" text={t("replace.confirm")} onClick={confirmDraftReplacement} data-testid="review-ai-replace-confirm" /></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={dialog === "saved"} onOpenChange={(open) => setDialog(open ? "saved" : null)}>
+        <DialogContent className="bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="review-save-complete" onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          document.querySelector<HTMLElement>('[data-testid="review-save"]')?.focus();
+        }}>
+          <DialogHeader><DialogTitle>{t("saveComplete.title")}</DialogTitle><DialogDescription>{t("saveComplete.description")}</DialogDescription></DialogHeader>
+          <DialogFooter><ConsumerButton type="button" variant="secondary" text={t("saveComplete.done")} onClick={() => setDialog(null)} data-testid="review-save-complete-done" /><Link href={`/${locale}/books/${book.id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white" data-testid="review-save-complete-open-book">{t("saveComplete.openBook")}</Link></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={dialog === "restore"} onOpenChange={() => undefined}>
+        <DialogContent showCloseButton={false} className="bg-[var(--blab-surface-elevated)] text-[var(--blab-text-primary)]" data-testid="review-draft-restore-confirmation">
+          <DialogHeader><DialogTitle>{t("restore.title")}</DialogTitle><DialogDescription>{t("restore.description")}</DialogDescription></DialogHeader>
+          <DialogFooter><ConsumerButton type="button" variant="secondary" text={t("restore.discard")} onClick={discardStoredDraft} data-testid="review-draft-restore-discard" /><ConsumerButton type="button" variant="primary" text={t("restore.confirm")} onClick={restoreStoredDraft} data-testid="review-draft-restore-confirm" /></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

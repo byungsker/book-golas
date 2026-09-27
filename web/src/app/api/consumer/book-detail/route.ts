@@ -11,6 +11,7 @@ import {
 import { deleteBook, getBook, updateBook } from "@/lib/product/dal";
 import { productErrorResponse } from "@/lib/product/dal/http";
 import {
+  conflictError,
   validationError,
   type ProductError,
 } from "@/lib/product/dal/errors";
@@ -20,6 +21,29 @@ function privateJson(body: BookDetailResponse, status = 200): NextResponse {
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
+}
+
+function mutationHeaders(request: NextRequest, input: BookDetailRequest):
+  | { readonly ok: true; readonly revision: string }
+  | { readonly ok: false; readonly response: NextResponse } {
+  const ifMatch = request.headers.get("if-match");
+  if (!ifMatch) {
+    return { ok: false, response: NextResponse.json({ error: { code: "precondition_required", status: 428, message: "If-Match is required.", retryable: false } }, { status: 428, headers: { "Cache-Control": "private, no-store" } }) };
+  }
+  const revision = ifMatch.match(/^"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)"$/)?.[1];
+  const revisionTimestamp = revision ? Date.parse(revision) : Number.NaN;
+  if (
+    !revision ||
+    !Number.isFinite(revisionTimestamp) ||
+    new Date(revisionTimestamp).toISOString() !== revision
+  ) {
+    return { ok: false, response: privateError(validationError("If-Match must be a quoted revision.")) };
+  }
+  const expectedKey = `${input.bookId}:${input.action}:${revision}`;
+  if (request.headers.get("x-bookgolas-action-key") !== expectedKey) {
+    return { ok: false, response: privateError(validationError("The action key is invalid.")) };
+  }
+  return { ok: true, revision };
 }
 
 function privateError(error: ProductError): NextResponse {
@@ -44,6 +68,7 @@ function currentActionUpdate(input: {
   bookId: BookDetailRequest["bookId"];
   targetDate?: string;
   currentAttemptCount: number;
+  revision: string;
 }) {
   const now = new Date().toISOString();
   if (input.action === "pause") {
@@ -51,14 +76,14 @@ function currentActionUpdate(input: {
       bookId: input.bookId,
       status: "will_retry",
       pausedAt: now,
-    });
+    }, undefined, input.revision);
   }
   if (input.action === "complete") {
     return updateBook({
       bookId: input.bookId,
       status: "completed",
       pausedAt: null,
-    });
+    }, undefined, input.revision);
   }
   return updateBook({
     bookId: input.bookId,
@@ -68,7 +93,7 @@ function currentActionUpdate(input: {
     plannedStartDate: null,
     pausedAt: null,
     ...(input.action === "resume" ? { attemptCount: input.currentAttemptCount + 1 } : {}),
-  });
+  }, undefined, input.revision);
 }
 
 export async function POST(request: NextRequest) {
@@ -83,6 +108,8 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return privateError(validationError());
 
   const input = parsed.data;
+  const headers = mutationHeaders(request, input);
+  if (!headers.ok) return headers.response;
   const fixture = getConsumerRouteFixture(
     request.cookies.get("bookgolas-route-fixture")?.value,
   );
@@ -113,14 +140,16 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const current = await getBook(input.bookId);
+  const current = await getBook(input.bookId, undefined, input.action === "delete");
   if (!current.ok) return privateError(current.error);
+  if (current.value.deletedAt) return privateError(conflictError("This action key has already been applied."));
+  if (current.value.updatedAt !== headers.revision) return privateError(conflictError());
   if (!canApplyBookDetailAction(current.value.status, input.action)) {
     return privateError(validationError("This book action is not available for its current status."));
   }
 
   if (input.action === "delete") {
-    const deleted = await deleteBook(input.bookId);
+    const deleted = await deleteBook(input.bookId, undefined, headers.revision);
     if (!deleted.ok) return privateError(deleted.error);
     for (const path of paths) revalidatePath(path);
     return privateJson({
@@ -136,6 +165,7 @@ export async function POST(request: NextRequest) {
     bookId: input.bookId,
     ...(input.targetDate ? { targetDate: input.targetDate } : {}),
     currentAttemptCount: current.value.attemptCount,
+    revision: headers.revision,
   });
   if (!updated.ok) return privateError(updated.error);
   for (const path of paths) revalidatePath(path);

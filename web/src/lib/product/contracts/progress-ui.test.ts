@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ApiErrorSchema,
+  ProgressScheduleRequestSchema,
   ProgressUiRequestSchema,
   ProgressUiResponseSchema,
 } from "./index";
@@ -84,5 +85,25 @@ describe("progress UI contracts", () => {
       retryable: true,
     });
     expect(ProgressUiResponseSchema.parse({ error })).toEqual({ error });
+  });
+
+  it("requires a bounded schedule field and a revision", () => {
+    const schedule = {
+      action: "update_schedule" as const,
+      locale: "en" as const,
+      bookId,
+      dailyTargetPages: 20,
+      expectedUpdatedAt: book.updatedAt,
+      idempotencyKey: "00000000-0000-4000-8000-000000005343",
+    };
+    expect(ProgressScheduleRequestSchema.parse(schedule)).toEqual(schedule);
+    expect(() => ProgressScheduleRequestSchema.parse({ ...schedule, dailyTargetPages: 0 })).toThrow();
+    expect(() => ProgressScheduleRequestSchema.parse({
+      action: schedule.action,
+      locale: schedule.locale,
+      bookId: schedule.bookId,
+      expectedUpdatedAt: schedule.expectedUpdatedAt,
+      idempotencyKey: schedule.idempotencyKey,
+    })).toThrow();
   });
 });

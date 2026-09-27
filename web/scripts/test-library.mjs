@@ -35,7 +35,7 @@ const manifest = JSON.parse(fs.readFileSync(paths.manifest, "utf8"));
 const source = Object.fromEntries(Object.entries(paths).map(([name, filePath]) => [name, fs.readFileSync(filePath, "utf8")]));
 
 requireCondition(contract.issue === 430, "library contract must bind issue 430");
-requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "library contract must reference the parity plan");
+requireCondition(contract.plan === ".omo/plans/bookgolas-web-completion.md", "library contract must reference the completion plan");
 requireCondition(JSON.stringify(contract.native.tabs) === JSON.stringify(["reading", "review", "records"]), "native library tabs must stay in reading/review/records order");
 requireCondition(JSON.stringify(contract.web.tabs) === JSON.stringify(["reading", "review", "records"]), "web library tabs must stay in reading/review/records order");
 for (const state of ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"]) requireCondition(contract.states.includes(state), `library contract must cover ${state}`);

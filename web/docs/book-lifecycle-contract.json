@@ -1,7 +1,7 @@
 {
   "issue": 431,
-  "plan": ".omo/plans/bookgolas-web-app-parity.md",
-  "flow": ["select-book", "set-status", "set-dates", "preview-schedule", "edit-daily-goal", "set-priority", "save", "retry", "edit"],
+  "plan": ".omo/plans/bookgolas-web-completion.md",
+  "flow": ["select-book", "set-status", "set-dates", "preview-schedule", "edit-daily-goal", "set-priority", "save", "retry", "edit", "edit-planned-book"],
   "native": {
     "source": "app/lib/ui/reading_start/view_model/reading_start_view_model.dart",
     "statuses": ["planned", "reading", "completed", "will_retry"],
@@ -29,6 +29,12 @@
     "targetDate": "on or after the effective start date",
     "ownership": "user id comes from the verified session and active-row query scope"
   },
+  "mutationSafety": {
+    "create": "a UUID action key becomes the owner-scoped book id; replay returns HTTP 409 without a second insert",
+    "update": "owner and active-row filters plus an atomic updated_at comparison are mandatory",
+    "plannedEdit": "missing If-Match returns 428, malformed quoting returns 400, and a stale quoted updatedAt revision returns 409",
+    "retry": "the browser disables duplicate submission and retains the same action key for create retries"
+  },
   "cacheInvalidation": ["/{locale}/home", "/{locale}/library", "/{locale}/books/{bookId}", "/{locale}/reading/{bookId}"],
-  "evidence": ".omo/evidence/bookgolas-web-app-parity/task-19-bookgolas-web-app-parity.json"
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
 }

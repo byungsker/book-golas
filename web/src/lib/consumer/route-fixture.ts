@@ -82,6 +82,7 @@ export type ConsumerRouteFixture =
   | "images-ocr-offline"
   | "images-ocr-oversize"
   | "images-ocr-provider-failure"
+  | "images-ocr-sort"
   | "images-ocr-quota"
   | "images-ocr-unauthorized"
   | "images-ocr-unsupported"
@@ -99,6 +100,7 @@ export type ConsumerRouteFixture =
   | "review-share-timeout"
   | "review-share-unauthorized"
   | "calendar-consent"
+  | "calendar-deleted"
   | "calendar-empty"
   | "calendar-error"
   | "calendar-foreign"
@@ -108,6 +110,12 @@ export type ConsumerRouteFixture =
   | "calendar-quota"
   | "calendar-unauthorized"
   | "charts-goals-consent"
+  | "charts-goals-ai-consent"
+  | "charts-goals-ai-offline"
+  | "charts-goals-ai-provider"
+  | "charts-goals-ai-quota"
+  | "charts-goals-ai-timeout"
+  | "charts-goals-ai-unauthorized"
   | "charts-goals-deleted"
   | "charts-goals-empty"
   | "charts-goals-error"
@@ -121,16 +129,23 @@ export type ConsumerRouteFixture =
   | "charts-goals-stale"
   | "charts-goals-unauthorized"
   | "ai-artifacts-consent"
+  | "ai-artifacts-consent-unknown"
+  | "ai-artifacts-consent-unavailable"
+  | "ai-artifacts-consent-withdrawn"
+  | "ai-artifacts-budget"
+  | "ai-artifacts-concurrency"
   | "ai-artifacts-empty"
   | "ai-artifacts-expired"
   | "ai-artifacts-foreign"
   | "ai-artifacts-happy"
+  | "ai-artifacts-hard-cap"
   | "ai-artifacts-missing"
   | "ai-artifacts-offline"
   | "ai-artifacts-provider"
   | "ai-artifacts-quota"
   | "ai-artifacts-rate-limit"
   | "ai-artifacts-source-changed"
+  | "ai-artifacts-timeout"
   | "ai-artifacts-unauthorized"
   | "account-settings-avatar-failure"
   | "account-settings-consent"
@@ -145,6 +160,9 @@ export type ConsumerRouteFixture =
   | "account-settings-quota"
   | "account-settings-subscription-disabled"
   | "account-settings-unauthorized"
+  | "announcements-content"
+  | "announcements-empty"
+  | "announcements-error"
   | "account-deletion-cancel-or-retry"
   | "account-deletion-consent"
   | "account-deletion-error"
@@ -332,6 +350,7 @@ export function getConsumerRouteFixture(
     "images-ocr-offline",
     "images-ocr-oversize",
     "images-ocr-provider-failure",
+    "images-ocr-sort",
     "images-ocr-quota",
     "images-ocr-unauthorized",
     "images-ocr-unsupported",
@@ -349,6 +368,7 @@ export function getConsumerRouteFixture(
     "review-share-timeout",
     "review-share-unauthorized",
     "calendar-consent",
+    "calendar-deleted",
     "calendar-empty",
     "calendar-error",
     "calendar-foreign",
@@ -358,6 +378,12 @@ export function getConsumerRouteFixture(
     "calendar-quota",
     "calendar-unauthorized",
     "charts-goals-consent",
+    "charts-goals-ai-consent",
+    "charts-goals-ai-offline",
+    "charts-goals-ai-provider",
+    "charts-goals-ai-quota",
+    "charts-goals-ai-timeout",
+    "charts-goals-ai-unauthorized",
     "charts-goals-deleted",
     "charts-goals-empty",
     "charts-goals-error",
@@ -371,16 +397,23 @@ export function getConsumerRouteFixture(
     "charts-goals-stale",
     "charts-goals-unauthorized",
     "ai-artifacts-consent",
+    "ai-artifacts-consent-unknown",
+    "ai-artifacts-consent-unavailable",
+    "ai-artifacts-consent-withdrawn",
+    "ai-artifacts-budget",
+    "ai-artifacts-concurrency",
     "ai-artifacts-empty",
     "ai-artifacts-expired",
     "ai-artifacts-foreign",
     "ai-artifacts-happy",
+    "ai-artifacts-hard-cap",
     "ai-artifacts-missing",
     "ai-artifacts-offline",
     "ai-artifacts-provider",
     "ai-artifacts-quota",
     "ai-artifacts-rate-limit",
     "ai-artifacts-source-changed",
+    "ai-artifacts-timeout",
     "ai-artifacts-unauthorized",
     "account-settings-avatar-failure",
     "account-settings-consent",
@@ -395,6 +428,9 @@ export function getConsumerRouteFixture(
     "account-settings-quota",
     "account-settings-subscription-disabled",
     "account-settings-unauthorized",
+    "announcements-content",
+    "announcements-empty",
+    "announcements-error",
     "account-deletion-cancel-or-retry",
     "account-deletion-consent",
     "account-deletion-error",

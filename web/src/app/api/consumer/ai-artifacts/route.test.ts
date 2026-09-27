@@ -42,6 +42,7 @@ describe("/api/consumer/ai-artifacts", () => {
     expect(await missing.json()).toMatchObject({ kind: "mindmap", cacheState: "missing", artifact: null });
     const generated = await POST(request("POST", "ai-artifacts-missing", { kind: "mindmap", locale: "en", bookId, requestKey }, "kind=mindmap"));
     expect(generated.status).toBe(200);
+    expect(generated.headers.get("x-bookgolas-provider-calls")).toBe("1");
     expect(await generated.json()).toMatchObject({ kind: "mindmap", cacheState: "missing", requestKey });
 
     const expired = await GET(request("GET", "ai-artifacts-expired", undefined, "kind=recommendations&locale=en"));
@@ -55,8 +56,15 @@ describe("/api/consumer/ai-artifacts", () => {
 
     for (const [fixture, status, code] of [
       ["ai-artifacts-consent", 403, "consent_required"],
+      ["ai-artifacts-consent-withdrawn", 403, "consent_required"],
+      ["ai-artifacts-consent-unknown", 503, "consent_status_unknown"],
+      ["ai-artifacts-consent-unavailable", 503, "unavailable"],
       ["ai-artifacts-quota", 429, "quota_exceeded"],
       ["ai-artifacts-rate-limit", 429, "rate_limit_exceeded"],
+      ["ai-artifacts-concurrency", 429, "concurrency_exceeded"],
+      ["ai-artifacts-budget", 429, "budget_exceeded"],
+      ["ai-artifacts-hard-cap", 429, "hard_cap_exceeded"],
+      ["ai-artifacts-timeout", 504, "provider_timeout"],
       ["ai-artifacts-provider", 502, "provider_error"],
       ["ai-artifacts-offline", 503, "offline"],
       ["ai-artifacts-unauthorized", 401, "unauthorized"],
@@ -64,6 +72,7 @@ describe("/api/consumer/ai-artifacts", () => {
     ] as const) {
       const response = await POST(request("POST", fixture, { kind: "insights", locale: "en", requestKey }));
       expect(response.status).toBe(status);
+      expect(response.headers.get("x-bookgolas-provider-calls")).toBe("0");
       expect((await response.json()).error.code).toBe(code);
     }
   });

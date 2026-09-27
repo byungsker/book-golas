@@ -13,18 +13,26 @@ import {
   Flame,
   Flag,
   Gift,
+  RefreshCw,
   Share2,
+  Sparkles,
   Target,
   X,
 } from "lucide-react";
 import type {
+  Insight,
   ReadingAnalyticsData,
   ReadingAnalyticsStatus,
   ReadingAnalyticsTab,
   ReadingAnalyticsView,
 } from "@/lib/product/contracts";
-import { calendarDayKeyFromDate } from "@/lib/product/contracts";
+import {
+  ApiErrorResponseSchema,
+  calendarDayKeyFromDate,
+  ReadingAnalyticsInsightSuccessSchema,
+} from "@/lib/product/contracts";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
+import { useAccessibleModal } from "@/components/consumer/use-accessible-modal";
 
 function numberFormat(value: number, locale: ConsumerLocale): string {
   return new Intl.NumberFormat(locale === "ko" ? "ko-KR" : "en-US", { maximumFractionDigits: 1 }).format(value);
@@ -103,40 +111,51 @@ function MetricCard({
 export function ReadingAnalyticsClient({
   locale,
   initialData,
+  initialTab,
 }: {
   locale: ConsumerLocale;
   initialData: ReadingAnalyticsData;
+  initialTab: ReadingAnalyticsTab;
 }) {
   const t = useTranslations("consumer");
   const router = useRouter();
   const [data, setData] = useState(initialData);
-  const [tab, setTab] = useState<ReadingAnalyticsTab>("overview");
+  const [tab, setTab] = useState<ReadingAnalyticsTab>(initialTab);
   const [goalOpen, setGoalOpen] = useState(false);
   const [goalInput, setGoalInput] = useState(String(initialData.goal.targetBooks || 24));
   const [goalSaving, setGoalSaving] = useState(false);
   const [goalError, setGoalError] = useState(false);
   const [goalNotice, setGoalNotice] = useState<string | null>(null);
   const [customOpen, setCustomOpen] = useState(false);
+  const [clearInsightOpen, setClearInsightOpen] = useState(false);
+  const goalDialogRef = useAccessibleModal(goalOpen, () => setGoalOpen(false));
+  const customDialogRef = useAccessibleModal(customOpen, () => setCustomOpen(false));
+  const clearInsightDialogRef = useAccessibleModal(clearInsightOpen, () => setClearInsightOpen(false));
   const [customStart, setCustomStart] = useState(initialData.period.customStart ?? initialData.period.range.startDay);
   const [customEnd, setCustomEnd] = useState(initialData.period.customEnd ?? initialData.period.range.endDay);
   const [customError, setCustomError] = useState(false);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [insightState, setInsightState] = useState<"idle" | "generating" | "success" | "error">("idle");
+  const [insightErrorCode, setInsightErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     setData(initialData);
     setGoalInput(String(initialData.goal.targetBooks || 24));
-  }, [initialData]);
+    setTab(initialTab);
+  }, [initialData, initialTab]);
 
   const isEmpty = data.metrics.totalPages === 0 && data.metrics.totalPagesRead === 0 && data.metrics.totalSeconds === 0 && data.metrics.completedBooks === 0;
   const currentDay = useMemo(() => calendarDayKeyFromDate(new Date()), []);
   const activeView = data.period.view;
 
-  function pushParams(next: { view?: ReadingAnalyticsView; year?: number; month?: number; weekStart?: string; customStart?: string; customEnd?: string; status?: ReadingAnalyticsStatus }) {
+  function pushParams(next: { view?: ReadingAnalyticsView; year?: number; month?: number; weekStart?: string; customStart?: string; customEnd?: string; status?: ReadingAnalyticsStatus; section?: ReadingAnalyticsTab }) {
     const params = new URLSearchParams();
     const view = next.view ?? data.period.view;
     params.set("view", view);
     params.set("year", String(next.year ?? data.period.year));
     params.set("status", next.status ?? data.status);
+    params.set("section", next.section ?? tab);
     if (view === "monthly") params.set("month", String(next.month ?? data.period.month ?? 1));
     if (view === "weekly") params.set("weekStart", next.weekStart ?? data.period.weekStart ?? data.period.range.startDay);
     if (view === "custom") {
@@ -150,6 +169,18 @@ export function ReadingAnalyticsClient({
     if (view === "custom") {
       setCustomError(false);
       setCustomOpen(true);
+      return;
+    }
+    const currentYear = Number(currentDay.slice(0, 4));
+    const currentMonth = Number(currentDay.slice(5, 7));
+    if (view === "monthly") {
+      pushParams({ view, month: data.period.year === currentYear ? currentMonth : 12 });
+      return;
+    }
+    if (view === "weekly") {
+      const date = dayToDate(currentDay);
+      date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+      pushParams({ view, weekStart: dateToDay(date) });
       return;
     }
     pushParams({ view });
@@ -175,7 +206,8 @@ export function ReadingAnalyticsClient({
   }
 
   function applyCustomRange() {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(customStart) || !/^\d{4}-\d{2}-\d{2}$/.test(customEnd) || customStart > customEnd || customStart < "2020-01-01" || customEnd > currentDay) {
+    const rangeDays = Math.floor((dayToDate(customEnd).getTime() - dayToDate(customStart).getTime()) / 86_400_000) + 1;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(customStart) || !/^\d{4}-\d{2}-\d{2}$/.test(customEnd) || customStart > customEnd || customStart < "2020-01-01" || customEnd > currentDay || rangeDays > 366) {
       setCustomError(true);
       return;
     }
@@ -237,9 +269,7 @@ export function ReadingAnalyticsClient({
         setShareNotice(t("stats.shareCopied"));
         return;
       }
-    } catch {
-      // Download is the browser fallback when clipboard permission is unavailable.
-    }
+    } catch {}
     try {
       const blob = new Blob([`${text}\n${url}`], { type: "text/plain;charset=utf-8" });
       const downloadUrl = URL.createObjectURL(blob);
@@ -252,6 +282,49 @@ export function ReadingAnalyticsClient({
     } catch {
       setShareNotice(t("stats.shareFailed"));
     }
+  }
+
+  async function generateInsight() {
+    setInsightState("generating");
+    setInsightErrorCode(null);
+    try {
+      const requestKey = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : "00000000-0000-4000-8000-000000004396";
+      const response = await fetch("/api/consumer/charts-goals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "generate_insight", locale, requestKey }),
+        cache: "no-store",
+      });
+      const body: unknown = await response.json().catch(() => null);
+      if (!response.ok) {
+        const error = ApiErrorResponseSchema.safeParse(body);
+        setInsightErrorCode(error.success ? error.data.error.code : "unavailable");
+        setInsightState("error");
+        return;
+      }
+      const parsed = ReadingAnalyticsInsightSuccessSchema.safeParse(body);
+      if (!parsed.success) {
+        setInsightErrorCode("unavailable");
+        setInsightState("error");
+        return;
+      }
+      setInsights(parsed.data.insights);
+      setInsightState("success");
+    } catch {
+      setInsightErrorCode("offline");
+      setInsightState("error");
+    }
+  }
+
+  function insightErrorMessage(): string {
+    if (insightErrorCode === "quota_exceeded" || insightErrorCode === "rate_limit_exceeded" || insightErrorCode === "rate_limited" || insightErrorCode === "budget_exceeded" || insightErrorCode === "hard_cap_exceeded") return t("stats.ai.errors.quota");
+    if (insightErrorCode === "provider_error" || insightErrorCode === "provider_timeout" || insightErrorCode === "timeout") return t("stats.ai.errors.provider");
+    if (insightErrorCode === "consent_required") return t("stats.ai.errors.consent");
+    if (insightErrorCode === "unauthorized") return t("stats.ai.errors.unauthorized");
+    if (insightErrorCode === "offline") return t("stats.ai.errors.offline");
+    return t("stats.ai.errors.unavailable");
   }
 
   const periodLabel = activeView === "annual"
@@ -311,7 +384,7 @@ export function ReadingAnalyticsClient({
             </div>
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("stats.status.label")} data-testid="stats-status-filter">
               {(["all", "reading", "completed"] as const).map((status) => (
-                <button key={status} type="button" onClick={() => pushParams({ status })} aria-pressed={data.status === status} className={`min-h-10 rounded-xl px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${data.status === status ? "bg-[var(--blab-glass-fill)] font-semibold text-[var(--blab-color-primary)]" : "text-[var(--blab-text-tertiary)] hover:bg-[var(--blab-glass-fill)]"}`} data-testid={`stats-status-${status}`}>
+                <button key={status} type="button" onClick={() => pushParams({ status })} aria-pressed={data.status === status} className={`min-h-11 rounded-xl px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${data.status === status ? "bg-[var(--blab-glass-fill)] font-semibold text-[var(--blab-color-primary)]" : "text-[var(--blab-text-tertiary)] hover:bg-[var(--blab-glass-fill)]"}`} data-testid={`stats-status-${status}`}>
                   {t(`stats.status.${status}`)}
                 </button>
               ))}
@@ -321,12 +394,13 @@ export function ReadingAnalyticsClient({
             {activeView !== "custom" ? <button type="button" onClick={() => navigatePeriod(-1)} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-[var(--blab-glass-border)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-label={t("stats.period.previous")} data-testid="stats-period-previous"><ChevronLeft aria-hidden="true" size={19} /></button> : null}
             <span className="min-w-40 text-center text-lg font-semibold" data-testid="stats-period-title">{periodLabel}</span>
             {activeView !== "custom" ? <button type="button" onClick={() => navigatePeriod(1)} disabled={periodLabel === String(currentDay.slice(0, 4))} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-[var(--blab-glass-border)] hover:bg-[var(--blab-glass-fill)] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-label={t("stats.period.next")} data-testid="stats-period-next"><ChevronRight aria-hidden="true" size={19} /></button> : null}
+            {activeView === "custom" ? <button type="button" onClick={() => pushParams({ view: "annual" })} className="min-h-11 rounded-xl border border-[var(--blab-glass-border)] px-4 py-2 text-sm font-medium hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-clear">{t("stats.period.clear")}</button> : null}
           </div>
         </section>
 
         <div className="mt-6 flex flex-wrap gap-2 border-b border-[var(--blab-glass-border)]" role="tablist" aria-label={t("stats.tabs.label")} data-testid="stats-tabs">
           {(["overview", "analysis", "activity"] as const).map((item) => (
-            <button key={item} type="button" role="tab" aria-selected={tab === item} onClick={() => setTab(item)} className={`min-h-12 border-b-2 px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${tab === item ? "border-[var(--blab-color-primary)] text-[var(--blab-color-primary)]" : "border-transparent text-[var(--blab-text-tertiary)] hover:text-[var(--blab-text-primary)]"}`} data-testid={`stats-tab-${item}`}>
+            <button key={item} type="button" role="tab" aria-selected={tab === item} onClick={() => { setTab(item); pushParams({ section: item }); }} className={`min-h-12 border-b-2 px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)] ${tab === item ? "border-[var(--blab-color-primary)] text-[var(--blab-color-primary)]" : "border-transparent text-[var(--blab-text-tertiary)] hover:text-[var(--blab-text-primary)]"}`} data-testid={`stats-tab-${item}`}>
               {t(`stats.tabs.${item}`)}
             </button>
           ))}
@@ -361,6 +435,24 @@ export function ReadingAnalyticsClient({
             <div className="mt-5"><div className="flex items-center justify-between text-sm"><span>{goalRate}%</span><span className="text-[var(--blab-text-tertiary)]">{data.goal.booksPerMonth} {t("stats.goal.perMonth")}</span></div><div className="mt-2 h-3 overflow-hidden rounded-full bg-[var(--blab-glass-fill)]"><div className="h-full rounded-full bg-[var(--blab-color-primary)] transition-all" style={{ width: `${goalRate}%` }} /></div><p className="mt-3 text-sm text-[var(--blab-text-secondary)]">{data.goal.isOnTrack ? t("stats.goal.onTrack") : t("stats.goal.offTrack")}</p></div>
           </article>
 
+          <article className="mt-4 rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-5 sm:p-6" data-testid="stats-ai-insight" data-ai-insight-state={insightState}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="flex items-center gap-2 text-sm font-medium text-[var(--blab-color-primary)]"><Sparkles aria-hidden="true" size={17} />{t("stats.ai.eyebrow")}</p>
+                <h2 className="mt-2 text-xl font-semibold">{t("stats.ai.title")}</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--blab-text-tertiary)]">{t("stats.ai.description")}</p>
+              </div>
+              <button type="button" disabled={insightState === "generating"} onClick={() => void generateInsight()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid={insightState === "error" ? "stats-ai-insight-retry" : "stats-ai-insight-generate"}>
+                <RefreshCw aria-hidden="true" size={16} className={insightState === "generating" ? "animate-spin motion-reduce:animate-none" : ""} />
+                {insightState === "generating" ? t("stats.ai.generating") : insightState === "error" ? t("stats.ai.retry") : t("stats.ai.generate")}
+              </button>
+            </div>
+            {insightState === "idle" ? <p className="mt-5 rounded-xl bg-[var(--blab-glass-fill)] px-4 py-3 text-sm text-[var(--blab-text-secondary)]" data-testid="stats-ai-insight-idle">{t("stats.ai.idle")}</p> : null}
+            {insightState === "generating" ? <p className="mt-5 rounded-xl bg-[var(--blab-glass-fill)] px-4 py-3 text-sm text-[var(--blab-text-secondary)]" role="status" data-testid="stats-ai-insight-generating">{t("stats.ai.generating")}</p> : null}
+            {insightState === "error" ? <div className="mt-5 rounded-xl bg-[var(--blab-glass-fill)] px-4 py-3" role="alert" data-testid={`stats-ai-insight-error-${insightErrorCode ?? "unavailable"}`}><p className="text-sm font-semibold">{t("stats.ai.errorTitle")}</p><p className="mt-1 text-sm text-[var(--blab-text-secondary)]">{insightErrorMessage()}</p><p className="mt-2 text-xs text-[var(--blab-text-tertiary)]">{t("stats.ai.noBillingPrompt")}</p></div> : null}
+            {insightState === "success" ? <div className="mt-5 grid gap-3" data-testid="stats-ai-insight-success">{insights.length === 0 ? <p className="rounded-xl bg-[var(--blab-glass-fill)] px-4 py-3 text-sm text-[var(--blab-text-secondary)]">{t("stats.ai.empty")}</p> : insights.map((insight) => <section key={insight.id} className="rounded-xl bg-[var(--blab-glass-fill)] p-4"><h3 className="font-semibold">{insight.title}</h3><p className="mt-2 text-sm leading-6 text-[var(--blab-text-secondary)]">{insight.description}</p></section>)}<button type="button" className="min-h-11 justify-self-end rounded-xl border border-[var(--blab-glass-border)] px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" onClick={() => setClearInsightOpen(true)} data-testid="clear-ai-memory-open">{t("stats.ai.clear")}</button></div> : null}
+          </article>
+
           {tab === "overview" ? (
             <article className="mt-4 rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] p-5 sm:p-6" data-testid="stats-period-chart">
               <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{t("stats.activity.seriesTitle")}</p><h2 className="mt-1 text-xl font-semibold">{periodLabel}</h2></div><CalendarDays aria-hidden="true" className="text-[var(--blab-color-primary)]" size={22} /></div>
@@ -387,8 +479,9 @@ export function ReadingAnalyticsClient({
         <article id="stats-share-card" className="mt-6 rounded-[var(--blab-radius-card)] border border-[var(--blab-color-primary)]/30 bg-[linear-gradient(135deg,var(--blab-surface-card),var(--blab-color-primary)/10)] p-5 sm:p-6" data-testid="stats-share-card"><div className="flex items-center gap-3"><Share2 className="text-[var(--blab-color-primary)]" size={22} /><div><h2 className="text-lg font-semibold">{t("stats.shareCardTitle")}</h2><p className="mt-1 text-sm text-[var(--blab-text-tertiary)]">{t("stats.shareCardDescription")}</p></div></div><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4"><div><p className="text-xs text-[var(--blab-text-tertiary)]">{t("stats.metrics.pagesRead")}</p><p className="mt-1 text-xl font-bold">{m.totalPagesRead}p</p></div><div><p className="text-xs text-[var(--blab-text-tertiary)]">{t("stats.metrics.completed")}</p><p className="mt-1 text-xl font-bold">{m.completedBooks}</p></div><div><p className="text-xs text-[var(--blab-text-tertiary)]">{t("stats.metrics.activeDays")}</p><p className="mt-1 text-xl font-bold">{m.activeDays}</p></div><div><p className="text-xs text-[var(--blab-text-tertiary)]">{t("stats.metrics.streak")}</p><p className="mt-1 text-xl font-bold">{m.currentStreak}</p></div></div></article>
       </div>
 
-      {goalOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" data-testid="stats-goal-dialog-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="stats-goal-dialog-title" className="w-full max-w-md rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-overlay)]" data-testid="stats-goal-dialog"><div className="flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{data.goal.year}</p><h2 id="stats-goal-dialog-title" className="mt-1 text-xl font-semibold">{t("stats.goal.dialogTitle", { year: data.goal.year })}</h2><p className="mt-2 text-sm text-[var(--blab-text-tertiary)]">{t("stats.goal.dialogDescription")}</p></div><button type="button" onClick={() => setGoalOpen(false)} aria-label={t("stats.goal.cancel")} className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><X aria-hidden="true" size={19} /></button></div><form className="mt-6" onSubmit={saveGoal}><label htmlFor="stats-goal-input" className="text-sm font-medium">{t("stats.goal.inputLabel")}</label><input id="stats-goal-input" data-testid="stats-goal-input" type="number" min="1" max="999" value={goalInput} onChange={(event) => setGoalInput(event.target.value)} placeholder={t("stats.goal.inputPlaceholder")} className="mt-2 min-h-12 w-full rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 text-base outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-invalid={goalError} />{goalError ? <p className="mt-2 text-sm text-rose-300">{t("stats.goal.error")}</p> : null}<div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setGoalOpen(false)} className="min-h-11 rounded-xl px-4 py-2 text-sm text-[var(--blab-text-secondary)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">{t("stats.goal.cancel")}</button><button type="submit" disabled={goalSaving} className="min-h-11 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-goal-save">{goalSaving ? t("stats.goal.saving") : t("stats.goal.save")}</button></div></form></section></div> : null}
-      {customOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" data-testid="stats-custom-range-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="stats-custom-dialog-title" className="w-full max-w-md rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-overlay)]" data-testid="stats-custom-range-dialog"><div className="flex items-start justify-between gap-4"><div><h2 id="stats-custom-dialog-title" className="text-xl font-semibold">{t("stats.period.chooseRange")}</h2><p className="mt-2 text-sm text-[var(--blab-text-tertiary)]">{t("stats.period.rangeLabel")}</p></div><button type="button" onClick={() => setCustomOpen(false)} aria-label={t("stats.period.cancel")} className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><X aria-hidden="true" size={19} /></button></div><div className="mt-5 grid gap-4"><label className="grid gap-2 text-sm font-medium">{t("stats.period.start")}<input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} min="2020-01-01" max={currentDay} className="min-h-12 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-start" /></label><label className="grid gap-2 text-sm font-medium">{t("stats.period.end")}<input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} min="2020-01-01" max={currentDay} className="min-h-12 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-end" /></label></div>{customError ? <p className="mt-3 text-sm text-rose-300" data-testid="stats-invalid-range">{t("stats.invalidRange")}</p> : null}<div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setCustomOpen(false)} className="min-h-11 rounded-xl px-4 py-2 text-sm text-[var(--blab-text-secondary)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">{t("stats.period.cancel")}</button><button type="button" onClick={applyCustomRange} className="min-h-11 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-apply">{t("stats.period.apply")}</button></div></section></div> : null}
+      {goalOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" data-testid="stats-goal-dialog-backdrop"><section ref={goalDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="stats-goal-dialog-title" className="w-full max-w-md rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-overlay)]" data-testid="stats-goal-dialog"><div className="flex items-start justify-between gap-4"><div><p className="text-sm font-medium text-[var(--blab-color-primary)]">{data.goal.year}</p><h2 id="stats-goal-dialog-title" className="mt-1 text-xl font-semibold">{t("stats.goal.dialogTitle", { year: data.goal.year })}</h2><p className="mt-2 text-sm text-[var(--blab-text-tertiary)]">{t("stats.goal.dialogDescription")}</p></div><button type="button" onClick={() => setGoalOpen(false)} aria-label={t("stats.goal.cancel")} className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><X aria-hidden="true" size={19} /></button></div><form className="mt-6" onSubmit={saveGoal} noValidate><label htmlFor="stats-goal-input" className="text-sm font-medium">{t("stats.goal.inputLabel")}</label><input id="stats-goal-input" data-testid="stats-goal-input" type="number" min="1" max="999" value={goalInput} onChange={(event) => setGoalInput(event.target.value)} placeholder={t("stats.goal.inputPlaceholder")} className="mt-2 min-h-12 w-full rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 text-base outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" aria-invalid={goalError} aria-describedby={goalError ? "stats-goal-error" : undefined} />{goalError ? <p id="stats-goal-error" className="mt-2 text-sm text-[var(--blab-color-error)]" role="alert" data-testid="stats-goal-error">{t("stats.goal.error")}</p> : null}<div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setGoalOpen(false)} className="min-h-11 rounded-xl px-4 py-2 text-sm text-[var(--blab-text-secondary)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">{t("stats.goal.cancel")}</button><button type="submit" disabled={goalSaving} className="min-h-11 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-goal-save">{goalSaving ? t("stats.goal.saving") : t("stats.goal.save")}</button></div></form></section></div> : null}
+      {customOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" data-testid="stats-custom-range-backdrop"><section ref={customDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="stats-custom-dialog-title" className="w-full max-w-md rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-overlay)]" data-testid="stats-custom-range-dialog"><div className="flex items-start justify-between gap-4"><div><h2 id="stats-custom-dialog-title" className="text-xl font-semibold">{t("stats.period.chooseRange")}</h2><p className="mt-2 text-sm text-[var(--blab-text-tertiary)]">{t("stats.period.rangeLabel")}</p></div><button type="button" onClick={() => setCustomOpen(false)} aria-label={t("stats.period.cancel")} className="grid min-h-11 min-w-11 place-items-center rounded-full hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"><X aria-hidden="true" size={19} /></button></div><div className="mt-5 grid gap-4"><label className="grid gap-2 text-sm font-medium">{t("stats.period.start")}<input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} min="2020-01-01" max={currentDay} className="min-h-12 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-start" /></label><label className="grid gap-2 text-sm font-medium">{t("stats.period.end")}<input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} min="2020-01-01" max={currentDay} className="min-h-12 rounded-xl border border-[var(--blab-glass-border)] bg-[var(--blab-surface-card)] px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-end" /></label></div>{customError ? <p className="mt-3 text-sm text-[var(--blab-color-error)]" role="alert" data-testid="stats-invalid-range">{t("stats.invalidRange")}</p> : null}<div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setCustomOpen(false)} className="min-h-11 rounded-xl px-4 py-2 text-sm text-[var(--blab-text-secondary)] hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">{t("stats.period.cancel")}</button><button type="button" onClick={applyCustomRange} className="min-h-11 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="stats-custom-apply">{t("stats.period.apply")}</button></div></section></div> : null}
+      {clearInsightOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><section ref={clearInsightDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="clear-ai-memory-title" className="w-full max-w-md rounded-[var(--blab-radius-card)] border border-[var(--blab-glass-border)] bg-[var(--blab-surface-elevated)] p-5 text-[var(--blab-text-primary)] shadow-[var(--blab-elevation-overlay)]" data-testid="clear-ai-memory-confirmation" data-parity-actions="cancel-ai-memory-clear confirm-ai-memory-clear"><h2 id="clear-ai-memory-title" className="text-xl font-semibold">{t("stats.ai.clearTitle")}</h2><p className="mt-2 text-sm text-[var(--blab-text-tertiary)]">{t("stats.ai.clearDescription")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setClearInsightOpen(false)} className="min-h-11 rounded-xl px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="clear-ai-memory-cancel">{t("stats.ai.clearCancel")}</button><button type="button" onClick={() => { setInsights([]); setInsightState("idle"); setClearInsightOpen(false); }} className="min-h-11 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]" data-testid="clear-ai-memory-confirm">{t("stats.ai.clearConfirm")}</button></div></section></div> : null}
     </main>
   );
 }

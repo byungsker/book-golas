@@ -18,13 +18,15 @@ import {
   requireUser,
   responseForError,
 } from "../_shared/consumer-contract.ts";
+import { executeThirdPartyAiOperation } from "../_shared/third-party-ai-consent.ts";
+import { AiUsageError, withAiBudget } from "../_shared/ai-usage.ts";
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return optionsResponse(req);
 
   try {
     methodGuard(req);
-    const { user } = await requireUser(req);
+    const { user, authClient } = await requireUser(req);
     const body = await parseJsonBody(req);
     const suppliedUserId = requireString(body, "userId", 80) ?? "";
     const locale = body.locale === undefined ? "ko" : requireString(body, "locale", 8);
@@ -53,7 +55,21 @@ serve(async (req: Request) => {
     }
 
     const recommendationService = new RecommendationService(locale);
-    const recommendations = await recommendationService.generate(profile);
+    const providerOperation = await executeThirdPartyAiOperation(
+      authClient,
+      user.id,
+      "open_ai",
+      () => withAiBudget(
+        authClient,
+        JSON.stringify(profile).length,
+        () => recommendationService.generate(profile),
+        { functionName: "recommend-next-books", feature: "recommendations", provider: "open_ai", model: "gpt-4o-mini", promptVersion: "recommendations-v1" },
+      ),
+    );
+    if (!providerOperation.allowed) {
+      throw new ContractError(403, "consent_required", "Current OpenAI consent is required");
+    }
+    const recommendations = providerOperation.value;
     const response: RecommendationResponse = {
       success: true,
       recommendations,
@@ -68,6 +84,7 @@ serve(async (req: Request) => {
     return jsonResponse(response as unknown as Record<string, unknown>, req);
   } catch (error) {
     if (error instanceof ContractError) return responseForError(error, req, "recommend-next-books");
+    if (error instanceof AiUsageError) return responseForError(new ContractError(error.status, error.code, "AI policy blocked this operation"), req, "recommend-next-books");
     return responseForError(providerFailure(error), req, "recommend-next-books");
   }
 });

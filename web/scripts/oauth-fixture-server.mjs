@@ -1,7 +1,11 @@
 import http from "node:http";
 
 const hostname = "127.0.0.1";
-const port = 54329;
+const configuredPort = Number.parseInt(process.env.BOOKGOLAS_OAUTH_FIXTURE_PORT ?? "54329", 10);
+if (!Number.isInteger(configuredPort) || configuredPort < 1 || configuredPort > 65535) {
+  throw new Error("BOOKGOLAS_OAUTH_FIXTURE_PORT must be a valid TCP port");
+}
+const port = configuredPort;
 const now = "2026-09-16T00:00:00.000Z";
 const userId = "00000000-0000-4000-8000-000000004240";
 

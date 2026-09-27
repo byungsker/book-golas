@@ -18,10 +18,65 @@ if (!projectId) {
   process.exit(1);
 }
 
-const result = spawnSync(
-  "supabase",
-  ["db", "reset", "--local", "--sql-paths", "../web/fixtures/supabase/seed.sql", "--yes"],
-  { cwd: repositoryRoot, stdio: "inherit" },
+const localDockerContext = process.env.BOOKGOLAS_LOCAL_DOCKER_CONTEXT ?? "colima";
+const dockerInfoCommand = `docker --context ${localDockerContext} info --format {{.ServerVersion}}`;
+const supabaseCliArguments = ["--yes", "supabase@2.108.0"];
+
+function reportDockerBlocked(detail) {
+  console.error(`local fixture preflight BLOCKED: owner=local Colima operator; missing_dependency=local Docker daemon/socket; command=${dockerInfoCommand}; timeout_ms=15000; next_step=start Colima, wait for the local socket, then rerun npm run test:fixtures:runtime; detail=${detail}`);
+  process.exit(1);
+}
+
+function requireLocalDocker() {
+  const context = spawnSync("docker", ["context", "inspect", localDockerContext, "--format", "{{.Endpoints.docker.Host}}"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+    timeout: 5_000,
+  });
+  const endpoint = context.stdout?.trim() ?? "";
+  if (context.error || context.status !== 0 || !endpoint.startsWith("unix://")) {
+    reportDockerBlocked(context.error?.message ?? context.stderr?.trim() ?? `local context endpoint is unavailable: ${endpoint || "none"}`);
+  }
+  const info = spawnSync("docker", ["--context", localDockerContext, "info", "--format", "{{.ServerVersion}}"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+    timeout: 15_000,
+  });
+  if (info.error || info.status !== 0) reportDockerBlocked(info.error?.message ?? info.stderr?.trim() ?? "command failed");
+  delete process.env.DOCKER_HOST;
+  process.env.DOCKER_CONTEXT = localDockerContext;
+}
+
+function runSupabase(args, options = {}) {
+  return spawnSync("npx", [...supabaseCliArguments, ...args], {
+    cwd: repositoryRoot,
+    ...options,
+  });
+}
+
+function requireSupabaseCli() {
+  const result = runSupabase(["--version"], { encoding: "utf8", timeout: 30_000 });
+  if (result.error || result.status !== 0) {
+    const detail = result.error?.message ?? result.stderr.trim() ?? "command failed";
+    console.error(`local fixture preflight unavailable: Supabase CLI 2.108.0: ${detail}`);
+    process.exit(result.status ?? 1);
+  }
+  if (result.stdout.trim() !== "2.108.0") {
+    console.error(`local fixture preflight unavailable: expected Supabase CLI 2.108.0, received ${result.stdout.trim() || "no version"}`);
+    process.exit(1);
+  }
+}
+
+requireLocalDocker();
+requireSupabaseCli();
+if (process.argv.includes("--preflight")) {
+  console.log("local fixture preflight passed: Docker daemon and Supabase CLI 2.108.0 are available");
+  process.exit(0);
+}
+
+const result = runSupabase(
+  ["db", "reset", "--local", "--no-seed", "--yes"],
+  { stdio: "inherit", timeout: 300_000 },
 );
 
 if (result.error) {
@@ -32,10 +87,39 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-const readLocalEnv = () => {
-  const status = spawnSync("supabase", ["status", "--output", "env"], {
+const seedPath = path.join(repositoryRoot, "web/fixtures/supabase/seed.sql");
+const seed = spawnSync(
+  "docker",
+  [
+    "--context",
+    localDockerContext,
+    "exec",
+    "-i",
+    `supabase_db_${projectId}`,
+    "psql",
+    "--set",
+    "ON_ERROR_STOP=on",
+    "--username",
+    "postgres",
+    "--dbname",
+    "postgres",
+  ],
+  {
     cwd: repositoryRoot,
+    input: fs.readFileSync(seedPath),
+    stdio: ["pipe", "inherit", "inherit"],
+    timeout: 30_000,
+  },
+);
+if (seed.error || seed.status !== 0) {
+  console.error(`local Supabase fixture seed failed: ${seed.error?.message ?? "psql command failed"}`);
+  process.exit(seed.status ?? 1);
+}
+
+const readLocalEnv = () => {
+  const status = runSupabase(["status", "--output", "env"], {
     encoding: "utf8",
+    timeout: 30_000,
   });
   if (status.error || status.status !== 0) {
     console.error(`local Supabase status could not be read: ${status.error?.message ?? "status command failed"}`);
@@ -64,20 +148,6 @@ const readLocalEnv = () => {
   return { apiUrl, serviceRoleKey };
 };
 
-const restartLocalSupabase = () => {
-  const stop = spawnSync("supabase", ["stop", "--project-id", projectId], {
-    cwd: repositoryRoot,
-    stdio: "ignore",
-  });
-  if (stop.error || stop.status !== 0) return false;
-
-  const start = spawnSync("supabase", ["start", "--yes"], {
-    cwd: repositoryRoot,
-    stdio: "ignore",
-  });
-  return !start.error && start.status === 0;
-};
-
 const createLocalAdminClient = ({ apiUrl, serviceRoleKey }) => createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
   global: {
@@ -100,11 +170,7 @@ for (const image of fixtureManifest.images) {
       uploaded = true;
       break;
     }
-    if (attempt === 0 && restartLocalSupabase()) {
-      localEnv = readLocalEnv();
-      supabaseAdmin = createLocalAdminClient(localEnv);
-      continue;
-    }
+    if (attempt === 0) continue;
     console.error(`local Supabase storage fixture upload failed for ${storagePath}: ${error.message}`);
     process.exit(1);
   }

@@ -2,6 +2,12 @@ export const consumerLocales = ["ko", "en"] as const;
 
 export type ConsumerLocale = (typeof consumerLocales)[number];
 
+export type ConsumerBookDeepLink =
+  | { kind: "search" }
+  | { kind: "detail" | "record" | "scan"; bookId: string };
+
+const consumerBookIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const consumerRoutePattern = /^\/(?:auth\/(?:sign-in|sign-up|reset-password|callback)|announcements|onboarding|home|library|stats|reading-insights|calendar|account(?:\/notifications)?|account-deleted|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
 const protectedConsumerRoutePattern = /^\/(?:announcements|onboarding|home|library|stats|reading-insights|calendar|account(?:\/notifications)?|book-list|books\/(?:new|scan|[0-9a-f-]{36}(?:\/(?:review|mind-map))?)|reading\/[0-9a-f-]{36}|subscription)(?:[/?#]|$)/i;
 
@@ -15,6 +21,19 @@ export function getConsumerPath(
 ): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `/${locale}${normalizedPath}`;
+}
+
+export function getCanonicalBookDeepLinkPath(
+  locale: ConsumerLocale,
+  link: ConsumerBookDeepLink,
+): string | null {
+  if (link.kind === "search") return getConsumerPath(locale, "/books/new");
+  if (!consumerBookIdPattern.test(link.bookId)) return null;
+
+  const detailPath = getConsumerPath(locale, `/books/${link.bookId}`);
+  if (link.kind === "record") return `${detailPath}?tab=history`;
+  if (link.kind === "scan") return `${detailPath}?scan=1`;
+  return detailPath;
 }
 
 /**

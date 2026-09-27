@@ -6,6 +6,7 @@ const fixtureRoot = path.join(webRoot, "fixtures/supabase");
 const manifestPath = path.join(fixtureRoot, "consumer-fixtures.json");
 const seedPath = path.join(fixtureRoot, "seed.sql");
 const resetScriptPath = path.join(webRoot, "scripts/reset-local-fixtures.mjs");
+const runtimeScriptPath = path.join(webRoot, "scripts/test-fixtures-runtime.mjs");
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 const seed = fs.readFileSync(seedPath, "utf8");
 const normalizedSeed = seed
@@ -14,6 +15,7 @@ const normalizedSeed = seed
   .replace(/\s+\)/g, ")")
   .trim();
 const resetScript = fs.readFileSync(resetScriptPath, "utf8");
+const runtimeScript = fs.readFileSync(runtimeScriptPath, "utf8");
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const secretPatterns = [
   /service[_-]?role[_-]?key\s*[:=]\s*[^$\s]+/i,
@@ -41,10 +43,24 @@ requireCondition(
   "seed must not mutate storage.objects directly",
 );
 requireCondition(resetScript.includes('"--local"'), "reset script must remain local-only");
+requireCondition(resetScript.includes('"docker"'), "reset script must preflight the Docker daemon");
+requireCondition(resetScript.includes('"npx"'), "reset script must invoke the task-scoped Supabase CLI");
+requireCondition(resetScript.includes("local fixture preflight unavailable"), "reset script must classify unavailable local infrastructure");
+requireCondition(resetScript.includes("local fixture preflight BLOCKED"), "reset script must name the blocked local Docker owner and recovery step");
+requireCondition(resetScript.includes('"--context"'), "reset script must pin the local Docker context");
+requireCondition(!resetScript.includes('["stop", "--project-id", projectId]'), "reset script must not stop a shared local Supabase service");
+requireCondition(resetScript.includes('"supabase@2.108.0"'), "reset script must pin the supported task-scoped Supabase CLI");
+requireCondition(!resetScript.includes('spawnSync("supabase"'), "reset script must not invoke the defective global Supabase CLI");
+requireCondition(runtimeScript.includes("cycle <= 2"), "runtime fixture must prove two repeatable reset cycles");
+requireCondition(runtimeScript.includes('from("books")'), "runtime fixture must query books through authenticated RLS");
+requireCondition(runtimeScript.includes("foreignBookVisible: false"), "runtime fixture must report foreign book isolation");
+requireCondition(runtimeScript.includes("foreignStorageVisible: false"), "runtime fixture must report foreign storage isolation");
 requireCondition(
-  resetScript.includes('"../web/fixtures/supabase/seed.sql"'),
-  "reset script must resolve the seed path from the Supabase directory",
+  resetScript.includes('"web/fixtures/supabase/seed.sql"'),
+  "reset script must resolve the fixture seed from the repository root",
 );
+requireCondition(resetScript.includes('"--no-seed"'), "reset script must disable the unsupported CLI seed path");
+requireCondition(resetScript.includes('`supabase_db_${projectId}`'), "reset script must seed only the verified local project container");
 requireCondition(resetScript.includes('storage.from("book-images")'), "reset script is missing storage upload");
 requireCondition(resetScript.includes("upsert: true"), "storage fixture upload must be idempotent");
 

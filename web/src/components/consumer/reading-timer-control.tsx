@@ -6,12 +6,12 @@ import { useTranslations } from "next-intl";
 import { ConsumerButton, ConsumerCard } from "@/components/consumer/blab-primitives";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConsumerDialogContent as DialogContent } from "@/components/consumer/consumer-dialog-content";
 import type { Book } from "@/lib/product/contracts";
 import { useConsumerTimer } from "./consumer-timer-provider";
 
@@ -101,7 +101,7 @@ export function ReadingTimerControl({ book }: ReadingTimerControlProps) {
       ) : null}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent data-testid="reading-timer-dialog">
+        <DialogContent data-testid="reading-timer-dialog" data-parity-overlay="reading-timer" data-parity-actions="start-reading-session pause-reading-session finish-reading-session">
           <DialogHeader>
             <DialogTitle>{t("title")}</DialogTitle>
             <DialogDescription>{t("description")}</DialogDescription>

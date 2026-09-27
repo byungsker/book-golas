@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const evidenceDirectory = path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity");
+const evidenceDirectory = path.resolve(process.env.BOOKGOLAS_EVIDENCE_DIR ?? path.resolve(process.cwd(), "../.omo/evidence/bookgolas-web-app-parity"));
 
 async function setFixture(context: BrowserContext, value: string) {
   await context.addCookies([
@@ -21,7 +21,7 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: path.join(evidenceDirectory, name), fullPage: true });
 }
 
-test("profile avatar theme and language round trip", async ({ context, page }) => {
+test("language-change-confirmation completes the profile avatar theme and language round trip", async ({ context, page }) => {
   await openAccount(context, page, "account-settings-happy");
   await expect(page.getByTestId("account-settings")).toHaveAttribute("data-account-state", "ready");
   await expect(page.locator("#account-profile-nickname")).toHaveValue("Reader");
@@ -72,7 +72,7 @@ test("foreign profile update and avatar failure preserve ownership", async ({ co
   await expect.poll(async () => page.evaluate(async () => (await fetch("/api/consumer/account")).json())).toMatchObject({ profile: { avatarUrl: null } });
 });
 
-test("password validation and provider failure keep the password local", async ({ context, page }) => {
+test("password-change validation and provider failure keep the password local", async ({ context, page }) => {
   await openAccount(context, page, "account-settings-happy");
   await page.getByTestId("account-password-open").click();
   await page.getByTestId("account-password-save").click();
