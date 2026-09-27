@@ -221,17 +221,18 @@ def validate(
         )
     ]
     if restricted_paths:
-        if branch_type != "sync":
+        if branch_type not in {"sync", "release", "hotfix"}:
             raise PolicyError(
-                f"sync-only paths require a sync branch for {unit}: "
+                f"sync-only paths require a sync or promotion branch for {unit}: "
                 + ", ".join(restricted_paths[:5])
             )
-        mixed_paths = [path for path in changed_files if path not in restricted_paths]
-        if mixed_paths:
-            raise PolicyError(
-                f"sync-only paths cannot be mixed with other changes for {unit}: "
-                + ", ".join(mixed_paths[:5])
-            )
+        if branch_type == "sync":
+            mixed_paths = [path for path in changed_files if path not in restricted_paths]
+            if mixed_paths:
+                raise PolicyError(
+                    f"sync-only paths cannot be mixed with other changes for {unit}: "
+                    + ", ".join(mixed_paths[:5])
+                )
 
     expected = {
         "Target-Delivery-Unit": unit,
@@ -276,9 +277,15 @@ def validate(
                 f"promotion head is not a descendant of {source_branch} "
                 f"at {source_sha}"
             )
-        if base != production:
+        promotion_bases = policy.get("promotion_bases", [production])
+        if not isinstance(promotion_bases, list) or not all(
+            isinstance(candidate, str) and candidate for candidate in promotion_bases
+        ):
+            raise PolicyError(f"delivery unit {unit} has invalid promotion_bases")
+        if base not in promotion_bases:
             raise PolicyError(
-                f"{branch_type} base mismatch: observed {base!r}, expected {production!r}"
+                f"{branch_type} base mismatch: observed {base!r}, "
+                f"expected one of {promotion_bases!r}"
             )
     elif branch_type == "sync":
         allowed = policy.get("sync_bases", ["dev", f"version/{unit}/{version}"])

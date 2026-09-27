@@ -57,6 +57,10 @@
           "1.0.2": {
             "branch": "version/web/1.0.2",
             "sha": "df9db70c2311bce152498d43ac5162a850ad5239"
+          },
+          "1.1.0": {
+            "branch": "version/web/1.1.0",
+            "sha": "52e9c1db19b307200acef66eef73b86122b315d8"
           }
         },
         "hotfix": {}

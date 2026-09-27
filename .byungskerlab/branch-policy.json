@@ -33,7 +33,8 @@
         ".github/workflows/quality.yml",
         ".github/workflows/schema-check.yml",
         "AGENTS.md",
-        "docs/product-roadmap.md"
+        "docs/product-roadmap.md",
+        ".omo/plans/**"
       ]
     },
     "mobile": {
@@ -89,6 +90,10 @@
       },
       "sync_only_paths": [
         ".github/workflows/quality.yml"
+      ],
+      "promotion_bases": [
+        "main",
+        "dev"
       ]
     },
     "backend": {

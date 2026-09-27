@@ -239,5 +239,64 @@ class WebVersionPathTests(unittest.TestCase):
                 self.registry,
             )
 
+
+class WebPromotionTests(unittest.TestCase):
+    def test_accepts_web_release_promotion_to_dev_with_quality_workflow(self):
+        config = {
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "web": {
+                    "profile": "web-release-train",
+                    "mode": "version-line",
+                    "active_versions": ["1.0.2", "1.1.0"],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "promotion_bases": ["main", "dev"],
+                    "allowed_paths": [
+                        "AGENTS.md",
+                        ".github/workflows/quality.yml",
+                        "docs/**",
+                        "web/**",
+                    ],
+                    "additional_allowed_paths_by_version": {
+                        "1.1.0": [
+                            ".omo/evidence/bookgolas-web-app-parity/**",
+                            "supabase/migrations/**",
+                            "supabase/functions/**",
+                        ],
+                    },
+                },
+            },
+        }
+        registry = {
+            "delivery_units": {
+                "web": {
+                    "active_versions": ["1.0.2", "1.1.0"],
+                    "promotion_sources": {
+                        "release": {
+                            "1.1.0": {
+                                "branch": "version/web/1.1.0",
+                                "sha": "52e9c1db19b307200acef66eef73b86122b315d8",
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        result = validate(
+            config,
+            "codex/release/web/1.1.0",
+            "dev",
+            "Target-Delivery-Unit: web\n"
+            "Target-Version: 1.1.0\n"
+            "Delivery-Profile: web-release-train\n"
+            "Promotion-Source-SHA: 52e9c1db19b307200acef66eef73b86122b315d8\n",
+            [".github/workflows/quality.yml", "web/src/app/page.tsx"],
+            registry,
+            ancestry_checker=lambda _sha: True,
+        )
+        self.assertIn("web-release-train", result)
+
+
 if __name__ == "__main__":
     unittest.main()
