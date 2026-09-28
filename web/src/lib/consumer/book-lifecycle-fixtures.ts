@@ -1,4 +1,4 @@
-import type { ConsumerBook } from "./types";
+import type { ConsumerBook } from "@/entities/book";
 import {
   BookSchema,
   type Book,

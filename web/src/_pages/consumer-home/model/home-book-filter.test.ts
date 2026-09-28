@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { getHomeBookListFixtureBooks } from "./home-book-list-fixtures";
+import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 import {
-  getDaysUntilTarget,
-  getEffectiveBookStatus,
   getHomeBookListStatus,
   getHomeBookListView,
   selectHomeBookListBooks,
-} from "./home-book-list";
-import type { ConsumerBook } from "./types";
+} from "./home-book-filter";
+import {
+  getDaysUntilTarget,
+  getEffectiveBookStatus,
+  type ConsumerBook,
+} from "@/entities/book";
 
 function book(overrides: Partial<ConsumerBook> = {}): ConsumerBook {
   return {

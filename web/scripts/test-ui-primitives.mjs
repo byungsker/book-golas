@@ -9,7 +9,7 @@ const paths = {
   package: path.join(webRoot, "package.json"),
   layout: path.join(webRoot, "src/app/layout.tsx"),
   css: path.join(webRoot, "src/app/globals.css"),
-  adapter: path.join(webRoot, "src/components/consumer/blab-primitives.tsx"),
+  adapter: path.join(webRoot, "src/shared/ui/BLabPrimitives.tsx"),
   showcase: path.join(webRoot, "src/components/consumer/ui-primitives-showcase.tsx"),
   route: path.join(webRoot, "src/app/[locale]/ui-primitives/page.tsx"),
   e2e: path.join(webRoot, "tests/e2e/ui-primitives.spec.ts"),

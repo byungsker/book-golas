@@ -4,7 +4,7 @@ import {
   getBookProgress,
   isValidReadingPage,
   parseConsumerBook,
-} from "./types";
+} from "@/entities/book";
 
 describe("consumer route and book contracts", () => {
   it("keeps next redirects inside the current locale consumer surface", () => {

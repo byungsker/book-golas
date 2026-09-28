@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ConsumerButton } from "@/components/consumer/blab-primitives";
-import { formatBookDate } from "@/lib/consumer/types";
+import { formatBookDate } from "@/entities/book";
 import {
   BookIdSchema,
   ProgressUiResponseSchema,

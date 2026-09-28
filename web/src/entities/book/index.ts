@@ -11,4 +11,4 @@ export {
   toSafeInteger,
   type ConsumerBook,
   type ConsumerBookStatus,
-} from "@/entities/book";
+} from "./model/book";

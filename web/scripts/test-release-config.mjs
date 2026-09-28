@@ -90,10 +90,11 @@ requireCondition(config.runtime?.buildCommand === "npm run build", "runtime buil
 requireCondition(config.runtime?.buildGate === "npm run test:release-config", "runtime build gate is missing");
 requireCondition(config.runtime?.fixtureServer === "loopback-only", "fixture server must be loopback-only");
 requireCondition(packageJson.dependencies?.next === config.nextVersion, "package Next version does not match release config");
-requireCondition(packageJson.scripts?.build === "npm run test:release-config && next build", "build must run release config before next build");
+requireCondition(packageJson.scripts?.build === "npm run test:release-config && npm run test:fsd && next build", "build must run release and FSD boundary checks before Next build");
 requireCondition(packageJson.scripts?.["test:release-config"] === "node scripts/test-release-config.mjs", "positive release config script is missing");
+requireCondition(packageJson.scripts?.["test:fsd"] === "node scripts/test-fsd-boundaries.mjs", "FSD boundary script is missing");
 requireCondition(packageJson.scripts?.["test:release-config:negative"] === "node scripts/test-release-config.mjs --fixture missing-required-env", "negative release config script is missing");
-requireCondition(packageJson.scripts?.test?.startsWith("npm run test:release-config &&"), "full test must include release config gate");
+requireCondition(packageJson.scripts?.test?.startsWith("npm run test:release-config && npm run test:fsd &&"), "full test must include release config and FSD boundary gates");
 requireIncludes(envExample, ".env.example", [
   "NEXT_PUBLIC_SUPABASE_URL=",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY=",

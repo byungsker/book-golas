@@ -25,7 +25,7 @@ const paths = {
   fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
   proxy: path.join(root, "src/proxy.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  pathsSource: path.join(root, "src/lib/consumer/paths.ts"),
+  pathsSource: path.join(root, "src/shared/routing/consumer-paths.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
   e2e: path.join(root, "tests/e2e/ai-artifacts.spec.ts")

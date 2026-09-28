@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import type { ConsumerLocale } from "@/lib/consumer/paths";
 import { formatTimerDuration } from "@/lib/consumer/timer-state";
-import { formatBookDate } from "@/lib/consumer/types";
+import { formatBookDate } from "@/entities/book";
 import {
   BookDetailResponseSchema,
   canApplyBookDetailAction,

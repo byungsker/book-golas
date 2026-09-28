@@ -18,7 +18,7 @@ import {
   type ProductError,
   type ProductResult,
 } from "@/lib/product/dal/errors";
-import type { ConsumerBook } from "./types";
+import type { ConsumerBook } from "@/entities/book";
 
 const fixtureUserId = "00000000-0000-0000-0000-000000000001";
 const fixtureNow = "2026-09-16T00:00:00.000Z";

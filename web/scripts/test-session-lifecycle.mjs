@@ -7,7 +7,7 @@ const paths = {
   contract: path.join(root, "docs/session-lifecycle-contract.json"),
   fixture: path.join(root, "scripts/fixtures/session-lifecycle-negative.json"),
   manifest: path.join(root, "package.json"),
-  paths: path.join(root, "src/lib/consumer/paths.ts"),
+  paths: path.join(root, "src/shared/routing/consumer-paths.ts"),
   routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
   proxy: path.join(root, "src/proxy.ts"),

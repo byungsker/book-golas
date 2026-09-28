@@ -1,6 +1,6 @@
+export { getConsumerPath } from "./consumer";
 export {
   consumerLocales,
-  getConsumerPath,
   getConsumerSignInRedirectPath,
   getSafeNextPath,
   isConsumerLocale,
@@ -8,4 +8,4 @@ export {
   isProtectedConsumerRoutePath,
   isUnprefixedConsumerRoutePath,
   type ConsumerLocale,
-} from "@/shared/routing";
+} from "./consumer-paths";

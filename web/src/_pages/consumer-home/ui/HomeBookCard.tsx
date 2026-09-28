@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { getConsumerPath, type ConsumerLocale } from "@/lib/consumer/paths";
+import type { AppLocale } from "@/shared/config";
 import {
   formatBookDate,
   getBookProgress,
+  getDaysUntilTarget,
+  getEffectiveBookStatus,
   type ConsumerBook,
-} from "@/lib/consumer/types";
-import { getDaysUntilTarget, getEffectiveBookStatus } from "@/lib/consumer/home-book-list";
+} from "@/entities/book";
 
 type HomeBookCardProps = {
   book: ConsumerBook;
-  locale: ConsumerLocale;
+  locale: AppLocale;
+  href: string;
   statusLabel: string;
   openLabel: string;
   progressLabel: string;
@@ -24,6 +26,7 @@ type HomeBookCardProps = {
 export function HomeBookCard({
   book,
   locale,
+  href,
   statusLabel,
   openLabel,
   progressLabel,
@@ -96,7 +99,7 @@ export function HomeBookCard({
       </div>
 
       <Link
-        href={getConsumerPath(locale, `/books/${book.id}`)}
+        href={href}
         className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[var(--blab-glass-border)] px-4 py-2 text-sm font-medium text-[var(--blab-text-primary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]"
       >
         {openLabel}

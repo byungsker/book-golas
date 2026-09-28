@@ -11,4 +11,6 @@ export {
   ConsumerSnackbar,
   ConsumerTabBar,
   ConsumerTextField,
-} from "@/shared/ui";
+} from "./BLabPrimitives";
+export { ConsumerNotice } from "./ConsumerNotice";
+export { RefreshButton } from "./RefreshButton";

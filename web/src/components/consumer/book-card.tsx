@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getConsumerPath, type ConsumerLocale } from "@/lib/consumer/paths";
-import { getBookProgress, type ConsumerBook } from "@/lib/consumer/types";
+import { getBookProgress, type ConsumerBook } from "@/entities/book";
 
 type BookCardProps = {
   book: ConsumerBook;

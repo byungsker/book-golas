@@ -7,7 +7,7 @@ import {
   isBookId,
   parseConsumerBook,
   type ConsumerBook,
-} from "@/lib/consumer/types";
+} from "@/entities/book";
 import { getHomeBookListFixtureBooks } from "@/lib/consumer/home-book-list-fixtures";
 import { getBookLifecycleFixtureConsumerBook } from "@/lib/consumer/book-lifecycle-fixtures";
 import { getBookDetailFixture, getBookDetailFixtureConsumerBook } from "@/lib/consumer/book-detail-fixtures";

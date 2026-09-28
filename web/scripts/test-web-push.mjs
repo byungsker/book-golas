@@ -23,7 +23,7 @@ const paths = {
   fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
   proxy: path.join(root, "src/proxy.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  paths: path.join(root, "src/lib/consumer/paths.ts"),
+  paths: path.join(root, "src/shared/routing/consumer-paths.ts"),
   matrix: path.join(root, "docs/consumer-parity-matrix.md"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),

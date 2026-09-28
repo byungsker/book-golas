@@ -7,7 +7,7 @@ import {
   isBookId,
   parseConsumerBook,
   type ConsumerBook,
-} from "@/lib/consumer/types";
+} from "@/entities/book";
 import { isConsumerLocale } from "@/lib/consumer/paths";
 import { RequestIdSchema } from "@/lib/product/contracts/common";
 

@@ -6,7 +6,7 @@ import path from "node:path";
 const webRoot = path.resolve(import.meta.dirname, "..");
 const contractPath = path.join(webRoot, "docs/blab-react-parity-contract.json");
 const packagePath = path.join(webRoot, "package.json");
-const adapterPath = path.join(webRoot, "src/components/consumer/blab-primitives.tsx");
+const adapterPath = path.join(webRoot, "src/shared/ui/BLabPrimitives.tsx");
 const vendorReadmePath = path.join(webRoot, "vendor/README.md");
 const artifactPath = path.join(webRoot, "vendor/byungsker-blab-design-system-0.2.0.tgz");
 const lockPath = path.join(webRoot, "package-lock.json");

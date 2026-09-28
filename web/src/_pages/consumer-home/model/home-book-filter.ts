@@ -1,4 +1,8 @@
-import type { ConsumerBook, ConsumerBookStatus } from "./types";
+import {
+  getEffectiveBookStatus,
+  type ConsumerBook,
+  type ConsumerBookStatus,
+} from "@/entities/book";
 
 export const homeBookListViews = [
   "reading",
@@ -22,12 +26,6 @@ export function getHomeBookListView(value: string | null | undefined): HomeBookL
   return homeBookListViews.includes(value as HomeBookListView)
     ? (value as HomeBookListView)
     : "reading";
-}
-
-export function getEffectiveBookStatus(book: ConsumerBook): ConsumerBookStatus {
-  if (book.status === "completed") return "completed";
-  if (book.totalPages > 0 && book.currentPage >= book.totalPages) return "completed";
-  return book.status;
 }
 
 export function getHomeBookListStatus(view: HomeBookListView): HomeBookListStatus | null {
@@ -79,16 +77,4 @@ export function selectHomeBookListBooks(
     .filter((book) => selectedStatus === null || getEffectiveBookStatus(book) === selectedStatus)
     .slice()
     .sort(compareBooks);
-}
-
-export function getDaysUntilTarget(
-  targetDate: string,
-  now: Date = new Date(),
-): number | null {
-  const target = new Date(targetDate);
-  if (Number.isNaN(target.getTime())) return null;
-
-  const targetDay = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
-  const todayDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  return Math.round((targetDay - todayDay) / 86_400_000);
 }

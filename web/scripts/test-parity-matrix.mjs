@@ -732,7 +732,7 @@ if (fixtureName === "complete-with-self-authored-runtime-artifact") {
     {
       kind: "data",
       source: "web/src/proxy.ts",
-      artifact: "web/src/lib/consumer/paths.ts",
+      artifact: "web/src/shared/routing/consumer-paths.ts",
       source_contains: "export async function proxy",
       artifact_contains: "export function getSafeNextPath",
       observation: "Self-authored runtime artifact",
@@ -741,7 +741,7 @@ if (fixtureName === "complete-with-self-authored-runtime-artifact") {
     {
       kind: "browser",
       source: "web/src/proxy.test.ts",
-      artifact: "web/src/lib/consumer/paths.ts",
+      artifact: "web/src/shared/routing/consumer-paths.ts",
       source_contains: "describe(\"consumer locale proxy\"",
       artifact_contains: "export function getSafeNextPath",
       observation: "Self-authored runtime artifact",
@@ -764,7 +764,7 @@ if (fixtureName === "complete-with-unit-test-browser-evidence") {
     },
     {
       kind: "browser",
-      source: "web/src/lib/consumer/paths.ts",
+      source: "web/src/shared/routing/consumer-paths.ts",
       artifact: "web/src/lib/consumer/paths.test.ts",
       source_contains: "export function getSafeNextPath",
       artifact_contains: "describe(\"consumer next paths\"",
