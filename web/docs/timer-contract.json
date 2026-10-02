@@ -14,9 +14,9 @@
   "web": {
     "route": "/{locale}/books/{bookId}",
     "readingRoute": "/{locale}/reading/{bookId}",
-    "control": "src/components/consumer/reading-timer-control.tsx",
-    "floatingBar": "src/components/consumer/floating-timer-bar.tsx",
-    "provider": "src/components/consumer/consumer-timer-provider.tsx",
+    "control": "src/features/reading-timer/ui/ReadingTimerControl.tsx",
+    "floatingBar": "src/features/reading-timer/ui/FloatingTimerBar.tsx",
+    "provider": "src/features/reading-timer/ui/ConsumerTimerProvider.tsx",
     "api": "/api/consumer/timer",
     "browserDisposition": {
       "start": "localStorage state is created before the first server request",

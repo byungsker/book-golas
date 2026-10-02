@@ -7,19 +7,19 @@ const paths = {
   contract: path.join(root, "docs/ai-consent-contract.json"),
   fixture: path.join(root, "scripts/fixtures/ai-consent-negative.json"),
   package: path.join(root, "package.json"),
-  source: path.join(root, "src/lib/product/contracts/ai-consent.ts"),
-  sourceTest: path.join(root, "src/lib/product/contracts/ai-consent.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/ai-consent-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/ai-consent-fixtures.test.ts"),
-  disclosures: path.join(root, "src/lib/consumer/ai-consent-disclosures.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
+  source: path.join(root, "src/features/ai-consent/api/ai-consent-contracts.ts"),
+  sourceTest: path.join(root, "src/features/ai-consent/api/ai-consent-contracts.test.ts"),
+  fixtureSource: path.join(root, "src/features/ai-consent/model/fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/ai-consent/model/fixtures.test.ts"),
+  disclosures: path.join(root, "src/features/ai-consent/model/disclosures.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  api: path.join(root, "src/app/api/consumer/ai-consent/route.ts"),
-  apiTest: path.join(root, "src/app/api/consumer/ai-consent/route.test.ts"),
-  component: path.join(root, "src/components/consumer/ai-consent-settings.tsx"),
-  genericConsent: path.join(root, "src/components/consumer/consent-settings.tsx"),
-  account: path.join(root, "src/app/[locale]/(consumer)/account/page.tsx"),
+  proxy: path.join(root, "proxy.ts"),
+  api: path.join(root, "app/api/consumer/ai-consent/route.ts"),
+  apiTest: path.join(root, "app/api/consumer/ai-consent/route.test.ts"),
+  component: path.join(root, "src/_pages/account/ui/AiConsentSettings.tsx"),
+  genericConsent: path.join(root, "src/_pages/account/ui/ConsentSettings.tsx"),
+  account: path.join(root, "src/_pages/account/ui/AccountPage.tsx"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
   e2e: path.join(root, "tests/e2e/ai-consent.spec.ts"),
@@ -65,7 +65,7 @@ if (failures.length === 0) {
   requireCondition(fixture.issue === 438 && fixture.task === 28 && fixture.plan === contract.plan, "AI consent negative fixture metadata is incomplete");
   requireCondition(fixture.fixtures?.length >= 15, "AI consent negative fixtures must cover the full error/state matrix");
   requireCondition(new Set(fixture.fixtures?.map((item) => item.routeFixture)).size === fixture.fixtures?.length, "AI consent fixture names must be unique");
-  requireCondition(packageJson.scripts?.["test:ai-consent-states"] === "node scripts/test-ai-consent-states.mjs && vitest run src/lib/product/contracts/ai-consent.test.ts src/lib/consumer/ai-consent-fixtures.test.ts src/app/api/consumer/ai-consent/route.test.ts", "package must expose the exact AI consent acceptance command");
+  requireCondition(packageJson.scripts?.["test:ai-consent-states"] === "node scripts/test-ai-consent-states.mjs && vitest run src/features/ai-consent/api/ai-consent-contracts.test.ts src/features/ai-consent/model/fixtures.test.ts app/api/consumer/ai-consent/route.test.ts", "package must expose the exact AI consent acceptance command");
   requireCondition(packageJson.scripts?.["test:ai-consent-states:negative"] === "node scripts/test-ai-consent-states.mjs --fixture unauthorized && node scripts/test-ai-consent-states.mjs --fixture consent && node scripts/test-ai-consent-states.mjs --fixture input-too-large && node scripts/test-ai-consent-states.mjs --fixture daily-rate-limit && node scripts/test-ai-consent-states.mjs --fixture quota && node scripts/test-ai-consent-states.mjs --fixture concurrency && node scripts/test-ai-consent-states.mjs --fixture budget && node scripts/test-ai-consent-states.mjs --fixture hard-cap && node scripts/test-ai-consent-states.mjs --fixture timeout && node scripts/test-ai-consent-states.mjs --fixture provider && node scripts/test-ai-consent-states.mjs --fixture configuration && node scripts/test-ai-consent-states.mjs --fixture unknown", "package must expose the exact AI consent negative command");
 
   requireCondition(source.source.includes("AI_CONSENT_POLICY_VERSION = 2") && source.source.includes('"google_cloud_vision"') && source.source.includes('"open_ai"'), "contract must pin both provider values and policy version");

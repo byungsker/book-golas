@@ -23,7 +23,7 @@
   "web": {
     "route": "/{locale}/books/{bookId}",
     "api": "/api/consumer/notes-highlights",
-    "component": "src/components/consumer/notes-highlights-client.tsx",
+    "component": "src/features/notes-highlights/ui/NotesHighlightsClient.tsx",
     "browserDisposition": "supported_with_web_forms_and_page_navigation",
     "storage": "consumer_reading_records",
     "indexing": "separate_side_effect_after_owner_save",

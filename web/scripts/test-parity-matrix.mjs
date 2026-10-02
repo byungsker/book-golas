@@ -532,7 +532,7 @@ if (fixtureName === "missing-native-action") {
 if (fixtureName === "invalid-billing-route") {
   ledger.routes.find((entry) => entry.id === "subscription").web = {
     ...ledger.routes.find((entry) => entry.id === "subscription").web,
-    target: ["web/src/app/[locale]/subscription/page.tsx"],
+    target: ["web/app/[locale]/subscription/page.tsx"],
     disposition: "route",
     status: "planned",
   };
@@ -551,7 +551,7 @@ if (fixtureName === "invalid-billing-claim") {
   ledger.routes[0].notes = "RevenueCat purchase and upgrade surface";
   ledger.routes[0].web = {
     ...ledger.routes[0].web,
-    target: ["web/src/app/[locale]/billing/page.tsx"],
+    target: ["web/app/[locale]/billing/page.tsx"],
     disposition: "route",
     status: "planned",
   };
@@ -559,19 +559,19 @@ if (fixtureName === "invalid-billing-claim") {
 
 if (fixtureName === "invalid-disabled-current") {
   ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.current = [
-    "web/src/app/[locale]/page.tsx",
+    "web/app/[locale]/page.tsx",
   ];
 }
 
 if (fixtureName === "invalid-disabled-current-type") {
   ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.current = {
-    path: "web/src/app/[locale]/page.tsx",
+    path: "web/app/[locale]/page.tsx",
   };
 }
 
 if (fixtureName === "invalid-disabled-target-type") {
   ledger.native_only_capabilities.find((entry) => entry.id === "subscriptions").web.target = {
-    path: "web/src/app/[locale]/page.tsx",
+    path: "web/app/[locale]/page.tsx",
   };
 }
 
@@ -586,18 +586,18 @@ if (fixtureName === "complete-with-aliased-evidence") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/src/proxy.test.ts",
+      source: "app/lib/main.dart",
       artifact: "web/src/lib/consumer/paths.test.ts",
-      source_contains: "describe(\"consumer locale proxy\"",
+      source_contains: "Future<void> main()",
       artifact_contains: "getSafeNextPath",
       observation: "Data contract observation",
       commit: currentCommit,
     },
     {
       kind: "browser",
-      source: "web/src/./proxy.test.ts",
+      source: "app/./lib/main.dart",
       artifact: "web/tests/e2e/progress.spec.ts",
-      source_contains: "describe(\"consumer locale proxy\"",
+      source_contains: "Future<void> main()",
       artifact_contains: "progress moves forward",
       observation: "Browser contract observation",
       commit: currentCommit,
@@ -614,7 +614,7 @@ if (fixtureName === "invalid-native-source") {
 }
 
 if (fixtureName === "invalid-native-source-role") {
-  ledger.routes[0].native_source = ["web/src/lib/consumer/paths.ts"];
+  ledger.routes[0].native_source = ["web/src/shared/routing/consumer-paths.ts"];
 }
 
 if (fixtureName === "invalid-untracked-reference") {
@@ -731,8 +731,8 @@ if (fixtureName === "complete-with-self-authored-runtime-artifact") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/src/proxy.ts",
-      artifact: "web/src/lib/consumer/paths.ts",
+      source: "web/proxy.ts",
+      artifact: "web/src/shared/routing/consumer-paths.ts",
       source_contains: "export async function proxy",
       artifact_contains: "export function getSafeNextPath",
       observation: "Self-authored runtime artifact",
@@ -741,7 +741,7 @@ if (fixtureName === "complete-with-self-authored-runtime-artifact") {
     {
       kind: "browser",
       source: "web/src/proxy.test.ts",
-      artifact: "web/src/lib/consumer/paths.ts",
+      artifact: "web/src/shared/routing/consumer-paths.ts",
       source_contains: "describe(\"consumer locale proxy\"",
       artifact_contains: "export function getSafeNextPath",
       observation: "Self-authored runtime artifact",
@@ -755,7 +755,7 @@ if (fixtureName === "complete-with-unit-test-browser-evidence") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/src/proxy.ts",
+      source: "web/proxy.ts",
       artifact: "web/src/proxy.test.ts",
       source_contains: "export async function proxy",
       artifact_contains: "describe(\"consumer locale proxy\"",
@@ -764,8 +764,8 @@ if (fixtureName === "complete-with-unit-test-browser-evidence") {
     },
     {
       kind: "browser",
-      source: "web/src/lib/consumer/paths.ts",
-      artifact: "web/src/lib/consumer/paths.test.ts",
+      source: "web/src/shared/routing/consumer-paths.ts",
+      artifact: "web/src/shared/routing/consumer-paths.test.ts",
       source_contains: "export function getSafeNextPath",
       artifact_contains: "describe(\"consumer next paths\"",
       observation: "Browser contract observation",
@@ -847,18 +847,18 @@ if (fixtureName === "complete-with-cross-role-alias") {
   ledger.routes[0].evidence = [
     {
       kind: "data",
-      source: "web/src/proxy.ts",
+      source: "app/lib/main.dart",
       artifact: "web/src/proxy.test.ts",
-      source_contains: "export async function proxy",
+      source_contains: "Future<void> main()",
       artifact_contains: "describe(\"consumer locale proxy\"",
       observation: "Data contract observation",
       commit: currentCommit,
     },
     {
       kind: "browser",
-      source: "web/src/./proxy.test.ts",
+      source: "app/./lib/main.dart",
       artifact: "web/tests/e2e/progress.spec.ts",
-      source_contains: "describe(\"consumer locale proxy\"",
+      source_contains: "Future<void> main()",
       artifact_contains: "progress moves forward",
       observation: "Browser contract observation",
       commit: currentCommit,

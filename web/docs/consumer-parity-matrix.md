@@ -39,26 +39,26 @@ All consumer routes support the ko and en locale contract. Existing Web files ar
 
 | Native surface | Canonical Web URL | Current Web evidence | Status | Owner |
 | --- | --- | --- | --- | --- |
-| Sign in | /{locale}/auth/sign-in | web/src/app/[locale]/(auth)/auth/sign-in/page.tsx | partial | #423 |
-| Account creation | /{locale}/auth/sign-up | web/src/app/[locale]/(auth)/auth/sign-up/page.tsx | partial | #423 |
-| Password recovery | /{locale}/auth/reset-password | web/src/app/[locale]/(auth)/auth/reset-password/page.tsx | partial | #423 |
-| Terms WebView | /{locale}/terms | web/src/app/[locale]/terms/page.tsx | partial | #444 |
+| Sign in | /{locale}/auth/sign-in | web/app/[locale]/(auth)/auth/sign-in/page.tsx | partial | #423 |
+| Account creation | /{locale}/auth/sign-up | web/app/[locale]/(auth)/auth/sign-up/page.tsx | partial | #423 |
+| Password recovery | /{locale}/auth/reset-password | web/app/[locale]/(auth)/auth/reset-password/page.tsx | partial | #423 |
+| Terms WebView | /{locale}/terms | web/app/[locale]/terms/page.tsx | partial | #444 |
 | Announcements WebView | /{locale}/announcements | not implemented | planned | #444 |
 | Onboarding | /{locale}/onboarding | not implemented | planned | #426 |
-| Home and reading status | /{locale}/home | web/src/app/[locale]/(consumer)/home/page.tsx | partial | #429 |
+| Home and reading status | /{locale}/home | web/app/[locale]/(consumer)/home/page.tsx | partial | #429 |
 | My Library | /{locale}/library | not implemented | planned | #430 |
 | Reading statistics | /{locale}/stats | not implemented | planned | #440 |
 | Calendar | /{locale}/calendar | not implemented | planned | #439 |
 | My Page and settings | /{locale}/account | not implemented | planned | #444 |
 | Native book-list route | /{locale}/book-list | not implemented | planned | #430 |
 | Search and add book | /{locale}/books/new | not implemented | planned | #428/#431 |
-| Book detail | /{locale}/books/{bookId} | web/src/app/[locale]/(consumer)/books/[bookId]/page.tsx | partial | #433 |
-| Reading progress | /{locale}/reading/{bookId} | web/src/app/[locale]/(consumer)/reading/[bookId]/page.tsx | partial | #434 |
+| Book detail | /{locale}/books/{bookId} | web/app/[locale]/(consumer)/books/[bookId]/page.tsx | partial | #433 |
+| Reading progress | /{locale}/reading/{bookId} | web/app/[locale]/(consumer)/reading/[bookId]/page.tsx | partial | #434 |
 | Book review editor | /{locale}/books/{bookId}/review | not implemented | planned | #437 |
 | Note-structure mind map | /{locale}/books/{bookId}/mind-map | not implemented | planned | #442 |
 | Barcode scanner | /{locale}/books/scan | not implemented | planned browser equivalent | #428 |
 | Subscription entry | /{locale}/subscription | intentionally disabled | disabled | #444 |
-| Privacy and consent | /{locale}/privacy | web/src/app/[locale]/privacy/page.tsx | partial | #444 |
+| Privacy and consent | /{locale}/privacy | web/app/[locale]/privacy/page.tsx | partial | #444 |
 
 ## Shared shell and action contract
 
@@ -112,7 +112,7 @@ Reading Statistics also records the quota-gated AI insight generate and retry ac
 
 ## Reading data export (#443)
 
-The export contract is machine-checkable in `web/docs/export-contract.json`, with negative cases in `web/scripts/fixtures/export-negative.json` and the acceptance command exposed as `npm run test:export`. The account action in `web/src/components/consumer/reading-data-export-client.tsx` at `/{locale}/account` sends a selected UTC calendar year in JSON or CSV format to the authenticated account email. The server derives ownership from the verified session, rejects caller identity fields and another account email, and scopes books plus every child graph source to that owner and selected year.
+The export contract is machine-checkable in `web/docs/export-contract.json`, with negative cases in `web/scripts/fixtures/export-negative.json` and the acceptance command exposed as `npm run test:export`. The account action in `web/src/_pages/account/ui/ReadingDataExport.tsx` at `/{locale}/account` sends a selected UTC calendar year in JSON or CSV format to the authenticated account email. The server derives ownership from the verified session, rejects caller identity fields and another account email, and scopes books plus every child graph source to that owner and selected year.
 
 The supported graph is `books`, `reading_progress_history`, `reading_sessions`, `reading_content_embeddings` for text, notes and highlights, `book_images` for images and OCR text, `reading_goals`, `recall_search_history`, `note_structures`, `reading_insights_memory`, `book_recommendations` and `ai_recall_usage`. The obsolete `memos` table is not queried. Korean and English account copy exposes loading, empty, error, unauthorized, consent, quota and offline outcomes; provider and download failures keep a retry action. The current Web contract reports that an email was sent only after the provider call succeeds and leaves `downloadUrl` null because a hosted download surface is not verified.
 
@@ -228,7 +228,7 @@ The first command must exit 0. Every fixture command must fail, proving the chec
 - Native iOS widgets and App Shortcuts: app/ios/BookgolasWidget/BookgolasWidget.swift, app/ios/Runner/BookgolasShortcuts.swift, app/ios/Runner/AppDelegate.swift, app/ios/Runner/Info.plist
 - Native feature flags: app/lib/config/feature_flags.dart
 - Native localization contract: app/lib/l10n/app_ko.arb and app/lib/l10n/app_en.arb
-- Existing Web routes and states: web/src/app/
+- Existing Web routes and states: web/app/
 - Existing Web consumer adapters: web/src/components/consumer/ and web/src/lib/consumer/
 - BLDS public contract: blab_design_system repository and BLDS issue 12
 - Independent native expected-surface inventory: web/docs/native-consumer-surface-inventory.json

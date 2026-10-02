@@ -9,18 +9,18 @@ const paths = {
   package: path.join(root, "package.json"),
   function: path.join(root, "../supabase/functions/export-reading-data/index.ts"),
   functionContracts: path.join(root, "scripts/fixtures/function-contracts-cross-user.json"),
-  schema: path.join(root, "src/lib/product/contracts/operations.ts"),
-  schemaTest: path.join(root, "src/lib/product/contracts/export.test.ts"),
-  adapter: path.join(root, "src/lib/product/adapters/functions-adapters.ts"),
-  route: path.join(root, "src/app/api/consumer/export/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/export/route.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/export-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/export-fixtures.test.ts"),
-  component: path.join(root, "src/components/consumer/reading-data-export-client.tsx"),
-  accountPage: path.join(root, "src/app/[locale]/(consumer)/account/page.tsx"),
-  fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
+  schema: path.join(root, "src/shared/api/contracts/operations.ts"),
+  schemaTest: path.join(root, "src/shared/api/contracts/export.test.ts"),
+  adapter: path.join(root, "src/shared/api/product/adapters/functions-adapters.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-privacy/export.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/export/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/export/route.test.ts"),
+  fixtureSource: path.join(root, "src/features/data-export/model/export-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/data-export/model/export-fixtures.test.ts"),
+  component: path.join(root, "src/features/data-export/ui/ReadingDataExport.tsx"),
+  accountPage: path.join(root, "src/_pages/account/ui/AccountPage.tsx"),
+  fixtureRegistry: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
   matrix: path.join(root, "docs/consumer-parity-matrix.md"),
@@ -69,10 +69,11 @@ if (failures.length === 0) {
   requireCondition(source.route.includes("ExportReadingDataRequestSchema") && source.route.includes("hasCallerIdentity") && source.route.includes("exportReadingData") && source.route.includes("private, no-store"), "export route must validate requests, ownership and private caching");
   requireCondition(source.fixtureSource.includes("export-empty") && source.fixtureSource.includes("consentRequiredError") && source.fixtureSource.includes("providerError") && source.fixtureSource.includes("quotaExceededError") && source.fixtureSource.includes("offlineError"), "export fixtures must cover empty, consent, quota, offline and provider failures");
   for (const marker of ["data-export-state", "data-export-locale", "export-loading", "export-empty", "export-error-state", "export-retry", "export-form", "export-year", "export-email", "export-format", "export-include-images", "export-submit", "export-success", "ConsumerLoadingState", "ConsumerEmptyState", "ConsumerErrorState"]) requireCondition(source.component.includes(marker), `export UI must expose ${marker}`);
-  requireCondition(source.accountPage.includes("ReadingDataExportClient") && source.accountPage.includes("initialEmail"), "account page must expose the localized export action");
-  requireCondition(source.fixtureRegistry.includes('"export-success"') && source.proxy.includes('startsWith("export-")') && source.queries.includes('startsWith("export-")'), "export fixtures must cross the authenticated loopback boundary");
+  requireCondition(source.accountPage.includes("ReadingDataExport") && source.accountPage.includes("initialEmail"), "account page must expose the localized export action");
+  requireCondition(source.fixtureRegistry.includes('"export-success"') && source.proxy.includes('startsWith("export-")') && source.route.includes('startsWith("export-")'), "export fixtures must cross the authenticated loopback boundary");
+  requireCondition(source.routeAdapter.includes('postConsumerDataExport as POST') && source.routeAdapter.includes('from "@/_app/api-routes/consumer-privacy"'), "export route must delegate to the FSD app adapter");
   requireCondition(source.en.includes('"export"') && source.ko.includes('"export"'), "export copy must be localized");
-  requireCondition(source.matrix.includes("#443") && source.matrix.includes("reading-data-export-client") && source.matrix.includes("memos") && source.matrix.includes("delivery unverified"), "parity matrix must record export ownership and native-only boundaries");
+  requireCondition(source.matrix.includes("#443") && source.matrix.includes("ReadingDataExport.tsx") && source.matrix.includes("memos") && source.matrix.includes("delivery unverified"), "parity matrix must record export ownership and native-only boundaries");
   requireCondition(source.e2e.includes("task-33-bookgolas-web-app-parity.png") && source.e2e.includes("invalid-year") && source.e2e.includes("mismatch") && source.e2e.includes("delivery") && source.e2e.includes("export-loading") && source.e2e.includes("export-empty"), "export browser suite must cover issue-defined lanes and evidence");
   for (const forbidden of fixture.forbiddenPublicMarkers ?? []) requireCondition(!source.e2e.includes(forbidden), `export browser fixture contains forbidden secret marker ${forbidden}`);
   if (fixtureMode) {

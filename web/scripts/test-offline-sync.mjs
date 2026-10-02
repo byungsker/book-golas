@@ -10,17 +10,18 @@ const paths = {
   fixture: path.join(root, "scripts/fixtures/offline-sync-negative.json"),
   matrix: path.join(root, "docs/consumer-parity-matrix.md"),
   ledger: path.join(root, "docs/consumer-parity-ledger.json"),
-  network: path.join(root, "src/components/consumer/network-status.tsx"),
-  shell: path.join(root, "src/components/consumer/consumer-shell.tsx"),
-  boundary: path.join(root, "src/lib/consumer/offline-boundary.ts"),
-  boundaryTest: path.join(root, "src/lib/consumer/offline-boundary.test.ts"),
+  network: path.join(root, "src/_app/layouts/consumer/ui/NetworkStatus.tsx"),
+  shell: path.join(root, "src/_app/layouts/consumer/ui/ConsumerShell.tsx"),
+  boundary: path.join(root, "src/_app/layouts/consumer/model/offline-boundary.ts"),
+  boundaryTest: path.join(root, "src/_app/layouts/consumer/model/offline-boundary.test.ts"),
   e2e: path.join(root, "tests/e2e/offline-sync.spec.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
-  home: path.join(root, "src/app/[locale]/(consumer)/home/page.tsx"),
-  reading: path.join(root, "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx"),
-  bookDetail: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/page.tsx"),
-  library: path.join(root, "src/components/consumer/library-client.tsx"),
+  home: path.join(root, "app/[locale]/(consumer)/home/page.tsx"),
+  readingRoute: path.join(root, "app/[locale]/(consumer)/reading/[bookId]/page.tsx"),
+  reading: path.join(root, "src/_pages/reading/ui/ReadingPage.tsx"),
+  bookDetail: path.join(root, "src/_pages/book-detail/ui/BookDetailPage.tsx"),
+  library: path.join(root, "src/_pages/library/ui/LibraryView.tsx"),
   evidence: path.join(root, "../.omo/evidence/bookgolas-web-app-parity/task-35-bookgolas-web-app-parity.json"),
 };
 
@@ -91,7 +92,7 @@ if (failures.length === 0) {
 
   for (const marker of ["data-testid=\"network-status\"", "data-network-state", "data-online-core=\"true\"", "data-queue-enabled=\"false\"", "data-mutation-mode", "CustomEvent", "reconnected", "onDismiss"]) requireCondition(source.network.includes(marker), `network status is missing ${marker}`);
   requireCondition((source.network + source.boundary).includes("bookgolas:online-reconnected") && source.network.includes("navigator.onLine") && source.network.includes("retryable"), "network status must expose reconnect and retry behavior");
-  requireCondition(source.shell.includes("NetworkStatus") && !source.home.includes("NetworkStatus") && !source.reading.includes("NetworkStatus") && !source.bookDetail.includes("NetworkStatus") && !source.library.includes("NetworkStatus"), "network status must be mounted once in the shared consumer shell");
+  requireCondition(source.shell.includes("NetworkStatus") && !source.home.includes("NetworkStatus") && !source.reading.includes("NetworkStatus") && source.readingRoute.includes('from "@/_pages/reading/index.server"') && !source.bookDetail.includes("NetworkStatus") && !source.library.includes("NetworkStatus"), "network status must be mounted once in the shared consumer shell");
   for (const marker of ["queueEnabled: false", "noSilentWrites: true", "localDraftMutations", "onlineOnlyMutations", "getOfflineMutationDecision", "preservation: mutation === \"review\" ? \"local-draft\" : \"none\""]) requireCondition(source.boundary.includes(marker), `offline boundary logic is missing ${marker}`);
   requireCondition(source.boundaryTest.includes("duplicate") && source.boundaryTest.includes("unsupported") && source.boundaryTest.includes("queued: false"), "offline boundary tests must cover negative mutations");
 
@@ -129,7 +130,7 @@ if (failures.length > 0) {
 
 if (!fixtureMode) {
   const vitest = path.join(root, "node_modules/.bin/vitest");
-  const result = spawnSync(vitest, ["run", "src/lib/consumer/offline-boundary.test.ts"], { cwd: root, stdio: "inherit" });
+  const result = spawnSync(vitest, ["run", "src/_app/layouts/consumer/model/offline-boundary.test.ts"], { cwd: root, stdio: "inherit" });
   if (result.error) {
     console.error(`offline sync tests could not start: ${result.error.message}`);
     process.exit(1);

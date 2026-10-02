@@ -8,16 +8,21 @@ const paths = {
   fixture: path.join(root, "scripts/fixtures/calendar-negative.json"),
   manifest: path.join(root, "package.json"),
   calendarSource: path.join(root, "src/lib/product/contracts/calendar.ts"),
-  calendarTest: path.join(root, "src/lib/product/contracts/calendar.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/calendar-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/calendar-fixtures.test.ts"),
+  calendarTest: path.join(root, "src/_pages/calendar/model/calendar-data.test.ts"),
+  fixtureSource: path.join(root, "src/shared/config/consumer-analytics-fixture-sources.ts"),
+  fixtureTest: path.join(root, "src/_pages/calendar/model/calendar-fixtures.test.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  page: path.join(root, "src/app/[locale]/(consumer)/calendar/page.tsx"),
-  loading: path.join(root, "src/app/[locale]/(consumer)/calendar/loading.tsx"),
-  error: path.join(root, "src/app/[locale]/(consumer)/calendar/error.tsx"),
-  client: path.join(root, "src/components/consumer/calendar-client.tsx"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  page: path.join(root, "src/_pages/calendar/ui/CalendarPage.tsx"),
+  loading: path.join(root, "src/_pages/calendar/ui/CalendarLoading.tsx"),
+  error: path.join(root, "src/_pages/calendar/ui/CalendarError.tsx"),
+  client: path.join(root, "src/_pages/calendar/ui/CalendarView.tsx"),
+  pageRoute: path.join(root, "app/[locale]/(consumer)/calendar/page.tsx"),
+  loadingRoute: path.join(root, "app/[locale]/(consumer)/calendar/loading.tsx"),
+  errorRoute: path.join(root, "app/[locale]/(consumer)/calendar/error.tsx"),
+  serverApi: path.join(root, "src/_pages/calendar/index.server.ts"),
+  clientApi: path.join(root, "src/_pages/calendar/index.ts"),
   e2e: path.join(root, "tests/e2e/calendar.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -40,12 +45,13 @@ if (failures.length === 0) {
   const source = Object.fromEntries(Object.entries(paths).map(([name, filePath]) => [name, fs.readFileSync(filePath, "utf8")]));
 
   requireCondition(contract.issue === 439 && contract.task === 26, "calendar contract must bind issue 439/task 26");
+  requireCondition(contract.web.component === "src/_pages/calendar/ui/CalendarView.tsx", "calendar contract must reference the FSD page UI");
   requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "calendar contract must reference the parity plan");
   for (const state of ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "foreign", "completed", "paused", "planned", "timezone", "day-detail"]) requireCondition(contract.states.includes(state), `calendar contract must cover ${state}`);
   for (const operation of ["month_navigation", "month_picker", "filter", "kst_day_assignment", "stable_progress_events", "stable_session_events", "day_detail", "owned_books_only", "canonical_book_navigation", "planned_marker_non_historical"]) requireCondition(contract.operations.includes(operation), `calendar contract must cover ${operation}`);
   requireCondition(contract.native.filterValues.join(",") === "all,reading,completed", "calendar filter values must match the native surface");
   requireCondition(fixture.issue === 439 && fixture.task === 26 && fixture.fixtures.length >= 5, "calendar negative fixtures must cover timezone, ownership and status boundaries");
-  requireCondition(manifest.scripts["test:calendar"] === "node scripts/test-calendar.mjs && vitest run src/lib/product/contracts/calendar.test.ts src/lib/consumer/calendar-fixtures.test.ts", "package must expose the exact calendar acceptance command");
+  requireCondition(manifest.scripts["test:calendar"] === "node scripts/test-calendar.mjs && vitest run src/_pages/calendar/model/calendar-data.test.ts src/_pages/calendar/model/calendar-fixtures.test.ts", "package must expose the exact calendar acceptance command");
   requireCondition(manifest.scripts["test:calendar:negative"] === "node scripts/test-calendar.mjs --fixture timezone && node scripts/test-calendar.mjs --fixture foreign && node scripts/test-calendar.mjs --fixture deleted && node scripts/test-calendar.mjs --fixture unauthorized", "package must expose the calendar negative command");
   requireCondition(source.calendarSource.includes('CALENDAR_TIME_ZONE = "Asia/Seoul"') && source.calendarSource.includes("getCalendarMonthBounds") && source.calendarSource.includes("calendarDayKeyFromIso"), "calendar source must make the KST boundary explicit");
   requireCondition(source.calendarSource.includes("stable source event") && source.calendarSource.includes("plannedStartDate") && source.calendarSource.includes('getBookDay(day, book, "planned")'), "calendar source must separate stable history from planned markers");
@@ -57,6 +63,11 @@ if (failures.length === 0) {
   requireCondition(source.client.includes("calendar-day-detail") && source.client.includes("calendar-previous-month") && source.client.includes("calendar-month-picker") && source.client.includes('filter === initialData.filter'), "calendar client must expose native-equivalent controls and detail panel");
   requireCondition(source.client.includes("/books/${book.bookId}") && source.client.includes("plannedDescription") && source.client.includes("data-calendar-timezone"), "calendar client must use canonical book links and explain planned/KST behavior");
   requireCondition(source.loading.includes('data-route-state="pending"') && source.error.includes('data-route-state="error"'), "calendar route states must include loading and error surfaces");
+  requireCondition(source.pageRoute.includes('export { CalendarPage as default } from "@/_pages/calendar/index.server"') && source.pageRoute.includes('export const dynamic = "force-dynamic"'), "calendar page route must re-export its FSD page and retain dynamic rendering");
+  requireCondition(source.loadingRoute.includes('export { CalendarLoading as default } from "@/_pages/calendar/index.server"'), "calendar loading route must re-export its FSD page state");
+  requireCondition(source.errorRoute.startsWith('"use client"') && source.errorRoute.includes('export { CalendarError as default } from "@/_pages/calendar"'), "calendar error route must use the client-safe FSD public API");
+  requireCondition(source.serverApi.includes('./ui/CalendarPage') && source.serverApi.includes('./ui/CalendarLoading'), "calendar server public API must expose the page and loading state");
+  requireCondition(source.clientApi.includes('./ui/CalendarError'), "calendar client public API must expose the error boundary");
   requireCondition(source.ko.includes('"calendar"') && source.en.includes('"calendar"') && source.ko.includes('"plannedDescription"') && source.en.includes('"plannedDescription"'), "calendar copy must be localized in Korean and English");
   requireCondition(source.e2e.includes("calendar month navigation and filters") && source.e2e.includes("calendar day-detail opens owned book") && source.e2e.includes("calendar timezone keeps UTC midnight events on the correct KST day"), "calendar happy browser scenarios must be named");
   requireCondition(source.e2e.includes("calendar empty state") && source.e2e.includes("calendar network failure") && source.e2e.includes("calendar foreign events stay out of day detail"), "calendar failure browser scenarios must be named");

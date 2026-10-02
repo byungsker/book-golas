@@ -28,8 +28,8 @@
   },
   "web": {
     "route": "/{locale}/stats",
-    "component": "src/components/consumer/reading-analytics-client.tsx",
-    "contract": "src/lib/product/contracts/charts-goals.ts",
+    "component": "src/_pages/stats/ui/ReadingAnalyticsView.tsx",
+    "contract": "src/_pages/stats/model/reading-analytics.ts",
     "query": "src/lib/consumer/queries.ts:fetchOwnedReadingAnalyticsData",
     "goalMutation": "/api/consumer/charts-goals",
     "browserDisposition": "browser-equivalent",

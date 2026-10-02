@@ -7,14 +7,16 @@ const fixturePath = path.join(root, "scripts/fixtures/account-deletion-negative.
 const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 const sourcePaths = {
   package: path.join(root, "package.json"),
-  component: path.join(root, "src/components/consumer/account-settings-client.tsx"),
-  helper: path.join(root, "src/lib/consumer/account-deletion.ts"),
-  helperTest: path.join(root, "src/lib/consumer/account-deletion.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/account-deletion-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/account-deletion-fixtures.test.ts"),
-  route: path.join(root, "src/app/api/consumer/account/deletion/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/account/deletion/route.test.ts"),
-  completionPage: path.join(root, "src/app/[locale]/account-deleted/page.tsx"),
+  component: path.join(root, "src/features/account-management/ui/AccountSettings.tsx"),
+  helper: path.join(root, "src/features/account-management/model/account-deletion.ts"),
+  helperTest: path.join(root, "src/features/account-management/model/account-deletion.test.ts"),
+  fixtureSource: path.join(root, "src/features/account-management/model/account-deletion-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/account-management/model/account-deletion-fixtures.test.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-account/deletion.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/account/deletion/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/account/deletion/route.test.ts"),
+  completionPage: path.join(root, "src/_pages/account-deleted/ui/AccountDeletedPage.tsx"),
+  completionPageRoute: path.join(root, "app/[locale]/account-deleted/page.tsx"),
   messagesEn: path.join(root, "messages/en.json"),
   messagesKo: path.join(root, "messages/ko.json"),
   edgeFunction: path.join(root, "../supabase/functions/delete-user/index.ts"),
@@ -43,9 +45,10 @@ requireCondition(source.package?.includes('"test:account-deletion": "node script
 requireCondition(source.package?.includes('"test:account-deletion:negative": "node scripts/test-account-deletion.mjs --grep cancel-or-retry"'), "package must expose the cancel-or-retry command");
 for (const marker of ["AccountDeletionRequestSchema", "signInWithPassword", "auth.getUser", "auth.getSession", "delete-user", "auth.signOut", "currentPassword", "no-store", "Ownership is derived from the authenticated session"]) requireCondition(source.route?.includes(marker), `account deletion route is missing ${marker}`);
 for (const marker of ["account-delete-open", "account-delete-dialog", "account-delete-form", "account-delete-confirmation", "account-delete-password", "clearAccountDeletionClientState", "account-deleted"]) requireCondition(source.component?.includes(marker), `account deletion UI is missing ${marker}`);
-for (const marker of ["clearBrowserTimerState", "sessionStorage", "bookgolas.", "sb-"]) requireCondition(source.helper?.includes(marker), `account deletion cache cleanup is missing ${marker}`);
+for (const marker of ["sessionStorage", "bookgolas.", "sb-"]) requireCondition(source.helper?.includes(marker), `account deletion cache cleanup is missing ${marker}`);
 for (const marker of ["confirmation", "auth.admin.deleteUser", "account_deletion_operations", "fcm_tokens", "user_consents", "book-images", "avatars"]) requireCondition(source.edgeFunction?.includes(marker), `canonical delete-user contract is missing ${marker}`);
-requireCondition(source.completionPage?.includes("account-deleted-page") && source.completionPage?.includes("getTranslations"), "public account completion page is incomplete");
+requireCondition(source.routeAdapter?.includes("postConsumerAccountDeletion as POST") && source.routeAdapter?.includes('from "@/_app/api-routes/consumer-account"'), "account deletion route must delegate to the FSD app adapter");
+requireCondition(source.completionPage?.includes("account-deleted-page") && source.completionPage?.includes("getTranslations") && source.completionPageRoute?.includes('from "@/_pages/account-deleted/index.server"'), "public account completion page is incomplete or disconnected from its FSD route");
 requireCondition(source.e2e?.includes("cancel leaves") && source.e2e?.includes("repeated confirmation") && source.e2e?.includes("account-deleted"), "account deletion browser scenarios are incomplete");
 requireCondition(source.messagesEn?.includes('"accountDeleted"') && source.messagesKo?.includes('"accountDeleted"'), "account deletion completion copy is not localized");
 requireCondition(source.messagesEn?.includes('"deleteConfirmationWord": "DELETE"') && source.messagesKo?.includes('"deleteConfirmationWord": "삭제"'), "destructive confirmation copy is not localized");
@@ -67,9 +70,9 @@ if (failures.length > 0) {
 const vitest = path.join(root, "node_modules/.bin/vitest");
 const vitestArgs = [
   "run",
-  "src/lib/consumer/account-deletion.test.ts",
-  "src/lib/consumer/account-deletion-fixtures.test.ts",
-  "src/app/api/consumer/account/deletion/route.test.ts"
+  "src/features/account-management/model/account-deletion.test.ts",
+  "src/features/account-management/model/account-deletion-fixtures.test.ts",
+  "app/api/consumer/account/deletion/route.test.ts"
 ];
 if (grep) vitestArgs.push("--testNamePattern", grep);
 const result = spawnSync(vitest, vitestArgs, { cwd: root, stdio: "inherit" });

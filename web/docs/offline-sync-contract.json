@@ -126,7 +126,7 @@
       "nativeActions": ["switch-status", "open-book", "refresh"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/home",
-      "webComponent": "web/src/components/consumer/network-status.tsx + home/page.tsx",
+      "webComponent": "web/src/_app/layouts/consumer/ui/NetworkStatus.tsx + home/page.tsx",
       "browserDisposition": "online-core read-only status with explicit retry",
       "offlineDisposition": "read-only",
       "owner": "#447"
@@ -137,7 +137,7 @@
       "nativeActions": ["change-page", "save-progress", "retry"],
       "nativeStates": ["loading", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
       "webRoute": "/{locale}/reading/{bookId}",
-      "webComponent": "web/src/components/consumer/progress-updater.tsx",
+      "webComponent": "web/src/features/reading-progress/ui/ProgressUpdater.tsx",
       "browserDisposition": "online-only mutation with retry after reconnect",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -148,7 +148,7 @@
       "nativeActions": ["resume-reading", "change-status", "delete", "cancel", "retry"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict"],
       "webRoute": "/{locale}/books/{bookId}",
-      "webComponent": "web/src/components/consumer/book-detail-client.tsx",
+      "webComponent": "web/src/_pages/book-detail/ui/BookDetailClient.tsx",
       "browserDisposition": "online-only mutation with safe error and retry",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -159,7 +159,7 @@
       "nativeActions": ["create", "edit", "delete", "retry"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
       "webRoute": "/{locale}/library?view=records",
-      "webComponent": "web/src/components/consumer/notes-highlights-client.tsx",
+      "webComponent": "web/src/features/notes-highlights/ui/NotesHighlightsClient.tsx",
       "browserDisposition": "online-only mutation with explicit retry",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -170,7 +170,7 @@
       "nativeActions": ["edit", "save", "cancel", "clear-draft", "retry"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict"],
       "webRoute": "/{locale}/books/{bookId}/review",
-      "webComponent": "web/src/components/consumer/book-review-client.tsx",
+      "webComponent": "web/src/features/review-share/ui/BookReviewClient.tsx",
       "browserDisposition": "online-only save with proven local draft preservation",
       "offlineDisposition": "preserve-local-draft",
       "owner": "#447"
@@ -181,7 +181,7 @@
       "nativeActions": ["start", "pause", "resume", "stop", "discard", "retry"],
       "nativeStates": ["loading", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate"],
       "webRoute": "/{locale}/reading/{bookId}",
-      "webComponent": "web/src/components/consumer/reading-timer-control.tsx",
+      "webComponent": "web/src/features/reading-timer/ui/ReadingTimerControl.tsx",
       "browserDisposition": "active timer save remains online-only",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -192,7 +192,7 @@
       "nativeActions": ["camera", "upload", "replace", "extract-text", "retry"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
       "webRoute": "/{locale}/books/{bookId}",
-      "webComponent": "web/src/components/consumer/book-image-capture-client.tsx",
+      "webComponent": "web/src/features/images-ocr/ui/BookImageCaptureClient.tsx",
       "browserDisposition": "browser permission and upload fallback remain online-only for mutation",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -203,7 +203,7 @@
       "nativeActions": ["search", "generate", "retry", "cancel"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
       "webRoute": "/{locale}/library?view=records&mode=recall",
-      "webComponent": "web/src/components/consumer/recall-client.tsx + ai-artifacts-client.tsx",
+      "webComponent": "web/src/features/recall/ui/RecallSearch.tsx + ai-artifacts-client.tsx",
       "browserDisposition": "network-backed AI action with explicit consent, quota and retry",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -214,7 +214,7 @@
       "nativeActions": ["grant-permission", "enable", "disable", "save", "delete", "retry"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "unsupported-mutation"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/web-push-settings-client.tsx + account-settings-client.tsx",
+      "webComponent": "web/src/_pages/account-notifications/ui/WebPushSettings.tsx + web/src/_pages/account/ui/AccountSettings.tsx",
       "browserDisposition": "permission and account mutations require an online retry",
       "offlineDisposition": "reject-before-network",
       "owner": "#447"
@@ -241,8 +241,8 @@
     {"feature": "subscription", "nativeEvidence": "RevenueCat service", "webDisposition": "Disabled; no purchase, restore or upgrade controls", "status": "disabled"}
   ],
   "observability": {
-    "networkComponent": "web/src/components/consumer/network-status.tsx",
-    "shellIntegration": "web/src/components/consumer/consumer-shell.tsx",
+    "networkComponent": "web/src/_app/layouts/consumer/ui/NetworkStatus.tsx",
+    "shellIntegration": "web/src/_app/layouts/consumer/ui/ConsumerShell.tsx",
     "offlineStateAttribute": "data-network-state=offline",
     "reconnectedStateAttribute": "data-network-state=reconnected",
     "queueAttribute": "data-queue-enabled=false",

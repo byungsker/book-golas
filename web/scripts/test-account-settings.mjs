@@ -7,25 +7,32 @@ const paths = {
   contract: path.join(root, "docs/account-settings-contract.json"),
   fixture: path.join(root, "scripts/fixtures/account-settings-negative.json"),
   package: path.join(root, "package.json"),
-  schema: path.join(root, "src/lib/product/contracts/account-settings.ts"),
-  schemaTest: path.join(root, "src/lib/product/contracts/account-settings.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/account-settings-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/account-settings-fixtures.test.ts"),
-  adapter: path.join(root, "src/lib/product/adapters/avatar-storage.ts"),
-  adapterTest: path.join(root, "src/lib/product/adapters.avatar-storage.test.ts"),
-  dal: path.join(root, "src/lib/product/dal/account-settings.ts"),
-  dalTest: path.join(root, "src/lib/product/dal.account-settings.test.ts"),
-  route: path.join(root, "src/app/api/consumer/account/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/account/route.test.ts"),
-  avatarRoute: path.join(root, "src/app/api/consumer/account/avatar/route.ts"),
-  avatarRouteTest: path.join(root, "src/app/api/consumer/account/avatar/route.test.ts"),
-  component: path.join(root, "src/components/consumer/account-settings-client.tsx"),
-  accountPage: path.join(root, "src/app/[locale]/(consumer)/account/page.tsx"),
-  subscriptionPage: path.join(root, "src/app/[locale]/(consumer)/subscription/page.tsx"),
-  fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
-  theme: path.join(root, "src/components/consumer/blab-theme-sync.tsx"),
+  schema: path.join(root, "src/features/account-management/api/account-settings-contracts.ts"),
+  schemaTest: path.join(root, "src/features/account-management/api/account-settings-contracts.test.ts"),
+  fixtureSource: path.join(root, "src/features/account-management/model/account-settings-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/account-management/model/account-settings-fixtures.test.ts"),
+  adapter: path.join(root, "src/shared/api/product/adapters/avatar-storage.ts"),
+  adapterTest: path.join(root, "src/shared/api/product/adapters/avatar-storage.test.ts"),
+  dal: path.join(root, "src/features/account-management/api/account-settings.ts"),
+  dalTest: path.join(root, "src/features/account-management/api/account-settings.test.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-account/profile.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/account/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/account/route.test.ts"),
+  avatarRoute: path.join(root, "src/_app/api-routes/consumer-account/avatar.ts"),
+  avatarRouteAdapter: path.join(root, "app/api/consumer/account/avatar/route.ts"),
+  avatarRouteTest: path.join(root, "app/api/consumer/account/avatar/route.test.ts"),
+  component: path.join(root, "src/features/account-management/ui/AccountSettings.tsx"),
+  componentApi: path.join(root, "src/features/account-management/index.ts"),
+  accountPage: path.join(root, "src/_pages/account/ui/AccountPage.tsx"),
+  accountRoute: path.join(root, "app/[locale]/(consumer)/account/page.tsx"),
+  serverApi: path.join(root, "src/_pages/account/index.server.ts"),
+  clientApi: path.join(root, "src/_pages/account/index.ts"),
+  subscriptionPage: path.join(root, "src/_pages/subscription/ui/SubscriptionPage.tsx"),
+  subscriptionRoute: path.join(root, "app/[locale]/(consumer)/subscription/page.tsx"),
+  subscriptionServerApi: path.join(root, "src/_pages/subscription/index.server.ts"),
+  fixtureRegistry: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  theme: path.join(root, "src/_app/layouts/locale/ui/BlabThemeSync.tsx"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
   migration: path.join(root, "../supabase/migrations/20260916123000_private_account_avatars.sql"),
@@ -49,6 +56,8 @@ if (failures.length === 0) {
   const source = Object.fromEntries(Object.entries(paths).map(([name, filePath]) => [name, fs.readFileSync(filePath, "utf8")]));
 
   requireCondition(contract.issue === 444 && contract.task === 31 && contract.parentIssue === 412, "account settings contract must bind issue 444/task 31/parent 412");
+  requireCondition(source.accountRoute.includes('export { AccountPage as default } from "@/_pages/account/index.server"') && source.accountRoute.includes('export const dynamic = "force-dynamic"'), "account route must re-export its FSD page and retain dynamic rendering");
+  requireCondition(source.serverApi.includes("./ui/AccountPage") && source.componentApi.includes("./ui/AccountSettings") && source.accountPage.includes('from "@/features/data-export"'), "account page and client features must be composed through public APIs");
   requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "account settings contract must reference the parity plan");
   requireCondition(contract.targetVersion === "1.1.0" && contract.targetBranch === "version/web/1.1.0", "account settings contract must target Web 1.1.0");
   requireCondition(contract.locales?.join(",") === "ko,en", "account settings must cover ko and en");
@@ -62,16 +71,19 @@ if (failures.length === 0) {
   requireCondition(packageJson.scripts?.["test:account-settings:negative"]?.includes("--fixture foreign") && packageJson.scripts?.["test:account-settings:negative"]?.includes("--fixture unauthorized"), "package must expose account settings negative fixtures");
   requireCondition(source.schema.includes("AccountProfileSchema") && source.schema.includes("AccountProfileUpdateRequestSchema") && source.schema.includes(".strict()"), "account settings contracts must be strict");
   requireCondition(source.route.includes("readOwnedAccountSettings") && source.route.includes("updateOwnedAccountProfile") && source.route.includes("Ownership is derived from the authenticated session") && source.route.includes("user_id") && source.route.includes("private, no-store"), "account route must derive ownership and stay private");
+  requireCondition(source.routeAdapter.includes('getConsumerAccount as GET') && source.routeAdapter.includes('from "@/_app/api-routes/consumer-account"'), "account route must delegate to the FSD app adapter");
   requireCondition(source.avatarRoute.includes("uploadOwnedAccountAvatar") && source.avatarRoute.includes("formData") && source.avatarRoute.includes("user_id") && source.avatarRoute.includes("maxAvatarBytes"), "avatar route must validate multipart ownership and size");
+  requireCondition(source.avatarRouteAdapter.includes('postConsumerAccountAvatar as POST') && source.avatarRouteAdapter.includes('from "@/_app/api-routes/consumer-account"'), "avatar route must delegate to the FSD app adapter");
   requireCondition(source.dal.includes('.eq("id", session.value.userId)') && source.dal.includes("uploadOwnedAvatarForSession") && source.dal.includes("storage://account-avatars/"), "account DAL must scope profile and avatar writes to the verified user");
   requireCondition(source.adapter.includes("privateAvatarsBucket") && source.adapter.includes("assertOwnedAvatarPath") && source.adapter.includes("createSignedUrl") && source.adapter.includes("upsert: true"), "avatar adapter must use private owner-scoped signed storage");
   requireCondition(source.migration.includes("public") && source.migration.includes("false") && source.migration.includes("auth.uid()::text") && source.migration.includes("bucket_id = 'account-avatars'"), "avatar migration must create a private owner policy");
   for (const marker of ["account-profile-nickname", "account-avatar-input", "account-avatar-save", "account-theme-${value}", "account-language-confirm", "account-password-dialog", "account-terms-link", "account-privacy-link", "account-subscription-status", "account-settings-saved", "ConsumerLoadingState", "ConsumerEmptyState", "ConsumerErrorState", "updateUser", "localStorage"]) requireCondition(source.component.includes(marker), `account settings UI must expose ${marker}`);
   for (const forbidden of ["purchase", "restore", "upgrade", "customer-center"]) requireCondition(!source.component.toLowerCase().includes(forbidden), `account settings UI must not expose billing control marker ${forbidden}`);
-  requireCondition(source.fixtureRegistry.includes('"account-settings-happy"') && source.proxy.includes('startsWith("account-settings-")') && source.queries.includes('startsWith("account-settings-")'), "account settings fixtures must cross the authenticated loopback boundary");
+  requireCondition(source.fixtureRegistry.includes('"account-settings-happy"') && source.proxy.includes('startsWith("account-settings-")') && source.route.includes('startsWith("account-settings-")'), "account settings fixtures must cross the authenticated loopback boundary");
   requireCondition(source.theme.includes("bookgolas.theme") && source.theme.includes("bookgolas-theme-change"), "theme preference must survive the consumer shell");
   requireCondition(source.en.includes('"accountSettings"') && source.ko.includes('"accountSettings"') && source.en.includes('"subscriptionDisabled"') && source.ko.includes('"subscriptionDisabled"'), "account settings copy must be localized");
   requireCondition(source.subscriptionPage.includes('data-subscription-enabled="false"') && source.subscriptionPage.includes('data-route-state="disabled"'), "subscription page must expose a disabled status contract");
+  requireCondition(source.subscriptionRoute.includes('export { SubscriptionPage as default } from "@/_pages/subscription/index.server"') && source.subscriptionServerApi.includes("./ui/SubscriptionPage"), "subscription route must re-export its FSD page through the server public API");
   requireCondition(source.e2e.includes("profile") && source.e2e.includes("avatar") && source.e2e.includes("theme") && source.e2e.includes("language") && source.e2e.includes("foreign") && source.e2e.includes("password") && source.e2e.includes("subscription") && source.e2e.includes("task-31-bookgolas-web-app-parity.png"), "account settings browser suite must cover issue-defined lanes and evidence");
   for (const marker of fixture.forbiddenMarkers ?? []) requireCondition(!source.component.toLowerCase().includes(marker.toLowerCase()), `account settings UI contains forbidden marker ${marker}`);
   if (fixtureMode) {

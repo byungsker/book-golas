@@ -92,10 +92,10 @@
   "adminBoundary": {
     "policy": "deny-by-default",
     "sourceFiles": [
-      "web/src/proxy.ts",
+      "web/proxy.ts",
       "web/src/lib/admin-auth.ts",
-      "web/src/lib/supabase-server.ts",
-      "web/src/app/api/admin"
+      "web/src/shared/api/supabase/server.ts",
+      "web/app/api/admin"
     ],
     "expected": [
       "Unauthenticated /admin requests redirect to /admin/login",

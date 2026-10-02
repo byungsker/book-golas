@@ -48,7 +48,7 @@ vi.mock("next-intl/middleware", () => ({
   }),
 }));
 
-import { proxy } from "./proxy";
+import { proxy } from "../proxy";
 
 createServerClientMock.mockImplementation(
   (_url: string, _key: string, options: ProxyClientOptions) => ({
