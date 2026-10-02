@@ -5,7 +5,7 @@
     "flutter_commit": "10a9016f58b30728f179f1c96b0ed738c40c271c",
     "react_package": "@byungsker/blab-design-system@0.2.0",
     "css_export": "@byungsker/blab-design-system/styles.css",
-    "web_adapter": "web/src/components/consumer/blab-primitives.tsx"
+    "web_adapter": "web/src/shared/ui/BLabPrimitives.tsx"
   },
   "locales": ["ko", "en"],
   "themes": ["light", "dark"],

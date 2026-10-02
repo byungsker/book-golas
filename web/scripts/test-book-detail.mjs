@@ -7,18 +7,20 @@ const paths = {
   contract: path.join(root, "docs/book-detail-contract.json"),
   fixture: path.join(root, "scripts/fixtures/book-detail-negative.json"),
   manifest: path.join(root, "package.json"),
-  page: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/page.tsx"),
-  client: path.join(root, "src/components/consumer/book-detail-client.tsx"),
-  api: path.join(root, "src/app/api/consumer/book-detail/route.ts"),
-  apiTest: path.join(root, "src/app/api/consumer/book-detail/route.test.ts"),
-  fixtures: path.join(root, "src/lib/consumer/book-detail-fixtures.ts"),
+  pageRoute: path.join(root, "app/[locale]/(consumer)/books/[bookId]/page.tsx"),
+  page: path.join(root, "src/_pages/book-detail/ui/BookDetailPage.tsx"),
+  pageEntry: path.join(root, "src/_pages/book-detail/index.server.ts"),
+  client: path.join(root, "src/_pages/book-detail/ui/BookDetailClient.tsx"),
+  api: path.join(root, "app/api/consumer/book-detail/route.ts"),
+  apiTest: path.join(root, "app/api/consumer/book-detail/route.test.ts"),
+  fixtures: path.join(root, "src/entities/book/model/book-detail-fixtures.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  contractSource: path.join(root, "src/lib/product/contracts/book-detail.ts"),
-  contractTest: path.join(root, "src/lib/product/contracts/book-detail.test.ts"),
-  operations: path.join(root, "src/lib/product/contracts/operations.ts"),
-  dal: path.join(root, "src/lib/product/dal/writes.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  contractSource: path.join(root, "src/entities/book/api/book-detail-contracts.ts"),
+  contractTest: path.join(root, "src/entities/book/api/book-detail-contracts.test.ts"),
+  operations: path.join(root, "src/shared/api/contracts/operations.ts"),
+  dal: path.join(root, "src/entities/book/api/writes.ts"),
   e2e: path.join(root, "tests/e2e/book-detail.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -77,10 +79,10 @@ if (failures.length === 0) {
   }
   requireCondition(Array.isArray(contract.nativeOnly) && contract.nativeOnly.length >= 6, "native-only detail capabilities must be explicit");
   requireCondition(Array.isArray(fixture.fixtures) && fixture.issue === 433 && fixture.fixtures.length >= 4, "book-detail negative fixtures must cover ownership, deletion, transitions and confirmation");
-  requireCondition(manifest.scripts["test:book-detail"] === "node scripts/test-book-detail.mjs && vitest run src/lib/product/contracts/book-detail.test.ts src/app/api/consumer/book-detail/route.test.ts src/lib/product/dal.writes.test.ts", "package must expose the exact book-detail acceptance command");
+  requireCondition(manifest.scripts["test:book-detail"] === "node scripts/test-book-detail.mjs && vitest run src/entities/book/api/book-detail-contracts.test.ts app/api/consumer/book-detail/route.test.ts src/entities/book/api/writes.test.ts", "package must expose the exact book-detail acceptance command");
   requireCondition(manifest.scripts["test:book-detail:negative"] === "node scripts/test-book-detail.mjs --fixture foreign-book", "package must expose the book-detail negative command");
 
-  requireCondition(source.page.includes("fetchOwnedBookDetail") && source.page.includes("BookDetailClient"), "book detail route must load the full owner-scoped book and render actions");
+  requireCondition(source.page.includes("fetchOwnedBookDetail") && source.page.includes("BookDetailClient") && source.pageRoute.includes('from "@/_pages/book-detail"') && source.pageRoute.includes('dynamic = "force-dynamic"') && source.pageEntry.includes('from "./ui/BookDetailPage"'), "book detail route must load the owner-scoped page through its FSD entrypoint");
   requireCondition(source.page.includes('data-testid="book-detail"') && source.page.includes("data-book-status"), "book detail route must expose a stable status surface");
   for (const marker of [
     "book-detail-actions",

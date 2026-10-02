@@ -7,11 +7,11 @@ const fixtureName = process.argv[2] === "--fixture" ? process.argv[3] : null;
 const paths = {
   design: path.join(webRoot, "DESIGN.md"),
   package: path.join(webRoot, "package.json"),
-  layout: path.join(webRoot, "src/app/layout.tsx"),
-  css: path.join(webRoot, "src/app/globals.css"),
-  adapter: path.join(webRoot, "src/components/consumer/blab-primitives.tsx"),
-  showcase: path.join(webRoot, "src/components/consumer/ui-primitives-showcase.tsx"),
-  route: path.join(webRoot, "src/app/[locale]/ui-primitives/page.tsx"),
+  layout: path.join(webRoot, "src/_app/layouts/root/RootLayout.tsx"),
+  css: path.join(webRoot, "app/globals.css"),
+  adapter: path.join(webRoot, "src/shared/ui/BLabPrimitives.tsx"),
+  showcase: path.join(webRoot, "src/_pages/ui-primitives/ui/UiPrimitivesShowcase.tsx"),
+  route: path.join(webRoot, "app/[locale]/ui-primitives/page.tsx"),
   e2e: path.join(webRoot, "tests/e2e/ui-primitives.spec.ts"),
   ko: path.join(webRoot, "messages/ko.json"),
   en: path.join(webRoot, "messages/en.json"),
@@ -22,6 +22,7 @@ const paths = {
 const packageJson = JSON.parse(fs.readFileSync(paths.package, "utf8"));
 const adapter = fs.readFileSync(paths.adapter, "utf8");
 const showcase = fs.readFileSync(paths.showcase, "utf8");
+const route = fs.existsSync(paths.route) ? fs.readFileSync(paths.route, "utf8") : "";
 const e2e = fs.readFileSync(paths.e2e, "utf8");
 const layout = fs.readFileSync(paths.layout, "utf8");
 const css = fs.readFileSync(paths.css, "utf8");
@@ -124,6 +125,7 @@ for (const marker of [
   requireCondition(showcase.includes(marker), `showcase is missing ${marker}`);
 }
 requireCondition(fs.existsSync(paths.route), "ui primitive showcase route is missing");
+requireCondition(route.includes('export { default, generateMetadata } from "@/_pages/ui-primitives/index.server"'), "ui primitive route must re-export its FSD page and metadata");
 requireCondition(focusContractFailures(css).length === 0, focusFailureMessage);
 requireCondition(css.includes("var(--blab-focus-ring)"), "consumer focus ring must use the BLDS token");
 requireCondition(e2e.includes('colorScheme: "dark"') && e2e.includes('colorScheme: "light"'), "responsive browser coverage must include both BLDS themes");

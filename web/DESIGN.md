@@ -202,5 +202,5 @@ The marketing `.glass`, gradient and glow utilities and the admin shadcn surface
 
 | Item | Location | Why accepted | Owner / Exit |
 |------|----------|--------------|--------------|
-| Landing and admin primitives retain shadcn/local styling | `web/src/components/ui/`, landing routes, admin routes | Their visual contract predates the authenticated consumer BLab boundary and is explicitly isolated by #421 | Future surface-specific migration issue; do not change during consumer parity work |
+| Landing and admin primitives retain shadcn/local styling | `web/src/shared/ui/primitives/`, landing routes, admin routes | Their visual contract predates the authenticated consumer BLab boundary and is explicitly isolated by #421 | Future surface-specific migration issue; do not change during consumer parity work |
 | Browser Push, camera/OCR, share and subscription remain capability boundaries | `web/docs/consumer-parity-matrix.md` | Web 1.1.0 is online-core and native-only or browser-equivalent behavior needs feature-owned evidence | #428, #435, #443, #444, #445 |

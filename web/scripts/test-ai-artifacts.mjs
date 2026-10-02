@@ -7,25 +7,32 @@ const paths = {
   contract: path.join(root, "docs/ai-artifacts-contract.json"),
   fixture: path.join(root, "scripts/fixtures/ai-artifacts-negative.json"),
   package: path.join(root, "package.json"),
-  schema: path.join(root, "src/lib/product/contracts/ai-artifacts.ts"),
-  schemaTest: path.join(root, "src/lib/product/contracts/ai-artifacts.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/ai-artifacts-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/ai-artifacts-fixtures.test.ts"),
-  dal: path.join(root, "src/lib/product/dal/ai-artifacts.ts"),
-  dalTest: path.join(root, "src/lib/product/dal.ai-artifacts.test.ts"),
-  route: path.join(root, "src/app/api/consumer/ai-artifacts/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/ai-artifacts/route.test.ts"),
-  component: path.join(root, "src/components/consumer/ai-artifacts-client.tsx"),
-  mindmap: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/mind-map/page.tsx"),
-  insights: path.join(root, "src/app/[locale]/(consumer)/reading-insights/page.tsx"),
-  recommendations: path.join(root, "src/app/[locale]/(consumer)/book-list/page.tsx"),
-  adapter: path.join(root, "src/lib/product/adapters/functions-adapters.ts"),
+  schema: path.join(root, "src/features/ai-artifacts/api/ai-artifacts-contracts.ts"),
+  schemaTest: path.join(root, "src/features/ai-artifacts/api/ai-artifacts-contracts.test.ts"),
+  fixtureSource: path.join(root, "src/features/ai-artifacts/model/ai-artifacts-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/ai-artifacts/model/ai-artifacts-fixtures.test.ts"),
+  dal: path.join(root, "src/features/ai-artifacts/api/ai-artifacts.ts"),
+  dalTest: path.join(root, "src/features/ai-artifacts/api/ai-artifacts.test.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-ai/ai-artifacts.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/ai-artifacts/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/ai-artifacts/route.test.ts"),
+  component: path.join(root, "src/features/ai-artifacts/ui/AiArtifactsClient.tsx"),
+  mindmapRoute: path.join(root, "app/[locale]/(consumer)/books/[bookId]/mind-map/page.tsx"),
+  mindmap: path.join(root, "src/_pages/book-mind-map/ui/BookMindMapPage.tsx"),
+  mindmapData: path.join(root, "src/_pages/book-mind-map/api/fetch-page-book.ts"),
+  mindmapEntry: path.join(root, "src/_pages/book-mind-map/index.server.ts"),
+  insightsRoute: path.join(root, "app/[locale]/(consumer)/reading-insights/page.tsx"),
+  insights: path.join(root, "src/_pages/reading-insights/ui/ReadingInsightsPage.tsx"),
+  insightsEntry: path.join(root, "src/_pages/reading-insights/index.server.ts"),
+  recommendationsRoute: path.join(root, "app/[locale]/(consumer)/book-list/page.tsx"),
+  recommendations: path.join(root, "src/_pages/book-list/ui/BookListPage.tsx"),
+  recommendationsEntry: path.join(root, "src/_pages/book-list/index.server.ts"),
+  adapter: path.join(root, "src/shared/api/product/adapters/functions-adapters.ts"),
   edge: path.join(root, "../supabase/functions/reading-insights/index.ts"),
   edgeService: path.join(root, "../supabase/functions/reading-insights/services/insight-service.ts"),
-  fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
-  pathsSource: path.join(root, "src/lib/consumer/paths.ts"),
+  fixtureRegistry: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  pathsSource: path.join(root, "src/shared/routing/consumer-paths.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
   e2e: path.join(root, "tests/e2e/ai-artifacts.spec.ts")
@@ -58,7 +65,7 @@ if (failures.length === 0) {
   for (const feature of ["iOS widget", "Siri/App Shortcuts", "native push", "camera capture", "share sheet", "subscription and in-app purchase"]) requireCondition(contract.nativeOnly?.some((item) => item.feature === feature), `native-only feature missing: ${feature}`);
   requireCondition(fixture.issue === 442 && fixture.task === 30 && fixture.fixtures.length >= 10, "AI artifact negative fixtures are incomplete");
   requireCondition(new Set(fixture.fixtures?.map((item) => item.name)).size === fixture.fixtures?.length, "AI artifact fixture names must be unique");
-  requireCondition(packageJson.scripts?.["test:ai-artifacts"] === "node scripts/test-ai-artifacts.mjs && vitest run src/lib/product/contracts/ai-artifacts.test.ts src/lib/consumer/ai-artifacts-fixtures.test.ts src/app/api/consumer/ai-artifacts/route.test.ts src/lib/product/dal.ai-artifacts.test.ts", "package must expose the exact AI artifact acceptance command");
+  requireCondition(packageJson.scripts?.["test:ai-artifacts"] === "node scripts/test-ai-artifacts.mjs && vitest run src/features/ai-artifacts/api/ai-artifacts-contracts.test.ts src/features/ai-artifacts/model/ai-artifacts-fixtures.test.ts app/api/consumer/ai-artifacts/route.test.ts src/features/ai-artifacts/api/ai-artifacts.test.ts", "package must expose the exact AI artifact acceptance command");
   requireCondition(packageJson.scripts?.["test:ai-artifacts:negative"]?.includes("--fixture unauthorized") && packageJson.scripts?.["test:ai-artifacts:negative"]?.includes("--fixture foreign"), "package must expose AI artifact negative fixtures");
   requireCondition(source.schema.includes("AiArtifactGenerateRequestSchema") && source.schema.includes("AiArtifactReadResponseSchema") && source.schema.includes(".strict()") && source.schema.includes("RequestIdSchema"), "AI artifact contracts must be strict and idempotent");
   requireCondition(source.route.includes("readAiArtifact") && source.route.includes("structureNotes") && source.route.includes("generateReadingInsights") && source.route.includes("recommendNextBooks") && source.route.includes("withInFlight"), "AI artifact route must use typed owner adapters and request deduplication");
@@ -66,8 +73,9 @@ if (failures.length === 0) {
   requireCondition(source.dal.includes('.eq("user_id", session.value.userId)') && source.dal.includes("expires_at") && source.dal.includes("latestSourceUpdatedAt") && source.dal.includes("reading_insights_memory") && source.dal.includes("book_recommendations"), "AI artifact cache reader must be owner scoped, expiry aware and source aware");
   for (const marker of ["ai-artifacts-${kind}-loading", "ai-artifacts-${kind}-generating", "ai-artifacts-${kind}-empty", "ai-artifacts-${kind}-retry", "data-ai-operational-state", "consent_required", "quota_exceeded", "offline", "Dialog"]) requireCondition(source.component.includes(marker), `AI artifact UI must expose ${marker}`);
   requireCondition(source.adapter.includes("locale") && source.adapter.includes("reading-insights") && source.edge.includes("locale") && source.edgeService.includes("Write all titles and descriptions in English"), "insight locale must cross the Web and edge boundary");
-  requireCondition(source.fixtureRegistry.includes('"ai-artifacts-happy"') && source.proxy.includes('startsWith("ai-artifacts-")') && source.queries.includes('startsWith("ai-artifacts-")'), "AI artifact fixtures must cross authenticated loopback boundaries");
-  requireCondition(source.pathsSource.includes("reading-insights") && source.insights.includes("AiArtifactsClient") && source.recommendations.includes("AiArtifactsClient") && source.mindmap.includes("fetchOwnedBookDetail"), "all Web artifact routes must be protected and mounted");
+  requireCondition(source.fixtureRegistry.includes('"ai-artifacts-happy"') && source.proxy.includes('startsWith("ai-artifacts-")') && source.route.includes('startsWith("ai-artifacts-")'), "AI artifact fixtures must cross authenticated loopback boundaries");
+  requireCondition(source.routeAdapter.includes('getConsumerAiArtifacts as GET') && source.routeAdapter.includes('from "@/_app/api-routes/consumer-ai"'), "AI artifact route must delegate to the FSD app adapter");
+  requireCondition(source.pathsSource.includes("reading-insights") && source.insights.includes("AiArtifactsClient") && source.insightsEntry.includes('from "./ui/ReadingInsightsPage"') && source.insightsRoute.includes('from "@/_pages/reading-insights/index.server"') && source.recommendations.includes("AiArtifactsClient") && source.recommendationsEntry.includes('from "./ui/BookListPage"') && source.recommendationsRoute.includes('from "@/_pages/book-list/index.server"') && source.mindmap.includes("fetchBookMindMapPageBook") && source.mindmapData.includes("fetchOwnedBookDetail") && source.mindmap.includes("AiArtifactsClient") && source.mindmapRoute.includes('from "@/_pages/book-mind-map/index.server"') && source.mindmapRoute.includes('dynamic = "force-dynamic"') && source.mindmapEntry.includes('from "./ui/BookMindMapPage"'), "all Web artifact routes must be protected and mounted");
   requireCondition(source.en.includes('"aiArtifacts"') && source.ko.includes('"aiArtifacts"'), "AI artifact copy must be localized");
   requireCondition(source.fixtureSource.includes("ai-artifacts-foreign") && source.fixtureSource.includes("notFoundError") && source.fixtureSource.includes("resetAiArtifactsFixtures"), "negative fixture source must preserve the owner boundary");
   requireCondition(source.fixtureTest.includes("replayed request key") && source.routeTest.includes("caller identity") && source.dalTest.includes("source change"), "AI artifact tests must cover idempotency, privacy and invalidation");

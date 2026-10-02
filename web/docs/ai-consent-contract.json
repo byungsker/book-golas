@@ -92,7 +92,7 @@
   ],
   "browser": {
     "route": "/{locale}/account",
-    "component": "src/components/consumer/ai-consent-settings.tsx",
+    "component": "src/_pages/account/ui/AiConsentSettings.tsx",
     "api": "/api/consumer/ai-consent",
     "fixtures": "ai-consent-*",
     "selectors": ["ai-consent-provider-google_cloud_vision", "ai-consent-provider-open_ai", "ai-consent-policy-open_ai", "ai-consent-receipt-open_ai", "ai-consent-blocked-open_ai", "data-ai-operational-state"],

@@ -7,21 +7,21 @@ const paths = {
   contract: path.join(root, "docs/book-lifecycle-contract.json"),
   fixture: path.join(root, "scripts/fixtures/book-lifecycle-negative.json"),
   manifest: path.join(root, "package.json"),
-  page: path.join(root, "src/app/[locale]/(consumer)/books/new/page.tsx"),
-  client: path.join(root, "src/components/consumer/book-lifecycle-client.tsx"),
-  discovery: path.join(root, "src/components/consumer/book-discovery-client.tsx"),
-  api: path.join(root, "src/app/api/consumer/book-lifecycle/route.ts"),
-  apiTest: path.join(root, "src/app/api/consumer/book-lifecycle/route.test.ts"),
-  fixtures: path.join(root, "src/lib/consumer/book-lifecycle-fixtures.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
+  page: path.join(root, "app/[locale]/(consumer)/books/new/page.tsx"),
+  client: path.join(root, "src/features/book-discovery/ui/BookLifecycleClient.tsx"),
+  discovery: path.join(root, "src/features/book-discovery/ui/BookDiscoveryClient.tsx"),
+  api: path.join(root, "app/api/consumer/book-lifecycle/route.ts"),
+  apiTest: path.join(root, "app/api/consumer/book-lifecycle/route.test.ts"),
+  fixtures: path.join(root, "src/entities/book/model/book-lifecycle-fixtures.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  contracts: path.join(root, "src/lib/product/contracts/book-lifecycle.ts"),
-  contractTest: path.join(root, "src/lib/product/contracts/book-lifecycle.test.ts"),
-  operations: path.join(root, "src/lib/product/contracts/operations.ts"),
-  books: path.join(root, "src/lib/product/contracts/books.ts"),
-  dal: path.join(root, "src/lib/product/dal/writes.ts"),
-  dalTest: path.join(root, "src/lib/product/dal.writes.test.ts"),
+  contracts: path.join(root, "src/entities/book/api/book-lifecycle-contracts.ts"),
+  contractTest: path.join(root, "src/entities/book/api/book-lifecycle-contracts.test.ts"),
+  operations: path.join(root, "src/shared/api/contracts/operations.ts"),
+  books: path.join(root, "src/shared/api/contracts/books.ts"),
+  dal: path.join(root, "src/entities/book/api/writes.ts"),
+  dalTest: path.join(root, "src/entities/book/api/writes.test.ts"),
   e2e: path.join(root, "tests/e2e/book-lifecycle.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -47,7 +47,7 @@ if (failures.length === 0) {
   for (const state of ["loading", "ready", "invalid", "saved", "error", "retry", "duplicate", "unauthorized", "consent", "quota", "offline", "foreign"]) requireCondition(contract.states.includes(state), `lifecycle contract must cover ${state}`);
   for (const pathValue of contract.cacheInvalidation) requireCondition(pathValue.startsWith("/{locale}/"), `cache invalidation path must stay localized: ${pathValue}`);
   requireCondition(fixture.issue === 431 && fixture.fixtures.length >= 4, "book-lifecycle negative fixtures must cover pages, transitions, ownership and duplicate recovery");
-  requireCondition(manifest.scripts["test:book-lifecycle"] === "node scripts/test-book-lifecycle.mjs && vitest run src/lib/product/contracts/book-lifecycle.test.ts src/lib/product/dal.writes.test.ts src/app/api/consumer/book-lifecycle/route.test.ts", "package must expose the exact book-lifecycle acceptance command");
+  requireCondition(manifest.scripts["test:book-lifecycle"] === "node scripts/test-book-lifecycle.mjs && vitest run src/entities/book/api/book-lifecycle-contracts.test.ts src/entities/book/api/writes.test.ts app/api/consumer/book-lifecycle/route.test.ts", "package must expose the exact book-lifecycle acceptance command");
   requireCondition(manifest.scripts["test:book-lifecycle:negative"] === "node scripts/test-book-lifecycle.mjs --fixture foreign-book-write", "package must expose the book-lifecycle negative command");
   requireCondition(source.page.includes("BookDiscoveryClient") && source.page.includes("ConsumerHeader"), "new-book route must keep the discovery entry");
   requireCondition(source.discovery.includes("BookLifecycleClient") && source.discovery.includes("selectedBook"), "selection must continue into lifecycle setup");

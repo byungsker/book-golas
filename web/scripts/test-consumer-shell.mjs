@@ -7,9 +7,9 @@ const paths = {
   contract: path.join(root, "docs/consumer-shell-contract.json"),
   fixture: path.join(root, "scripts/fixtures/consumer-shell-negative.json"),
   manifest: path.join(root, "package.json"),
-  shell: path.join(root, "src/components/consumer/consumer-shell.tsx"),
-  state: path.join(root, "src/lib/consumer/shell.ts"),
-  layout: path.join(root, "src/app/[locale]/(consumer)/layout.tsx"),
+  shell: path.join(root, "src/_app/layouts/consumer/ui/ConsumerShell.tsx"),
+  state: path.join(root, "src/_app/layouts/consumer/model/shell.ts"),
+  layout: path.join(root, "app/[locale]/(consumer)/layout.tsx"),
   e2e: path.join(root, "tests/e2e/consumer-shell.spec.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
@@ -53,7 +53,7 @@ for (const locale of ["en", "ko"]) {
 }
 
 const vitest = path.join(root, "node_modules", ".bin", "vitest");
-const result = spawnSync(vitest, ["run", "src/lib/consumer/shell.test.ts", "src/lib/consumer/route-fixture.test.ts", "src/proxy.test.ts"], {
+const result = spawnSync(vitest, ["run", "src/_app/layouts/consumer/model/shell.test.ts", "src/shared/config/consumer-route-fixture.test.ts", "src/proxy.test.ts"], {
   cwd: root,
   encoding: "utf8",
   stdio: "inherit",

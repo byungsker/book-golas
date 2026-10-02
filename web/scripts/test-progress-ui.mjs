@@ -7,19 +7,22 @@ const paths = {
   contract: path.join(root, "docs/consumer-progress-ui-contract.json"),
   fixture: path.join(root, "scripts/fixtures/progress-ui-negative.json"),
   manifest: path.join(root, "package.json"),
-  action: path.join(root, "src/app/actions/reading-progress.ts"),
-  actionTest: path.join(root, "src/app/actions/reading-progress.test.ts"),
-  route: path.join(root, "src/app/api/consumer/progress/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/progress/route.test.ts"),
-  client: path.join(root, "src/components/consumer/progress-updater.tsx"),
-  detailPage: path.join(root, "src/app/[locale]/(consumer)/books/[bookId]/page.tsx"),
-  readingPage: path.join(root, "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
-  fixtures: path.join(root, "src/lib/consumer/progress-fixtures.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  contractSource: path.join(root, "src/lib/product/contracts/progress-ui.ts"),
-  contractTest: path.join(root, "src/lib/product/contracts/progress-ui.test.ts"),
+  action: path.join(root, "src/features/reading-progress/api/update-reading-progress.ts"),
+  actionTest: path.join(root, "src/features/reading-progress/api/update-reading-progress.test.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-reading/progress.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/progress/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/progress/route.test.ts"),
+  client: path.join(root, "src/features/reading-progress/ui/ProgressUpdater.tsx"),
+  detailRoute: path.join(root, "app/[locale]/(consumer)/books/[bookId]/page.tsx"),
+  detailPage: path.join(root, "src/_pages/book-detail/ui/BookDetailPage.tsx"),
+  readingRoute: path.join(root, "app/[locale]/(consumer)/reading/[bookId]/page.tsx"),
+  readingPage: path.join(root, "src/_pages/reading/ui/ReadingPage.tsx"),
+  queries: path.join(root, "src/features/reading-progress/api/fetch-owned-progress-history.ts"),
+  fixtures: path.join(root, "src/features/reading-progress/model/progress-fixtures.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  contractSource: path.join(root, "src/features/reading-progress/api/progress-ui-contracts.ts"),
+  contractTest: path.join(root, "src/features/reading-progress/api/progress-ui-contracts.test.ts"),
   e2e: path.join(root, "tests/e2e/progress.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -46,16 +49,17 @@ if (failures.length === 0) {
   for (const state of ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "conflict", "duplicate", "rollback", "completed", "will_retry"]) requireCondition(contract.states.includes(state), `progress-ui contract must cover ${state}`);
   for (const operation of ["forward_edit", "backward_edit", "complete_at_total_pages", "atomic_page_status_history", "idempotent_submit", "stale_refetch", "history_failure"]) requireCondition(contract.operations.includes(operation), `progress-ui contract must cover ${operation}`);
   requireCondition(fixture.issue === 434 && fixture.fixtures.length >= 6, "progress-ui negative fixtures must cover failure and ownership boundaries");
-  requireCondition(manifest.scripts["test:progress-ui"] === "node scripts/test-progress-ui.mjs && vitest run src/lib/product/contracts/progress-ui.test.ts src/lib/consumer/progress-fixtures.test.ts src/app/api/consumer/progress/route.test.ts src/app/actions/reading-progress.test.ts", "package must expose the exact progress-ui acceptance command");
+  requireCondition(manifest.scripts["test:progress-ui"] === "node scripts/test-progress-ui.mjs && vitest run src/features/reading-progress/api/progress-ui-contracts.test.ts src/features/reading-progress/model/progress-fixtures.test.ts app/api/consumer/progress/route.test.ts src/features/reading-progress/api/update-reading-progress.test.ts", "package must expose the exact progress-ui acceptance command");
   requireCondition(manifest.scripts["test:progress-ui:negative"] === "node scripts/test-progress-ui.mjs --fixture stale && node scripts/test-progress-ui.mjs --fixture duplicate && node scripts/test-progress-ui.mjs --fixture server-error && node scripts/test-progress-ui.mjs --fixture page-bounds", "package must expose the progress-ui negative command");
-  requireCondition(source.action.includes('"update_reading_progress"') && source.action.includes("history_recorded") && source.action.includes("history_unavailable"), "progress action must use the atomic RPC and reject missing forward history");
+  requireCondition(source.action.includes('"update_reading_progress"') && source.action.includes("history_recorded") && source.action.includes("history_unavailable"), "progress mutation must use the atomic RPC and reject missing forward history");
   requireCondition(source.route.includes("ProgressUiRequestSchema") && source.route.includes("fetchOwnedProgressHistory") && source.route.includes("revalidatePath"), "progress API must validate, read owner history and invalidate private paths");
+  requireCondition(source.routeAdapter.includes('postConsumerProgress as POST') && source.routeAdapter.includes('from "@/_app/api-routes/consumer-reading"'), "progress route must delegate to the FSD app API adapter");
   requireCondition(source.route.includes("progress-") && source.route.includes("Cache-Control") && source.route.includes("duplicate"), "progress API must keep fixtures loopback-only and return idempotency state");
   requireCondition(source.client.includes("ProgressUiResponseSchema") && source.client.includes("router.refresh") && source.client.includes("progress-history") && source.client.includes("progress-refetch"), "progress client must parse atomic responses, render history and offer refetch");
   requireCondition(source.client.includes("setBook((previous) => ({ ...previous, currentPage: request.currentPage }))") && source.client.includes("restore(rollback)"), "progress client must limit optimistic state and rollback failures");
   requireCondition(source.client.includes("disabled={isSubmitting || book.totalPages < 0}"), "progress client must disable concurrent submits");
-  requireCondition(source.detailPage.includes("fetchOwnedProgressHistory") && source.detailPage.includes("initialHistory"), "detail page must render owner-scoped progress history");
-  requireCondition(source.readingPage.includes("fetchOwnedProgressHistory") && source.readingPage.includes("initialHistory"), "reading page must share the progress history surface");
+  requireCondition(source.detailPage.includes("fetchPageProgressHistory") && source.detailPage.includes("initialHistory") && source.detailRoute.includes('from "@/_pages/book-detail/index.server"'), "detail page must render owner-scoped progress history through its FSD route");
+  requireCondition(source.readingPage.includes("fetchPageProgressHistory") && source.readingPage.includes("initialHistory") && source.readingRoute.includes('from "@/_pages/reading/index.server"') && source.readingRoute.includes('dynamic = "force-dynamic"'), "reading page must share the progress history surface through its FSD route");
   requireCondition(source.queries.includes("fetchOwnedProgressHistory") && source.queries.includes('.eq("user_id", context.user.id)') && source.queries.includes('.is("deleted_at", null)'), "history query must enforce owner and active-book scope");
   requireCondition(source.fixtures.includes("progress-stale") && source.fixtures.includes("progress-duplicate") && source.fixtures.includes("historyUnavailableError"), "fixtures must model stale, idempotent and history-failure paths");
   requireCondition(source.routeFixture.includes("progress-server-error") && source.proxy.includes('startsWith("progress-")'), "progress fixtures must cross the existing authenticated loopback boundary");

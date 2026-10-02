@@ -88,12 +88,12 @@ if (clientAdapterImports.length > 0) {
 }
 
 const serverAdapterFiles = [
-  "src/lib/product/adapters/book-search.ts",
-  "src/lib/product/adapters/functions.ts",
-  "src/lib/product/adapters/functions-adapters.ts",
-  "src/lib/product/adapters/provider-config.ts",
-  "src/lib/product/adapters/storage.ts",
-  "src/lib/product/adapters/tables.ts",
+  "src/shared/api/product/adapters/book-search.ts",
+  "src/shared/api/product/adapters/functions.ts",
+  "src/shared/api/product/adapters/functions-adapters.ts",
+  "src/shared/api/product/adapters/provider-config.ts",
+  "src/shared/api/product/adapters/storage.ts",
+  "src/shared/api/product/adapters/tables.ts",
 ];
 for (const relativeFile of serverAdapterFiles) {
   const file = path.join(webDirectory, relativeFile);
@@ -124,10 +124,10 @@ const result = spawnSync(
   "vitest",
   [
     "run",
-    "src/lib/product/adapters.test.ts",
-    "src/lib/product/adapters.storage.test.ts",
-    "src/lib/product/adapters.tables.test.ts",
-    "src/app/api/app/books/search/route.test.ts",
+    "src/shared/api/product/adapters/index.test.ts",
+    "src/shared/api/product/adapters/storage.test.ts",
+    "src/shared/api/product/adapters/tables.test.ts",
+    "app/api/app/books/search/route.test.ts",
     ...forwardedArgs,
   ],
   { cwd: webDirectory, stdio: "inherit" },

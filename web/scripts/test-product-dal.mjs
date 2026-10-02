@@ -5,7 +5,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
-const consumerApiDirectory = path.resolve(scriptDirectory, "../src/app/api/app");
+const consumerApiDirectory = path.resolve(scriptDirectory, "../app/api/app");
 const forbiddenConsumerImports = /\bsupabase-admin\b|SUPABASE_SERVICE_ROLE_KEY/;
 
 function collectSourceFiles(directory) {
@@ -55,9 +55,9 @@ const result = spawnSync(
   "vitest",
   [
     "run",
-    "src/lib/product/dal.test.ts",
-    "src/lib/product/dal.writes.test.ts",
-    "src/app/api/app/books",
+    "src/entities/book/api/books.test.ts",
+    "src/entities/book/api/writes.test.ts",
+    "app/api/app/books",
     ...forwardedArgs,
   ],
   { stdio: "inherit" },

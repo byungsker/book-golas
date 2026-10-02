@@ -10,7 +10,7 @@
   "web": {
     "route": "/[locale]/library",
     "api": "/api/consumer/library",
-    "component": "src/components/consumer/library-client.tsx",
+    "component": "src/_pages/library/ui/LibraryView.tsx",
     "tabs": ["reading", "review", "records"],
     "searchFields": ["title", "author"],
     "pagination": {"kind": "server-cursor", "stableOrder": ["updated_at", "id"], "recordOrder": ["created_at", "id"], "deduplicateBy": "id", "cancellation": "AbortController plus request sequence"},

@@ -5,20 +5,20 @@ const root = process.cwd();
 const paths = {
   contract: path.join(root, "docs/images-ocr-contract.json"),
   fixture: path.join(root, "scripts/fixtures/images-ocr-negative.json"),
-  schema: path.join(root, "src/lib/product/contracts/images-ocr.ts"),
-  schemaTest: path.join(root, "src/lib/product/contracts/images-ocr.test.ts"),
-  storage: path.join(root, "src/lib/product/adapters/storage.ts"),
-  storageTest: path.join(root, "src/lib/product/adapters.storage.test.ts"),
-  dal: path.join(root, "src/lib/product/dal/consumer-images.ts"),
-  dalTest: path.join(root, "src/lib/product/dal.consumer-images.test.ts"),
-  route: path.join(root, "src/app/api/consumer/images-ocr/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/images-ocr/route.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/images-ocr-fixtures.ts"),
-  client: path.join(root, "src/components/consumer/book-image-capture-client.tsx"),
+  schema: path.join(root, "src/features/images-ocr/api/images-ocr-contracts.ts"),
+  schemaTest: path.join(root, "src/features/images-ocr/api/images-ocr-contracts.test.ts"),
+  storage: path.join(root, "src/shared/api/product/adapters/storage.ts"),
+  storageTest: path.join(root, "src/shared/api/product/adapters/storage.test.ts"),
+  dal: path.join(root, "src/features/images-ocr/api/images-ocr.ts"),
+  dalTest: path.join(root, "src/features/images-ocr/api/images-ocr.test.ts"),
+  route: path.join(root, "app/api/consumer/images-ocr/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/images-ocr/route.test.ts"),
+  fixtureSource: path.join(root, "src/features/images-ocr/model/images-ocr-fixtures.ts"),
+  client: path.join(root, "src/features/images-ocr/ui/BookImageCaptureClient.tsx"),
   e2e: path.join(root, "tests/e2e/images-ocr.spec.ts"),
   seed: path.join(root, "fixtures/supabase/seed.sql"),
   migration: path.join(root, "../supabase/migrations/20260915220228_private_book_images_ocr.sql"),
-  deleteBook: path.join(root, "src/lib/product/dal/writes.ts"),
+  deleteBook: path.join(root, "src/entities/book/api/writes.ts"),
   package: path.join(root, "package.json"),
 };
 
@@ -46,7 +46,7 @@ if (failures.length === 0) {
   for (const state of ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "no_camera", "insecure_context", "permission_denied", "unsupported", "oversize", "wrong_mime", "corrupt", "provider_failure"]) requireCondition(contract.states.includes(state), `images-ocr contract must cover ${state}`);
   for (const invariant of ["private_bucket_is_not_public", "storage_path_starts_with_authenticated_user_and_book", "supported_mime_and_magic_bytes_are_required", "file_size_is_at_most_8_mib", "signed_urls_are_used_for_rendering", "signed_urls_are_renewed_before_expiry", "ocr_requires_explicit_consent", "ocr_failure_keeps_image_and_manual_text_available", "foreign_images_are_not_found", "book_delete_removes_all_owned_image_objects"]) requireCondition(contract.invariants.includes(invariant), `missing invariant ${invariant}`);
   requireCondition(fixture.issue === 435 && fixture.fixtures.length >= 11, "images-ocr negative fixtures must cover browser and server boundaries");
-  requireCondition(packageJson.scripts["test:images-ocr"] === "node scripts/test-images-ocr.mjs && vitest run src/lib/product/contracts/images-ocr.test.ts src/lib/product/adapters.storage.test.ts src/lib/product/dal.consumer-images.test.ts src/app/api/consumer/images-ocr/route.test.ts", "package must expose the exact images-ocr acceptance command");
+  requireCondition(packageJson.scripts["test:images-ocr"] === "node scripts/test-images-ocr.mjs && vitest run src/features/images-ocr/api/images-ocr-contracts.test.ts src/shared/api/product/adapters/storage.test.ts src/features/images-ocr/api/images-ocr.test.ts app/api/consumer/images-ocr/route.test.ts", "package must expose the exact images-ocr acceptance command");
   requireCondition(packageJson.scripts["test:images-ocr:negative"].includes("--fixture oversize") && packageJson.scripts["test:images-ocr:negative"].includes("--fixture provider-failure"), "package must expose images-ocr negative fixtures");
   requireCondition(source.schema.includes("maxBookImageBytes") && source.schema.includes("imageSignatureMatches") && source.schema.includes("validateBookImageBytes"), "schema must enforce the 8 MiB and magic-byte boundary");
   requireCondition(source.storage.includes("privateBookImagesBucket") && source.storage.includes("createSignedUrl") && source.storage.includes("remove"), "storage adapter must upload, sign and remove private objects");

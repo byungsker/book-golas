@@ -6,9 +6,11 @@ const paths = {
   contract: path.join(root, "docs/onboarding-contract.json"),
   fixture: path.join(root, "scripts/fixtures/onboarding-negative.json"),
   manifest: path.join(root, "package.json"),
-  state: path.join(root, "src/lib/consumer/onboarding.ts"),
-  flow: path.join(root, "src/components/consumer/onboarding-flow.tsx"),
-  page: path.join(root, "src/app/[locale]/(consumer)/onboarding/page.tsx"),
+  state: path.join(root, "src/_pages/onboarding/model/onboarding.ts"),
+  flow: path.join(root, "src/_pages/onboarding/ui/OnboardingFlow.tsx"),
+  pageRoute: path.join(root, "app/[locale]/(consumer)/onboarding/page.tsx"),
+  page: path.join(root, "src/_pages/onboarding/ui/OnboardingPage.tsx"),
+  pageEntry: path.join(root, "src/_pages/onboarding/index.server.ts"),
   e2e: path.join(root, "tests/e2e/onboarding.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -28,6 +30,8 @@ const manifest = JSON.parse(fs.readFileSync(paths.manifest, "utf8"));
 const state = fs.readFileSync(paths.state, "utf8");
 const flow = fs.readFileSync(paths.flow, "utf8");
 const page = fs.readFileSync(paths.page, "utf8");
+const pageRoute = fs.readFileSync(paths.pageRoute, "utf8");
+const pageEntry = fs.readFileSync(paths.pageEntry, "utf8");
 const e2e = fs.readFileSync(paths.e2e, "utf8");
 const messages = [JSON.parse(fs.readFileSync(paths.ko, "utf8")), JSON.parse(fs.readFileSync(paths.en, "utf8"))];
 
@@ -41,7 +45,7 @@ requireCondition(manifest.scripts["test:onboarding"]?.includes("scripts/test-onb
 requireCondition(state.includes("hasSeenOnboarding_v1") && state.includes("age_policy_status"), "local storage must use native-compatible keys");
 requireCondition(state.includes("resetOnboardingState"), "onboarding state must expose a fixture reset");
 requireCondition(flow.includes("readOnboardingState") && flow.includes("completeOnboardingState"), "flow must read and persist onboarding state");
-requireCondition(page.includes("getSafeNextPath"), "auth handoff must validate the localized destination");
+requireCondition(page.includes("getSafeNextPath") && pageEntry.includes('from "./ui/OnboardingPage"') && pageRoute.includes('from "@/_pages/onboarding"'), "auth handoff must validate the localized destination through the FSD page entrypoint");
 requireCondition(e2e.includes("corrupt-storage"), "browser coverage must include corrupt storage recovery");
 requireCondition(fixture.invalidCompletedValues.length >= 3 && fixture.invalidAgePolicyValues.length >= 3, "negative fixture must cover invalid local values");
 requireCondition(fixture.unsafeNextTargets.length >= 3, "negative fixture must cover unsafe handoff targets");

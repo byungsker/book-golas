@@ -5,8 +5,8 @@ const root = process.cwd();
 const contractPath = path.join(root, "docs/auth-oauth-contract.json");
 const fixturePath = path.join(root, "scripts/fixtures/auth-oauth-negative.json");
 const packagePath = path.join(root, "package.json");
-const authFormPath = path.join(root, "src/components/consumer/auth-form.tsx");
-const callbackPath = path.join(root, "src/app/[locale]/(auth)/auth/callback/route.ts");
+const authFormPath = path.join(root, "src/features/auth/ui/AuthForm.tsx");
+const callbackPath = path.join(root, "app/[locale]/(auth)/auth/callback/route.ts");
 
 function requireCondition(condition, message) {
   if (!condition) throw new Error(message);

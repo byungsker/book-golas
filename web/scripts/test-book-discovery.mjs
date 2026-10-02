@@ -7,15 +7,17 @@ const paths = {
   contract: path.join(root, "docs/book-discovery-contract.json"),
   fixture: path.join(root, "scripts/fixtures/book-discovery-negative.json"),
   manifest: path.join(root, "package.json"),
-  page: path.join(root, "src/app/[locale]/(consumer)/books/new/page.tsx"),
-  client: path.join(root, "src/components/consumer/book-discovery-client.tsx"),
-  api: path.join(root, "src/app/api/consumer/book-discovery/route.ts"),
-  isbn: path.join(root, "src/lib/consumer/isbn.ts"),
-  fixtures: path.join(root, "src/lib/consumer/book-discovery-fixtures.ts"),
-  contractSource: path.join(root, "src/lib/product/contracts/book-discovery.ts"),
-  adapter: path.join(root, "src/lib/product/adapters/book-search.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
+  pageRoute: path.join(root, "app/[locale]/(consumer)/books/new/page.tsx"),
+  page: path.join(root, "src/_pages/book-discovery/ui/BookDiscoveryPage.tsx"),
+  pageEntry: path.join(root, "src/_pages/book-discovery/index.server.ts"),
+  client: path.join(root, "src/features/book-discovery/ui/BookDiscoveryClient.tsx"),
+  api: path.join(root, "app/api/consumer/book-discovery/route.ts"),
+  isbn: path.join(root, "src/features/book-discovery/model/isbn.ts"),
+  fixtures: path.join(root, "src/features/book-discovery/model/book-discovery-fixtures.ts"),
+  contractSource: path.join(root, "src/features/book-discovery/api/book-discovery-contracts.ts"),
+  adapter: path.join(root, "src/shared/api/product/adapters/book-search.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
   e2e: path.join(root, "tests/e2e/book-discovery.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -50,9 +52,9 @@ if (failures.length === 0) {
   for (const state of ["loading", "empty", "invalid", "upstream", "unauthorized", "consent", "quota", "offline", "camera-unsupported", "camera-insecure", "camera-denied", "file-fallback", "manual-fallback"]) {
     requireCondition(contract.states.includes(state), `book-discovery must cover ${state}`);
   }
-  requireCondition(manifest.scripts["test:book-discovery"] === "node scripts/test-book-discovery.mjs && vitest run src/lib/consumer/isbn.test.ts src/lib/product/contracts/book-discovery.test.ts src/lib/product/adapters.book-search.test.ts src/app/api/consumer/book-discovery/route.test.ts", "package must expose the exact book-discovery acceptance command");
+  requireCondition(manifest.scripts["test:book-discovery"] === "node scripts/test-book-discovery.mjs && vitest run src/features/book-discovery/model/isbn.test.ts src/features/book-discovery/api/book-discovery-contracts.test.ts src/shared/api/product/adapters/book-search.test.ts app/api/consumer/book-discovery/route.test.ts", "package must expose the exact book-discovery acceptance command");
   requireCondition(manifest.scripts["test:book-discovery:negative"] === "node scripts/test-book-discovery.mjs --fixture provider-secret-leak", "package must expose the book-discovery negative command");
-  requireCondition(source.page.includes("BookDiscoveryClient") && source.page.includes("ConsumerHeader"), "new-book route must render the authenticated discovery client");
+  requireCondition(source.page.includes("BookDiscoveryClient") && source.page.includes("ConsumerHeader") && source.pageEntry.includes('from "./ui/BookDiscoveryPage"') && source.pageRoute.includes('from "@/_pages/book-discovery"') && source.pageRoute.includes('dynamic = "force-dynamic"'), "new-book route must render the authenticated discovery client through its FSD entrypoint");
   requireCondition(source.client.includes("AbortController") && source.client.includes("isValidIsbn13"), "discovery client must cancel stale searches and validate ISBN-13");
   requireCondition(source.client.includes("getUserMedia") && source.client.includes("BarcodeDetector"), "discovery client must implement the browser scanner capability path");
   requireCondition(source.client.includes('accept="image/*"') && source.client.includes("manual-fallback") && source.client.includes("file-fallback"), "camera failures must preserve manual and image/file fallbacks");

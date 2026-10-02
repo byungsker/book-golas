@@ -41,13 +41,15 @@ function requireIncludes(source, label, values) {
   }
 }
 
-function collectRouteFiles(directory) {
+function collectAdminHandlerFiles(directory) {
   if (!fs.existsSync(directory)) return [];
   const files = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...collectRouteFiles(entryPath));
-    if (entry.isFile() && entry.name === "route.ts") files.push(entryPath);
+    if (entry.isDirectory()) files.push(...collectAdminHandlerFiles(entryPath));
+    if (entry.isFile() && entry.name.endsWith(".ts") && entry.name !== "index.ts") {
+      files.push(entryPath);
+    }
   }
   return files;
 }
@@ -56,20 +58,21 @@ const config = readJson(configPath);
 const negativeFixture = readJson(negativeFixturePath);
 const packageJson = readJson(packagePath);
 const envExample = readText(path.join(webRoot, ".env.example"));
-const rootLayout = readText(path.join(webRoot, "src", "app", "layout.tsx"));
-const localizedLayout = readText(path.join(webRoot, "src", "app", "[locale]", "layout.tsx"));
-const termsPage = readText(path.join(webRoot, "src", "app", "[locale]", "terms", "page.tsx"));
-const supportPage = readText(path.join(webRoot, "src", "app", "[locale]", "support", "page.tsx"));
-const privacyPage = readText(path.join(webRoot, "src", "app", "[locale]", "privacy", "page.tsx"));
-const rootPrivacy = readText(path.join(webRoot, "src", "app", "privacy", "page.tsx"));
-const rootTerms = readText(path.join(webRoot, "src", "app", "terms", "page.tsx"));
-const rootSupport = readText(path.join(webRoot, "src", "app", "support", "page.tsx"));
-const subscriptionPage = readText(path.join(webRoot, "src", "app", "[locale]", "(consumer)", "subscription", "page.tsx"));
+const rootLayout = readText(path.join(webRoot, "src", "_app", "layouts", "root", "RootLayout.tsx"));
+const localizedLayout = readText(path.join(webRoot, "src", "_app", "layouts", "locale", "LocaleLayout.tsx"));
+const termsPage = readText(path.join(webRoot, "src", "_pages", "legal", "terms", "ui", "TermsPage.tsx"));
+const supportPage = readText(path.join(webRoot, "src", "_pages", "legal", "support", "ui", "SupportPage.tsx"));
+const privacyPage = readText(path.join(webRoot, "src", "_pages", "legal", "privacy", "ui", "PrivacyPage.tsx"));
+const rootPrivacy = readText(path.join(webRoot, "src", "_pages", "privacy-redirect", "ui", "PrivacyRedirectPage.tsx"));
+const rootTerms = readText(path.join(webRoot, "src", "_pages", "terms-redirect", "ui", "TermsRedirectPage.tsx"));
+const rootSupport = readText(path.join(webRoot, "src", "_pages", "support-redirect", "ui", "SupportRedirectPage.tsx"));
+const subscriptionPage = readText(path.join(webRoot, "src", "_pages", "subscription", "ui", "SubscriptionPage.tsx"));
 const englishMessages = readText(path.join(webRoot, "messages", "en.json"));
 const koreanMessages = readText(path.join(webRoot, "messages", "ko.json"));
-const proxy = readText(path.join(webRoot, "src", "proxy.ts"));
-const adminAuth = readText(path.join(webRoot, "src", "lib", "admin-auth.ts"));
-const serverAuth = readText(path.join(webRoot, "src", "lib", "supabase-server.ts"));
+const proxy = readText(path.join(webRoot, "proxy.ts"));
+const adminAuth = readText(path.join(webRoot, "src", "_app", "auth", "admin.ts"));
+const adminAuthPublicApi = readText(path.join(webRoot, "src", "_app", "auth", "index.server.ts"));
+const adminEmail = readText(path.join(webRoot, "src", "shared", "auth", "admin-email", "index.ts"));
 const supabaseConfig = readText(path.join(repositoryRoot, "supabase", "config.toml"));
 const edgeContract = readText(path.join(repositoryRoot, "supabase", "functions", "_shared", "consumer-contract.ts"));
 const routeSpec = readText(path.join(webRoot, "tests", "e2e", "routes.spec.ts"));
@@ -90,10 +93,11 @@ requireCondition(config.runtime?.buildCommand === "npm run build", "runtime buil
 requireCondition(config.runtime?.buildGate === "npm run test:release-config", "runtime build gate is missing");
 requireCondition(config.runtime?.fixtureServer === "loopback-only", "fixture server must be loopback-only");
 requireCondition(packageJson.dependencies?.next === config.nextVersion, "package Next version does not match release config");
-requireCondition(packageJson.scripts?.build === "npm run test:release-config && next build", "build must run release config before next build");
+requireCondition(packageJson.scripts?.build === "npm run test:release-config && npm run test:fsd && next build", "build must run release and FSD boundary checks before Next build");
 requireCondition(packageJson.scripts?.["test:release-config"] === "node scripts/test-release-config.mjs", "positive release config script is missing");
+requireCondition(packageJson.scripts?.["test:fsd"] === "node scripts/test-fsd-boundaries.mjs", "FSD boundary script is missing");
 requireCondition(packageJson.scripts?.["test:release-config:negative"] === "node scripts/test-release-config.mjs --fixture missing-required-env", "negative release config script is missing");
-requireCondition(packageJson.scripts?.test?.startsWith("npm run test:release-config &&"), "full test must include release config gate");
+requireCondition(packageJson.scripts?.test?.startsWith("npm run test:release-config && npm run test:fsd &&"), "full test must include release config and FSD boundary gates");
 requireIncludes(envExample, ".env.example", [
   "NEXT_PUBLIC_SUPABASE_URL=",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY=",
@@ -136,10 +140,14 @@ requireIncludes(subscriptionPage, "subscription route", [
   "data-subscription-enabled=\"false\""
 ]);
 requireIncludes(proxy, "admin proxy", ["isAdminEmail", "if (!user)", "url.pathname = \"/admin/login\""]);
-requireIncludes(adminAuth, "admin allow-list", ["ADMIN_EMAILS", "new Set"]);
-requireIncludes(serverAuth, "server admin guard", ["requireAdminUser", "isAdminEmail"]);
-const adminRouteFiles = collectRouteFiles(path.join(webRoot, "src", "app", "api", "admin"));
-requireCondition(adminRouteFiles.length > 0, "no admin API route files found");
+requireIncludes(adminAuth, "server admin guard", ["requireAdminUser", "isAdminEmail"]);
+requireIncludes(adminAuthPublicApi, "server admin auth entrypoint", ["requireAdminUser"]);
+requireIncludes(adminEmail, "admin allow-list", ["adminEmails", "new Set", "isAdminEmail"]);
+const adminRouteFiles = [
+  ...collectAdminHandlerFiles(path.join(webRoot, "src", "_app", "api-routes", "admin-push")),
+  ...collectAdminHandlerFiles(path.join(webRoot, "src", "_app", "api-routes", "admin-users")),
+];
+requireCondition(adminRouteFiles.length > 0, "no admin API handler files found");
 for (const routeFile of adminRouteFiles) {
   requireIncludes(readText(routeFile), path.relative(repositoryRoot, routeFile), ["requireAdminUser"]);
 }

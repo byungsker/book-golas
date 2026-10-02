@@ -8,22 +8,26 @@ const paths = {
   fixture: path.join(root, "scripts/fixtures/web-push-negative.json"),
   package: path.join(root, "package.json"),
   migrationDirectory: path.join(root, "../supabase/migrations"),
-  schema: path.join(root, "src/lib/product/contracts/web-push.ts"),
-  schemaIndex: path.join(root, "src/lib/product/contracts/index.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/web-push-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/web-push-fixtures.test.ts"),
-  helper: path.join(root, "src/lib/consumer/web-push.ts"),
-  dal: path.join(root, "src/lib/product/dal/web-push.ts"),
-  dalIndex: path.join(root, "src/lib/product/dal/index.ts"),
-  settingsRoute: path.join(root, "src/app/api/consumer/notifications/route.ts"),
-  pushRoute: path.join(root, "src/app/api/consumer/push/route.ts"),
-  component: path.join(root, "src/components/consumer/web-push-settings-client.tsx"),
-  page: path.join(root, "src/app/[locale]/(consumer)/account/notifications/page.tsx"),
+  schema: path.join(root, "src/features/web-push/api/web-push-contracts.ts"),
+  schemaIndex: path.join(root, "src/features/web-push/index.ts"),
+  fixtureSource: path.join(root, "src/features/web-push/model/web-push-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/web-push/model/web-push-fixtures.test.ts"),
+  helper: path.join(root, "src/features/web-push/model/browser-push.ts"),
+  dal: path.join(root, "src/features/web-push/api/web-push.ts"),
+  dalIndex: path.join(root, "src/features/web-push/index.server.ts"),
+  settingsRoute: path.join(root, "src/_app/api-routes/consumer-notifications/notifications.ts"),
+  settingsRouteAdapter: path.join(root, "app/api/consumer/notifications/route.ts"),
+  pushRoute: path.join(root, "src/_app/api-routes/consumer-notifications/push.ts"),
+  pushRouteAdapter: path.join(root, "app/api/consumer/push/route.ts"),
+  component: path.join(root, "src/features/web-push/ui/WebPushSettings.tsx"),
+  page: path.join(root, "src/_pages/account-notifications/ui/AccountNotificationsPage.tsx"),
+  pageRoute: path.join(root, "app/[locale]/(consumer)/account/notifications/page.tsx"),
+  serverApi: path.join(root, "src/_pages/account-notifications/index.server.ts"),
+  clientApi: path.join(root, "src/features/web-push/index.ts"),
   serviceWorker: path.join(root, "public/push-sw.js"),
-  fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
-  paths: path.join(root, "src/lib/consumer/paths.ts"),
+  fixtureRegistry: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  paths: path.join(root, "src/shared/routing/consumer-paths.ts"),
   matrix: path.join(root, "docs/consumer-parity-matrix.md"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
@@ -74,8 +78,11 @@ if (failures.length === 0) {
   for (const forbidden of fixture.forbiddenMarkers ?? []) {
     requireCondition(!source.serviceWorker.includes(forbidden) && !source.component.includes(forbidden), `public Web Push source contains forbidden marker ${forbidden}`);
   }
-  requireCondition(source.fixtureRegistry.includes('"web-push-happy"') && source.proxy.includes('startsWith("web-push-")') && source.queries.includes('startsWith("web-push-")'), "Web Push fixtures must cross the authenticated loopback boundary");
-  requireCondition(source.paths.includes("account(?:\\/notifications)?") && source.page.includes("WebPushSettingsClient"), "Web Push page must be a protected consumer route");
+  requireCondition(source.fixtureRegistry.includes('"web-push-happy"') && source.proxy.includes('startsWith("web-push-")') && source.settingsRoute.includes('startsWith("web-push-")'), "Web Push fixtures must cross the authenticated loopback boundary");
+  requireCondition(source.settingsRouteAdapter.includes('getConsumerNotifications as GET') && source.settingsRouteAdapter.includes('from "@/_app/api-routes/consumer-notifications"') && source.pushRouteAdapter.includes('postConsumerPush as POST') && source.pushRouteAdapter.includes('from "@/_app/api-routes/consumer-notifications"'), "Web Push routes must delegate to the FSD app adapter");
+  requireCondition(source.paths.includes("account(?:\\/notifications)?") && source.page.includes("WebPushSettings"), "Web Push page must be a protected consumer route");
+  requireCondition(source.pageRoute.includes('export { AccountNotificationsPage as default } from "@/_pages/account-notifications/index.server"') && source.pageRoute.includes('export const dynamic = "force-dynamic"'), "notification route must re-export its FSD page and retain dynamic rendering");
+  requireCondition(source.serverApi.includes("./ui/AccountNotificationsPage") && source.clientApi.includes("./ui/WebPushSettings"), "notification slice must expose its server page and client UI through public APIs");
   requireCondition(source.en.includes('"notifications"') && source.ko.includes('"notifications"') && source.en.includes('"accountNotifications"') && source.ko.includes('"accountNotifications"'), "Web Push copy must be localized");
   requireCondition(source.matrix.includes("#445") && /registration-only|delivery unverified|delivery-unverified/i.test(source.matrix), "parity matrix must state the unverified Web Push delivery boundary");
   requireCondition(source.e2e.includes("permission settings and deep-link") && source.e2e.includes("denied") && source.e2e.includes("unsupported") && source.e2e.includes("foreign") && source.e2e.includes("task-32-bookgolas-web-app-parity.png"), "Web Push browser suite must cover issue lanes and evidence");
