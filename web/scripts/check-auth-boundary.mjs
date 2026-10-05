@@ -3,11 +3,11 @@ import path from "node:path";
 
 const webRoot = path.resolve(import.meta.dirname, "..");
 const requiredFiles = [
-  "src/lib/supabase-config.ts",
+  "src/shared/api/supabase/config.ts",
   "src/lib/supabase.ts",
-  "src/lib/supabase-server.ts",
-  "src/lib/supabase-admin.ts",
-  "src/proxy.ts",
+  "src/shared/api/supabase/server.ts",
+  "src/shared/api/supabase/admin.ts",
+  "proxy.ts",
 ];
 
 for (const relativePath of requiredFiles) {
@@ -22,10 +22,10 @@ for (const marker of ["placeholder.supabase.co", "placeholder-key"]) {
 }
 
 for (const relativePath of [
-  "src/app/[locale]/(consumer)/home/page.tsx",
-  "src/app/[locale]/(consumer)/account/page.tsx",
-  "src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
-  "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+  "app/[locale]/(consumer)/home/page.tsx",
+  "app/[locale]/(consumer)/account/page.tsx",
+  "app/[locale]/(consumer)/books/[bookId]/page.tsx",
+  "app/[locale]/(consumer)/reading/[bookId]/page.tsx",
 ]) {
   const page = fs.readFileSync(path.join(webRoot, relativePath), "utf8");
   if (!page.includes('export const dynamic = "force-dynamic"')) {

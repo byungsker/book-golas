@@ -7,27 +7,28 @@ const paths = {
   contract: path.join(root, "docs/timer-contract.json"),
   fixture: path.join(root, "scripts/fixtures/timer-negative.json"),
   manifest: path.join(root, "package.json"),
-  state: path.join(root, "src/lib/consumer/timer-state.ts"),
-  stateTest: path.join(root, "src/lib/consumer/timer-state.test.ts"),
-  fixtures: path.join(root, "src/lib/consumer/timer-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/timer-fixtures.test.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  queries: path.join(root, "src/lib/consumer/queries.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  contractSource: path.join(root, "src/lib/product/contracts/timer.ts"),
-  contractTest: path.join(root, "src/lib/product/contracts/timer.test.ts"),
-  books: path.join(root, "src/lib/product/contracts/books.ts"),
-  codec: path.join(root, "src/lib/product/dal/codec.ts"),
-  api: path.join(root, "src/app/api/consumer/timer/route.ts"),
-  apiTest: path.join(root, "src/app/api/consumer/timer/route.test.ts"),
-  provider: path.join(root, "src/components/consumer/consumer-timer-provider.tsx"),
-  floating: path.join(root, "src/components/consumer/floating-timer-bar.tsx"),
-  control: path.join(root, "src/components/consumer/reading-timer-control.tsx"),
-  layout: path.join(root, "src/app/[locale]/(consumer)/layout.tsx"),
-  shell: path.join(root, "src/components/consumer/consumer-shell.tsx"),
-  detail: path.join(root, "src/components/consumer/book-detail-client.tsx"),
-  signOut: path.join(root, "src/components/consumer/sign-out-button.tsx"),
-  auth: path.join(root, "src/components/consumer/auth-form.tsx"),
+  state: path.join(root, "src/features/reading-timer/model/timer-state.ts"),
+  stateTest: path.join(root, "src/features/reading-timer/model/timer-state.test.ts"),
+  fixtures: path.join(root, "src/features/reading-timer/model/timer-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/reading-timer/model/timer-fixtures.test.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  detailBookQuery: path.join(root, "src/_pages/book-detail/api/fetch-page-book.ts"),
+  logoutEvents: path.join(root, "src/shared/auth/session-events.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  contractSource: path.join(root, "src/features/reading-timer/api/timer-contracts.ts"),
+  contractTest: path.join(root, "src/features/reading-timer/api/timer-contracts.test.ts"),
+  books: path.join(root, "src/shared/api/contracts/books.ts"),
+  codec: path.join(root, "src/entities/book/api/codec.ts"),
+  api: path.join(root, "src/_app/api-routes/consumer-reading/timer.ts"),
+  apiTest: path.join(root, "app/api/consumer/timer/route.test.ts"),
+  provider: path.join(root, "src/features/reading-timer/ui/ConsumerTimerProvider.tsx"),
+  floating: path.join(root, "src/features/reading-timer/ui/FloatingTimerBar.tsx"),
+  control: path.join(root, "src/features/reading-timer/ui/ReadingTimerControl.tsx"),
+  layout: path.join(root, "src/_app/layouts/consumer/ConsumerLayout.tsx"),
+  shell: path.join(root, "src/_app/layouts/consumer/ui/ConsumerShell.tsx"),
+  detail: path.join(root, "src/_pages/book-detail/ui/BookDetailClient.tsx"),
+  signOut: path.join(root, "src/features/auth/ui/SignOutButton.tsx"),
+  auth: path.join(root, "src/features/auth/ui/AuthForm.tsx"),
   e2e: path.join(root, "tests/e2e/timer.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -62,12 +63,12 @@ if (failures.length === 0) {
   requireCondition(contract.constants.minimumSeconds === 30 && contract.constants.maximumSeconds === 28800, "timer bounds must match the native ceiling");
   requireCondition(Array.isArray(contract.nativeOnly) && contract.nativeOnly.length >= 6, "timer native-only capabilities must be explicit");
   requireCondition(fixture.issue === 436 && fixture.fixtures.length >= 6, "timer negative fixtures must cover thresholds, replay, logout, ownership and offline failure");
-  requireCondition(manifest.scripts["test:timer"] === "node scripts/test-timer.mjs && vitest run src/lib/product/contracts/timer.test.ts src/lib/consumer/timer-state.test.ts src/lib/consumer/timer-fixtures.test.ts src/app/api/consumer/timer/route.test.ts", "package must expose the exact timer acceptance command");
+  requireCondition(manifest.scripts["test:timer"] === "node scripts/test-timer.mjs && vitest run src/features/reading-timer/api/timer-contracts.test.ts src/features/reading-timer/model/timer-state.test.ts src/features/reading-timer/model/timer-fixtures.test.ts app/api/consumer/timer/route.test.ts", "package must expose the exact timer acceptance command");
   requireCondition(manifest.scripts["test:timer:negative"] === "node scripts/test-timer.mjs --fixture minimum && node scripts/test-timer.mjs --fixture duplicate && node scripts/test-timer.mjs --fixture logout && node scripts/test-timer.mjs --fixture over-max", "package must expose the exact timer negative command");
   requireCondition(source.contractSource.includes("TimerFinishRequestSchema") && source.contractSource.includes("timerMaximumSeconds") && source.contractSource.includes("idempotencyKey"), "timer request contract must own the bounds and idempotency key");
   requireCondition(source.contractTest.includes("user_id") && source.contractTest.includes("endedAt") && source.contractTest.includes("timerRequestMaximumSeconds"), "timer contract tests must reject caller identity, reversed dates and excessive input");
   requireCondition(source.state.includes("timerStorageKey") && source.state.includes("timerMinimumMilliseconds") && source.state.includes("timerMaximumMilliseconds") && source.state.includes("pauseTimerState") && source.state.includes("resumeTimerState"), "timer state must persist pause/resume and native bounds");
-  requireCondition(source.state.includes("clearBrowserTimerState") && source.state.includes("bookgolas:logout"), "timer state must clear on logout");
+  requireCondition(source.state.includes("clearBrowserTimerState") && source.provider.includes("browserLogoutEvent"), "timer state must clear on logout");
   requireCondition(source.stateTest.includes("round-trips") && source.stateTest.includes("pauses and resumes") && source.stateTest.includes("eight hours"), "timer state tests must cover restore, pause/resume and max duration");
   requireCondition(source.api.includes("resolveProductSession") && source.api.includes('.eq("user_id", userId)') && source.api.includes('.is("deleted_at", null)'), "timer API must derive and enforce the verified owner scope");
   requireCondition(source.api.includes("idempotencyKey") && source.api.includes("23505") && source.api.includes("total_reading_seconds"), "timer API must replay idempotently and update saved totals");
@@ -75,7 +76,7 @@ if (failures.length === 0) {
   requireCondition(source.apiTest.includes("discards") && source.apiTest.includes("caps") && source.apiTest.includes("duplicate") && source.apiTest.includes("unauthorized"), "timer API tests must cover threshold, replay and typed failure paths");
   requireCondition(source.routeFixture.includes('"timer-minimum"') && source.routeFixture.includes('"timer-over-max"') && source.routeFixture.includes('"timer-duplicate"') && source.routeFixture.includes('"timer-unauthorized"') && source.fixtures.includes("cappedDuration < 30") && source.fixtures.includes("savedRequests"), "timer fixtures must model negative and replay paths");
   requireCondition(source.fixtureTest.includes("short sessions") && source.fixtureTest.includes("idempotently") && source.fixtureTest.includes("offline"), "timer fixture tests must cover short, replay and offline paths");
-  requireCondition(source.routeFixture.includes('"timer-happy"') && source.proxy.includes('startsWith("timer-")') && source.queries.includes('startsWith("timer-")'), "timer fixtures must remain bounded by the loopback route and auth boundaries");
+  requireCondition(source.routeFixture.includes('"timer-happy"') && source.proxy.includes('startsWith("timer-")') && source.detailBookQuery.includes('startsWith("timer-")'), "timer fixtures must remain bounded by the loopback route and auth boundaries");
   requireCondition(source.provider.includes("localStorage") && source.provider.includes("SIGNED_OUT") && source.provider.includes("timer-saved") && source.provider.includes("stopTimer"), "timer provider must restore, clear on auth logout and publish saved totals");
   requireCondition(source.floating.includes("bookgolas-floating-timer-root") && source.floating.includes("timer-pause") && source.floating.includes("timer-stop"), "floating timer bar must expose stable controls");
   requireCondition(source.control.includes("reading-timer-open") && source.control.includes("reading-timer-dialog") && source.control.includes("timer-start"), "book detail must expose the timer modal and start action");
@@ -94,7 +95,7 @@ if (failures.length === 0) {
     requireCondition(source.fixtures.includes("savedRequests") && source.api.includes("existing") && source.e2e.includes("idempotencyKey"), "duplicate fixture must replay one session by idempotency key");
   }
   if (fixtureMode === "logout") {
-    requireCondition(source.state.includes("broadcastBrowserLogout") && source.provider.includes("handleLogout") && source.e2e.includes("localStorage"), "logout fixture must clear browser state through the auth event");
+    requireCondition(source.logoutEvents.includes("broadcastBrowserLogout") && source.provider.includes("handleLogout") && source.e2e.includes("localStorage"), "logout fixture must clear browser state through the auth event");
   }
   if (fixtureMode === "over-max") {
     requireCondition(source.contractSource.includes("timerRequestMaximumSeconds") && source.api.includes("Math.min(input.durationSeconds, timerMaximumSeconds)") && source.e2e.includes("86_400"), "over-max fixture must cap persisted duration at eight hours");

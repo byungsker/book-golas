@@ -7,18 +7,18 @@ const paths = {
   contract: path.join(root, "docs/charts-goals-contract.json"),
   fixture: path.join(root, "scripts/fixtures/charts-goals-negative.json"),
   manifest: path.join(root, "package.json"),
-  source: path.join(root, "src/lib/product/contracts/charts-goals.ts"),
-  sourceTest: path.join(root, "src/lib/product/contracts/charts-goals.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/charts-goals-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/charts-goals-fixtures.test.ts"),
+  source: path.join(root, "src/_pages/stats/model/reading-analytics.ts"),
+  sourceTest: path.join(root, "src/_pages/stats/model/reading-analytics.test.ts"),
+  fixtureSource: path.join(root, "src/_pages/stats/model/charts-goals-fixtures.ts"),
+  fixtureTest: path.join(root, "src/_pages/stats/model/charts-goals-fixtures.test.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  page: path.join(root, "src/app/[locale]/(consumer)/stats/page.tsx"),
-  loading: path.join(root, "src/app/[locale]/(consumer)/stats/loading.tsx"),
-  error: path.join(root, "src/app/[locale]/(consumer)/stats/error.tsx"),
-  client: path.join(root, "src/components/consumer/reading-analytics-client.tsx"),
-  api: path.join(root, "src/app/api/consumer/charts-goals/route.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  page: path.join(root, "src/_pages/stats/ui/StatsPage.tsx"),
+  loading: path.join(root, "src/_pages/stats/ui/StatsLoading.tsx"),
+  error: path.join(root, "src/_pages/stats/ui/StatsError.tsx"),
+  client: path.join(root, "src/_pages/stats/ui/ReadingAnalyticsView.tsx"),
+  api: path.join(root, "app/api/consumer/charts-goals/route.ts"),
   e2e: path.join(root, "tests/e2e/charts-goals.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -47,7 +47,7 @@ if (failures.length === 0) {
   for (const operation of ["select-tab", "select-period", "navigate-period", "select-status", "choose-custom-range", "save-goal", "refresh-after-goal", "share-card", "clipboard-fallback", "download-fallback", "owner-scope", "kst-boundary"]) requireCondition(contract.operations.includes(operation), `charts/goals contract must cover ${operation}`);
   requireCondition(contract.native.periods.join(",") === "annual,monthly,weekly,custom", "native chart periods must be preserved");
   requireCondition(fixture.issue === 440 && fixture.task === 27 && fixture.fixtures.length >= 8, "charts/goals negative fixtures are incomplete");
-  requireCondition(manifest.scripts["test:charts-goals"] === "node scripts/test-charts-goals.mjs && vitest run src/lib/product/contracts/charts-goals.test.ts src/lib/consumer/charts-goals-fixtures.test.ts src/app/api/consumer/charts-goals/route.test.ts", "package must expose the exact charts/goals acceptance command");
+  requireCondition(manifest.scripts["test:charts-goals"] === "node scripts/test-charts-goals.mjs && vitest run src/_pages/stats/model/reading-analytics.test.ts src/_pages/stats/model/charts-goals-fixtures.test.ts app/api/consumer/charts-goals/route.test.ts", "package must expose the exact charts/goals acceptance command");
   requireCondition(manifest.scripts["test:charts-goals:negative"] === "node scripts/test-charts-goals.mjs --fixture timezone && node scripts/test-charts-goals.mjs --fixture foreign && node scripts/test-charts-goals.mjs --fixture deleted && node scripts/test-charts-goals.mjs --fixture unauthorized && node scripts/test-charts-goals.mjs --fixture invalid-range && node scripts/test-charts-goals.mjs --fixture stale", "package must expose the charts/goals negative command");
   requireCondition(source.source.includes('CHARTS_GOALS_TIME_ZONE = CALENDAR_TIME_ZONE') && source.source.includes("page - event.previousPage") && source.source.includes("Asia/Seoul"), "contract must make KST and page delta semantics explicit");
   requireCondition(source.source.includes("reading_sessions") || source.source.includes("durationSeconds"), "contract must expose session seconds");

@@ -7,21 +7,21 @@ const paths = {
   contract: path.join(root, "docs/recall-contract.json"),
   fixture: path.join(root, "scripts/fixtures/recall-negative.json"),
   package: path.join(root, "package.json"),
-  contractSource: path.join(root, "src/lib/product/contracts/recall.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/recall-fixtures.ts"),
-  fixtureTest: path.join(root, "src/lib/consumer/recall-fixtures.test.ts"),
-  tableTest: path.join(root, "src/lib/product/adapters.tables.test.ts"),
-  tables: path.join(root, "src/lib/product/adapters/tables.ts"),
-  dal: path.join(root, "src/lib/product/dal/consumer-images.ts"),
-  route: path.join(root, "src/app/api/consumer/recall/route.ts"),
-  sourceRoute: path.join(root, "src/app/api/consumer/recall/source/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/recall/route.test.ts"),
-  component: path.join(root, "src/components/consumer/recall-client.tsx"),
-  library: path.join(root, "src/components/consumer/library-client.tsx"),
-  detail: path.join(root, "src/components/consumer/book-detail-client.tsx"),
-  fixtureRegistry: path.join(root, "src/lib/consumer/route-fixture.ts"),
+  contractSource: path.join(root, "src/shared/api/contracts/recall.ts"),
+  fixtureSource: path.join(root, "src/features/recall/model/recall-fixtures.ts"),
+  fixtureTest: path.join(root, "src/features/recall/model/recall-fixtures.test.ts"),
+  tableTest: path.join(root, "src/shared/api/product/adapters/tables.test.ts"),
+  tables: path.join(root, "src/shared/api/product/adapters/tables.ts"),
+  dal: path.join(root, "src/features/images-ocr/api/images-ocr.ts"),
+  route: path.join(root, "app/api/consumer/recall/route.ts"),
+  sourceRoute: path.join(root, "app/api/consumer/recall/source/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/recall/route.test.ts"),
+  component: path.join(root, "src/features/recall/ui/RecallSearch.tsx"),
+  library: path.join(root, "src/_pages/library/ui/LibraryView.tsx"),
+  detail: path.join(root, "src/_pages/book-detail/ui/BookDetailClient.tsx"),
+  fixtureRegistry: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
   queries: path.join(root, "src/lib/consumer/queries.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
+  proxy: path.join(root, "proxy.ts"),
   en: path.join(root, "messages/en.json"),
   ko: path.join(root, "messages/ko.json"),
   e2e: path.join(root, "tests/e2e/recall.spec.ts"),
@@ -54,7 +54,7 @@ if (failures.length === 0) {
   requireCondition(fixture.issue === 441 && fixture.task === 29 && fixture.forbiddenMarkers.length >= 5, "Recall negative fixture metadata is incomplete");
   requireCondition(new Set(fixture.fixtures?.map((item) => item.name)).size === fixture.fixtures?.length, "Recall fixture names must be unique");
 
-  const expectedTest = "node scripts/test-recall.mjs && vitest run src/lib/product/contracts/recall.test.ts src/lib/consumer/recall-fixtures.test.ts src/app/api/consumer/recall/route.test.ts src/lib/product/adapters.tables.test.ts src/lib/product/dal.consumer-images.test.ts";
+  const expectedTest = "node scripts/test-recall.mjs && vitest run src/shared/api/contracts/recall.test.ts src/features/recall/model/recall-fixtures.test.ts app/api/consumer/recall/route.test.ts src/shared/api/product/adapters/tables.test.ts src/features/images-ocr/api/images-ocr.test.ts";
   const expectedNegative = "node scripts/test-recall.mjs --fixture unauthorized && node scripts/test-recall.mjs --fixture consent && node scripts/test-recall.mjs --fixture quota && node scripts/test-recall.mjs --fixture provider && node scripts/test-recall.mjs --fixture offline && node scripts/test-recall.mjs --fixture empty && node scripts/test-recall.mjs --fixture foreign && node scripts/test-recall.mjs --fixture signed-image";
   requireCondition(packageJson.scripts?.["test:recall"] === expectedTest, "package must expose the exact Recall acceptance command");
   requireCondition(packageJson.scripts?.["test:recall:negative"] === expectedNegative, "package must expose the exact Recall negative command");
@@ -69,7 +69,7 @@ if (failures.length === 0) {
   for (const marker of ["recall-loading", "recall-consent", "recall-quota", "recall-provider", "recall-offline", "recall-source-group-toggle", "recall-source-detail", "recall-source-copy", "recall-source-go-to-book"]) requireCondition(source.component.includes(marker), `Recall UI must expose ${marker}`);
   requireCondition(source.component.includes('testPrefix}-empty') && source.component.includes('testPrefix}-history-delete'), "Recall UI must expose scoped empty and history deletion states");
   requireCondition(source.component.includes("clipboard") && source.component.includes("signedUrl") && source.component.includes("photo_ocr"), "Recall UI must support copy and private image detail");
-  requireCondition(source.library.includes("RecallClient") && source.detail.includes("RecallClient"), "global library and per-book detail must mount Recall");
+  requireCondition(source.library.includes("RecallSearch") && source.detail.includes("RecallSearch"), "global library and per-book detail must mount Recall");
   requireCondition(source.fixtureRegistry.includes('"recall-happy"') && source.proxy.includes('startsWith("recall-")') && source.queries.includes('startsWith("recall-")'), "Recall fixtures must cross authenticated loopback boundaries");
   requireCondition(source.en.includes('"recall"') && source.ko.includes('"recall"'), "Recall copy must exist in Korean and English");
   requireCondition(source.fixtureSource.includes("Foreign private title") && source.fixtureSource.includes("recall-foreign"), "negative fixture source must include foreign boundary markers");

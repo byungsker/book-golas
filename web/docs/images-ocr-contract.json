@@ -21,7 +21,7 @@
   "web": {
     "route": "/{locale}/books/{bookId}",
     "api": "/api/consumer/images-ocr",
-    "component": "src/components/consumer/book-image-capture-client.tsx",
+    "component": "src/features/images-ocr/ui/BookImageCaptureClient.tsx",
     "storage": "private book-images bucket with userId/bookId/imageId.ext paths",
     "browserDisposition": "camera when secure and permitted; file input and manual OCR fallback otherwise",
     "ocr": "authenticated vision-ocr invocation after image metadata is saved"

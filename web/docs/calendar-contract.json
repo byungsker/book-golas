@@ -20,7 +20,7 @@
   },
   "web": {
     "route": "/[locale]/calendar",
-    "component": "src/components/consumer/calendar-client.tsx",
+    "component": "src/_pages/calendar/ui/CalendarView.tsx",
     "dataSources": ["reading_progress_history", "reading_sessions", "books"],
     "timeZone": "Asia/Seoul",
     "browserDisposition": {

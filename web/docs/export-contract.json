@@ -51,7 +51,7 @@
       "nativeActions": ["open export", "select year", "confirm account email", "choose JSON or CSV", "include page images", "send export"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/reading-data-export-client.tsx::ReadingDataExportClient",
+      "webComponent": "web/src/_pages/account/ui/ReadingDataExport.tsx::ReadingDataExport",
       "browserDisposition": "Localized account action with selected-year and format controls; loading, empty and recoverable failure states are exposed through data attributes"
     },
     {
@@ -59,7 +59,7 @@
       "nativeActions": ["resolve current user", "send to verified email"],
       "nativeStates": ["unauthorized", "error"],
       "webRoute": "/api/consumer/export",
-      "webComponent": "web/src/lib/product/adapters/functions-adapters.ts::exportReadingData",
+      "webComponent": "web/src/shared/api/product/adapters/functions-adapters.ts::exportReadingData",
       "browserDisposition": "Server compares the submitted email to the verified session and rejects caller-selected identity or another user's email"
     },
     {
@@ -75,7 +75,7 @@
       "nativeActions": ["show sending progress", "show sent confirmation", "retry delivery"],
       "nativeStates": ["loading", "error", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/reading-data-export-client.tsx::error and retry states",
+      "webComponent": "web/src/_pages/account/ui/ReadingDataExport.tsx::error and retry states",
       "browserDisposition": "Provider and download failures keep a retry action; hosted delivery and a downloadable URL remain unclaimed until verified"
     }
   ],

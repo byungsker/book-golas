@@ -30,7 +30,7 @@
       "nativeActions": ["read settings", "toggle notification_enabled", "toggle daily_reminder_enabled", "toggle goal_alarm_enabled", "toggle event_nudge_enabled", "set reminder and goal times"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline"],
       "webRoute": "/{locale}/account/notifications",
-      "webComponent": "web/src/components/consumer/web-push-settings-client.tsx",
+      "webComponent": "web/src/_pages/account-notifications/ui/WebPushSettings.tsx",
       "browserDisposition": "Web Push permission and subscription registration; hosted delivery remains unverified"
     },
     {
@@ -38,7 +38,7 @@
       "nativeActions": ["register device token", "remove device token", "open notification destination"],
       "nativeStates": ["loading", "error", "unauthorized", "offline"],
       "webRoute": "/api/consumer/push and /push-sw.js",
-      "webComponent": "web/src/lib/consumer/web-push.ts",
+      "webComponent": "web/src/features/web-push/model/browser-push.ts",
       "browserDisposition": "Browser Push API registration with same-origin canonical detail navigation; no delivery claim"
     },
     {

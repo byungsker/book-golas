@@ -92,7 +92,7 @@ Production data as part of this release-readiness task.
 
 The admin boundary remains deny-by-default. Unauthenticated /admin requests go to
 /admin/login, and only the explicit email allow-list can pass the proxy and
-requireAdminUser guard. Every web/src/app/api/admin route checks that guard before
+requireAdminUser guard. Every web/app/api/admin route checks that guard before
 reading or writing data.
 
 The root /privacy, /terms and /support routes redirect to /ko/privacy,

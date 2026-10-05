@@ -5,14 +5,16 @@ const root = process.cwd();
 const contractPath = path.join(root, "docs/auth-email-contract.json");
 const fixturePath = path.join(root, "scripts/fixtures/auth-email-negative.json");
 const packagePath = path.join(root, "package.json");
-const authFormPath = path.join(root, "src/components/consumer/auth-form.tsx");
-const signInPagePath = path.join(root, "src/app/[locale]/(auth)/auth/sign-in/page.tsx");
+const authFormPath = path.join(root, "src/features/auth/ui/AuthForm.tsx");
+const signInRoutePath = path.join(root, "app/[locale]/(auth)/auth/sign-in/page.tsx");
+const signInPagePath = path.join(root, "src/_pages/sign-in/ui/SignInPage.tsx");
+const signInEntryPath = path.join(root, "src/_pages/sign-in/index.server.ts");
 
 function requireCondition(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-for (const filePath of [contractPath, fixturePath, packagePath, authFormPath, signInPagePath]) {
+for (const filePath of [contractPath, fixturePath, packagePath, authFormPath, signInRoutePath, signInPagePath, signInEntryPath]) {
   requireCondition(fs.existsSync(filePath), `missing auth-email contract file: ${path.relative(root, filePath)}`);
 }
 
@@ -21,6 +23,8 @@ const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 const manifest = JSON.parse(fs.readFileSync(packagePath, "utf8"));
 const authForm = fs.readFileSync(authFormPath, "utf8");
 const signInPage = fs.readFileSync(signInPagePath, "utf8");
+const signInRoute = fs.readFileSync(signInRoutePath, "utf8");
+const signInEntry = fs.readFileSync(signInEntryPath, "utf8");
 
 requireCondition(contract.issue === 423, "contract must bind GitHub issue 423");
 requireCondition(JSON.stringify(contract.locales) === JSON.stringify(["ko", "en"]), "contract must cover ko and en");
@@ -41,7 +45,7 @@ for (const rule of ["no-password-storage", "non-enumerating-signup-and-recovery"
   requireCondition(contract.security.includes(rule), `contract is missing security rule: ${rule}`);
 }
 
-requireCondition(signInPage.includes("getSafeNextPath"), "sign-in must resolve return targets on the server");
+requireCondition(signInPage.includes("getSafeNextPath") && signInRoute.includes('from "@/_pages/sign-in"') && signInEntry.includes('from "./ui/SignInPage"'), "sign-in must resolve return targets through its FSD page entrypoint");
 requireCondition(fixture.unsafeReturnTargets.length >= 5, "negative fixture must cover unsafe return targets");
 requireCondition(fixture.accountExistenceMessages.length >= 3, "negative fixture must cover provider enumeration messages");
 requireCondition(!authForm.includes("localStorage.setItem") || !authForm.includes("localStorage.setItem(\"password"), "auth form must not store passwords");

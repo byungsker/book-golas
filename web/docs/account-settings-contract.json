@@ -14,7 +14,7 @@
       "nativeActions": ["edit-profile", "choose-avatar", "upload-avatar", "save-nickname"],
       "nativeStates": ["loading", "empty", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/account-settings-client.tsx::AccountSettingsClient",
+      "webComponent": "web/src/_pages/account/ui/AccountSettings.tsx::AccountSettings",
       "browserDisposition": "Chromium exact profile and avatar lane; private owner-scoped API and signed avatar URL"
     },
     {
@@ -22,7 +22,7 @@
       "nativeActions": ["change-theme", "change-language", "confirm-language"],
       "nativeStates": ["loading", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/account-settings-client.tsx::AccountSettingsClient",
+      "webComponent": "web/src/_pages/account/ui/AccountSettings.tsx::AccountSettings",
       "browserDisposition": "Chromium exact theme and language lane; browser preference and locale route round-trip"
     },
     {
@@ -30,7 +30,7 @@
       "nativeActions": ["open-password-modal", "validate-current-password", "update-password"],
       "nativeStates": ["loading", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/account-settings-client.tsx::account-password-dialog",
+      "webComponent": "web/src/_pages/account/ui/AccountSettings.tsx::account-password-dialog",
       "browserDisposition": "Chromium failure lane covers short, mismatch and provider failure without storing the password"
     },
     {
@@ -38,7 +38,7 @@
       "nativeActions": ["open-subscription-entry"],
       "nativeStates": ["free", "disabled", "loading", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/subscription",
-      "webComponent": "web/src/app/[locale]/(consumer)/subscription/page.tsx::SubscriptionPage",
+      "webComponent": "web/src/_pages/subscription/ui/SubscriptionPage.tsx::SubscriptionPage",
       "browserDisposition": "Disabled Web status page; no billing request or enabled payment action"
     },
     {
@@ -46,7 +46,7 @@
       "nativeActions": ["open-terms", "open-privacy", "open-ai-consent", "open-announcements"],
       "nativeStates": ["loading", "error", "unauthorized", "offline"],
       "webRoute": "/{locale}/account",
-      "webComponent": "web/src/components/consumer/account-settings-client.tsx::legal links",
+      "webComponent": "web/src/_pages/account/ui/AccountSettings.tsx::legal links",
       "browserDisposition": "Locale-preserving links resolve to terms, privacy, AI consent anchor and announcements"
     }
   ],

@@ -7,16 +7,17 @@ const paths = {
   contract: path.join(root, "docs/library-contract.json"),
   fixture: path.join(root, "scripts/fixtures/library-negative.json"),
   manifest: path.join(root, "package.json"),
-  page: path.join(root, "src/app/[locale]/(consumer)/library/page.tsx"),
-  api: path.join(root, "src/app/api/consumer/library/route.ts"),
-  component: path.join(root, "src/components/consumer/library-client.tsx"),
-  recall: path.join(root, "src/components/consumer/recall-client.tsx"),
-  library: path.join(root, "src/lib/consumer/library.ts"),
-  fixtures: path.join(root, "src/lib/consumer/library-fixtures.ts"),
-  records: path.join(root, "src/lib/product/dal/records.ts"),
-  tables: path.join(root, "src/lib/product/adapters/tables.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
+  page: path.join(root, "app/[locale]/(consumer)/library/page.tsx"),
+  pageSlice: path.join(root, "src/_pages/library/ui/LibraryPage.tsx"),
+  api: path.join(root, "app/api/consumer/library/route.ts"),
+  component: path.join(root, "src/_pages/library/ui/LibraryView.tsx"),
+  recall: path.join(root, "src/features/recall/ui/RecallSearch.tsx"),
+  library: path.join(root, "src/_pages/library/model/library.ts"),
+  fixtures: path.join(root, "src/features/library/model/library-fixtures.ts"),
+  records: path.join(root, "src/features/library/api/reading-records.ts"),
+  tables: path.join(root, "src/shared/api/product/adapters/tables.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
   e2e: path.join(root, "tests/e2e/library.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -42,9 +43,10 @@ for (const state of ["loading", "empty", "error", "unauthorized", "consent", "qu
 requireCondition(contract.web.pagination.kind === "server-cursor" && contract.web.pagination.deduplicateBy === "id", "library pagination must be server cursor based and id deduplicated");
 requireCondition(contract.web.recall.entry === "global" && contract.web.recall.historyScope === "book_id IS NULL" && contract.web.recall.resultIsBookList === false, "Recall must be global, owner scoped and separate from books");
 requireCondition(contract.dataPolicy.ownerScoped && contract.dataPolicy.callerIdentityRejected && contract.dataPolicy.softDeletedExcluded && contract.dataPolicy.recallHistoryOwnerScoped, "library contract must state privacy policies");
-requireCondition(manifest.scripts["test:library"] === "node scripts/test-library.mjs && vitest run src/lib/consumer/library.test.ts src/lib/product/adapters.tables.test.ts src/lib/product/dal.test.ts src/lib/product/dal.records.test.ts", "package must expose the exact library acceptance command");
+requireCondition(manifest.scripts["test:library"] === "node scripts/test-library.mjs && vitest run src/_pages/library/model/library.test.ts src/shared/api/product/adapters/tables.test.ts src/entities/book/api/books.test.ts src/features/library/api/reading-records.test.ts", "package must expose the exact library acceptance command");
 requireCondition(manifest.scripts["test:library:negative"] === "node scripts/test-library.mjs --fixture foreign-private-data", "package must expose the library negative command");
-requireCondition(source.page.includes("LibraryClient") && source.page.includes("initialRecall"), "library page must expose the client parity surface and Recall entry state");
+requireCondition(source.page.includes("LibraryPage as default"), "library route must re-export its FSD page slice");
+requireCondition(source.pageSlice.includes("LibraryView") && source.pageSlice.includes("initialRecall"), "library page slice must expose the library view and Recall entry state");
 requireCondition(source.api.includes("user_id") && source.api.includes("Ownership is derived") && source.api.includes("listGlobalRecallHistory"), "library API must reject caller identity and scope Recall history");
 requireCondition(source.api.includes("listOwnedReadingRecords") && source.api.includes("reviewOnly") && source.api.includes("Cache-Control"), "library API must use owner-scoped books/records and private caching");
 requireCondition(source.component.includes("AbortController") && source.component.includes("requestSequence") && source.component.includes("mergeById"), "library client must cancel stale requests and deduplicate pages");

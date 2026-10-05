@@ -9,10 +9,10 @@ const testResult = spawnSync(
   vitest,
   [
     "run",
-    "src/lib/consumer/paths.test.ts",
-    "src/lib/consumer/route-fixture.test.ts",
-    "src/lib/consumer/queries.test.ts",
-    "src/app/[locale]/(auth)/auth/callback/route.test.ts",
+    "src/shared/routing/consumer-paths.test.ts",
+    "src/shared/config/consumer-route-fixture.test.ts",
+    "src/entities/book/api/fetch-owned-book.test.ts",
+    "app/[locale]/(auth)/auth/callback/route.test.ts",
     "src/proxy.test.ts",
   ],
   { cwd: webRoot, encoding: "utf8", stdio: "inherit" },
@@ -42,7 +42,7 @@ const requiredRoutes = [
 ];
 
 for (const route of requiredRoutes) {
-  const target = path.join(webRoot, "src/app/[locale]", route);
+  const target = path.join(webRoot, "app/[locale]", route);
   if (!fs.existsSync(target) || fs.statSync(target).size === 0) {
     throw new Error(`missing canonical consumer route: ${route}`);
   }
@@ -73,19 +73,28 @@ for (const locale of ["ko", "en"]) {
 }
 
 const consumerLayout = fs.readFileSync(
-  path.join(webRoot, "src/app/[locale]/(consumer)/layout.tsx"),
+  path.join(webRoot, "app/[locale]/(consumer)/layout.tsx"),
   "utf8",
 );
 if (!consumerLayout.includes("getCurrentConsumerUser")) {
   throw new Error("consumer layout does not own the authenticated boundary");
 }
 
-for (const detailRoute of [
-  "src/app/[locale]/(consumer)/books/[bookId]/page.tsx",
-  "src/app/[locale]/(consumer)/reading/[bookId]/page.tsx",
-  "src/components/consumer/consumer-route-placeholder.tsx",
+for (const [detailRoute, implementation] of [
+  [
+    "app/[locale]/(consumer)/books/[bookId]/page.tsx",
+    "src/_pages/book-detail/ui/BookDetailPage.tsx",
+  ],
+  [
+    "app/[locale]/(consumer)/reading/[bookId]/page.tsx",
+    "src/_pages/reading/ui/ReadingPage.tsx",
+  ],
+  [
+    "src/components/consumer/consumer-route-placeholder.tsx",
+    "src/components/consumer/consumer-route-placeholder.tsx",
+  ],
 ]) {
-  const source = fs.readFileSync(path.join(webRoot, detailRoute), "utf8");
+  const source = fs.readFileSync(path.join(webRoot, implementation), "utf8");
   if (!source.includes("fetchOwnedBook")) {
     throw new Error(`detail route lacks an ownership lookup: ${detailRoute}`);
   }

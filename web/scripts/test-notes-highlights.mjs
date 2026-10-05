@@ -7,17 +7,18 @@ const paths = {
   contract: path.join(root, "docs/notes-highlights-contract.json"),
   fixture: path.join(root, "scripts/fixtures/notes-highlights-negative.json"),
   manifest: path.join(root, "package.json"),
-  schema: path.join(root, "src/lib/product/contracts/notes-highlights.ts"),
-  schemaTest: path.join(root, "src/lib/product/contracts/notes-highlights.test.ts"),
-  dal: path.join(root, "src/lib/product/dal/consumer-records.ts"),
-  dalTest: path.join(root, "src/lib/product/dal.consumer-records.test.ts"),
-  route: path.join(root, "src/app/api/consumer/notes-highlights/route.ts"),
-  routeTest: path.join(root, "src/app/api/consumer/notes-highlights/route.test.ts"),
-  fixtureSource: path.join(root, "src/lib/consumer/notes-highlights-fixtures.ts"),
-  routeFixture: path.join(root, "src/lib/consumer/route-fixture.ts"),
-  proxy: path.join(root, "src/proxy.ts"),
-  client: path.join(root, "src/components/consumer/notes-highlights-client.tsx"),
-  detail: path.join(root, "src/components/consumer/book-detail-client.tsx"),
+  schema: path.join(root, "src/features/notes-highlights/api/notes-highlights-contracts.ts"),
+  schemaTest: path.join(root, "src/features/notes-highlights/api/notes-highlights-contracts.test.ts"),
+  dal: path.join(root, "src/features/notes-highlights/api/consumer-records.ts"),
+  dalTest: path.join(root, "src/features/notes-highlights/api/consumer-records.test.ts"),
+  route: path.join(root, "src/_app/api-routes/consumer-notes/notes-highlights.ts"),
+  routeAdapter: path.join(root, "app/api/consumer/notes-highlights/route.ts"),
+  routeTest: path.join(root, "app/api/consumer/notes-highlights/route.test.ts"),
+  fixtureSource: path.join(root, "src/features/notes-highlights/model/notes-highlights-fixtures.ts"),
+  routeFixture: path.join(root, "src/shared/config/consumer-route-fixture.ts"),
+  proxy: path.join(root, "proxy.ts"),
+  client: path.join(root, "src/features/notes-highlights/ui/NotesHighlightsClient.tsx"),
+  detail: path.join(root, "src/_pages/book-detail/ui/BookDetailClient.tsx"),
   e2e: path.join(root, "tests/e2e/notes-highlights.spec.ts"),
   ko: path.join(root, "messages/ko.json"),
   en: path.join(root, "messages/en.json"),
@@ -52,7 +53,7 @@ if (failures.length === 0) {
   for (const state of ["loading", "empty", "error", "unauthorized", "consent", "quota", "offline", "pending", "failed", "retry", "duplicate", "foreign"]) requireCondition(contract.states.includes(state), `notes-highlights contract must cover ${state}`);
   for (const invariant of ["page_number_is_null_or_within_book_bounds", "rectangle_coordinates_are_normalized_0_to_1", "owner_record_is_saved_before_indexing", "failed_indexing_keeps_the_saved_record", "retry_is_idempotent", "ai_indexing_requires_explicit_consent", "foreign_records_are_not_found"]) requireCondition(contract.invariants.includes(invariant), `missing invariant ${invariant}`);
   requireCondition(fixture.issue === 432 && fixture.fixtures.length >= 9, "negative fixtures must cover validation, indexing, ownership and typed states");
-  requireCondition(manifest.scripts["test:notes-highlights"] === "node scripts/test-notes-highlights.mjs && vitest run src/lib/product/contracts/notes-highlights.test.ts src/lib/product/dal.consumer-records.test.ts src/app/api/consumer/notes-highlights/route.test.ts", "package must expose the exact notes-highlights acceptance command");
+  requireCondition(manifest.scripts["test:notes-highlights"] === "node scripts/test-notes-highlights.mjs && vitest run src/features/notes-highlights/api/notes-highlights-contracts.test.ts src/features/notes-highlights/api/consumer-records.test.ts app/api/consumer/notes-highlights/route.test.ts", "package must expose the exact notes-highlights acceptance command");
   requireCondition(manifest.scripts["test:notes-highlights:negative"] === "node scripts/test-notes-highlights.mjs --fixture invalid-page && node scripts/test-notes-highlights.mjs --fixture invalid-rectangle && node scripts/test-notes-highlights.mjs --fixture index-failure && node scripts/test-notes-highlights.mjs --fixture foreign-record && node scripts/test-notes-highlights.mjs --fixture duplicate-retry", "package must expose the notes-highlights negative command");
 
   requireCondition(source.schema.includes("NormalizedHighlightRectangleSchema") && source.schema.includes("rectangle.x + rectangle.width") && source.schema.includes("normalizeHighlightRectangles"), "schema must enforce normalized rectangle bounds and round-trip normalization");
@@ -62,6 +63,7 @@ if (failures.length === 0) {
   requireCondition(source.dal.includes("finishIndexing") && source.dal.includes("runIndex") && source.dal.includes("!aiConsent") && source.dal.includes("last_index_idempotency_key") && source.dal.includes('"failed"'), "indexing must be separate, consent-gated, idempotent and failure-preserving");
   requireCondition(source.route.includes("NotesHighlightsMutationSchema") && source.route.includes("listOwnedConsumerRecords") && source.route.includes("retryOwnedConsumerRecordIndex") && source.route.includes("private, no-store"), "API must validate typed mutations, use owner DAL and remain private");
   requireCondition(source.route.includes("Ownership is derived from the authenticated session") && source.route.includes("revalidatePath"), "API must reject caller identity and invalidate private views");
+  requireCondition(source.routeAdapter.includes('getConsumerNotesHighlights as GET') && source.routeAdapter.includes('from "@/_app/api-routes/consumer-notes"'), "API route must delegate to the FSD app adapter");
   requireCondition(source.fixtureSource.includes("notes-highlights-index-failure") && source.fixtureSource.includes("mutationsByKey") && source.fixtureSource.includes("retryKeys") && source.fixtureSource.includes("foreign"), "fixtures must cover index failure, idempotency and ownership");
   requireCondition(source.routeFixture.includes('"notes-highlights-happy"') && source.proxy.includes('startsWith("notes-highlights-")'), "fixtures must stay behind the authenticated loopback boundary");
   requireCondition(source.client.includes("notes-highlights-tabs") && source.client.includes("notes-highlights-dialog") && source.client.includes("notes-highlights-create-note") && source.client.includes("notes-highlights-create-highlight") && source.client.includes("notes-highlights-create-memorable-page"), "client must expose detail tabs and create modals");
