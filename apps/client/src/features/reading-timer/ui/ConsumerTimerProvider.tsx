@@ -111,9 +111,12 @@ export function ConsumerTimerProvider({
 
   useEffect(() => {
     if (!timer || !isHydrated) return;
-    setNow(Date.now());
+    const initialTick = window.setTimeout(() => setNow(Date.now()), 0);
     const interval = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialTick);
+      window.clearInterval(interval);
+    };
   }, [isHydrated, timer]);
 
   const elapsed = timer ? elapsedMilliseconds(timer, now) : 0;

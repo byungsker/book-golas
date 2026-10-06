@@ -149,7 +149,13 @@ export function AiArtifactsClient(props: AiArtifactsClientProps) {
   }, [generate, kind, query]);
 
   useEffect(() => {
-    void load();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void load();
+    });
+    return () => {
+      active = false;
+    };
   }, [load]);
 
   function errorMessage(nextError: ProductError): string {

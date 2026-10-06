@@ -140,9 +140,16 @@ export function ReadingAnalyticsView({
   const [insightErrorCode, setInsightErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
-    setData(initialData);
-    setGoalInput(String(initialData.goal.targetBooks || 24));
-    setTab(initialTab);
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setData(initialData);
+      setGoalInput(String(initialData.goal.targetBooks || 24));
+      setTab(initialTab);
+    });
+    return () => {
+      active = false;
+    };
   }, [initialData, initialTab]);
 
   const isEmpty = data.metrics.totalPages === 0 && data.metrics.totalPagesRead === 0 && data.metrics.totalSeconds === 0 && data.metrics.completedBooks === 0;
