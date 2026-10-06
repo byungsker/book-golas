@@ -1,14 +1,19 @@
 # Bookgolas Consumer Web 1.1.0 release runbook
 
+Target-Delivery-Unit: client
+Target-Version: 1.1.0
+Delivery-Profile: web-release-train
+
 This runbook is the release boundary for the consumer Web line. It describes the
 configuration and evidence required to validate a Preview-like environment. The
 task does not deploy Production, change the admin allow-list, or enable Web billing.
 
 ## Release contract
 
-The machine-readable source is web/docs/consumer-web-release-config.json. The
-release line is version/web/1.1.0 and the build uses Next 16.3.0-preview.8 on
-Node 22.
+기계 판독 가능한 원본은 `web/docs/consumer-web-release-config.json`이다. 새
+릴리스 라인은 `client 1.1.0`이며, 기존 `version/web/1.1.0`에서 seed를 가져온다.
+증거 동기화와 attestation을 마칠 때까지 상태는 `planned`다. 빌드는 Next
+16.3.0-preview.8과 Node 22를 사용한다.
 
 The CI-equivalent, secrets-free gate is one command from `web`:
 

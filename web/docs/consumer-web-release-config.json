@@ -4,10 +4,10 @@
   "task": 36,
   "parentIssue": 412,
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
-  "deliveryUnit": "web",
+  "deliveryUnit": "client",
   "targetVersion": "1.1.0",
-  "targetBranch": "version/web/1.1.0",
-  "featureBranch": "codex/feature/web/1.1.0/BOK-448-release-readiness",
+  "targetBranch": "version/client/1.1.0",
+  "featureBranch": null,
   "nextVersion": "16.3.0-preview.8",
   "nodeVersion": "22",
   "runtime": {
@@ -340,5 +340,9 @@
       "phase": "before-next-build",
       "rule": "Missing, blank, placeholder, or cross-scope Preview environment values fail before build or hosted checks."
     }
-  }
+  },
+  "deliveryProfile": "web-release-train",
+  "sourceBranch": "version/web/1.1.0",
+  "seedSha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
+  "lineStatus": "planned"
 }

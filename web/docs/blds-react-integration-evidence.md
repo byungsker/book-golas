@@ -1,8 +1,11 @@
 # BLDS React/Next integration evidence
 
-Target-Delivery-Unit: web
+Target-Delivery-Unit: client
 Target-Version: 1.1.0
 Delivery-Profile: web-release-train
+
+이 증거는 기존 `version/web/1.1.0` 소스에서 수집했으며, `client 1.1.0` 대체
+라인의 등록 자료로 이관한다.
 
 ## RED
 

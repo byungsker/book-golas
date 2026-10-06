@@ -1,8 +1,13 @@
 # Bookgolas Web 1.1.0 Consumer Parity Matrix
 
-Target-Delivery-Unit: web
+Target-Delivery-Unit: client
 Target-Version: 1.1.0
 Delivery-Profile: web-release-train
+
+이 계약의 소비자 제품 소유자는 `client`다. 현재 parity 기준은 기존
+`version/web/1.1.0` seed에서 이관하며, 새 라인은 별도 attestation 후 활성화한다.
+현재 ledger는 release manifest에 SHA가 고정된 기존 `web 1.1.0` 기록이다.
+client 라인의 신규 ledger와 release 증거는 해당 라인에서 다시 생성하고 검증한다.
 
 ## Purpose
 

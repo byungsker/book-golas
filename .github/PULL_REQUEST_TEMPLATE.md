@@ -1,8 +1,8 @@
 <!-- 아래 세 값은 브랜치, base, release source와 정확히 일치해야 합니다. -->
+<!-- release 또는 hotfix 승격 PR인 경우에만 Promotion-Source-SHA: <40자리 SHA>를 추가합니다. -->
 Target-Delivery-Unit:
 Target-Version:
 Delivery-Profile:
-Promotion-Source-SHA:
 
 > 이번 PR의 목적을 한 문장으로 요약해주세요.
 
