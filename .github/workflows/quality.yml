@@ -25,6 +25,7 @@ jobs:
       web: ${{ steps.scope.outputs.web }}
       edge: ${{ steps.scope.outputs.edge }}
       workflow: ${{ steps.scope.outputs.workflow }}
+      policy: ${{ steps.scope.outputs.policy }}
     steps:
       - id: scope
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
@@ -79,6 +80,17 @@ jobs:
             core.setOutput(
               "edge",
               paths.some((path) => path.startsWith("supabase/functions/")),
+            );
+            core.setOutput(
+              "policy",
+              paths.some((path) =>
+                path === ".byungskerlab/branch-policy.json" ||
+                path === ".byungskerlab/release-lines.json" ||
+                path === ".github/scripts/validate_target_version_pr.py" ||
+                path === ".github/scripts/test_validate_target_version_pr.py" ||
+                path === ".github/workflows/target-version-gate.yml" ||
+                path === ".github/workflows/quality.yml",
+              ),
             );
 
   flutter:
@@ -165,6 +177,20 @@ jobs:
         run: |
           test "$(grep -cE '^[[:space:]]+run: npm run test:release-gate$' .github/workflows/quality.yml)" -eq 1
           ! grep -qE 'secrets\.|SUPABASE_(ACCESS_TOKEN|SERVICE_ROLE_KEY|PROJECT_REF)' .github/workflows/quality.yml
+
+  target-version-policy:
+    name: Target Version Gate Regression Tests
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.policy != 'true'
+        run: echo "No target-version policy changes detected"
+      - if: needs.changes.outputs.policy == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.policy == 'true'
+        name: Run target-version policy tests
+        working-directory: .github/scripts
+        run: python3 -m unittest -v test_validate_target_version_pr.py
 
   edge-functions:
     name: Edge Function Type Check
