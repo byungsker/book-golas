@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "allowed_actor_prefixes": [
     "codex"
   ],
@@ -34,7 +34,18 @@
         ".github/workflows/schema-check.yml",
         "AGENTS.md",
         "docs/product-roadmap.md",
-        ".omo/plans/**"
+        ".omo/plans/**",
+        "docs/release-lines/**",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "turbo.json",
+        ".npmrc",
+        "web/docs/consumer-web-release-config.json",
+        "web/docs/consumer-parity-matrix.md",
+        "web/docs/blds-react-integration-evidence.md",
+        "web/docs/consumer-web-release-runbook.md",
+        "web/scripts/test-release-config.mjs"
       ]
     },
     "mobile": {
@@ -64,7 +75,8 @@
       ],
       "sync_only_paths": [
         ".github/workflows/quality.yml"
-      ]
+      ],
+      "version_line_schema": 1
     },
     "web": {
       "profile": "web-release-train",
@@ -94,7 +106,9 @@
       "promotion_bases": [
         "main",
         "dev"
-      ]
+      ],
+      "version_line_schema": 1,
+      "migration_targets_required": true
     },
     "backend": {
       "profile": "backend-service",
@@ -151,6 +165,87 @@
         "agent-api/**",
         "cli/**",
         "docs/agent/**"
+      ]
+    },
+    "client": {
+      "profile": "web-release-train",
+      "mode": "version-line",
+      "version_line_schema": 2,
+      "active_versions": [],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "version_line_base_branch": "version/web/1.1.0",
+      "required_evidence_paths": [
+        "docs/release-lines/client-1.1.0.md",
+        "web/docs/consumer-web-release-config.json",
+        "web/docs/consumer-parity-matrix.md",
+        "web/docs/blds-react-integration-evidence.md",
+        "web/docs/consumer-web-release-runbook.md"
+      ],
+      "allowed_paths": [
+        "apps/client/**",
+        "web/**",
+        "docs/release-lines/client-1.1.0.md"
+      ],
+      "additional_allowed_paths_by_version": {
+        "1.1.0": [
+          ".omo/evidence/bookgolas-web-app-parity/**",
+          "supabase/migrations/**",
+          "supabase/functions/**"
+        ]
+      },
+      "sync_bases": [
+        "version/client/1.1.0"
+      ],
+      "sync_only_paths": [
+        "docs/release-lines/client-1.1.0.md",
+        "web/docs/consumer-web-release-config.json",
+        "web/docs/consumer-parity-matrix.md",
+        "web/docs/blds-react-integration-evidence.md",
+        "web/docs/consumer-web-release-runbook.md",
+        "web/scripts/test-release-config.mjs"
+      ],
+      "promotion_bases": [
+        "main",
+        "dev"
+      ],
+      "planned_sync_paths": [
+        "docs/release-lines/client-1.1.0.md",
+        "web/docs/consumer-web-release-config.json",
+        "web/docs/consumer-parity-matrix.md",
+        "web/docs/blds-react-integration-evidence.md",
+        "web/docs/consumer-web-release-runbook.md",
+        "web/scripts/test-release-config.mjs"
+      ]
+    },
+    "admin": {
+      "profile": "web-release-train",
+      "mode": "version-line",
+      "version_line_schema": 2,
+      "active_versions": [],
+      "target_version_source": ".byungskerlab/release-lines.json",
+      "production_branch": "main",
+      "version_line_base_branch": "version/web/1.0.2",
+      "required_evidence_paths": [
+        "docs/release-lines/admin-1.0.2.md"
+      ],
+      "allowed_paths": [
+        "apps/admin/**",
+        "web/**",
+        "docs/release-lines/admin-1.0.2.md"
+      ],
+      "sync_bases": [
+        "version/admin/1.0.2"
+      ],
+      "sync_only_paths": [
+        "docs/release-lines/admin-1.0.2.md"
+      ],
+      "promotion_bases": [
+        "main",
+        "dev"
+      ],
+      "planned_sync_paths": [
+        "docs/release-lines/admin-1.0.2.md"
       ]
     }
   }

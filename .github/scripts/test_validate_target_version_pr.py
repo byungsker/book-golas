@@ -4,13 +4,64 @@ import unittest
 
 from validate_target_version_pr import (
     PolicyError,
+    read_release_contract,
     validate,
+    validate_planned_sync_manifest,
     validate_prospective_policy_files,
     validate_release_line_registry,
 )
 
 
 class DeliveryUnitNameTests(unittest.TestCase):
+    def test_reads_markdown_and_json_release_contracts(self):
+        read_release_contract(
+            json.dumps({
+                "deliveryUnit": "client",
+                "targetVersion": "1.1.0",
+                "deliveryProfile": "web-release-train",
+            }),
+            "client",
+            "1.1.0",
+            "web-release-train",
+            "docs/client-release.json",
+        )
+        read_release_contract(
+            json.dumps({
+                "release": {
+                    "delivery_unit": "client",
+                    "target_version": "1.1.0",
+                    "delivery_profile": "web-release-train",
+                },
+            }),
+            "client",
+            "1.1.0",
+            "web-release-train",
+            "docs/client-ledger.json",
+        )
+        with self.assertRaisesRegex(PolicyError, "Target-Delivery-Unit mismatch"):
+            read_release_contract(
+                json.dumps({
+                    "release": {
+                        "delivery_unit": "web",
+                        "target_version": "1.1.0",
+                        "delivery_profile": "web-release-train",
+                    },
+                }),
+                "client",
+                "1.1.0",
+                "web-release-train",
+                "docs/client-ledger.json",
+            )
+        with self.assertRaisesRegex(PolicyError, "duplicate evidence JSON key"):
+            read_release_contract(
+                '{"deliveryUnit":"web","deliveryUnit":"client",'
+                '"targetVersion":"1.1.0","deliveryProfile":"web-release-train"}',
+                "client",
+                "1.1.0",
+                "web-release-train",
+                "docs/client-release.json",
+            )
+
     def test_accepts_registered_delivery_unit_with_underscore(self):
         config = {
             "allowed_actor_prefixes": ["codex"],
@@ -328,6 +379,7 @@ class ReleaseLineAttestationTests(unittest.TestCase):
                 "client": {
                     "profile": self.profile,
                     "mode": "version-line",
+                    "version_line_schema": 2,
                     "active_versions": [self.version],
                     "target_version_source": ".byungskerlab/release-lines.json",
                     "production_branch": "main",
@@ -470,6 +522,39 @@ class ReleaseLineAttestationTests(unittest.TestCase):
         )
         self.assertIn("unit=client", result)
 
+    def test_planned_sync_manifest_hashes_registered_test_files(self):
+        script_path = "web/scripts/test-release-config.mjs"
+        script = b'requireCondition(config.deliveryUnit === "client")'
+        script_digest = hashlib.sha256(script).hexdigest()
+        policy = {
+            "planned_sync_paths": [self.path, script_path],
+            "sync_only_paths": [self.path, script_path],
+        }
+        sync = {
+            "evidence_refs": [{"path": self.path, "sha256": self.digest}],
+            "sync_paths": [self.path, script_path],
+            "sync_hashes": [
+                {"path": self.path, "sha256": self.digest},
+                {"path": script_path, "sha256": script_digest},
+            ],
+        }
+        validate_planned_sync_manifest(
+            sync,
+            policy,
+            [self.path],
+            ref=self.head_sha,
+            content_fetcher=lambda _ref, path: self.document if path == self.path else script,
+        )
+        sync["sync_hashes"][1]["sha256"] = "0" * 64
+        with self.assertRaisesRegex(PolicyError, "SHA-256 mismatch"):
+            validate_planned_sync_manifest(
+                sync,
+                policy,
+                [self.path],
+                ref=self.head_sha,
+                content_fetcher=lambda _ref, path: self.document if path == self.path else script,
+            )
+
     def test_rejects_planned_product_work(self):
         record = self.record.copy()
         record["status"] = "planned"
@@ -542,7 +627,7 @@ class ReleaseLineAttestationTests(unittest.TestCase):
                 },
             },
         }
-        with self.assertRaisesRegex(PolicyError, "exact planned seed and evidence paths"):
+        with self.assertRaisesRegex(PolicyError, "exact planned seed and sync paths"):
             validate(
                 config,
                 "codex/sync/client/1.1.0/release-evidence",
@@ -708,6 +793,171 @@ class ReleaseLineAttestationTests(unittest.TestCase):
                 lambda ref, path: files[(ref, path)],
                 lambda _ancestor, _descendant: True,
             )
+
+    def test_accepts_explicit_legacy_lines_with_attested_successor_records(self):
+        client_record = self.record.copy()
+        client_record["status"] = "planned"
+        client_record["line"] = {
+            "branch": "version/client/1.1.0",
+            "seed_sha": self.source_sha,
+            "attested_sha": None,
+        }
+        client_record["document_sync"] = {
+            "source_sha": self.source_sha,
+            "target": "version/client/1.1.0",
+            "evidence_refs": [{"path": self.path, "sha256": self.digest}],
+            "consumed": False,
+        }
+        legacy_policy = {
+            "profile": self.profile,
+            "mode": "version-line",
+            "version_line_schema": 1,
+            "active_versions": [self.version],
+            "target_version_source": ".byungskerlab/release-lines.json",
+            "production_branch": "main",
+            "allowed_paths": ["web/**"],
+        }
+        client_policy = {
+            **self.config["delivery_units"]["client"],
+            "active_versions": [],
+        }
+        config = {
+            "schema_version": 2,
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {"web": legacy_policy, "client": client_policy},
+        }
+        registry = {
+            "schema_version": 2,
+            "delivery_units": {
+                "web": {
+                    "active_versions": [self.version],
+                    "promotion_sources": {"release": {}, "hotfix": {}},
+                    "migration_targets": {
+                        self.version: {
+                            "delivery_unit": "client",
+                            "version": self.version,
+                            "source_branch": "version/web/1.1.0",
+                            "source_sha": self.source_sha,
+                        },
+                    },
+                },
+                "client": {
+                    "active_versions": [],
+                    "versions": {self.version: client_record},
+                },
+            },
+        }
+        validate_release_line_registry(
+            config,
+            registry,
+            content_fetcher=lambda _ref, _path: self.document,
+            ancestry_checker=lambda _ancestor, _descendant: True,
+            pr_head_sha=self.head_sha,
+            planned_evidence_records={("client", self.version)},
+        )
+
+    def test_rejects_legacy_successor_with_mismatched_seed(self):
+        client_record = self.record.copy()
+        client_record["status"] = "planned"
+        client_record["line"] = {
+            "branch": "version/client/1.1.0",
+            "seed_sha": self.source_sha,
+            "attested_sha": None,
+        }
+        client_record["document_sync"] = {
+            "source_sha": self.source_sha,
+            "target": "version/client/1.1.0",
+            "evidence_refs": [{"path": self.path, "sha256": self.digest}],
+            "consumed": False,
+        }
+        config = {
+            "schema_version": 2,
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "web": {
+                    "profile": self.profile,
+                    "mode": "version-line",
+                    "version_line_schema": 1,
+                    "active_versions": [self.version],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "allowed_paths": ["web/**"],
+                },
+                "client": {
+                    **self.config["delivery_units"]["client"],
+                    "active_versions": [],
+                },
+            },
+        }
+        registry = {
+            "schema_version": 2,
+            "delivery_units": {
+                "web": {
+                    "active_versions": [self.version],
+                    "promotion_sources": {"release": {}, "hotfix": {}},
+                    "migration_targets": {
+                        self.version: {
+                            "delivery_unit": "client",
+                            "version": self.version,
+                            "source_branch": "version/web/1.1.0",
+                            "source_sha": "3" * 40,
+                        },
+                    },
+                },
+                "client": {
+                    "active_versions": [],
+                    "versions": {self.version: client_record},
+                },
+            },
+        }
+        with self.assertRaisesRegex(PolicyError, "exact successor seed"):
+            validate_release_line_registry(config, registry)
+
+    def test_rejects_schema_v2_version_line_without_explicit_line_schema(self):
+        config = self.config.copy()
+        policy = dict(config["delivery_units"]["client"])
+        policy.pop("version_line_schema")
+        config["delivery_units"] = {"client": policy}
+        with self.assertRaisesRegex(PolicyError, "version_line_schema 1 or 2"):
+            validate_release_line_registry(config, self.registry)
+
+    def test_accepts_legacy_product_work_during_schema_v2_transition(self):
+        config = {
+            "schema_version": 2,
+            "allowed_actor_prefixes": ["codex"],
+            "delivery_units": {
+                "web": {
+                    "profile": "web-release-train",
+                    "mode": "version-line",
+                    "version_line_schema": 1,
+                    "active_versions": ["1.0.2"],
+                    "target_version_source": ".byungskerlab/release-lines.json",
+                    "production_branch": "main",
+                    "allowed_paths": ["web/**"],
+                    "sync_bases": ["version/web/1.0.2"],
+                },
+            },
+        }
+        registry = {
+            "schema_version": 2,
+            "delivery_units": {
+                "web": {
+                    "active_versions": ["1.0.2"],
+                    "promotion_sources": {"release": {}, "hotfix": {}},
+                },
+            },
+        }
+        result = validate(
+            config,
+            "codex/feature/web/1.0.2/bug-fix",
+            "version/web/1.0.2",
+            "Target-Delivery-Unit: web\n"
+            "Target-Version: 1.0.2\n"
+            "Delivery-Profile: web-release-train\n",
+            ["web/src/app/page.tsx"],
+            registry,
+        )
+        self.assertIn("unit=web", result)
 
 
 if __name__ == "__main__":

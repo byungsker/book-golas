@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "delivery_units": {
     "governance": {
       "active_versions": [
@@ -64,6 +64,20 @@
           }
         },
         "hotfix": {}
+      },
+      "migration_targets": {
+        "1.0.2": {
+          "delivery_unit": "admin",
+          "version": "1.0.2",
+          "source_branch": "version/web/1.0.2",
+          "source_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4"
+        },
+        "1.1.0": {
+          "delivery_unit": "client",
+          "version": "1.1.0",
+          "source_branch": "version/web/1.1.0",
+          "source_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c"
+        }
       }
     },
     "backend": {
@@ -88,6 +102,151 @@
       "promotion_sources": {
         "release": {},
         "hotfix": {}
+      }
+    },
+    "client": {
+      "active_versions": [],
+      "versions": {
+        "1.1.0": {
+          "status": "planned",
+          "profile": "web-release-train",
+          "source": {
+            "branch": "version/web/1.1.0",
+            "sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c"
+          },
+          "line": {
+            "branch": "version/client/1.1.0",
+            "seed_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
+            "attested_sha": null
+          },
+          "evidence_refs": [
+            {
+              "path": "docs/release-lines/client-1.1.0.md",
+              "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+            },
+            {
+              "path": "web/docs/consumer-web-release-config.json",
+              "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+            },
+            {
+              "path": "web/docs/consumer-parity-matrix.md",
+              "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+            },
+            {
+              "path": "web/docs/blds-react-integration-evidence.md",
+              "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+            },
+            {
+              "path": "web/docs/consumer-web-release-runbook.md",
+              "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+            }
+          ],
+          "document_sync": {
+            "source_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
+            "target": "version/client/1.1.0",
+            "evidence_refs": [
+              {
+                "path": "docs/release-lines/client-1.1.0.md",
+                "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+              },
+              {
+                "path": "web/docs/consumer-web-release-config.json",
+                "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+              },
+              {
+                "path": "web/docs/consumer-parity-matrix.md",
+                "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+              },
+              {
+                "path": "web/docs/blds-react-integration-evidence.md",
+                "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+              },
+              {
+                "path": "web/docs/consumer-web-release-runbook.md",
+                "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+              }
+            ],
+            "consumed": false,
+            "sync_paths": [
+              "docs/release-lines/client-1.1.0.md",
+              "web/docs/consumer-web-release-config.json",
+              "web/docs/consumer-parity-matrix.md",
+              "web/docs/blds-react-integration-evidence.md",
+              "web/docs/consumer-web-release-runbook.md",
+              "web/scripts/test-release-config.mjs"
+            ],
+            "sync_hashes": [
+              {
+                "path": "docs/release-lines/client-1.1.0.md",
+                "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+              },
+              {
+                "path": "web/docs/consumer-web-release-config.json",
+                "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+              },
+              {
+                "path": "web/docs/consumer-parity-matrix.md",
+                "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+              },
+              {
+                "path": "web/docs/blds-react-integration-evidence.md",
+                "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+              },
+              {
+                "path": "web/docs/consumer-web-release-runbook.md",
+                "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+              },
+              {
+                "path": "web/scripts/test-release-config.mjs",
+                "sha256": "69d2217686950c0dcc5d3e5951d93957fe560b50392f8c22eb0dda94bcc1d4ba"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "admin": {
+      "active_versions": [],
+      "versions": {
+        "1.0.2": {
+          "status": "planned",
+          "profile": "web-release-train",
+          "source": {
+            "branch": "version/web/1.0.2",
+            "sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4"
+          },
+          "line": {
+            "branch": "version/admin/1.0.2",
+            "seed_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4",
+            "attested_sha": null
+          },
+          "evidence_refs": [
+            {
+              "path": "docs/release-lines/admin-1.0.2.md",
+              "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+            }
+          ],
+          "document_sync": {
+            "source_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4",
+            "target": "version/admin/1.0.2",
+            "evidence_refs": [
+              {
+                "path": "docs/release-lines/admin-1.0.2.md",
+                "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+              }
+            ],
+            "consumed": false,
+            "sync_paths": [
+              "docs/release-lines/admin-1.0.2.md"
+            ],
+            "sync_hashes": [
+              {
+                "path": "docs/release-lines/admin-1.0.2.md",
+                "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+              }
+            ]
+          }
+        }
       }
     }
   }

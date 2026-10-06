@@ -5,7 +5,7 @@ Guidelines for AI coding agents working in the Bookgolas repository.
 ## Project Structure
 
 - `app/` - Flutter mobile app (primary)
-- `web/` - Next.js admin dashboard  
+- `web/` - 기존 `web` 버전 라인의 Next.js 소스. `client`/`admin` 분리를 준비 중
 - `supabase/functions/` - Deno Edge Functions
 
 ## Build & Test Commands
@@ -22,7 +22,7 @@ cd app && flutter build ios        # Build iOS
 cd app && flutter build apk        # Build Android
 ```
 
-### Web Admin (web/)
+### Web 앱 (web/)
 ```bash
 cd web && npm install && npm run dev    # Development
 cd web && npm run build                 # Production build
@@ -141,7 +141,9 @@ UI (lib/ui/) → ViewModel → Repository → Service
 | Surface | Profile |
 | --- | --- |
 | `app/` iOS/Android 앱 | `mobile-store` |
-| `web/` Next.js Admin | `web-release-train` |
+| `client` 공개 랜딩·소비자 웹 | `web-release-train` |
+| `admin` 운영 웹 | `web-release-train` |
+| 루트 Turborepo/pnpm workspace 설정 | `package-or-local` (`governance`) |
 | `supabase/` Functions 및 DB | 모바일 결합 시 `mobile-store`, 독립 배포 시 `backend-service` |
 | `operations` AI 서버 운영·CI·관측성·운영 증거 | `backend-service` |
 | `agent-api/`, `cli/` | `package-or-local` |
@@ -157,7 +159,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - 기계 검증 가능한 활성 버전 원본은 `release-lines.json`이며, 현재
   승인된 모바일 타깃 `1.0.2`의 근거는 `docs/product-roadmap.md`이다.
   현재 앱 매니페스트 버전은 후속 모바일 작업에서 타깃 버전에 맞춘다.
-  독립 Web admin의 승인된 parallel release train은 `1.0.2`와 `1.1.0`이며,
+  `admin 1.0.2`와 `client 1.1.0`은 각기 분리된 Web release train이며,
   독립 backend service도 `1.0.2` release line을 사용하며,
   AI Server Operations readiness는 `operations 1.1.0`과
   `backend-service` continuous profile을 사용하며,
@@ -170,9 +172,18 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - `daily/*`는 사용하지 않는다.
 - 모바일 작업과 모바일에 결합된 backend 작업은 승인된 `dev`에서 연
   `version/mobile/x.y.z`에서 분기하고 같은 version line으로 PR한다.
-- `web/`은 승인된 버전마다 운영 `main`에서
-  `version/web/x.y.z`를 열고 같은 버전 작업만 받은 뒤
-  `release/web/x.y.z` QA를 거쳐 `main`으로 승격한다.
+- `client 1.1.0`은 `version/client/1.1.0`, `admin 1.0.2`는
+  `version/admin/1.0.2`를 제품 작업 기준으로 사용한다. 두 라인은 각각
+  기존 `version/web/1.1.0`과 `version/web/1.0.2`의 정확한 seed에서 시작하며,
+  문서 동기화와 attestation이 끝나기 전에는 제품 작업을 받지 않는다.
+- 기존 `web 1.0.2`와 `web 1.1.0` 라인은 후속 라인의 활성화와 코드 이동이
+  끝날 때까지 이관 출처로 유지한다. 대응하는 `admin` 또는 `client` 라인이
+  활성화되고 코드가 `apps/admin/` 또는 `apps/client/`로 이동한 뒤 기존 `web`
+  라인을 닫는다. 과거 `version/web/*` 브랜치는 이름 변경이나 삭제 없이 보존한다.
+- 루트 `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json`,
+  `.npmrc` 같은 workspace 설정은 `governance`가 소유한다. 각 앱의 FSD
+  `shared/`는 해당 앱에 속한다. 아직 실제 교차 앱 공유 패키지는 없으며,
+  `packages/`를 만들 때는 구현 전에 소유 delivery unit과 경로 정책을 등록한다.
 - `agent_api_cli 0.1.0`은 API contract와 CLI companion을 함께 다루는
   contract-first implementation line이다. 초기 구현은 인증·사용자 범위·read-only와
   구조화된 CLI 계약을 우선하며, API와 CLI의 promotion path가 독립되면

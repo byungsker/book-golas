@@ -8,11 +8,11 @@ Target-Delivery-Unit: mobile
 Target-Version: 1.0.2
 Delivery-Profile: mobile-store
 
-Target-Delivery-Unit: web
+Target-Delivery-Unit: admin
 Target-Version: 1.0.2
 Delivery-Profile: web-release-train
 
-Target-Delivery-Unit: web
+Target-Delivery-Unit: client
 Target-Version: 1.1.0
 Delivery-Profile: web-release-train
 
@@ -42,12 +42,31 @@ This changes discovery sequencing only; it does not change the release
 priority, authorize production deployment, public package publication,
 subscription reactivation, or destructive data access.
 
-The independently delivered web admin has an approved parallel release train:
-**web 1.0.2**. It does not change the mobile 1.0.2 binary scope.
+독립 배포되는 운영 웹은 승인된 병렬 release train인 **admin 1.0.2**를
+사용한다. 모바일 1.0.2 바이너리 범위는 바뀌지 않는다.
 
-The consumer web parity surface has an approved discovery and implementation
-target of **web 1.1.0**. It is a separate web release line from the web 1.0.2
-admin train and remains separately gated for consumer production launch.
+소비자 웹과 공개 랜딩의 승인된 구현 대상은 **client 1.1.0**이다. 이 라인은
+**admin 1.0.2**와 분리하며, 소비자 서비스의 production 출시는 별도 gate를 거친다.
+
+## Client/Admin 버전 라인 이관
+
+새 라인은 증거 문서를 정확한 seed 브랜치에 동기화하고 해당 커밋을
+attestation으로 등록할 때까지 `planned` 상태로 둔다.
+
+| 새 라인 | Seed 브랜치 | Seed SHA | 이관 대상 |
+| --- | --- | --- | --- |
+| `client 1.1.0` | `version/web/1.1.0` | `d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c` | `web 1.1.0` 소비자 웹 |
+| `admin 1.0.2` | `version/web/1.0.2` | `3db4f79652be82532d5d6fbd74f3e48b159c67f4` | `web 1.0.2` 운영 웹 |
+
+기존 `web` 라인은 대응하는 대체 라인이 계획·활성화되는 동안 유지한다. 대체
+라인이 활성화되고 소스 코드가 `apps/client/` 또는 `apps/admin/`으로 이동한 뒤,
+해당 기존 `web` 라인만 닫고 활성 승격 출처를 제거한다. 기존 브랜치와 이력은
+그대로 보존한다. Target Version Gate는 기존 `mobile`·`web` 라인에 현행 정책을
+유지하고, 새 `client`·`admin` 라인에는 attestation이 포함된 schema v2를 적용한다.
+
+루트 workspace 설정은 `governance` delivery unit이 소유한다. 각 앱의 FSD
+`shared/` 레이어는 해당 앱에 속한다. 현재 앱 간 공유 패키지는 없다. `packages/`를
+추가하기 전 소유 delivery unit과 허용 경로를 등록한다.
 
 ## P0 — 1.0.2 patch release
 
@@ -98,7 +117,7 @@ unverified.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
 
-## Parallel track — web 1.0.2 data-informed admin
+## 병렬 트랙 — admin 1.0.2 데이터 기반 운영
 
 - Replace direct browser-side operational queries with an authenticated
   server-side aggregate metrics boundary.
@@ -138,7 +157,7 @@ Initial discovery scope:
 - Confirm the web route tree and the release acceptance gates for M1 core
   parity.
 
-Target implementation line: approved `web 1.1.0` with `web-release-train`.
+구현 대상 라인은 `web-release-train` 프로필의 승인된 `client 1.1.0`이다.
 The discovery issue is evidence-only and does not authorize consumer
 implementation, branch creation, deployment, publication, or a consumer
 production launch.
