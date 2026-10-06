@@ -182,11 +182,15 @@ jobs:
     name: Target Version Gate Regression Tests
     needs: changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - if: needs.changes.outputs.policy != 'true'
         run: echo "No target-version policy changes detected"
       - if: needs.changes.outputs.policy == 'true'
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - if: needs.changes.outputs.policy == 'true'
         name: Run target-version policy tests
         working-directory: .github/scripts

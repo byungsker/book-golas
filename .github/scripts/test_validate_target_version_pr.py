@@ -604,6 +604,66 @@ class ReleaseLineAttestationTests(unittest.TestCase):
             lambda _ancestor, _descendant: True,
         )
 
+    def test_skips_pr_head_evidence_fetch_for_unchanged_planned_record(self):
+        record = self.record.copy()
+        record["status"] = "planned"
+        record["line"] = {
+            "branch": "version/client/1.1.0",
+            "seed_sha": self.source_sha,
+            "attested_sha": None,
+        }
+        record["document_sync"] = {
+            "source_sha": self.source_sha,
+            "target": "version/client/1.1.0",
+            "evidence_refs": [{"path": self.path, "sha256": self.digest}],
+            "consumed": False,
+        }
+        config = self.config.copy()
+        config["delivery_units"] = {
+            "client": {
+                **self.config["delivery_units"]["client"],
+                "active_versions": [],
+            },
+        }
+        registry = {
+            "schema_version": 2,
+            "delivery_units": {
+                "client": {
+                    "active_versions": [],
+                    "versions": {self.version: record},
+                },
+            },
+        }
+        files = {
+            (self.head_sha, ".byungskerlab/branch-policy.json"): json.dumps(config).encode(),
+            (self.head_sha, ".byungskerlab/release-lines.json"): json.dumps(registry).encode(),
+        }
+        fetched_paths: list[str] = []
+
+        def fetch(ref: str, path: str) -> bytes:
+            fetched_paths.append(path)
+            if path == self.path:
+                return self.document + b"changed"
+            return files[(ref, path)]
+
+        validate_release_line_registry(
+            config,
+            registry,
+            content_fetcher=fetch,
+            ancestry_checker=lambda _ancestor, _descendant: True,
+            pr_head_sha=self.head_sha,
+        )
+        validate_prospective_policy_files(
+            config,
+            registry,
+            [".byungskerlab/branch-policy.json"],
+            self.head_sha,
+            fetch,
+            lambda _ancestor, _descendant: True,
+        )
+
+        self.assertNotIn(self.path, fetched_paths)
+
     def test_rejects_prospective_planned_document_hash_drift(self):
         record = self.record.copy()
         record["status"] = "planned"

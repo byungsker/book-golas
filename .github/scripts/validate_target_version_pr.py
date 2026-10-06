@@ -152,6 +152,7 @@ def validate_release_line_registry(
     content_fetcher: Callable[[str, str], bytes] | None = None,
     ancestry_checker: Callable[[str, str], bool] | None = None,
     pr_head_sha: str | None = None,
+    planned_evidence_records: set[tuple[str, str]] | None = None,
 ) -> None:
     config_schema = config.get("schema_version", 1)
     registry_schema = registry.get("schema_version", 1)
@@ -161,6 +162,7 @@ def validate_release_line_registry(
         return
     if config.get("schema_version") != 2:
         raise PolicyError("schema version 2 release registry requires schema version 2 branch policy")
+    planned_evidence_records = planned_evidence_records or set()
 
     policies = config["delivery_units"]
     release_units = registry["delivery_units"]
@@ -246,7 +248,7 @@ def validate_release_line_registry(
                 raise PolicyError(f"{status} release line requires an attested SHA: {unit} {version}")
 
             evidence_refs = record.get("evidence_refs")
-            evidence_ref = attested_sha if status != "planned" else (pr_head_sha or "")
+            evidence_ref = attested_sha if status != "planned" else ""
             validate_evidence_refs(
                 evidence_refs,
                 required_paths,
@@ -275,9 +277,15 @@ def validate_release_line_registry(
                 sync_refs = document_sync.get("evidence_refs")
                 if sync_refs != evidence_refs:
                     raise PolicyError(f"document_sync evidence mismatch for {unit} {version}")
-            if status == "planned" and content_fetcher is not None:
-                if not pr_head_sha or not is_sha(pr_head_sha):
-                    raise PolicyError("prospective PR head SHA is required to verify document_sync")
+            if status == "planned" and (unit, version) in planned_evidence_records:
+                if content_fetcher is None or not is_sha(pr_head_sha):
+                    raise PolicyError(
+                        "changed planned release lines require trusted PR-head evidence"
+                    )
+                if not isinstance(document_sync, dict):
+                    raise PolicyError(
+                        f"planned release line requires document_sync: {unit} {version}"
+                    )
                 validate_evidence_refs(
                     document_sync["evidence_refs"],
                     required_paths,
@@ -788,6 +796,57 @@ def registry_source_path(config: dict[str, Any]) -> str:
     return source_path
 
 
+def changed_planned_evidence_records(
+    base_config: dict[str, Any],
+    base_registry: dict[str, Any],
+    prospective_config: dict[str, Any],
+    prospective_registry: dict[str, Any],
+) -> set[tuple[str, str]]:
+    base_policies = base_config.get("delivery_units")
+    prospective_policies = prospective_config.get("delivery_units")
+    base_release_units = base_registry.get("delivery_units")
+    prospective_release_units = prospective_registry.get("delivery_units")
+    if not all(
+        isinstance(value, dict)
+        for value in (
+            base_policies,
+            prospective_policies,
+            base_release_units,
+            prospective_release_units,
+        )
+    ):
+        return set()
+
+    schema_changed = base_config.get("schema_version") != prospective_config.get(
+        "schema_version"
+    )
+    changed_records: set[tuple[str, str]] = set()
+    for unit, prospective_release_unit in prospective_release_units.items():
+        if not isinstance(prospective_release_unit, dict):
+            continue
+        prospective_records = prospective_release_unit.get("versions")
+        if not isinstance(prospective_records, dict):
+            continue
+        base_release_unit = base_release_units.get(unit)
+        base_records = (
+            base_release_unit.get("versions")
+            if isinstance(base_release_unit, dict)
+            else {}
+        )
+        if not isinstance(base_records, dict):
+            base_records = {}
+        policy_changed = (
+            schema_changed
+            or base_policies.get(unit) != prospective_policies.get(unit)
+        )
+        for version, record in prospective_records.items():
+            if not isinstance(record, dict) or record.get("status") != "planned":
+                continue
+            if policy_changed or base_records.get(version) != record:
+                changed_records.add((unit, version))
+    return changed_records
+
+
 def validate_prospective_policy_files(
     config: dict[str, Any],
     registry: dict[str, Any],
@@ -809,12 +868,19 @@ def validate_prospective_policy_files(
     )
     prospective_source = registry_source_path(prospective_config)
     prospective_registry = load_github_json(content_fetcher, pr_head_sha, prospective_source)
+    planned_evidence_records = changed_planned_evidence_records(
+        config,
+        registry,
+        prospective_config,
+        prospective_registry,
+    )
     validate_release_line_registry(
         prospective_config,
         prospective_registry,
         content_fetcher=content_fetcher,
         ancestry_checker=ancestry_checker,
         pr_head_sha=pr_head_sha,
+        planned_evidence_records=planned_evidence_records,
     )
 
 
