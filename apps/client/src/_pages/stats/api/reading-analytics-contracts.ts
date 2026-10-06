@@ -6,9 +6,9 @@ import {
   CalendarSourceSessionSchema,
   calendarDateFromDayKey,
   calendarDayKeyFromDate,
-} from "@/shared/api/contracts/calendar";
-import { InsightSchema } from "@/shared/api/contracts/ai";
-import { BookIdSchema, IsoDateSchema, LocaleSchema, RequestIdSchema } from "@/shared/api/contracts/common";
+} from "@/shared/api/contracts";
+import { InsightSchema } from "@/shared/api/contracts";
+import { BookIdSchema, IsoDateSchema, LocaleSchema, RequestIdSchema } from "@/shared/api/contracts";
 
 export const CHARTS_GOALS_TIME_ZONE = CALENDAR_TIME_ZONE;
 export const MAX_READING_ANALYTICS_RANGE_DAYS = 366;

@@ -10,7 +10,7 @@ import {
 } from "@/_pages/stats/index.server";
 import { getConsumerRouteFixture } from "@/shared/config";
 import { createServerSupabaseClient } from "@/shared/api/supabase/index.server";
-import { ReadingGoalUpdateSuccessSchema } from "@/shared/api/contracts/reading-goal";
+import { ReadingGoalUpdateSuccessSchema } from "@/shared/api/contracts";
 import { generateReadingInsights } from "@/shared/api/product/adapters";
 import {
   consentRequiredError,

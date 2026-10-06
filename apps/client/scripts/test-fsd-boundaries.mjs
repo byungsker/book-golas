@@ -70,10 +70,14 @@ function isPublicAlias(specifier) {
     if (!slice) return false;
     const sliceDirectory = path.join(sourceRoot, layer, slice);
     if (parts.length === 2) {
-      return fs.existsSync(path.join(sliceDirectory, "index.ts"));
+      return ["index.ts", "index.tsx"].some((entrypoint) =>
+        fs.existsSync(path.join(sliceDirectory, entrypoint)),
+      );
     }
     if (parts.length === 3 && parts[2] === "index.server") {
-      return fs.existsSync(path.join(sliceDirectory, "index.server.ts"));
+      return ["index.server.ts", "index.server.tsx"].some((entrypoint) =>
+        fs.existsSync(path.join(sliceDirectory, entrypoint)),
+      );
     }
     return false;
   }
@@ -97,7 +101,9 @@ function checkPublicEntrypoints(layerDirectory, layerName) {
     const entryPath = path.join(layerDirectory, entry.name);
     requireCondition(
       fs.existsSync(path.join(entryPath, "index.ts")) ||
-        fs.existsSync(path.join(entryPath, "index.server.ts")),
+        fs.existsSync(path.join(entryPath, "index.tsx")) ||
+        fs.existsSync(path.join(entryPath, "index.server.ts")) ||
+        fs.existsSync(path.join(entryPath, "index.server.tsx")),
       `${layerName}/${entry.name} must expose index.ts or index.server.ts`,
     );
   }

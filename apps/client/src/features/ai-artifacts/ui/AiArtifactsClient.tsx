@@ -39,7 +39,7 @@ import {
   type AiMindMap,
   type AiRecommendations,
 } from "../api/ai-artifacts-contracts";
-import { ApiErrorResponseSchema, ApiErrorSchema } from "@/shared/api/contracts/common";
+import { ApiErrorResponseSchema, ApiErrorSchema } from "@/shared/api/contracts";
 import type { BookRecommendation } from "@/shared/api/contracts";
 import type { ProductError } from "@/shared/api/product/errors";
 

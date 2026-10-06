@@ -21,7 +21,7 @@ import {
   type AiRecommendations,
   type AiArtifactKind,
 } from "../api/ai-artifacts-contracts";
-import type { BookRecommendation } from "@/shared/api/contracts/ai";
+import type { BookRecommendation } from "@/shared/api/contracts";
 
 type AiArtifactContentProps = {
   readonly artifact: AiMindMap | AiInsights | AiRecommendations;

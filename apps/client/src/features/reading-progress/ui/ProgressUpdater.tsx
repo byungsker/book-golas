@@ -10,7 +10,7 @@ import {
   ProgressUiResponseSchema,
   type ProgressUiRequest,
 } from "../api/progress-ui-contracts";
-import { BookIdSchema } from "@/shared/api/contracts/common";
+import { BookIdSchema } from "@/shared/api/contracts";
 import type { Book, ProgressEvent } from "@/shared/api/contracts";
 
 type ProgressUpdaterProps = {

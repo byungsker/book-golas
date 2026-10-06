@@ -19,7 +19,7 @@ import {
   Target,
   X,
 } from "lucide-react";
-import type { Insight } from "@/shared/api/contracts/ai";
+import type { Insight } from "@/shared/api/contracts";
 import {
   ApiErrorResponseSchema,
   calendarDayKeyFromDate,

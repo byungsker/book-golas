@@ -18,13 +18,15 @@ import {
 import { fetchOwnedBooks } from "@/widgets/home-book-list/index.server";
 import { getCurrentConsumerUser } from "@/shared/auth/index.server";
 
+export type BookListPageProps = {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ view?: string | string[] }>;
+};
+
 export default async function BookListPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ view?: string | string[] }>;
-}) {
+}: BookListPageProps) {
   const { locale } = await params;
   if (!isConsumerLocale(locale)) redirect("/ko/auth/sign-in");
 

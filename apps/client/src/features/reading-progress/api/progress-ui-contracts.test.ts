@@ -4,7 +4,7 @@ import {
   ProgressUiRequestSchema,
   ProgressUiResponseSchema,
 } from "./progress-ui-contracts";
-import { ApiErrorSchema } from "@/shared/api/contracts/common";
+import { ApiErrorSchema } from "@/shared/api/contracts";
 
 const bookId = "00000000-0000-4000-8000-000000004341";
 const request = {

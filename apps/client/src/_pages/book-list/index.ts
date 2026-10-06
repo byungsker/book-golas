@@ -1,1 +1,1 @@
-export { default } from "./ui/BookListPage";
+export type { BookListPageProps } from "./ui/BookListPage";

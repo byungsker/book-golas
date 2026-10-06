@@ -7,7 +7,7 @@ import {
   type ReadingAnalyticsRequest,
 } from "../api/reading-analytics-contracts";
 import { buildReadingAnalytics } from "./reading-analytics";
-import { InsightSchema, type Insight } from "@/shared/api/contracts/ai";
+import { InsightSchema, type Insight } from "@/shared/api/contracts";
 import {
   consentRequiredError,
   failure,

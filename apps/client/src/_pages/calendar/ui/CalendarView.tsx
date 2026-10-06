@@ -19,7 +19,7 @@ import {
   CALENDAR_TIME_ZONE,
   calendarDateFromDayKey,
   calendarDayKeyFromDate,
-} from "@/shared/api/contracts/calendar";
+} from "@/shared/api/contracts";
 import type {
   CalendarData,
   CalendarDay,

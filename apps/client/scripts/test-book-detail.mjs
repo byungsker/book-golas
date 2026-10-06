@@ -89,7 +89,7 @@ if (failures.length === 0) {
   requireCondition(manifest.scripts["test:book-detail"] === "node scripts/test-book-detail.mjs && vitest run src/entities/book/api/book-detail-contracts.test.ts app/api/consumer/book-detail/route.test.ts src/entities/book/api/writes.test.ts", "package must expose the exact book-detail acceptance command");
   requireCondition(manifest.scripts["test:book-detail:negative"] === "node scripts/test-book-detail.mjs --fixture foreign-book", "package must expose the book-detail negative command");
 
-  requireCondition(source.page.includes("fetchOwnedBookDetail") && source.page.includes("BookDetailClient") && source.pageRoute.includes('from "@/_pages/book-detail"') && source.pageRoute.includes('dynamic = "force-dynamic"') && source.pageEntry.includes('from "./ui/BookDetailPage"'), "book detail route must load the owner-scoped page through its FSD entrypoint");
+  requireCondition(source.page.includes("fetchOwnedBookDetail") && source.page.includes("BookDetailClient") && source.pageRoute.includes('from "@/_pages/book-detail/index.server"') && source.pageRoute.includes('dynamic = "force-dynamic"') && source.pageEntry.includes('from "./ui/BookDetailPage"'), "book detail route must load the owner-scoped page through its server FSD entrypoint");
   requireCondition(source.page.includes('data-testid="book-detail"') && source.page.includes("data-book-status"), "book detail route must expose a stable status surface");
   for (const marker of [
     "book-detail-actions",

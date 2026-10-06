@@ -3,7 +3,7 @@ import {
   CalendarDayKeySchema,
   calendarDateFromDayKey,
   calendarDayKeyFromDate,
-} from "@/shared/api/contracts/calendar";
+} from "@/shared/api/contracts";
 import {
   CHARTS_GOALS_TIME_ZONE,
   MAX_READING_ANALYTICS_RANGE_DAYS,

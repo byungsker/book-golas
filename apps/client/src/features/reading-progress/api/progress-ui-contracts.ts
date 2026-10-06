@@ -6,7 +6,7 @@ import {
   IsoDateSchema,
   LocaleSchema,
   RequestIdSchema,
-} from "@/shared/api/contracts/common";
+} from "@/shared/api/contracts";
 
 const ConsumerProgressBookSchema = z
   .object({

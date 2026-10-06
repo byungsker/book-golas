@@ -20,7 +20,7 @@ import {
 } from "@/shared/ui/primitives";
 import { ConsumerDialogContent as DialogContent } from "@/shared/ui";
 import type { ConsumerLocale } from "@/shared/routing";
-import { consumerRoutes } from "@/shared/api/contracts/routes";
+import { consumerRoutes } from "@/shared/api/contracts";
 import type { Book } from "@/shared/api/contracts";
 import {
   ReviewResponseSchema,

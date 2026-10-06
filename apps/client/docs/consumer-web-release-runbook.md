@@ -38,26 +38,29 @@ secrets must not be placed in client-visible variables.
 
 Use the local CLI and local Docker-backed Supabase instance for schema checks:
 
-    supabase start
-    supabase db reset --local
-    pnpm --filter @bookgolas/client run reset:fixtures
-    supabase db lint --local --level error
-    supabase stop
+    cd apps/client
+    npx --yes supabase@2.108.0 start
+    npx --yes supabase@2.108.0 db reset --local
+    npm run reset:fixtures
+    npx --yes supabase@2.108.0 db lint --local --level error
+    npx --yes supabase@2.108.0 stop
 
 The migration order for an isolated environment is:
 
-    supabase db reset --local
-    supabase db lint --local --level error
-    supabase db push --include-all
-    supabase migration list
-    pnpm --filter @bookgolas/client run reset:fixtures
+    cd apps/client
+    npx --yes supabase@2.108.0 db reset --local
+    npx --yes supabase@2.108.0 db lint --local --level error
+    npx --yes supabase@2.108.0 db push --include-all
+    npx --yes supabase@2.108.0 migration list
+    npm run reset:fixtures
 
 Development project ref is reoiqefoymdsqzpbouxi. Production project ref is
 enyxrgxixrnoazzgqyyd. Link or push commands must name the intended project:
 
-    supabase link --project-ref "$SUPABASE_PROJECT_REF_DEV"
-    supabase db push --include-all
-    supabase migration list
+    cd apps/client
+    npx --yes supabase@2.108.0 link --project-ref "$SUPABASE_PROJECT_REF_DEV"
+    npx --yes supabase@2.108.0 db push --include-all
+    npx --yes supabase@2.108.0 migration list
 
 The deploy workflow is manual and requires the matching GitHub environment secrets.
 Do not run its Production target for this issue.

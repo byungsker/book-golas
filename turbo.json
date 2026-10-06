@@ -1,5 +1,9 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  "globalPassThroughEnv": [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "AI_MONITOR_PREVIEW_DEMO"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
