@@ -122,23 +122,23 @@
           "evidence_refs": [
             {
               "path": "docs/release-lines/client-1.1.0.md",
-              "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+              "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
             },
             {
-              "path": "web/docs/consumer-web-release-config.json",
-              "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+              "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+              "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
             },
             {
-              "path": "web/docs/consumer-parity-matrix.md",
-              "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+              "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+              "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
             },
             {
-              "path": "web/docs/blds-react-integration-evidence.md",
-              "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+              "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+              "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
             },
             {
-              "path": "web/docs/consumer-web-release-runbook.md",
-              "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+              "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+              "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
             }
           ],
           "document_sync": {
@@ -147,58 +147,58 @@
             "evidence_refs": [
               {
                 "path": "docs/release-lines/client-1.1.0.md",
-                "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+                "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
               },
               {
-                "path": "web/docs/consumer-web-release-config.json",
-                "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+                "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
               },
               {
-                "path": "web/docs/consumer-parity-matrix.md",
-                "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+                "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+                "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
               },
               {
-                "path": "web/docs/blds-react-integration-evidence.md",
-                "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+                "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+                "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
               },
               {
-                "path": "web/docs/consumer-web-release-runbook.md",
-                "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+                "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
               }
             ],
             "consumed": false,
             "sync_paths": [
               "docs/release-lines/client-1.1.0.md",
-              "web/docs/consumer-web-release-config.json",
-              "web/docs/consumer-parity-matrix.md",
-              "web/docs/blds-react-integration-evidence.md",
-              "web/docs/consumer-web-release-runbook.md",
-              "web/scripts/test-release-config.mjs"
+              "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+              "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+              "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+              "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+              "docs/release-lines/client-1.1.0/test-release-config.mjs"
             ],
             "sync_hashes": [
               {
                 "path": "docs/release-lines/client-1.1.0.md",
-                "sha256": "ff937bd533d76629a86d75a0246a29afd2fb93ef4082d912140a3ef052226714"
+                "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
               },
               {
-                "path": "web/docs/consumer-web-release-config.json",
-                "sha256": "0971cab5e2dfee0edf6f53f33f79362cd19eebc6849aa758e5315c68a18101f4"
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+                "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
               },
               {
-                "path": "web/docs/consumer-parity-matrix.md",
-                "sha256": "59735b8b726462bddce933b2d51c460959ecf22eca4242c9a4afd2098c58d5eb"
+                "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+                "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
               },
               {
-                "path": "web/docs/blds-react-integration-evidence.md",
-                "sha256": "c477dc3d2503cbb023b48b031fe02aea0ff252f491ba1766e271a9cd2996328f"
+                "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+                "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
               },
               {
-                "path": "web/docs/consumer-web-release-runbook.md",
-                "sha256": "83c68488e11cafbd30724e5c18708a541fb59915b1f3effa832aecd14b25d928"
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+                "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
               },
               {
-                "path": "web/scripts/test-release-config.mjs",
-                "sha256": "69d2217686950c0dcc5d3e5951d93957fe560b50392f8c22eb0dda94bcc1d4ba"
+                "path": "docs/release-lines/client-1.1.0/test-release-config.mjs",
+                "sha256": "6721cad5175a910031eb2ad9dd64ae781ec3f96ad2e08fa3b4adeb41387ec5b2"
               }
             ]
           }

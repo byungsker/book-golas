@@ -177,15 +177,16 @@
       "version_line_base_branch": "version/web/1.1.0",
       "required_evidence_paths": [
         "docs/release-lines/client-1.1.0.md",
-        "web/docs/consumer-web-release-config.json",
-        "web/docs/consumer-parity-matrix.md",
-        "web/docs/blds-react-integration-evidence.md",
-        "web/docs/consumer-web-release-runbook.md"
+        "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+        "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+        "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+        "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md"
       ],
       "allowed_paths": [
         "apps/client/**",
         "web/**",
-        "docs/release-lines/client-1.1.0.md"
+        "docs/release-lines/client-1.1.0.md",
+        "docs/release-lines/client-1.1.0/**"
       ],
       "additional_allowed_paths_by_version": {
         "1.1.0": [
@@ -199,11 +200,11 @@
       ],
       "sync_only_paths": [
         "docs/release-lines/client-1.1.0.md",
-        "web/docs/consumer-web-release-config.json",
-        "web/docs/consumer-parity-matrix.md",
-        "web/docs/blds-react-integration-evidence.md",
-        "web/docs/consumer-web-release-runbook.md",
-        "web/scripts/test-release-config.mjs"
+        "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+        "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+        "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+        "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+        "docs/release-lines/client-1.1.0/test-release-config.mjs"
       ],
       "promotion_bases": [
         "main",
@@ -211,11 +212,11 @@
       ],
       "planned_sync_paths": [
         "docs/release-lines/client-1.1.0.md",
-        "web/docs/consumer-web-release-config.json",
-        "web/docs/consumer-parity-matrix.md",
-        "web/docs/blds-react-integration-evidence.md",
-        "web/docs/consumer-web-release-runbook.md",
-        "web/scripts/test-release-config.mjs"
+        "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+        "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+        "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+        "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+        "docs/release-lines/client-1.1.0/test-release-config.mjs"
       ]
     },
     "admin": {
