@@ -5,7 +5,10 @@ Guidelines for AI coding agents working in the Bookgolas repository.
 ## Project Structure
 
 - `app/` - Flutter mobile app (primary)
-- `web/` - Next.js admin dashboard  
+- `apps/client/` - Next.js public landing and consumer web app
+- `apps/admin/` - Separate Next.js admin app
+- `packages/ui/` - UI primitives shared by the web apps
+- `packages/supabase/` - Supabase clients shared by the web apps
 - `supabase/functions/` - Deno Edge Functions
 
 ## Build & Test Commands
@@ -22,11 +25,14 @@ cd app && flutter build ios        # Build iOS
 cd app && flutter build apk        # Build Android
 ```
 
-### Web Admin (web/)
+### Client 및 Admin 웹 앱
 ```bash
-cd web && npm install && npm run dev    # Development
-cd web && npm run build                 # Production build
-cd web && npm run lint                  # ESLint
+pnpm install --frozen-lockfile
+pnpm dev:client                         # 소비자 웹 앱
+pnpm dev:admin                          # 관리자 웹 앱
+pnpm build                              # 두 Next.js 앱과 공유 패키지 빌드
+pnpm lint                               # workspace 전체 ESLint
+pnpm typecheck                          # workspace 전체 타입 검사
 ```
 
 ### Supabase Functions
@@ -107,7 +113,7 @@ return new Response(
 );
 ```
 
-## Code Style - Next.js (web/)
+## Code Style - Next.js (apps/client/, apps/admin/)
 - TypeScript strict mode
 - Radix UI components from `src/components/ui/`
 - Tailwind CSS for styling
@@ -141,7 +147,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
 | Surface | Profile |
 | --- | --- |
 | `app/` iOS/Android 앱 | `mobile-store` |
-| `web/` Next.js Admin | `web-release-train` |
+| `apps/client/`, `apps/admin/` Next.js 앱 | `web-release-train` |
 | `supabase/` Functions 및 DB | 모바일 결합 시 `mobile-store`, 독립 배포 시 `backend-service` |
 | `agent-api/`, `cli/` | `package-or-local` |
 
@@ -167,9 +173,7 @@ UI (lib/ui/) → ViewModel → Repository → Service
 - `daily/*`는 사용하지 않는다.
 - 모바일 작업과 모바일에 결합된 backend 작업은 승인된 `dev`에서 연
   `version/mobile/x.y.z`에서 분기하고 같은 version line으로 PR한다.
-- `web/`은 승인된 버전마다 운영 `main`에서
-  `version/web/x.y.z`를 열고 같은 버전 작업만 받은 뒤
-  `release/web/x.y.z` QA를 거쳐 `main`으로 승격한다.
+- `apps/client/`와 `apps/admin/`은 승인된 Web 버전 라인 `version/web/x.y.z`에서 작업하고, `release/web/x.y.z` QA를 거쳐 `main`으로 승격한다.
 - `agent_api_cli 0.1.0`은 API contract와 CLI companion을 함께 다루는
   contract-first implementation line이다. 초기 구현은 인증·사용자 범위·read-only와
   구조화된 CLI 계약을 우선하며, API와 CLI의 promotion path가 독립되면
