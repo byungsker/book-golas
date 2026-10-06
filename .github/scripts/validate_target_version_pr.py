@@ -85,15 +85,72 @@ def is_git_ref(value: Any) -> bool:
 
 
 def is_document_path(path: Any) -> bool:
+    if not is_safe_repo_path(path):
+        return False
+    return path == "AGENTS.md" or path.startswith(("docs/", "web/docs/"))
+
+
+def is_safe_repo_path(path: Any) -> bool:
     if not isinstance(path, str) or not path or path.startswith("/") or "\\" in path:
         return False
-    parts = path.split("/")
-    return all(part not in {"", ".", ".."} for part in parts) and (
-        path == "AGENTS.md" or path.startswith("docs/")
-    )
+    return all(part not in {"", ".", ".."} for part in path.split("/"))
 
 
-def read_release_contract(text: str, unit: str, version: str, profile: str) -> None:
+def is_trusted_content_path(path: Any) -> bool:
+    return is_document_path(path) or path in {
+        ".byungskerlab/branch-policy.json",
+        ".byungskerlab/release-lines.json",
+        "web/scripts/test-release-config.mjs",
+        "web/scripts/test-parity-matrix.mjs",
+    }
+
+
+def reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise PolicyError(f"duplicate evidence JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def read_release_contract(
+    text: str,
+    unit: str,
+    version: str,
+    profile: str,
+    path: str | None = None,
+) -> None:
+    if path is not None and path.endswith(".json"):
+        try:
+            document = json.loads(text, object_pairs_hook=reject_duplicate_json_keys)
+        except json.JSONDecodeError as exc:
+            raise PolicyError(f"evidence JSON is malformed: {path}") from exc
+        if not isinstance(document, dict):
+            raise PolicyError(f"evidence JSON must contain an object: {path}")
+        release = document.get("release")
+        if isinstance(release, dict):
+            values = {
+                "Target-Delivery-Unit": release.get("delivery_unit"),
+                "Target-Version": release.get("target_version"),
+                "Delivery-Profile": release.get("delivery_profile"),
+            }
+        else:
+            values = {
+                "Target-Delivery-Unit": document.get("deliveryUnit"),
+                "Target-Version": document.get("targetVersion"),
+                "Delivery-Profile": document.get("deliveryProfile"),
+            }
+        expected = {
+            "Target-Delivery-Unit": unit,
+            "Target-Version": version,
+            "Delivery-Profile": profile,
+        }
+        for key, value in expected.items():
+            if values[key] != value:
+                raise PolicyError(f"evidence {key} mismatch: expected {value!r}")
+        return
+
     values = {}
     for key in METADATA_KEYS:
         values[key] = re.findall(
@@ -140,9 +197,135 @@ def validate_evidence_refs(
                 text = content.decode("utf-8")
             except UnicodeDecodeError as exc:
                 raise PolicyError(f"evidence is not UTF-8: {path}") from exc
-            read_release_contract(text, unit, version, profile)
+            read_release_contract(text, unit, version, profile, path)
     if paths != required_paths or len(set(paths)) != len(paths):
         raise PolicyError("release-line evidence paths must exactly match required_evidence_paths")
+
+
+def validate_legacy_migration_targets(
+    unit: str,
+    policy: dict[str, Any],
+    release_unit: dict[str, Any],
+    policies: dict[str, Any],
+    release_units: dict[str, Any],
+) -> None:
+    targets = release_unit.get("migration_targets")
+    required = policy.get("migration_targets_required", False)
+    if not isinstance(required, bool):
+        raise PolicyError(f"migration_targets_required must be boolean for {unit}")
+    if targets is None:
+        if required:
+            raise PolicyError(f"legacy migration_targets are required for {unit}")
+        return
+    if not isinstance(targets, dict) or not targets:
+        raise PolicyError(f"legacy migration_targets must be a non-empty object for {unit}")
+    for source_version, target in targets.items():
+        if (
+            not isinstance(source_version, str)
+            or re.fullmatch(SEMVER, source_version) is None
+            or not isinstance(target, dict)
+        ):
+            raise PolicyError(f"legacy migration target is malformed for {unit} {source_version}")
+        target_unit = target.get("delivery_unit")
+        target_version = target.get("version")
+        source_branch = target.get("source_branch")
+        source_sha = target.get("source_sha")
+        target_policy = policies.get(target_unit) if isinstance(target_unit, str) else None
+        target_release_unit = (
+            release_units.get(target_unit) if isinstance(target_unit, str) else None
+        )
+        target_records = (
+            target_release_unit.get("versions")
+            if isinstance(target_release_unit, dict)
+            else None
+        )
+        target_record = (
+            target_records.get(target_version)
+            if isinstance(target_records, dict) and isinstance(target_version, str)
+            else None
+        )
+        source = target_record.get("source") if isinstance(target_record, dict) else None
+        line = target_record.get("line") if isinstance(target_record, dict) else None
+        if (
+            not isinstance(target_policy, dict)
+            or target_policy.get("mode") != "version-line"
+            or target_policy.get("version_line_schema") != 2
+            or target_policy.get("profile") != policy.get("profile")
+            or target_policy.get("version_line_base_branch") != source_branch
+            or not isinstance(target_version, str)
+            or target_version != source_version
+            or not isinstance(source, dict)
+            or not isinstance(line, dict)
+            or target_record.get("status") not in {"planned", "active"}
+            or not is_git_ref(source_branch)
+            or source_branch != f"version/{unit}/{source_version}"
+            or not is_sha(source_sha)
+            or source.get("branch") != source_branch
+            or source.get("sha") != source_sha
+            or line.get("branch") != f"version/{target_unit}/{target_version}"
+            or line.get("seed_sha") != source_sha
+        ):
+            raise PolicyError(
+                f"legacy migration target must match the exact successor seed for "
+                f"{unit} {source_version}"
+            )
+
+
+def validate_planned_sync_manifest(
+    document_sync: dict[str, Any],
+    policy: dict[str, Any],
+    required_paths: list[str],
+    *,
+    ref: str | None = None,
+    content_fetcher: Callable[[str, str], bytes] | None = None,
+) -> list[str]:
+    expected_paths = policy.get("planned_sync_paths", required_paths)
+    sync_paths = document_sync.get("sync_paths", required_paths)
+    if (
+        not isinstance(expected_paths, list)
+        or not expected_paths
+        or not all(is_safe_repo_path(path) for path in expected_paths)
+        or len(set(expected_paths)) != len(expected_paths)
+        or sync_paths != expected_paths
+        or policy.get("sync_only_paths", expected_paths) != expected_paths
+        or not set(required_paths).issubset(expected_paths)
+    ):
+        raise PolicyError("planned sync paths must exactly match the policy manifest")
+
+    sync_hashes = document_sync.get("sync_hashes", document_sync.get("evidence_refs"))
+    if not isinstance(sync_hashes, list):
+        raise PolicyError("planned sync hashes must be an array")
+    hash_paths: list[str] = []
+    hashes_by_path: dict[str, str] = {}
+    for item in sync_hashes:
+        if (
+            not isinstance(item, dict)
+            or not is_safe_repo_path(item.get("path"))
+            or not is_sha256(item.get("sha256"))
+        ):
+            raise PolicyError("planned sync hash entry is malformed")
+        hash_paths.append(item["path"])
+        hashes_by_path[item["path"]] = item["sha256"]
+    if hash_paths != expected_paths or len(set(hash_paths)) != len(hash_paths):
+        raise PolicyError("planned sync hashes must exactly match the policy manifest")
+
+    evidence_hashes = {
+        item["path"]: item["sha256"]
+        for item in document_sync.get("evidence_refs", [])
+        if isinstance(item, dict) and isinstance(item.get("path"), str)
+    }
+    if any(hashes_by_path.get(path) != digest for path, digest in evidence_hashes.items()):
+        raise PolicyError("planned sync hashes must match release evidence hashes")
+
+    if ref is not None:
+        if content_fetcher is None or not is_sha(ref):
+            raise PolicyError("planned sync hash validation requires trusted content access")
+        for path, digest in hashes_by_path.items():
+            if not is_trusted_content_path(path):
+                raise PolicyError(f"planned sync path is not trusted for content validation: {path}")
+            if hashlib.sha256(content_fetcher(ref, path)).hexdigest() != digest:
+                raise PolicyError(f"planned sync SHA-256 mismatch for {path} at {ref}")
+    return expected_paths
 
 
 def validate_release_line_registry(
@@ -196,6 +379,42 @@ def validate_release_line_registry(
         if policy.get("mode") != "version-line":
             continue
 
+        line_schema = policy.get("version_line_schema")
+        if type(line_schema) is not int or line_schema not in {1, 2}:
+            raise PolicyError(
+                f"version-line unit {unit} must declare version_line_schema 1 or 2"
+            )
+        if line_schema == 1:
+            promotion_sources = release_unit.get("promotion_sources")
+            if not isinstance(promotion_sources, dict) or any(
+                not isinstance(promotion_sources.get(kind), dict)
+                for kind in ("release", "hotfix")
+            ):
+                raise PolicyError(f"legacy version-line policy is incomplete for {unit}")
+            if "versions" in release_unit:
+                raise PolicyError(
+                    f"legacy version-line policy cannot contain attested records for {unit}"
+                )
+            for kind in ("release", "hotfix"):
+                for version, source in promotion_sources[kind].items():
+                    if (
+                        not isinstance(version, str)
+                        or re.fullmatch(SEMVER, version) is None
+                        or not isinstance(source, dict)
+                        or not is_git_ref(source.get("branch"))
+                        or not is_sha(source.get("sha"))
+                    ):
+                        raise PolicyError(
+                            f"legacy {kind} promotion source is malformed for {unit} {version}"
+                        )
+            validate_legacy_migration_targets(
+                unit,
+                policy,
+                release_unit,
+                policies,
+                release_units,
+            )
+            continue
         base_branch = policy.get("version_line_base_branch")
         required_paths = policy.get("required_evidence_paths")
         if not is_git_ref(base_branch):
@@ -277,6 +496,7 @@ def validate_release_line_registry(
                 sync_refs = document_sync.get("evidence_refs")
                 if sync_refs != evidence_refs:
                     raise PolicyError(f"document_sync evidence mismatch for {unit} {version}")
+                validate_planned_sync_manifest(document_sync, policy, required_paths)
             if status == "planned" and (unit, version) in planned_evidence_records:
                 if content_fetcher is None or not is_sha(pr_head_sha):
                     raise PolicyError(
@@ -294,6 +514,13 @@ def validate_release_line_registry(
                     profile,
                     pr_head_sha,
                     content_fetcher,
+                )
+                validate_planned_sync_manifest(
+                    document_sync,
+                    policy,
+                    required_paths,
+                    ref=pr_head_sha,
+                    content_fetcher=content_fetcher,
                 )
 
             if status == "active":
@@ -325,6 +552,7 @@ def validate_planned_document_sync(
     unit: str,
     version: str,
     profile: str,
+    policy: dict[str, Any],
     base: str,
     base_sha: str | None,
     head_sha: str | None,
@@ -342,6 +570,8 @@ def validate_planned_document_sync(
     expected_branch = f"version/{unit}/{version}"
     refs = sync.get("evidence_refs")
     paths = [item.get("path") for item in refs if isinstance(item, dict)] if isinstance(refs, list) else []
+    required_paths = policy.get("required_evidence_paths", [])
+    sync_paths = validate_planned_sync_manifest(sync, policy, required_paths)
     if (
         sync.get("consumed") is not False
         or sync.get("target") != expected_branch
@@ -351,13 +581,12 @@ def validate_planned_document_sync(
         or base_sha != sync.get("source_sha")
         or not is_sha(head_sha)
         or not paths
-        or not all(is_document_path(path) for path in paths)
         or len(set(paths)) != len(paths)
-        or set(changed_files) != set(paths)
-        or len(changed_files) != len(paths)
+        or set(changed_files) != set(sync_paths)
+        or len(changed_files) != len(sync_paths)
     ):
         raise PolicyError(
-            "document sync must target the exact planned seed and evidence paths "
+            "document sync must target the exact planned seed and sync paths "
             f"for {unit} {version}"
         )
     if content_fetcher is None or ancestry_checker is None:
@@ -367,6 +596,13 @@ def validate_planned_document_sync(
     if not ancestry_checker(base_sha, head_sha):
         raise PolicyError("document sync head does not descend from its exact base SHA")
     validate_evidence_refs(refs, paths, unit, version, profile, head_sha, content_fetcher)
+    validate_planned_sync_manifest(
+        sync,
+        policy,
+        required_paths,
+        ref=head_sha,
+        content_fetcher=content_fetcher,
+    )
 
 
 def read_metadata(body: str) -> dict[str, str]:
@@ -452,7 +688,12 @@ def validate(
     if not isinstance(registry_unit, dict):
         raise PolicyError(f"release registry has no delivery unit {unit}")
     version_record = None
-    if release_registry.get("schema_version", 1) == 2 and mode == "version-line":
+    uses_attested_line = (
+        release_registry.get("schema_version", 1) == 2
+        and mode == "version-line"
+        and policy.get("version_line_schema") == 2
+    )
+    if uses_attested_line:
         records = registry_unit.get("versions")
         version_record = records.get(version) if isinstance(records, dict) else None
         is_planned_sync = (
@@ -492,6 +733,7 @@ def validate(
                 unit,
                 version,
                 profile,
+                policy,
                 base,
                 pr_base_sha,
                 pr_head_sha,
@@ -655,7 +897,7 @@ def validate(
             )
     elif branch_type == "sync":
         allowed = policy.get("sync_bases", ["dev", f"version/{unit}/{version}"])
-        if mode == "version-line" and release_registry.get("schema_version", 1) == 2:
+        if uses_attested_line:
             allowed = [f"version/{unit}/{version}"]
         if base not in allowed:
             raise PolicyError(
@@ -734,7 +976,7 @@ def github_content_fetcher() -> Callable[[str, str], bytes] | None:
         return None
 
     def fetch(ref: str, path: str) -> bytes:
-        if not is_document_path(path) or not is_sha(ref):
+        if not is_trusted_content_path(path) or not is_sha(ref):
             raise PolicyError("refusing to fetch unbounded release evidence")
         encoded_path = urllib.parse.quote(path, safe="/")
         encoded_ref = urllib.parse.quote(ref, safe="")
