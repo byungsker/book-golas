@@ -1,0 +1,20 @@
+export { NotesHighlightsClient } from "./ui/NotesHighlightsClient";
+export {
+  consumerRecordTypeValues,
+  ConsumerRecordSchema,
+  ConsumerRecordTypeSchema,
+  IndexStatusSchema,
+  NormalizedHighlightRectangleSchema,
+  NotesHighlightsDeletedResponseSchema,
+  NotesHighlightsListResponseSchema,
+  NotesHighlightsMutationSchema,
+  NotesHighlightsResponseSchema,
+  NotesHighlightsSavedResponseSchema,
+  normalizeHighlightRectangles,
+  type ConsumerRecord,
+  type ConsumerRecordType,
+  type IndexStatus,
+  type NormalizedHighlightRectangle,
+  type NotesHighlightsMutation,
+  type NotesHighlightsResponse,
+} from "./api/notes-highlights-contracts";
