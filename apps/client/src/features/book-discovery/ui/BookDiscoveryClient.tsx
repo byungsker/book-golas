@@ -232,7 +232,14 @@ export function BookDiscoveryClient({
   }, [locale]);
 
   useEffect(() => {
-    if (autoOpenScanner) setCameraOpen(true);
+    if (!autoOpenScanner) return;
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) setCameraOpen(true);
+    });
+    return () => {
+      active = false;
+    };
   }, [autoOpenScanner]);
 
   useEffect(() => {

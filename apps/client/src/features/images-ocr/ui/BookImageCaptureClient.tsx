@@ -122,7 +122,13 @@ export function BookImageCaptureClient({ locale, bookId, totalPages }: BookImage
   }, [bookId, locale]);
 
   useEffect(() => {
-    void loadImages();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void loadImages();
+    });
+    return () => {
+      active = false;
+    };
   }, [loadImages]);
 
   useEffect(() => () => {

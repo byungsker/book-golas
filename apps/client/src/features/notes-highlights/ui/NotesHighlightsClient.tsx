@@ -122,7 +122,13 @@ export function NotesHighlightsClient({ locale, bookId, totalPages }: NotesHighl
   }, [bookId, locale]);
 
   useEffect(() => {
-    void loadRecords();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void loadRecords();
+    });
+    return () => {
+      active = false;
+    };
   }, [loadRecords]);
 
   const visibleRecords = useMemo(

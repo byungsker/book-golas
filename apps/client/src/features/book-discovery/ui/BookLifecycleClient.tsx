@@ -134,12 +134,19 @@ export function BookLifecycleClient({
   const actionKey = useRef(crypto.randomUUID());
 
   useEffect(() => {
-    setMode("create");
-    setSaveState("idle");
-    setSavedBook(null);
-    setSaveError(null);
-    setForm(initialForm(selectedBook));
-    actionKey.current = crypto.randomUUID();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setMode("create");
+      setSaveState("idle");
+      setSavedBook(null);
+      setSaveError(null);
+      setForm(initialForm(selectedBook));
+      actionKey.current = crypto.randomUUID();
+    });
+    return () => {
+      active = false;
+    };
   }, [selectedBook]);
 
   const totalPagesNumber = form.totalPages.trim() === "" ? 0 : Number(form.totalPages);

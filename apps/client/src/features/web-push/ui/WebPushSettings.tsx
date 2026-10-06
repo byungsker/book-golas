@@ -114,7 +114,13 @@ export function WebPushSettings({ locale }: { locale: ConsumerLocale }) {
   }, [locale]);
 
   useEffect(() => {
-    void load();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void load();
+    });
+    return () => {
+      active = false;
+    };
   }, [load]);
 
   async function updateSettings(patch: Partial<NotificationSettings>) {

@@ -127,10 +127,12 @@ export function RecallSearch({ locale, bookId, onClose }: RecallSearchProps) {
   useEffect(() => {
     const sequence = ++requestSequence.current;
     const controller = new AbortController();
-    setState({ phase: "loading" });
-    setResult(null);
-    void fetch(historyUrl, { signal: controller.signal, cache: "no-store" })
-      .then(async (response) => {
+    void Promise.resolve().then(async () => {
+      if (controller.signal.aborted) return;
+      setState({ phase: "loading" });
+      setResult(null);
+      try {
+        const response = await fetch(historyUrl, { signal: controller.signal, cache: "no-store" });
         const body: unknown = await response.json().catch(() => null);
         if (!response.ok) throw readError(body, response.status);
         const parsed = RecallHistoryPageSchema.safeParse(body);
@@ -139,34 +141,36 @@ export function RecallSearch({ locale, bookId, onClose }: RecallSearchProps) {
         setHistory(parsed.data.history);
         setSuggestions(parsed.data.suggestions);
         setState({ phase: "ready" });
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         if (controller.signal.aborted || sequence !== requestSequence.current) return;
         setState({ phase: "error", error: errorFromCaught(error) });
-      });
+      }
+    });
     return () => controller.abort();
   }, [historyUrl]);
 
   useEffect(() => {
-    setSourceImage(null);
-    setSourceImageState("idle");
-    if (!selectedSource || selectedSource.type !== "photo_ocr" || !selectedSource.bookId || !selectedSource.sourceId) return;
     const controller = new AbortController();
-    setSourceImageState("loading");
-    const params = new URLSearchParams({ locale, bookId: selectedSource.bookId, sourceId: selectedSource.sourceId });
-    void fetch(`/api/consumer/recall/source?${params.toString()}`, { signal: controller.signal, cache: "no-store" })
-      .then(async (response) => {
+    void Promise.resolve().then(async () => {
+      if (controller.signal.aborted) return;
+      setSourceImage(null);
+      setSourceImageState("idle");
+      if (!selectedSource || selectedSource.type !== "photo_ocr" || !selectedSource.bookId || !selectedSource.sourceId) return;
+      setSourceImageState("loading");
+      const params = new URLSearchParams({ locale, bookId: selectedSource.bookId, sourceId: selectedSource.sourceId });
+      try {
+        const response = await fetch(`/api/consumer/recall/source?${params.toString()}`, { signal: controller.signal, cache: "no-store" });
         const body: unknown = await response.json().catch(() => null);
         if (!response.ok) throw readError(body, response.status);
         const parsed = RecallSourceImageResponseSchema.safeParse(body);
         if (!parsed.success) throw { code: "error", message: "The source image is malformed." };
         setSourceImage({ url: parsed.data.signedUrl, expiresAt: parsed.data.expiresAt });
         setSourceImageState("ready");
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         if (controller.signal.aborted) return;
         setSourceImageState(errorFromCaught(error).code === "offline" ? "error" : "error");
-      });
+      }
+    });
     return () => controller.abort();
   }, [locale, selectedSource]);
 
@@ -201,6 +205,10 @@ export function RecallSearch({ locale, bookId, onClose }: RecallSearchProps) {
       if (sequence !== requestSequence.current) return;
       setState({ phase: "error", error: errorFromCaught(error) });
     }
+  }
+
+  function retrySearch() {
+    void searchRecall(query);
   }
 
   async function deleteHistory(historyId: string) {
@@ -241,10 +249,10 @@ export function RecallSearch({ locale, bookId, onClose }: RecallSearchProps) {
         : error.code === "quota_exceeded"
           ? { testId: "recall-quota", title: t("library.quota.title"), description: t("recall.states.quota"), action: <Link href={`/${locale}/account`} className="inline-flex min-h-11 items-center rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white">{t("library.quota.action")}</Link> }
           : error.code === "provider_error" || error.code === "provider_timeout" || error.code === "timeout"
-            ? { testId: "recall-provider", title: t("recall.states.providerTitle"), description: t("recall.states.provider"), action: <button type="button" onClick={() => void searchRecall(query)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> }
+            ? { testId: "recall-provider", title: t("recall.states.providerTitle"), description: t("recall.states.provider"), action: <button type="button" onClick={retrySearch} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> }
             : error.code === "offline"
-              ? { testId: "recall-offline", title: t("recall.states.offlineTitle"), description: t("recall.states.offline"), action: <button type="button" onClick={() => void searchRecall(query)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> }
-              : { testId: "recall-error", title: t("library.error.title"), description: t("recall.states.error"), action: <button type="button" onClick={() => void searchRecall(query)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> };
+              ? { testId: "recall-offline", title: t("recall.states.offlineTitle"), description: t("recall.states.offline"), action: <button type="button" onClick={retrySearch} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> }
+              : { testId: "recall-error", title: t("library.error.title"), description: t("recall.states.error"), action: <button type="button" onClick={retrySearch} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--blab-color-primary)] px-4 py-2 text-sm font-semibold text-white"><RefreshCw aria-hidden="true" size={16} />{t("library.error.retry")}</button> };
     return <div data-testid={bookId ? content.testId : content.testId.replace("recall-", "library-")}><ConsumerNotice tone="error" title={content.title} description={content.description} action={content.action} /></div>;
   }
 

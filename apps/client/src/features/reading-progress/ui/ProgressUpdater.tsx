@@ -67,17 +67,27 @@ export function ProgressUpdater({
   const [historyState, setHistoryState] = useState(initialHistoryState);
   const [errorCode, setErrorCode] = useState<ProgressErrorCode | null>(null);
   const [saved, setSaved] = useState(false);
+  const [canRetry, setCanRetry] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const lastRequest = useRef<ProgressUiRequest | null>(null);
 
   useEffect(() => {
-    setBook(initialBook);
-    setPage(String(initialBook.currentPage));
-    setExpectedPage(initialBook.currentPage);
-    setHistory(initialHistory);
-    setHistoryState(initialHistoryState);
-    setErrorCode(null);
-    setSaved(false);
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setBook(initialBook);
+      setPage(String(initialBook.currentPage));
+      setExpectedPage(initialBook.currentPage);
+      setHistory(initialHistory);
+      setHistoryState(initialHistoryState);
+      setErrorCode(null);
+      setSaved(false);
+      lastRequest.current = null;
+      setCanRetry(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [initialBook, initialHistory, initialHistoryState]);
 
   function restore(rollback: RollbackState): void {
@@ -89,6 +99,7 @@ export function ProgressUpdater({
 
   async function send(request: ProgressUiRequest): Promise<void> {
     lastRequest.current = request;
+    setCanRetry(true);
     if (!navigator.onLine) {
       setErrorCode("offline");
       return;
@@ -148,6 +159,7 @@ export function ProgressUpdater({
       setSaved(true);
       setErrorCode(null);
       lastRequest.current = null;
+      setCanRetry(false);
       window.dispatchEvent(new CustomEvent("bookgolas:progress-updated", { detail: updated.book }));
     } catch (error) {
       restore(rollback);
@@ -214,7 +226,7 @@ export function ProgressUpdater({
         isSubmitting={isSubmitting}
         saved={saved}
         completed={book.status === "completed"}
-        canRetry={lastRequest.current !== null}
+        canRetry={canRetry}
         retryLabel={t("reading.retry")}
         refetchLabel={t("reading.refetch")}
         onPageChange={setPage}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/shared/api/supabase";
 import { ConsumerButton, ConsumerTextField } from "@/shared/ui";
@@ -34,6 +34,19 @@ type AuthFormProps = {
   initialErrorKey?: OAuthErrorKey | null;
 };
 
+function subscribeToNetworkStatus(onChange: () => void) {
+  window.addEventListener("offline", onChange);
+  window.addEventListener("online", onChange);
+  return () => {
+    window.removeEventListener("offline", onChange);
+    window.removeEventListener("online", onChange);
+  };
+}
+
+function getNetworkIsOffline() {
+  return !window.navigator.onLine;
+}
+
 export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: AuthFormProps) {
   const t = useTranslations("consumer.auth");
   const tConsumer = useTranslations("consumer");
@@ -49,14 +62,21 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
   const [successKey, setSuccessKey] = useState<string | null>(null);
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [isOffline, setIsOffline] = useState(false);
+  const isOffline = useSyncExternalStore(subscribeToNetworkStatus, getNetworkIsOffline, () => false);
 
   useEffect(() => {
     if (mode !== "sign-in") return;
-    const savedEmail = readSavedEmail(window.localStorage);
-    if (!savedEmail) return;
-    setEmail(savedEmail);
-    setSaveEmail(true);
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      const savedEmail = readSavedEmail(window.localStorage);
+      if (!savedEmail) return;
+      setEmail(savedEmail);
+      setSaveEmail(true);
+    });
+    return () => {
+      active = false;
+    };
   }, [mode]);
 
   useEffect(() => {
@@ -82,19 +102,6 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     const timer = window.setTimeout(() => setResendCooldown((seconds) => seconds - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [resendCooldown]);
-
-  useEffect(() => {
-    const handleOffline = () => setIsOffline(true);
-    const handleOnline = () => setIsOffline(false);
-
-    setIsOffline(!window.navigator.onLine);
-    window.addEventListener("offline", handleOffline);
-    window.addEventListener("online", handleOnline);
-    return () => {
-      window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("online", handleOnline);
-    };
-  }, []);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,7 +133,6 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     }
 
     if (!window.navigator.onLine) {
-      setIsOffline(true);
       return;
     }
 
@@ -221,7 +227,6 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     setErrorKey(null);
     setSuccessKey(null);
     if (!window.navigator.onLine) {
-      setIsOffline(true);
       return;
     }
     pendingRef.current = true;
@@ -251,7 +256,6 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
     setErrorKey(null);
     setSuccessKey(null);
     if (!window.navigator.onLine) {
-      setIsOffline(true);
       return;
     }
     pendingRef.current = true;

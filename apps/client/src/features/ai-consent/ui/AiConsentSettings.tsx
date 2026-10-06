@@ -153,7 +153,13 @@ export function AiConsentSettings({ locale }: { locale: "ko" | "en" }) {
   }
 
   useEffect(() => {
-    void load();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void load();
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function mutate(provider: AiProvider) {

@@ -152,16 +152,29 @@ export function AccountSettings({ locale, validateNickname, validatePassword, fo
   }, [locale]);
 
   useEffect(() => {
-    void load();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void load();
+    });
+    return () => {
+      active = false;
+    };
   }, [load]);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("bookgolas.theme");
-    const nextTheme: ThemeChoice = stored === "light" || stored === "dark" || stored === "system"
-      ? stored
-      : themeFromDocument();
-    setTheme(nextTheme);
-    applyTheme(nextTheme);
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      const stored = window.localStorage.getItem("bookgolas.theme");
+      const nextTheme: ThemeChoice = stored === "light" || stored === "dark" || stored === "system"
+        ? stored
+        : themeFromDocument();
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {

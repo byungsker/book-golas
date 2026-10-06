@@ -149,8 +149,14 @@ export function LibraryView({
 
   useEffect(() => {
     if (activeTab === "recall") return;
-    void loadPage(null, false);
-    return () => activeRequest.current?.abort();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void loadPage(null, false);
+    });
+    return () => {
+      active = false;
+      activeRequest.current?.abort();
+    };
   }, [activeTab, loadPage, retryKey]);
 
   function selectTab(tab: LibraryViewTab) {

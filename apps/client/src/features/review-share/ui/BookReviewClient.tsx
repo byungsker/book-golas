@@ -148,30 +148,43 @@ export function BookReviewClient({ locale, initialBook }: BookReviewClientProps)
   const hasUnsavedChanges = rating !== book.rating || review !== (book.review ?? "") || longReview !== (book.longReview ?? "") || reviewLink !== (book.reviewLink ?? "");
 
   useEffect(() => {
-    setCanonicalUrl(new URL(canonicalPath, window.location.origin).toString());
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) setCanonicalUrl(new URL(canonicalPath, window.location.origin).toString());
+    });
+    return () => {
+      active = false;
+    };
   }, [canonicalPath]);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(storageKey(initialBook.id));
-      if (stored) {
-        const parsed: unknown = JSON.parse(stored);
-        if (isRecord(parsed) && parsed.version === 1) {
-          const storedDraft: StoredDraft = {
-            rating: typeof parsed.rating === "number" && Number.isInteger(parsed.rating) ? parsed.rating : null,
-            review: typeof parsed.review === "string" ? parsed.review : "",
-            longReview: typeof parsed.longReview === "string" ? parsed.longReview : "",
-            reviewLink: typeof parsed.reviewLink === "string" ? parsed.reviewLink : "",
-          };
-          setPendingStoredDraft(storedDraft);
-          setDialog("restore");
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      try {
+        const stored = window.localStorage.getItem(storageKey(initialBook.id));
+        if (stored) {
+          const parsed: unknown = JSON.parse(stored);
+          if (isRecord(parsed) && parsed.version === 1) {
+            const storedDraft: StoredDraft = {
+              rating: typeof parsed.rating === "number" && Number.isInteger(parsed.rating) ? parsed.rating : null,
+              review: typeof parsed.review === "string" ? parsed.review : "",
+              longReview: typeof parsed.longReview === "string" ? parsed.longReview : "",
+              reviewLink: typeof parsed.reviewLink === "string" ? parsed.reviewLink : "",
+            };
+            setPendingStoredDraft(storedDraft);
+            setDialog("restore");
+          }
         }
+      } catch {
+        return;
+      } finally {
+        setDraftLoaded(true);
       }
-    } catch {
-      // A disabled or corrupt local store must not prevent the editor from opening.
-    } finally {
-      setDraftLoaded(true);
-    }
+    });
+    return () => {
+      active = false;
+    };
   }, [initialBook.id]);
 
   useEffect(() => {
