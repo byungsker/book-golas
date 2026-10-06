@@ -1,0 +1,22 @@
+{
+  "name": "@bookgolas/supabase",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./admin": "./src/admin.ts",
+    "./browser": "./src/browser.ts",
+    "./config": "./src/config/index.ts",
+    "./server": "./src/index.server.ts",
+    "./server-client": "./src/server.ts"
+  },
+  "peerDependencies": {
+    "next": "*",
+    "react": ">=19"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.89.0",
+    "server-only": "^0.0.1"
+  }
+}

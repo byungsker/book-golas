@@ -143,20 +143,23 @@ jobs:
         working-directory: web
     steps:
       - if: needs.changes.outputs.web != 'true'
-        working-directory: .
         run: echo "No Web changes detected"
       - if: needs.changes.outputs.web == 'true'
         uses: actions/checkout@v4
       - if: needs.changes.outputs.web == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.9.1
+      - if: needs.changes.outputs.web == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: web/package-lock.json
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - if: needs.changes.outputs.web == 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - if: needs.changes.outputs.web == 'true'
-        run: npm audit --audit-level=high
+        run: pnpm audit --audit-level=high
       - if: needs.changes.outputs.web == 'true'
         run: npx playwright install --with-deps chromium firefox webkit
       - if: needs.changes.outputs.web == 'true'

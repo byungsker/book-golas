@@ -24,9 +24,12 @@ cd app && flutter build apk        # Build Android
 
 ### Web 앱 (web/)
 ```bash
-cd web && npm install && npm run dev    # Development
-cd web && npm run build                 # Production build
-cd web && npm run lint                  # ESLint
+pnpm install --frozen-lockfile
+pnpm dev:client                         # 소비자 웹 앱
+pnpm dev:admin                          # 관리자 웹 앱
+pnpm build                              # 두 Next.js 앱과 공유 패키지 빌드
+pnpm lint                               # workspace 전체 ESLint
+pnpm typecheck                          # workspace 전체 타입 검사
 ```
 
 ### Supabase Functions
@@ -107,7 +110,7 @@ return new Response(
 );
 ```
 
-## Code Style - Next.js (web/)
+## Code Style - Next.js (apps/client/, apps/admin/)
 - TypeScript strict mode
 - Radix UI components from `src/components/ui/`
 - Tailwind CSS for styling
