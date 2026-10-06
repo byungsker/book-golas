@@ -34,7 +34,13 @@
         ".github/workflows/schema-check.yml",
         "AGENTS.md",
         "docs/product-roadmap.md",
-        ".omo/plans/**"
+        ".omo/plans/**",
+        "docs/release-lines/**",
+        "web/docs/consumer-web-release-config.json",
+        "web/docs/consumer-parity-matrix.md",
+        "web/docs/blds-react-integration-evidence.md",
+        "web/docs/consumer-web-release-runbook.md",
+        "web/scripts/test-release-config.mjs"
       ]
     },
     "mobile": {
