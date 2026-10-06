@@ -11,9 +11,8 @@ Delivery-Profile: web-release-train
 - 소스 및 seed SHA: `d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c`
 - 새 버전 라인: `version/client/1.1.0`
 - 기존 라인 대응: `web 1.1.0` 소비자 웹
-- 동기화 문서: 이 등록 문서, 소비자 릴리스 설정, parity matrix, BLDS 통합
-  증거, 릴리스 runbook
-- 동기화 검증: 소비자 릴리스 설정 테스트
+- 동기화 문서: 이 등록 문서와 `docs/release-lines/client-1.1.0/`의 릴리스 설정, parity matrix, BLDS 통합 증거, 릴리스 runbook
+- 동기화 검증: `node docs/release-lines/client-1.1.0/test-release-config.mjs`
 
 문서를 새 버전 라인에 동기화하고 그 커밋을 attestation으로 등록한 뒤에만
 제품 작업을 시작할 수 있습니다. 새 라인이 활성화되고 코드가 `apps/client/`로
