@@ -19,3 +19,10 @@ AGENTS.local.md
 .sisyphus/
 .claude/linear-simple.json
 AGENTS.local.md
+
+# Node.js workspaces
+node_modules/
+**/.next/
+**/.turbo/
+*.tsbuildinfo
+next-env.d.ts
