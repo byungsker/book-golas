@@ -126,7 +126,7 @@
             },
             {
               "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
-              "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
+              "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
             },
             {
               "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
@@ -151,7 +151,7 @@
               },
               {
                 "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
-                "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
+                "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
               },
               {
                 "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
@@ -182,7 +182,7 @@
               },
               {
                 "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
-                "sha256": "e7fdee2b71b1c0b52778e4dcd13656b7e68a9d9bb90f3a79f6abd8297166fb11"
+                "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
               },
               {
                 "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
@@ -198,7 +198,7 @@
               },
               {
                 "path": "docs/release-lines/client-1.1.0/test-release-config.mjs",
-                "sha256": "6721cad5175a910031eb2ad9dd64ae781ec3f96ad2e08fa3b4adeb41387ec5b2"
+                "sha256": "80fcaff67cdb85e172a761a0fcd9e64f76fee3527ea4411baa4df3e24d37146e"
               }
             ]
           }

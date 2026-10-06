@@ -84,6 +84,7 @@ requireCondition(config.task === 36, "release config task must be 36");
 requireCondition(config.parentIssue === 412, "release config parentIssue must be 412");
 requireCondition(config.plan === ".omo/plans/bookgolas-web-app-parity.md", "release config plan footer is incorrect");
 requireCondition(config.deliveryUnit === "client", "release config delivery unit must be client");
+requireCondition(config.deliveryProfile === "web-release-train", "release config delivery profile must be web-release-train");
 requireCondition(config.targetVersion === "1.1.0", "release config target version must be 1.1.0");
 requireCondition(config.sourceBranch === "version/web/1.1.0", "release config source branch is incorrect");
 requireCondition(config.seedSha === "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c", "release config seed SHA is incorrect");

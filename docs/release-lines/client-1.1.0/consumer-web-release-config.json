@@ -5,6 +5,7 @@
   "parentIssue": 412,
   "plan": ".omo/plans/bookgolas-web-app-parity.md",
   "deliveryUnit": "client",
+  "deliveryProfile": "web-release-train",
   "targetVersion": "1.1.0",
   "sourceBranch": "version/web/1.1.0",
   "seedSha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
