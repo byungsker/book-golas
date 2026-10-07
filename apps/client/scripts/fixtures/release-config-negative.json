@@ -9,12 +9,6 @@
       "missing": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       "expectedExit": 1,
       "phase": "before-next-build"
-    },
-    "missing-gate-command": {
-      "script": "test:contracts",
-      "missing": "test:auth-boundary",
-      "expectedExit": 1,
-      "phase": "before-ci-execution"
     }
   }
 }

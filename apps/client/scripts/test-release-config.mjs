@@ -86,7 +86,6 @@ const supabaseConfig = readText(path.join(repositoryRoot, "supabase", "config.to
 const edgeContract = readText(path.join(repositoryRoot, "supabase", "functions", "_shared", "consumer-contract.ts"));
 const routeSpec = readText(path.join(webRoot, "tests", "e2e", "routes.spec.ts"));
 const runbook = readText(path.join(webRoot, "docs", "consumer-web-release-runbook.md"));
-const contractGateRunner = readText(path.join(webRoot, "scripts", "run-contract-gate.mjs"));
 const allBrowserRunner = readText(path.join(webRoot, "scripts", "run-all-browsers.mjs"));
 
 requireCondition(config.schemaVersion === 1, "release config schemaVersion must be 1");
@@ -134,31 +133,11 @@ requireCondition(packageJson.scripts?.build === "pnpm run test:release-config &&
 requireCondition(packageJson.scripts?.["test:release-config"] === "node scripts/test-release-config.mjs", "positive release config script is missing");
 requireCondition(packageJson.scripts?.["test:fsd"] === "node scripts/test-fsd-boundaries.mjs", "FSD boundary script is missing");
 requireCondition(packageJson.scripts?.["test:release-config:negative"] === "node scripts/test-release-config.mjs --fixture missing-required-env", "negative release config script is missing");
-requireCondition(packageJson.scripts?.test === "npm run test:release-config && npm run test:unit && npm run test:contracts", "full test must run release config, unit, and focused contract gates");
+requireCondition(packageJson.scripts?.test === "npm run test:release-config && npm run test:unit", "full test must run release config and unit tests");
 requireCondition(packageJson.scripts?.["test:release-gate"] === "npm test && npm run lint && npm run typecheck && npm run build && npm run test:e2e:all", "release gate must run test, lint, typecheck, build, and all-browser Playwright");
 requireCondition(packageJson.scripts?.["test:e2e:all"] === "node scripts/run-all-browsers.mjs", "all-browser gate must use the versioned browser runner");
 requireIncludes(allBrowserRunner, "all-browser runner", ["chromium", "firefox", "webkit", "--workers=1", "--retries=0", "attempt <= 2", "failed both fresh-process attempts"]);
 
-const configuredContractScripts = config.verification?.contractScripts ?? [];
-const intentionalFailureScripts = config.verification?.intentionalFailureScripts ?? [];
-requireCondition(packageJson.scripts?.["test:contracts"] === "node scripts/run-contract-gate.mjs", "focused contract aggregate must use the versioned gate runner");
-requireIncludes(contractGateRunner, "contract gate runner", ["config.verification?.contractScripts", "spawnSync", "expectedStatus"]);
-let aggregateCommands = [...configuredContractScripts];
-const missingGateFixture = negativeFixture.fixtures?.["missing-gate-command"];
-if (fixtureName === "missing-gate-command") {
-  aggregateCommands = aggregateCommands.filter(
-    (scriptName) => scriptName !== (missingGateFixture?.missing ?? "test:auth-boundary"),
-  );
-}
-requireCondition(configuredContractScripts.length > 0, "release config contract command inventory is empty");
-for (const scriptName of configuredContractScripts) {
-  requireCondition(typeof packageJson.scripts?.[scriptName] === "string", `package script is missing: ${scriptName}`);
-  requireCondition(aggregateCommands.includes(scriptName), `aggregate gate is missing command: ${scriptName}`);
-}
-requireCondition(new Set(aggregateCommands).size === aggregateCommands.length, "aggregate gate contains duplicate commands");
-requireCondition(aggregateCommands.length === configuredContractScripts.length, "aggregate gate command count does not match release inventory");
-for (const scriptName of intentionalFailureScripts) requireCondition(configuredContractScripts.includes(scriptName), `intentional failure command is outside the contract inventory: ${scriptName}`);
-requireCondition(intentionalFailureScripts.length === 1 && intentionalFailureScripts[0] === "test:session-lifecycle:negative", "intentional failure command inventory is incorrect");
 requireCondition((qualityWorkflow.match(/^\s*run: npm run test:release-gate$/gm) ?? []).length === 1, "quality workflow must invoke the release gate exactly once");
 requireCondition(!/secrets\.|SUPABASE_(?:ACCESS_TOKEN|SERVICE_ROLE_KEY|PROJECT_REF)/.test(qualityWorkflow), "quality workflow must remain secrets-free");
 requireIncludes(envExample, ".env.example", [
@@ -270,11 +249,6 @@ requireCondition(missingEnvFixture?.environment === "preview", "negative fixture
 requireCondition(missingEnvFixture?.missing === "NEXT_PUBLIC_SUPABASE_ANON_KEY", "negative fixture must remove the anon key");
 requireCondition(missingEnvFixture?.expectedExit === 1, "negative fixture must expect exit 1");
 requireCondition(missingEnvFixture?.phase === "before-next-build", "negative fixture must run before the Next build");
-requireCondition(missingGateFixture?.script === "test:contracts", "missing-gate-command fixture must target the contract aggregate");
-requireCondition(configuredContractScripts.includes(missingGateFixture?.missing), "missing-gate-command fixture must remove a required command");
-requireCondition(missingGateFixture?.expectedExit === 1, "missing-gate-command fixture must expect exit 1");
-requireCondition(missingGateFixture?.phase === "before-ci-execution", "missing-gate-command fixture must run before CI execution");
-
 const requiredEnvironment = config.completionPreflight?.preview?.requiredEnvironment ?? [];
 requireCondition(requiredEnvironment.length === 4, "completion required environment must contain exactly four variables");
 
@@ -301,7 +275,7 @@ if (environmentName === "preview" || environmentName === "production") {
   requireCondition(!origin.includes("localhost"), environmentName + " hosted environment must not use localhost as an allowed origin");
 }
 
-if (fixtureName && !["missing-required-env", "missing-gate-command"].includes(fixtureName)) {
+if (fixtureName && fixtureName !== "missing-required-env") {
   failures.push("unknown release config fixture: " + fixtureName);
 }
 

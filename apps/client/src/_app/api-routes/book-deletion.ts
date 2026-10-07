@@ -17,7 +17,7 @@ export async function deleteBookAndImages(bookId: string, expectedRevision?: str
   if (!deleted.ok) return failure(deleted.error);
 
   if (storage && typeof storage.from === "function") {
-    const cleaned = await deleteOwnedBookImages(parsedBookId.data, clientFactory);
+    const cleaned = await deleteOwnedBookImages(parsedBookId.data, clientFactory, { requireActiveBook: false });
     if (!cleaned.ok) return failure(cleaned.error);
   }
 
