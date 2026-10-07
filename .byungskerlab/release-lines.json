@@ -1,0 +1,255 @@
+{
+  "schema_version": 2,
+  "delivery_units": {
+    "governance": {
+      "active_versions": [
+        "1.0.0"
+      ],
+      "evidence_refs": [
+        ".byungskerlab/branch-policy.json"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "operations": {
+      "active_versions": [
+        "1.1.0"
+      ],
+      "evidence_refs": [
+        "AGENTS.md",
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "mobile": {
+      "active_versions": [
+        "1.0.2"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {
+          "1.0.2": {
+            "branch": "version/mobile/1.0.2",
+            "sha": "0a9896c0f729c8cf8b51ba99c3fdf61de291848a"
+          }
+        },
+        "hotfix": {}
+      }
+    },
+    "web": {
+      "active_versions": [
+        "1.0.2",
+        "1.1.0"
+      ],
+      "evidence_refs": [
+        "AGENTS.md",
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {
+          "1.0.2": {
+            "branch": "version/web/1.0.2",
+            "sha": "df9db70c2311bce152498d43ac5162a850ad5239"
+          },
+          "1.1.0": {
+            "branch": "version/web/1.1.0",
+            "sha": "52e9c1db19b307200acef66eef73b86122b315d8"
+          }
+        },
+        "hotfix": {}
+      },
+      "migration_targets": {
+        "1.0.2": {
+          "delivery_unit": "admin",
+          "version": "1.0.2",
+          "source_branch": "version/web/1.0.2",
+          "source_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4"
+        },
+        "1.1.0": {
+          "delivery_unit": "client",
+          "version": "1.1.0",
+          "source_branch": "version/web/1.1.0",
+          "source_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c"
+        }
+      }
+    },
+    "backend": {
+      "active_versions": [
+        "1.0.2"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "agent_api_cli": {
+      "active_versions": [
+        "0.1.0"
+      ],
+      "evidence_refs": [
+        "docs/product-roadmap.md"
+      ],
+      "promotion_sources": {
+        "release": {},
+        "hotfix": {}
+      }
+    },
+    "client": {
+      "active_versions": [
+        "1.1.0"
+      ],
+      "versions": {
+        "1.1.0": {
+          "status": "active",
+          "profile": "web-release-train",
+          "source": {
+            "branch": "version/web/1.1.0",
+            "sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c"
+          },
+          "line": {
+            "branch": "version/client/1.1.0",
+            "seed_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
+            "attested_sha": "2a3a7ff867119d6dae53520800a68e1158289e82"
+          },
+          "evidence_refs": [
+            {
+              "path": "docs/release-lines/client-1.1.0.md",
+              "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
+            },
+            {
+              "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+              "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
+            },
+            {
+              "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+              "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
+            },
+            {
+              "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+              "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
+            },
+            {
+              "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+              "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
+            }
+          ],
+          "document_sync": {
+            "source_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
+            "target": "version/client/1.1.0",
+            "evidence_refs": [
+              {
+                "path": "docs/release-lines/client-1.1.0.md",
+                "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+                "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+                "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+                "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+                "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
+              }
+            ],
+            "consumed": true,
+            "sync_paths": [
+              "docs/release-lines/client-1.1.0.md",
+              "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+              "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+              "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+              "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+              "docs/release-lines/client-1.1.0/test-release-config.mjs"
+            ],
+            "sync_hashes": [
+              {
+                "path": "docs/release-lines/client-1.1.0.md",
+                "sha256": "b7d1958b2303999ef3f25629d0bf1dc1d9eccf65781de65701bdfc5595b917e3"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
+                "sha256": "e6078031a8b0c38878cba3cadc76b653a864d240a0e7d43fde9fa606f17de7b4"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-parity-matrix.md",
+                "sha256": "6805b7b74c371e4ba1922b86ce170489d93ba3665b157feeced20b44f18e4111"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/blds-react-integration-evidence.md",
+                "sha256": "d9c34ad741865bbbb6e2308afe2f644833693c8a5addbb0ed6086eb12320e411"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/consumer-web-release-runbook.md",
+                "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
+              },
+              {
+                "path": "docs/release-lines/client-1.1.0/test-release-config.mjs",
+                "sha256": "80fcaff67cdb85e172a761a0fcd9e64f76fee3527ea4411baa4df3e24d37146e"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "admin": {
+      "active_versions": [],
+      "versions": {
+        "1.0.2": {
+          "status": "planned",
+          "profile": "web-release-train",
+          "source": {
+            "branch": "version/web/1.0.2",
+            "sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4"
+          },
+          "line": {
+            "branch": "version/admin/1.0.2",
+            "seed_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4",
+            "attested_sha": null
+          },
+          "evidence_refs": [
+            {
+              "path": "docs/release-lines/admin-1.0.2.md",
+              "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+            }
+          ],
+          "document_sync": {
+            "source_sha": "3db4f79652be82532d5d6fbd74f3e48b159c67f4",
+            "target": "version/admin/1.0.2",
+            "evidence_refs": [
+              {
+                "path": "docs/release-lines/admin-1.0.2.md",
+                "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+              }
+            ],
+            "consumed": false,
+            "sync_paths": [
+              "docs/release-lines/admin-1.0.2.md"
+            ],
+            "sync_hashes": [
+              {
+                "path": "docs/release-lines/admin-1.0.2.md",
+                "sha256": "e529ddd052d5a9ef4330341784445c331c66cfcdf5e34d5fd5718d7d6d9dc809"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "issue": 444,
+  "task": 31,
+  "parentIssue": 412,
+  "fixtures": [
+    { "name": "foreign", "routeFixture": "account-settings-foreign", "expected": { "code": "validation_error" } },
+    { "name": "avatar-failure", "routeFixture": "account-settings-avatar-failure", "expected": { "code": "provider_error" } },
+    { "name": "password", "routeFixture": "account-settings-password-failure", "expected": { "code": "provider_error" } },
+    { "name": "unauthorized", "routeFixture": "account-settings-unauthorized", "expected": { "code": "unauthorized" } },
+    { "name": "consent", "routeFixture": "account-settings-consent", "expected": { "code": "consent_required" } },
+    { "name": "quota", "routeFixture": "account-settings-quota", "expected": { "code": "quota_exceeded" } },
+    { "name": "offline", "routeFixture": "account-settings-offline", "expected": { "code": "offline" } },
+    { "name": "empty", "routeFixture": "account-settings-empty", "expected": { "state": "empty" } },
+    { "name": "network", "routeFixture": "account-settings-network", "expected": { "code": "unavailable" } }
+  ],
+  "forbiddenMarkers": ["purchase", "restore", "upgrade", "customer-center", "service_role"]
+}

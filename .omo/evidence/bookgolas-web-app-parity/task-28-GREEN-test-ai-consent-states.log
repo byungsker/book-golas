@@ -1,0 +1,16 @@
+
+> web@0.1.0 test:ai-consent-states
+> node scripts/test-ai-consent-states.mjs && vitest run src/lib/product/contracts/ai-consent.test.ts src/lib/consumer/ai-consent-fixtures.test.ts src/app/api/consumer/ai-consent/route.test.ts
+
+AI consent contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-438/web
+
+ ✓ src/lib/product/contracts/ai-consent.test.ts (3 tests) 5ms
+ ✓ src/lib/consumer/ai-consent-fixtures.test.ts (4 tests) 7ms
+ ✓ src/app/api/consumer/ai-consent/route.test.ts (5 tests) 20ms
+
+ Test Files  3 passed (3)
+      Tests  12 passed (12)
+   Start at  09:55:58
+   Duration  433ms (transform 141ms, setup 0ms, collect 533ms, tests 32ms, environment 0ms, prepare 139ms)

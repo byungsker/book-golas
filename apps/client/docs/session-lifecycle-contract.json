@@ -1,0 +1,45 @@
+{
+  "issue": 427,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "redirect": {
+    "parameter": "returnTo",
+    "allowlist": "same-locale protected consumer route",
+    "singleRedirect": true,
+    "fallback": "/{locale}/home"
+  },
+  "states": [
+    "expired-session",
+    "invalid-session",
+    "foreign-book",
+    "deleted-book",
+    "network-loss",
+    "logout-from-deep-link",
+    "return-to-after-login"
+  ],
+  "fixtures": {
+    "expiredSession": "expired-session",
+    "invalidSession": "invalid-session",
+    "foreignBook": "00000000-0000-4000-8000-000000004251",
+    "deletedBook": "00000000-0000-4000-8000-000000004272",
+    "networkLoss": "bootstrap-network"
+  },
+  "privateDataPolicy": {
+    "ownerScopedQuery": true,
+    "deletedRowsExcluded": true,
+    "unauthenticatedHtmlMarkers": [
+      "Foreign private title",
+      "Deleted private title"
+    ],
+    "unauthenticatedNetworkMarkers": [
+      "/rest/v1/books",
+      "Foreign private title",
+      "Deleted private title"
+    ]
+  },
+  "loadingBoundaryStates": ["pending", "error", "unavailable"],
+  "nativeReference": [
+    "app/lib/ui/core/widgets/deep_link_recovery_screen.dart",
+    "app/lib/main.dart:498-579",
+    "app/lib/data/services/deep_link_service.dart"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "issue": 442,
+  "title": "[Bookgolas Web Parity 30] Implement mind maps, reading insights and recommendations",
+  "task": 30,
+  "parentIssue": 412,
+  "wave": 5,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-442-ai-artifacts",
+  "base_revision": "c16bb8c51798433443adbdbe4532f4e00cfbb652",
+  "red": {
+    "command": "npm run test:ai-artifacts",
+    "exit_code": 1,
+    "observed": "Before the implementation, npm reported Missing script: test:ai-artifacts."
+  },
+  "green": {
+    "result": "PASS",
+    "commands": [
+      "npm run test:ai-artifacts",
+      "npm run test:ai-artifacts:negative",
+      "npm test",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run build"
+    ],
+    "details": [
+      "The AI artifact acceptance suite passed 4 Vitest files and 10 tests.",
+      "All 11 AI artifact negative fixtures passed: unauthorized, consent, quota, rate-limit, provider, offline, empty, missing, expired, source-changed and foreign.",
+      "Full npm test passed 65 Vitest files and 351 tests, parity 20 routes/53 overlays/8 capabilities, 59 parity negative fixtures and the existing BLDS/UI/progress/timer/notes suites.",
+      "TypeScript and the production Next build passed; the build registered /[locale]/reading-insights and /api/consumer/ai-artifacts.",
+      "Lint passed with 3 pre-existing Next image optimization warnings and 0 errors."
+    ]
+  },
+  "surface": {
+    "result": "PASS",
+    "runtime": "Playwright production webServer with Next build/start, OAuth fixture server and credential-free loopback fixtures",
+    "commands": [
+      "npx playwright test tests/e2e/ai-artifacts.spec.ts --project=chromium --grep \"mindmap|insight|recommendation\"",
+      "npx playwright test tests/e2e/ai-artifacts.spec.ts --project=chromium --grep \"expired|rate-limit|foreign|provider\"",
+      "npx playwright test tests/e2e/ai-artifacts.spec.ts --project=chromium"
+    ],
+    "details": [
+      "The required happy lane passed 3 Chromium tests for mind map, localized insights and recommendation dialog behavior.",
+      "The required failure lane passed 3 Chromium tests for missing/expired regeneration, rate-limit/provider states and foreign/unauthorized fail-closed behavior.",
+      "The complete AI artifact browser suite passed 7 Chromium tests, including empty, source-change, consent, quota and offline states.",
+      "The required screenshot was captured at .omo/evidence/bookgolas-web-app-parity/task-30-bookgolas-web-app-parity.png and visually inspected."
+    ],
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-30-bookgolas-web-app-parity.png"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-30-CLEANUP.log",
+    "details": [
+      "git diff --check passed.",
+      "No browser or production server processes remained after surface verification.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was preserved and not modified."
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-30-review.md",
+    "reviewer": "manual code review",
+    "blocking_findings": []
+  },
+  "known_blockers": [
+    ".omo/plans/bookgolas-web-app-parity.md is absent from the clean checkout; the required plan footer is retained in the contract, evidence and PR body.",
+    "Live Supabase/provider execution was unavailable; deterministic owner-scoped fixtures, DAL tests, production build and Chromium verification passed."
+  ]
+}

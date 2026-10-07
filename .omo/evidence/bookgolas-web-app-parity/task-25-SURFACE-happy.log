@@ -1,0 +1,11 @@
+SURFACE happy — 2026-09-16
+
+Command:
+npx playwright test tests/e2e/review-share.spec.ts --project=chromium --grep "save|draft|share"
+
+Observed result:
+PASS — 4 tests
+- local draft restores across reload
+- review fields save
+- AI draft is generated and can be placed into the long review
+- Web Share fallback copies the canonical URL and share-card download works

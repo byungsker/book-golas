@@ -1,0 +1,89 @@
+{
+  "issue": 434,
+  "title": "[Bookgolas Web Parity 21] Implement atomic progress UI, history, completion and retry attempts",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-434-progress-ui",
+  "base_revision": "cd3a26f4f51348b2c46c0fe74b1226622a587775",
+  "red": {
+    "command": "npm run test:progress-ui",
+    "exit_code": 1,
+    "observed": "Before implementation, npm reported Missing script: test:progress-ui.",
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-21-RED-test-progress-ui.log"
+  },
+  "green": {
+    "commands": [
+      "npm run test:progress-ui",
+      "npm run test:progress-ui:negative",
+      "node scripts/test-progress-ui.mjs --fixture stale",
+      "node scripts/test-progress-ui.mjs --fixture duplicate",
+      "node scripts/test-progress-ui.mjs --fixture server-error",
+      "node scripts/test-progress-ui.mjs --fixture page-bounds"
+    ],
+    "result": "PASS",
+    "details": [
+      "The progress contract, fixture state machine, route response, and reading action suites passed 4 Vitest files and 16 tests.",
+      "Negative fixtures cover stale expected pages, duplicate idempotency replay, history failure, and page bounds.",
+      "The route returns page, status, history, completion, duplicate, and cache invalidation data atomically while production writes use the Todo 3 RPC."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-green.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-negative-all.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-negative-stale.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-negative-duplicate.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-negative-server-error.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-GREEN-negative-page-bounds.log"
+    ]
+  },
+  "surface": {
+    "commands": [
+      "npx playwright test tests/e2e/progress.spec.ts --project=chromium --grep \"forward|complete|retry\"",
+      "npx playwright test tests/e2e/progress.spec.ts --project=chromium --grep \"stale|duplicate|server-error\""
+    ],
+    "result": "PASS",
+    "details": [
+      "The happy surface covered forward history, completion at total pages, and will-retry attempt messaging.",
+      "The failure surface covered stale conflict/refetch, one-event duplicate replay, and history failure without false success."
+    ],
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-21-SURFACE-forward-complete-retry.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-SURFACE-stale-duplicate-server-error.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-bookgolas-web-app-parity.png"
+    ]
+  },
+  "cleanup": {
+    "commands": [
+      "npm run lint",
+      "npm run typecheck",
+      "npm run build",
+      "git diff --check"
+    ],
+    "result": "PASS",
+    "evidence": [
+      ".omo/evidence/bookgolas-web-app-parity/task-21-CLEANUP-lint.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-CLEANUP-typecheck.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-CLEANUP-build.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-21-CLEANUP-diff-check.log"
+    ]
+  },
+  "full_regression": {
+    "command": "npm test",
+    "result": "PASS",
+    "details": [
+      "Vitest passed 38 files and 250 tests.",
+      "Parity matrix passed 20 routes, 53 overlays and 8 capabilities; all 59 parity negative fixtures passed.",
+      "BLDS React parity, BLDS negative, SSR state, UI primitive, UI primitive negative, progress UI, and progress UI negative contracts passed."
+    ],
+    "evidence": ".omo/evidence/bookgolas-web-app-parity/task-21-CLEANUP-full-regression-post-commit.log"
+  },
+  "review": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-21-review.md",
+    "verdict": "APPROVE",
+    "reviewer": "manual code review",
+    "blocking_findings": []
+  },
+  "blockers": [
+    "The referenced .omo/plans/bookgolas-web-app-parity.md file is not present in this clean checkout; the required reference is retained in the contract and PR footer."
+  ]
+}

@@ -1,0 +1,15 @@
+
+> web@0.1.0 test:calendar
+> node scripts/test-calendar.mjs && vitest run src/lib/product/contracts/calendar.test.ts src/lib/consumer/calendar-fixtures.test.ts
+
+calendar contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-439/web
+
+ ✓ src/lib/product/contracts/calendar.test.ts (3 tests) 20ms
+ ✓ src/lib/consumer/calendar-fixtures.test.ts (4 tests) 25ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  08:36:21
+   Duration  410ms (transform 94ms, setup 0ms, collect 288ms, tests 45ms, environment 0ms, prepare 94ms)

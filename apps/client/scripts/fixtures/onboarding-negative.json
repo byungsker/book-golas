@@ -1,0 +1,9 @@
+{
+  "invalidCompletedValues": ["{broken", "1", "yes"],
+  "invalidAgePolicyValues": ["unknown", "14", "adult"],
+  "inconsistentStates": [
+    { "completed": "true", "agePolicy": null },
+    { "completed": "{broken", "agePolicy": "under14" }
+  ],
+  "unsafeNextTargets": ["https://evil.example/account", "//evil.example", "/admin"]
+}

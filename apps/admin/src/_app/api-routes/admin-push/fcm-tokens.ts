@@ -1,0 +1,74 @@
+import { NextResponse } from "next/server";
+import { createAdminSupabaseClient } from "@/shared/api/supabase/index.server";
+import { requireAdminUser } from "@/_app/auth/index.server";
+
+export async function getAdminFcmTokens() {
+  if (!(await requireAdminUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let supabaseAdmin;
+  try {
+    supabaseAdmin = createAdminSupabaseClient();
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+  }
+
+  const { data: tokensData, error: tokensError } = await supabaseAdmin
+    .from("fcm_tokens")
+    .select("user_id, token, device_type");
+
+  if (tokensError) {
+    console.error("Error fetching FCM tokens:", tokensError);
+    return NextResponse.json(
+      { error: tokensError.message },
+      { status: 500 }
+    );
+  }
+
+  const userMap = new Map<
+    string,
+    { user_id: string; token_count: number; device_type: string }
+  >();
+
+  tokensData?.forEach((row) => {
+    const existing = userMap.get(row.user_id);
+    if (existing) {
+      existing.token_count++;
+    } else {
+      userMap.set(row.user_id, {
+        user_id: row.user_id,
+        token_count: 1,
+        device_type: row.device_type || "unknown",
+      });
+    }
+  });
+
+  const userIds = Array.from(userMap.keys());
+
+  const emailMap = new Map<string, string>();
+  if (userIds.length > 0) {
+    const { data: usersData } = await supabaseAdmin
+      .from("users")
+      .select("id, email")
+      .in("id", userIds);
+
+    if (usersData) {
+      usersData.forEach((u) => {
+        if (u.email) {
+          emailMap.set(u.id, u.email);
+        }
+      });
+    }
+  }
+
+  const users = Array.from(userMap.values()).map((data) => ({
+    user_id: data.user_id,
+    email: emailMap.get(data.user_id) || data.user_id.slice(0, 8) + "...",
+    token_count: data.token_count,
+    device_type: data.device_type,
+  }));
+
+  return NextResponse.json({ users });
+}

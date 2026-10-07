@@ -1,0 +1,7 @@
+$ npm run test:home-book-list
+exit=1
+npm error Missing script: "test:home-book-list"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /Users/byungskersmacbook/.npm/_logs/2026-09-15T17_22_09_128Z-debug-0.log

@@ -1,0 +1,56 @@
+{
+  "issue": 434,
+  "title": "Atomic progress UI, history, completion and retry attempts",
+  "plan": ".omo/plans/bookgolas-web-completion.md",
+  "baseBranch": "version/web/1.1.0",
+  "nativeContract": {
+    "service": "app/lib/data/services/reading_progress_service.dart",
+    "bookUpdate": "app/lib/data/services/book_service.dart",
+    "historyTab": "app/lib/ui/book_detail/widgets/tabs/progress_history_tab.dart",
+    "recordModel": "app/lib/domain/models/reading_progress_record.dart",
+    "historyMigration": "supabase/migrations/20260317064102_add_reading_time_to_progress_history.sql",
+    "rpc": "public.update_reading_progress"
+  },
+  "states": [
+    "loading",
+    "ready",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "conflict",
+    "duplicate",
+    "rollback",
+    "completed",
+    "will_retry"
+  ],
+  "operations": [
+    "forward_edit",
+    "backward_edit",
+    "complete_at_total_pages",
+    "atomic_page_status_history",
+    "idempotent_submit",
+    "stale_refetch",
+    "history_failure",
+    "view_today_goal",
+    "edit_daily_target",
+    "confirm_daily_target",
+    "update_target_date",
+    "reject_offline_without_queue"
+  ],
+  "mutationGuards": {
+    "progress": "If-Match quotes expectedCurrentPage and X-Bookgolas-Action-Key binds book, progress, revision and idempotency UUID",
+    "schedule": "If-Match quotes books.updated_at and the owner-scoped update uses the same revision as a compare-and-swap predicate",
+    "offline": "The client rejects before fetch, keeps an explicit manual retry action and creates no background queue"
+  },
+  "overlays": ["today-goal", "daily-target", "daily-target-confirm", "update-target-date"],
+  "webSurface": {
+    "route": "/{locale}/books/{bookId}",
+    "api": "/api/consumer/progress",
+    "cacheInvalidation": ["/{locale}/home", "/{locale}/library", "/{locale}/books/{bookId}", "/{locale}/reading/{bookId}"],
+    "locales": ["ko", "en"]
+  },
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-12-bookgolas-web-completion.md"
+}

@@ -1,0 +1,40 @@
+{
+  "issue": 431,
+  "plan": ".omo/plans/bookgolas-web-completion.md",
+  "flow": ["select-book", "set-status", "set-dates", "preview-schedule", "edit-daily-goal", "set-priority", "save", "retry", "edit", "edit-planned-book"],
+  "native": {
+    "source": "app/lib/ui/reading_start/view_model/reading_start_view_model.dart",
+    "statuses": ["planned", "reading", "completed", "will_retry"],
+    "addStatuses": ["planned", "reading"],
+    "priorityValues": [1, 2, 3, 4],
+    "schedule": ["plannedStartDate", "startDate", "targetDate", "dailyTargetPages"]
+  },
+  "web": {
+    "route": "/[locale]/books/new",
+    "api": "/api/consumer/book-lifecycle",
+    "component": "BookLifecycleClient",
+    "browserDisposition": "native camera and share affordances stay outside this form; browser input and typed retry cover web capabilities"
+  },
+  "states": ["loading", "ready", "invalid", "saved", "error", "retry", "duplicate", "unauthorized", "consent", "quota", "offline", "foreign"],
+  "statusTransitions": {
+    "planned": ["planned", "reading"],
+    "reading": ["reading", "completed", "will_retry"],
+    "completed": ["completed"],
+    "will_retry": ["will_retry", "reading"]
+  },
+  "validation": {
+    "totalPages": "integer >= 0",
+    "dailyTargetPages": "null or integer >= 1",
+    "priority": "null or integer in 1..4",
+    "targetDate": "on or after the effective start date",
+    "ownership": "user id comes from the verified session and active-row query scope"
+  },
+  "mutationSafety": {
+    "create": "a UUID action key becomes the owner-scoped book id; replay returns HTTP 409 without a second insert",
+    "update": "owner and active-row filters plus an atomic updated_at comparison are mandatory",
+    "plannedEdit": "missing If-Match returns 428, malformed quoting returns 400, and a stale quoted updatedAt revision returns 409",
+    "retry": "the browser disables duplicate submission and retains the same action key for create retries"
+  },
+  "cacheInvalidation": ["/{locale}/home", "/{locale}/library", "/{locale}/books/{bookId}", "/{locale}/reading/{bookId}"],
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+}

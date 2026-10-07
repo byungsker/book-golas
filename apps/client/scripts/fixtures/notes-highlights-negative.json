@@ -1,0 +1,14 @@
+{
+  "issue": 432,
+  "fixtures": [
+    { "id": "invalid-page", "expect": "page_number is rejected when outside the owned book bounds" },
+    { "id": "invalid-rectangle", "expect": "negative, zero-size and overflowing normalized rectangles are rejected" },
+    { "id": "index-failure", "expect": "record remains visible with failed indexing and retry action" },
+    { "id": "foreign-record", "expect": "a record outside the verified owner scope is treated as not found" },
+    { "id": "duplicate-retry", "expect": "replaying an indexing retry does not create another record" },
+    { "id": "unauthorized", "expect": "anonymous requests fail closed" },
+    { "id": "consent", "expect": "AI indexing is blocked without consent" },
+    { "id": "quota", "expect": "quota errors remain typed" },
+    { "id": "offline", "expect": "offline errors remain retryable" }
+  ]
+}

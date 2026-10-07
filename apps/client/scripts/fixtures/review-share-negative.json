@@ -1,0 +1,14 @@
+{
+  "issue": 437,
+  "task": 25,
+  "fixtures": [
+    { "name": "consent", "input": "generate without explicit AI consent", "expected": "consent_required" },
+    { "name": "provider", "input": "AI provider failure after a typed review exists", "expected": "provider_error" },
+    { "name": "timeout", "input": "AI provider timeout", "expected": "timeout" },
+    { "name": "clipboard", "input": "Web Share and clipboard unavailable", "expected": "download" },
+    { "name": "foreign", "input": "book owned by another user", "expected": "not_found" },
+    { "name": "empty", "input": "AI returns an empty draft", "expected": "empty" },
+    { "name": "quota", "input": "AI quota exhausted", "expected": "quota_exceeded" },
+    { "name": "offline", "input": "review save while offline", "expected": "offline" }
+  ]
+}

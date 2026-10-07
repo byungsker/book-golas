@@ -1,128 +1,75 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "@supabase/supabase-js";
 import { config, validateConfig } from "./config.ts";
 import type { ReadingInsightResponse } from "./types.ts";
 import { PatternCollector } from "./services/pattern-collector.ts";
 import { InsightService } from "./services/insight-service.ts";
 import {
-  executeThirdPartyAiOperation,
-  thirdPartyAiConsentRequiredResponse,
-} from "../_shared/third-party-ai-consent.ts";
-import {
-  aiUsageErrorResponse,
-  createAiProviderRunner,
-} from "../_shared/ai-usage.ts";
-import { requestIdFromRequest } from "../_shared/edge-http.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+  ContractError,
+  createServiceClient,
+  jsonResponse,
+  methodGuard,
+  optionsResponse,
+  parseJsonBody,
+  providerFailure,
+  requireConsent,
+  requireString,
+  requireProviderSecret,
+  requireUser,
+  responseForError,
+} from "../_shared/consumer-contract.ts";
+import { executeThirdPartyAiOperation } from "../_shared/third-party-ai-consent.ts";
+import { AiUsageError, withAiBudget } from "../_shared/ai-usage.ts";
 
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return optionsResponse(req);
 
   try {
+    methodGuard(req);
+    const { user, authClient } = await requireUser(req);
+    const body = await parseJsonBody(req);
+    const suppliedUserId = requireString(body, "userId", 80) ?? "";
+    const locale = body.locale === undefined ? "ko" : requireString(body, "locale", 8);
+    if (suppliedUserId !== user.id) {
+      throw new ContractError(403, "cross_user_access", "userId does not match authenticated user");
+    }
+    if (locale !== "ko" && locale !== "en") {
+      throw new ContractError(400, "invalid_request", "locale must be ko or en");
+    }
+
+    const serviceClient = createServiceClient();
+    await requireConsent(serviceClient, user, "ai");
+    requireProviderSecret("OPENAI_API_KEY");
     validateConfig();
 
-    const authHeader = req.headers.get("Authorization");
-    const authClient = createClient(
-      config.supabase.url,
-      config.supabase.anonKey,
-      { global: { headers: { Authorization: authHeader ?? "" } } },
-    );
-    const {
-      data: { user },
-      error: userError,
-    } = await authClient.auth.getUser();
-
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    const { userId } = await req.json();
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: "userId is required" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        },
-      );
-    }
-
-    if (userId !== user.id) {
-      return new Response(
-        JSON.stringify({ error: "userId does not match authenticated user" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        },
-      );
-    }
-
-    const supabase = createClient(
-      config.supabase.url,
-      config.supabase.serviceRoleKey,
-    );
-    const requestId = requestIdFromRequest(req);
-    const runAiCall = createAiProviderRunner(
-      authClient,
-      supabase,
-      user.id,
-      requestId,
-    );
-
-    const patternCollector = new PatternCollector(supabase);
-    const insightService = new InsightService(
-      supabase,
-      runAiCall,
-    );
-
-    const patterns = await patternCollector.collect(userId);
-    const insightOperation = await executeThirdPartyAiOperation(
+    const patternCollector = new PatternCollector(serviceClient);
+    const insightService = new InsightService(serviceClient);
+    const patterns = await patternCollector.collect(user.id);
+    const providerOperation = await executeThirdPartyAiOperation(
       authClient,
       user.id,
       "open_ai",
-      () => insightService.generate(userId, patterns),
+      () => withAiBudget(
+        authClient,
+        JSON.stringify(patterns).length,
+        () => insightService.generate(user.id, patterns, locale),
+        { functionName: "reading-insights", feature: "insights", provider: "open_ai", model: "gpt-4o-mini", promptVersion: "insights-v1" },
+      ),
     );
-    if (!insightOperation.allowed) {
-      return thirdPartyAiConsentRequiredResponse(corsHeaders);
+    if (!providerOperation.allowed) {
+      throw new ContractError(403, "consent_required", "Current OpenAI consent is required");
     }
-    const insights = insightOperation.value;
-    const response: ReadingInsightResponse = {
-      success: true,
-      insights,
-    };
-
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
-  } catch (error: unknown) {
-    const usageResponse = aiUsageErrorResponse(error, corsHeaders);
-    if (usageResponse) return usageResponse;
-    const errorMessage = error instanceof Error
-      ? error.message
-      : "Unknown error";
-    console.error("[reading-insights] Error:", errorMessage);
-
-    const isRateLimitError = errorMessage.includes("Rate limit exceeded");
-    const status = isRateLimitError ? 429 : 500;
-
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        status,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      },
-    );
+    const insights = providerOperation.value;
+    const response: ReadingInsightResponse = { success: true, insights };
+    return jsonResponse(response as unknown as Record<string, unknown>, req);
+  } catch (error) {
+    if (error instanceof ContractError) return responseForError(error, req, "reading-insights");
+    if (error instanceof AiUsageError) return responseForError(new ContractError(error.status, error.code, "AI policy blocked this operation"), req, "reading-insights");
+    if (error instanceof Error && /rate limit exceeded/i.test(error.message)) {
+      return responseForError(new ContractError(429, "rate_limited", "Usage limit exceeded"), req, "reading-insights");
+    }
+    if (error instanceof Error && /(query failed|load failed|save failed|rate limit (check|update) failed)/i.test(error.message)) {
+      return responseForError(new ContractError(503, "unavailable", "Reading insights are unavailable"), req, "reading-insights");
+    }
+    return responseForError(providerFailure(error), req, "reading-insights");
   }
 });

@@ -1,0 +1,8 @@
+
+> web@0.1.0 test:timer:negative
+> node scripts/test-timer.mjs --fixture minimum && node scripts/test-timer.mjs --fixture duplicate && node scripts/test-timer.mjs --fixture logout && node scripts/test-timer.mjs --fixture over-max
+
+timer contract passed (minimum)
+timer contract passed (duplicate)
+timer contract passed (logout)
+timer contract passed (over-max)

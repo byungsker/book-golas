@@ -1,0 +1,5 @@
+{
+  "remove_adapter_export": "ConsumerButton",
+  "expected_message": "adapter is missing ConsumerButton",
+  "adapter_source": "scripts/fixtures/blab-primitives-missing-button.tsx"
+}

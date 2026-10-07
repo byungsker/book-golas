@@ -1,0 +1,7 @@
+RED evidence — issue #440 / task 27
+Base revision: fad01c1e7a2edf8119e885ce97a9949693b0119f (#439 calendar merge)
+Command: npm run test:charts-goals
+Result before the final contract fix: exit 1
+Output:
+charts/goals contract failed with 1 error(s)
+- contract must make KST and page delta semantics explicit

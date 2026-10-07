@@ -1,0 +1,111 @@
+{
+  "issue": 425,
+  "title": "[Bookgolas Web Parity 14] Build the authenticated five-tab shell and search-mode navigation",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "origin/version/web/1.1.0",
+  "base_revision": "0e1e0b2f7a25e8d6d5f927b82210af372851e6d1",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-425-shell",
+  "declared_commit": "feat(shell): add authenticated five-tab consumer shell",
+  "red": {
+    "result": "PASS",
+    "scenario": "The exact consumer-shell acceptance command fails before the shell contract exists.",
+    "invocation": "cd web && npm run test:consumer-shell",
+    "observable": "Exit 1 with npm error Missing script: test:consumer-shell.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-RED-test-consumer-shell.log"
+  },
+  "green": {
+    "result": "PASS",
+    "invocation": "cd web && npm run test:consumer-shell",
+    "observable": "Exit 0; the machine-checkable shell contract passes and 3 Vitest files with 28 tests pass.",
+    "artifacts": [
+        "web/docs/consumer-shell-contract.json",
+        "web/scripts/fixtures/consumer-shell-negative.json",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-test-consumer-shell.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-consumer-contract.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-contract.log"
+    ]
+  },
+  "criteria": [
+    {
+      "scenario": "The authenticated desktop shell exposes exactly Home, My Library, Reading Chart, Calendar and My Page, preserves a localized deep link, opens Book search and Recall, and exposes the timer mount.",
+      "invocation": "cd web && npx playwright test tests/e2e/consumer-shell.spec.ts --project=chromium",
+      "observable": "Exit 0 with 5 passed; desktop navigation, URL state, search destinations, timer mount, pending/error boundaries, unauthorized data fixture, and expired-session redirect are covered.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-bookgolas-web-app-parity.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-pending.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-error.png"
+      ]
+    },
+    {
+      "scenario": "The mobile shell keeps the same five destinations, uses native compact labels, and cycles Home and Reading Chart re-taps through URL-owned state that survives refresh.",
+      "invocation": "cd web && npx playwright test tests/e2e/consumer-shell.spec.ts --project=chromium",
+      "observable": "Exit 0 with 5 passed; Korean mobile navigation, Home planned state, Reading Chart pages state, and refresh recovery are covered.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-playwright-chromium.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-consumer-shell.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-mobile-five-tabs.png"
+      ]
+    },
+    {
+      "scenario": "An expired authenticated session redirects a refreshed private deep link to localized sign-in with a safe return target.",
+      "invocation": "cd web && npx playwright test tests/e2e/consumer-shell.spec.ts --project=chromium --grep expired-session",
+      "observable": "Exit 0 with 1 passed; `/en/library?view=records` redirects to `/en/auth/sign-in?returnTo=%2Fen%2Flibrary%3Fview%3Drecords` and does not mount the shell.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-orchestrator-expired-session.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix2-expired-session.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix4-expired-session.log"
+      ]
+    }
+  ],
+  "verification": {
+    "result": "PASS",
+    "invocation": "npm run typecheck && npm run lint && npm test && npm run build",
+    "observable": "TypeScript, ESLint, 23 Vitest files and 182 tests, parity matrix, 59 negative fixtures, BLDS/UI contracts, and the Next production build pass after the feature commit.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-regression-orchestrator.log",
+    "follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-regression.log",
+    "latest_follow_up_artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-final-regression.log"
+  },
+  "surface": {
+    "result": "PASS",
+    "observable": "Fresh Chromium captures show the desktop search chooser with all five destinations and timer mount, plus Korean dark mobile navigation with five compact tabs and timer.",
+    "artifacts": [
+      ".omo/evidence/bookgolas-web-app-parity/task-14-bookgolas-web-app-parity.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-mobile-five-tabs.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-pending.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-SURFACE-error.png"
+    ],
+    "follow_up_artifacts": [
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-chromium.log",
+      ".omo/evidence/bookgolas-web-app-parity/task-14-GREEN-coderabbit-fix-expired-session.log"
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "tool": "CodeRabbit CLI 0.7.6",
+    "initial_issues": 2,
+    "local_follow_up_issues": 0,
+    "github_actionable_issues": 3,
+    "github_status_after_fixes": "pass; review rate limited",
+    "latest_local_review_issues": 1,
+    "latest_local_review_resolution": "Restored query fixture environment variables in finally and preserved modified-click browser behavior.",
+    "resolved_issues": [
+      "Preserve the current query string when switching locales.",
+      "Use the project dialog primitive with focus trap, Escape handling, and trigger focus restoration.",
+      "Use mode=recall for the contract-defined Recall destination.",
+      "Return unavailable before the synthetic user branch while preserving pending synthetic fixture behavior.",
+      "Restore query fixture environment variables in finally even when the assertion fails.",
+      "Preserve modified-click browser behavior for tab links."
+    ],
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-diff-review.md"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-14-CLEANUP.log"
+  }
+}

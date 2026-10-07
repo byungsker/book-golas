@@ -1,0 +1,17 @@
+{
+  "issue": 445,
+  "task": 32,
+  "parentIssue": 412,
+  "fixtures": [
+    {"name": "denied", "routeFixture": "web-push-denied", "expected": {"state": "denied", "code": "permission-denied"}},
+    {"name": "unsupported", "routeFixture": "web-push-unsupported", "expected": {"state": "unsupported", "code": "unsupported"}},
+    {"name": "foreign", "routeFixture": "web-push-foreign", "expected": {"status": 400, "code": "validation_error"}},
+    {"name": "offline", "routeFixture": "web-push-offline", "expected": {"status": 503, "code": "offline"}},
+    {"name": "consent", "routeFixture": "web-push-consent", "expected": {"status": 403, "code": "consent_required"}},
+    {"name": "quota", "routeFixture": "web-push-quota", "expected": {"status": 429, "code": "quota_exceeded"}},
+    {"name": "provider", "routeFixture": "web-push-provider", "expected": {"status": 502, "code": "provider_error"}},
+    {"name": "network", "routeFixture": "web-push-network", "expected": {"status": 503, "code": "unavailable"}},
+    {"name": "unauthorized", "routeFixture": "web-push-unauthorized", "expected": {"status": 401, "code": "unauthorized"}}
+  ],
+  "forbiddenMarkers": ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SERVICE_ROLE", "FCM_SERVER_KEY", "service_role", "privateKey"]
+}

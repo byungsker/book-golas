@@ -1,0 +1,17 @@
+{
+  "issue": 435,
+  "task": 24,
+  "fixtures": [
+    { "name": "oversize", "expected": "payload_too_large", "assertion": "more than 8 MiB is rejected before upload" },
+    { "name": "wrong-mime", "expected": "validation_error", "assertion": "unsupported MIME types are rejected" },
+    { "name": "corrupt", "expected": "validation_error", "assertion": "magic bytes must match the declared MIME type" },
+    { "name": "insecure", "expected": "file_fallback", "assertion": "camera is not attempted in an insecure context" },
+    { "name": "denied", "expected": "file_fallback", "assertion": "permission denial exposes file capture" },
+    { "name": "expired-url", "expected": "renewed", "assertion": "signed URL is refreshed before use" },
+    { "name": "provider-failure", "expected": "manual_fallback", "assertion": "OCR failure keeps image and manual text path" },
+    { "name": "consent", "expected": "consent_required", "assertion": "OCR consent is distinct from provider failure" },
+    { "name": "quota", "expected": "quota_exceeded", "assertion": "OCR quota is surfaced distinctly" },
+    { "name": "offline", "expected": "offline", "assertion": "network failure is retryable" },
+    { "name": "foreign", "expected": "not_found", "assertion": "foreign image operations fail closed" }
+  ]
+}

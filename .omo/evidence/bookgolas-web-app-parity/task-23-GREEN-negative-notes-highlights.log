@@ -1,0 +1,9 @@
+
+> web@0.1.0 test:notes-highlights:negative
+> node scripts/test-notes-highlights.mjs --fixture invalid-page && node scripts/test-notes-highlights.mjs --fixture invalid-rectangle && node scripts/test-notes-highlights.mjs --fixture index-failure && node scripts/test-notes-highlights.mjs --fixture foreign-record && node scripts/test-notes-highlights.mjs --fixture duplicate-retry
+
+notes-highlights contract passed (invalid-page)
+notes-highlights contract passed (invalid-rectangle)
+notes-highlights contract passed (index-failure)
+notes-highlights contract passed (foreign-record)
+notes-highlights contract passed (duplicate-retry)

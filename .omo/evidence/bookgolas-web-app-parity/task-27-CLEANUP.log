@@ -1,0 +1,5 @@
+CLEANUP evidence — issue #440 / task 27
+Commands:
+- npm run typecheck — exit 0
+- npm run lint -- --no-cache — exit 0, two pre-existing @next/next/no-img-element warnings in book-image-capture-client.tsx
+- git diff --check — exit 0

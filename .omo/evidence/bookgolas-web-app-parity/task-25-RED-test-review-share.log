@@ -1,0 +1,10 @@
+RED — 2026-09-15
+
+Command:
+npm run test:review-share
+
+Observed result:
+FAIL (expected before implementation)
+npm error Missing script: "test:review-share"
+
+The issue-specific command did not exist before the review editor/API, contract, fixture and tests were added.

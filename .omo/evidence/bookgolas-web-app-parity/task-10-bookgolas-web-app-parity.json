@@ -1,0 +1,75 @@
+{
+  "issue": 422,
+  "title": "[Bookgolas Web Parity 10] Establish localized consumer route groups and auth-gated layouts",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "base_revision": "ea3a72138181c737bbd1f69ace90e5a44d43728e",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-422-consumer-routing",
+  "red": {
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-10-route-red.md",
+    "result": "PASS",
+    "commands": [
+      "cd web && npm run test:consumer-routes",
+      "cd web && npx playwright test tests/e2e/routes.spec.ts --project=chromium --grep unauthorized"
+    ],
+    "observed": "Both required route contract and unauthorized browser suites were absent before implementation; npm reported a missing script and Playwright reported no runnable route suite."
+  },
+  "green": {
+    "result": "PASS",
+    "commands": [
+      "npm run test:consumer-routes",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run build"
+    ],
+    "details": [
+      "Consumer route contract passed 5 Vitest files and 48 tests.",
+      "The contract runner found 19 canonical consumer route templates in the ko/en locale tree.",
+      "The production build compiled successfully and registered localized auth, consumer, detail, legal, support and admin routes.",
+      "The unsafe return target fixture rejects external, protocol-relative, traversal, encoded traversal, backslash, cross-locale, legal and admin targets.",
+      "The loopback-only route fixture fails closed when disabled or pointed at a remote Supabase host."
+    ],
+    "negative_fixture": "web/scripts/fixtures/consumer-routes-negative.json"
+  },
+  "surface": {
+    "result": "PASS",
+    "runtime": "Next production webServer on 127.0.0.1:3102 with loopback-only deterministic route fixture and synthetic local Supabase values",
+    "commands": [
+      "BOOKGOLAS_ROUTE_TEST_MODE=enabled NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=<redacted-local-test-value> PLAYWRIGHT_BASE_URL=http://127.0.0.1:3102 npx playwright test tests/e2e/routes.spec.ts --project=chromium",
+      "BOOKGOLAS_ROUTE_TEST_MODE=enabled NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_ANON_KEY=<redacted-local-test-value> PLAYWRIGHT_BASE_URL=http://127.0.0.1:3102 npx playwright test tests/e2e/routes.spec.ts --project=chromium --grep unauthorized"
+    ],
+    "observed": [
+      "4 Chromium route tests passed.",
+      "1 Chromium unauthorized test passed.",
+      "Both ko and en protected route groups rendered inside the authenticated boundary.",
+      "Unauthenticated /ko/library?view=all redirected to /ko/auth/sign-in with returnTo=/ko/library?view=all.",
+      "An authenticated fixture request for a UUID detail route rendered the localized permission/not-found state without rendering the book ID as page content.",
+      "The /, /ko, /en, /privacy, /terms, /support and /admin route boundaries remained reachable; /admin redirected to /admin/login.",
+      "Locale metadata exposed lang=en and lang=ko with matching localized titles."
+    ],
+    "screenshots": [
+      ".omo/evidence/bookgolas-web-app-parity/task-10-consumer-detail-not-found.png",
+      ".omo/evidence/bookgolas-web-app-parity/task-10-consumer-unauthorized-ko.png"
+    ]
+  },
+  "cleanup": {
+    "result": "PASS",
+    "details": [
+      "The temporary production server, Playwright workers and port 3102 were absent after both browser runs.",
+      "git diff --check passed after implementation changes.",
+      "The protected /private/tmp/bookgolas-web-blds-453 worktree was not reset, checked out, deleted or modified.",
+      "No Supabase credentials or service-role values were added to source or evidence."
+    ]
+  },
+  "review": {
+    "result": "APPROVE",
+    "reviewed_revision": "34beb1120d3b31c3b969f7ef4b634cc3c2d152a2",
+    "code_review": ".omo/evidence/bookgolas-web-app-parity/task-10-code-review.md",
+    "details": [
+      "Local review verified route group moves preserve existing auth, home, account, detail and reading source content except for the intended returnTo and typed detail-state changes.",
+      "The admin and consumer proxy boundaries, returnTo allowlist, owner-scoped lookup and loopback-only fixture were reviewed at the committed revision; no blocking findings were found.",
+      "The final GitHub PR review remains a separate repository review gate."
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+[WebServer] (node:72265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:72312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 36 tests using 1 worker
+
+(node:72313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+      1 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile light
+  ✓   1 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile light (862ms)
+      2 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile dark
+  ✓   2 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile dark (691ms)
+      3 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet light
+  ✓   3 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet light (773ms)
+      4 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet dark
+  ✓   4 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet dark (685ms)
+      5 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop light
+  ✓   5 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop light (696ms)
+      6 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop dark
+  ✓   6 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop dark (691ms)
+      7 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile light
+  ✓   7 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile light (664ms)
+      8 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile dark
+  ✓   8 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile dark (683ms)
+      9 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet light
+  ✓   9 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet light (690ms)
+     10 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet dark
+  ✓  10 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet dark (687ms)
+     11 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop light
+  ✓  11 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop light (688ms)
+     12 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop dark
+  ✓  12 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop dark (673ms)
+     13 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile light
+  ✓  13 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile light (681ms)
+     14 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile dark
+  ✓  14 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile dark (682ms)
+     15 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet light
+  ✓  15 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet light (683ms)
+     16 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet dark
+  ✓  16 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet dark (681ms)
+     17 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop light
+  ✓  17 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop light (666ms)
+     18 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop dark
+  ✓  18 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop dark (689ms)
+     19 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile light
+  ✓  19 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile light (678ms)
+     20 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile dark
+  ✓  20 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile dark (680ms)
+     21 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet light
+  ✓  21 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet light (685ms)
+     22 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet dark
+  ✓  22 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet dark (687ms)
+     23 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop light
+  ✓  23 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop light (689ms)
+     24 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop dark
+  ✓  24 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop dark (688ms)
+     25 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile light
+  ✓  25 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile light (681ms)
+     26 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile dark
+  ✓  26 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile dark (680ms)
+     27 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet light
+  ✓  27 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet light (686ms)
+     28 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet dark
+  ✓  28 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet dark (669ms)
+     29 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop light
+  ✓  29 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop light (690ms)
+     30 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop dark
+  ✓  30 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop dark (673ms)
+     31 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile light
+  ✓  31 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile light (661ms)
+     32 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile dark
+  ✓  32 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile dark (678ms)
+     33 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet light
+  ✓  33 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet light (682ms)
+     34 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet dark
+  ✓  34 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet dark (683ms)
+     35 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop light
+  ✓  35 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop light (704ms)
+     36 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop dark
+  ✓  36 [chromium] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop dark (684ms)
+
+  36 passed (35.7s)

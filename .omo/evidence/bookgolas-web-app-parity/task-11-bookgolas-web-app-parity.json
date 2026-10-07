@@ -1,0 +1,100 @@
+{
+  "issue": 423,
+  "title": "[Bookgolas Web Parity 11] Implement email authentication, verification and recovery",
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "plan_footer": "Plan: .omo/plans/bookgolas-web-app-parity.md",
+  "base_branch": "version/web/1.1.0",
+  "base_revision": "6b5a1f0987ce6c36d7bb0cc86ca0226ebdb02e19",
+  "implementation_branch": "codex/feature/web/1.1.0/BOK-423-email-auth",
+  "declared_commit": "feat(auth): add email login signup and recovery",
+  "red": {
+    "result": "PASS",
+    "scenario": "The exact auth-email acceptance contract is absent before implementation.",
+    "invocation": "cd web && npm run test:auth-email",
+    "observable": "Exit 1 with npm error: Missing script: test:auth-email.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-11-RED-test-auth-email.log"
+  },
+  "criteria": [
+    {
+      "scenario": "Localized signup validates nickname and sends nickname metadata through Supabase Auth.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"signup|login|recovery\"",
+      "observable": "The ko signup test displays the required nickname error, submits data.name, reaches the confirmation state, and the command exits 0 with 3 passed.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-happy.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-signup-ko.png"
+      ]
+    },
+    {
+      "scenario": "Login saves only an opted-in email, follows the safe localized destination, and logout clears browser/server session behavior.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"signup|login|recovery\"",
+      "observable": "The login test reaches /en/home, observes the Supabase logout request, finds no auth-token cookie, then receives the server redirect to sign-in after the fixture session is removed; saved email remains populated.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-happy.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-login-en.png"
+      ]
+    },
+    {
+      "scenario": "Forgot-password stays non-enumerating and an authenticated recovery session updates the password then signs out.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"signup|login|recovery\"",
+      "observable": "The recovery test shows the same if-account-exists response, submits the recover request, updates the password with a persisted Supabase session, signs out, and exits in the localized success state.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-happy.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-recovery-en.png"
+      ]
+    },
+    {
+      "scenario": "Invalid credentials do not reveal whether an account exists.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"invalid|unconfirmed\"",
+      "observable": "The ko invalid test renders the combined email-or-password error and the failure command exits 0 with 2 passed.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-failure.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-invalid-ko.png"
+      ]
+    },
+    {
+      "scenario": "An unconfirmed email exposes resend with a deterministic 60-second cooldown.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"invalid|unconfirmed\"",
+      "observable": "The en unconfirmed test renders localized guidance, fulfills the Supabase resend request, and observes a disabled countdown button.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-failure.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-unconfirmed-en.png"
+      ]
+    },
+    {
+      "scenario": "Every ko/en login, signup, and reset page remains legible at 375, 768, and 1280 widths in light and dark themes.",
+      "invocation": "npx playwright test tests/e2e/auth-email.spec.ts --project=chromium --grep \"responsive\"",
+      "observable": "36 Chromium responsive cases pass and produce 36 viewport-sized PNG captures.",
+      "artifacts": [
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-responsive.log",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-ko-sign-in-mobile-light.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-ko-sign-up-mobile-dark.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-en-reset-password-desktop-light.png",
+        ".omo/evidence/bookgolas-web-app-parity/task-11-SURFACE-en-sign-in-desktop-dark.png"
+      ]
+    }
+  ],
+  "green": {
+    "result": "PASS",
+    "invocation": "cd web && npm run test:auth-email",
+    "observable": "auth-email contract PASS; 2 files and 35 tests passed; exit 0.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-11-GREEN-test-auth-email.log",
+    "contract": "web/docs/auth-email-contract.json",
+    "negative_fixture": "web/scripts/fixtures/auth-email-negative.json"
+  },
+  "verification": {
+    "result": "PASS",
+    "invocation": "npm run typecheck && npm run lint && npm test && npm run build",
+    "observable": "TypeScript and ESLint exit 0; Vitest reports 20 files and 161 tests passed; all parity/negative/render scripts pass; Next production build compiles and generates all existing admin, legal, marketing, consumer, and auth routes.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-11-GREEN-full-verification.log"
+  },
+  "review": {
+    "result": "APPROVE",
+    "observable": "The final scoped diff has no whitespace errors, no unrelated route changes, no password persistence, no account-existence copy, no unsafe redirect expansion, and no client secret exposure.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-11-diff-review.md"
+  },
+  "cleanup": {
+    "result": "PASS",
+    "observable": "Port 3000 and the loopback fixture port 54329 have no listeners; no Next or Playwright process references the task worktree; git diff --check passes.",
+    "artifact": ".omo/evidence/bookgolas-web-app-parity/task-11-CLEANUP.log"
+  }
+}

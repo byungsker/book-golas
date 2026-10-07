@@ -1,0 +1,12 @@
+Task 26 CLEANUP evidence
+Base revision: 3386fd3b674b2b33b04eb6dd239541e3692cf8fc
+Branch: codex/feature/web/1.1.0/BOK-439-calendar
+
+Scope: git diff contains only the calendar contract, query, route, UI, localization, fixtures, tests and Task 26 evidence. No unrelated product route was changed.
+Security: calendar database reads use the authenticated user id, active books only, and discard event rows with no owned book. No caller-selected user id, provider secret or billing behavior was added.
+Semantics: progress and session rows remain stable source events; Asia/Seoul is explicit; planned_start_date is a non-historical marker; no completed_at event is inferred.
+Review: manual review APPROVE. Native-only calendar widget/push behavior is documented and not claimed by Web. CodeRabbit CLI was not retried because the repository check was rate limited in earlier work; local review and repository checks passed.
+
+Checks: git diff --check PASS; npm run test:calendar PASS; npm run test:calendar:negative PASS; npm run typecheck PASS; npm run lint -- --no-cache PASS with 2 existing no-img-element warnings; npm run build PASS; npm test PASS (52 files, 307 tests plus existing contract/negative suites); issue happy Chromium PASS (3 tests); issue failure Chromium PASS (3 tests); full calendar Chromium PASS (8 tests).
+Protected worktree `/private/tmp/bookgolas-web-blds-453` was preserved and not modified.
+Plan footer: Plan: .omo/plans/bookgolas-web-app-parity.md

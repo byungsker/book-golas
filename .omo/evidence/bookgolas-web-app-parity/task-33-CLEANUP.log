@@ -1,0 +1,19 @@
+Task 33 cleanup evidence
+Issue: #443
+Parent: #412
+Target: version/web/1.1.0
+Branch: codex/feature/web/1.1.0/BOK-443-export
+
+Command: git diff --check
+Result: PASS (no whitespace errors)
+
+Command: obsolete query and public-secret scan
+Result: PASS obsolete memos query absent
+Result: PASS public export surface contains no provider secret marker
+
+Review points:
+- Export request requires year and email and compares the email with the verified session account.
+- Edge queries are owner-scoped and bounded to the selected year.
+- The export graph uses current schema tables and contains no memos query.
+- Public export routes, UI, and service worker contain no provider secret marker.
+- Download and delivery failure states remain retryable and do not claim an unverified download URL.

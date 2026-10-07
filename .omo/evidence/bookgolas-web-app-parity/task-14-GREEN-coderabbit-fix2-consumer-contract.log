@@ -1,0 +1,9 @@
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-425/web
+
+ ✓ src/lib/consumer/queries.test.ts (6 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  01:40:50
+   Duration  293ms (transform 44ms, setup 0ms, collect 42ms, tests 4ms, environment 0ms, prepare 54ms)

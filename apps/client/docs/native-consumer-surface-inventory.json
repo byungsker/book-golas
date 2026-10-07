@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "source": "Native Flutter consumer surface audit",
+  "native_action_assertion_policy": {
+    "structural_action_scope": "all-native-actions",
+    "source_content_scope": "critical-actions-only",
+    "structural_baseline": "requiredNativeActionIds",
+    "source_assertion_baseline": "requiredNativeActionAssertions"
+  },
+  "routes": {
+    "auth-login": ["email-sign-in", "google-sign-in", "apple-sign-in", "open-sign-up", "open-password-recovery", "resend-verification"],
+    "auth-sign-up": ["create-account", "confirm-password", "open-sign-in", "verification-outcome"],
+    "auth-password-recovery": ["request-reset", "set-new-password", "return-to-sign-in"],
+    "legal-terms": ["read-terms", "return-to-account"],
+    "announcements": ["read-announcements", "return-to-account"],
+    "onboarding": ["advance-onboarding", "complete-onboarding"],
+    "home": ["switch-reading-status-tab", "toggle-all-books", "open-book-detail", "refresh-books", "open-search-mode"],
+    "library": ["library-reading-tab", "library-review-tab", "library-record-tab", "library-global-recall", "search-reading", "search-review", "filter-library-year", "toggle-record-group", "filter-record-type"],
+    "reading-stats": ["stats-overview", "stats-analysis", "stats-activity", "stats-set-goal", "stats-share", "select-stats-period", "navigate-stats-period", "open-stats-custom-range", "clear-stats-custom-range", "navigate-stats-analysis-section", "generate-stats-ai-insight", "retry-stats-ai-insight"],
+    "calendar": ["change-calendar-month", "filter-calendar", "open-calendar-day"],
+    "account": ["edit-profile", "change-language-theme", "manage-notifications", "change-password", "open-legal", "open-announcements", "sign-out", "delete-account"],
+    "legacy-book-list": ["filter-book-list", "refresh-book-list", "open-list-book-detail"],
+    "book-search-add": ["search-book", "isbn-search", "scan-isbn", "select-reading-status", "set-schedule-priority", "save-book"],
+    "book-detail": ["switch-detail-tabs", "update-progress", "manage-reading", "set-reading-target", "add-memorable-page", "open-recall", "open-reading-timer", "open-review", "open-aladin-book-link", "open-existing-review-link", "open-review-link-editor", "resume-reading", "start-planned-reading"],
+    "reading-progress": ["update-page", "record-history", "start-timer", "return-to-book"],
+    "book-review": ["edit-review", "generate-ai-draft", "save-review", "discard-review"],
+    "mind-map": ["view-mind-map", "regenerate-mind-map", "retry-mind-map"],
+    "barcode-scanner": ["request-camera", "capture-isbn", "use-manual-isbn"],
+    "subscription": ["show-disabled-subscription"],
+    "privacy": ["read-privacy", "manage-consent"]
+  },
+  "overlays": {
+    "search-mode-menu": ["choose-book-search", "choose-ai-record-search"],
+    "global-recall-search": ["search-global-records", "open-global-record"],
+    "recall-search": ["search-book-records", "load-recent-recall", "clear-recall-history"],
+    "record-detail": ["view-record", "open-source"],
+    "source-detail": ["view-source", "close-source"],
+    "calendar-day-detail": ["view-day-activity", "open-day-book"],
+    "reading-goal": ["set-yearly-goal", "save-goal"],
+    "date-range-picker": ["choose-date-range", "cancel-date-range"],
+    "bookstore-select": ["choose-new-bookstore", "choose-used-bookstore"],
+    "recommendation-action": ["open-recommendation", "add-recommendation"],
+    "reading-books-selection": ["select-reading-book", "open-selected-book"],
+    "reading-management": ["pause-reading", "delete-book", "cancel-reading-management"],
+    "pause-reading-confirmation": ["confirm-pause", "cancel-pause"],
+    "delete-confirmation": ["confirm-delete", "cancel-delete"],
+    "batch-delete-confirmation": ["confirm-batch-delete", "cancel-batch-delete"],
+    "book-info": ["view-book-info", "open-cover"],
+    "full-title": ["read-full-title"],
+    "image-source": ["choose-camera", "choose-gallery", "choose-ocr"],
+    "image-replace-options": ["replace-with-camera", "replace-with-file"],
+    "replace-image-confirmation": ["confirm-replace-image", "cancel-replace-image"],
+    "add-memorable-page": ["capture-memorable-page", "run-ocr", "save-memorable-page"],
+    "existing-image": ["view-image", "replace-image", "delete-image"],
+    "extracted-text": ["review-extracted-text", "copy-extracted-text", "save-extracted-text"],
+    "full-text-view": ["read-full-text", "copy-full-text"],
+    "page-update": ["save-page-update", "mark-not-read", "cancel-page-update"],
+    "reading-timer": ["start-reading-session", "pause-reading-session", "finish-reading-session"],
+    "today-goal": ["view-today-goal", "open-goal-settings"],
+    "daily-target": ["edit-daily-target", "save-daily-target"],
+    "daily-target-confirm": ["confirm-daily-target", "cancel-daily-target"],
+    "update-target-date": ["edit-target-date", "save-target-date"],
+    "edit-planned-book": ["edit-planned-book", "save-planned-book"],
+    "book-completion": ["acknowledge-completion", "open-review-prompt"],
+    "book-review-prompt": ["write-review", "dismiss-review-prompt"],
+    "memorable-page-sort-menu": ["sort-memorable-pages-by-page-desc", "sort-memorable-pages-by-page-asc", "sort-memorable-pages-by-date-desc", "sort-memorable-pages-by-date-asc"],
+    "review-exit-confirmation": ["discard-review-changes", "keep-review-changes"],
+    "review-ai-replacement-confirmation": ["confirm-review-ai-replacement", "cancel-review-ai-replacement"],
+    "review-save-complete": ["acknowledge-review-save", "open-review-book"],
+    "password-change": ["change-password", "cancel-password-change"],
+    "delete-account-confirmation": ["confirm-account-deletion", "cancel-account-deletion"],
+    "language-change-confirmation": ["confirm-language-change", "cancel-language-change"],
+    "notification-time-picker": ["set-daily-reminder-time", "set-goal-alarm-time"],
+    "ocr-limit": ["show-ocr-quota", "continue-without-ocr"],
+    "pro-features": ["explain-web-billing-disabled"],
+    "floating-timer": ["open-running-timer", "stop-running-timer"],
+    "schedule-change": ["adjust-daily-target", "preview-reading-schedule", "confirm-schedule-change"],
+    "calendar-month-picker": ["choose-calendar-month", "confirm-calendar-month", "cancel-calendar-month"],
+    "clear-ai-memory-confirmation": ["cancel-ai-memory-clear", "confirm-ai-memory-clear"],
+    "mind-map-leaf-detail": ["open-mind-map-leaf", "close-mind-map-leaf"],
+    "mind-map-cluster-detail": ["open-mind-map-cluster", "close-mind-map-cluster"],
+    "review-link-editor": ["edit-review-link", "save-review-link", "delete-review-link", "cancel-review-link"],
+    "context-menu": ["choose-context-action", "dismiss-context-menu"],
+    "search-overlay": ["search-with-keyboard", "dismiss-search-overlay"],
+    "full-screen-image": ["view-full-screen-image", "close-full-screen-image"]
+  },
+  "native_only_capabilities": {
+    "ios-home-widget": ["open-widget-book"],
+    "siri-app-shortcuts": ["continue-reading-shortcut", "scan-page-shortcut", "add-book-shortcut", "record-shortcut-boundary"],
+    "native-push": ["request-web-push", "manage-notification-categories", "open-notification-deep-link"],
+    "camera-and-ocr": ["capture-or-upload", "extract-ocr", "manual-text-fallback"],
+    "share-sheet": ["share-book", "download-share-card"],
+    "subscriptions": ["show-billing-disabled"],
+    "offline-boundary": ["show-network-status", "preserve-proven-draft", "retry-online-write"],
+    "deep-links": ["open-book-deep-link", "open-record-deep-link", "complete-auth-callback"]
+  },
+  "deep_links": [
+    {"id": "book-search-deep-link", "source": "bookgolas://book/search"},
+    {"id": "book-detail-deep-link", "source": "bookgolas://book/detail/{bookId}"},
+    {"id": "book-record-deep-link", "source": "bookgolas://book/record/{bookId}"},
+    {"id": "book-scan-deep-link", "source": "bookgolas://book/scan/{bookId}"}
+  ],
+  "native_action_assertions": {
+    "routes": {
+      "account": {
+        "open-announcements": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "myPageAnnouncements"}
+        ]
+      },
+      "book-detail": {
+        "resume-reading": [
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildResumeReadingButton"},
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "resumeReading("}
+        ],
+        "start-planned-reading": [
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "_buildStartNowButton"},
+          {"source": "app/lib/ui/book_detail/book_detail_screen.dart", "contains": "startPlannedReading("}
+        ]
+      },
+      "announcements": {
+        "read-announcements": [
+          {"source": "app/lib/ui/auth/utils/legal_content.dart", "contains": "static String announcements"}
+        ]
+      }
+    },
+    "overlays": {
+      "language-change-confirmation": {
+        "confirm-language-change": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "languageChangeConfirmTitle"},
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "commonConfirm"}
+        ],
+        "cancel-language-change": [
+          {"source": "app/lib/ui/auth/widgets/my_page_screen.dart", "contains": "commonCancel"}
+        ]
+      }
+    },
+    "native_only_capabilities": {
+      "siri-app-shortcuts": {
+        "continue-reading-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "ContinueReadingIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.continue-reading"}
+        ],
+        "scan-page-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "ScanPageIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.scan-page"}
+        ],
+        "add-book-shortcut": [
+          {"source": "app/ios/Runner/BookgolasShortcuts.swift", "contains": "AddBookIntent"},
+          {"source": "app/ios/Runner/AppDelegate.swift", "contains": "com.bookgolas.add-book"}
+        ]
+      }
+    }
+  },
+  "deep_link_assertions": {
+    "book-search-deep-link": [
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'search'"}
+    ],
+    "book-detail-deep-link": [
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'detail'"}
+    ],
+    "book-record-deep-link": [
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'record'"},
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "initialTabIndex: 1"}
+    ],
+    "book-scan-deep-link": [
+      {"source": "app/lib/data/services/deep_link_service.dart", "contains": "segments[1] == 'scan'"}
+    ]
+  }
+}

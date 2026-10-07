@@ -1,0 +1,12 @@
+{
+  "issue": 425,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "tabs": ["home", "library", "stats", "calendar", "account"],
+  "searchModes": ["book", "recall"],
+  "homeRetapCycle": ["reading", "planned", "completed", "paused", "all"],
+  "chartRetapCycle": ["progress", "pages", "time"],
+  "stateSource": "localized-url",
+  "timerMountId": "bookgolas-floating-timer-root",
+  "adminNavigationCoupled": false,
+  "nativeOnlyCapabilitiesAdded": []
+}

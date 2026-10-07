@@ -1,0 +1,21 @@
+
+> web@0.1.0 test:recall
+> node scripts/test-recall.mjs && vitest run src/lib/product/contracts/recall.test.ts src/lib/consumer/recall-fixtures.test.ts src/app/api/consumer/recall/route.test.ts src/lib/product/adapters.tables.test.ts src/lib/product/dal.consumer-images.test.ts
+
+Recall contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-441/web
+
+ ✓ src/lib/consumer/recall-fixtures.test.ts (3 tests) 4ms
+ ✓ src/lib/product/contracts/recall.test.ts (3 tests) 7ms
+ ✓ src/lib/product/adapters.tables.test.ts (6 tests) 9ms
+ ✓ src/lib/product/dal.consumer-images.test.ts (7 tests) 13ms
+ ✓ src/app/api/consumer/recall/route.test.ts (3 tests) 16ms
+
+ Test Files  5 passed (5)
+      Tests  22 passed (22)
+   Start at  10:41:57
+   Duration  642ms (transform 303ms, setup 0ms, collect 1.10s, tests 48ms, environment 0ms, prepare 279ms)
+
+
+EXIT_STATUS=0

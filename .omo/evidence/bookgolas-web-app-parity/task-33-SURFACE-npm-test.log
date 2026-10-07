@@ -1,0 +1,791 @@
+
+> web@0.1.0 test
+> vitest run && npm run test:parity-matrix && npm run test:parity-matrix:negative && npm run test:blab-parity && npm run test:blab-parity:negative && npm run test:blab-render && npm run test:ui-primitives && npm run test:ui-primitives:negative && npm run test:progress-ui && npm run test:progress-ui:negative && npm run test:timer && npm run test:timer:negative && npm run test:notes-highlights && npm run test:notes-highlights:negative && npm run test:ai-artifacts && npm run test:ai-artifacts:negative && npm run test:account-settings && npm run test:account-settings:negative && npm run test:export && npm run test:export:negative && npm run test:web-push && npm run test:web-push:negative
+
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/auth-boundary.test.ts (5 tests) 122ms
+ ✓ src/app/api/consumer/consent/route.test.ts (3 tests) 13ms
+ ✓ src/lib/product/contracts/calendar.test.ts (3 tests) 21ms
+ ✓ src/app/api/consumer/charts-goals/route.test.ts (3 tests) 12ms
+ ✓ src/lib/consumer/calendar-fixtures.test.ts (4 tests) 38ms
+ ✓ src/app/api/consumer/ai-consent/route.test.ts (5 tests) 23ms
+ ✓ src/lib/product/contracts/charts-goals.test.ts (3 tests) 87ms
+ ✓ src/lib/product/adapters.test.ts (13 tests) 23ms
+ ✓ src/app/api/consumer/images-ocr/route.test.ts (4 tests) 22ms
+ ✓ src/lib/product/contracts/contracts.test.ts (26 tests) 18ms
+ ✓ src/lib/product/contracts/requests.test.ts (18 tests) 41ms
+ ✓ src/app/api/consumer/book-detail/route.test.ts (4 tests) 11ms
+ ✓ src/app/api/consumer/recall/route.test.ts (3 tests) 23ms
+ ✓ src/lib/product/dal.writes.test.ts (6 tests) 18ms
+ ✓ src/app/api/consumer/ai-artifacts/route.test.ts (3 tests) 21ms
+ ✓ src/lib/consumer/charts-goals-fixtures.test.ts (3 tests) 598ms
+   ✓ charts and goals fixtures > keeps empty and typed failure fixtures purposeful  320ms
+ ✓ src/app/api/consumer/review-share/route.test.ts (4 tests) 25ms
+ ✓ src/app/api/consumer/account/avatar/route.test.ts (2 tests) 15ms
+ ✓ src/app/api/consumer/notes-highlights/route.test.ts (4 tests) 17ms
+ ✓ src/lib/product/dal.records.test.ts (2 tests) 8ms
+ ✓ src/proxy.test.ts (20 tests) 16ms
+ ✓ src/lib/product/dal.consumer-images.test.ts (7 tests) 16ms
+ ✓ src/app/api/consumer/timer/route.test.ts (4 tests) 16ms
+ ✓ src/app/api/consumer/book-discovery/route.test.ts (4 tests) 13ms
+ ✓ src/lib/product/dal.test.ts (9 tests) 13ms
+ ✓ src/app/api/consumer/progress/route.test.ts (6 tests) 12ms
+ ✓ src/lib/consumer/ai-consent-fixtures.test.ts (4 tests) 12ms
+ ✓ src/app/api/consumer/export/route.test.ts (3 tests) 11ms
+ ✓ src/app/api/app/books/search/route.test.ts (2 tests) 10ms
+ ✓ src/app/api/consumer/book-lifecycle/route.test.ts (3 tests) 11ms
+ ✓ src/app/api/app/books/route.test.ts (4 tests) 10ms
+ ✓ src/lib/product/adapters.tables.test.ts (7 tests) 10ms
+ ✓ src/app/api/consumer/push/route.test.ts (2 tests) 12ms
+ ✓ src/lib/product/contracts/book-lifecycle.test.ts (5 tests) 8ms
+ ✓ src/lib/product/dal.consumer-records.test.ts (3 tests) 13ms
+ ✓ src/lib/product/adapters.storage.test.ts (7 tests) 12ms
+ ✓ src/app/api/app/books/[bookId]/route.test.ts (4 tests) 10ms
+ ✓ src/lib/product/dal.account-settings.test.ts (3 tests) 12ms
+ ✓ src/lib/product/dal.web-push.test.ts (3 tests) 10ms
+ ✓ src/app/[locale]/(auth)/auth/callback/route.test.ts (7 tests) 10ms
+ ✓ src/app/api/consumer/account/route.test.ts (2 tests) 10ms
+ ✓ src/lib/product/contracts/book-detail.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/progress-fixtures.test.ts (3 tests) 8ms
+ ✓ src/lib/product/contracts/ai-consent.test.ts (3 tests) 7ms
+ ✓ src/lib/product/contracts/progress-ui.test.ts (4 tests) 8ms
+ ✓ src/lib/product/contracts/review-share.test.ts (3 tests) 12ms
+ ✓ src/app/api/consumer/notifications/route.test.ts (2 tests) 24ms
+ ✓ src/lib/product/contracts/images-ocr.test.ts (5 tests) 13ms
+ ✓ src/lib/product/contracts/book-discovery.test.ts (4 tests) 5ms
+ ✓ src/lib/product/contracts/timer.test.ts (3 tests) 7ms
+ ✓ src/lib/product/contracts/recall.test.ts (3 tests) 6ms
+ ✓ src/lib/consumer/library.test.ts (4 tests) 6ms
+ ✓ src/lib/consumer/auth.test.ts (8 tests) 5ms
+ ✓ src/lib/product/contracts/notes-highlights.test.ts (4 tests) 6ms
+ ✓ src/lib/product/contracts/ai-artifacts.test.ts (3 tests) 6ms
+ ✓ src/lib/consumer/queries.test.ts (6 tests) 5ms
+ ✓ src/lib/consumer/oauth.test.ts (5 tests) 4ms
+ ✓ src/lib/consumer/session-lifecycle.test.ts (7 tests) 5ms
+ ✓ src/lib/consumer/account-settings-fixtures.test.ts (2 tests) 5ms
+ ✓ src/lib/consumer/web-push-fixtures.test.ts (2 tests) 6ms
+ ✓ src/lib/product/contracts/web-push.test.ts (2 tests) 7ms
+ ✓ src/lib/product/dal.ai-artifacts.test.ts (1 test) 5ms
+ ✓ src/lib/product/adapters.avatar-storage.test.ts (1 test) 6ms
+ ✓ src/lib/product/adapters.book-search.test.ts (1 test) 5ms
+ ✓ src/lib/product/contracts/export.test.ts (2 tests) 5ms
+ ✓ src/lib/product/contracts/account-settings.test.ts (2 tests) 6ms
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 5ms
+ ✓ src/lib/consumer/shell.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/home-book-list.test.ts (6 tests) 3ms
+ ✓ src/lib/consumer/recall-fixtures.test.ts (3 tests) 4ms
+ ✓ src/lib/consumer/paths.test.ts (28 tests) 5ms
+ ✓ src/lib/consumer/timer-fixtures.test.ts (3 tests) 5ms
+ ✓ src/lib/consumer/route-fixture.test.ts (9 tests) 3ms
+ ✓ src/lib/consumer/types.test.ts (2 tests) 2ms
+ ✓ src/lib/consumer/onboarding.test.ts (3 tests) 2ms
+ ✓ src/lib/consumer/timer-state.test.ts (4 tests) 5ms
+ ✓ src/lib/consumer/isbn.test.ts (2 tests) 2ms
+ ✓ src/lib/consumer/export-fixtures.test.ts (2 tests) 6ms
+ ✓ src/lib/consumer/ai-artifacts-fixtures.test.ts (3 tests) 3ms
+
+ Test Files  79 passed (79)
+      Tests  381 passed (381)
+   Start at  13:22:49
+   Duration  3.56s (transform 1.40s, setup 0ms, collect 14.59s, tests 1.63s, environment 8ms, prepare 4.40s)
+
+
+> web@0.1.0 test:parity-matrix
+> node scripts/test-parity-matrix.mjs
+
+parity matrix passed: 20 routes, 53 overlays, 8 capabilities
+
+> web@0.1.0 test:parity-matrix:negative
+> node scripts/test-parity-matrix.mjs --assert-fixtures
+
+parity negative fixtures passed: 59
+
+> web@0.1.0 test:blab-parity
+> node scripts/test-blab-parity.mjs
+
+BLDS React parity contract passed: artifact=vendor/byungsker-blab-design-system-0.2.0.tgz sha256=4a3508b4e01de95c0e90269b9cc891bafcba51a05240ecef871b6295f378bd7a contract=docs/blab-react-parity-contract.json evidence=docs/evidence/bookgolas-web-app-parity
+
+> web@0.1.0 test:blab-parity:negative
+> node scripts/test-blab-parity.mjs --fixture missing-component
+
+BLDS parity negative fixture passed: adapter is missing ConsumerButton
+
+> web@0.1.0 test:blab-render
+> node scripts/test-blab-render.mjs
+
+BLDS SSR state contract passed: loading, empty, error, retry, loading button, text field and accessible roles
+
+> web@0.1.0 test:ui-primitives
+> node scripts/test-ui-primitives.mjs
+
+UI primitive contract passed: DESIGN.md, BLDS adapters, localized states, dev-only tooling and reduced-motion coverage
+
+> web@0.1.0 test:ui-primitives:negative
+> node scripts/test-ui-primitives.mjs --fixture missing-focus
+
+UI primitive negative fixture passed: consumer showcase focus ring rule is missing
+
+> web@0.1.0 test:progress-ui
+> node scripts/test-progress-ui.mjs && vitest run src/lib/product/contracts/progress-ui.test.ts src/lib/consumer/progress-fixtures.test.ts src/app/api/consumer/progress/route.test.ts src/app/actions/reading-progress.test.ts
+
+progress-ui contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/app/actions/reading-progress.test.ts (3 tests) 4ms
+ ✓ src/lib/product/contracts/progress-ui.test.ts (4 tests) 7ms
+ ✓ src/lib/consumer/progress-fixtures.test.ts (3 tests) 8ms
+ ✓ src/app/api/consumer/progress/route.test.ts (6 tests) 12ms
+
+ Test Files  4 passed (4)
+      Tests  16 passed (16)
+   Start at  13:23:09
+   Duration  417ms (transform 180ms, setup 0ms, collect 678ms, tests 32ms, environment 0ms, prepare 190ms)
+
+
+> web@0.1.0 test:progress-ui:negative
+> node scripts/test-progress-ui.mjs --fixture stale && node scripts/test-progress-ui.mjs --fixture duplicate && node scripts/test-progress-ui.mjs --fixture server-error && node scripts/test-progress-ui.mjs --fixture page-bounds
+
+progress-ui contract passed (stale)
+progress-ui contract passed (duplicate)
+progress-ui contract passed (server-error)
+progress-ui contract passed (page-bounds)
+
+> web@0.1.0 test:timer
+> node scripts/test-timer.mjs && vitest run src/lib/product/contracts/timer.test.ts src/lib/consumer/timer-state.test.ts src/lib/consumer/timer-fixtures.test.ts src/app/api/consumer/timer/route.test.ts
+
+timer contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/product/contracts/timer.test.ts (3 tests) 7ms
+ ✓ src/lib/consumer/timer-state.test.ts (4 tests) 3ms
+ ✓ src/lib/consumer/timer-fixtures.test.ts (3 tests) 4ms
+ ✓ src/app/api/consumer/timer/route.test.ts (4 tests) 14ms
+
+ Test Files  4 passed (4)
+      Tests  14 passed (14)
+   Start at  13:23:10
+   Duration  460ms (transform 160ms, setup 0ms, collect 670ms, tests 27ms, environment 0ms, prepare 184ms)
+
+
+> web@0.1.0 test:timer:negative
+> node scripts/test-timer.mjs --fixture minimum && node scripts/test-timer.mjs --fixture duplicate && node scripts/test-timer.mjs --fixture logout && node scripts/test-timer.mjs --fixture over-max
+
+timer contract passed (minimum)
+timer contract passed (duplicate)
+timer contract passed (logout)
+timer contract passed (over-max)
+
+> web@0.1.0 test:notes-highlights
+> node scripts/test-notes-highlights.mjs && vitest run src/lib/product/contracts/notes-highlights.test.ts src/lib/product/dal.consumer-records.test.ts src/app/api/consumer/notes-highlights/route.test.ts
+
+notes-highlights contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/product/contracts/notes-highlights.test.ts (4 tests) 6ms
+ ✓ src/app/api/consumer/notes-highlights/route.test.ts (4 tests) 13ms
+ ✓ src/lib/product/dal.consumer-records.test.ts (3 tests) 10ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  13:23:11
+   Duration  611ms (transform 267ms, setup 0ms, collect 663ms, tests 29ms, environment 0ms, prepare 159ms)
+
+
+> web@0.1.0 test:notes-highlights:negative
+> node scripts/test-notes-highlights.mjs --fixture invalid-page && node scripts/test-notes-highlights.mjs --fixture invalid-rectangle && node scripts/test-notes-highlights.mjs --fixture index-failure && node scripts/test-notes-highlights.mjs --fixture foreign-record && node scripts/test-notes-highlights.mjs --fixture duplicate-retry
+
+notes-highlights contract passed (invalid-page)
+notes-highlights contract passed (invalid-rectangle)
+notes-highlights contract passed (index-failure)
+notes-highlights contract passed (foreign-record)
+notes-highlights contract passed (duplicate-retry)
+
+> web@0.1.0 test:ai-artifacts
+> node scripts/test-ai-artifacts.mjs && vitest run src/lib/product/contracts/ai-artifacts.test.ts src/lib/consumer/ai-artifacts-fixtures.test.ts src/app/api/consumer/ai-artifacts/route.test.ts src/lib/product/dal.ai-artifacts.test.ts
+
+AI artifact contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/product/contracts/ai-artifacts.test.ts (3 tests) 5ms
+ ✓ src/lib/consumer/ai-artifacts-fixtures.test.ts (3 tests) 3ms
+ ✓ src/lib/product/dal.ai-artifacts.test.ts (1 test) 5ms
+ ✓ src/app/api/consumer/ai-artifacts/route.test.ts (3 tests) 17ms
+
+ Test Files  4 passed (4)
+      Tests  10 passed (10)
+   Start at  13:23:13
+   Duration  595ms (transform 278ms, setup 0ms, collect 878ms, tests 30ms, environment 0ms, prepare 208ms)
+
+
+> web@0.1.0 test:ai-artifacts:negative
+> node scripts/test-ai-artifacts.mjs --fixture unauthorized && node scripts/test-ai-artifacts.mjs --fixture consent && node scripts/test-ai-artifacts.mjs --fixture quota && node scripts/test-ai-artifacts.mjs --fixture rate-limit && node scripts/test-ai-artifacts.mjs --fixture provider && node scripts/test-ai-artifacts.mjs --fixture offline && node scripts/test-ai-artifacts.mjs --fixture empty && node scripts/test-ai-artifacts.mjs --fixture missing && node scripts/test-ai-artifacts.mjs --fixture expired && node scripts/test-ai-artifacts.mjs --fixture source-changed && node scripts/test-ai-artifacts.mjs --fixture foreign
+
+AI artifact contract passed (unauthorized)
+AI artifact contract passed (consent)
+AI artifact contract passed (quota)
+AI artifact contract passed (rate-limit)
+AI artifact contract passed (provider)
+AI artifact contract passed (offline)
+AI artifact contract passed (empty)
+AI artifact contract passed (missing)
+AI artifact contract passed (expired)
+AI artifact contract passed (source-changed)
+AI artifact contract passed (foreign)
+
+> web@0.1.0 test:account-settings
+> node scripts/test-account-settings.mjs && vitest run src/lib/product/contracts/account-settings.test.ts src/lib/consumer/account-settings-fixtures.test.ts src/lib/product/adapters.avatar-storage.test.ts src/lib/product/dal.account-settings.test.ts src/app/api/consumer/account/route.test.ts src/app/api/consumer/account/avatar/route.test.ts
+
+Account settings contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/product/contracts/account-settings.test.ts (2 tests) 4ms
+ ✓ src/lib/consumer/account-settings-fixtures.test.ts (2 tests) 5ms
+ ✓ src/lib/product/adapters.avatar-storage.test.ts (1 test) 5ms
+ ✓ src/lib/product/dal.account-settings.test.ts (3 tests) 8ms
+ ✓ src/app/api/consumer/account/route.test.ts (2 tests) 9ms
+ ✓ src/app/api/consumer/account/avatar/route.test.ts (2 tests) 15ms
+
+ Test Files  6 passed (6)
+      Tests  12 passed (12)
+   Start at  13:23:14
+   Duration  634ms (transform 345ms, setup 0ms, collect 1.61s, tests 47ms, environment 1ms, prepare 353ms)
+
+
+> web@0.1.0 test:account-settings:negative
+> node scripts/test-account-settings.mjs --fixture foreign && node scripts/test-account-settings.mjs --fixture avatar-failure && node scripts/test-account-settings.mjs --fixture password && node scripts/test-account-settings.mjs --fixture unauthorized && node scripts/test-account-settings.mjs --fixture consent && node scripts/test-account-settings.mjs --fixture quota && node scripts/test-account-settings.mjs --fixture offline && node scripts/test-account-settings.mjs --fixture empty && node scripts/test-account-settings.mjs --fixture network
+
+Account settings contract passed (foreign)
+Account settings contract passed (avatar-failure)
+Account settings contract passed (password)
+Account settings contract passed (unauthorized)
+Account settings contract passed (consent)
+Account settings contract passed (quota)
+Account settings contract passed (offline)
+Account settings contract passed (empty)
+Account settings contract passed (network)
+
+> web@0.1.0 test:export
+> node scripts/test-export.mjs && node scripts/test-function-contracts.mjs && vitest run src/lib/product/contracts/export.test.ts src/lib/consumer/export-fixtures.test.ts src/app/api/consumer/export/route.test.ts
+
+Export contract passed
+PASS fixture identifies consumer function contracts
+PASS fixture declares cross-user negative coverage
+PASS consent producer boundary files exist
+PASS recall reservation lease migration exists
+PASS deletion replay receipt migration exists
+PASS deletion replay receipt is scoped to one durable operation per user
+PASS consent boundary rejects caller-editable JWT metadata without durable grant
+PASS consent boundary accepts a durable granted consent row
+PASS source boundary rejects a first write for an unknown source
+PASS source boundary rejects an embedding owned by another user
+PASS source boundary rejects an image owned by another user
+PASS source boundary accepts a highlight in an owned book image
+PASS source boundary accepts a first note in an owned book
+PASS source boundary rejects a note source owned by another user
+PASS source boundary rejects a note source that belongs to another user's image
+PASS generate-embedding: first note write succeeds
+PASS generate-embedding: first note reaches provider after book ownership
+PASS generate-embedding: source-less note is rejected
+PASS generate-embedding: source-less note returns invalid_request
+PASS generate-embedding: source-less note stops before provider work
+PASS generate-embedding: foreign note source is rejected
+PASS generate-embedding: foreign note source code is cross_user_access
+PASS generate-embedding: foreign note source stops before provider work
+PASS generate-embedding: note source reusing a foreign image is rejected
+PASS generate-embedding: foreign image note source code is cross_user_access
+PASS generate-embedding: foreign image note source stops before provider work
+PASS shared contract rejects an oversized chunked body
+PASS shared contract cancels the body reader at the byte limit
+PASS shared contract rejects explicit null instead of applying an integer fallback
+PASS provider boundary aborts a hanging request and normalizes timeout
+PASS provider boundary cancels an oversized response body
+PASS generate-book-review: stored provider input fixture is machine-readable
+PASS generate-book-review: oversized stored provider input status 413 matches 413
+PASS generate-book-review: oversized stored provider input code provider_input_too_large matches provider_input_too_large
+PASS generate-book-review: oversized stored provider input provider calls 0
+PASS structure-notes: stored provider input fixture is machine-readable
+PASS structure-notes: oversized stored provider input status 413 matches 413
+PASS structure-notes: oversized stored provider input code provider_input_too_large matches provider_input_too_large
+PASS structure-notes: oversized stored provider input provider calls 0
+PASS extract-keywords: stored provider input fixture is machine-readable
+PASS extract-keywords: oversized stored provider input status 200 matches 200
+PASS extract-keywords: oversized stored provider input provider calls 0
+PASS aladin-books: oversized provider response is rejected before parsing
+PASS generate-embedding: oversized provider response is rejected before parsing
+PASS extract-keywords: oversized provider response is rejected before parsing
+PASS generate-book-review: oversized provider response is rejected before parsing
+PASS vision-ocr: oversized provider response is rejected before parsing
+PASS export-reading-data: oversized provider response is rejected before parsing
+PASS aladin-books: source exists
+PASS aladin-books: valid fixture is machine-readable
+PASS aladin-books: invalid fixture is machine-readable
+PASS aladin-books: unauthenticated fixture is machine-readable
+PASS aladin-books: crossUser fixture is machine-readable
+PASS aladin-books: consentRequired fixture is machine-readable
+PASS aladin-books: consent disposition is explicit
+PASS aladin-books: non-applicable consent reason is recorded
+PASS aladin-books: oversizedInput fixture is machine-readable
+PASS aladin-books: rateLimit fixture is machine-readable
+PASS aladin-books: providerFailure fixture is machine-readable
+PASS aladin-books: cross-user request declares auth principal
+PASS aladin-books: cross-user request declares execution assertion
+PASS aladin-books: handler request executed
+PASS aladin-books: cross-user status 401 matches 401
+PASS aladin-books: cross-user code unauthorized matches unauthorized
+PASS aladin-books: cross-user provider calls 0
+PASS aladin-books: cross-user service mutations 0
+PASS aladin-books: valid status 200 matches 200
+PASS aladin-books: invalid status 400 matches 400
+PASS aladin-books: invalid code invalid_request matches invalid_request
+PASS aladin-books: unauthenticated status 401 matches 401
+PASS aladin-books: unauthenticated code unauthorized matches unauthorized
+PASS aladin-books: oversizedInput status 413 matches 413
+PASS aladin-books: oversizedInput code payload_too_large matches payload_too_large
+PASS aladin-books: consentRequired status 200 matches 200
+PASS aladin-books: consentRequired not-applicable path does not emit consent_required
+PASS aladin-books: rateLimit status 429 matches 429
+PASS aladin-books: rateLimit code rate_limited matches rate_limited
+PASS aladin-books: providerFailure status 502 matches 502
+PASS aladin-books: providerFailure code provider_error matches provider_error
+PASS recall-search: source exists
+PASS recall-search: valid fixture is machine-readable
+PASS recall-search: invalid fixture is machine-readable
+PASS recall-search: unauthenticated fixture is machine-readable
+PASS recall-search: crossUser fixture is machine-readable
+PASS recall-search: consentRequired fixture is machine-readable
+PASS recall-search: consent disposition is explicit
+PASS recall-search: oversizedInput fixture is machine-readable
+PASS recall-search: rateLimit fixture is machine-readable
+PASS recall-search: providerFailure fixture is machine-readable
+PASS recall-search: databaseFailure fixture is machine-readable
+PASS recall-search: cross-user request declares auth principal
+PASS recall-search: cross-user request declares execution assertion
+PASS recall-search: handler request executed
+PASS recall-search: cross-user status 403 matches 403
+PASS recall-search: cross-user code cross_user_access matches cross_user_access
+PASS recall-search: cross-user provider calls 0
+PASS recall-search: cross-user service mutations 0
+PASS recall-search: ownership rejection is first service boundary
+PASS recall-search: cross-user request stops before policy work
+PASS recall-search: valid status 200 matches 200
+PASS recall-search: successful request completes quota reservation
+PASS recall-search: invalid status 400 matches 400
+PASS recall-search: invalid code invalid_request matches invalid_request
+PASS recall-search: unauthenticated status 401 matches 401
+PASS recall-search: unauthenticated code unauthorized matches unauthorized
+PASS recall-search: oversizedInput status 413 matches 413
+PASS recall-search: oversizedInput code payload_too_large matches payload_too_large
+PASS recall-search: consentRequired status 403 matches 403
+PASS recall-search: consentRequired code consent_required matches consent_required
+PASS recall-search: rateLimit status 429 matches 429
+PASS recall-search: rateLimit code rate_limited matches rate_limited
+PASS recall-search: providerFailure status 502 matches 502
+PASS recall-search: providerFailure code provider_error matches provider_error
+PASS recall-search: provider failure releases quota reservation
+PASS recall-search: databaseFailure status 503 matches 503
+PASS recall-search: databaseFailure code unavailable matches unavailable
+PASS generate-embedding: source exists
+PASS generate-embedding: valid fixture is machine-readable
+PASS generate-embedding: invalid fixture is machine-readable
+PASS generate-embedding: unauthenticated fixture is machine-readable
+PASS generate-embedding: crossUser fixture is machine-readable
+PASS generate-embedding: consentRequired fixture is machine-readable
+PASS generate-embedding: consent disposition is explicit
+PASS generate-embedding: oversizedInput fixture is machine-readable
+PASS generate-embedding: rateLimit fixture is machine-readable
+PASS generate-embedding: providerFailure fixture is machine-readable
+PASS generate-embedding: cross-user request declares auth principal
+PASS generate-embedding: cross-user request declares execution assertion
+PASS generate-embedding: handler request executed
+PASS generate-embedding: cross-user status 403 matches 403
+PASS generate-embedding: cross-user code cross_user_access matches cross_user_access
+PASS generate-embedding: cross-user provider calls 0
+PASS generate-embedding: cross-user service mutations 0
+PASS generate-embedding: ownership rejection is first service boundary
+PASS generate-embedding: cross-user request stops before policy work
+PASS generate-embedding: valid status 200 matches 200
+PASS generate-embedding: invalid status 400 matches 400
+PASS generate-embedding: invalid code invalid_request matches invalid_request
+PASS generate-embedding: unauthenticated status 401 matches 401
+PASS generate-embedding: unauthenticated code unauthorized matches unauthorized
+PASS generate-embedding: oversizedInput status 413 matches 413
+PASS generate-embedding: oversizedInput code payload_too_large matches payload_too_large
+PASS generate-embedding: consentRequired status 403 matches 403
+PASS generate-embedding: consentRequired code consent_required matches consent_required
+PASS generate-embedding: rateLimit status 429 matches 429
+PASS generate-embedding: rateLimit code rate_limited matches rate_limited
+PASS generate-embedding: providerFailure status 502 matches 502
+PASS generate-embedding: providerFailure code provider_error matches provider_error
+PASS extract-keywords: source exists
+PASS extract-keywords: valid fixture is machine-readable
+PASS extract-keywords: invalid fixture is machine-readable
+PASS extract-keywords: unauthenticated fixture is machine-readable
+PASS extract-keywords: crossUser fixture is machine-readable
+PASS extract-keywords: consentRequired fixture is machine-readable
+PASS extract-keywords: consent disposition is explicit
+PASS extract-keywords: oversizedInput fixture is machine-readable
+PASS extract-keywords: rateLimit fixture is machine-readable
+PASS extract-keywords: providerFailure fixture is machine-readable
+PASS extract-keywords: cross-user request declares auth principal
+PASS extract-keywords: cross-user request declares execution assertion
+PASS extract-keywords: handler request executed
+PASS extract-keywords: cross-user status 403 matches 403
+PASS extract-keywords: cross-user code cross_user_access matches cross_user_access
+PASS extract-keywords: cross-user provider calls 0
+PASS extract-keywords: cross-user service mutations 0
+PASS extract-keywords: ownership rejection is first service boundary
+PASS extract-keywords: cross-user request stops before policy work
+PASS extract-keywords: valid status 200 matches 200
+PASS extract-keywords: invalid status 400 matches 400
+PASS extract-keywords: invalid code invalid_request matches invalid_request
+PASS extract-keywords: unauthenticated status 401 matches 401
+PASS extract-keywords: unauthenticated code unauthorized matches unauthorized
+PASS extract-keywords: oversizedInput status 413 matches 413
+PASS extract-keywords: oversizedInput code payload_too_large matches payload_too_large
+PASS extract-keywords: consentRequired status 403 matches 403
+PASS extract-keywords: consentRequired code consent_required matches consent_required
+PASS extract-keywords: rateLimit status 429 matches 429
+PASS extract-keywords: rateLimit code rate_limited matches rate_limited
+PASS extract-keywords: providerFailure status 502 matches 502
+PASS extract-keywords: providerFailure code provider_error matches provider_error
+PASS structure-notes: source exists
+PASS structure-notes: valid fixture is machine-readable
+PASS structure-notes: invalid fixture is machine-readable
+PASS structure-notes: unauthenticated fixture is machine-readable
+PASS structure-notes: crossUser fixture is machine-readable
+PASS structure-notes: consentRequired fixture is machine-readable
+PASS structure-notes: consent disposition is explicit
+PASS structure-notes: oversizedInput fixture is machine-readable
+PASS structure-notes: rateLimit fixture is machine-readable
+PASS structure-notes: providerFailure fixture is machine-readable
+PASS structure-notes: cross-user request declares auth principal
+PASS structure-notes: cross-user request declares execution assertion
+PASS structure-notes: handler request executed
+PASS structure-notes: cross-user status 403 matches 403
+PASS structure-notes: cross-user code cross_user_access matches cross_user_access
+PASS structure-notes: cross-user provider calls 0
+PASS structure-notes: cross-user service mutations 0
+PASS structure-notes: ownership rejection is first service boundary
+PASS structure-notes: cross-user request stops before policy work
+PASS structure-notes: valid status 200 matches 200
+PASS structure-notes: invalid status 400 matches 400
+PASS structure-notes: invalid code invalid_request matches invalid_request
+PASS structure-notes: unauthenticated status 401 matches 401
+PASS structure-notes: unauthenticated code unauthorized matches unauthorized
+PASS structure-notes: oversizedInput status 413 matches 413
+PASS structure-notes: oversizedInput code payload_too_large matches payload_too_large
+PASS structure-notes: consentRequired status 403 matches 403
+PASS structure-notes: consentRequired code consent_required matches consent_required
+PASS structure-notes: rateLimit status 429 matches 429
+PASS structure-notes: rateLimit code rate_limited matches rate_limited
+PASS structure-notes: providerFailure status 502 matches 502
+PASS structure-notes: providerFailure code provider_error matches provider_error
+PASS reading-insights: source exists
+PASS reading-insights: valid fixture is machine-readable
+PASS reading-insights: invalid fixture is machine-readable
+PASS reading-insights: unauthenticated fixture is machine-readable
+PASS reading-insights: crossUser fixture is machine-readable
+PASS reading-insights: consentRequired fixture is machine-readable
+PASS reading-insights: consent disposition is explicit
+PASS reading-insights: oversizedInput fixture is machine-readable
+PASS reading-insights: rateLimit fixture is machine-readable
+PASS reading-insights: providerFailure fixture is machine-readable
+PASS reading-insights: databaseFailure fixture is machine-readable
+PASS reading-insights: cross-user request declares auth principal
+PASS reading-insights: cross-user request declares execution assertion
+PASS reading-insights: handler request executed
+PASS reading-insights: cross-user status 403 matches 403
+PASS reading-insights: cross-user code cross_user_access matches cross_user_access
+PASS reading-insights: cross-user provider calls 0
+PASS reading-insights: cross-user service mutations 0
+PASS reading-insights: valid status 200 matches 200
+PASS reading-insights: invalid status 400 matches 400
+PASS reading-insights: invalid code invalid_request matches invalid_request
+PASS reading-insights: unauthenticated status 401 matches 401
+PASS reading-insights: unauthenticated code unauthorized matches unauthorized
+PASS reading-insights: oversizedInput status 413 matches 413
+PASS reading-insights: oversizedInput code payload_too_large matches payload_too_large
+PASS reading-insights: consentRequired status 403 matches 403
+PASS reading-insights: consentRequired code consent_required matches consent_required
+PASS reading-insights: rateLimit status 429 matches 429
+PASS reading-insights: rateLimit code rate_limited matches rate_limited
+PASS reading-insights: providerFailure status 502 matches 502
+PASS reading-insights: providerFailure code provider_error matches provider_error
+PASS reading-insights: databaseFailure status 503 matches 503
+PASS reading-insights: databaseFailure code unavailable matches unavailable
+PASS recommend-next-books: source exists
+PASS recommend-next-books: valid fixture is machine-readable
+PASS recommend-next-books: invalid fixture is machine-readable
+PASS recommend-next-books: unauthenticated fixture is machine-readable
+PASS recommend-next-books: crossUser fixture is machine-readable
+PASS recommend-next-books: consentRequired fixture is machine-readable
+PASS recommend-next-books: consent disposition is explicit
+PASS recommend-next-books: oversizedInput fixture is machine-readable
+PASS recommend-next-books: rateLimit fixture is machine-readable
+PASS recommend-next-books: providerFailure fixture is machine-readable
+PASS recommend-next-books: cross-user request declares auth principal
+PASS recommend-next-books: cross-user request declares execution assertion
+PASS recommend-next-books: handler request executed
+PASS recommend-next-books: cross-user status 403 matches 403
+PASS recommend-next-books: cross-user code cross_user_access matches cross_user_access
+PASS recommend-next-books: cross-user provider calls 0
+PASS recommend-next-books: cross-user service mutations 0
+PASS recommend-next-books: valid status 200 matches 200
+PASS recommend-next-books: invalid status 400 matches 400
+PASS recommend-next-books: invalid code invalid_request matches invalid_request
+PASS recommend-next-books: unauthenticated status 401 matches 401
+PASS recommend-next-books: unauthenticated code unauthorized matches unauthorized
+PASS recommend-next-books: oversizedInput status 413 matches 413
+PASS recommend-next-books: oversizedInput code payload_too_large matches payload_too_large
+PASS recommend-next-books: consentRequired status 403 matches 403
+PASS recommend-next-books: consentRequired code consent_required matches consent_required
+PASS recommend-next-books: rateLimit status 429 matches 429
+PASS recommend-next-books: rateLimit code rate_limited matches rate_limited
+PASS recommend-next-books: providerFailure status 502 matches 502
+PASS recommend-next-books: providerFailure code provider_error matches provider_error
+PASS generate-book-review: source exists
+PASS generate-book-review: valid fixture is machine-readable
+PASS generate-book-review: invalid fixture is machine-readable
+PASS generate-book-review: unauthenticated fixture is machine-readable
+PASS generate-book-review: crossUser fixture is machine-readable
+PASS generate-book-review: consentRequired fixture is machine-readable
+PASS generate-book-review: consent disposition is explicit
+PASS generate-book-review: oversizedInput fixture is machine-readable
+PASS generate-book-review: rateLimit fixture is machine-readable
+PASS generate-book-review: providerFailure fixture is machine-readable
+PASS generate-book-review: databaseFailure fixture is machine-readable
+PASS generate-book-review: cross-user request declares auth principal
+PASS generate-book-review: cross-user request declares execution assertion
+PASS generate-book-review: handler request executed
+PASS generate-book-review: cross-user status 403 matches 403
+PASS generate-book-review: cross-user code cross_user_access matches cross_user_access
+PASS generate-book-review: cross-user provider calls 0
+PASS generate-book-review: cross-user service mutations 0
+PASS generate-book-review: ownership rejection is first service boundary
+PASS generate-book-review: cross-user request stops before policy work
+PASS generate-book-review: valid status 200 matches 200
+PASS generate-book-review: invalid status 400 matches 400
+PASS generate-book-review: invalid code invalid_request matches invalid_request
+PASS generate-book-review: unauthenticated status 401 matches 401
+PASS generate-book-review: unauthenticated code unauthorized matches unauthorized
+PASS generate-book-review: oversizedInput status 413 matches 413
+PASS generate-book-review: oversizedInput code payload_too_large matches payload_too_large
+PASS generate-book-review: consentRequired status 403 matches 403
+PASS generate-book-review: consentRequired code consent_required matches consent_required
+PASS generate-book-review: rateLimit status 429 matches 429
+PASS generate-book-review: rateLimit code rate_limited matches rate_limited
+PASS generate-book-review: providerFailure status 502 matches 502
+PASS generate-book-review: providerFailure code provider_error matches provider_error
+PASS generate-book-review: databaseFailure status 503 matches 503
+PASS generate-book-review: databaseFailure code unavailable matches unavailable
+PASS vision-ocr: source exists
+PASS vision-ocr: valid fixture is machine-readable
+PASS vision-ocr: invalid fixture is machine-readable
+PASS vision-ocr: unauthenticated fixture is machine-readable
+PASS vision-ocr: crossUser fixture is machine-readable
+PASS vision-ocr: consentRequired fixture is machine-readable
+PASS vision-ocr: consent disposition is explicit
+PASS vision-ocr: oversizedInput fixture is machine-readable
+PASS vision-ocr: rateLimit fixture is machine-readable
+PASS vision-ocr: providerFailure fixture is machine-readable
+PASS vision-ocr: cross-user request declares auth principal
+PASS vision-ocr: cross-user request declares execution assertion
+PASS vision-ocr: handler request executed
+PASS vision-ocr: cross-user status 403 matches 403
+PASS vision-ocr: cross-user code cross_user_access matches cross_user_access
+PASS vision-ocr: cross-user provider calls 0
+PASS vision-ocr: cross-user service mutations 0
+PASS vision-ocr: ownership rejection is first service boundary
+PASS vision-ocr: cross-user request stops before policy work
+PASS vision-ocr: valid status 200 matches 200
+PASS vision-ocr: invalid status 400 matches 400
+PASS vision-ocr: invalid code invalid_request matches invalid_request
+PASS vision-ocr: unauthenticated status 401 matches 401
+PASS vision-ocr: unauthenticated code unauthorized matches unauthorized
+PASS vision-ocr: oversizedInput status 413 matches 413
+PASS vision-ocr: oversizedInput code payload_too_large matches payload_too_large
+PASS vision-ocr: consentRequired status 403 matches 403
+PASS vision-ocr: consentRequired code consent_required matches consent_required
+PASS vision-ocr: rateLimit status 429 matches 429
+PASS vision-ocr: rateLimit code quota_exceeded matches quota_exceeded
+PASS vision-ocr: providerFailure status 502 matches 502
+PASS vision-ocr: providerFailure code provider_error matches provider_error
+PASS export-reading-data: source exists
+PASS export-reading-data: valid fixture is machine-readable
+PASS export-reading-data: invalid fixture is machine-readable
+PASS export-reading-data: unauthenticated fixture is machine-readable
+PASS export-reading-data: crossUser fixture is machine-readable
+PASS export-reading-data: consentRequired fixture is machine-readable
+PASS export-reading-data: consent disposition is explicit
+PASS export-reading-data: non-applicable consent reason is recorded
+PASS export-reading-data: oversizedInput fixture is machine-readable
+PASS export-reading-data: rateLimit fixture is machine-readable
+PASS export-reading-data: providerFailure fixture is machine-readable
+PASS export-reading-data: databaseFailure fixture is machine-readable
+PASS export-reading-data: cross-user request declares auth principal
+PASS export-reading-data: cross-user request declares execution assertion
+PASS export-reading-data: handler request executed
+PASS export-reading-data: cross-user status 400 matches 400
+PASS export-reading-data: cross-user code invalid_request matches invalid_request
+PASS export-reading-data: cross-user provider calls 0
+PASS export-reading-data: cross-user service mutations 0
+PASS export-reading-data: valid status 200 matches 200
+PASS export-reading-data: valid response has exportId
+PASS export-reading-data: valid response matches export result contract
+PASS export-reading-data: valid response includes export counts
+PASS export-reading-data: CSV escapes formula-like book titles
+PASS export-reading-data: CSV escapes formula-like note text
+PASS export-reading-data: CSV escapes formula-like image captions
+PASS export-reading-data: CSV quotes bare carriage returns
+PASS export-reading-data: CSV has no unescaped formula field
+PASS export-reading-data: image query scopes rows before the service-role limit
+PASS export-reading-data: obsolete memos query is absent
+PASS export-reading-data: invalid status 400 matches 400
+PASS export-reading-data: invalid code invalid_request matches invalid_request
+PASS export-reading-data: unauthenticated status 401 matches 401
+PASS export-reading-data: unauthenticated code unauthorized matches unauthorized
+PASS export-reading-data: oversizedInput status 413 matches 413
+PASS export-reading-data: oversizedInput code payload_too_large matches payload_too_large
+PASS export-reading-data: consentRequired status 200 matches 200
+PASS export-reading-data: consentRequired not-applicable path does not emit consent_required
+PASS export-reading-data: rateLimit status 429 matches 429
+PASS export-reading-data: rateLimit code rate_limited matches rate_limited
+PASS export-reading-data: providerFailure status 502 matches 502
+PASS export-reading-data: providerFailure code provider_error matches provider_error
+PASS export-reading-data: databaseFailure status 503 matches 503
+PASS export-reading-data: databaseFailure code unavailable matches unavailable
+PASS delete-user: source exists
+PASS delete-user: valid fixture is machine-readable
+PASS delete-user: invalid fixture is machine-readable
+PASS delete-user: unauthenticated fixture is machine-readable
+PASS delete-user: crossUser fixture is machine-readable
+PASS delete-user: consentRequired fixture is machine-readable
+PASS delete-user: consent disposition is explicit
+PASS delete-user: non-applicable consent reason is recorded
+PASS delete-user: oversizedInput fixture is machine-readable
+PASS delete-user: rateLimit fixture is machine-readable
+PASS delete-user: providerFailure fixture is machine-readable
+PASS delete-user: cross-user request declares auth principal
+PASS delete-user: cross-user request declares execution assertion
+PASS delete-user: idempotence request uses a verified principal
+PASS delete-user: idempotence request declares execution assertion
+PASS delete-user: handler request executed
+PASS delete-user: cross-user status 401 matches 401
+PASS delete-user: cross-user code unauthorized matches unauthorized
+PASS delete-user: cross-user provider calls 0
+PASS delete-user: cross-user service mutations 0
+PASS delete-user: valid status 200 matches 200
+PASS delete-user: valid request removes bound book image objects
+PASS delete-user: valid request removes legacy replacement image objects
+PASS delete-user: valid request removes canonical orphan image objects
+PASS delete-user: valid request removes ownerless objects from validated user paths
+PASS delete-user: valid request rejects unbound shared image paths
+PASS delete-user: valid request rejects foreign legacy objects with a victim-shaped book UUID
+PASS delete-user: valid request rejects foreign row-derived storage paths
+PASS delete-user: valid request removes owned avatar objects
+PASS delete-user: valid request rejects foreign profile avatar objects
+PASS delete-user: valid request rejects foreign default avatar objects
+PASS delete-user: invalid status 400 matches 400
+PASS delete-user: invalid code invalid_request matches invalid_request
+PASS delete-user: unauthenticated status 401 matches 401
+PASS delete-user: unauthenticated code unauthorized matches unauthorized
+PASS delete-user: oversizedInput status 413 matches 413
+PASS delete-user: oversizedInput code payload_too_large matches payload_too_large
+PASS delete-user: consentRequired status 200 matches 200
+PASS delete-user: consentRequired not-applicable path does not emit consent_required
+PASS delete-user: rateLimit status 429 matches 429
+PASS delete-user: rateLimit code rate_limited matches rate_limited
+PASS delete-user: providerFailure status 503 matches 503
+PASS delete-user: providerFailure code unavailable matches unavailable
+PASS delete-user: idempotent status 200 matches 200
+PASS delete-user: idempotent body status is already_deleted
+PASS delete-user: idempotent retry attempts Auth deletion
+PASS delete-user: first disposable deletion completes
+PASS delete-user: completed replay after Auth deletion remains successful
+PASS delete-user: completed replay after Auth deletion is idempotent
+PASS delete-user: completed replay after Auth deletion performs no service mutation
+PASS delete-user: refreshed-token retry remains successful
+PASS delete-user: refreshed-token retry resumes the deletion receipt
+PASS delete-user: resumed deletion consumes its bounded resume budget
+PASS delete-user: revoked replay cannot resume a data-deleted receipt
+PASS delete-user: revoked replay returns the terminal deletion result
+PASS delete-user: revoked replay performs no service mutation
+PASS delete-user: completion receipt failure is surfaced as unavailable
+PASS delete-user: completion receipt failure keeps the unavailable code
+PASS delete-user: failed completion leaves a data-deleted receipt
+PASS delete-user: completion failure follows a successful Auth deletion attempt
+PASS delete-user: Auth deletion happens before the failed completion update
+PASS delete-user: revoked replay after completion failure remains idempotent
+PASS delete-user: revoked replay after completion failure returns the terminal result
+PASS delete-user: revoked replay after completion failure performs no service mutation
+PASS delete-user: Auth deletion failure is surfaced as unavailable
+PASS delete-user: Auth deletion failure keeps the unavailable code
+PASS delete-user: Auth deletion failure preserves a data-deleted receipt
+PASS delete-user: a verified retry can reconcile an Auth failure
+PASS delete-user: verified Auth recovery is idempotent
+PASS 11 consumer function contracts with request-level happy and failure coverage
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/consumer/export-fixtures.test.ts (2 tests) 4ms
+ ✓ src/lib/product/contracts/export.test.ts (2 tests) 5ms
+ ✓ src/app/api/consumer/export/route.test.ts (3 tests) 11ms
+
+ Test Files  3 passed (3)
+      Tests  7 passed (7)
+   Start at  13:23:18
+   Duration  519ms (transform 169ms, setup 0ms, collect 628ms, tests 19ms, environment 0ms, prepare 131ms)
+
+
+> web@0.1.0 test:export:negative
+> node scripts/test-export.mjs --fixture invalid-year && node scripts/test-export.mjs --fixture invalid-email && node scripts/test-export.mjs --fixture caller-identity && node scripts/test-export.mjs --fixture email-mismatch && node scripts/test-export.mjs --fixture delivery && node scripts/test-export.mjs --fixture download && node scripts/test-export.mjs --fixture unauthorized && node scripts/test-export.mjs --fixture consent && node scripts/test-export.mjs --fixture quota && node scripts/test-export.mjs --fixture offline
+
+Export contract passed (invalid-year)
+Export contract passed (invalid-email)
+Export contract passed (caller-identity)
+Export contract passed (email-mismatch)
+Export contract passed (delivery)
+Export contract passed (download)
+Export contract passed (unauthorized)
+Export contract passed (consent)
+Export contract passed (quota)
+Export contract passed (offline)
+
+> web@0.1.0 test:web-push
+> node scripts/test-web-push.mjs && vitest run src/lib/product/contracts/web-push.test.ts src/lib/consumer/web-push-fixtures.test.ts src/lib/product/dal.web-push.test.ts src/app/api/consumer/notifications/route.test.ts src/app/api/consumer/push/route.test.ts
+
+Web Push contract passed
+
+ RUN  v3.2.7 /private/tmp/bookgolas-web-443/web
+
+ ✓ src/lib/product/contracts/web-push.test.ts (2 tests) 5ms
+ ✓ src/lib/consumer/web-push-fixtures.test.ts (2 tests) 5ms
+ ✓ src/app/api/consumer/notifications/route.test.ts (2 tests) 8ms
+ ✓ src/lib/product/dal.web-push.test.ts (3 tests) 9ms
+ ✓ src/app/api/consumer/push/route.test.ts (2 tests) 10ms
+
+ Test Files  5 passed (5)
+      Tests  11 passed (11)
+   Start at  13:23:19
+   Duration  596ms (transform 369ms, setup 0ms, collect 1.41s, tests 38ms, environment 1ms, prepare 225ms)
+
+
+> web@0.1.0 test:web-push:negative
+> node scripts/test-web-push.mjs --fixture denied && node scripts/test-web-push.mjs --fixture unsupported && node scripts/test-web-push.mjs --fixture foreign && node scripts/test-web-push.mjs --fixture offline && node scripts/test-web-push.mjs --fixture consent && node scripts/test-web-push.mjs --fixture quota && node scripts/test-web-push.mjs --fixture provider && node scripts/test-web-push.mjs --fixture network && node scripts/test-web-push.mjs --fixture unauthorized
+
+Web Push contract passed (denied)
+Web Push contract passed (unsupported)
+Web Push contract passed (foreign)
+Web Push contract passed (offline)
+Web Push contract passed (consent)
+Web Push contract passed (quota)
+Web Push contract passed (provider)
+Web Push contract passed (network)
+Web Push contract passed (unauthorized)

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "issue": 448,
+  "task": 36,
+  "parentIssue": 412,
+  "fixtures": {
+    "missing-required-env": {
+      "environment": "preview",
+      "missing": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "expectedExit": 1,
+      "phase": "before-next-build"
+    }
+  }
+}

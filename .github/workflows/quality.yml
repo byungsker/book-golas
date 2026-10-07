@@ -1,0 +1,224 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+      - 'version/**'
+      - 'release/**'
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    name: Resolve Quality Scope
+    runs-on: ubuntu-latest
+    outputs:
+      flutter: ${{ steps.scope.outputs.flutter }}
+      web: ${{ steps.scope.outputs.web }}
+      edge: ${{ steps.scope.outputs.edge }}
+      workflow: ${{ steps.scope.outputs.workflow }}
+      policy: ${{ steps.scope.outputs.policy }}
+    steps:
+      - id: scope
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: 100,
+              },
+            );
+            const expectedFileCount = Number(
+              context.payload.pull_request.changed_files,
+            );
+            if (!Number.isSafeInteger(expectedFileCount)) {
+              core.setFailed("PR changed-file count is unavailable");
+              return;
+            }
+            if (files.length !== expectedFileCount) {
+              core.setFailed(
+                `Changed-file evidence is incomplete: collected ${files.length}, expected ${expectedFileCount}`,
+              );
+              return;
+            }
+            const paths = files
+              .flatMap((file) =>
+                file.status === "renamed"
+                  ? [file.previous_filename, file.filename]
+                  : [file.filename],
+              )
+              .filter(Boolean);
+            core.setOutput(
+              "flutter",
+              paths.some((path) =>
+                path === ".env.example" || path.startsWith("app/"),
+              ),
+            );
+            core.setOutput(
+              "web",
+              paths.some((path) =>
+                path.startsWith("web/") ||
+                path === ".github/workflows/quality.yml",
+              ),
+            );
+            core.setOutput(
+              "workflow",
+              paths.some((path) => path === ".github/workflows/quality.yml"),
+            );
+            core.setOutput(
+              "edge",
+              paths.some((path) => path.startsWith("supabase/functions/")),
+            );
+            core.setOutput(
+              "policy",
+              paths.some((path) =>
+                path === ".byungskerlab/branch-policy.json" ||
+                path === ".byungskerlab/release-lines.json" ||
+                path === ".github/scripts/validate_target_version_pr.py" ||
+                path === ".github/scripts/test_validate_target_version_pr.py" ||
+                path === ".github/workflows/target-version-gate.yml" ||
+                path === ".github/workflows/quality.yml",
+              ),
+            );
+
+  flutter:
+    name: Flutter Analyze and Test
+    needs: changes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - if: needs.changes.outputs.flutter != 'true'
+        working-directory: .
+        run: echo "No Flutter changes detected"
+      - if: needs.changes.outputs.flutter == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.flutter == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.0'
+          channel: stable
+          cache: true
+      - name: Create test environment
+        if: needs.changes.outputs.flutter == 'true'
+        run: |
+          printf '%s\n' \
+            'ALADIN_TTB_KEY=test' \
+            'SUPABASE_URL_DEV=https://example.supabase.co' \
+            'SUPABASE_ANON_KEY_DEV=test' \
+            'SUPABASE_URL_PROD=https://example.supabase.co' \
+            'SUPABASE_ANON_KEY_PROD=test' \
+            'GOOGLE_CLOUD_VISION_API_KEY=test' \
+            'REVENUECAT_PUBLIC_KEY=test' \
+            'ENVIRONMENT=development' > .env
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter pub get
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter gen-l10n
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter analyze --no-fatal-infos
+      - if: needs.changes.outputs.flutter == 'true'
+        run: flutter test --no-pub
+
+  web:
+    name: Web Consumer Release Gate
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - if: needs.changes.outputs.web != 'true'
+        run: echo "No Web changes detected"
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.web == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.9.1
+      - if: needs.changes.outputs.web == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - if: needs.changes.outputs.web == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: needs.changes.outputs.web == 'true'
+        run: pnpm audit --audit-level=high
+      - if: needs.changes.outputs.web == 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+      - if: needs.changes.outputs.web == 'true'
+        run: npm run test:release-gate
+        env:
+          CI: true
+
+  workflow-contract:
+    name: Quality Workflow Contract
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.workflow != 'true'
+        run: echo "No Quality workflow changes detected"
+      - if: needs.changes.outputs.workflow == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.workflow == 'true'
+        run: |
+          test "$(grep -cE '^[[:space:]]+run: npm run test:release-gate$' .github/workflows/quality.yml)" -eq 1
+          ! grep -qE 'secrets\.|SUPABASE_(ACCESS_TOKEN|SERVICE_ROLE_KEY|PROJECT_REF)' .github/workflows/quality.yml
+
+  target-version-policy:
+    name: Target Version Gate Regression Tests
+    needs: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - if: needs.changes.outputs.policy != 'true'
+        run: echo "No target-version policy changes detected"
+      - if: needs.changes.outputs.policy == 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - if: needs.changes.outputs.policy == 'true'
+        name: Run target-version policy tests
+        working-directory: .github/scripts
+        run: python3 -m unittest -v test_validate_target_version_pr.py
+
+  edge-functions:
+    name: Edge Function Type Check
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.outputs.edge != 'true'
+        run: echo "No Edge Function changes detected"
+      - if: needs.changes.outputs.edge == 'true'
+        uses: actions/checkout@v4
+      - if: needs.changes.outputs.edge == 'true'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check all functions
+        if: needs.changes.outputs.edge == 'true'
+        run: |
+          while IFS= read -r entry; do
+            config="$(dirname "$entry")/deno.json"
+            if [ ! -f "$config" ]; then
+              config="supabase/functions/deno.json"
+            fi
+            deno check --config "$config" "$entry"
+          done < <(find supabase/functions -mindepth 2 -maxdepth 2 -name index.ts | sort)

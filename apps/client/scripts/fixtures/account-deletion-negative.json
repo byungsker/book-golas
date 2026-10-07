@@ -1,0 +1,20 @@
+{
+  "issue": 446,
+  "task": 34,
+  "parentIssue": 412,
+  "plan": ".omo/plans/bookgolas-web-app-parity.md",
+  "targetVersion": "1.1.0",
+  "targetBranch": "version/web/1.1.0",
+  "featureBranch": "codex/feature/web/1.1.0/BOK-446-account-deletion",
+  "canonicalFunction": "delete-user",
+  "localOnlyVerification": true,
+  "fixtures": [
+    { "name": "cancel-or-retry", "routeFixture": "account-deletion-cancel-or-retry", "expected": { "cancelStatus": 400, "retryStatus": "already_deleted" } },
+    { "name": "caller-identity", "routeFixture": "account-deletion-cancel-or-retry", "expected": { "status": 400, "code": "validation_error" } },
+    { "name": "wrong-password", "routeFixture": "account-deletion-cancel-or-retry", "expected": { "status": 401, "code": "unauthorized" } },
+    { "name": "unauthorized", "routeFixture": "account-deletion-unauthorized", "expected": { "status": 401, "code": "unauthorized" } },
+    { "name": "offline", "routeFixture": "account-deletion-offline", "expected": { "status": 503, "code": "offline" } },
+    { "name": "quota", "routeFixture": "account-deletion-quota", "expected": { "status": 429, "code": "quota_exceeded" } },
+    { "name": "oauth-session", "routeFixture": "account-deletion-success", "expected": { "status": 200, "password": "omitted" } }
+  ]
+}

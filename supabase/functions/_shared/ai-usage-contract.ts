@@ -1,385 +1,204 @@
-import {
-  AI_MAX_TOKEN_COUNT,
-  AI_PRICING_REGISTRY_VERSION,
-  type AiProvider,
-  calculateAiCostUsd,
-  resolveAiPricing,
-} from "./ai-cost-control.ts";
+export const AI_USAGE_EVENT_VERSION = 1;
+export const AI_PRICING_VERSION = "pricing-v1";
+export const AI_MAX_TOKEN_COUNT = 1_000_000;
 
-import {
-  AI_OBSERVABILITY_EVENT_VERSION,
-  type AiOutcome,
-  normalizeAiOutcome,
-  sanitizeAiMetadata,
-} from "./ai-observability.ts";
+export type AiProvider = "open_ai";
+export type AiUsageStatus = "success" | "failure";
+export type AiTokenStatus = "valid" | "missing" | "anomalous" | "inconsistent";
+export type AiUsageErrorCode =
+  | "invalid_contract_input"
+  | "input_too_large"
+  | "model_not_allowed"
+  | "quota_exceeded"
+  | "rate_limit_exceeded"
+  | "concurrency_exceeded"
+  | "budget_exceeded"
+  | "hard_cap_exceeded"
+  | "budget_unavailable"
+  | "usage_log_unavailable"
+  | "invalid_token_usage"
+  | "provider_error"
+  | "provider_timeout";
 
-export type UsageStatus = "success" | "failure";
-export type UsageSource = "provider" | "input_estimate" | "none";
-export type TokenStatus = "valid" | "missing" | "anomalous" | "inconsistent";
-export type PricingStatus = "finalized" | "not_finalized" | "unavailable";
-export type ControlStatus = "allowed" | "blocked";
+export class AiUsageError extends Error {
+  readonly name = "AiUsageError";
 
-export interface NormalizedUsage {
-  inputTokens: number | null;
-  outputTokens: number | null;
-  totalTokens: number | null;
+  constructor(
+    readonly code: AiUsageErrorCode,
+    readonly status: 400 | 413 | 429 | 502 | 503 | 504,
+    readonly requestId: string | null = null,
+  ) {
+    super(code);
+  }
 }
 
-export interface UsageAssessment {
-  usage: NormalizedUsage;
-  tokenStatus: TokenStatus;
-  pricingStatus: PricingStatus;
-  estimatedCostUsd: number | null;
+export type AiBudgetContext = {
+  readonly functionName: string;
+  readonly feature?: string;
+  readonly provider?: AiProvider;
+  readonly model?: string;
+  readonly promptVersion?: string;
+  readonly requestId?: string | null;
+  readonly callId?: string | null;
+  readonly maxOutputTokens?: number;
+};
+
+export interface AiBudgetClient {
+  rpc(name: string, input: Readonly<Record<string, unknown>>): PromiseLike<{
+    readonly data: unknown;
+    readonly error: unknown;
+  }>;
 }
 
-export interface AiUsageContext {
-  userId: string | null;
-  requestId?: string | null;
-  callId?: string | null;
-  functionName: string;
-  feature: string;
-  provider: AiProvider;
-  model: string;
-  promptVersion: string;
-}
+export type AiProviderResult<T> = {
+  readonly value: T;
+  readonly usage: unknown;
+};
 
-export interface AiUsageLogRow {
-  event_version: typeof AI_OBSERVABILITY_EVENT_VERSION;
-  user_id: string | null;
-  request_id: string | null;
-  call_id: string | null;
-  function_name: string;
-  feature: string;
-  provider: AiProvider;
-  model: string;
-  prompt_version: string;
-  input_tokens: number | null;
-  output_tokens: number | null;
-  total_tokens: number | null;
-  estimated_cost_usd: number | null;
-  pricing_version: string;
-  pricing_status: PricingStatus;
-  token_status: TokenStatus;
-  usage_source: UsageSource;
-  control_status: ControlStatus;
-  latency_ms: number;
-  status: UsageStatus;
-  outcome: AiOutcome;
-  error_code: string | null;
-}
+export type AiUsageContext = {
+  readonly userId: string | null;
+  readonly requestId: string | null;
+  readonly callId: string | null;
+  readonly functionName: string;
+  readonly feature: string;
+  readonly provider: AiProvider;
+  readonly model: string;
+  readonly promptVersion: string;
+};
+
+export type AiUsageLogRow = {
+  readonly event_version: typeof AI_USAGE_EVENT_VERSION;
+  readonly user_id: string | null;
+  readonly request_id: string | null;
+  readonly call_id: string | null;
+  readonly function_name: string;
+  readonly feature: string;
+  readonly provider: AiProvider;
+  readonly model: string;
+  readonly prompt_version: string;
+  readonly input_tokens: number | null;
+  readonly output_tokens: number | null;
+  readonly total_tokens: number | null;
+  readonly estimated_cost_microusd: number | null;
+  readonly pricing_version: typeof AI_PRICING_VERSION;
+  readonly token_status: AiTokenStatus;
+  readonly latency_ms: number;
+  readonly status: AiUsageStatus;
+  readonly error_code: string | null;
+};
 
 export interface AiUsageLogClient {
   from(table: string): {
-    insert(row: AiUsageLogRow): PromiseLike<{ error: unknown | null }>;
+    insert(row: AiUsageLogRow): PromiseLike<{ readonly error: unknown | null }>;
   };
 }
 
-export interface AiUsageControlEventRow {
-  event_version: typeof AI_OBSERVABILITY_EVENT_VERSION;
-  user_id: string | null;
-  request_id: string | null;
-  call_id: string | null;
-  function_name: string;
-  feature: string;
-  provider: AiProvider;
-  model: string;
-  prompt_version: string;
-  event_type: "provider_error" | "usage_rejected";
-  decision: "observe" | "block";
-  outcome: AiOutcome;
-  reason: string;
-  estimated_cost_usd: number | null;
-  input_tokens: number | null;
-  output_tokens: number | null;
-  metadata: Record<string, unknown>;
+type NormalizedUsage = {
+  readonly inputTokens: number | null;
+  readonly outputTokens: number | null;
+  readonly totalTokens: number | null;
+  readonly tokenStatus: AiTokenStatus;
+};
+
+const MODEL_PRICES_MICROUSD_PER_MILLION = {
+  "gpt-4o-mini": { input: 150_000, output: 600_000 },
+  "text-embedding-3-small": { input: 20_000, output: 0 },
+} as const;
+
+export type ApprovedAiModel = keyof typeof MODEL_PRICES_MICROUSD_PER_MILLION;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export interface AiUsageControlEventClient {
-  from(table: string): {
-    insert(row: AiUsageControlEventRow): PromiseLike<{ error: unknown | null }>;
-  };
+function tokenCount(value: unknown): number | null {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= AI_MAX_TOKEN_COUNT
+    ? value
+    : null;
 }
 
-const INPUT_TOKEN_KEYS = ["input_tokens", "prompt_tokens"];
-const OUTPUT_TOKEN_KEYS = ["output_tokens", "completion_tokens"];
+export function isApprovedAiModel(model: string): model is ApprovedAiModel {
+  return Object.hasOwn(MODEL_PRICES_MICROUSD_PER_MILLION, model);
+}
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    return null;
+export function normalizeAiUsage(value: unknown): NormalizedUsage {
+  const usage = isRecord(value) && isRecord(value.usage) ? value.usage : value;
+  if (!isRecord(usage)) {
+    return { inputTokens: null, outputTokens: null, totalTokens: null, tokenStatus: "missing" };
   }
-  return value as Record<string, unknown>;
-}
-
-function normalizeTokenCount(value: unknown): number | null {
-  if (
-    typeof value !== "number" || !Number.isSafeInteger(value) || value < 0 ||
-    value > AI_MAX_TOKEN_COUNT
-  ) {
-    return null;
+  const rawInput = usage.input_tokens ?? usage.prompt_tokens;
+  const rawOutput = usage.output_tokens ?? usage.completion_tokens;
+  const inputTokens = tokenCount(rawInput);
+  const outputTokens = tokenCount(rawOutput);
+  const reportedTotal = tokenCount(usage.total_tokens);
+  if ((rawInput !== undefined && inputTokens === null) || (rawOutput !== undefined && outputTokens === null) || (usage.total_tokens !== undefined && reportedTotal === null)) {
+    return { inputTokens, outputTokens, totalTokens: reportedTotal, tokenStatus: "anomalous" };
   }
-  return value;
+  if (inputTokens === null || outputTokens === null) {
+    return { inputTokens, outputTokens, totalTokens: reportedTotal, tokenStatus: "missing" };
+  }
+  const computedTotal = inputTokens + outputTokens;
+  if (computedTotal > AI_MAX_TOKEN_COUNT || (reportedTotal !== null && reportedTotal !== computedTotal)) {
+    return { inputTokens, outputTokens, totalTokens: reportedTotal, tokenStatus: "inconsistent" };
+  }
+  return { inputTokens, outputTokens, totalTokens: computedTotal, tokenStatus: "valid" };
 }
 
-function firstTokenCount(
-  record: Record<string, unknown>,
-  keys: string[],
+export function calculateAiCostMicrousd(
+  model: ApprovedAiModel,
+  inputTokens: number,
+  outputTokens: number,
 ): number | null {
-  for (const key of keys) {
-    const value = normalizeTokenCount(record[key]);
-    if (value !== null) return value;
-  }
-  return null;
-}
-
-function firstPresentValue(
-  record: Record<string, unknown>,
-  keys: string[],
-): unknown {
-  for (const key of keys) {
-    if (key in record) return record[key];
-  }
-  return undefined;
-}
-
-function hasInvalidValue(
-  record: Record<string, unknown>,
-  keys: string[],
-): boolean {
-  const value = firstPresentValue(record, keys);
-  return value !== undefined && value !== null &&
-    normalizeTokenCount(value) === null;
-}
-
-export function extractProviderUsage(value: unknown): unknown {
-  const record = asRecord(value);
-  if (!record) return value;
-  const usageMetadata = asRecord(record.usage_metadata);
-  if (usageMetadata) return usageMetadata;
-  const responseMetadata = asRecord(record.response_metadata);
-  if (responseMetadata) {
-    const tokenUsage = responseMetadata.tokenUsage ??
-      responseMetadata.token_usage ?? responseMetadata.usage;
-    if (tokenUsage !== undefined) return tokenUsage;
-  }
-  return record.usage ?? value;
-}
-
-export function normalizeOpenAiUsage(usage: unknown): NormalizedUsage {
-  const record = asRecord(extractProviderUsage(usage));
-  if (!record) {
-    return { inputTokens: null, outputTokens: null, totalTokens: null };
-  }
-
-  const inputTokens = firstTokenCount(record, INPUT_TOKEN_KEYS);
-  const outputTokens = firstTokenCount(record, OUTPUT_TOKEN_KEYS);
-  const reportedTotalTokens = normalizeTokenCount(record.total_tokens);
-  const totalTokens = reportedTotalTokens ?? (
-    inputTokens !== null && outputTokens !== null
-      ? inputTokens + outputTokens
-      : null
-  );
-
-  return { inputTokens, outputTokens, totalTokens };
-}
-
-export function assessOpenAiUsage(params: {
-  usage: unknown;
-  provider: AiProvider;
-  model: string;
-  requireOutputTokens: boolean;
-  at?: Date | string;
-}): UsageAssessment {
-  const record = asRecord(extractProviderUsage(params.usage));
-  const usage = normalizeOpenAiUsage(params.usage);
-  if (!record) {
-    return {
-      usage,
-      tokenStatus: "missing",
-      pricingStatus: "not_finalized",
-      estimatedCostUsd: null,
-    };
-  }
-
-  if (
-    hasInvalidValue(record, INPUT_TOKEN_KEYS) ||
-    hasInvalidValue(record, OUTPUT_TOKEN_KEYS) ||
-    hasInvalidValue(record, ["total_tokens"])
-  ) {
-    return {
-      usage,
-      tokenStatus: "anomalous",
-      pricingStatus: "not_finalized",
-      estimatedCostUsd: null,
-    };
-  }
-
-  if (
-    usage.inputTokens !== null && usage.outputTokens !== null &&
-    usage.totalTokens !== null &&
-    usage.totalTokens !== usage.inputTokens + usage.outputTokens
-  ) {
-    return {
-      usage,
-      tokenStatus: "inconsistent",
-      pricingStatus: "not_finalized",
-      estimatedCostUsd: null,
-    };
-  }
-
-  if (
-    usage.inputTokens === null ||
-    (params.requireOutputTokens && usage.outputTokens === null)
-  ) {
-    return {
-      usage,
-      tokenStatus: "missing",
-      pricingStatus: "not_finalized",
-      estimatedCostUsd: null,
-    };
-  }
-
-  const pricing = resolveAiPricing(params.provider, params.model, params.at);
-  if (!pricing) {
-    return {
-      usage,
-      tokenStatus: "valid",
-      pricingStatus: "unavailable",
-      estimatedCostUsd: null,
-    };
-  }
-  const estimatedCostUsd = calculateAiCostUsd(
-    pricing,
-    usage.inputTokens,
-    usage.outputTokens ?? 0,
-  );
-  return {
-    usage,
-    tokenStatus: "valid",
-    pricingStatus: estimatedCostUsd === null ? "not_finalized" : "finalized",
-    estimatedCostUsd,
-  };
-}
-
-function normalizeLatencyMs(latencyMs: number): number {
-  if (!Number.isFinite(latencyMs) || latencyMs < 0) return 0;
-  return Math.min(Math.round(latencyMs), 2_147_483_647);
-}
-
-function usageSource(value: unknown, tokenStatus: TokenStatus): UsageSource {
-  const record = asRecord(extractProviderUsage(value));
-  if (tokenStatus === "valid" && record?.usage_source === "input_estimate") {
-    return "input_estimate";
-  }
-  return tokenStatus === "missing" ? "none" : "provider";
+  if (tokenCount(inputTokens) === null || tokenCount(outputTokens) === null) return null;
+  const price = MODEL_PRICES_MICROUSD_PER_MILLION[model];
+  const numerator = inputTokens * price.input + outputTokens * price.output;
+  if (!Number.isSafeInteger(numerator)) return null;
+  return Math.ceil(numerator / 1_000_000);
 }
 
 export function normalizeAiErrorCode(error: unknown): string {
-  const record = asRecord(error);
-  const code = record?.code;
-  if (typeof code === "string" && /^[a-z0-9_:-]{1,80}$/.test(code)) {
-    return code;
-  }
-  if (
-    error instanceof Error &&
-    (error.name === "AbortError" || error.name === "TimeoutError")
-  ) {
-    return "provider_timeout";
-  }
+  if (isRecord(error) && typeof error.code === "string" && /^[a-z0-9_:-]{1,80}$/.test(error.code)) return error.code;
+  if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError" || /timed?\s*out|timeout/i.test(error.message))) return "provider_timeout";
   return "provider_error";
 }
 
 export function buildAiUsageLogRow(params: {
-  context: AiUsageContext;
-  usage: unknown;
-  latencyMs: number;
-  status: UsageStatus;
-  requireOutputTokens: boolean;
-  error?: unknown;
-  controlStatus?: ControlStatus;
+  readonly context: AiUsageContext;
+  readonly usage: unknown;
+  readonly latencyMs: number;
+  readonly status: AiUsageStatus;
+  readonly error?: unknown;
 }): AiUsageLogRow {
-  const assessment = assessOpenAiUsage({
-    usage: params.usage,
-    provider: params.context.provider,
-    model: params.context.model,
-    requireOutputTokens: params.requireOutputTokens,
-  });
-  const errorCode = params.error === undefined
-    ? null
-    : normalizeAiErrorCode(params.error);
+  const normalized = normalizeAiUsage(params.usage);
+  const estimatedCostMicrousd = normalized.tokenStatus === "valid" && isApprovedAiModel(params.context.model)
+    ? calculateAiCostMicrousd(params.context.model, normalized.inputTokens ?? 0, normalized.outputTokens ?? 0)
+    : null;
+  const latencyMs = Number.isFinite(params.latencyMs) && params.latencyMs >= 0
+    ? Math.min(Math.round(params.latencyMs), 2_147_483_647)
+    : 0;
   return {
-    event_version: AI_OBSERVABILITY_EVENT_VERSION,
+    event_version: AI_USAGE_EVENT_VERSION,
     user_id: params.context.userId,
-    request_id: params.context.requestId ?? null,
-    call_id: params.context.callId ?? null,
+    request_id: params.context.requestId,
+    call_id: params.context.callId,
     function_name: params.context.functionName,
     feature: params.context.feature,
     provider: params.context.provider,
     model: params.context.model,
     prompt_version: params.context.promptVersion,
-    input_tokens: assessment.usage.inputTokens,
-    output_tokens: assessment.usage.outputTokens,
-    total_tokens: assessment.usage.totalTokens,
-    estimated_cost_usd: assessment.estimatedCostUsd,
-    pricing_version: AI_PRICING_REGISTRY_VERSION,
-    pricing_status: assessment.pricingStatus,
-    token_status: assessment.tokenStatus,
-    usage_source: usageSource(params.usage, assessment.tokenStatus),
-    control_status: params.controlStatus ?? "allowed",
-    latency_ms: normalizeLatencyMs(params.latencyMs),
+    input_tokens: normalized.inputTokens,
+    output_tokens: normalized.outputTokens,
+    total_tokens: normalized.totalTokens,
+    estimated_cost_microusd: estimatedCostMicrousd,
+    pricing_version: AI_PRICING_VERSION,
+    token_status: normalized.tokenStatus,
+    latency_ms: latencyMs,
     status: params.status,
-    outcome: normalizeAiOutcome({ status: params.status, errorCode }),
-    error_code: errorCode,
+    error_code: params.error === undefined ? null : normalizeAiErrorCode(params.error),
   };
 }
 
-export function buildAiUsageControlEventRow(params: {
-  context: AiUsageContext;
-  usage: unknown;
-  eventType: "provider_error" | "usage_rejected";
-  reason: string;
-  metadata?: Record<string, unknown>;
-}): AiUsageControlEventRow {
-  const assessment = assessOpenAiUsage({
-    usage: params.usage,
-    provider: params.context.provider,
-    model: params.context.model,
-    requireOutputTokens: false,
-  });
-  return {
-    event_version: AI_OBSERVABILITY_EVENT_VERSION,
-    user_id: params.context.userId,
-    request_id: params.context.requestId ?? null,
-    call_id: params.context.callId ?? null,
-    function_name: params.context.functionName,
-    feature: params.context.feature,
-    provider: params.context.provider,
-    model: params.context.model,
-    prompt_version: params.context.promptVersion,
-    event_type: params.eventType,
-    decision: params.eventType === "usage_rejected" ? "block" : "observe",
-    outcome: params.eventType === "usage_rejected"
-      ? "blocked"
-      : normalizeAiOutcome({ status: "failure", errorCode: params.reason }),
-    reason: params.reason,
-    estimated_cost_usd: assessment.estimatedCostUsd,
-    input_tokens: assessment.usage.inputTokens,
-    output_tokens: assessment.usage.outputTokens,
-    metadata: sanitizeAiMetadata(params.metadata),
-  };
-}
-
-export async function recordAiUsageLog(
-  client: AiUsageLogClient,
-  row: AiUsageLogRow,
-): Promise<void> {
+export async function recordAiUsageLog(client: AiUsageLogClient, row: AiUsageLogRow): Promise<void> {
   const { error } = await client.from("ai_usage_logs").insert(row);
-  if (error) throw new Error("AI usage log insert failed");
-}
-
-export async function recordAiUsageControlEvent(
-  client: AiUsageControlEventClient,
-  row: AiUsageControlEventRow,
-): Promise<void> {
-  const { error } = await client.from("ai_usage_control_events").insert(row);
-  if (error) throw new Error("AI usage control event insert failed");
+  if (error !== null && error !== undefined) throw new Error("AI usage log insert failed", { cause: error });
 }

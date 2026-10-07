@@ -1,0 +1,448 @@
+
+> web@0.1.0 test:e2e
+> playwright test --project=webkit
+
+[WebServer] (node:77044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77125) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:77149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 165 tests using 5 workers
+
+(node:77156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77153) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    5 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile light (2.1s)
+  ✓    4 [webkit] › tests/e2e/ai-artifacts.spec.ts:20:5 › mindmap renders the owned note structure and connections (2.3s)
+  ✓    2 [webkit] › tests/e2e/ai-consent.spec.ts:24:5 › grant and withdraw provider-specific consent state (2.6s)
+  ✓    1 [webkit] › tests/e2e/auth-oauth.spec.ts:33:7 › Google PKCE success creates a session and preserves the locale return (2.8s)
+  ✓    3 [webkit] › tests/e2e/account-settings.spec.ts:24:5 › profile avatar theme and language round trip (3.2s)
+  ✓    6 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in mobile dark (1.2s)
+  ✓    7 [webkit] › tests/e2e/ai-artifacts.spec.ts:30:5 › reading insights renders localized insight cards (1.2s)
+  ✓    9 [webkit] › tests/e2e/auth-oauth.spec.ts:33:7 › Apple PKCE success creates a session and preserves the locale return (1.5s)
+  ✓   10 [webkit] › tests/e2e/account-settings.spec.ts:51:5 › subscription entry remains disabled on Web (1.1s)
+  ✓   11 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet light (963ms)
+  ✓    8 [webkit] › tests/e2e/ai-consent.spec.ts:51:5 › unknown consent state stays blocked and unavailable state is visible (2.0s)
+  ✓   12 [webkit] › tests/e2e/ai-artifacts.spec.ts:37:5 › recommendation screen opens the browser action dialog (1.1s)
+  ✓   13 [webkit] › tests/e2e/auth-oauth.spec.ts:55:5 › invalid or expired callback code returns a generic localized error (474ms)
+  ✓   18 [webkit] › tests/e2e/auth-oauth.spec.ts:66:5 › invalid provider cancellation hides provider details (434ms)
+  ✓   15 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in tablet dark (1.0s)
+  ✓   19 [webkit] › tests/e2e/auth-oauth.spec.ts:80:5 › invalid provider error is generic and hides provider details (468ms)
+  ✓   14 [webkit] › tests/e2e/account-settings.spec.ts:62:5 › foreign profile update and avatar failure preserve ownership (1.9s)
+  ✓   17 [webkit] › tests/e2e/ai-artifacts.spec.ts:46:5 › missing and expired caches regenerate once per request (1.6s)
+  ✓   20 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop light (1.0s)
+  ✓   21 [webkit] › tests/e2e/auth-oauth.spec.ts:94:5 › external returnTo is rejected by the full callback flow (896ms)
+  ✓   24 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-in desktop dark (994ms)
+  ✓   23 [webkit] › tests/e2e/ai-artifacts.spec.ts:58:5 › rate-limit and provider states remain visible (1.7s)
+  ✓   26 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile light (975ms)
+  ✓   22 [webkit] › tests/e2e/account-settings.spec.ts:75:5 › password validation and provider failure keep the password local (2.5s)
+  ✓   28 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up mobile dark (942ms)
+  ✓   30 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet light (942ms)
+  ✓   31 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up tablet dark (926ms)
+  ✓   27 [webkit] › tests/e2e/ai-artifacts.spec.ts:68:5 › empty, source-change, consent, quota and offline fixtures stay distinct (3.3s)
+  ✓   32 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop light (961ms)
+  ✘   25 [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile (5.9s)
+(node:77279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   33 [webkit] › tests/e2e/ai-artifacts.spec.ts:87:5 › foreign and unauthorized artifacts fail closed (1.6s)
+  ✓   34 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko sign-up desktop dark (944ms)
+  ✓   29 [webkit] › tests/e2e/account-settings.spec.ts:99:5 › loading empty error unauthorized consent quota and offline account states (4.8s)
+  ✓   37 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile light (1.0s)
+  ✓   36 [webkit] › tests/e2e/book-detail.spec.ts:22:5 › detail exposes metadata and completes before a confirmed delete (2.3s)
+  ✓   39 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password mobile dark (922ms)
+  ✓   16 [webkit] › tests/e2e/ai-consent.spec.ts:65:5 › quota budget provider and other operational error states (11.0s)
+  ✓   41 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet light (957ms)
+  ✓   38 [webkit] › tests/e2e/book-discovery.spec.ts:19:5 › search and manual-isbn happy path keeps native search and recommendation entry (2.9s)
+  ✓   40 [webkit] › tests/e2e/book-detail.spec.ts:56:5 › detail supports planned start and paused resume actions (1.8s)
+  ✓   43 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password tablet dark (928ms)
+  ✓   46 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop light (910ms)
+  ✓   47 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive ko reset-password desktop dark (951ms)
+  ✓   42 [webkit] › tests/e2e/book-lifecycle.spec.ts:19:5 › add and schedule lifecycle saves metadata, status, priority and an edited daily goal (3.4s)
+  ✓   45 [webkit] › tests/e2e/book-detail.spec.ts:74:5 › foreign, deleted and invalid-transition detail requests fail closed (2.1s)
+  ✓   44 [webkit] › tests/e2e/book-discovery.spec.ts:49:5 › latest search cancels a stale provider response (3.0s)
+  ✓   48 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile light (977ms)
+  ✘   35 [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop (6.1s)
+(node:77321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   50 [webkit] › tests/e2e/calendar.spec.ts:19:5 › calendar month navigation and filters (1.4s)
+  ✓   52 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in mobile dark (956ms)
+  ✓   54 [webkit] › tests/e2e/calendar.spec.ts:44:5 › calendar day-detail opens owned book (1.1s)
+  ✓   51 [webkit] › tests/e2e/book-discovery.spec.ts:61:5 › unsupported invalid upstream states preserve scanner and manual fallbacks (2.1s)
+  ✓   49 [webkit] › tests/e2e/book-lifecycle.spec.ts:56:5 › invalid, duplicate and foreign writes stay bounded and recoverable (2.9s)
+  ✓   55 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet light (956ms)
+  ✓   56 [webkit] › tests/e2e/calendar.spec.ts:57:5 › calendar timezone keeps UTC midnight events on the correct KST day (1.1s)
+  ✓   59 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in tablet dark (981ms)
+  ✓   57 [webkit] › tests/e2e/charts-goals.spec.ts:19:5 › reading statistics metrics (1.3s)
+  ✓   61 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop light (1.0s)
+  ✓   60 [webkit] › tests/e2e/calendar.spec.ts:67:5 › calendar day detail preserves paused and planned statuses (1.2s)
+  ✓   62 [webkit] › tests/e2e/charts-goals.spec.ts:36:5 › annual goal updates (1.2s)
+  ✓   64 [webkit] › tests/e2e/calendar.spec.ts:79:5 › calendar empty state (1.0s)
+  ✓   63 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-in desktop dark (1.1s)
+  ✓   65 [webkit] › tests/e2e/charts-goals.spec.ts:48:5 › stats share fallback (1.1s)
+  ✓   67 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile light (914ms)
+  ✓   66 [webkit] › tests/e2e/calendar.spec.ts:86:5 › calendar network failure (1.0s)
+  ✓   68 [webkit] › tests/e2e/charts-goals.spec.ts:57:5 › statistics empty state (1.1s)
+  ✘   53 [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile (6.1s)
+(node:77364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   69 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up mobile dark (897ms)
+  ✓   70 [webkit] › tests/e2e/calendar.spec.ts:93:5 › calendar foreign events stay out of day detail (1.0s)
+  ✓   71 [webkit] › tests/e2e/charts-goals.spec.ts:64:5 › statistics invalid-range (930ms)
+  ✓   73 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet light (965ms)
+  ✓   74 [webkit] › tests/e2e/calendar.spec.ts:102:5 › calendar deleted books stay out of day detail (1.0s)
+  ✘   58 [webkit] › tests/e2e/consumer-shell.spec.ts:27:5 › desktop shell exposes exactly five tabs, deep-link state, search modes and timer mount (6.4s)
+  ✓   75 [webkit] › tests/e2e/charts-goals.spec.ts:71:5 › statistics stale snapshot (1.1s)
+(node:77383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   76 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up tablet dark (911ms)
+  ✓   80 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop light (963ms)
+  ✓   78 [webkit] › tests/e2e/home-book-list.spec.ts:22:5 › happy path renders five native status tabs, cards, progress, target D-day, add entry and keeps soft-deleted rows hidden (1.9s)
+  ✓   77 [webkit] › tests/e2e/export.spec.ts:30:5 › export success keeps selected year, format and localized account action (2.1s)
+  ✓   81 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en sign-up desktop dark (909ms)
+  ✓   79 [webkit] › tests/e2e/consumer-shell.spec.ts:74:5 › mobile shell keeps five tabs and cycles home and chart re-taps in the URL (2.0s)
+  ✓   84 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile light (890ms)
+  ✓   86 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password mobile dark (883ms)
+  ✓   82 [webkit] › tests/e2e/home-book-list.spec.ts:57:5 › loading skeleton precedes the resolved reading list (2.3s)
+  ✓   83 [webkit] › tests/e2e/export.spec.ts:51:5 › export loading and empty states remain observable (2.3s)
+  ✘   72 [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop (6.1s)
+  ✓   87 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet light (907ms)
+(node:77411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   85 [webkit] › tests/e2e/consumer-shell.spec.ts:95:5 › pending and error boundaries remain inside the authenticated shell (3.0s)
+  ✓   90 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password tablet dark (949ms)
+  ✘   91 [webkit] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home (1.0s)
+  ✓   92 [webkit] › tests/e2e/consumer-shell.spec.ts:111:5 › unauthorized-private-data fixture never renders another reader's book (951ms)
+(node:77429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   93 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop light (902ms)
+  ✓   88 [webkit] › tests/e2e/home-book-list.spec.ts:67:5 › empty status surfaces stay distinct and keep the add-entry action (3.0s)
+  ✓   89 [webkit] › tests/e2e/export.spec.ts:68:5 › export unauthorized consent quota and offline states keep safe feedback (3.2s)
+  ✓   94 [webkit] › tests/e2e/consumer-shell.spec.ts:120:5 › expired-session redirects a refreshed private deep link to sign in (927ms)
+  ✓   96 [webkit] › tests/e2e/auth-email.spec.ts:145:13 › responsive en reset-password desktop dark (917ms)
+  ✓   95 [webkit] › tests/e2e/images-ocr.spec.ts:32:5 › upload, OCR and manual fallback keep a private image usable (871ms)
+  ✓  101 [webkit] › tests/e2e/images-ocr.spec.ts:51:5 › provider failure leaves the image available for manual text (712ms)
+  ✓   98 [webkit] › tests/e2e/export.spec.ts:83:5 › mismatch invalid-year and caller identity are rejected (1.1s)
+  ✓  100 [webkit] › tests/e2e/auth-email.spec.ts:164:5 › signup validates nickname and creates an email account (1.1s)
+  ✓   97 [webkit] › tests/e2e/home-book-list.spec.ts:88:5 › network error offers retry and offline state is announced (1.7s)
+  ✓  102 [webkit] › tests/e2e/images-ocr.spec.ts:69:5 › oversize image is rejected before upload (901ms)
+  ✓  106 [webkit] › tests/e2e/images-ocr.spec.ts:80:5 › denied camera exposes the file fallback (551ms)
+  ✓  104 [webkit] › tests/e2e/auth-email.spec.ts:186:5 › login saves opted-in email and logout clears browser and server session (1.4s)
+  ✓   99 [webkit] › tests/e2e/library.spec.ts:19:5 › happy path keeps native tabs, title/author search, cursor pagination and record detail entry (2.9s)
+  ✓  103 [webkit] › tests/e2e/export.spec.ts:105:5 › delivery and download failures expose a retryable error (1.9s)
+  ✓  107 [webkit] › tests/e2e/images-ocr.spec.ts:88:5 › insecure camera exposes the file fallback (501ms)
+  ✓  111 [webkit] › tests/e2e/images-ocr.spec.ts:96:5 › expired-url images remain rendered through a signed URL (487ms)
+  ✓  112 [webkit] › tests/e2e/progress.spec.ts:25:5 › progress moves forward and keeps history (1.0s)
+  ✓  109 [webkit] › tests/e2e/library.spec.ts:62:5 › loading state precedes the resolved library response (1.7s)
+  ✓  108 [webkit] › tests/e2e/auth-email.spec.ts:209:5 › recovery sends a non-enumerating link and updates the password (2.4s)
+  ✓  105 [webkit] › tests/e2e/notes-highlights.spec.ts:22:5 › create, edit and delete notes, highlights and memorable pages (3.8s)
+  ✓  110 [webkit] › tests/e2e/onboarding.spec.ts:54:7 › ko three-page onboarding persists age policy through skip and start (2.7s)
+  ✓  113 [webkit] › tests/e2e/progress.spec.ts:39:5 › progress completes at total pages (1.2s)
+  ✓  116 [webkit] › tests/e2e/notes-highlights.spec.ts:59:5 › invalid page and invalid rectangle values are rejected (846ms)
+  ✓  115 [webkit] › tests/e2e/auth-email.spec.ts:234:5 › invalid credentials show a localized non-enumerating error (1.0s)
+  ✓  114 [webkit] › tests/e2e/library.spec.ts:69:5 › cancellation keeps the latest debounced title search and discards the slow response (1.7s)
+  ✓  118 [webkit] › tests/e2e/progress.spec.ts:53:5 › progress renders retry attempt messaging (1.0s)
+  ✓  120 [webkit] › tests/e2e/auth-email.spec.ts:245:5 › unconfirmed email supports a localized resend cooldown (1.0s)
+  ✓  119 [webkit] › tests/e2e/notes-highlights.spec.ts:76:5 › index-failure keeps saved record visible and retry is idempotent (1.3s)
+  ✘  123 [webkit] › tests/e2e/recall.spec.ts:23:5 › global recall search source expansion copy and history (231ms)
+(node:77488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  122 [webkit] › tests/e2e/progress.spec.ts:62:5 › stale progress shows conflict and refetch (1.1s)
+  ✓  124 [webkit] › tests/e2e/notes-highlights.spec.ts:96:5 › foreign record requests fail closed (510ms)
+  ✓  117 [webkit] › tests/e2e/onboarding.spec.ts:54:7 › en three-page onboarding persists age policy through skip and start (2.6s)
+  ✓  126 [webkit] › tests/e2e/progress.spec.ts:74:5 › duplicate submits preserve one history event (1.0s)
+  ✓  128 [webkit] › tests/e2e/onboarding.spec.ts:94:5 › authenticated corrupt-storage state resets and remains completable (1.5s)
+  ✓  129 [webkit] › tests/e2e/progress.spec.ts:98:5 › server-error never presents false success after history failure (1.1s)
+  ✓  125 [webkit] › tests/e2e/recall.spec.ts:60:5 › book recall search source navigation and signed image (2.1s)
+  ✓  121 [webkit] › tests/e2e/library.spec.ts:84:5 › empty, foreign and unavailable boundaries stay private and retryable (4.4s)
+  ✓  131 [webkit] › tests/e2e/progress.spec.ts:110:5 › progress page bounds reject a value above the total page count (1.0s)
+  ✓  130 [webkit] › tests/e2e/onboarding.spec.ts:113:5 › anonymous onboarding uses the localized authentication handoff (1.5s)
+  ✓  135 [webkit] › tests/e2e/session-lifecycle.spec.ts:95:5 › expired and invalid sessions produce one localized login redirect (1.5s)
+  ✓  133 [webkit] › tests/e2e/library.spec.ts:116:5 › Recall entry searches records, keeps history separate from book results and exposes quota/consent states (2.5s)
+  ✓  134 [webkit] › tests/e2e/routes.spec.ts:37:5 › localized consumer routes resolve inside the authenticated boundary (2.6s)
+  ✓  136 [webkit] › tests/e2e/session-lifecycle.spec.ts:122:5 › foreign book IDs return the same safe not-found policy (994ms)
+  ✓  138 [webkit] › tests/e2e/routes.spec.ts:64:5 › unauthorized consumers are redirected to a localized sign-in with a safe return target (382ms)
+  ✓  140 [webkit] › tests/e2e/routes.spec.ts:79:5 › unsafe return targets fall back to the authenticated home route (334ms)
+  ✓  139 [webkit] › tests/e2e/session-lifecycle.spec.ts:132:5 › deleted books return the same safe not-found policy (947ms)
+  ✘  127 [webkit] › tests/e2e/review-share.spec.ts:22:5 › save, draft and share review outcomes (6.9s)
+(node:77526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  141 [webkit] › tests/e2e/routes.spec.ts:87:5 › locale metadata and public route boundaries remain intact (1.2s)
+  ✓  132 [webkit] › tests/e2e/recall.spec.ts:88:5 › consent quota foreign and empty recall states (5.3s)
+  ✓  137 [webkit] › tests/e2e/timer.spec.ts:39:5 › timer starts, pauses, resumes, stops and survives refresh (2.4s)
+  ✓  142 [webkit] › tests/e2e/session-lifecycle.spec.ts:141:5 › return-to login reloads the allowlisted deep link after authentication (1.3s)
+  ✓  144 [webkit] › tests/e2e/recall.spec.ts:132:5 › history deletion is idempotent (1.1s)
+  ✓  145 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at mobile in dark theme (1.1s)
+  ✓  143 [webkit] › tests/e2e/review-share.spec.ts:56:5 › consent is required before generating a draft (1.3s)
+  ✓  146 [webkit] › tests/e2e/timer.spec.ts:75:5 › stop caps sessions over eight hours (1.1s)
+  ✓  148 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at mobile in light theme (1.1s)
+  ✓  151 [webkit] › tests/e2e/timer.spec.ts:86:5 › minimum sessions are discarded (1.0s)
+  ✓  150 [webkit] › tests/e2e/review-share.spec.ts:63:5 › provider failure preserves an unsaved review (1.2s)
+  ✓  149 [webkit] › tests/e2e/web-push.spec.ts:66:5 › permission settings and deep-link registration (1.3s)
+  ✓  147 [webkit] › tests/e2e/session-lifecycle.spec.ts:159:5 › logout from a private deep link ends on sign-in and never reuses the link (2.6s)
+  ✓  152 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at desktop in dark theme (999ms)
+  ✓  153 [webkit] › tests/e2e/timer.spec.ts:98:5 › duplicate stop is harmless (1.0s)
+  ✓  155 [webkit] › tests/e2e/web-push.spec.ts:93:5 › denied browser state remains recoverable (956ms)
+  ✓  156 [webkit] › tests/e2e/session-lifecycle.spec.ts:180:5 › network loss during auth bootstrap exposes a safe unavailable boundary (835ms)
+  ✓  157 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › ko responsive BLab primitives at desktop in light theme (978ms)
+  ✓  159 [webkit] › tests/e2e/web-push.spec.ts:102:5 › unsupported browser keeps the in-app fallback (870ms)
+  ✓  158 [webkit] › tests/e2e/timer.spec.ts:114:5 › logout clears browser timer state (996ms)
+  ✓  160 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at mobile in dark theme (882ms)
+  ✓  161 [webkit] › tests/e2e/web-push.spec.ts:110:5 › foreign subscription payload is rejected (847ms)
+  ✓  162 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at mobile in light theme (862ms)
+  ✓  163 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at desktop in dark theme (875ms)
+  ✓  164 [webkit] › tests/e2e/ui-primitives.spec.ts:77:11 › en responsive BLab primitives at desktop in light theme (882ms)
+  ✓  165 [webkit] › tests/e2e/ui-primitives.spec.ts:121:5 › keyboard activation and focus contract (1.1s)
+  ✘  154 [webkit] › tests/e2e/review-share.spec.ts:73:5 › clipboard failure uses the download fallback (30.0s)
+
+
+  1) [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile ───────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: '새로고침' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: '새로고침' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: '새로고침' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-ko-BLDS-consumer-contract-at-mobile-webkit/error-context.md
+
+  2) [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop ──────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: '새로고침' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: '새로고침' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: '새로고침' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-ko-BLDS-consumer-contract-at-desktop-webkit/error-context.md
+
+  3) [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile ───────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: 'Refresh' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: 'Refresh' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Refresh' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-en-BLDS-consumer-contract-at-mobile-webkit/error-context.md
+
+  4) [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop ──────────
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('button', { name: 'Refresh' }).first()
+    Expected: "button"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: 'Refresh' }).first() with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Refresh' }).first()
+
+
+      25 |           name: locale === "ko" ? "새로고침" : "Refresh",
+      26 |         }).first();
+    > 27 |         await expect(refreshButton).toHaveAttribute("data-blab-component", "button");
+         |                                     ^
+      28 |         await refreshButton.focus();
+      29 |         await expect(refreshButton).toBeFocused();
+      30 |         await refreshButton.click();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:27:37
+
+    Error Context: test-results/blab-parity-en-BLDS-consumer-contract-at-desktop-webkit/error-context.md
+
+  5) [webkit] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "/en/home"
+    Received: null
+
+      86 |
+      87 |   if (destination.pathname === "/en/auth/sign-in") {
+    > 88 |     expect(destination.searchParams.get("next")).toBe("/en/home");
+         |                                                  ^
+      89 |     return;
+      90 |   }
+      91 |
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/blab-parity.spec.ts:88:50
+
+    Error Context: test-results/blab-parity-missing-sessio-bd6c8-losed-for-the-consumer-home-webkit/error-context.md
+
+  6) [webkit] › tests/e2e/consumer-shell.spec.ts:27:5 › desktop shell exposes exactly five tabs, deep-link state, search modes and timer mount
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByTestId('consumer-desktop-navigation').getByRole('button', { name: 'Search' })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByTestId('consumer-desktop-navigation').getByRole('button', { name: 'Search' }) with timeout 5000ms
+      - waiting for getByTestId('consumer-desktop-navigation').getByRole('button', { name: 'Search' })
+        14 × locator resolved to <button type="button" aria-expanded="false" aria-controls="consumer-search-modes" class="mt-[var(--blab-space-lg)] flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--blab-glass-border)] px-4 text-sm font-medium text-[var(--blab-text-secondary)] transition hover:bg-[var(--blab-glass-fill)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--blab-color-primary)]">…</button>
+           - unexpected value "inactive"
+
+
+      44 |   await page.keyboard.press("Escape");
+      45 |   await expect(page.getByRole("dialog")).toHaveCount(0);
+    > 46 |   await expect(navigation.getByRole("button", { name: "Search" })).toBeFocused();
+         |                                                                    ^
+      47 |   await navigation.getByRole("button", { name: "Search" }).click();
+      48 |   const dialog = page.getByRole("dialog");
+      49 |   await dialog.getByRole("button", { name: "Close search modes" }).focus();
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/consumer-shell.spec.ts:46:68
+
+    Error Context: test-results/consumer-shell-desktop-she-867ef-earch-modes-and-timer-mount-webkit/error-context.md
+
+  7) [webkit] › tests/e2e/recall.spec.ts:23:5 › global recall search source expansion copy and history
+
+    Error: browserContext.grantPermissions: Unknown permission: clipboard-write
+
+      23 | test("global recall search source expansion copy and history", async ({ context, page }) => {
+      24 |   await setFixture(context, "recall-happy");
+    > 25 |   await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+         |                 ^
+      26 |   await page.setViewportSize({ width: 1440, height: 900 });
+      27 |   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+      28 |   await page.goto("/en/library?mode=recall", { waitUntil: "networkidle" });
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/recall.spec.ts:25:17
+
+    Error Context: test-results/recall-global-recall-searc-5dcd6--expansion-copy-and-history-webkit/error-context.md
+
+  8) [webkit] › tests/e2e/review-share.spec.ts:22:5 › save, draft and share review outcomes ────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('review-share-status')
+    Expected substring: "copied"
+    Received string:    "Shared using the browser share dialog."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('review-share-status') with timeout 5000ms
+      - waiting for getByTestId('review-share-status')
+        14 × locator resolved to <p role="status" data-testid="review-share-status" class="mt-4 text-sm text-[var(--blab-color-success)]">Shared using the browser share dialog.</p>
+           - unexpected value "Shared using the browser share dialog."
+
+
+      45 |
+      46 |   await page.getByTestId("review-share").click();
+    > 47 |   await expect(page.getByTestId("review-share-status")).toContainText("copied");
+         |                                                         ^
+      48 |   const download = page.waitForEvent("download");
+      49 |   await page.getByTestId("review-download").click();
+      50 |   await expect((await download).suggestedFilename()).toMatch(/share-card\.txt$/);
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/review-share.spec.ts:47:57
+
+    Error Context: test-results/review-share-save-draft-and-share-review-outcomes-webkit/error-context.md
+
+  9) [webkit] › tests/e2e/review-share.spec.ts:73:5 › clipboard failure uses the download fallback ─
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForEvent: Test timeout of 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for event "download"
+    ============================================================
+
+      80 |   });
+      81 |   await openReview(page, "review-share-happy");
+    > 82 |   const download = page.waitForEvent("download");
+         |                         ^
+      83 |   await page.getByTestId("review-share").click();
+      84 |   await expect((await download).suggestedFilename()).toMatch(/share-card\.txt$/);
+      85 |   await expect(page.getByTestId("review-share-status")).toContainText("downloaded");
+        at /private/tmp/bookgolas-web-448/web/tests/e2e/review-share.spec.ts:82:25
+
+    Error Context: test-results/review-share-clipboard-failure-uses-the-download-fallback-webkit/error-context.md
+
+  9 failed
+    [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at mobile ────────────
+    [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › ko BLDS consumer contract at desktop ───────────
+    [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at mobile ────────────
+    [webkit] › tests/e2e/blab-parity.spec.ts:17:9 › en BLDS consumer contract at desktop ───────────
+    [webkit] › tests/e2e/blab-parity.spec.ts:83:5 › missing-session fails closed for the consumer home
+    [webkit] › tests/e2e/consumer-shell.spec.ts:27:5 › desktop shell exposes exactly five tabs, deep-link state, search modes and timer mount
+    [webkit] › tests/e2e/recall.spec.ts:23:5 › global recall search source expansion copy and history
+    [webkit] › tests/e2e/review-share.spec.ts:22:5 › save, draft and share review outcomes ─────────
+    [webkit] › tests/e2e/review-share.spec.ts:73:5 › clipboard failure uses the download fallback ──
+  156 passed (1.6m)

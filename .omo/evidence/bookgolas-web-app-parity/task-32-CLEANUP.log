@@ -1,0 +1,19 @@
+Task 32 cleanup checks
+issue=445 parent=412 target=version/web/1.1.0
+feature_branch=codex/feature/web/1.1.0/BOK-445-web-push
+git_diff_check=pass
+json_parse=pass
+web_push_contract=pass
+negative_fixtures=9_pass
+browser_exact_happy=1_pass
+browser_exact_failure=3_pass
+full_npm_test=76_files_374_tests_pass
+typecheck=pass
+lint=pass_with_3_preexisting_img_warnings
+build=pass
+ownership_scope=verified_session_user_id_and_dedicated_web_subscription
+public_service_worker=canonical_same_origin_uuid_destination_only
+delivery_boundary=registration_only_unverified
+localized_copy=ko_and_en
+new_code_comments=none
+required_screenshot=task-32-bookgolas-web-app-parity.png

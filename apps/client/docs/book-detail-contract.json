@@ -1,0 +1,101 @@
+{
+  "issue": 433,
+  "plan": ".omo/plans/bookgolas-web-completion.md",
+  "native": {
+    "sources": [
+      "app/lib/ui/book_detail/book_detail_screen.dart:58",
+      "app/lib/ui/book_detail/widgets/tabs/detail_tab.dart",
+      "app/lib/domain/models/book.dart:88",
+      "app/lib/data/services/book_service.dart:10",
+      "supabase/migrations/20260113022313_add_reading_status_management.sql:1"
+    ],
+    "screens": ["book-detail", "reading-progress", "review", "mind-map"],
+    "modals": ["reading-management", "pause-reading-confirmation", "delete-confirmation", "batch-delete-confirmation", "book-info", "full-title", "edit-planned-book", "book-completion", "book-review-prompt"],
+    "actions": ["start", "resume", "pause", "complete", "delete"],
+    "statuses": ["planned", "reading", "completed", "will_retry"]
+  },
+  "web": {
+    "route": "/{locale}/books/{bookId}",
+    "api": "/api/consumer/book-detail",
+    "component": "BookDetailClient",
+    "browserDisposition": {
+      "detail": "route-and-component",
+      "pauseAndDeleteConfirmation": "browser-dialog",
+      "externalReviewAndStoreLinks": "https-allowlisted-browser-link",
+      "nativeShare": "browser-share-or-explicitly-unavailable",
+      "camera": "explicitly-unavailable-on-detail; use browser discovery fallback",
+      "subscription": "explicitly-unavailable"
+    },
+    "queryState": {
+      "history": "tab=history",
+      "scan": "scan=1",
+      "arraysOrUnknownValues": "ignored"
+    }
+  },
+  "locales": ["ko", "en"],
+  "states": [
+    "loading",
+    "ready",
+    "empty",
+    "error",
+    "unauthorized",
+    "consent",
+    "quota",
+    "offline",
+    "not-found",
+    "foreign",
+    "deleted",
+    "invalid-transition",
+    "updated",
+    "delete-confirmation",
+    "pause-reading-confirmation",
+    "reading-management",
+    "batch-delete-confirmation",
+    "book-info",
+    "full-title",
+    "edit-planned-book",
+    "book-completion",
+    "book-review-prompt",
+    "retry"
+  ],
+  "statusActions": {
+    "planned": ["start", "delete"],
+    "reading": ["pause", "complete", "delete"],
+    "completed": ["delete"],
+    "will_retry": ["resume", "delete"]
+  },
+  "ownership": {
+    "read": "verified session user plus id match plus deleted_at is null",
+    "write": "verified session user plus id match plus deleted_at is null",
+    "softDelete": "set deleted_at and hide aggregate/dependent reads",
+    "callerIdentity": "never accepted from request payload"
+  },
+  "deepLinks": {
+    "search": "/{locale}/books/new",
+    "detail": "/{locale}/books/{bookId}",
+    "record": "/{locale}/books/{bookId}?tab=history",
+    "scan": "/{locale}/books/{bookId}?scan=1"
+  },
+  "mutationSafety": {
+    "duplicateClientSubmit": "disabled while pending; the action key is bound to book, action and revision, and replay returns HTTP 409 without a second mutation",
+    "statusConflict": "server validates the current owner-scoped status and atomically compares updated_at before every transition",
+    "plannedEditConflict": "missing If-Match returns 428, malformed quoting returns 400, and a stale quoted updatedAt revision returns 409"
+  },
+  "cacheInvalidation": [
+    "/{locale}/home",
+    "/{locale}/library",
+    "/{locale}/books/{bookId}",
+    "/{locale}/reading/{bookId}",
+    "/{locale}/books/{bookId}/review",
+    "/{locale}/books/{bookId}/mind-map"
+  ],
+  "nativeOnly": [
+    { "capability": "ios-widget", "browserDisposition": "explicit-unavailability" },
+    { "capability": "siri-app-shortcuts", "browserDisposition": "explicit-unavailability" },
+    { "capability": "native-push", "browserDisposition": "explicit-unavailability" },
+    { "capability": "camera", "browserDisposition": "explicit-unavailability" },
+    { "capability": "share-sheet", "browserDisposition": "browser-share-or-explicitly-unavailable" },
+    { "capability": "subscription", "browserDisposition": "explicit-unavailability" }
+  ],
+  "evidence": ".omo/evidence/bookgolas-web-completion/task-11-bookgolas-web-completion.md"
+}

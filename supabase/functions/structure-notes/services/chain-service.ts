@@ -5,15 +5,13 @@ import {
 } from "../prompts/classification.ts";
 import { summaryPrompt, SummaryResult } from "../prompts/summary.ts";
 import { connectionPrompt, ConnectionResult } from "../prompts/connection.ts";
-import type { Cluster, Connection, Node, NoteStructure } from "../types.ts";
+import type { NoteStructure, Cluster, Node, Connection } from "../types.ts";
 import {
-  AI_MAX_OUTPUT_TOKENS,
-  AI_PROVIDER_TIMEOUT_MS,
-} from "../../_shared/ai-usage.ts";
-import type {
-  AiBudgetContext,
-  AiProviderOperation,
-} from "../../_shared/ai-usage.ts";
+  assertProviderInputSize,
+  fetchProvider,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  PROVIDER_TIMEOUT_MS,
+} from "../../_shared/consumer-contract.ts";
 
 export interface ContentItem {
   id: string;
@@ -93,9 +91,16 @@ export class ChainService {
       openAIApiKey: apiKey,
       modelName: "gpt-4o-mini",
       temperature: 0.3,
-      maxTokens: AI_MAX_OUTPUT_TOKENS,
+      timeout: PROVIDER_TIMEOUT_MS,
       maxRetries: 0,
-      timeout: AI_PROVIDER_TIMEOUT_MS,
+      configuration: {
+        fetch: (input, init) => fetchProvider(
+          input,
+          init ?? {},
+          PROVIDER_TIMEOUT_MS,
+          MAX_PROVIDER_RESPONSE_BYTES,
+        ),
+      },
     });
   }
 
@@ -160,25 +165,9 @@ export class ChainService {
     contents: string,
   ): Promise<ClassificationResult> {
     const formattedPrompt = await classificationPrompt.format({ contents });
-    const response = await this.runProviderCall(
-      formattedPrompt,
-      {
-        functionName: "structure-notes",
-        feature: "structure-notes.classification",
-        provider: "open_ai",
-        model: "gpt-4o-mini",
-        promptVersion: "structure-classification-v1",
-        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
-        requireOutputTokens: true,
-      },
-      async () => {
-        const value = await this.llm.invoke(formattedPrompt);
-        return { value, usage: value };
-      },
-    );
-    return this.parseJsonResponse<ClassificationResult>(
-      response.content as string,
-    );
+    assertProviderInputSize(formattedPrompt);
+    const response = await this.llm.invoke(formattedPrompt);
+    return this.parseJsonResponse<ClassificationResult>(response.content as string);
   }
 
   private formatClusteredContents(
@@ -207,22 +196,8 @@ export class ChainService {
 
   private async runSummary(clusteredContents: string): Promise<SummaryResult> {
     const formattedPrompt = await summaryPrompt.format({ clusteredContents });
-    const response = await this.runProviderCall(
-      formattedPrompt,
-      {
-        functionName: "structure-notes",
-        feature: "structure-notes.summary",
-        provider: "open_ai",
-        model: "gpt-4o-mini",
-        promptVersion: "structure-summary-v1",
-        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
-        requireOutputTokens: true,
-      },
-      async () => {
-        const value = await this.llm.invoke(formattedPrompt);
-        return { value, usage: value };
-      },
-    );
+    assertProviderInputSize(formattedPrompt);
+    const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<SummaryResult>(response.content as string);
   }
 
@@ -260,25 +235,9 @@ ${clusterContents}`;
   private async runConnection(
     summarizedClusters: string,
   ): Promise<ConnectionResult> {
-    const formattedPrompt = await connectionPrompt.format({
-      summarizedClusters,
-    });
-    const response = await this.runProviderCall(
-      formattedPrompt,
-      {
-        functionName: "structure-notes",
-        feature: "structure-notes.connection",
-        provider: "open_ai",
-        model: "gpt-4o-mini",
-        promptVersion: "structure-connection-v1",
-        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
-        requireOutputTokens: true,
-      },
-      async () => {
-        const value = await this.llm.invoke(formattedPrompt);
-        return { value, usage: value };
-      },
-    );
+    const formattedPrompt = await connectionPrompt.format({ summarizedClusters });
+    assertProviderInputSize(formattedPrompt);
+    const response = await this.llm.invoke(formattedPrompt);
     return this.parseJsonResponse<ConnectionResult>(response.content as string);
   }
 
