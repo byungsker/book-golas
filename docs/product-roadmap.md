@@ -88,14 +88,16 @@ Exit gate:
   path.
 - Store metadata, privacy disclosures, review notes, and release evidence match
   the shipped binary.
-- byungsker explicitly approves the external release action.
+- Backend-service 1.0.2 remains excluded from production execution until its
+  project, source SHA, runtime checks, and deployment authority are verified.
+- Explicit approval is required before any external release action.
 
 ## P1 — Android / Google Play readiness
 
 - Confirm `com.bookgolas.app` as the Android application ID and register it in
   the authorized Google Play account.
 - Verify Firebase Android configuration, release keystore ownership, and
-  secret-safe CI or local build configuration.
+  secret-safe local build configuration.
 - Produce and inspect a signed Android App Bundle (`.aab`).
 - Run Android device and regression checks, including the camera flow called out
   in the 1.0.2 release audit.
@@ -113,7 +115,7 @@ unverified.
 - Complete any Google Play account-specific tester and production-access
   requirements.
 - Submit the production release for review only after the launch packet is
-  complete and byungsker gives explicit publication authority.
+  complete and explicit publication authority is recorded.
 - Verify the public listing, install, sign-in, core reading flow, analytics,
   support entrypoint, and rollback/hold criteria after approval.
 
@@ -222,7 +224,7 @@ BOK-419, BOK-420, BOK-421.
 
 ## Current evidence and unknowns
 
-- iOS release state is connected in the Company Control Plane.
+- iOS release state requires verification.
 - Google Play public listing is not yet connected or released.
 - Android signing readiness, Play Console app registration, and final Android
   runtime evidence require verification during P1.

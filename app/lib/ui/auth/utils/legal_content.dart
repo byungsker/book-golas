@@ -165,7 +165,7 @@ class LegalContent {
 <style>${_baseStyle(isDark)}</style></head>
 <body>
 <h1>개인정보처리방침</h1>
-<p class="subtitle">시행일: 2026년 1월 1일</p>
+<p class="subtitle">시행일: 2026년 7월 31일</p>
 
 <h2>제1조 (수집하는 개인정보)</h2>
 <p>서비스는 다음과 같은 개인정보를 수집합니다:</p>
@@ -190,22 +190,29 @@ class LegalContent {
 
 <h2>제3조 (보관 기간)</h2>
 <ul>
-<li>회원 탈퇴 시 개인정보는 즉시 파기됩니다.</li>
+<li>회원 탈퇴 처리 시 서비스가 관리하는 계정과 독서 데이터는 삭제됩니다.</li>
 <li>관계 법령에 의해 보존이 필요한 경우 해당 기간 동안 보관합니다.</li>
+<li>Google Cloud Vision 온라인 OCR 요청의 이미지 데이터는 메모리에서 처리되고 디스크에 저장되지 않으며, 요청 시각과 크기 등의 일부 메타데이터는 서비스 개선과 오남용 방지를 위해 일시적으로 기록될 수 있습니다.</li>
+<li>OpenAI API 입력과 출력은 기본적으로 모델 학습에 사용되지 않습니다. 다만 오남용 모니터링 로그에 고객 콘텐츠와 메타데이터가 포함될 수 있고, 기본 설정에서는 최대 30일간 보관될 수 있으며 서비스·제3자 보호에 합리적으로 필요하거나 법적 의무가 있으면 더 오래 보관될 수 있습니다.</li>
 </ul>
 
-<h2>제4조 (제3자 제공)</h2>
-<p>서비스는 이용자의 개인정보를 원칙적으로 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다:</p>
-<ul>
-<li>이용자가 사전에 동의한 경우</li>
-<li>법령의 규정에 의거하거나 수사 목적으로 법정 절차에 따라 요청이 있는 경우</li>
-</ul>
-<p>서비스는 다음과 같은 외부 서비스를 이용합니다:</p>
+<h2>제4조 (외부 처리 및 제3자 제공)</h2>
+<p>서비스는 기능 제공에 필요한 범위에서 다음 외부 업체를 이용합니다. Google Cloud Vision과 OpenAI 전송은 이용자가 앱에서 해당 업체에 명시적으로 동의한 경우에만 이루어집니다.</p>
 <ul>
 <li><strong>Supabase:</strong> 데이터 저장 및 인증 (AWS 클라우드)</li>
 <li><strong>Firebase:</strong> 푸시 알림 서비스</li>
 <li><strong>Google AdMob:</strong> 광고 제공 및 광고 성과 측정</li>
+<li><strong>Google Cloud Vision:</strong> 이용자가 선택하거나 자른 책 페이지 이미지의 텍스트 추출</li>
+<li><strong>OpenAI:</strong> 이용자가 요청한 AI 검색, 요약, 인사이트, 추천 및 글쓰기 지원을 위해 필요한 책 제목, 독서 기록, 메모, 하이라이트, OCR 텍스트, 평점, 리뷰와 질문 처리</li>
 </ul>
+<h3>제4조의2 (선택 동의에 따른 국외 이전)</h3>
+<p>개인정보 보호법 제28조의8 제1항 제1호의 별도 동의를 근거로 아래 정보를 국외 이전합니다. 각 이전은 선택 사항이며 이용자는 동의하지 않을 수 있습니다.</p>
+<ul>
+<li><strong>Google Cloud Vision:</strong> 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트를 OCR 실행 시마다 TLS로 암호화하여 미국 리전 엔드포인트로 전송합니다. 제공받는 자는 Google LLC(1600 Amphitheatre Parkway, Mountain View, CA 94043, USA)이며 Google Cloud 개인정보 보호 문의 양식은 cloud.google.com/privacy에서 확인할 수 있습니다. 목적은 이미지 문자 추출입니다. 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 공개된 정확한 기간 없이 보안·운영을 위해 일시적으로 기록될 수 있습니다.</li>
+<li><strong>OpenAI:</strong> 기능에 필요한 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계와 질문을 TLS로 암호화하여 전송합니다. 주된 이전 국가와 제공받는 자는 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA, privacy@openai.com)입니다. 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 조건부로 처리할 수 있습니다(openai.com/policies/sub-processor-list). 사용자가 AI 기능을 실행할 때 전송하며, 추천 화면 진입 시 캐시가 없거나 만료되면 추천을 자동 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 의미 검색용 임베딩을 자동 생성할 수 있습니다. 목적은 AI 검색·요약·인사이트·추천·글쓰기 지원과 의미 검색용 임베딩 제공입니다. API 입출력은 기본적으로 모델 학습에 사용되지 않습니다. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있습니다.</li>
+</ul>
+<p>Google 이전을 거부하면 OCR을 사용할 수 없지만 직접 입력과 다른 독서 관리 기능은 이용할 수 있습니다. OpenAI 이전을 거부하면 OpenAI 기반 AI 기능과 의미 검색을 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 업체별로 동의하거나 철회할 수 있습니다. 철회 성공이 서버에서 확인된 뒤 시작하는 새 요청은 차단되며 이미 시작된 요청은 완료될 수 있습니다. 고지 내용이나 처리 국가 등 중요 사항이 변경되면 새 고지 버전으로 다시 동의를 받습니다.</p>
+<p>법령의 규정에 따르거나 적법한 절차에 따른 요청이 있는 경우에는 필요한 범위에서 정보가 제공될 수 있습니다.</p>
 
 <h2>제5조 (이용자의 권리)</h2>
 <p>이용자는 다음과 같은 권리를 행사할 수 있습니다:</p>
@@ -214,7 +221,9 @@ class LegalContent {
 <li>개인정보 처리 정지 요청</li>
 <li>계정 삭제를 통한 모든 개인정보 파기 요청</li>
 <li>앱 내 마이페이지에서 프로필 정보 직접 수정 가능</li>
+<li>마이페이지의 AI 데이터 공유 설정에서 Google Cloud Vision 또는 OpenAI에 대한 동의를 개별적으로 철회 가능</li>
 </ul>
+<p>동의 철회 성공이 서버에서 확인되면 그 뒤 시작하는 새 요청의 전송이 중단됩니다. 이미 시작된 요청은 완료될 수 있습니다. 철회 전에 생성된 외부 처리 로그의 삭제 또는 보관은 각 업체의 정책과 법적 의무에 따릅니다. 관련 요청은 고객 지원으로 문의할 수 있습니다.</p>
 
 <h2>제6조 (개인정보의 안전성 확보 조치)</h2>
 <ul>
@@ -235,7 +244,7 @@ class LegalContent {
 <style>${_baseStyle(isDark)}</style></head>
 <body>
 <h1>Privacy Policy</h1>
-<p class="subtitle">Effective Date: January 1, 2026</p>
+<p class="subtitle">Effective Date: July 31, 2026</p>
 
 <h2>1. Personal Information Collected</h2>
 <p>The Service collects the following personal information:</p>
@@ -260,22 +269,29 @@ class LegalContent {
 
 <h2>3. Retention Period</h2>
 <ul>
-<li>Personal information is deleted immediately upon account deletion.</li>
+<li>Account and reading data controlled by the Service are deleted when account deletion is processed.</li>
 <li>Information is retained for the period required by applicable law when legal retention obligations apply.</li>
+<li>For online Google Cloud Vision OCR requests, image data is processed in memory and is not persisted to disk. Some request metadata, such as request time and size, may be logged temporarily for service improvement and abuse prevention.</li>
+<li>OpenAI API inputs and outputs are not used for model training by default. Abuse-monitoring logs may include customer content and metadata and, under default settings, may be retained for up to 30 days or longer when reasonably necessary to protect services or third parties or when legally required.</li>
 </ul>
 
-<h2>4. Disclosure to Third Parties</h2>
-<p>The Service does not, in principle, provide personal information to third parties. Exceptions include:</p>
-<ul>
-<li>When the user has given prior consent</li>
-<li>When required by law or through legal procedures for investigative purposes</li>
-</ul>
-<p>The Service uses the following external services:</p>
+<h2>4. External Processing and Third-Party Disclosure</h2>
+<p>The Service uses the following providers only as needed to deliver its features. Data is sent to Google Cloud Vision or OpenAI only after the user explicitly consents to that provider in the app.</p>
 <ul>
 <li><strong>Supabase:</strong> Data storage and authentication (AWS Cloud)</li>
 <li><strong>Firebase:</strong> Push notification service</li>
 <li><strong>Google AdMob:</strong> Ad delivery and performance measurement</li>
+<li><strong>Google Cloud Vision:</strong> Text extraction from a book page image selected or cropped by the user</li>
+<li><strong>OpenAI:</strong> Processing the book titles, reading records, notes, highlights, OCR text, ratings, reviews, and questions needed to provide user-requested AI search, summaries, insights, recommendations, and writing assistance</li>
 </ul>
+<h3>4.1 Optional Overseas Transfers</h3>
+<p>Bookgolas relies on separate optional consent for the following overseas transfers.</p>
+<ul>
+<li><strong>Google Cloud Vision:</strong> A selected, captured, or cropped book-page image and Korean/English language hints are sent with TLS encryption to the US regional endpoint each time OCR runs. The recipient is Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA; the Google Cloud privacy contact form is at cloud.google.com/privacy. The purpose is image text extraction. The image is processed in memory and is not persisted by the online Vision service; request metadata may be logged temporarily for security and operations without a published exact duration.</li>
+<li><strong>OpenAI:</strong> As needed, book title, author, genre, reading status and dates, page progress, rating, review, notes, highlights, OCR text, reading pace, goal achievement, attempts, engagement statistics, and the user's question are transferred with TLS encryption. The primary country and recipient are the United States and OpenAI OpCo, LLC, 1455 3rd Street, San Francisco, CA 94158, USA, privacy@openai.com. When global network routing, infrastructure, security review, or support applies, OpenAI's disclosed subprocessors may process data conditionally in their disclosed countries (openai.com/policies/sub-processor-list). Data is sent when the user runs an AI feature; recommendations are generated automatically when the recommendation screen opens and the cache is missing or expired, and embeddings may be generated automatically when a note, highlight, or OCR record is saved after consent. The purposes are AI search, summaries, insights, recommendations, writing assistance, and semantic-search embeddings. API input and output are not used for training by default. Abuse-monitoring logs may be retained up to 30 days (longer for protection or legal needs), and prompt-cache application state may be retained up to 24 hours when applicable.</li>
+</ul>
+<p>Refusing Google transfer disables OCR but manual entry and other reading-management features remain available. Refusing OpenAI transfer disables OpenAI-powered AI features and semantic search but other reading-management features remain available. Consent can be granted or withdrawn separately in My Page. New requests started after withdrawal is confirmed by the server are blocked; a request already underway may finish. Material disclosure changes, including processing-location changes, require consent to the new disclosure version.</p>
+<p>Information may also be disclosed to the extent required by law or a valid legal process.</p>
 
 <h2>5. User Rights</h2>
 <p>Users may exercise the following rights:</p>
@@ -284,7 +300,9 @@ class LegalContent {
 <li>Request to suspend processing of personal information</li>
 <li>Request deletion of all personal information by deleting their account</li>
 <li>Directly modify profile information through the My Page section in the app</li>
+<li>Withdraw consent for Google Cloud Vision or OpenAI separately in the AI Data Sharing section of My Page</li>
 </ul>
+<p>Withdrawal stops future transfers to that provider. Deletion or retention of external processing logs created before withdrawal is governed by each provider's policies and legal obligations. Users may contact customer support for related requests.</p>
 
 <h2>6. Security Measures</h2>
 <ul>

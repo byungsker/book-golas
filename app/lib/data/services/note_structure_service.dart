@@ -2,32 +2,53 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/note_structure_models.dart';
 
 class NoteStructureService {
   static final NoteStructureService _instance =
       NoteStructureService._internal();
 
-  factory NoteStructureService({SupabaseClient? supabaseClient}) {
-    if (supabaseClient != null) {
-      _instance._supabase = supabaseClient;
+  factory NoteStructureService({
+    SupabaseClient? supabaseClient,
+    ThirdPartyAiConsentService? consentService,
+  }) {
+    if (supabaseClient != null && consentService != null) {
+      return NoteStructureService._withDependencies(
+        supabaseClient,
+        consentService,
+      );
     }
     return _instance;
   }
 
-  NoteStructureService._internal();
+  NoteStructureService._internal()
+      : _supabase = Supabase.instance.client,
+        _consentService = ThirdPartyAiConsentService();
 
-  late SupabaseClient _supabase = Supabase.instance.client;
+  NoteStructureService._withDependencies(
+    this._supabase,
+    this._consentService,
+  );
+
+  final SupabaseClient _supabase;
+  final ThirdPartyAiConsentService _consentService;
 
   /// Call Edge Function to generate note structure
   /// Returns null on error or timeout
   Future<NoteStructure?> structureNotes(String bookId) async {
     try {
+      final consent =
+          await _consentService.hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint('Note structure request blocked because consent is missing');
+        return null;
+      }
+
       debugPrint('🧠 Structuring notes for book: $bookId');
 
-      final response = await _supabase.functions
-          .invoke('structure-notes', body: {'bookId': bookId})
-          .timeout(const Duration(seconds: 60));
+      final response = await _supabase.functions.invoke('structure-notes',
+          body: {'bookId': bookId}).timeout(const Duration(seconds: 60));
 
       debugPrint('🧠 Structure response status: ${response.status}');
 

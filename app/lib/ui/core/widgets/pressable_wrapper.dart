@@ -114,6 +114,22 @@ class _BLabPressableWrapperState extends State<BLabPressableWrapper>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return GestureDetector(
+        key: _key,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress == null
+            ? null
+            : () {
+                if (widget.enableHaptic) {
+                  HapticFeedback.mediumImpact();
+                }
+                widget.onLongPress!();
+              },
+        child: widget.child,
+      );
+    }
+
     return GestureDetector(
       key: _key,
       onTapDown: _onTapDown,

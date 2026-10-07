@@ -12,6 +12,7 @@ import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/confirmation_bottom_sheet.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 
 class BookReviewScreen extends StatefulWidget {
   final Book book;
@@ -277,6 +278,14 @@ class _BookReviewScreenState extends State<BookReviewScreen> {
 
       if (shouldReplace != true) return;
     }
+
+    if (!mounted) return;
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      feature: ThirdPartyAiFeature.reviewDraft,
+    );
+    if (!consent) return;
+    if (!mounted) return;
 
     setState(() {
       _isGeneratingAI = true;

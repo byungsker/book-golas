@@ -1,7 +1,11 @@
 {
   "imports": {
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.110.8",
     "@langchain/openai": "npm:@langchain/openai@0.3.0",
     "@langchain/core/prompts": "npm:@langchain/core@0.3.0/prompts"
+  },
+  "lock": {
+    "path": "deno.lock",
+    "frozen": true
   }
 }

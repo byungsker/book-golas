@@ -1,9 +1,9 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import type {
-  UserReadingProfile,
-  Recommendation,
   BookReadingAnalytics,
+  Recommendation,
+  UserReadingProfile,
 } from "../types.ts";
 import { config } from "../config.ts";
 import {
@@ -95,9 +95,22 @@ export class RecommendationService {
   private llm: ChatOpenAI;
   private promptTemplate: PromptTemplate;
   private locale: string;
+  private readonly runProviderCall: <T>(
+    input: string,
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>;
 
-  constructor(locale: string = 'ko') {
+  constructor(
+    runProviderCall: <T>(
+      input: string,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
+    locale: string = "ko",
+  ) {
     this.locale = locale;
+    this.runProviderCall = runProviderCall;
     this.llm = new ChatOpenAI({
       openAIApiKey: config.openai.apiKey,
       modelName: config.openai.model,
@@ -114,25 +127,26 @@ export class RecommendationService {
       },
     });
 
-    const promptText = locale === 'ko' ? PROMPT_KO : PROMPT_EN;
+    const promptText = locale === "ko" ? PROMPT_KO : PROMPT_EN;
     this.promptTemplate = PromptTemplate.fromTemplate(promptText);
   }
 
   async generate(profile: UserReadingProfile): Promise<Recommendation[]> {
     const booksDetail = this.formatBooksDetail(profile.books);
     const highlightsContext = this.formatHighlights(
-      profile.interests.topHighlights
+      profile.interests.topHighlights,
     );
 
-    const noneText = this.locale === 'ko' ? '(없음)' : '(none)';
-    const diverseText = this.locale === 'ko' ? '다양' : 'Various';
+    const noneText = this.locale === "ko" ? "(없음)" : "(none)";
+    const diverseText = this.locale === "ko" ? "다양" : "Various";
 
     const formattedPrompt = await this.promptTemplate.format({
       recommendCount: config.recommendation.count,
       totalBooks: profile.stats.totalBooksCompleted,
       avgRating: profile.stats.averageRating,
-      favoriteGenres:
-        profile.stats.favoriteGenres.map((g) => g.genre).join(", ") || diverseText,
+      favoriteGenres: profile.stats.favoriteGenres.map((g) =>
+        g.genre
+      ).join(", ") || diverseText,
       avgDays: profile.stats.averageCompletionDays,
       highEngagement: profile.stats.highEngagementBookCount,
       booksDetail,
@@ -141,39 +155,60 @@ export class RecommendationService {
     });
     assertProviderInputSize(formattedPrompt);
 
-    const response = await this.llm.invoke(formattedPrompt);
+    const response = await this.runProviderCall(
+      formattedPrompt,
+      {
+        functionName: "recommend-next-books",
+        feature: "recommend-next-books",
+        provider: "open_ai",
+        model: "gpt-4o-mini",
+        promptVersion: "recommendations-v1",
+        maxOutputTokens: AI_MAX_OUTPUT_TOKENS,
+        requireOutputTokens: true,
+      },
+      async () => {
+        const value = await this.llm.invoke(formattedPrompt);
+        return { value, usage: value };
+      },
+    );
     return this.parseResponse(response.content as string);
   }
 
   private formatBooksDetail(books: BookReadingAnalytics[]): string {
-    const unclassifiedText = this.locale === 'ko' ? '미분류' : 'Uncategorized';
-    const noneText = this.locale === 'ko' ? '없음' : 'None';
-    const completedFirstTryText = this.locale === 'ko' ? '(단번 완독)' : '(completed first try)';
+    const unclassifiedText = this.locale === "ko" ? "미분류" : "Uncategorized";
+    const noneText = this.locale === "ko" ? "없음" : "None";
+    const completedFirstTryText = this.locale === "ko"
+      ? "(단번 완독)"
+      : "(completed first try)";
 
     return books
       .slice(0, config.recommendation.maxBooksToAnalyze)
       .map(
         (b, idx) => `
-${idx + 1}. "${b.title}" (${b.author})
+${
+          idx + 1
+        }. "${b.title}" (${b.author})
    - Genre: ${b.genre || unclassifiedText}
    - Completed in: ${b.daysToComplete} days (avg ${b.averagePagesPerDay}p/day)
    - Engagement: ${b.highlightCount} highlights, ${b.noteCount} notes
    - Rating: ${b.rating ? `${b.rating}/5` : noneText}
    - Daily goal achievement: ${b.dailyGoalAchievementRate}%
-   - Attempts: ${b.attemptCount} ${b.attemptCount === 1 ? completedFirstTryText : ""}
-        `
+   - Attempts: ${b.attemptCount} ${
+          b.attemptCount === 1 ? completedFirstTryText : ""
+        }
+        `,
       )
       .join("\n");
   }
 
   private formatHighlights(
-    highlights: Array<{ content: string; bookTitle: string }>
+    highlights: Array<{ content: string; bookTitle: string }>,
   ): string {
     return highlights
       .slice(0, 5)
       .map(
         (h, idx) =>
-          `${idx + 1}. "${h.content.substring(0, 100)}..." (${h.bookTitle})`
+          `${idx + 1}. "${h.content.substring(0, 100)}..." (${h.bookTitle})`,
       )
       .join("\n");
   }

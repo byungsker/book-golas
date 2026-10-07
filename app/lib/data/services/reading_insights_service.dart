@@ -4,7 +4,15 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:book_golas/data/services/third_party_ai_consent_service.dart';
 import 'package:book_golas/domain/models/reading_insight.dart';
+
+class ThirdPartyAiConsentRequiredException implements Exception {
+  const ThirdPartyAiConsentRequiredException();
+
+  @override
+  String toString() => 'third_party_ai_consent_required';
+}
 
 class ReadingInsightsService {
   static final ReadingInsightsService _instance =
@@ -12,7 +20,7 @@ class ReadingInsightsService {
   factory ReadingInsightsService() => _instance;
   ReadingInsightsService._internal();
 
-  final SupabaseClient _supabase = Supabase.instance.client;
+  SupabaseClient get _supabase => Supabase.instance.client;
   static const String _memoryTableName = 'reading_insights_memory';
   static const String _rateLimitTableName = 'reading_insights_rate_limit';
   static const String _edgeFunctionName = 'reading-insights';
@@ -21,6 +29,14 @@ class ReadingInsightsService {
   /// Edge Function을 호출하여 새로운 인사이트 생성
   Future<List<ReadingInsight>> generateInsight(String userId) async {
     try {
+      final consent = await ThirdPartyAiConsentService()
+          .hasConsent(ThirdPartyAiProvider.openAi);
+      if (!consent) {
+        debugPrint(
+            'Reading insight request blocked because consent is missing');
+        throw const ThirdPartyAiConsentRequiredException();
+      }
+
       final response = await _supabase.functions.invoke(
         _edgeFunctionName,
         body: {'userId': userId},
@@ -40,6 +56,8 @@ class ReadingInsightsService {
           .toList();
 
       return insights;
+    } on ThirdPartyAiConsentRequiredException {
+      rethrow;
     } on TimeoutException {
       throw Exception(
           'Insight generation timed out after $_timeoutSeconds seconds');

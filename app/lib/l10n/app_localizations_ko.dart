@@ -36,6 +36,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonRetry => '다시 시도';
 
   @override
+  String get deepLinkBookUnavailableTitle => '책을 열 수 없습니다';
+
+  @override
+  String get deepLinkBookUnavailableDescription =>
+      '요청한 책이 삭제되었거나 현재 계정에서 더 이상 볼 수 없습니다. 서재에서 책을 확인한 뒤 다시 시도해 주세요.';
+
+  @override
+  String get deepLinkBookUnavailableAction => '서재로 돌아가기';
+
+  @override
   String get commonNext => '다음';
 
   @override
@@ -51,10 +61,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navLibrary => '서재';
 
   @override
-  String get navStats => '상태';
+  String get navStats => '통계';
 
   @override
   String get navCalendar => '캘린더';
+
+  @override
+  String get navSearch => '검색';
+
+  @override
+  String get navHomeCompact => '홈';
+
+  @override
+  String get navLibraryCompact => '서재';
+
+  @override
+  String get navStatsCompact => '통계';
+
+  @override
+  String get navCalendarCompact => '달력';
+
+  @override
+  String get navSearchHint => '탭하여 검색하고 길게 눌러 검색 방식을 선택합니다.';
 
   @override
   String booksCount(int count) {
@@ -229,6 +257,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookDetailTargetDate => '목표일';
+
+  @override
+  String get bookDetailEditTargetDate => '목표일 수정';
 
   @override
   String get bookDetailReviewWritten => '작성됨';
@@ -826,6 +857,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageNotificationsDisabled => '알림이 비활성화되었습니다';
 
   @override
+  String get myPageNotificationPermissionTitle => '설정에서 알림을 허용해 주세요';
+
+  @override
+  String get myPageNotificationPermissionDenied =>
+      '기기 설정에서 북골라스 알림을 켠 뒤 다시 시도해 주세요.';
+
+  @override
+  String get myPageOpenSettings => '설정 열기';
+
+  @override
+  String get myPageNotificationPermissionRequestFailed =>
+      '알림을 켜지 못했어요. 이 안내를 닫은 뒤 스위치를 다시 켜 주세요.';
+
+  @override
   String get myPageNotificationSettingsFailed => '알림 설정 변경에 실패했습니다';
 
   @override
@@ -940,6 +985,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String readingStartAIRecommendationDesc(String userName) {
     return '$userName님의 독서 패턴을 분석하여 추천하는 책들이에요';
   }
+
+  @override
+  String get readingStartAiRecommendationConsentTitle => '맞춤 도서 추천을 받아보세요';
+
+  @override
+  String get readingStartAiRecommendationConsentDescription =>
+      '독서 기록을 분석하기 전에 OpenAI 데이터 제공 내용을 확인해 주세요. 허용하기 전에는 아무 정보도 전송하지 않습니다.';
+
+  @override
+  String get readingStartAiRecommendationConsentAction => '데이터 제공 내용 확인';
 
   @override
   String get readingStartSearchHint => '책 제목을 입력해주세요.';
@@ -1123,6 +1178,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pageUpdateNewPageLabel => '새 페이지 번호';
+
+  @override
+  String get pageAbbreviation => 'p';
 
   @override
   String get pageUpdateCancel => '취소';
@@ -1529,6 +1587,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String detailTabAttempt(int attemptCount, String attemptEncouragement) {
     return '$attemptCount번째 · $attemptEncouragement';
   }
+
+  @override
+  String get detailTabAttemptEncouragement => '끝까지 함께해요!';
 
   @override
   String get detailTabChangeButton => '변경';
@@ -2291,7 +2352,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get extractingText => '텍스트 추출 중...';
 
   @override
-  String get ocrExtractionFailed => '텍스트 추출 실패';
+  String get ocrExtractionFailed =>
+      '텍스트를 추출하지 못했어요. 이미지와 네트워크를 확인한 뒤 다시 시도해주세요.';
 
   @override
   String get extractTextConfirmTitle => '텍스트를 추출하시겠어요?';
@@ -2333,7 +2395,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadingImage => '이미지 로딩 중...';
 
   @override
-  String get ocrReExtractionFailed => '재추출 실패';
+  String get ocrReExtractionFailed => '텍스트를 다시 추출하지 못했어요. 잠시 후 다시 시도해주세요.';
 
   @override
   String get reScanButton => '다시 스캔';
@@ -2545,6 +2607,136 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get historyTabDailyPages => '일일 페이지';
+
+  @override
+  String get historyTabReadingTime => '독서 시간';
+
+  @override
+  String historyTabChartCumulativeTooltip(int page) {
+    return '누적: ${page}p\n';
+  }
+
+  @override
+  String historyTabChartDailyTooltip(int page) {
+    return '일일: +${page}p';
+  }
+
+  @override
+  String historyTabDurationSeconds(int seconds) {
+    return '$seconds초';
+  }
+
+  @override
+  String historyTabDurationMinutes(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String historyTabDurationHours(int hours) {
+    return '$hours시간';
+  }
+
+  @override
+  String historyTabDurationHoursMinutes(int hours, int minutes) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
+  String historyTabDurationHoursMinutesSeconds(
+      int hours, int minutes, int seconds) {
+    return '$hours시간 $minutes분 $seconds초';
+  }
+
+  @override
+  String historyTabAttemptBadge(int attempt, String encouragement) {
+    return '$attempt번째 · $encouragement';
+  }
+
+  @override
+  String get historyTabReadingTimeStats => '⏱️ 독서 시간 통계';
+
+  @override
+  String get historyTabTotalReadingTime => '총 독서 시간';
+
+  @override
+  String get historyTabTotalSessions => '총 세션';
+
+  @override
+  String get historyTabAnalysisCompletedAfterAttemptsTitle => '드디어 완독!';
+
+  @override
+  String historyTabAnalysisCompletedAfterAttemptsMessage(int attempt) {
+    return '$attempt번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!';
+  }
+
+  @override
+  String get historyTabAnalysisCompletedTitle => '완독 축하해요!';
+
+  @override
+  String get historyTabAnalysisCompletedMessage => '목표를 달성했어요. 다음 책도 함께 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisPastDueRetryTitle => '이번엔 완주해봐요';
+
+  @override
+  String historyTabAnalysisPastDueRetryMessage(int attempt) {
+    return '$attempt번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?';
+  }
+
+  @override
+  String get historyTabAnalysisPastDueTitle => '목표일이 지났어요';
+
+  @override
+  String get historyTabAnalysisPastDueMessage => '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!';
+
+  @override
+  String get historyTabAnalysisFarAheadTitle => '놀라운 속도예요!';
+
+  @override
+  String get historyTabAnalysisFarAheadMessage =>
+      '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!';
+
+  @override
+  String get historyTabAnalysisAheadTitle => '순조롭게 진행 중!';
+
+  @override
+  String get historyTabAnalysisAheadMessage =>
+      '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!';
+
+  @override
+  String get historyTabAnalysisOnTrackTitle => '계획대로 진행 중';
+
+  @override
+  String get historyTabAnalysisOnTrackMessage => '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindRetryTitle => '조금 더 속도를 내볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindRetryMessage =>
+      '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!';
+
+  @override
+  String get historyTabAnalysisBehindTitle => '조금 더 읽어볼까요?';
+
+  @override
+  String get historyTabAnalysisBehindMessage =>
+      '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!';
+
+  @override
+  String get historyTabAnalysisFarBehindRetryTitle => '포기하지 마세요!';
+
+  @override
+  String historyTabAnalysisFarBehindRetryMessage(int attempt) {
+    return '$attempt번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!';
+  }
+
+  @override
+  String get historyTabAnalysisFarBehindTitle => '목표 재설정이 필요할 수도';
+
+  @override
+  String get historyTabAnalysisFarBehindMessage =>
+      '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?';
 
   @override
   String get historyTabDailyRecords => '일별 기록';
@@ -2806,6 +2998,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboardingDescription3 => '책을 완독하고 성과를 축하하세요';
+
+  @override
+  String get agePolicyTitle => '연령 및 광고 설정';
+
+  @override
+  String get agePolicyDescription =>
+      '연령대를 선택하세요. 이 설정은 이 기기에만 저장되며 광고 요청 여부를 결정합니다.';
+
+  @override
+  String get agePolicyUnder14 => '14세 미만';
+
+  @override
+  String get agePolicyUnder14Description => '광고가 비활성화됩니다.';
+
+  @override
+  String get agePolicy14OrOlder => '14세 이상';
+
+  @override
+  String get agePolicy14OrOlderDescription =>
+      '동의 및 추적 권한을 확인한 뒤 광고를 요청할 수 있습니다.';
+
+  @override
+  String get agePolicySaveFailed => '연령 설정을 저장하지 못했습니다.';
 
   @override
   String totalDaysFormat(int days) {
@@ -3539,6 +3754,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bookDetailSaveError => '저장 중 오류가 발생했습니다.\n다시 시도해주세요.';
 
   @override
+  String get bookDetailLoginRequired => '계속하려면 로그인해주세요.';
+
+  @override
+  String get bookDetailImageLoadFailed => '기억에 남는 페이지를 불러오지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageMissing => '이 기록에는 연결된 이미지가 없습니다.';
+
+  @override
+  String get bookDetailImageUploadFailed =>
+      '기억에 남는 페이지를 업로드하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageDeleteFailed =>
+      '기억에 남는 페이지를 삭제하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailTextSaveFailed => '추출한 텍스트를 저장하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
+  String get bookDetailImageReplaceFailed => '이미지를 교체하지 못했습니다.\n다시 시도해주세요.';
+
+  @override
   String get subscriptionUnavailable => '구독 서비스를 현재 이용할 수 없습니다.';
 
   @override
@@ -3625,6 +3863,75 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String shareDeadline(Object date) {
+    return '마감 $date';
+  }
+
+  @override
+  String sharePlannedStart(Object date) {
+    return '$date 시작 예정';
+  }
+
+  @override
+  String shareRetryCount(int count) {
+    return '$count번째 도전';
+  }
+
+  @override
+  String shareCurrentPages(int current, int total) {
+    return '$current / $total쪽';
+  }
+
+  @override
+  String sharePages(int pages) {
+    return '$pages쪽';
+  }
+
+  @override
+  String get shareNoteHeading => '이 책에서 남긴 기록';
+
+  @override
+  String shareRemainingPages(int pages) {
+    return '$pages쪽 남음';
+  }
+
+  @override
+  String shareDaysLeft(int days) {
+    return '$days일 남음';
+  }
+
+  @override
+  String shareDaysOverdue(int days) {
+    return '$days일 지남';
+  }
+
+  @override
+  String get shareComposerTitle => '공유 카드 꾸미기';
+
+  @override
+  String get shareComposerNotesTitle => '내 기록에서 선택';
+
+  @override
+  String get shareComposerNoNotes => '저장된 기록이 없어 직접 입력할 수 있어요.';
+
+  @override
+  String get shareComposerNoteLabel => '공유할 노트';
+
+  @override
+  String get shareComposerNoteHint => '직접 입력하거나 기록을 편집해보세요';
+
+  @override
+  String get shareComposerPreviewLimit => '공유 이미지에는 앞의 5줄까지 보여요.';
+
+  @override
+  String get shareComposerCreateButton => '공유 이미지 만들기';
+
+  @override
+  String shareComposerPage(int page) {
+    return '$page쪽';
+  }
+
+  @override
   String get loginSocialGoogle => 'Google로 계속하기';
 
   @override
@@ -3665,4 +3972,228 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bookDetailStartReadingSubtitle => '목표 완독일을 설정하세요';
+
+  @override
+  String get thirdPartyAiGoogleConsentTitle =>
+      'Google Cloud Vision OCR을 허용할까요?';
+
+  @override
+  String get thirdPartyAiGoogleConsentDescription =>
+      '문자를 추출하기 위해 선택한 페이지 이미지를 미국의 Google Cloud Vision으로 안전하게 전송합니다.';
+
+  @override
+  String get thirdPartyAiGoogleDataDescription =>
+      '이전 항목: 선택·촬영·자른 책 페이지 이미지와 한국어/영어 언어 힌트\n이전 국가: 미국\n이전 시점·방법: OCR을 실행할 때마다 미국 리전 엔드포인트로 TLS 암호화 전송\n제공받는 자: Google LLC(1600 Amphitheatre Parkway, Mountain View, CA 94043, USA)\n연락처: Google Cloud 개인정보 보호 문의 양식(cloud.google.com/privacy)\n목적: 이미지 문자 추출\n보유·이용 기간: 이미지는 온라인 Vision 서비스의 메모리에서 처리되고 저장되지 않으며, 요청 메타데이터는 보안·운영을 위해 일시적으로 기록될 수 있음(공개된 정확한 기간 없음)';
+
+  @override
+  String get thirdPartyAiOpenAiConsentTitle => 'OpenAI 기반 기능을 허용할까요?';
+
+  @override
+  String get thirdPartyAiOpenAiConsentDescription =>
+      '북골라스는 선택한 AI 기능에 미국의 OpenAI를 사용합니다. 동의한 뒤 아래에 안내된 데이터만 전송합니다.';
+
+  @override
+  String get thirdPartyAiOpenAiDataDescription =>
+      '필요한 이전 항목: 책 제목·저자·장르, 독서 상태·날짜·페이지 진행률, 평점·리뷰, 독서 기록 유형·페이지 위치, 메모·하이라이트·OCR 텍스트, 독서 속도·목표 달성·시도·참여 통계, 입력한 질문\n주된 이전 국가·제공받는 자: 미국의 OpenAI OpCo, LLC(1455 3rd Street, San Francisco, CA 94158, USA)\n조건부 처리: 글로벌 네트워크 라우팅, 인프라, 보안 검토 또는 지원이 적용되면 OpenAI가 공개한 하위처리자가 해당 공개 국가에서 처리할 수 있음(openai.com/policies/sub-processor-list)\n이전 시점·방법: 사용자가 AI 기능을 실행할 때 TLS 암호화 전송. 추천 화면 진입 시 캐시가 없거나 만료되면 자동 추천을 생성하고, 동의 후 메모·하이라이트·OCR 기록 저장 시 임베딩을 자동 생성\n연락처: privacy@openai.com\n목적: 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩 제공\n보유·이용 기간: API 입출력은 기본적으로 모델 학습에 사용되지 않음. 오남용 모니터링 로그는 최대 30일(보호·법적 필요 시 연장), 프롬프트 캐시 상태는 해당 기능 적용 시 최대 24시간 보관될 수 있음';
+
+  @override
+  String get thirdPartyAiOptionalNotice =>
+      '선택 사항입니다. 거부해도 기본 독서 관리 기능을 이용할 수 있습니다. 마이페이지에서 언제든 변경하거나 철회할 수 있습니다. 철회 성공이 확인된 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.';
+
+  @override
+  String get thirdPartyAiGoogleOptionalNotice =>
+      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 Google OCR은 사용할 수 없지만 직접 텍스트를 입력하고 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 OCR 요청은 전송되지 않습니다.';
+
+  @override
+  String get thirdPartyAiOpenAiOptionalNotice =>
+      '선택적인 국외 이전에 동의하지 않을 수 있습니다. 거부하면 OpenAI 검색·요약·인사이트·추천·글쓰기 지원·의미 검색은 사용할 수 없지만 다른 독서 관리 기능은 이용할 수 있습니다. 마이페이지에서 언제든 동의하거나 철회할 수 있습니다. 철회 성공 확인 뒤 시작하는 새 요청은 전송되지 않으며, 이미 시작된 요청은 완료될 수 있습니다.';
+
+  @override
+  String get thirdPartyAiDecline => '동의하지 않음';
+
+  @override
+  String get thirdPartyAiAgreeGoogle => 'Google OCR 국외 이전에 동의';
+
+  @override
+  String get thirdPartyAiAgreeOpenAi => 'OpenAI 국외 이전에 동의';
+
+  @override
+  String get thirdPartyAiNothingSent => '동의하기 전에는 아무 데이터도 전송하지 않습니다.';
+
+  @override
+  String get thirdPartyAiSectionAction => '지금 하려는 일';
+
+  @override
+  String get thirdPartyAiSectionData => '이번 기능에 필요한 데이터';
+
+  @override
+  String get thirdPartyAiSectionRecipient => '전송 대상';
+
+  @override
+  String get thirdPartyAiRecipientGoogle => 'Google Cloud Vision · 미국';
+
+  @override
+  String get thirdPartyAiRecipientOpenAi => 'OpenAI OpCo, LLC · 미국';
+
+  @override
+  String get thirdPartyAiAdditionalGoogle => '이 선택은 Google OCR을 사용할 때마다 적용됩니다.';
+
+  @override
+  String get thirdPartyAiAdditionalOpenAi =>
+      '이 제공자 단위 선택은 OpenAI 회상 검색·리뷰 초안·독서 인사이트·마인드맵·추천·키워드 추출·글쓰기 지원·의미 검색 임베딩에 함께 적용됩니다.';
+
+  @override
+  String get thirdPartyAiContextGoogleOcr => '이 페이지 이미지에서 문자 추출';
+
+  @override
+  String get thirdPartyAiDataGoogleOcr => '이 페이지 이미지와 한국어·영어 언어 힌트';
+
+  @override
+  String get thirdPartyAiContextRecall => 'AI로 내 독서 기록 검색';
+
+  @override
+  String get thirdPartyAiDataRecall => '입력한 질문과 관련 책 정보·메모·하이라이트·OCR 텍스트';
+
+  @override
+  String get thirdPartyAiContextReviewDraft => '독서 기록을 바탕으로 리뷰 초안 작성';
+
+  @override
+  String get thirdPartyAiDataReviewDraft =>
+      '책 제목·저자·장르·평점·기존 리뷰와 페이지 위치가 포함된 메모·하이라이트·OCR 텍스트 최대 15개';
+
+  @override
+  String get thirdPartyAiContextReadingInsights => '독서 활동에서 인사이트 생성';
+
+  @override
+  String get thirdPartyAiDataReadingInsights => '독서 날짜·진행률·속도·목표·시도·활동 통계';
+
+  @override
+  String get thirdPartyAiContextMindMap => '이 책의 기록을 마인드맵으로 정리';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredTitle => '마인드맵에 AI 이용 동의가 필요해요';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredDescription =>
+      '독서 기록은 그대로 보관됩니다. 마인드맵으로 정리하고 싶을 때만 국외 이전 내용을 확인하고 동의해 주세요.';
+
+  @override
+  String get thirdPartyAiMindMapConsentRequiredAction => '동의 내용 다시 보기';
+
+  @override
+  String get thirdPartyAiDataMindMap =>
+      '독서 기록 유형·페이지 위치와 메모·하이라이트·OCR 텍스트; 저장된 기록 ID 대신 요청 전용 번호 사용';
+
+  @override
+  String get thirdPartyAiContextRecommendations => '독서 활동을 바탕으로 책 추천';
+
+  @override
+  String get thirdPartyAiDataRecommendations => '책 정보·독서 상태와 진행률·평점·참여 통계';
+
+  @override
+  String get thirdPartyAiDataManageOpenAi =>
+      '기능에 따라 입력한 질문, 책 정보, 독서 상태·날짜·진행률, 평점·리뷰, 메모·하이라이트·OCR 텍스트, 독서 속도·목표·시도·활동 통계를 사용합니다.';
+
+  @override
+  String get thirdPartyAiContextManageGoogle => 'Google OCR 데이터 공유 관리';
+
+  @override
+  String get thirdPartyAiContextManageOpenAi => 'OpenAI 데이터 공유 관리';
+
+  @override
+  String get thirdPartyAiShowDetails => '국외 이전 상세보기';
+
+  @override
+  String get thirdPartyAiHideDetails => '국외 이전 상세 접기';
+
+  @override
+  String get thirdPartyAiSaving => '선택을 저장하고 있어요…';
+
+  @override
+  String get thirdPartyAiCheckingStatus => '공유 상태를 확인하고 있어요…';
+
+  @override
+  String get thirdPartyAiGrantStatusUnknown =>
+      '선택이 저장됐는지 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 상태를 다시 확인하거나, 공유를 중지한 뒤 닫아 주세요.';
+
+  @override
+  String get thirdPartyAiStopSharingAndClose => '공유 중지 후 닫기';
+
+  @override
+  String get thirdPartyAiStoppingSharing => '공유를 중지하고 있어요…';
+
+  @override
+  String get thirdPartyAiSaveFailed =>
+      '선택을 저장하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
+
+  @override
+  String get thirdPartyAiRetry => '다시 시도';
+
+  @override
+  String get thirdPartyAiClose => '닫기';
+
+  @override
+  String get thirdPartyAiStatusUnavailable =>
+      '현재 공유 상태를 확인하지 못했습니다. 이번 시도에서는 데이터를 전송하지 않습니다. 계속하기 전에 상태를 다시 확인해 주세요.';
+
+  @override
+  String get thirdPartyAiGooglePrivacyLink => 'Google Cloud 개인정보 안내 열기';
+
+  @override
+  String get thirdPartyAiOpenAiSubprocessorsLink => 'OpenAI 하위처리자 목록 열기';
+
+  @override
+  String get thirdPartyAiOpenAiPrivacyContact => 'OpenAI 개인정보 문의 이메일';
+
+  @override
+  String get thirdPartyAiSettingsTitle => 'AI 데이터 공유';
+
+  @override
+  String get thirdPartyAiSettingsDescription => '업체별 향후 전송 허용 여부를 관리합니다.';
+
+  @override
+  String get thirdPartyAiGoogleSettingTitle => 'Google Cloud Vision OCR';
+
+  @override
+  String get thirdPartyAiGoogleSettingSubtitle => '텍스트 추출을 위한 선택한 페이지 이미지';
+
+  @override
+  String get thirdPartyAiOpenAiSettingTitle => 'OpenAI 기능';
+
+  @override
+  String get thirdPartyAiOpenAiSettingSubtitle => '요청한 AI 결과에 필요한 독서 데이터';
+
+  @override
+  String get thirdPartyAiStateAllowed => '동의함';
+
+  @override
+  String get thirdPartyAiStateNotAllowed => '동의 안 함';
+
+  @override
+  String get thirdPartyAiStateUnavailable => '상태 확인 불가';
+
+  @override
+  String get thirdPartyAiViewDetails => '상세보기';
+
+  @override
+  String get thirdPartyAiRetryStatus => '상태 다시 확인';
+
+  @override
+  String get thirdPartyAiConsentWithdrawn => '이 업체로의 향후 전송을 중단했습니다.';
+
+  @override
+  String get thirdPartyAiConsentWithdrawFailed =>
+      '데이터 제공을 중단하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
+
+  @override
+  String get historyTabAttemptEncouragementFirst => '최고!';
+
+  @override
+  String get historyTabAttemptEncouragementSecond => '잘하고 있다';
+
+  @override
+  String get historyTabAttemptEncouragementThird => '화이팅!';
+
+  @override
+  String get historyTabAttemptEncouragementMore => '계속 잘하고 있어!';
 }

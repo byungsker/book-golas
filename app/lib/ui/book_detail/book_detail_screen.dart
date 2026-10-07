@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/data/services/book_service.dart';
 import 'package:book_golas/domain/models/book.dart';
@@ -37,6 +36,7 @@ import 'widgets/sheets/daily_target_confirm_sheet.dart';
 import 'widgets/sheets/delete_confirmation_sheet.dart';
 import 'widgets/sheets/image_source_sheet.dart';
 import 'widgets/sheets/book_info_sheet.dart';
+import 'widgets/sheets/book_review_prompt_sheet.dart';
 // import 'widgets/sheets/full_title_sheet.dart';
 import 'widgets/sheets/pause_reading_confirmation_sheet.dart';
 import 'widgets/dialogs/edit_planned_book_dialog.dart';
@@ -52,11 +52,14 @@ import 'package:book_golas/ui/book_detail/view_model/reading_timer_view_model.da
 import 'package:book_golas/ui/book_detail/widgets/reading_timer_modal.dart';
 import 'package:book_golas/ui/core/widgets/floating_timer_bar.dart';
 import 'package:book_golas/data/services/book_share_service.dart';
+import 'widgets/book_share_composer.dart';
+import 'widgets/completed_book_action_card.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final Book book;
   final bool showCelebration;
   final bool isEmbedded;
+  final bool loadRemoteData;
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -67,6 +70,7 @@ class BookDetailScreen extends StatelessWidget {
     required this.book,
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.loadRemoteData = true,
     this.initialTabIndex,
     this.autoOpenScan = false,
     this.onCallbacksReady,
@@ -89,12 +93,15 @@ class BookDetailScreen extends StatelessWidget {
           create: (_) => ReadingProgressViewModel(bookId: book.id!),
         ),
         ChangeNotifierProvider(
-          create: (_) => RecallViewModel()..loadRecentSearches(book.id!),
+          create: (_) => loadRemoteData
+              ? (RecallViewModel()..loadRecentSearches(book.id!))
+              : RecallViewModel(),
         ),
       ],
       child: _BookDetailContent(
         showCelebration: showCelebration,
         isEmbedded: isEmbedded,
+        loadRemoteData: loadRemoteData,
         initialTabIndex: initialTabIndex,
         autoOpenScan: autoOpenScan,
         onCallbacksReady: onCallbacksReady,
@@ -106,6 +113,7 @@ class BookDetailScreen extends StatelessWidget {
 class _BookDetailContent extends StatefulWidget {
   final bool showCelebration;
   final bool isEmbedded;
+  final bool loadRemoteData;
   final int? initialTabIndex;
   final bool autoOpenScan;
   final void Function(VoidCallback updatePage, VoidCallback addMemorable)?
@@ -114,6 +122,7 @@ class _BookDetailContent extends StatefulWidget {
   const _BookDetailContent({
     this.showCelebration = false,
     this.isEmbedded = false,
+    this.loadRemoteData = true,
     this.initialTabIndex,
     this.autoOpenScan = false,
     this.onCallbacksReady,
@@ -130,6 +139,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
   late AnimationController _progressAnimController;
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
+  double? _floatingActionBarHeight;
   final ScrollController _scrollController = ScrollController();
 
   // Confetti 컨트롤러
@@ -145,6 +155,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
 
   void _onTabChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _updateFloatingActionBarHeight(double height) {
+    if (!mounted ||
+        (_floatingActionBarHeight != null &&
+            (_floatingActionBarHeight! - height).abs() < 0.5)) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _floatingActionBarHeight = height);
+      }
+    });
   }
 
   void _updateTabControllerIfNeeded(Book book) {
@@ -178,20 +201,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
       final memorableVm = context.read<MemorablePageViewModel>();
       final progressVm = context.read<ReadingProgressViewModel>();
 
-      // 최신 책 데이터 가져오기 (DB에서 fresh data)
-      await bookVm.refreshBook();
-
-      // DB eventual consistency를 위한 딜레이 후 achievements 로드
-      await Future.delayed(const Duration(milliseconds: 300));
-      await bookVm.loadDailyAchievements();
+      if (widget.loadRemoteData) {
+        await bookVm.refreshBook();
+        await Future.delayed(const Duration(milliseconds: 300));
+        await bookVm.loadDailyAchievements();
+      }
 
       if (mounted) {
         _animatedProgress =
             bookVm.currentBook.currentPage / bookVm.currentBook.totalPages;
       }
 
-      memorableVm.fetchBookImages();
-      progressVm.fetchProgressHistory();
+      if (widget.loadRemoteData) {
+        memorableVm.fetchBookImages();
+        progressVm.fetchProgressHistory();
+      }
 
       // 탭 컨트롤러 업데이트 (완독 상태면 4탭)
       _updateTabControllerIfNeeded(bookVm.currentBook);
@@ -271,6 +295,19 @@ class _BookDetailContentState extends State<_BookDetailContent>
         // TabController 길이 동기화 (책 완독 상태 변경 시)
         final shouldHaveReviewTab = _isBookCompleted(book);
         final targetLength = shouldHaveReviewTab ? 4 : 3;
+        final l10n = AppLocalizations.of(context);
+        final tabLabels = shouldHaveReviewTab
+            ? [
+                l10n.bookDetailTabRecord,
+                l10n.bookDetailTabHistory,
+                l10n.bookDetailTabReview,
+                l10n.bookDetailTabDetail,
+              ]
+            : [
+                l10n.bookDetailTabRecord,
+                l10n.bookDetailTabHistory,
+                l10n.bookDetailTabDetail,
+              ];
         if (_currentTabLength != targetLength) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _updateTabControllerIfNeeded(book);
@@ -305,16 +342,54 @@ class _BookDetailContentState extends State<_BookDetailContent>
                         color: isDark ? Colors.white : Colors.black,
                         size: 22,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         final memorableVm =
                             context.read<MemorablePageViewModel>();
-                        final highlightCount =
-                            memorableVm.cachedImages?.length ?? 0;
-                        BookShareService.shareBookCard(
+                        final images = memorableVm.cachedImages ??
+                            await memorableVm.fetchBookImages();
+                        if (!context.mounted) return;
+                        final highlightCount = images.length;
+                        final notes = images
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                              final image = entry.value;
+                              final text = (image['extracted_text'] ?? '')
+                                  .toString()
+                                  .trim();
+                              if (text.isEmpty) return null;
+                              return BookShareNote(
+                                id: image['id']?.toString() ??
+                                    'note-${entry.key}',
+                                text: text,
+                                pageNumber: image['page_number'] as int?,
+                              );
+                            })
+                            .whereType<BookShareNote>()
+                            .toList();
+                        final result = await showBookShareComposer(
+                          context: context,
+                          book: book,
+                          notes: notes,
+                        );
+                        if (!context.mounted || result == null) return;
+                        final didOpenShareSheet =
+                            await BookShareService.shareBookCard(
                           context: context,
                           book: book,
                           highlightCount: highlightCount,
+                          noteText: result.noteText,
+                          useBookReviewFallback: result.useBookReviewFallback,
                         );
+                        if (!didOpenShareSheet && context.mounted) {
+                          CustomSnackbar.show(
+                            context,
+                            message:
+                                AppLocalizations.of(context).shareBookCardError,
+                            type: BLabSnackbarType.error,
+                            bottomOffset: 32,
+                          );
+                        }
                       },
                     ),
                   ],
@@ -406,9 +481,14 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   _buildBookReviewButton(context, book),
                                 ],
                                 const SizedBox(height: 12),
-                                _buildRestartReadingButton(context, book),
+                                _buildRestartReadingButton(context),
                               ],
-                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: _completedActionBottomClearance(
+                                  context,
+                                  book,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -416,27 +496,10 @@ class _BookDetailContentState extends State<_BookDetailContent>
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: StickyTabBarDelegate(
+                          extent: CustomTabBar.extentFor(context, tabLabels),
                           child: CustomTabBar(
                             tabController: _tabController!,
-                            tabLabels: _isBookCompleted(book)
-                                ? [
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabRecord,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabHistory,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabReview,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabDetail,
-                                  ]
-                                : [
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabRecord,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabHistory,
-                                    AppLocalizations.of(context)
-                                        .bookDetailTabDetail,
-                                  ],
+                            tabLabels: tabLabels,
                           ),
                           backgroundColor: isDark
                               ? BLabColors.scaffoldDark
@@ -456,6 +519,21 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           return const Center(
                               child: CircularProgressIndicator());
                         }
+                        final isReadingMode =
+                            _isBookReading(bookVm.currentBook);
+                        final actionBarHeight = _floatingActionBarHeight ??
+                            FloatingActionBar.minimumHeightFor(
+                              context,
+                              isReadingMode: isReadingMode,
+                            );
+                        final contentBottomPadding = !widget.isEmbedded &&
+                                !_isBookPlanned(bookVm.currentBook)
+                            ? FloatingActionBar.contentBottomClearance(
+                                actionBarHeight: actionBarHeight,
+                                bottomSafeArea:
+                                    MediaQuery.viewPaddingOf(context).bottom,
+                              )
+                            : 100.0;
                         return TabBarView(
                           controller: _tabController,
                           children: [
@@ -482,6 +560,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   _showExistingImageModal(id, url, text,
                                       pageNumber: page),
                               onImagesLoaded: memorableVm.onImagesLoaded,
+                              onImageLoadFailed: memorableVm.refreshImageUrl,
+                              bottomContentPadding: contentBottomPadding,
                             ),
                             Consumer<ReadingProgressViewModel>(
                               builder: (context, progressVm, _) {
@@ -489,8 +569,6 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   progressFuture: Future.value(
                                       progressVm.progressHistory ?? []),
                                   attemptCount: bookVm.attemptCount,
-                                  attemptEncouragement:
-                                      bookVm.attemptEncouragement,
                                   progressPercentage: bookVm.progressPercentage,
                                   daysLeft: bookVm.daysLeft,
                                   startDate: book.startDate,
@@ -498,6 +576,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                   bookId: book.id ?? '',
                                   dailySessionDurations:
                                       progressVm.dailySessionDurations,
+                                  bottomContentPadding: contentBottomPadding,
                                 );
                               },
                             ),
@@ -506,11 +585,11 @@ class _BookDetailContentState extends State<_BookDetailContent>
                                 book: book,
                                 onEditTap: () =>
                                     _navigateToBookReview(context, book),
+                                bottomContentPadding: contentBottomPadding,
                               ),
                             DetailTab(
                               book: book,
                               attemptCount: bookVm.attemptCount,
-                              attemptEncouragement: bookVm.attemptEncouragement,
                               dailyAchievements: bookVm.dailyAchievements,
                               onTargetDateChange: () =>
                                   _showUpdateTargetDateDialog(bookVm),
@@ -519,6 +598,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                               onDelete: () => _showDeleteConfirmation(bookVm),
                               onReviewTap: () =>
                                   _navigateToBookReview(context, book),
+                              bottomContentPadding: contentBottomPadding,
                             ),
                           ],
                         );
@@ -547,6 +627,7 @@ class _BookDetailContentState extends State<_BookDetailContent>
                           : null,
                       isReadingMode: _isBookReading(bookVm.currentBook),
                       isTimerRunning: timerVm.isRunning,
+                      onHeightChanged: _updateFloatingActionBarHeight,
                     );
                   },
                 ),
@@ -714,127 +795,16 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   /// 독후감 작성 유도 바텀시트
-  void _showBookReviewPromptSheet(BookDetailViewModel bookVm) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Future<void> _showBookReviewPromptSheet(BookDetailViewModel bookVm) async {
     final book = bookVm.currentBook;
-
-    showModalBottomSheet(
+    final shouldWriteReview = await showBookReviewPromptSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isDismissible: true,
-      builder: (bottomSheetContext) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const Text(
-              '🎉',
-              style: TextStyle(fontSize: 48),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Congratulations!',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              book.title,
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Would you like to write a review?',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: isDark ? Colors.grey[300] : Colors.grey[700],
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(bottomSheetContext),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.grey[800] : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).bookDetailLater,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.grey[300] : Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(bottomSheetContext);
-                      _navigateToBookReview(context, book);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: BLabColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).bookDetailTabReview,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: MediaQuery.of(bottomSheetContext).padding.bottom + 8,
-            ),
-          ],
-        ),
-      ),
+      bookTitle: book.title,
     );
+
+    if (shouldWriteReview && mounted) {
+      await _navigateToBookReview(context, book);
+    }
   }
 
   void _showDailyTargetChangeDialog(BookDetailViewModel bookVm) async {
@@ -960,85 +930,62 @@ class _BookDetailContentState extends State<_BookDetailContent>
       int? pageNumber,
       List<HighlightData>? highlights}) async {
     final memorableVm = context.read<MemorablePageViewModel>();
-    final bookVm = context.read<BookDetailViewModel>();
+    final saved = await memorableVm.uploadAndSaveMemorablePage(
+      imageBytes: imageBytes,
+      extractedText: extractedText,
+      pageNumber: pageNumber,
+      highlights: highlights,
+    );
+    if (!mounted) return saved;
 
-    try {
-      String? publicUrl;
-      if (imageBytes != null) {
-        final fileName =
-            'book_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final storage = Supabase.instance.client.storage;
-        await storage.from('book-images').uploadBinary(fileName, imageBytes,
-            fileOptions: const FileOptions(upsert: true));
-        publicUrl = storage.from('book-images').getPublicUrl(fileName);
-      }
-
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      final insertData = {
-        'book_id': bookVm.currentBook.id,
-        'user_id': userId,
-        'image_url': publicUrl,
-        'caption': '',
-        'extracted_text': extractedText.isEmpty ? null : extractedText,
-        'page_number': pageNumber,
-        'created_at': DateTime.now().toIso8601String(),
-      };
-      if (highlights != null && highlights.isNotEmpty) {
-        insertData['highlights'] = HighlightData.toJsonList(highlights);
-      }
-      final insertResult = await Supabase.instance.client
-          .from('book_images')
-          .insert(insertData)
-          .select('id')
-          .single();
-
-      await memorableVm.fetchBookImages();
-      memorableVm.clearPendingImage();
-
-      if (extractedText.isNotEmpty && userId != null) {
-        RecallService().generateEmbeddingForPhotoOcr(
-          userId: userId,
-          bookId: bookVm.currentBook.id!,
-          photoId: insertResult['id'] as String,
-          ocrText: extractedText,
-          pageNumber: pageNumber,
-        );
-      }
-
-      if (mounted) {
-        _tabController?.animateTo(0);
-        _scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-        CustomSnackbar.show(context,
-            message: AppLocalizations.of(context).bookDetailSaved,
-            type: BLabSnackbarType.success);
-      }
+    if (saved) {
+      _tabController?.animateTo(0);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      CustomSnackbar.show(
+        context,
+        message: AppLocalizations.of(context).bookDetailSaved,
+        type: BLabSnackbarType.success,
+      );
       return true;
-    } catch (e, stackTrace) {
-      debugPrint('🔴 업로드 실패: $e');
-      debugPrint('🔴 스택 트레이스: $stackTrace');
-      if (mounted) {
-        final errorMessage = e.toString();
-        final isNetworkError = errorMessage.contains('SocketException') ||
-            errorMessage.contains('Connection') ||
-            errorMessage.contains('timeout');
-        showCupertinoDialog(
-          context: context,
-          builder: (dialogContext) => CupertinoAlertDialog(
-            title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
-            content: Text(isNetworkError
-                ? AppLocalizations.of(context).bookDetailNetworkError
-                : AppLocalizations.of(context).bookDetailSaveError),
-            actions: [
-              CupertinoDialogAction(
-                  child: Text(AppLocalizations.of(context).commonConfirm),
-                  onPressed: () => Navigator.pop(dialogContext))
-            ],
-          ),
-        );
-      }
-      return false;
     }
+
+    final failure = memorableVm.failure;
+    debugPrint('Memorable page upload failed: ${failure?.name ?? 'unknown'}');
+    showCupertinoDialog(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: Text(AppLocalizations.of(context).bookDetailUploadFailed),
+        content: Text(_localizedMemorablePageFailure(failure)),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(AppLocalizations.of(context).commonConfirm),
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
+  String _localizedMemorablePageFailure(MemorablePageFailure? failure) {
+    final localizations = AppLocalizations.of(context);
+    return switch (failure) {
+      MemorablePageFailure.authenticationRequired =>
+        localizations.bookDetailLoginRequired,
+      MemorablePageFailure.network => localizations.bookDetailNetworkError,
+      MemorablePageFailure.load => localizations.bookDetailImageLoadFailed,
+      MemorablePageFailure.upload => localizations.bookDetailImageUploadFailed,
+      MemorablePageFailure.delete => localizations.bookDetailImageDeleteFailed,
+      MemorablePageFailure.textSave => localizations.bookDetailTextSaveFailed,
+      MemorablePageFailure.save => localizations.bookDetailSaveError,
+      MemorablePageFailure.replace =>
+        localizations.bookDetailImageReplaceFailed,
+      null => localizations.bookDetailSaveError,
+    };
   }
 
   Future<void> _showImageSourceActionSheet(
@@ -1128,7 +1075,8 @@ class _BookDetailContentState extends State<_BookDetailContent>
       onReplaceImage: (
           {required String imageId,
           required String currentText,
-          required void Function(String? newImageUrl) onReplaced}) async {
+          required void Function(bool success, String? newImageUrl)
+              onReplaced}) async {
         final source = await showImageReplaceOptionsSheet(context: context);
         if (source != null && mounted) {
           final picker = ImagePicker();
@@ -1136,17 +1084,26 @@ class _BookDetailContentState extends State<_BookDetailContent>
           if (pickedFile == null) return;
           final imageBytes = await pickedFile.readAsBytes();
           if (!mounted) return;
-          final newUrl = await memorableVm.replaceImage(
+          final replaced = await memorableVm.replaceImage(
               imageId: imageId,
               imageBytes: imageBytes,
               extractedText: currentText,
               pageNumber: null);
-          if (newUrl != null && mounted) {
+          String? newUrl;
+          if (replaced) {
+            for (final image in memorableVm.cachedImages ?? const []) {
+              if (image['id']?.toString() == imageId) {
+                newUrl = image['image_url'] as String?;
+                break;
+              }
+            }
+          }
+          if (replaced && mounted) {
             CustomSnackbar.show(context,
                 message: AppLocalizations.of(context).bookDetailImageReplaced,
                 type: BLabSnackbarType.success);
           }
-          onReplaced(newUrl);
+          onReplaced(replaced, newUrl);
         }
       },
       onSave: (
@@ -1605,151 +1562,42 @@ class _BookDetailContentState extends State<_BookDetailContent>
   }
 
   Widget _buildBookReviewButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasReview = book.longReview != null && book.longReview!.isNotEmpty;
 
-    return GestureDetector(
+    return CompletedBookActionCard(
+      cardKey: const ValueKey('completed-book-review-action'),
+      title: hasReview
+          ? AppLocalizations.of(context).bookDetailEditReview
+          : AppLocalizations.of(context).bookDetailWriteReview,
+      description: hasReview
+          ? AppLocalizations.of(context).bookDetailReviewYourWritten
+          : AppLocalizations.of(context).bookDetailRecordThoughts,
+      icon: CupertinoIcons.pencil_outline,
       onTap: () => _navigateToBookReview(context, book),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: BLabColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.pencil_outline,
-                    color: BLabColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      hasReview
-                          ? AppLocalizations.of(context).bookDetailEditReview
-                          : AppLocalizations.of(context).bookDetailWriteReview,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      hasReview
-                          ? AppLocalizations.of(context)
-                              .bookDetailReviewYourWritten
-                          : AppLocalizations.of(context)
-                              .bookDetailRecordThoughts,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: isDark ? Colors.grey[400] : Colors.grey[500],
-              size: 20,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildRestartReadingButton(BuildContext context, Book book) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
+  Widget _buildRestartReadingButton(BuildContext context) {
+    return CompletedBookActionCard(
+      cardKey: const ValueKey('completed-book-restart-action'),
+      title: AppLocalizations.of(context).bookDetailContinueReading,
+      description: AppLocalizations.of(context).bookDetailAchieveGoal,
+      icon: Icons.refresh_rounded,
       onTap: () => _navigateToReadingStart(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isDark ? BLabColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: BLabColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.refresh_rounded,
-                    color: BLabColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).bookDetailContinueReading,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      AppLocalizations.of(context).bookDetailAchieveGoal,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: isDark ? Colors.grey[400] : Colors.grey[500],
-              size: 20,
-            ),
-          ],
-        ),
-      ),
+    );
+  }
+
+  double _completedActionBottomClearance(BuildContext context, Book book) {
+    if (widget.isEmbedded || _isBookPlanned(book) || !_isBookCompleted(book)) {
+      return 20;
+    }
+    return FloatingActionBar.contentBottomClearance(
+      actionBarHeight: _floatingActionBarHeight ??
+          FloatingActionBar.minimumHeightFor(
+            context,
+            isReadingMode: false,
+          ),
+      bottomSafeArea: MediaQuery.viewPaddingOf(context).bottom,
     );
   }
 

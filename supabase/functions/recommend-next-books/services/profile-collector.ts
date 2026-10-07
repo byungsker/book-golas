@@ -1,25 +1,48 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type {
   BookReadingAnalytics,
-  UserReadingProfile,
   BookRecord,
-  ProgressRecord,
   EmbeddingRecord,
+  ProgressRecord,
+  UserReadingProfile,
 } from "../types.ts";
 import {
-  calculateDailyGoalAchievementRate,
   calculateAggregateStats,
+  calculateDailyGoalAchievementRate,
 } from "../utils/analytics-calculator.ts";
 import { extractUserInterests } from "./rag-service.ts";
+import type {
+  AiBudgetContext,
+  AiProviderOperation,
+} from "../../_shared/ai-usage.ts";
 
 export class ProfileCollector {
   constructor(private supabase: SupabaseClient) {}
 
-  async collect(userId: string): Promise<UserReadingProfile> {
+  async collect(
+    userId: string,
+    runProviderCall: <T>(
+      input: string,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
+  ): Promise<UserReadingProfile> {
     const completedBooks = await this.fetchCompletedBooks(userId);
     const booksAnalytics = await this.analyzeBooksInDetail(completedBooks, userId);
     const stats = calculateAggregateStats(booksAnalytics);
-    const interests = await extractUserInterests(this.supabase, userId);
+    if (booksAnalytics.length === 0) {
+      return {
+        userId,
+        books: booksAnalytics,
+        stats,
+        interests: { topHighlights: [], keywords: [] },
+      };
+    }
+    const interests = await extractUserInterests(
+      this.supabase,
+      userId,
+      runProviderCall,
+    );
 
     return {
       userId,
@@ -53,13 +76,13 @@ export class ProfileCollector {
       const embeddings = await this.fetchEmbeddings(book.id, userId);
 
       const highlightCount = embeddings.filter(
-        (e) => e.content_type === "highlight"
+        (e) => e.content_type === "highlight",
       ).length;
       const noteCount = embeddings.filter(
-        (e) => e.content_type === "note"
+        (e) => e.content_type === "note",
       ).length;
       const photoOcrCount = embeddings.filter(
-        (e) => e.content_type === "photo_ocr"
+        (e) => e.content_type === "photo_ocr",
       ).length;
 
       const startDate = new Date(book.start_date);
@@ -70,15 +93,16 @@ export class ProfileCollector {
         1,
         Math.ceil(
           (completedDate.getTime() - startDate.getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
+            (1000 * 60 * 60 * 24),
+        ),
       );
-      const averagePagesPerDay =
-        daysToComplete > 0 ? book.total_pages / daysToComplete : 0;
+      const averagePagesPerDay = daysToComplete > 0
+        ? book.total_pages / daysToComplete
+        : 0;
 
       const dailyGoalAchievementRate = calculateDailyGoalAchievementRate(
         book.daily_target_pages,
-        progressRecords
+        progressRecords,
       );
 
       analytics.push({

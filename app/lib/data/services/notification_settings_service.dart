@@ -28,9 +28,13 @@ class NotificationSettings {
     this.announcementsEnabled = true,
   });
 
+  factory NotificationSettings.defaults() {
+    return NotificationSettings(notificationEnabled: false);
+  }
+
   factory NotificationSettings.fromJson(Map<String, dynamic> json) {
     return NotificationSettings(
-      notificationEnabled: json['notification_enabled'] ?? true,
+      notificationEnabled: json['notification_enabled'] ?? false,
       dailyReminderEnabled: json['daily_reminder_enabled'] ?? true,
       dailyReminderHour: json['daily_reminder_hour'] ?? 18,
       dailyReminderMinute: json['daily_reminder_minute'] ?? 0,
@@ -83,9 +87,7 @@ class NotificationSettings {
 class NotificationSettingsService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  NotificationSettings _settings = NotificationSettings(
-    notificationEnabled: true,
-  );
+  NotificationSettings _settings = NotificationSettings.defaults();
 
   NotificationSettings get settings => _settings;
 
@@ -112,6 +114,7 @@ class NotificationSettingsService {
       } else {
         debugPrint(
             '🔔 [NotificationSettings] No settings found, using defaults');
+        _settings = NotificationSettings.defaults();
         return _settings;
       }
     } catch (e) {

@@ -1,17 +1,24 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:book_golas/l10n/app_localizations.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/floating_context_dropdown.dart';
 
 class FloatingActionBar extends StatelessWidget {
+  static const double bottomOffset = 22;
+  static const double contentSeparation = 16;
+  static const actionBarKey = ValueKey('book-detail-floating-action-bar');
+
   final VoidCallback? onUpdatePageTap;
   final VoidCallback onAddMemorablePageTap;
   final VoidCallback? onRecallSearchTap;
   final VoidCallback? onTimerTap;
+  final ValueChanged<double>? onHeightChanged;
   final bool isReadingMode;
   final bool isTimerRunning;
 
@@ -21,6 +28,7 @@ class FloatingActionBar extends StatelessWidget {
     required this.onAddMemorablePageTap,
     this.onRecallSearchTap,
     this.onTimerTap,
+    this.onHeightChanged,
     this.isReadingMode = true,
     this.isTimerRunning = false,
   });
@@ -29,24 +37,89 @@ class FloatingActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final bottomSafeArea = MediaQuery.viewPaddingOf(context).bottom;
+
     return Positioned(
       left: 16,
       right: 16,
-      bottom: 22,
-      child: isReadingMode
-          ? _ReadingModeBar(
-              isDark: isDark,
-              onUpdatePageTap: onUpdatePageTap,
-              onAddMemorablePageTap: onAddMemorablePageTap,
-              onRecallSearchTap: onRecallSearchTap,
-              onTimerTap: onTimerTap,
-            )
-          : _CompletedModeBar(
-              isDark: isDark,
-              onAddMemorablePageTap: onAddMemorablePageTap,
-              onRecallSearchTap: onRecallSearchTap,
-            ),
+      bottom: bottomOffset + bottomSafeArea,
+      child: _MeasureSize(
+        key: actionBarKey,
+        onChange: (size) => onHeightChanged?.call(size.height),
+        child: isReadingMode
+            ? _ReadingModeBar(
+                isDark: isDark,
+                onUpdatePageTap: onUpdatePageTap,
+                onAddMemorablePageTap: onAddMemorablePageTap,
+                onRecallSearchTap: onRecallSearchTap,
+                onTimerTap: onTimerTap,
+              )
+            : _CompletedModeBar(
+                isDark: isDark,
+                onAddMemorablePageTap: onAddMemorablePageTap,
+                onRecallSearchTap: onRecallSearchTap,
+              ),
+      ),
     );
+  }
+
+  static double contentBottomClearance({
+    required double actionBarHeight,
+    required double bottomSafeArea,
+  }) {
+    return actionBarHeight + bottomOffset + bottomSafeArea + contentSeparation;
+  }
+
+  static double minimumHeightFor(
+    BuildContext context, {
+    required bool isReadingMode,
+  }) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final buttonHeight = math
+        .max(62, MediaQuery.textScalerOf(context).scale(15) * 2.4 + 16)
+        .toDouble();
+    if (isReadingMode && textScale >= 1.4) {
+      return buttonHeight * 2 + 8;
+    }
+    return buttonHeight;
+  }
+}
+
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({
+    super.key,
+    required this.onChange,
+    required super.child,
+  });
+
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderMeasureSize(onChange);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderMeasureSize renderObject,
+  ) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _oldSize) return;
+    _oldSize = size;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(size));
   }
 }
 
@@ -267,38 +340,48 @@ class _ReadingModeBarState extends State<_ReadingModeBar> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final shouldStackActions = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+
+    final recordAction = _GlassPillButton(
+      key: _recordKey,
+      isDark: widget.isDark,
+      icon: CupertinoIcons.pencil,
+      label: l10n.bottomBarRecord,
+      onTap: () => _onRecordTap(context),
+      onLongPressStart: (details) => _onRecordLongPressStart(context, details),
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+    );
+    final startReadingAction = _GlassPillButton(
+      key: _startReadingKey,
+      isDark: widget.isDark,
+      icon: CupertinoIcons.book_fill,
+      label: l10n.bottomBarStartReading,
+      onTap: () => _onStartReadingTap(context),
+      onLongPressStart: (details) =>
+          _onStartReadingLongPressStart(context, details),
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+    );
+
+    if (shouldStackActions) {
+      return Column(
+        key: const ValueKey('reading-action-bar-stacked'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: double.infinity, child: recordAction),
+          const SizedBox(height: 8),
+          SizedBox(width: double.infinity, child: startReadingAction),
+        ],
+      );
+    }
 
     return Row(
+      key: const ValueKey('reading-action-bar-inline'),
       children: [
-        Expanded(
-          flex: 3,
-          child: _GlassPillButton(
-            key: _recordKey,
-            isDark: widget.isDark,
-            icon: CupertinoIcons.pencil,
-            label: l10n.bottomBarRecord,
-            onTap: () => _onRecordTap(context),
-            onLongPressStart: (details) =>
-                _onRecordLongPressStart(context, details),
-            onLongPressMoveUpdate: _onLongPressMoveUpdate,
-            onLongPressEnd: _onLongPressEnd,
-          ),
-        ),
+        Expanded(flex: 4, child: recordAction),
         const SizedBox(width: 12),
-        Expanded(
-          flex: 7,
-          child: _GlassPillButton(
-            key: _startReadingKey,
-            isDark: widget.isDark,
-            icon: CupertinoIcons.book_fill,
-            label: l10n.bottomBarStartReading,
-            onTap: () => _onStartReadingTap(context),
-            onLongPressStart: (details) =>
-                _onStartReadingLongPressStart(context, details),
-            onLongPressMoveUpdate: _onLongPressMoveUpdate,
-            onLongPressEnd: _onLongPressEnd,
-          ),
-        ),
+        Expanded(flex: 6, child: startReadingAction),
       ],
     );
   }
@@ -468,56 +551,71 @@ class _GlassPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final supportsWrappedLabel = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+
+    return Semantics(
+      button: true,
+      label: label,
       onTap: onTap,
-      onLongPressStart: onLongPressStart,
-      onLongPressMoveUpdate: onLongPressMoveUpdate,
-      onLongPressEnd: onLongPressEnd,
-      behavior: HitTestBehavior.opaque,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            height: 62,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : Colors.black.withValues(alpha: 0.08),
-                width: 0.5,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 17,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.85)
-                      : Colors.black.withValues(alpha: 0.65),
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: onTap,
+          onLongPressStart: onLongPressStart,
+          onLongPressMoveUpdate: onLongPressMoveUpdate,
+          onLongPressEnd: onLongPressEnd,
+          behavior: HitTestBehavior.opaque,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 62),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: supportsWrappedLabel ? 8 : 0,
                 ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.08),
+                    width: 0.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 17,
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.85)
                           : Colors.black.withValues(alpha: 0.65),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: supportsWrappedLabel ? 2 : 1,
+                        overflow: TextOverflow.visible,
+                        softWrap: supportsWrappedLabel,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : Colors.black.withValues(alpha: 0.65),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

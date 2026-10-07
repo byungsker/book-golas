@@ -23,9 +23,16 @@ class MemorablePagesTab extends StatefulWidget {
   final void Function(bool isSelectionMode) onSelectionModeChanged;
   final void Function(String imageId, bool isSelected) onImageSelected;
   final VoidCallback onDeleteSelected;
-  final void Function(String imageId, String? imageUrl, String? extractedText,
-      int? pageNumber) onImageTap;
+  final void Function(
+    String imageId,
+    String? imageUrl,
+    String? extractedText,
+    int? pageNumber,
+  )
+  onImageTap;
   final void Function(List<Map<String, dynamic>> images) onImagesLoaded;
+  final Future<String?> Function(String imageId)? onImageLoadFailed;
+  final double bottomContentPadding;
 
   const MemorablePagesTab({
     super.key,
@@ -40,6 +47,8 @@ class MemorablePagesTab extends StatefulWidget {
     required this.onDeleteSelected,
     required this.onImageTap,
     required this.onImagesLoaded,
+    this.onImageLoadFailed,
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -48,6 +57,17 @@ class MemorablePagesTab extends StatefulWidget {
 
 class _MemorablePagesTabState extends State<MemorablePagesTab> {
   final GoogleVisionOcrService _ocrService = GoogleVisionOcrService();
+  final Set<String> _refreshingImageIds = {};
+
+  void _retryImage(String imageId) {
+    final callback = widget.onImageLoadFailed;
+    if (callback == null || _refreshingImageIds.contains(imageId)) return;
+
+    _refreshingImageIds.add(imageId);
+    callback(imageId).whenComplete(() {
+      _refreshingImageIds.remove(imageId);
+    });
+  }
 
   List<Map<String, dynamic>> _sortImages(List<Map<String, dynamic>> images) {
     final sorted = List<Map<String, dynamic>>.from(images);
@@ -110,35 +130,38 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.photo_on_rectangle,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.bookDetailNoPhotos,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.photo_on_rectangle,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.bookDetailAddPhotoHint,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              const SizedBox(height: 12),
+              Text(
+                l10n.bookDetailNoPhotos,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                l10n.bookDetailAddPhotoHint,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -174,10 +197,16 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
       onSelected: widget.onSortModeChanged,
       itemBuilder: (context) => [
         _buildSortMenuItem(
-            context, 'page_desc', l10n.memorablePagesSortPageDesc),
+          context,
+          'page_desc',
+          l10n.memorablePagesSortPageDesc,
+        ),
         _buildSortMenuItem(context, 'page_asc', l10n.memorablePagesSortPageAsc),
         _buildSortMenuItem(
-            context, 'date_desc', l10n.memorablePagesSortDateDesc),
+          context,
+          'date_desc',
+          l10n.memorablePagesSortDateDesc,
+        ),
         _buildSortMenuItem(context, 'date_asc', l10n.memorablePagesSortDateAsc),
       ],
       child: Container(
@@ -211,7 +240,10 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
   }
 
   PopupMenuItem<String> _buildSortMenuItem(
-      BuildContext context, String value, String label) {
+    BuildContext context,
+    String value,
+    String label,
+  ) {
     return PopupMenuItem(
       value: value,
       child: Row(
@@ -281,7 +313,11 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     final totalCount = images.length + (shouldInsertAd ? 1 : 0);
 
     return ListView.builder(
-      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 100),
+      padding: EdgeInsets.only(
+        left: 4,
+        right: 4,
+        bottom: widget.bottomContentPadding,
+      ),
       itemCount: totalCount,
       itemBuilder: (context, index) {
         if (shouldInsertAd && index == _adInsertIndex) {
@@ -317,6 +353,8 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     final pageNumber = image['page_number'] as int?;
     final createdAt = image['created_at'] as String?;
     final hasImageUrl = imageUrl != null && imageUrl.isNotEmpty;
+    final imageLoadFailed = image['_image_load_failed'] == true;
+    final imageSourceMissing = image['_image_source_missing'] == true;
     final previewText = _ocrService.getPreviewText(extractedText, maxLines: 2);
     final isSelected = widget.selectedImageIds.contains(imageId);
 
@@ -358,7 +396,14 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (hasImageUrl) _buildThumbnail(imageId, imageUrl, isDark),
+                if (hasImageUrl || imageLoadFailed || imageSourceMissing)
+                  _buildThumbnail(
+                    imageId,
+                    imageUrl,
+                    isDark,
+                    unavailable: imageLoadFailed || imageSourceMissing,
+                    retryable: !imageSourceMissing,
+                  ),
                 _buildTextContent(
                   previewText: previewText,
                   pageNumber: pageNumber,
@@ -375,7 +420,28 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
     );
   }
 
-  Widget _buildThumbnail(String imageId, String imageUrl, bool isDark) {
+  Widget _buildThumbnail(
+    String imageId,
+    String? imageUrl,
+    bool isDark, {
+    bool unavailable = false,
+    bool retryable = true,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final errorColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final iconColor = isDark ? Colors.grey[600]! : Colors.grey[400]!;
+    if (unavailable || imageUrl == null || imageUrl.isEmpty) {
+      return _buildUnavailableThumbnail(
+        imageId,
+        errorColor,
+        iconColor,
+        retryable
+            ? l10n.bookDetailImageLoadFailed
+            : l10n.bookDetailImageMissing,
+        retryable: retryable,
+      );
+    }
+
     return Hero(
       tag: 'book_image_$imageId',
       child: ClipRRect(
@@ -398,12 +464,41 @@ class _MemorablePagesTabState extends State<MemorablePagesTab> {
               ),
             ),
             errorWidget: (context, url, error) => Container(
-              color: isDark ? Colors.grey[800] : Colors.grey[200],
-              child: Icon(
-                CupertinoIcons.photo,
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              color: errorColor,
+              child: IconButton(
+                tooltip: l10n.bookDetailImageLoadFailed,
+                onPressed: () => _retryImage(imageId),
+                icon: Icon(CupertinoIcons.refresh, color: iconColor),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnavailableThumbnail(
+    String imageId,
+    Color backgroundColor,
+    Color iconColor,
+    String tooltip, {
+    required bool retryable,
+  }) {
+    return Hero(
+      tag: 'book_image_$imageId',
+      child: SizedBox(
+        width: 90,
+        height: 90,
+        child: Tooltip(
+          message: tooltip,
+          child: Material(
+            color: backgroundColor,
+            child: retryable
+                ? InkWell(
+                    onTap: () => _retryImage(imageId),
+                    child: Icon(CupertinoIcons.refresh, color: iconColor),
+                  )
+                : Icon(CupertinoIcons.photo, color: iconColor),
           ),
         ),
       ),

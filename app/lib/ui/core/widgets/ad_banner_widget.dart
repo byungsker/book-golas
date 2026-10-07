@@ -21,23 +21,28 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   bool _isLoadingAd = false;
+  bool _hasAttemptedLoad = false;
+  AdViewModel? _adViewModel;
 
   @override
   void initState() {
     super.initState();
+    _adViewModel = context.read<AdViewModel>();
+    _adViewModel!.addListener(_handleAdVisibilityChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAd();
     });
   }
 
   void _loadAd() {
-    if (_isLoadingAd || _bannerAd != null) return;
+    if (_hasAttemptedLoad || _isLoadingAd || _bannerAd != null) return;
 
-    final adViewModel = context.read<AdViewModel>();
+    final adViewModel = _adViewModel!;
     if (!adViewModel.shouldShowAds || !adViewModel.isInitialized) return;
 
+    _hasAttemptedLoad = true;
     _isLoadingAd = true;
-    _bannerAd = adViewModel.adService.createBannerAd(
+    final bannerAd = adViewModel.adService.createBannerAd(
       adSize: widget.adSize,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -61,11 +66,35 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
         },
       ),
     );
-    _bannerAd?.load();
+    if (bannerAd == null) {
+      _isLoadingAd = false;
+      return;
+    }
+
+    _bannerAd = bannerAd;
+    bannerAd.load();
+  }
+
+  void _handleAdVisibilityChanged() {
+    final adViewModel = _adViewModel;
+    if (!mounted ||
+        adViewModel == null ||
+        (adViewModel.shouldShowAds && adViewModel.isInitialized)) {
+      return;
+    }
+
+    _bannerAd?.dispose();
+    setState(() {
+      _bannerAd = null;
+      _isAdLoaded = false;
+      _isLoadingAd = false;
+      _hasAttemptedLoad = false;
+    });
   }
 
   @override
   void dispose() {
+    _adViewModel?.removeListener(_handleAdVisibilityChanged);
     _bannerAd?.dispose();
     super.dispose();
   }
@@ -78,7 +107,10 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
           return const SizedBox.shrink();
         }
 
-        if (adViewModel.isInitialized && _bannerAd == null && !_isLoadingAd) {
+        if (adViewModel.isInitialized &&
+            _bannerAd == null &&
+            !_isLoadingAd &&
+            !_hasAttemptedLoad) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _loadAd();
           });

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { config, validateConfig } from "./config.ts";
 import { ProfileCollector } from "./services/profile-collector.ts";
+import { collectProfileWithConsent } from "./services/profile-consent.ts";
 import { RecommendationService } from "./services/recommendation-service.ts";
 import type { RecommendationResponse } from "./types.ts";
 import {

@@ -1,0 +1,12 @@
+{
+  "name": "bookgolas-agent-api",
+  "version": "0.1.0",
+  "exports": "./src/server.ts",
+  "imports": {},
+  "compilerOptions": {
+    "strict": true
+  },
+  "tasks": {
+    "test": "deno test --allow-env test"
+  }
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:book_golas/ui/core/theme/design_system.dart';
+import 'package:book_golas/ui/core/widgets/scrollable_tab_bar.dart';
 
 class CustomTabBar extends StatelessWidget {
   final TabController tabController;
@@ -11,88 +13,64 @@ class CustomTabBar extends StatelessWidget {
     this.tabLabels = const ['기록', '히스토리', '상세'],
   });
 
+  static double extentFor(BuildContext context, List<String> tabLabels) {
+    const textStyle = AppTypography.labelLarge;
+    var maxTextHeight = 0.0;
+
+    for (final label in tabLabels) {
+      final textPainter = TextPainter(
+        text: TextSpan(text: label, style: textStyle),
+        textAlign: TextAlign.center,
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (textPainter.height > maxTextHeight) {
+        maxTextHeight = textPainter.height;
+      }
+    }
+
+    final contentHeight = maxTextHeight + 26;
+    return contentHeight < 56 ? 56 : contentHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: isDark ? BLabColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-            width: 1,
-          ),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Row(
-            children: List.generate(tabLabels.length, (index) {
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    tabController.animateTo(index);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Text(
-                      tabLabels[index],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: tabController.index == index
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: tabController.index == index
-                            ? (isDark ? Colors.white : Colors.black)
-                            : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final tabWidth = constraints.maxWidth / tabLabels.length;
-                final indicatorWidth = tabWidth * 0.5;
-                return AnimatedBuilder(
-                  animation: tabController.animation!,
-                  builder: (context, child) {
-                    final animValue = tabController.animation!.value;
-                    final centerPosition =
-                        tabWidth * animValue + (tabWidth - indicatorWidth) / 2;
-                    return Stack(
-                      children: [
-                        Positioned(
-                          left: centerPosition,
-                          child: Container(
-                            width: indicatorWidth,
-                            height: 2,
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.white : Colors.black,
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+    final backgroundColor =
+        isDark ? BLabColors.surfaceDark : BLabColors.surfaceLight;
+    final tabBarHeight = extentFor(context, tabLabels);
+
+    return AnimatedBuilder(
+      animation: tabController,
+      builder: (context, child) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border(
+              bottom: BorderSide(
+                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                width: 1,
+              ),
             ),
           ),
-        ],
-      ),
+          child: ScrollableTabBar(
+            controller: tabController,
+            tabs: tabLabels,
+            selectedIndex: tabController.index,
+            tabWidth: 44,
+            height: tabBarHeight,
+            backgroundColor: backgroundColor,
+            indicatorColor: BLabColors.textPrimary(context),
+            selectedTextColor: BLabColors.textPrimary(context),
+            unselectedTextColor: BLabColors.textSecondary(context),
+          ),
+        );
+      },
     );
   }
 }

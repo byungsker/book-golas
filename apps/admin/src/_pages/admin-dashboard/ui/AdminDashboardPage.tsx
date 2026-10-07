@@ -36,12 +36,10 @@ export default function AdminDashboardPage() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const today = new Date().toISOString().split("T")[0];
-
-      const { data: todayLogs } = await supabase
-        .from("push_logs")
-        .select("*")
-        .gte("sent_at", today);
+      const response = await fetch("/api/admin/push-logs?dashboard=1");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch dashboard logs");
+      const todayLogs = data.todayLogs as PushLog[];
 
       if (todayLogs) {
         const sent = todayLogs.length;
@@ -75,15 +73,7 @@ export default function AdminDashboardPage() {
         );
       }
 
-      const { data: recent } = await supabase
-        .from("push_logs")
-        .select("*")
-        .order("sent_at", { ascending: false })
-        .limit(10);
-
-      if (recent) {
-        setRecentLogs(recent);
-      }
+      setRecentLogs((data.recentLogs || []) as PushLog[]);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
     } finally {
@@ -213,10 +203,12 @@ export default function AdminDashboardPage() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">
-                        {new Date(log.sent_at).toLocaleTimeString("ko-KR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {log.sent_at
+                          ? new Date(log.sent_at).toLocaleTimeString("ko-KR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                          : "처리 중"}
                       </span>
                       <Badge variant="outline">{log.push_type}</Badge>
                     </div>

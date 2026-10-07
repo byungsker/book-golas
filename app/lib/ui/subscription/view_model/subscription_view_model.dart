@@ -21,7 +21,7 @@ class SubscriptionViewModel extends BaseViewModel {
 
   /// Loads the current subscription status from RevenueCat.
   ///
-  /// Updates [isProUser] based on whether the user has active Pro entitlement.
+  /// Updates [isProUser] based on whether the user has an active subscription.
   Future<void> loadSubscriptionStatus() async {
     await runAsync(() async {
       final isPro = await _subscriptionService.isPro();

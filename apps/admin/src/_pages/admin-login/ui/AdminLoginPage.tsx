@@ -15,7 +15,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const unauthorizedError = searchParams.get("error") === "unauthorized";
+  const accessDisabled = searchParams.get("error") === "admin_disabled";
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -44,9 +44,9 @@ function LoginForm() {
           <CardDescription>관리자 계정으로 로그인하세요</CardDescription>
         </CardHeader>
         <CardContent>
-          {unauthorizedError && (
+          {accessDisabled && (
             <div className="mb-4 p-3 bg-red-50 text-red-800 rounded-md text-sm">
-              관리자 권한이 없습니다.
+              관리자 기능이 비활성화되었습니다.
             </div>
           )}
           {error && (

@@ -1,7 +1,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { SupabaseClient } from "@supabase/supabase-js";
-import type { ReadingPatterns, ReadingInsight } from "../types.ts";
+import type { ReadingInsight, ReadingPatterns } from "../types.ts";
 import { config } from "../config.ts";
 import {
   ContractError,
@@ -36,9 +36,22 @@ export class InsightService {
   private llm: ChatOpenAI;
   private supabase: SupabaseClient;
   private promptTemplate: PromptTemplate;
+  private readonly runProviderCall: <T>(
+    input: string,
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>;
 
-  constructor(supabase: SupabaseClient) {
+  constructor(
+    supabase: SupabaseClient,
+    runProviderCall: <T>(
+      input: string,
+      context: AiBudgetContext,
+      operation: AiProviderOperation<T>,
+    ) => Promise<T>,
+  ) {
     this.supabase = supabase;
+    this.runProviderCall = runProviderCall;
 
     this.llm = new ChatOpenAI({
       openAIApiKey: config.openai.apiKey,
@@ -106,7 +119,7 @@ export class InsightService {
     if (!canGenerate) {
       const hoursRemaining = await this.getHoursUntilNextGeneration(userId);
       throw new Error(
-        `Rate limit exceeded. Try again in ${hoursRemaining} hours.`
+        `Rate limit exceeded. Try again in ${hoursRemaining} hours.`,
       );
     }
 
@@ -167,8 +180,8 @@ export class InsightService {
 
     const lastGenerated = new Date(data.last_generated_at);
     const now = new Date();
-    const hoursSinceLastGeneration =
-      (now.getTime() - lastGenerated.getTime()) / (1000 * 60 * 60);
+    const hoursSinceLastGeneration = (now.getTime() - lastGenerated.getTime()) /
+      (1000 * 60 * 60);
 
     return hoursSinceLastGeneration >= config.insights.rateLimitHours;
   }
@@ -189,10 +202,10 @@ export class InsightService {
 
     const lastGenerated = new Date(data.last_generated_at);
     const now = new Date();
-    const hoursSinceLastGeneration =
-      (now.getTime() - lastGenerated.getTime()) / (1000 * 60 * 60);
-    const hoursRemaining =
-      config.insights.rateLimitHours - hoursSinceLastGeneration;
+    const hoursSinceLastGeneration = (now.getTime() - lastGenerated.getTime()) /
+      (1000 * 60 * 60);
+    const hoursRemaining = config.insights.rateLimitHours -
+      hoursSinceLastGeneration;
 
     return Math.max(0, Math.ceil(hoursRemaining));
   }
@@ -205,7 +218,7 @@ export class InsightService {
           user_id: userId,
           last_generated_at: new Date().toISOString(),
         },
-        { onConflict: "user_id" }
+        { onConflict: "user_id" },
       );
 
     if (error) {
@@ -232,15 +245,15 @@ export class InsightService {
     const memoryEntries = data.map(
       (
         record: { insight_content: string; created_at: string },
-        index: number
+        index: number,
       ) => {
         const insights: LLMInsightResponse[] = JSON.parse(
-          record.insight_content
+          record.insight_content,
         );
         const date = new Date(record.created_at).toLocaleDateString("ko-KR");
         const insightTitles = insights.map((i) => i.title).join(", ");
         return `${index + 1}. [${date}] ${insightTitles}`;
-      }
+      },
     );
 
     return `이전 인사이트:\n${memoryEntries.join("\n")}`;
@@ -249,7 +262,7 @@ export class InsightService {
   private async saveMemory(
     userId: string,
     insights: ReadingInsight[],
-    metadata: Record<string, unknown>
+    metadata: Record<string, unknown>,
   ): Promise<void> {
     const insightContent = JSON.stringify(
       insights.map((i) => ({
@@ -257,7 +270,7 @@ export class InsightService {
         description: i.description,
         category: i.category,
         relatedBooks: i.relatedBooks,
-      }))
+      })),
     );
 
     const { error } = await this.supabase
@@ -315,14 +328,12 @@ export class InsightService {
     const habits = patterns.readingHabits;
     const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
 
-    const peakHour =
-      habits.peakReadingHour !== null
-        ? `${habits.peakReadingHour}시`
-        : "데이터 없음";
-    const peakDay =
-      habits.peakReadingDay !== null
-        ? `${dayNames[habits.peakReadingDay]}요일`
-        : "데이터 없음";
+    const peakHour = habits.peakReadingHour !== null
+      ? `${habits.peakReadingHour}시`
+      : "데이터 없음";
+    const peakDay = habits.peakReadingDay !== null
+      ? `${dayNames[habits.peakReadingDay]}요일`
+      : "데이터 없음";
 
     return `주로 ${peakHour}에 독서, ${peakDay}에 가장 많이 읽음`;
   }
@@ -334,16 +345,17 @@ export class InsightService {
 
   private formatHighlightStats(patterns: ReadingPatterns): string {
     const stats = patterns.highlightStats;
-    const keywords =
-      stats.topKeywords.length > 0
-        ? stats.topKeywords.slice(0, 5).join(", ")
-        : "없음";
+    const keywords = stats.topKeywords.length > 0
+      ? stats.topKeywords.slice(0, 5).join(", ")
+      : "없음";
     return `총 ${stats.totalCount}개, 주요 키워드: ${keywords}`;
   }
 
   private formatYearOverYear(patterns: ReadingPatterns): string {
     const yoy = patterns.yearOverYear;
     const changeDirection = yoy.changePercentage >= 0 ? "증가" : "감소";
-    return `${yoy.previousYear}년 ${yoy.previousYearCompleted}권 → ${yoy.currentYear}년 ${yoy.currentYearCompleted}권 (${Math.abs(yoy.changePercentage)}% ${changeDirection})`;
+    return `${yoy.previousYear}년 ${yoy.previousYearCompleted}권 → ${yoy.currentYear}년 ${yoy.currentYearCompleted}권 (${
+      Math.abs(yoy.changePercentage)
+    }% ${changeDirection})`;
   }
 }

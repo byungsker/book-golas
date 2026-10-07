@@ -36,8 +36,8 @@ AI가 나의 독서 습관을 분석해 인사이트를 제공합니다. 어떤 
 
 Bookgolas는 현재 모든 기능을 무료로 제공하며 광고가 표시될 수 있습니다.
 
-개인정보 처리방침: https://bookgolas.app/privacy
-이용약관: https://bookgolas.app/terms
+개인정보 처리방침: https://book-golas.vercel.app/privacy
+이용약관: https://book-golas.vercel.app/terms
 
 ## 키워드
 

@@ -23,26 +23,36 @@ class AdNativeWidget extends StatefulWidget {
 class _AdNativeWidgetState extends State<AdNativeWidget> {
   NativeAd? _nativeAd;
   bool _isAdLoaded = false;
+  bool _isLoadingAd = false;
+  bool _hasAttemptedLoad = false;
+  AdViewModel? _adViewModel;
 
   @override
   void initState() {
     super.initState();
+    _adViewModel = context.read<AdViewModel>();
+    _adViewModel!.addListener(_handleAdVisibilityChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAd();
     });
   }
 
   void _loadAd() {
-    final adViewModel = context.read<AdViewModel>();
+    if (_hasAttemptedLoad || _isLoadingAd || _nativeAd != null) return;
+
+    final adViewModel = _adViewModel!;
     if (!adViewModel.shouldShowAds || !adViewModel.isInitialized) return;
 
-    _nativeAd = adViewModel.adService.createNativeAd(
+    _hasAttemptedLoad = true;
+    _isLoadingAd = true;
+    final nativeAd = adViewModel.adService.createNativeAd(
       factoryId: widget.factoryId,
       listener: NativeAdListener(
         onAdLoaded: (ad) {
           if (mounted) {
             setState(() {
               _isAdLoaded = true;
+              _isLoadingAd = false;
             });
           }
         },
@@ -53,16 +63,41 @@ class _AdNativeWidgetState extends State<AdNativeWidget> {
             setState(() {
               _nativeAd = null;
               _isAdLoaded = false;
+              _isLoadingAd = false;
             });
           }
         },
       ),
     );
-    _nativeAd?.load();
+    if (nativeAd == null) {
+      _isLoadingAd = false;
+      return;
+    }
+
+    _nativeAd = nativeAd;
+    nativeAd.load();
+  }
+
+  void _handleAdVisibilityChanged() {
+    final adViewModel = _adViewModel;
+    if (!mounted ||
+        adViewModel == null ||
+        (adViewModel.shouldShowAds && adViewModel.isInitialized)) {
+      return;
+    }
+
+    _nativeAd?.dispose();
+    setState(() {
+      _nativeAd = null;
+      _isAdLoaded = false;
+      _isLoadingAd = false;
+      _hasAttemptedLoad = false;
+    });
   }
 
   @override
   void dispose() {
+    _adViewModel?.removeListener(_handleAdVisibilityChanged);
     _nativeAd?.dispose();
     super.dispose();
   }
@@ -71,6 +106,16 @@ class _AdNativeWidgetState extends State<AdNativeWidget> {
   Widget build(BuildContext context) {
     return Consumer<AdViewModel>(
       builder: (context, adViewModel, _) {
+        if (adViewModel.shouldShowAds &&
+            adViewModel.isInitialized &&
+            _nativeAd == null &&
+            !_isLoadingAd &&
+            !_hasAttemptedLoad) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _loadAd();
+          });
+        }
+
         if (!adViewModel.shouldShowAds || !_isAdLoaded || _nativeAd == null) {
           return const SizedBox.shrink();
         }

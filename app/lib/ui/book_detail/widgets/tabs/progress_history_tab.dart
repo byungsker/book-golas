@@ -14,25 +14,25 @@ enum _ChartMode { cumulativePages, readingTime }
 class ProgressHistoryTab extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> progressFuture;
   final int attemptCount;
-  final String attemptEncouragement;
   final double progressPercentage;
   final int daysLeft;
   final DateTime startDate;
   final DateTime targetDate;
   final String bookId;
   final Map<String, int> dailySessionDurations;
+  final double bottomContentPadding;
 
   const ProgressHistoryTab({
     super.key,
     required this.progressFuture,
     required this.attemptCount,
-    required this.attemptEncouragement,
     required this.progressPercentage,
     required this.daysLeft,
     required this.startDate,
     required this.targetDate,
     required this.bookId,
     this.dailySessionDurations = const {},
+    this.bottomContentPadding = 100,
   });
 
   @override
@@ -66,27 +66,30 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.chart_bar,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context).noProgressRecords,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.chart_bar,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                AppLocalizations.of(context).noProgressRecords,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -116,7 +119,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
     return Builder(
       builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 100),
+        padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,7 +172,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
           if (_chartMode == _ChartMode.cumulativePages)
             _buildLegendRow(context, isDark)
           else
-            _buildReadingTimeLegendRow(isDark),
+            _buildReadingTimeLegendRow(context, isDark),
           const SizedBox(height: 20),
           if (_chartMode == _ChartMode.cumulativePages)
             _buildChart(
@@ -179,9 +182,10 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
               dailyPagesSpots,
               maxDailyPage,
               isDark,
+              AppLocalizations.of(context),
             )
           else
-            _buildReadingTimeChart(data, isDark),
+            _buildReadingTimeChart(data, isDark, AppLocalizations.of(context)),
         ],
       ),
     );
@@ -191,30 +195,37 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     final l10n = AppLocalizations.of(context);
     final headerTitle = _chartMode == _ChartMode.cumulativePages
         ? l10n.historyTabCumulativePages
-        : '독서 시간';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              headerTitle,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-              ),
+        : l10n.historyTabReadingTime;
+    return LayoutBuilder(
+      builder: (context, constraints) => Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            headerTitle,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
             ),
-            if (widget.attemptCount > 1) ...[
-              const SizedBox(width: 8),
-              Container(
+          ),
+          if (widget.attemptCount > 1)
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+              child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: BLabColors.warning.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '${widget.attemptCount}번째 · ${widget.attemptEncouragement}',
+                  l10n.historyTabAttemptBadge(
+                    widget.attemptCount,
+                    _attemptEncouragement(l10n),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -222,41 +233,53 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                   ),
                 ),
               ),
-            ],
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: BLabColors.primary.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            l10n.daysRecorded(recordCount),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: BLabColors.primary,
+            ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: BLabColors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              l10n.daysRecorded(recordCount),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: BLabColors.primary,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildLegendRow(BuildContext context, bool isDark) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLegendItem(
-          l10n.historyTabCumulativePages,
-          BLabColors.primary,
-          isDark,
-        ),
-        const SizedBox(width: 24),
-        _buildLegendItem(l10n.historyTabDailyPages, BLabColors.success, isDark),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => Wrap(
+        spacing: 24,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: _buildLegendItem(
+              l10n.historyTabCumulativePages,
+              BLabColors.primary,
+              isDark,
+            ),
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: _buildLegendItem(
+              l10n.historyTabDailyPages,
+              BLabColors.success,
+              isDark,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -272,12 +295,14 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -291,6 +316,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     List<FlSpot> dailyPagesSpots,
     double maxDailyPage,
     bool isDark,
+    AppLocalizations l10n,
   ) {
     return SizedBox(
       height: 250,
@@ -302,6 +328,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
               : 16.0;
 
           final scaledMaxY = (maxPage * 1.1).ceilToDouble();
+          final yInterval = (scaledMaxY / 4).ceilToDouble();
           final barScaleFactor =
               scaledMaxY / (maxDailyPage > 0 ? maxDailyPage * 1.5 : 1);
 
@@ -342,7 +369,9 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                           ),
                           children: [
                             TextSpan(
-                              text: '누적: $cumulativePage p\n',
+                              text: l10n.historyTabChartCumulativeTooltip(
+                                cumulativePage,
+                              ),
                               style: const TextStyle(
                                 color: BLabColors.primary,
                                 fontSize: 13,
@@ -350,7 +379,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                               ),
                             ),
                             TextSpan(
-                              text: '일일: +$dailyPage p',
+                              text: l10n.historyTabChartDailyTooltip(dailyPage),
                               style: const TextStyle(
                                 color: BLabColors.success,
                                 fontSize: 12,
@@ -415,10 +444,16 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 40,
+                    reservedSize: 48,
+                    interval: yInterval,
                     getTitlesWidget: (value, meta) {
                       return Text(
                         value.toInt().toString(),
+                        maxLines: 1,
+                        softWrap: false,
+                        textScaler: MediaQuery.textScalerOf(context).clamp(
+                          maxScaleFactor: 1.4,
+                        ),
                         style: TextStyle(
                           fontSize: 11,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -498,102 +533,118 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
   }
 
   Widget _buildChartModeToggle(bool isDark) {
+    final l10n = AppLocalizations.of(context);
+    final useVerticalLayout = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final cumulativeOption = _buildChartModeOption(
+      isDark: isDark,
+      mode: _ChartMode.cumulativePages,
+      label: l10n.historyTabCumulativePages,
+      selectedColor: BLabColors.primary,
+      key: const ValueKey('history-chart-mode-cumulative'),
+    );
+    final readingTimeOption = _buildChartModeOption(
+      isDark: isDark,
+      mode: _ChartMode.readingTime,
+      label: l10n.historyTabReadingTime,
+      selectedColor: BLabColors.warning,
+      key: const ValueKey('history-chart-mode-reading-time'),
+    );
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[800] : Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () =>
-                  setState(() => _chartMode = _ChartMode.cumulativePages),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: _chartMode == _ChartMode.cumulativePages
-                      ? (isDark ? BLabColors.surfaceDark : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: _chartMode == _ChartMode.cumulativePages
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    '누적 페이지',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: _chartMode == _ChartMode.cumulativePages
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: _chartMode == _ChartMode.cumulativePages
-                          ? BLabColors.primary
-                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
+      child: useVerticalLayout
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                cumulativeOption,
+                const SizedBox(height: 3),
+                readingTimeOption,
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: cumulativeOption),
+                Expanded(child: readingTimeOption),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildChartModeOption({
+    required bool isDark,
+    required _ChartMode mode,
+    required String label,
+    required Color selectedColor,
+    required Key key,
+  }) {
+    final selected = _chartMode == mode;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        key: key,
+        onTap: () => setState(() => _chartMode = mode),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          decoration: BoxDecoration(
+            color: selected
+                ? (isDark ? BLabColors.surfaceDark : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
                     ),
-                  ),
-                ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              maxLines: 2,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected
+                    ? selectedColor
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
               ),
             ),
           ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _chartMode = _ChartMode.readingTime),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: _chartMode == _ChartMode.readingTime
-                      ? (isDark ? BLabColors.surfaceDark : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: _chartMode == _ChartMode.readingTime
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    '독서 시간',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: _chartMode == _ChartMode.readingTime
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      color: _chartMode == _ChartMode.readingTime
-                          ? BLabColors.warning
-                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildReadingTimeLegendRow(bool isDark) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [_buildLegendItem('독서 시간', BLabColors.warning, isDark)],
+  Widget _buildReadingTimeLegendRow(BuildContext context, bool isDark) {
+    return LayoutBuilder(
+      builder: (context, constraints) => ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+        child: _buildLegendItem(
+          AppLocalizations.of(context).historyTabReadingTime,
+          BLabColors.warning,
+          isDark,
+        ),
+      ),
     );
   }
 
-  Widget _buildReadingTimeChart(List<Map<String, dynamic>> data, bool isDark) {
+  Widget _buildReadingTimeChart(
+    List<Map<String, dynamic>> data,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     final readingTimeMinutes = data.map((e) {
       final seconds = e['reading_time'] as int? ?? 0;
       return seconds / 60.0;
@@ -604,6 +655,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
         : 10.0;
     final scaledMaxY =
         maxMinutes > 0 ? (maxMinutes * 1.3).ceilToDouble() : 10.0;
+    final yInterval = (scaledMaxY / 4).ceilToDouble();
 
     return SizedBox(
       height: 250,
@@ -643,7 +695,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                       ),
                       children: [
                         TextSpan(
-                          text: _formatMinutesLabel(minutes),
+                          text: _formatMinutesLabel(minutes, l10n),
                           style: const TextStyle(
                             color: BLabColors.warning,
                             fontSize: 13,
@@ -676,10 +728,16 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 50,
+                    reservedSize: 64,
+                    interval: yInterval,
                     getTitlesWidget: (value, meta) {
                       return Text(
-                        _formatMinutesLabel(value),
+                        _formatMinutesLabel(value, l10n),
+                        maxLines: 1,
+                        softWrap: false,
+                        textScaler: MediaQuery.textScalerOf(context).clamp(
+                          maxScaleFactor: 1.4,
+                        ),
                         style: TextStyle(
                           fontSize: 11,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -755,19 +813,19 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     );
   }
 
-  String _formatMinutesLabel(double minutes) {
+  String _formatMinutesLabel(double minutes, AppLocalizations l10n) {
     if (minutes < 1) {
-      return '${(minutes * 60).round()}초';
+      return l10n.historyTabDurationSeconds((minutes * 60).round());
     }
     if (minutes < 60) {
-      return '${minutes.round()}분';
+      return l10n.historyTabDurationMinutes(minutes.round());
     }
     final hours = (minutes / 60).floor();
     final remainingMinutes = (minutes % 60).round();
     if (remainingMinutes == 0) {
-      return '$hours시간';
+      return l10n.historyTabDurationHours(hours);
     }
-    return '$hours시간 $remainingMinutes분';
+    return l10n.historyTabDurationHoursMinutes(hours, remainingMinutes);
   }
 
   Widget _buildReadingTimeCard(bool isDark) {
@@ -796,7 +854,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '⏱️ 독서 시간 통계',
+                AppLocalizations.of(context).historyTabReadingTimeStats,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -808,8 +866,13 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                 children: [
                   Expanded(
                     child: _buildStatItem(
-                      '총 독서 시간',
-                      '$hours시간 $minutes분 $seconds초',
+                      AppLocalizations.of(context).historyTabTotalReadingTime,
+                      AppLocalizations.of(context)
+                          .historyTabDurationHoursMinutesSeconds(
+                        hours,
+                        minutes,
+                        seconds,
+                      ),
                       BLabColors.primary,
                       isDark,
                     ),
@@ -817,8 +880,10 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatItem(
-                      '총 세션',
-                      '${(totalSeconds / 60).toStringAsFixed(0)}분',
+                      AppLocalizations.of(context).historyTabTotalSessions,
+                      AppLocalizations.of(context).historyTabDurationMinutes(
+                        (totalSeconds / 60).round(),
+                      ),
                       BLabColors.success,
                       isDark,
                     ),
@@ -923,7 +988,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     bool isDark,
     List<Map<String, dynamic>> progressData,
   ) {
-    final analysisResult = _analyzeReadingState(progressData);
+    final analysisResult = _analyzeReadingState(context, progressData);
     final emoji = analysisResult['emoji'] as String;
     final title = analysisResult['title'] as String;
     final message = analysisResult['message'] as String;
@@ -945,7 +1010,10 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       title,
@@ -955,8 +1023,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                         color: color,
                       ),
                     ),
-                    if (widget.attemptCount > 1) ...[
-                      const SizedBox(width: 6),
+                    if (widget.attemptCount > 1)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 5,
@@ -967,7 +1034,14 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${widget.attemptCount}번째 · ${widget.attemptEncouragement}',
+                          AppLocalizations.of(context).historyTabAttemptBadge(
+                            widget.attemptCount,
+                            _attemptEncouragement(
+                              AppLocalizations.of(context),
+                            ),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -975,7 +1049,6 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
                           ),
                         ),
                       ),
-                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -996,8 +1069,10 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
   }
 
   Map<String, dynamic> _analyzeReadingState(
+    BuildContext context,
     List<Map<String, dynamic>> progressData,
   ) {
+    final l10n = AppLocalizations.of(context);
     final totalDays = widget.targetDate.difference(widget.startDate).inDays + 1;
     final elapsedDays = DateTime.now().difference(widget.startDate).inDays;
 
@@ -1009,16 +1084,17 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
       if (widget.attemptCount > 1) {
         return {
           'emoji': '🏆',
-          'title': '드디어 완독!',
-          'message':
-              '${widget.attemptCount}번의 도전 끝에 완독에 성공했어요. 포기하지 않은 당신이 멋져요!',
+          'title': l10n.historyTabAnalysisCompletedAfterAttemptsTitle,
+          'message': l10n.historyTabAnalysisCompletedAfterAttemptsMessage(
+            widget.attemptCount,
+          ),
           'color': BLabColors.success,
         };
       }
       return {
         'emoji': '🎉',
-        'title': '완독 축하해요!',
-        'message': '목표를 달성했어요. 다음 책도 함께 읽어볼까요?',
+        'title': l10n.historyTabAnalysisCompletedTitle,
+        'message': l10n.historyTabAnalysisCompletedMessage,
         'color': BLabColors.success,
       };
     }
@@ -1027,15 +1103,17 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
       if (widget.attemptCount > 1) {
         return {
           'emoji': '💪',
-          'title': '이번엔 완주해봐요',
-          'message': '${widget.attemptCount}번째 도전이에요. 목표일을 재설정하고 끝까지 읽어볼까요?',
+          'title': l10n.historyTabAnalysisPastDueRetryTitle,
+          'message': l10n.historyTabAnalysisPastDueRetryMessage(
+            widget.attemptCount,
+          ),
           'color': BLabColors.destructive,
         };
       }
       return {
         'emoji': '⏰',
-        'title': '목표일이 지났어요',
-        'message': '괜찮아요, 새 목표일을 설정하고 다시 시작해봐요!',
+        'title': l10n.historyTabAnalysisPastDueTitle,
+        'message': l10n.historyTabAnalysisPastDueMessage,
         'color': BLabColors.destructive,
       };
     }
@@ -1043,8 +1121,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     if (progressDiff > 20) {
       return {
         'emoji': '🚀',
-        'title': '놀라운 속도예요!',
-        'message': '예상보다 훨씬 빠르게 읽고 있어요. 이 페이스면 일찍 완독할 수 있겠어요!',
+        'title': l10n.historyTabAnalysisFarAheadTitle,
+        'message': l10n.historyTabAnalysisFarAheadMessage,
         'color': BLabColors.primary,
       };
     }
@@ -1052,8 +1130,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     if (progressDiff > 5) {
       return {
         'emoji': '✨',
-        'title': '순조롭게 진행 중!',
-        'message': '계획보다 앞서가고 있어요. 이대로만 하면 목표 달성 확실해요!',
+        'title': l10n.historyTabAnalysisAheadTitle,
+        'message': l10n.historyTabAnalysisAheadMessage,
         'color': BLabColors.success,
       };
     }
@@ -1061,8 +1139,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     if (progressDiff > -5) {
       return {
         'emoji': '📖',
-        'title': '계획대로 진행 중',
-        'message': '꾸준히 읽고 있어요. 오늘도 조금씩 읽어볼까요?',
+        'title': l10n.historyTabAnalysisOnTrackTitle,
+        'message': l10n.historyTabAnalysisOnTrackMessage,
         'color': BLabColors.primary,
       };
     }
@@ -1071,15 +1149,15 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
       if (widget.attemptCount > 1) {
         return {
           'emoji': '🔥',
-          'title': '조금 더 속도를 내볼까요?',
-          'message': '이번에는 꼭 완독해봐요. 매일 조금씩 더 읽으면 따라잡을 수 있어요!',
+          'title': l10n.historyTabAnalysisBehindRetryTitle,
+          'message': l10n.historyTabAnalysisBehindRetryMessage,
           'color': BLabColors.warning,
         };
       }
       return {
         'emoji': '📚',
-        'title': '조금 더 읽어볼까요?',
-        'message': '계획보다 살짝 뒤처졌어요. 오늘 조금 더 읽으면 따라잡을 수 있어요!',
+        'title': l10n.historyTabAnalysisBehindTitle,
+        'message': l10n.historyTabAnalysisBehindMessage,
         'color': BLabColors.warning,
       };
     }
@@ -1087,15 +1165,17 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     if (widget.attemptCount > 1) {
       return {
         'emoji': '💫',
-        'title': '포기하지 마세요!',
-        'message': '${widget.attemptCount}번째 도전 중이에요. 목표일을 조정하거나 더 집중해서 읽어봐요!',
+        'title': l10n.historyTabAnalysisFarBehindRetryTitle,
+        'message': l10n.historyTabAnalysisFarBehindRetryMessage(
+          widget.attemptCount,
+        ),
         'color': BLabColors.destructive,
       };
     }
     return {
       'emoji': '📅',
-      'title': '목표 재설정이 필요할 수도',
-      'message': '현재 페이스로는 목표 달성이 어려워요. 목표일을 조정해볼까요?',
+      'title': l10n.historyTabAnalysisFarBehindTitle,
+      'message': l10n.historyTabAnalysisFarBehindMessage,
       'color': BLabColors.destructive,
     };
   }
@@ -1148,6 +1228,8 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
     return Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context);
+        final useStackedLayout =
+            MediaQuery.textScalerOf(context).scale(14) > 20;
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
@@ -1158,93 +1240,157 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
               color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
             ),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: BLabColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    '${date.day}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: BLabColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+          child: useStackedLayout
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.historyDateTimeFormat(
-                        date.year,
-                        date.month,
-                        date.day,
-                        date.hour,
-                        date.minute,
-                      ),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDailyRecordDate(date),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildDailyRecordDetails(
+                            date,
+                            page,
+                            l10n,
+                            isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _buildDailyRecordSummary(
+                        pagesRead,
+                        readingTime,
+                        l10n,
+                        isDark,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.historyTabCumulativeLabel(page),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ],
+                )
+              : Row(
+                  children: [
+                    _buildDailyRecordDate(date),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildDailyRecordDetails(date, page, l10n, isDark),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: _buildDailyRecordSummary(
+                        pagesRead,
+                        readingTime,
+                        l10n,
+                        isDark,
                       ),
                     ),
                   ],
                 ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDailyRecordDate(DateTime date) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: BLabColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          '${date.day}',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: BLabColors.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyRecordDetails(
+    DateTime date,
+    int page,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.historyDateTimeFormat(
+            date.year,
+            date.month,
+            date.day,
+            date.hour,
+            date.minute,
+          ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          l10n.historyTabCumulativeLabel(page),
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDailyRecordSummary(
+    int pagesRead,
+    int readingTime,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '+$pagesRead ',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: BLabColors.success,
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '+$pagesRead',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: BLabColors.success,
-                        ),
-                      ),
-                      Text(
-                        ' ${l10n.historyTabPagesUnit}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (readingTime > 0)
-                    Text(
-                      _formatDuration(readingTime, l10n),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                ],
+              TextSpan(
+                text: l10n.historyTabPagesUnit,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),
-        );
-      },
+          textAlign: TextAlign.end,
+        ),
+        if (readingTime > 0)
+          Text(
+            _formatDuration(readingTime, l10n),
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+      ],
     );
   }
 
@@ -1318,7 +1464,7 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
 
   Widget _buildSkeleton(bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
+      padding: EdgeInsets.only(bottom: widget.bottomContentPadding),
       child: Shimmer.fromColors(
         baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
         highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
@@ -1509,5 +1655,18 @@ class _ProgressHistoryTabState extends State<ProgressHistoryTab> {
         ),
       ),
     );
+  }
+
+  String _attemptEncouragement(AppLocalizations l10n) {
+    switch (widget.attemptCount) {
+      case 1:
+        return l10n.historyTabAttemptEncouragementFirst;
+      case 2:
+        return l10n.historyTabAttemptEncouragementSecond;
+      case 3:
+        return l10n.historyTabAttemptEncouragementThird;
+      default:
+        return l10n.historyTabAttemptEncouragementMore;
+    }
   }
 }

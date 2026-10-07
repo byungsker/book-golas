@@ -1,3 +1,4 @@
 /* Korean localization */
 "CFBundleDisplayName" = "북골라스";
 "CFBundleName" = "북골라스";
+"NSUserTrackingUsageDescription" = "더 적절한 광고를 제공하기 위해 기기 식별자를 사용합니다.";

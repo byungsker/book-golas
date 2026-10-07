@@ -3,6 +3,14 @@ import 'package:book_golas/data/services/notification_settings_service.dart';
 
 void main() {
   group('NotificationSettings', () {
+    test('defaults notifications to off before permission is granted', () {
+      final defaults = NotificationSettings.defaults();
+      final missingField = NotificationSettings.fromJson({});
+
+      expect(defaults.notificationEnabled, isFalse);
+      expect(missingField.notificationEnabled, isFalse);
+    });
+
     test('uses 18:00 as the default daily reminder time', () {
       final settings = NotificationSettings(notificationEnabled: true);
 

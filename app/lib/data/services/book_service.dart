@@ -354,6 +354,38 @@ class BookService {
     }
   }
 
+  Future<Book?> updateStatus(String bookId, BookStatus status) async {
+    if (status == BookStatus.willRetry) {
+      return pauseReading(bookId);
+    }
+    if (status == BookStatus.reading) {
+      return resumeReading(bookId, incrementAttempt: false);
+    }
+
+    try {
+      final response = await _supabase
+          .from(_tableName)
+          .update({
+            'status': status.value,
+            'paused_at': null,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', bookId)
+          .select()
+          .single();
+
+      final updatedBook = Book.fromJson(response);
+      final index = _books.indexWhere((book) => book.id == bookId);
+      if (index != -1) {
+        _books[index] = updatedBook;
+      }
+      return updatedBook;
+    } catch (e) {
+      debugPrint('독서 상태 변경 실패: $e');
+      return null;
+    }
+  }
+
   Future<Book?> resumeReading(
     String bookId, {
     DateTime? newTargetDate,

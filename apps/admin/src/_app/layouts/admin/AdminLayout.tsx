@@ -7,6 +7,7 @@ import { cn } from "@/shared/lib";
 import { supabase } from "@/shared/api/supabase";
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/ui/primitives";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 const navItems = [
   { href: "/", label: "대시보드", icon: "📊" },
@@ -16,6 +17,8 @@ const navItems = [
   { href: "/test-push", label: "테스트 발송", icon: "🚀" },
   { href: "/announcements", label: "공지 발송", icon: "📢" },
   { href: "/waitlist", label: "출시 알림 명단", icon: "📧" },
+  { href: "/ai-monitor", label: "AI 모니터링", icon: "📈" },
+  { href: "/ai-usage", label: "AI 사용량", icon: "🤖" },
 ];
 
 export default function AdminLayout({
@@ -46,7 +49,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <nav className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -62,19 +65,19 @@ export default function AdminLayout({
                 <span className="text-xl font-bold text-foreground">북골라스</span>
                 <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">Admin</span>
               </Link>
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+              <div className="hidden min-w-0 overflow-x-auto sm:ml-6 sm:flex sm:space-x-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      pathname === item.href
+                      "inline-flex shrink-0 items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      pathname === item.href || (item.href === "/ai-monitor" && pathname.startsWith("/ai-monitor/"))
                         ? "bg-accent text-accent-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                     )}
                   >
-                    <span className="mr-2">{item.icon}</span>
+                    <span aria-hidden="true" className="mr-2">{item.icon}</span>
                     {item.label}
                   </Link>
                 ))}
@@ -84,6 +87,7 @@ export default function AdminLayout({
               {userEmail && (
                 <span className="text-sm text-muted-foreground">{userEmail}</span>
               )}
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 로그아웃
               </Button>

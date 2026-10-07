@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
+import 'package:book_golas/data/services/age_policy_service.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 
 import 'package:book_golas/ui/onboarding/widgets/onboarding_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  final VoidCallback onComplete;
+  final Future<bool> Function(AgePolicyStatus status) onComplete;
 
   const OnboardingScreen({
     super.key,
@@ -67,7 +69,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      widget.onComplete();
+      _showAgePolicySheet();
+    }
+  }
+
+  Future<void> _showAgePolicySheet() async {
+    final l10n = AppLocalizations.of(context);
+    final status = await showModalBottomSheet<AgePolicyStatus>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.agePolicyTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(l10n.agePolicyDescription),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(l10n.agePolicyUnder14),
+                subtitle: Text(l10n.agePolicyUnder14Description),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.under14,
+                ),
+              ),
+              ListTile(
+                title: Text(l10n.agePolicy14OrOlder),
+                subtitle: Text(l10n.agePolicy14OrOlderDescription),
+                onTap: () => Navigator.pop(
+                  sheetContext,
+                  AgePolicyStatus.age14OrOlder,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (status != null && mounted) {
+      await widget.onComplete(status);
     }
   }
 
@@ -112,7 +158,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: widget.onComplete,
+            onPressed: _showAgePolicySheet,
             child: Text(
               l10n.commonSkip,
               style: TextStyle(

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bookgolas.local/agent/0.1.0/agent-capabilities.schema.json",
+  "title": "Bookgolas Agent Capability Response",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["api_version", "contract_version", "name", "mode", "capabilities", "writes"],
+      "properties": {
+        "api_version": { "const": "v1" },
+        "contract_version": { "const": "0.1.0" },
+        "name": { "const": "bookgolas-agent-api" },
+        "mode": { "const": "read_only" },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "method", "path", "access", "side_effect", "cost_units"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "method": { "const": "GET" },
+              "path": { "type": "string", "pattern": "^/v1/" },
+              "access": { "const": "authenticated_user" },
+              "side_effect": { "const": "none" },
+              "cost_units": { "const": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "writes": {
+          "type": "object",
+          "required": ["enabled", "approval_required", "dry_run_required", "idempotency_required", "postcondition_evidence_required"],
+          "properties": {
+            "enabled": { "const": false },
+            "approval_required": { "const": true },
+            "dry_run_required": { "const": true },
+            "idempotency_required": { "const": true },
+            "postcondition_evidence_required": { "const": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "meta": {
+      "type": "object",
+      "required": ["api_version", "contract_version", "request_id", "generated_at"],
+      "properties": {
+        "api_version": { "const": "v1" },
+        "contract_version": { "const": "0.1.0" },
+        "request_id": { "type": "string", "minLength": 1 },
+        "generated_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

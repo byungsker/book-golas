@@ -33,7 +33,7 @@ class ExistingImageModal extends StatefulWidget {
   final void Function({
     required String imageId,
     required String currentText,
-    required void Function(String? newImageUrl) onReplaced,
+    required void Function(bool success, String? newImageUrl) onReplaced,
   }) onReplaceImage;
   final Future<bool> Function({
     required String imageId,
@@ -136,7 +136,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
       });
     }
   }
-
 
   bool get _hasHighlightChanges {
     if (_highlights.length != _originalHighlights.length) return true;
@@ -625,7 +624,6 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
     );
   }
 
-
   Widget _buildTextOnlyContent(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -880,8 +878,8 @@ class _ExistingImageModalState extends State<ExistingImageModal> {
         widget.onReplaceImage(
           imageId: widget.imageId,
           currentText: _textController.text,
-          onReplaced: (newImageUrl) {
-            if (newImageUrl != null) {
+          onReplaced: (success, newImageUrl) {
+            if (success && mounted) {
               setState(() {
                 _imageUrl = newImageUrl;
               });
@@ -1264,7 +1262,7 @@ void showExistingImageModal({
   required void Function({
     required String imageId,
     required String currentText,
-    required void Function(String? newImageUrl) onReplaced,
+    required void Function(bool success, String? newImageUrl) onReplaced,
   }) onReplaceImage,
   required Future<bool> Function({
     required String imageId,

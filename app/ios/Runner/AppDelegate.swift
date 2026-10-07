@@ -4,9 +4,26 @@ import FirebaseCore
 import FirebaseMessaging
 import home_widget
 
+final class StatusBarFlutterViewController: FlutterViewController {
+  private var isDarkTheme = false
+
+  func updateStatusBar(isDark: Bool) {
+    isDarkTheme = isDark
+    setNeedsStatusBarAppearanceUpdate()
+  }
+
+  override var preferredStatusBarStyle: UIStatusBarStyle {
+    if #available(iOS 13.0, *) {
+      return isDarkTheme ? .lightContent : .darkContent
+    }
+    return isDarkTheme ? .lightContent : .default
+  }
+}
+
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var deepLinkChannel: FlutterMethodChannel?
+  private var pendingDeepLink: [String: Any]?
 
   override func application(
     _ application: UIApplication,
@@ -16,15 +33,6 @@ import home_widget
 
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
-      let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-      UNUserNotificationCenter.current().requestAuthorization(
-        options: authOptions,
-        completionHandler: { _, _ in }
-      )
-    } else {
-      let settings: UIUserNotificationSettings =
-        UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
-      application.registerUserNotificationSettings(settings)
     }
 
     application.registerForRemoteNotifications()
@@ -37,7 +45,25 @@ import home_widget
 
     GeneratedPluginRegistrant.register(with: self)
 
-    let controller = window?.rootViewController as! FlutterViewController
+    let controller = window?.rootViewController as! StatusBarFlutterViewController
+
+    let systemUiChannel = FlutterMethodChannel(
+      name: "com.bookgolas.app/system_ui",
+      binaryMessenger: controller.binaryMessenger
+    )
+    systemUiChannel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "setStatusBarBrightness",
+            let isDark = call.arguments as? Bool else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+
+      if #available(iOS 13.0, *) {
+        self?.window?.overrideUserInterfaceStyle = isDark ? .dark : .light
+      }
+      controller.updateStatusBar(isDark: isDark)
+      result(nil)
+    }
 
     let appGroupChannel = FlutterMethodChannel(
       name: "com.bookgolas.app/app_group",
@@ -61,12 +87,43 @@ import home_widget
       name: "com.bookgolas.app/deep_link",
       binaryMessenger: controller.binaryMessenger
     )
-
-    if let url = launchOptions?[.url] as? URL, url.scheme == "bookgolas" {
-      deepLinkChannel?.invokeMethod("onDeepLink", arguments: url.absoluteString)
+    deepLinkChannel?.setMethodCallHandler { [weak self] call, result in
+      switch call.method {
+      case "consumePendingDeepLink":
+        result(self?.pendingDeepLink)
+      case "acknowledgeDeepLink":
+        guard let payload = call.arguments as? [String: Any],
+              let urlString = payload["url"] as? String,
+              let useReplacement = payload["useReplacement"] as? Bool else {
+          result(FlutterError(code: "INVALID_ARGUMENT", message: "Deep link payload is required", details: nil))
+          return
+        }
+        if self?.pendingDeepLink?["url"] as? String == urlString,
+           self?.pendingDeepLink?["useReplacement"] as? Bool == useReplacement {
+          self?.pendingDeepLink = nil
+        }
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
     }
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let didFinish = super.application(
+      application,
+      didFinishLaunchingWithOptions: launchOptions
+    )
+
+    if let url = launchOptions?[.url] as? URL, url.scheme == "bookgolas" {
+      sendDeepLink(url.absoluteString, useReplacement: isHomeWidgetURL(url))
+    }
+
+    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
+       let urlString = deepLinkURL(for: shortcutItem) {
+      sendDeepLink(urlString, useReplacement: true)
+      return false
+    }
+
+    return didFinish
   }
 
   override func application(
@@ -75,7 +132,8 @@ import home_widget
     options: [UIApplication.OpenURLOptionsKey : Any] = [:]
   ) -> Bool {
     if url.scheme == "bookgolas" {
-      deepLinkChannel?.invokeMethod("onDeepLink", arguments: url.absoluteString)
+      sendDeepLink(url.absoluteString, useReplacement: isHomeWidgetURL(url))
+      return true
     }
     return super.application(app, open: url, options: options)
   }
@@ -85,16 +143,39 @@ import home_widget
     performActionFor shortcutItem: UIApplicationShortcutItem,
     completionHandler: @escaping (Bool) -> Void
   ) {
+    guard let urlString = deepLinkURL(for: shortcutItem) else {
+      completionHandler(false)
+      return
+    }
+    sendDeepLink(urlString, useReplacement: true)
+    completionHandler(true)
+  }
+
+  private func sendDeepLink(_ urlString: String, useReplacement: Bool) {
+    let payload: [String: Any] = [
+      "url": urlString,
+      "useReplacement": useReplacement
+    ]
+    pendingDeepLink = payload
+    deepLinkChannel?.invokeMethod("onDeepLink", arguments: payload)
+  }
+
+  private func isHomeWidgetURL(_ url: URL) -> Bool {
+    URLComponents(url: url, resolvingAgainstBaseURL: false)?
+      .queryItems?
+      .contains(where: { $0.name == "homeWidget" }) == true
+  }
+
+  private func deepLinkURL(for shortcutItem: UIApplicationShortcutItem) -> String? {
     switch shortcutItem.type {
     case "com.bookgolas.continue-reading":
-      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/detail/current")
+      return "bookgolas://book/detail/current"
     case "com.bookgolas.scan-page":
-      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/scan/current")
+      return "bookgolas://book/scan/current"
     case "com.bookgolas.add-book":
-      deepLinkChannel?.invokeMethod("onDeepLink", arguments: "bookgolas://book/search")
+      return "bookgolas://book/search"
     default:
-      break
+      return nil
     }
-    completionHandler(true)
   }
 }

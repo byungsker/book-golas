@@ -8,6 +8,7 @@ import 'package:book_golas/domain/models/recall_models.dart';
 import 'package:book_golas/ui/core/theme/design_system.dart';
 import 'package:book_golas/ui/core/widgets/custom_snackbar.dart';
 import 'package:book_golas/ui/core/widgets/keyboard_accessory_bar.dart';
+import 'package:book_golas/ui/core/widgets/third_party_ai_consent_sheet.dart';
 import 'package:book_golas/ui/recall/view_model/recall_view_model.dart';
 import 'package:book_golas/l10n/app_localizations.dart';
 
@@ -88,10 +89,15 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
     super.dispose();
   }
 
-  void _search(String query) {
+  Future<void> _search(String query) async {
     if (query.trim().isEmpty) return;
     FocusScope.of(context).unfocus();
-    context.read<RecallViewModel>().search(widget.bookId, query.trim());
+    final consent = await requestThirdPartyAiConsent(
+      context: context,
+      feature: ThirdPartyAiFeature.recall,
+    );
+    if (!consent || !mounted) return;
+    await context.read<RecallViewModel>().search(widget.bookId, query.trim());
   }
 
   void _copyAnswer(String answer) {
@@ -409,9 +415,13 @@ class _RecallSearchSheetContentState extends State<_RecallSearchSheetContent> {
               ElevatedButton.icon(
                 onPressed: () async {
                   viewModel.clearPaywallState();
-                  final success = await SubscriptionService().showPaywall(context);
+                  final success =
+                      await SubscriptionService().showPaywall(context);
                   if (!success && context.mounted) {
-                    CustomSnackbar.show(context, message: AppLocalizations.of(context).subscriptionUnavailable, type: BLabSnackbarType.info);
+                    CustomSnackbar.show(context,
+                        message: AppLocalizations.of(context)
+                            .subscriptionUnavailable,
+                        type: BLabSnackbarType.info);
                   }
                 },
                 icon: const Icon(Icons.star, size: 18),

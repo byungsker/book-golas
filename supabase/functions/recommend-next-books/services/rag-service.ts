@@ -23,7 +23,12 @@ interface UserInterests {
 
 export async function extractUserInterests(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  runProviderCall: <T>(
+    input: string,
+    context: AiBudgetContext,
+    operation: AiProviderOperation<T>,
+  ) => Promise<T>,
 ): Promise<UserInterests> {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openai.apiKey,
@@ -46,11 +51,34 @@ export async function extractUserInterests(
   });
 
   const interestQuery = "독서에서 중요하게 생각하는 주제와 개념";
-
-  const results = await vectorStore.similaritySearch(
+  const results = await runProviderCall(
     interestQuery,
-    config.rag.topHighlightsCount,
-    { user_id: userId }
+    {
+      functionName: "recommend-next-books",
+      feature: "recommend-next-books.interest-embedding",
+      provider: "open_ai",
+      model: "text-embedding-3-small",
+      promptVersion: "interest-embedding-v1",
+      maxOutputTokens: 0,
+      requireOutputTokens: false,
+    },
+    async () => {
+      const value = await vectorStore.similaritySearch(
+        interestQuery,
+        config.rag.topHighlightsCount,
+        { user_id: userId },
+      );
+      const inputTokens = Math.ceil(interestQuery.length / 4);
+      return {
+        value,
+        usage: {
+          input_tokens: inputTokens,
+          output_tokens: 0,
+          total_tokens: inputTokens,
+          usage_source: "input_estimate",
+        },
+      };
+    },
   );
 
   if (results.length === 0) {
@@ -70,7 +98,7 @@ export async function extractUserInterests(
   if (booksError) throw new ContractError(503, "unavailable", "Reading data is unavailable");
 
   const bookTitleMap = new Map<string, string>(
-    books?.map((b: { id: string; title: string }) => [b.id, b.title]) || []
+    books?.map((b: { id: string; title: string }) => [b.id, b.title]) || [],
   );
 
   const activeResults = results.filter((doc: Document) => bookTitleMap.has(doc.metadata.book_id as string));
@@ -81,7 +109,7 @@ export async function extractUserInterests(
 
   const keywords = extractKeywords(
     topHighlights.map((h) => h.content).join(" "),
-    config.rag.topKeywordsCount
+    config.rag.topKeywordsCount,
   );
 
   return { topHighlights, keywords };

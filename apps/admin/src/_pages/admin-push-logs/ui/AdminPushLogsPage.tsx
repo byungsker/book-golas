@@ -21,6 +21,7 @@ import {
 } from "@/shared/ui/primitives";
 import { supabase } from "@/shared/api/supabase";
 import type { PushLog } from "@/entities/push";
+import type { PushOpsSummary } from "@/entities/push/api/push-ops";
 
 const PUSH_TYPES = [
   { value: "all", label: "전체" },
@@ -33,7 +34,25 @@ const PUSH_TYPES = [
   { value: "test", label: "Test" },
 ];
 
-const PAGE_SIZE = 20;
+type PushSummaryResponse = {
+  range: { from: string; to: string };
+  summary: PushOpsSummary;
+  limits: { maxRows: number; truncated: boolean };
+};
+
+function SummaryCard({ title, value, detail }: { title: string; value: string; detail: string }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-foreground">{value}</div>
+        <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AdminPushLogsPage() {
   const [logs, setLogs] = useState<PushLog[]>([]);
@@ -42,6 +61,9 @@ export default function AdminPushLogsPage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [emailMap, setEmailMap] = useState<Record<string, string>>({});
+  const [summary, setSummary] = useState<PushSummaryResponse | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
 
   const loadEmails = useCallback(async () => {
     try {
@@ -64,25 +86,36 @@ export default function AdminPushLogsPage() {
     return () => window.clearTimeout(timer);
   }, [loadEmails]);
 
+  const fetchSummary = useCallback(async () => {
+    try {
+      setSummaryLoading(true);
+      setSummaryError(null);
+      const params = new URLSearchParams({ summary: "1", type: typeFilter });
+      const response = await fetch(`/api/admin/push-logs?${params}`);
+      const data = (await response.json()) as PushSummaryResponse & { error?: string };
+      if (!response.ok) throw new Error(data.error || "Failed to fetch push summary");
+      setSummary(data);
+    } catch (error) {
+      setSummary(null);
+      setSummaryError(error instanceof Error ? error.message : "Failed to fetch push summary");
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [typeFilter]);
+
+  useEffect(() => {
+    void fetchSummary();
+  }, [fetchSummary]);
+
   const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from("push_logs")
-        .select("*")
-        .order("sent_at", { ascending: false })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-
-      if (typeFilter !== "all") {
-        query = query.eq("push_type", typeFilter);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setLogs(data || []);
-      setHasMore((data?.length || 0) === PAGE_SIZE);
+      const params = new URLSearchParams({ page: String(page), type: typeFilter });
+      const response = await fetch(`/api/admin/push-logs?${params}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to fetch logs");
+      setLogs(data.logs || []);
+      setHasMore(Boolean(data.hasMore));
     } catch (error) {
       console.error("Failed to fetch logs:", error);
     } finally {
@@ -95,7 +128,8 @@ export default function AdminPushLogsPage() {
     return () => window.clearTimeout(timer);
   }, [fetchLogs]);
 
-  function formatDate(dateStr: string) {
+  function formatDate(dateStr: string | null) {
+    if (!dateStr) return "-";
     const date = new Date(dateStr);
     return date.toLocaleString("ko-KR", {
       year: "numeric",
@@ -125,6 +159,65 @@ export default function AdminPushLogsPage() {
           </Select>
         </div>
       </div>
+
+      {summaryLoading ? (
+        <div className="flex h-24 items-center justify-center text-muted-foreground">운영 요약 로딩 중...</div>
+      ) : summary ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <SummaryCard
+              title="발송 성공률"
+              value={`${summary.summary.successRate}%`}
+              detail={`${summary.summary.sent}건 성공 / ${summary.summary.deliveryAttempts}건 시도`}
+            />
+            <SummaryCard
+              title="실패율"
+              value={`${summary.summary.failureRate}%`}
+              detail={`${summary.summary.failed}건 실패`}
+            />
+            <SummaryCard
+              title="Invalid token"
+              value={String(summary.summary.invalidTokenCount)}
+              detail="정리 대상으로 기록된 토큰"
+            />
+            <SummaryCard
+              title="CTR"
+              value={`${summary.summary.clickThroughRate}%`}
+              detail={`${summary.summary.clicked}건 클릭 / 성공 발송`}
+            />
+            <SummaryCard
+              title="Dedupe hit"
+              value={String(summary.summary.dedupeHits)}
+              detail={`${summary.summary.skipped}건 발송 건너뜀`}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <span>집계 기간: {summary.range.from} ~ {summary.range.to} (UTC)</span>
+            <span>대기 중: {summary.summary.pending}건</span>
+            {summary.limits.truncated && (
+              <span className="text-orange-600">최근 {summary.limits.maxRows}건으로 제한됨</span>
+            )}
+          </div>
+          {summary.summary.failureReasons.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>최근 실패 원인</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {summary.summary.failureReasons.map((reason) => (
+                  <Badge key={reason.code} variant="outline">
+                    {reason.code}: {reason.count}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </>
+      ) : summaryError ? (
+        <Card className="border-destructive/50">
+          <CardContent className="pt-6 text-sm text-destructive">{summaryError}</CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -163,7 +256,7 @@ export default function AdminPushLogsPage() {
                   {logs.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(log.sent_at)}
+                        {formatDate(log.sent_at ?? log.created_at)}
                       </TableCell>
                       <TableCell className="text-sm">
                         <div className="text-foreground">
@@ -177,7 +270,15 @@ export default function AdminPushLogsPage() {
                         {log.title || "-"}
                       </TableCell>
                       <TableCell className="text-center">
-                        {log.is_clicked ? (
+                        {log.delivery_status === "failed" ? (
+                          <span className="font-medium text-red-400">
+                            실패{log.failure_code ? ` (${log.failure_code})` : ""}
+                          </span>
+                        ) : log.delivery_status === "skipped" ? (
+                          <span className="text-muted-foreground">중복 건너뜀</span>
+                        ) : log.delivery_status === "pending" ? (
+                          <span className="text-orange-400">처리 중</span>
+                        ) : log.is_clicked ? (
                           <span className="text-green-400 font-medium">
                             ✅ Clicked
                           </span>

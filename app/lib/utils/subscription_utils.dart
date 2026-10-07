@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:book_golas/config/feature_flags.dart';
@@ -14,38 +13,20 @@ class SubscriptionConstants {
 
   /// Maximum OCR uses per day for free users
   static const int maxOcrPerDayFree = 10;
-
-  /// Super admin email (unlimited access)
-  static const String superAdminEmail = 'bookgolas@admin.com';
 }
 
 /// Utility class for checking subscription status and limits
 class SubscriptionUtils {
   static final SupabaseClient _supabase = Supabase.instance.client;
-  static const String _proEntitlementId = 'byungskerslab/북골라스 Pro';
-
-  /// Checks if the current user is a super admin
-  ///
-  /// Super admins have unlimited access to all features
-  static bool isSuperAdmin() {
-    final user = _supabase.auth.currentUser;
-    if (user == null) return false;
-    return user.email?.toLowerCase() ==
-        SubscriptionConstants.superAdminEmail.toLowerCase();
-  }
 
   /// Checks if the user has Pro subscription
   ///
-  /// Returns true if user is super admin or has active Pro subscription
   static Future<bool> isProUser() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return false;
-    if (isSuperAdmin()) return true;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return false;
-
-      if (await _hasRevenueCatProEntitlement()) return true;
 
       final response = await _supabase
           .from('users')
@@ -65,7 +46,6 @@ class SubscriptionUtils {
   /// Returns: 'free', 'pro_monthly', 'pro_yearly', or null if not found
   static Future<String?> getSubscriptionStatus() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return 'free';
-    if (isSuperAdmin()) return 'pro_yearly';
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -86,7 +66,7 @@ class SubscriptionUtils {
   /// Checks if the user can add more concurrent books
   ///
   /// Free users are limited to [SubscriptionConstants.maxConcurrentBooksFree] books
-  /// Pro users and super admins have unlimited access
+  /// Pro users have unlimited access
   ///
   /// Returns [true] if user can add more books, [false] if limit reached
   static Future<bool> canAddMoreConcurrentBooks(int currentActiveCount) async {
@@ -98,14 +78,13 @@ class SubscriptionUtils {
   /// Gets the maximum number of concurrent books allowed for the current user
   static int getMaxConcurrentBooks() {
     if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
-    if (isSuperAdmin()) return 999; // Unlimited
     return SubscriptionConstants.maxConcurrentBooksFree;
   }
 
   /// Checks if the user can use AI Recall
   ///
   /// Free users are limited to [SubscriptionConstants.maxAiRecallPerMonthFree] uses
-  /// Pro users and super admins have unlimited access
+  /// Pro users have unlimited access
   ///
   /// Returns [true] if user can use AI Recall, [false] if limit reached
   static Future<bool> canUseAiRecall() async {
@@ -133,7 +112,6 @@ class SubscriptionUtils {
   /// Gets the remaining AI Recall uses for the current month
   static Future<int> getRemainingAiRecallUses() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
-    if (isSuperAdmin()) return 999; // Unlimited
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -164,14 +142,15 @@ class SubscriptionUtils {
   /// Should be called after each AI Recall usage
   static Future<void> incrementAiRecallUsage() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return;
-    if (isSuperAdmin()) return;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
 
-      await _supabase
-          .rpc('increment_ai_recall_usage', params: {'user_id': userId});
+      await _supabase.rpc(
+        'increment_ai_recall_usage',
+        params: {'user_id': userId},
+      );
     } catch (e) {
       debugPrint('Failed to increment AI Recall usage: $e');
     }
@@ -183,8 +162,10 @@ class SubscriptionUtils {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return false;
-      final response = await _supabase
-          .rpc('get_ocr_daily_usage', params: {'p_user_id': userId});
+      final response = await _supabase.rpc(
+        'get_ocr_daily_usage',
+        params: {'p_user_id': userId},
+      );
       if (response is List && response.isNotEmpty) {
         final usageCount = response[0]['usage_count'] as int? ?? 0;
         return usageCount < SubscriptionConstants.maxOcrPerDayFree;
@@ -197,13 +178,14 @@ class SubscriptionUtils {
 
   static Future<int> getRemainingOcrUses() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return 999;
-    if (isSuperAdmin()) return 999;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return 0;
-      final response = await _supabase
-          .rpc('get_ocr_daily_usage', params: {'p_user_id': userId});
+      final response = await _supabase.rpc(
+        'get_ocr_daily_usage',
+        params: {'p_user_id': userId},
+      );
       if (response is List && response.isNotEmpty) {
         final usageCount = response[0]['usage_count'] as int? ?? 0;
         return SubscriptionConstants.maxOcrPerDayFree - usageCount;
@@ -216,12 +198,13 @@ class SubscriptionUtils {
 
   static Future<void> incrementOcrUsage() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return;
-    if (isSuperAdmin()) return;
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
-      await _supabase
-          .rpc('increment_ocr_daily_usage', params: {'p_user_id': userId});
+      await _supabase.rpc(
+        'increment_ocr_daily_usage',
+        params: {'p_user_id': userId},
+      );
     } catch (e) {
       debugPrint('Failed to increment OCR usage: $e');
     }
@@ -238,16 +221,6 @@ class SubscriptionUtils {
 
   static Future<bool> hasUnlimitedAccess() async {
     if (!FeatureFlags.paidSubscriptionsEnabled) return true;
-    if (isSuperAdmin()) return true;
     return isProUser();
-  }
-
-  static Future<bool> _hasRevenueCatProEntitlement() async {
-    try {
-      final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.active.containsKey(_proEntitlementId);
-    } catch (e) {
-      return false;
-    }
   }
 }
