@@ -105,10 +105,12 @@
       }
     },
     "client": {
-      "active_versions": [],
+      "active_versions": [
+        "1.1.0"
+      ],
       "versions": {
         "1.1.0": {
-          "status": "planned",
+          "status": "active",
           "profile": "web-release-train",
           "source": {
             "branch": "version/web/1.1.0",
@@ -117,7 +119,7 @@
           "line": {
             "branch": "version/client/1.1.0",
             "seed_sha": "d9ce0799414a84acdee9f5a7585ae9cdc1cdf46c",
-            "attested_sha": null
+            "attested_sha": "2a3a7ff867119d6dae53520800a68e1158289e82"
           },
           "evidence_refs": [
             {
@@ -166,7 +168,7 @@
                 "sha256": "3f253883d49fea8613911ff72bb9797f99cfb56886636b8fc104ecc7a0809ec9"
               }
             ],
-            "consumed": false,
+            "consumed": true,
             "sync_paths": [
               "docs/release-lines/client-1.1.0.md",
               "docs/release-lines/client-1.1.0/consumer-web-release-config.json",
