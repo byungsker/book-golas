@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'app/**'
-      - 'supabase/**'
   workflow_dispatch:
 
 jobs:
