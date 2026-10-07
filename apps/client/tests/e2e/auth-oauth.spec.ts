@@ -3,8 +3,8 @@ import path from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 const evidenceDirectory = path.resolve(
-  process.cwd(),
-  "../../.omo/evidence/bookgolas-web-app-parity",
+  process.env.AUTH_OAUTH_EVIDENCE_DIRECTORY ??
+    path.resolve(process.cwd(), "../../.omo/evidence/bookgolas-web-app-parity"),
 );
 const taskEvidenceDirectory = path.resolve(
   process.cwd(),
@@ -45,12 +45,20 @@ for (const provider of ["Google", "Apple"] as const) {
 
     await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Continue with Apple" })).toBeVisible();
+    await expect(page.getByRole("img", { name: "Bookgolas" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: `Continue with ${provider}` }).locator("img"),
+    ).toBeVisible();
+    await capture(page, `auth-sign-in-en-${provider.toLowerCase()}.png`);
     await expect(page.locator("body")).not.toContainText("Kakao");
     const authorizationRequest = page.waitForRequest(/\/auth\/v1\/authorize/);
     await page.getByRole("button", { name: `Continue with ${provider}` }).click();
     const authorizationUrl = new URL((await authorizationRequest).url());
     expect(authorizationUrl.searchParams.get("provider")).toBe(provider.toLowerCase());
     expect(authorizationUrl.searchParams.get("code_challenge")).toBeTruthy();
+    const redirectUrl = new URL(authorizationUrl.searchParams.get("redirect_to") ?? "");
+    expect(redirectUrl.pathname).toBe("/en/auth/callback");
+    expect(redirectUrl.searchParams.get("returnTo")).toBe("/en/home");
 
     await expect(page).toHaveURL(/\/en\/home$/);
     const sessionCookies = (await context.cookies()).filter(

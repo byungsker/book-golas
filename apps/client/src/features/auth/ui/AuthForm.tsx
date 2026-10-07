@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
@@ -314,7 +315,16 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
         >
           {t("backToSite")}
         </Link>
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight text-[var(--blab-text-primary)]">{title}</h1>
+        <Image
+          src="/logo-bookgolas.png"
+          alt={tConsumer("brand")}
+          width={64}
+          height={64}
+          className="mx-auto mt-5 rounded-xl shadow-[var(--blab-elevation-surface)]"
+        />
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--blab-text-primary)]">
+          {title}
+        </h1>
         <p className="mt-3 text-sm leading-6 text-[var(--blab-text-tertiary)]">{description}</p>
       </div>
 
@@ -463,7 +473,26 @@ export function AuthForm({ mode, locale, nextPath, initialErrorKey = null }: Aut
                   disabled={isPending}
                   onClick={() => startOAuth(provider)}
                 >
-                  {provider === "google" ? t("continueWithGoogle") : t("continueWithApple")}
+                  <span className="grid w-full grid-cols-[1fr_auto_1fr] items-center">
+                    <span className="flex h-5 items-center justify-start" aria-hidden="true">
+                      <Image
+                        src={`/provider-icons/${provider}.svg`}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className={
+                          provider === "apple"
+                            ? "brightness-0 [html[data-blab-theme=dark]_&]:invert"
+                            : undefined
+                        }
+                        unoptimized
+                      />
+                    </span>
+                    <span>
+                      {provider === "google" ? t("continueWithGoogle") : t("continueWithApple")}
+                    </span>
+                    <span aria-hidden="true" />
+                  </span>
                 </ConsumerButton>
               ))}
             </div>
