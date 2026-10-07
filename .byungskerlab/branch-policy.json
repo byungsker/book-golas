@@ -171,7 +171,9 @@
       "profile": "web-release-train",
       "mode": "version-line",
       "version_line_schema": 2,
-      "active_versions": [],
+      "active_versions": [
+        "1.1.0"
+      ],
       "target_version_source": ".byungskerlab/release-lines.json",
       "production_branch": "main",
       "version_line_base_branch": "version/web/1.1.0",
