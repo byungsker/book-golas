@@ -11,7 +11,7 @@ vi.mock("@supabase/ssr", () => ({
   createServerClient: createServerClientMock,
 }));
 
-vi.mock("@/shared/api/supabase/config", () => ({
+vi.mock("@/shared/api/supabase/index.server", () => ({
   getSupabasePublicConfig: getSupabasePublicConfigMock,
 }));
 

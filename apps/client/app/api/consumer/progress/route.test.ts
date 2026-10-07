@@ -7,7 +7,17 @@ import { revalidatePath } from "next/cache";
 import { POST } from "./route";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("@/features/reading-progress/index.server", () => ({ updateReadingProgress: vi.fn(), fetchOwnedProgressHistory: vi.fn() }));
+vi.mock("@/features/reading-progress/index.server", async () => {
+  const { ProgressUiMutationRequestSchema } = await import("@/features/reading-progress/api/progress-ui-contracts");
+  const { applyProgressFixture, applyProgressScheduleFixture } = await import("@/features/reading-progress/model/progress-fixtures");
+  return {
+    updateReadingProgress: vi.fn(),
+    fetchOwnedProgressHistory: vi.fn(),
+    ProgressUiMutationRequestSchema,
+    applyProgressFixture,
+    applyProgressScheduleFixture,
+  };
+});
 vi.mock("@/entities/book/index.server", () => ({ getBook: vi.fn(), updateBook: vi.fn() }));
 
 const bookId = BookIdSchema.parse("00000000-0000-4000-8000-000000004341");

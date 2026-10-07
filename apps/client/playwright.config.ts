@@ -52,7 +52,7 @@ export default defineConfig({
       timeout: 30_000,
     },
     {
-      command: `pnpm run build && pnpm run start -- --hostname 127.0.0.1 --port ${port}`,
+      command: `pnpm run build && pnpm exec next start --hostname 127.0.0.1 --port ${port}`,
       url: baseURL,
       env: webServerEnvironment,
       reuseExistingServer: false,

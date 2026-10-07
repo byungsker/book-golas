@@ -17,6 +17,18 @@ async function capture(page: Page, name: string) {
 }
 
 test("reading statistics metrics", async ({ context, page }) => {
+  const currentParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(new Date());
+  const currentYear = Number(currentParts.find((part) => part.type === "year")?.value);
+  const currentMonth = Number(currentParts.find((part) => part.type === "month")?.value);
+  const monthlyStart = currentYear === 2026 ? currentMonth : 12;
+  const previousPeriod = new Date(Date.UTC(2026, monthlyStart - 2, 1, 12));
+  const previousYear = previousPeriod.getUTCFullYear();
+  const previousMonth = previousPeriod.getUTCMonth() + 1;
+
   await setFixture(context, "charts-goals-happy");
   await page.goto("/en/stats?view=annual&year=2026&status=all", { waitUntil: "networkidle" });
 
@@ -36,7 +48,7 @@ test("reading statistics metrics", async ({ context, page }) => {
   await expect(page).toHaveURL(/view=monthly/);
   await expect(page).toHaveURL(/section=activity/);
   await page.getByTestId("stats-period-previous").click();
-  await expect(page).toHaveURL(/month=8/);
+  await expect(page).toHaveURL(new RegExp(`year=${previousYear}.*month=${previousMonth}`));
   await expect(page).toHaveURL(/section=activity/);
   await capture(page, "stats-positive.png");
 });

@@ -24,7 +24,7 @@ export async function fetchBookMindMapPageBook(
   } catch {
     routeFixture = null;
   }
-  if (!routeFixture?.startsWith("recall-")) {
+  if (!routeFixture?.startsWith("recall-") && !routeFixture?.startsWith("ai-artifacts-")) {
     return fetchOwnedBookDetail(bookId, context);
   }
 

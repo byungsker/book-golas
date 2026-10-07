@@ -49,6 +49,11 @@ const fixtureBooks = {
     id: "00000000-0000-4000-8000-000000004331",
     title: "The Reading Atlas",
   }),
+  readingWithAiArtifact: BookSchema.parse({
+    ...bookDefaults,
+    id: "00000000-0000-4000-8000-000000004421",
+    title: "The Reading Atlas",
+  }),
   planned: BookSchema.parse({
     ...bookDefaults,
     id: "00000000-0000-4000-8000-000000004332",
