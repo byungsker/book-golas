@@ -8,13 +8,14 @@ const contractPath = path.join(root, "docs/auth-oauth-contract.json");
 const fixturePath = path.join(root, "scripts/fixtures/auth-oauth-negative.json");
 const packagePath = path.join(root, "package.json");
 const authFormPath = path.join(root, "src/features/auth/ui/AuthForm.tsx");
-const callbackPath = path.join(root, "app/[locale]/(auth)/auth/callback/route.ts");
+const callbackRoutePath = path.join(root, "app/[locale]/(auth)/auth/callback/route.ts");
+const callbackPath = path.join(root, "src/_app/api-routes/auth-callback.ts");
 
 function requireCondition(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-for (const filePath of [contractPath, fixturePath, packagePath, authFormPath, callbackPath]) {
+for (const filePath of [contractPath, fixturePath, packagePath, authFormPath, callbackRoutePath, callbackPath]) {
   requireCondition(fs.existsSync(filePath), `missing auth-oauth contract file: ${path.relative(root, filePath)}`);
 }
 
@@ -22,6 +23,7 @@ const contract = JSON.parse(fs.readFileSync(contractPath, "utf8"));
 const fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 const manifest = JSON.parse(fs.readFileSync(packagePath, "utf8"));
 const authForm = fs.readFileSync(authFormPath, "utf8");
+const callbackRoute = fs.readFileSync(callbackRoutePath, "utf8");
 const callback = fs.readFileSync(callbackPath, "utf8");
 
 requireCondition(contract.issue === 424, "contract must bind GitHub issue 424");
@@ -31,6 +33,7 @@ requireCondition(contract.plan === ".omo/plans/bookgolas-web-app-parity.md", "co
 requireCondition(manifest.scripts["test:auth-oauth"]?.includes("scripts/test-auth-oauth.mjs"), "package script must run the auth-oauth contract");
 requireCondition(authForm.includes("signInWithOAuth"), "auth form must start Supabase OAuth");
 requireCondition(!authForm.toLowerCase().includes("kakao"), "auth form must not render Kakao OAuth");
+requireCondition(callbackRoute.includes("getAuthCallback as GET"), "callback route must delegate to the FSD API route");
 requireCondition(callback.includes("exchangeCodeForSession"), "callback must exchange the PKCE code for a session");
 requireCondition(callback.includes('getAll("returnTo")') && !callback.includes('get("next")'), "callback must accept one canonical returnTo value only");
 requireCondition(callback.includes('"oauth_provider", response'), "callback must keep provider configuration failures distinct from code failures");
