@@ -1,0 +1,128 @@
+name: Supabase Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: 40-character commit SHA from the current main branch
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  validate-source:
+    name: Validate production source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Verify source SHA and branch
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Production deployment can only run from main."
+            exit 1
+          fi
+
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::source_sha must be a 40-character lowercase commit SHA."
+            exit 1
+          fi
+
+          if [[ "$SOURCE_SHA" != "$GITHUB_SHA" ]]; then
+            echo "::error::source_sha must match the workflow dispatch commit."
+            exit 1
+          fi
+
+          main_sha="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          if [[ -z "$main_sha" || "$SOURCE_SHA" != "$main_sha" ]]; then
+            echo "::error::source_sha is not the current main branch head."
+            exit 1
+          fi
+
+  deploy-production:
+    name: Deploy Supabase to Production
+    needs: validate-source
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+    permissions:
+      contents: read
+    steps:
+      - name: Check out approved source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Verify production project
+        env:
+          SUPABASE_PROJECT_REF_PROD: ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
+        run: |
+          if [[ "$SUPABASE_PROJECT_REF_PROD" != "enyxrgxixrnoazzgqyyd" ]]; then
+            echo "::error::Production project reference does not match the approved project."
+            exit 1
+          fi
+
+      - name: Link production project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF_PROD: ${{ secrets.SUPABASE_PROJECT_REF_PROD }}
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF_PROD"
+
+      - name: Configure RevenueCat webhook secret
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REVENUECAT_WEBHOOK_AUTH_KEY: ${{ secrets.REVENUECAT_WEBHOOK_AUTH_KEY_PROD }}
+        run: |
+          test -n "$REVENUECAT_WEBHOOK_AUTH_KEY"
+          supabase secrets set REVENUECAT_WEBHOOK_AUTH_KEY="$REVENUECAT_WEBHOOK_AUTH_KEY"
+
+      - name: Reconcile legacy production migration history
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase migration repair --status reverted 20260419123544 20260419130941 || \
+            echo "::warning::Migration repair returned a non-zero status; verifying remote history."
+          migration_status="$(supabase migration list)"
+          echo "$migration_status"
+          if echo "$migration_status" | grep -Eq '20260419123544|20260419130941'; then
+            echo "::error::Legacy production migration versions remain in the remote history."
+            exit 1
+          fi
+
+      - name: Apply database migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push --include-all
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          for fn in supabase/functions/*/; do
+            fn_name="$(basename "$fn")"
+            if [[ ! -f "$fn/index.ts" ]]; then
+              continue
+            fi
+            supabase functions deploy "$fn_name"
+          done
+
+      - name: Verify migration status
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase migration list
