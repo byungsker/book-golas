@@ -51,8 +51,8 @@ platform :ios do
 
     plist_path = "#{archive_path}/Products/Applications/Runner.app/Frameworks/App.framework/Info.plist"
     if File.exist?(plist_path)
-      sh("/usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 14.0' '#{File.expand_path(plist_path)}' 2>/dev/null || " \
-         "/usr/libexec/PlistBuddy -c 'Add :MinimumOSVersion string 14.0' '#{File.expand_path(plist_path)}'")
+      sh("/usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 15.0' '#{File.expand_path(plist_path)}' 2>/dev/null || " \
+         "/usr/libexec/PlistBuddy -c 'Add :MinimumOSVersion string 15.0' '#{File.expand_path(plist_path)}'")
       UI.success("Fixed MinimumOSVersion in App.framework/Info.plist")
     end
 
