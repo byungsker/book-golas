@@ -90,7 +90,7 @@ A simulator can help verify control ordering and render isolated fixture screens
 
 ## PR check diagnostics
 
-The Vercel checks on this mobile PR fail before build with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`: `book-golas-admin` expects `apps/admin`, and `book-golas` expects `apps/client`. Those roots exist on `dev`, `main`, and `version/client/1.1.0`, but not on `version/mobile/1.0.2`, whose intended top-level app roots are `app/` and `web/`. This is consistent with the repository's multi-release layout and may be an expected preview failure for the mobile line; it is not evidence that the Vercel project settings are globally wrong. No Vercel setting was changed. On the subsequently checked PR head `7352714bfd886f8e9aae81c93a7ecf2355638adb`, CodeRabbit reported success and no GitHub Actions workflow run was associated with that head.
+The Vercel checks on this mobile PR fail before build with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`: `book-golas-admin` expects `apps/admin`, and `book-golas` expects `apps/client`. Those roots exist on `dev`, `main`, and `version/client/1.1.0`, but not on `version/mobile/1.0.2`, whose intended top-level app roots are `app/` and `web/`. This is consistent with the repository's multi-release layout and may be an expected preview failure for the mobile line; it is not evidence that the Vercel project settings are globally wrong. No Vercel setting was changed. These preview checks do not validate the iOS simulator build; use the current PR check status for their latest result.
 
 ## Remaining owner actions
 
