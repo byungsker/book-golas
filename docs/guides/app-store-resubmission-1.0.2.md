@@ -1,6 +1,6 @@
 # Bookgolas iOS 1.0.2 App Review follow-up
 
-Status: implementation and focused tests prepared; physical-device verification and App Store Connect updates are still pending.
+Status: implementation and focused tests prepared; physical-device verification and genuine App Store screenshots remain pending. The Marketing URL is already present on the rejected 1.0.2 metadata.
 
 ## Review reference
 
@@ -12,6 +12,13 @@ Status: implementation and focused tests prepared; physical-device verification 
 
 The rejection is historical evidence. It does not establish that each failure reproduces in the current 1.0.2 source.
 
+## Source baseline and simulator limits
+
+- The active mobile line is `version/mobile/1.0.2`, based on `8b255d74945522ca9757f7aefc002f7481f05d80`. The source manifest is `1.0.2+15002`; the rejected App Store build was `17201`. Any future upload for this version must use a build number greater than `17201`. This task did not change the build number, sign, archive, or upload a binary.
+- Xcode 27.0 and the XcodeBuildMCP simulator workflow are available. XcodeBuildMCP lists 12 iOS 26.5 simulators, including iPhone 17 Pro Max and iPad Air 11-inch; all were shut down. Physical-device workflow tools and an attached device were unavailable.
+- A simulator build was attempted with the `dev` scheme and explicit loopback Supabase URL plus a dummy test key; no production credentials, account, or library data were used. The build stopped before launch because CocoaPods support files are absent. `pod install --deployment --no-repo-update` could not reach `https://cdn.cocoapods.org/` in this restricted environment. Xcode 27 also rejects the current iOS 14 deployment target because it supports targets 15.0 and later. No minimum-OS change was made because that would drop support for iOS 14 and needs an owner decision.
+- The repo has isolated synthetic fixtures in `app/test/helpers/test_helper.dart`. The BOK-389/BOK-392 integration tests create `Book` models in memory, use a loopback-only Supabase URL, and disable remote book loading. These can check individual screens without an auth account, role change, or real library data; they are not an end-to-end signed-in app and are not a substitute for physical review evidence. The current Xcode simulator build blocker prevented running them on a simulator here.
+
 ## Code changes prepared
 
 ### App Tracking Transparency
@@ -19,6 +26,8 @@ The rejection is historical evidence. It does not establish that each failure re
 The existing iOS target already has `NSUserTrackingUsageDescription`, the localized prompt text, and the permission-handler tracking macro. Before this change, first-run onboarding and age selection were behind authentication, while ATT was first requested during AdMob initialization after login. That made the prompt unreachable to a reviewer who could not sign in.
 
 The updated first-run order is onboarding → age choice → ATT request for age 14+ → sign-in. Users under 14 do not receive the ATT request. Declining the prompt does not block onboarding or sign-in; ad initialization remains gated by the existing age, consent, and tracking checks. No privacy declarations were changed. Apple describes ATT as the system permission required before tracking across apps and websites: [User Privacy and Data Use](https://developer.apple.com/app-store/user-privacy-and-data-use/).
+
+This changes prompt timing only; it does not claim that every app behavior is tracking or change the App Privacy answers. If the app does not track across other companies' apps or websites, the owner must make the App Privacy declarations accurate and should not rely on this prompt as a substitute. The code requests ATT only after a persisted 14-or-older choice; an unknown or under-14 status blocks the request and ads.
 
 Focused tests cover age gating and coalescing concurrent ATT requests. These tests do not verify that iOS displays the system prompt on a physical device.
 
@@ -41,9 +50,11 @@ Suggested set:
 
 Use the app UI as rendered on the device: no device frames, composited system dialogs, altered content, or synthetic data represented as a real account. These images have not yet been captured because no physical device or approved QA account/data was available in this execution environment.
 
+The repo's synthetic fixtures are suitable for isolated screen-layout tests only. No approved fixture-driven full-app route currently covers Home, Library, and Charts together, and no genuine 6.5-inch App Store screenshot set has been produced.
+
 ## App Store Connect metadata
 
-The parent task verified that the live 1.0.1 listing has an empty Marketing URL in both `en-US` and `ko`, while the rejected 1.0.2 record has `https://book-golas.vercel.app` for both locales. Set that URL on the new version metadata in both locales before the next review submission. Metadata was not changed here.
+The verified live 1.0.1 listing has an empty Marketing URL in `en-US` and `ko`. The rejected 1.0.2 record already has `https://book-golas.vercel.app` for both locales, so no Marketing URL edit is outstanding for resubmitting 1.0.2. Preserve that value on the version being resubmitted; copy it to a future version if one is created. No App Store Connect metadata was changed here.
 
 ## Review reply draft — do not send until placeholders are replaced
 
@@ -62,13 +73,30 @@ The parent task verified that the live 1.0.1 listing has an empty Marketing URL 
 
 Do not state that ATT or Apple sign-in is verified until the physical-device checks pass. If Sign in with Apple still fails, replace the claim with the observed result and investigate the provider/backend path before replying.
 
+## Physical-device recording procedure
+
+Use the updated candidate built from this PR after it has been incorporated into the approved 1.0.2 release source. Do not use rejected build 17201; it predates these changes. The installed build must retain the production app identifier, `NSUserTrackingUsageDescription`, and Sign in with Apple capability. Before any new App Store/TestFlight upload, use the approved signing path and a build number greater than 17201.
+
+1. On a dedicated QA iPhone running iOS 26.6 or the current supported iOS release, install the updated candidate. Use a clean test device or reset only its test tracking-permission state so Bookgolas is `notDetermined`; verify the system allows apps to request tracking. Do not reset or change settings on the owner's everyday device.
+2. Start the native iOS screen recording before launching Bookgolas. Keep one continuous, unedited recording and show the device model/iOS version at the start if practical.
+3. Launch Bookgolas, move through the intro pages, open the age-choice sheet, and select the 14-or-older option. Capture the native ATT alert before sign-in or ad initialization.
+4. Choose one system option and keep recording through the subsequent login screen. For the deny path, show that onboarding continues. If both Allow and Ask App Not to Track paths are checked, reset the dedicated device's authorization state between runs and save each original recording.
+5. Separately exercise Sign in with Apple on physical iPhone and iPad hardware using an existing, owner-approved QA Apple ID/account. Capture the native Apple sheet, successful return to Bookgolas, and the landing screen. Do not create an account, change roles, or use the reviewer credentials for this check. Exercise first-time and returning-user flows only if their QA identities already exist.
+6. Capture the 6.5-inch screenshot set from the real app UI with an existing approved QA account that contains only approved synthetic demo books and reading activity. Include Home tracker, Library, populated chart, and one book/note detail screen. Export native, uncomposited screenshots at the size App Store Connect accepts for the 6.5-inch slot.
+
+A simulator can help verify control ordering and render isolated fixture screens once the CocoaPods/Xcode target issues are resolved. It cannot provide Apple's requested physical-device recording or prove Apple ID/provider sign-in on hardware.
+
+## PR check diagnostics
+
+At PR head `f4dce5b43fb253f3ee3c72d3aeae4af4850179e4`, CodeRabbit succeeded. Both Vercel preview checks failed before build with `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`: `book-golas-admin` is configured to root `apps/admin`, and `book-golas` to root `apps/client`; neither directory exists in this repo (the mobile/web roots are `app/` and `web/`). These are existing Vercel project-root mismatches unrelated to the Flutter/docs-only PR. Their external Vercel settings were not changed here.
+
 ## Remaining owner actions
 
-- Run a fresh install on a physical iPhone running iOS 26.6 or the current supported iOS release and record launch → age choice → ATT prompt → subsequent flow.
-- Exercise Apple sign-in on physical iPhone and iPad hardware, including a new Apple ID profile and a returning user if available.
-- Capture the real core-feature screenshot set from an approved QA account.
-- Set the Marketing URL in the new version’s English and Korean metadata.
-- Attach the verified video/screenshots and complete the review reply placeholders.
-- Submit the new version only after these checks and metadata updates are complete.
+- Incorporate this PR into the approved release source and create a candidate build greater than build 17201 using the authorized signing path.
+- Resolve CocoaPods availability and decide whether iOS 14 support should be raised to iOS 15 for Xcode 27 builds; do not change the minimum OS without that product decision.
+- Record the physical ATT flow and test Apple sign-in on iPhone and iPad with an existing approved QA account.
+- Capture genuine 6.5-inch screenshots using an approved QA account populated only with approved synthetic demo data.
+- Attach the verified physical video/screenshots and complete every response placeholder. Keep the reply in draft until the evidence exists.
+- Submit the new version only after these checks and any required metadata updates are complete.
 
 No App Store submission, binary upload, metadata mutation, paid agreement change, or provider/security-setting change was performed for this preparation work.
