@@ -44,6 +44,7 @@ class AdService {
 
   bool _isInitialized = false;
   Future<bool>? _initializationAttempt;
+  Future<bool>? _trackingAuthorizationAttempt;
   int _consentEpoch = 0;
   final Future<bool> Function()? _requestConsentOverride;
   final Future<bool> Function()? _requestTrackingAuthorizationOverride;
@@ -54,6 +55,32 @@ class AdService {
   bool get isInitialized => _isInitialized;
   bool get canRequestAds => _agePolicyService.canRequestAds;
   AgePolicyService get agePolicyService => _agePolicyService;
+
+  Future<bool> requestTrackingAuthorizationIfNeeded() {
+    final existingAttempt = _trackingAuthorizationAttempt;
+    if (existingAttempt != null) return existingAttempt;
+
+    final attempt = _requestTrackingAuthorizationIfAllowed();
+    _trackingAuthorizationAttempt = attempt;
+    return attempt.whenComplete(() {
+      if (identical(_trackingAuthorizationAttempt, attempt)) {
+        _trackingAuthorizationAttempt = null;
+      }
+    });
+  }
+
+  Future<bool> _requestTrackingAuthorizationIfAllowed() async {
+    try {
+      if (!_agePolicyService.isLoaded) await _agePolicyService.load();
+      if (!_agePolicyService.canRequestAds) return false;
+
+      return await (_requestTrackingAuthorizationOverride?.call() ??
+          _requestTrackingAuthorization());
+    } catch (_) {
+      debugPrint('App Tracking Transparency request failed');
+      return false;
+    }
+  }
 
   void addConsentInvalidationListener(VoidCallback listener) {
     _consentInvalidationListeners.add(listener);
@@ -93,9 +120,7 @@ class AdService {
         return false;
       }
 
-      final trackingAuthorized =
-          await (_requestTrackingAuthorizationOverride?.call() ??
-              _requestTrackingAuthorization());
+      final trackingAuthorized = await requestTrackingAuthorizationIfNeeded();
       if (!trackingAuthorized || consentEpoch != _consentEpoch) {
         debugPrint('AdMob initialization skipped: tracking is not authorized');
         return false;

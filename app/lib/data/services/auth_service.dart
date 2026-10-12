@@ -154,19 +154,17 @@ class AuthService {
       );
 
       if (response.user != null) {
-        final givenName = credential.givenName;
-        final familyName = credential.familyName;
-        if (givenName != null || familyName != null) {
-          final fullName = [
-            familyName,
-            givenName,
-          ].where((n) => n != null && n.isNotEmpty).join(' ');
-          if (fullName.isNotEmpty) {
+        await saveAppleNicknameIfAvailable(
+          userId: response.user!.id,
+          givenName: credential.givenName,
+          familyName: credential.familyName,
+          updateNickname: (userId, nickname) async {
             await _supabase
                 .from('users')
-                .update({'nickname': fullName}).eq('id', response.user!.id);
-          }
-        }
+                .update({'nickname': nickname})
+                .eq('id', userId);
+          },
+        );
       }
 
       return null;
@@ -195,6 +193,27 @@ class AuthService {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
     return digest.toString();
+  }
+
+  @visibleForTesting
+  static Future<void> saveAppleNicknameIfAvailable({
+    required String userId,
+    required String? givenName,
+    required String? familyName,
+    required Future<void> Function(String userId, String nickname)
+    updateNickname,
+  }) async {
+    final fullName = [
+      familyName,
+      givenName,
+    ].where((name) => name != null && name.isNotEmpty).join(' ');
+    if (fullName.isEmpty) return;
+
+    try {
+      await updateNickname(userId, fullName);
+    } catch (_) {
+      debugPrint('Apple Sign-In succeeded but profile name sync failed');
+    }
   }
 
   Future<String?> signOut() async {

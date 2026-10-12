@@ -386,10 +386,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     return Consumer2<AuthViewModel, OnboardingViewModel>(
       builder: (context, authViewModel, onboardingViewModel, _) {
-        if (!authViewModel.isAuthenticated) {
-          return const LoginScreen();
-        }
-
         if (onboardingViewModel.isLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -399,15 +395,23 @@ class _AuthWrapperState extends State<AuthWrapper> {
         if (onboardingViewModel.shouldShowOnboarding) {
           return OnboardingScreen(
             onComplete: (agePolicyStatus) async {
-              final saved = await context
-                  .read<AgePolicyService>()
-                  .setStatus(agePolicyStatus);
-              if (saved) {
-                await onboardingViewModel.completeOnboarding();
+              final saved = await context.read<AgePolicyService>().setStatus(
+                agePolicyStatus,
+              );
+              if (!saved) return false;
+
+              if (agePolicyStatus == AgePolicyStatus.age14OrOlder) {
+                await AdService().requestTrackingAuthorizationIfNeeded();
               }
-              return saved;
+
+              await onboardingViewModel.completeOnboarding();
+              return true;
             },
           );
+        }
+
+        if (!authViewModel.isAuthenticated) {
+          return const LoginScreen();
         }
 
         return const MainScreen();
