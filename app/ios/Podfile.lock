@@ -128,20 +128,20 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
-  - purchases_flutter (9.10.7):
+  - purchases_flutter (10.2.3):
     - Flutter
-    - PurchasesHybridCommon (= 17.28.1)
-  - purchases_ui_flutter (9.10.7):
+    - PurchasesHybridCommon (= 18.14.1)
+  - purchases_ui_flutter (10.2.3):
     - Flutter
-    - PurchasesHybridCommonUI (= 17.28.1)
-  - PurchasesHybridCommon (17.28.1):
-    - RevenueCat (= 5.55.2)
-  - PurchasesHybridCommonUI (17.28.1):
-    - PurchasesHybridCommon (= 17.28.1)
-    - RevenueCatUI (= 5.55.2)
-  - RevenueCat (5.55.2)
-  - RevenueCatUI (5.55.2):
-    - RevenueCat (= 5.55.2)
+    - PurchasesHybridCommonUI (= 18.14.1)
+  - PurchasesHybridCommon (18.14.1):
+    - RevenueCat (= 5.78.0)
+  - PurchasesHybridCommonUI (18.14.1):
+    - PurchasesHybridCommon (= 18.14.1)
+    - RevenueCatUI (= 5.78.0)
+  - RevenueCat (5.78.0)
+  - RevenueCatUI (5.78.0):
+    - RevenueCat (= 5.78.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -296,12 +296,12 @@ SPEC CHECKSUMS:
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: ab44f120d5d2278734ce0ee156685ec41bea6521
-  purchases_ui_flutter: 50c9a4380e1fae335e5fb0ab61905b5ae78d97b1
-  PurchasesHybridCommon: 57e9e2fd474a726c41f61d5359f1bc05d89d9be8
-  PurchasesHybridCommonUI: ad685a661cc19fb45f1d7448f5890b399e177e14
-  RevenueCat: b5605778017c179315e60b8921ed158b3428688c
-  RevenueCatUI: ee8109669a5abf52df099788a0f961abdd2b5b09
+  purchases_flutter: c2af1311b818f75b549290971a928cb30036cb82
+  purchases_ui_flutter: 1fb2179f9c99c50ebfdc142f82837d08b1832003
+  PurchasesHybridCommon: 825e4e748b62c919bc4cb4032b0d1e452409bd74
+  PurchasesHybridCommonUI: 536abdfc64b82adcbb9ba352630722a4a1270571
+  RevenueCat: f3641992451c1426da8d8d1466cec3bbdb765962
+  RevenueCatUI: 32998f100fe73f1d0172df7eef4f0dd1bc781a05
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
