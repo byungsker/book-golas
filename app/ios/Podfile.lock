@@ -110,6 +110,8 @@ PODS:
     - TOCropViewController (~> 2.7.4)
   - image_picker_ios (0.0.1):
     - Flutter
+  - integration_test (0.0.1):
+    - Flutter
   - mobile_scanner (7.0.0):
     - Flutter
     - FlutterMacOS
@@ -126,20 +128,20 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
-  - purchases_flutter (9.10.7):
+  - purchases_flutter (10.2.3):
     - Flutter
-    - PurchasesHybridCommon (= 17.28.1)
-  - purchases_ui_flutter (9.10.7):
+    - PurchasesHybridCommon (= 18.14.1)
+  - purchases_ui_flutter (10.2.3):
     - Flutter
-    - PurchasesHybridCommonUI (= 17.28.1)
-  - PurchasesHybridCommon (17.28.1):
-    - RevenueCat (= 5.55.2)
-  - PurchasesHybridCommonUI (17.28.1):
-    - PurchasesHybridCommon (= 17.28.1)
-    - RevenueCatUI (= 5.55.2)
-  - RevenueCat (5.55.2)
-  - RevenueCatUI (5.55.2):
-    - RevenueCat (= 5.55.2)
+    - PurchasesHybridCommonUI (= 18.14.1)
+  - PurchasesHybridCommon (18.14.1):
+    - RevenueCat (= 5.78.0)
+  - PurchasesHybridCommonUI (18.14.1):
+    - PurchasesHybridCommon (= 18.14.1)
+    - RevenueCatUI (= 5.78.0)
+  - RevenueCat (5.78.0)
+  - RevenueCatUI (5.78.0):
+    - RevenueCat (= 5.78.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -170,6 +172,7 @@ DEPENDENCIES:
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -232,6 +235,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
   package_info_plus:
@@ -284,18 +289,19 @@ SPEC CHECKSUMS:
   home_widget: 54b4f6b36ed8d64cfee594a476225c35c3e45091
   image_cropper: 5f162dcf988100dc1513f9c6b7eb42cd6fbf9156
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: ab44f120d5d2278734ce0ee156685ec41bea6521
-  purchases_ui_flutter: 50c9a4380e1fae335e5fb0ab61905b5ae78d97b1
-  PurchasesHybridCommon: 57e9e2fd474a726c41f61d5359f1bc05d89d9be8
-  PurchasesHybridCommonUI: ad685a661cc19fb45f1d7448f5890b399e177e14
-  RevenueCat: b5605778017c179315e60b8921ed158b3428688c
-  RevenueCatUI: ee8109669a5abf52df099788a0f961abdd2b5b09
+  purchases_flutter: c2af1311b818f75b549290971a928cb30036cb82
+  purchases_ui_flutter: 1fb2179f9c99c50ebfdc142f82837d08b1832003
+  PurchasesHybridCommon: 825e4e748b62c919bc4cb4032b0d1e452409bd74
+  PurchasesHybridCommonUI: 536abdfc64b82adcbb9ba352630722a4a1270571
+  RevenueCat: f3641992451c1426da8d8d1466cec3bbdb765962
+  RevenueCatUI: 32998f100fe73f1d0172df7eef4f0dd1bc781a05
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
@@ -304,6 +310,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 56dee4960f95ca904979fc6c45d01267ae540730
+PODFILE CHECKSUM: ac6ac2acfa743427a485d32c11a8dcb8120ad9a4
 
 COCOAPODS: 1.16.2

@@ -81,6 +81,53 @@ void main() {
     expect(mobileAdsInitializations, 0);
   });
 
+  test('does not request tracking before age policy permits ads', () async {
+    for (final status in [AgePolicyStatus.unknown, AgePolicyStatus.under14]) {
+      var trackingRequests = 0;
+      final service = AdService.forTesting(
+        requestConsent: () async => true,
+        requestTrackingAuthorization: () async {
+          trackingRequests += 1;
+          return true;
+        },
+        agePolicyService: await _agePolicy(status),
+      );
+
+      expect(await service.requestTrackingAuthorizationIfNeeded(), isFalse);
+      expect(trackingRequests, 0);
+    }
+  });
+
+  test(
+    'requests tracking for eligible users and coalesces concurrent calls',
+    () async {
+      final trackingAuthorization = Completer<bool>();
+      final trackingRequestStarted = Completer<void>();
+      var trackingRequests = 0;
+      final service = AdService.forTesting(
+        requestConsent: () async => true,
+        requestTrackingAuthorization: () {
+          trackingRequests += 1;
+          if (!trackingRequestStarted.isCompleted) {
+            trackingRequestStarted.complete();
+          }
+          return trackingAuthorization.future;
+        },
+        agePolicyService: await _agePolicy(AgePolicyStatus.age14OrOlder),
+      );
+
+      final requests = [
+        service.requestTrackingAuthorizationIfNeeded(),
+        service.requestTrackingAuthorizationIfNeeded(),
+      ];
+      await trackingRequestStarted.future;
+      expect(trackingRequests, 1);
+
+      trackingAuthorization.complete(true);
+      expect(await Future.wait(requests), [true, true]);
+    },
+  );
+
   test('does not initialize when consent fails', () async {
     var mobileAdsInitializations = 0;
     final service = AdService.forTesting(
